@@ -1,5 +1,153 @@
 {
 	"dimensions": {
+		"bigglobe:glitch": {
+			"type": "bigglobe:overworld",
+			"generator": {
+				"type": "bigglobe:scripted",
+				"reload_preset": "experiments",
+				"reload_dimension": "bigglobe:glitch",
+				"biome_source": {
+					"type": "minecraft:fixed",
+					"biome": "minecraft:plains"
+				},
+				"height": {
+					"min_y": -1024,
+					"max_y":  1024,
+					"sea_level": 0
+				},
+				"layer": {
+					"state": "'minecraft:air'",
+					"children": [
+						{
+							"type": "multi_state_3d",
+							"state": [
+								"int bias(long seed, int range:",
+									"max(seed.nextInt(range), (seed := seed.newSeed(12345)).nextInt(range))",
+								")",
+
+								"int mixInt(int*(min, max), double frac:",
+									"mixLinear(min.as(double), max.as(double), frac).as(int)",
+								")",
+
+								"BlockState test(long seed, int*(recursionDepth, iterX, iterY, iterZ, minX, minY, minZ, maxX, maxY, maxZ):",
+									"repeat (recursionDepth:",
+										"int*(",
+											"midX = mixInt(minX, maxX, (seed := seed.newSeed()).nextDouble(0.25L, 0.75L))",
+											"midY = mixInt(minY, maxY, (seed := seed.newSeed()).nextDouble(0.25L, 0.75L))",
+											"midZ = mixInt(minZ, maxZ, (seed := seed.newSeed()).nextDouble(0.25L, 0.75L))",
+
+											"minX2 = minX, minY2 = minY, minZ2 = minZ",
+											"maxX2 = maxX, maxY2 = maxY, maxZ2 = maxZ",
+										")",
+
+										"seed = seed.newSeed(if (iterX >= midX: minX2 = midX 1) else (maxX2 = midX 2))",
+										"seed = seed.newSeed(if (iterY >= midY: minY2 = midY 3) else (maxY2 = midY 4))",
+										"seed = seed.newSeed(if (iterZ >= midZ: minZ2 = midZ 5) else (maxZ2 = midZ 6))",
+
+										"int*(",
+											"sizeX = bias(seed := seed.newSeed(), maxX2 - minX2 + 1)",
+											"sizeY = bias(seed := seed.newSeed(), maxY2 - minY2 + 1)",
+											"sizeZ = bias(seed := seed.newSeed(), maxZ2 - minZ2 + 1)",
+
+											"minX3 = (seed := seed.newSeed()).nextInt(minX2, maxX2 - sizeX + 1)",
+											"minY3 = (seed := seed.newSeed()).nextInt(minY2, maxY2 - sizeY + 1)",
+											"minZ3 = (seed := seed.newSeed()).nextInt(minZ2, maxZ2 - sizeZ + 1)",
+
+											"maxX3 = minX3 + sizeX",
+											"maxY3 = minY3 + sizeY",
+											"maxZ3 = minZ3 + sizeZ",
+										")",
+
+										"if (",
+											"iterX.isBetween[minX3, maxX3] &&",
+											"iterY.isBetween[minY3, maxY3] &&",
+											"iterZ.isBetween[minZ3, maxZ3]",
+										":",
+											"minX = minX3",
+											"minY = minY3",
+											"minZ = minZ3",
+											"maxX = maxX3",
+											"maxY = maxY3",
+											"maxZ = maxZ3",
+										")",
+										"else (",
+											"return(null)",
+										")",
+									")",
+									"(seed := seed.newSeed()).switch (",
+										"'minecraft:stone',",
+										"'minecraft:cobblestone',",
+										"'minecraft:deepslate[axis=y]',",
+										"(seed := seed.newSeed()).switch (",
+											"'minecraft:andesite',",
+											"'minecraft:diorite',",
+											"'minecraft:granite',",
+											"'minecraft:calcite',",
+											"'minecraft:dripstone_block',",
+											"'minecraft:tuff',",
+											"'minecraft:netherrack',",
+											"'minecraft:nether_bricks',",
+											"'minecraft:red_nether_bricks',",
+											"'minecraft:end_stone',",
+											"'minecraft:purpur_block',",
+											"'minecraft:basalt[axis=y]',",
+											"'minecraft:blackstone'",
+										"),",
+										"BlockTag(        'c:ores'  ).random(seed := seed.newSeed()).getDefaultState(),",
+										"BlockTag('minecraft:logs'  ).random(seed := seed.newSeed()).getDefaultState(),",
+										"BlockState(BlockTag('minecraft:leaves').random(seed := seed.newSeed()), persistent: true, distance: 7, waterlogged: false),",
+										"(seed := seed.newSeed()).switch (",
+											"'minecraft:sand',",
+											"'minecraft:sandstone',",
+											"'minecraft:red_sand',",
+											"'minecraft:red_sandstone',",
+											"'minecraft:dirt',",
+											"'minecraft:coarse_dirt',",
+											"'minecraft:grass_block',",
+											"'minecraft:podzol',",
+											"'minecraft:mycelium',",
+											"'minecraft:crimson_nylium',",
+											"'minecraft:warped_nylium',",
+											"'bigglobe:ashen_netherrack',",
+											"'bigglobe:overgrown_sand',",
+											"'bigglobe:overgrown_podzol',",
+											"'minecraft:gravel',",
+											"'minecraft:clay',",
+											"'minecraft:mud',",
+											"'minecraft:soul_sand',",
+											"'minecraft:soul_soil'",
+										"),",
+										"(seed := seed.newSeed()).switch (",
+											"'minecraft:obsidian',",
+											"'minecraft:glowstone',",
+											"'minecraft:shroomlight',",
+											"'minecraft:amethyst_block',",
+											"'minecraft:prismarine',",
+											"'bigglobe:crystalline_prismarine'",
+										")",
+									")",
+								")",
+
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(1,  x        >> 10,  y        >> 10,  z        >> 10), 8,  x        & 1023,  y        & 1023,  z        & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(2, (x + 512) >> 10,  y        >> 10,  z        >> 10), 8, (x + 512) & 1023,  y        & 1023,  z        & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(3,  x        >> 10, (y + 512) >> 10,  z        >> 10), 8,  x        & 1023, (y + 512) & 1023,  z        & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(4, (x + 512) >> 10, (y + 512) >> 10,  z        >> 10), 8, (x + 512) & 1023, (y + 512) & 1023,  z        & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(5,  x        >> 10,  y        >> 10, (z + 512) >> 10), 8,  x        & 1023,  y        & 1023, (z + 512) & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(6, (x + 512) >> 10,  y        >> 10, (z + 512) >> 10), 8, (x + 512) & 1023,  y        & 1023, (z + 512) & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(7,  x        >> 10, (y + 512) >> 10, (z + 512) >> 10), 8,  x        & 1023, (y + 512) & 1023, (z + 512) & 1023, 0, 0, 0, 1024, 1024, 1024) ?:",
+								"test((worldSeed # 16x6BE3C62531E4C69FUL).newSeed(8, (x + 512) >> 10, (y + 512) >> 10, (z + 512) >> 10), 8, (x + 512) & 1023, (y + 512) & 1023, (z + 512) & 1023, 0, 0, 0, 1024, 1024, 1024)"
+							]
+						}
+					]
+				},
+				"feature_dispatcher": {
+					"rock_replacers": [],
+					"raw": "bigglobe:noop",
+					"normal": "bigglobe:noop"
+				},
+				"overriders": "bigglobe:empty"
+			}
+		},
 		"minecraft:overworld": {
 			"type": "bigglobe:overworld",
 			"generator": {

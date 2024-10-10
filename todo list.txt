@@ -42,6 +42,7 @@ changelog:
 		* This prevents modded structures which use those tags from spawning, but also makes it easier to support such structures with data packs.
 		* The only vanilla biome tag remaining is `#required_ocean_monument_surrounding`.
 		* All vanilla structures are now delegated and use Big Globe biome tags instead of vanilla biome tags.
+	* Fixed scripts not being able to call Block.getRandomState(long seed).
 
 alternate world presets:
 	paradise.

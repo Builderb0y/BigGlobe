@@ -65,7 +65,7 @@ public class BlockWrapper {
 		return states.get(random.nextInt(states.size()));
 	}
 
-	public BlockState getRandomState(Block block, long seed) {
+	public static BlockState getRandomState(Block block, long seed) {
 		ImmutableList<BlockState> states = block.getStateManager().getStates();
 		return states.get(Permuter.nextBoundedInt(seed, states.size()));
 	}
