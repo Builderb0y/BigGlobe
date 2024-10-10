@@ -1,0 +1,17 @@
+{
+	"type": "structure",
+	"script": [
+		"if (",
+			"start.structure.isIn('bigglobe:restrict_to_void') && (",
+				"world_traits.`bigglobe:has_terrain`(start.minX, start.minZ) ||",
+				"world_traits.`bigglobe:has_terrain`(start.minX, start.maxZ) ||",
+				"world_traits.`bigglobe:has_terrain`(start.maxX, start.minZ) ||",
+				"world_traits.`bigglobe:has_terrain`(start.maxX, start.maxZ) ||",
+				"start.midX.as(long) ^ 2 + start.midZ.as(long) ^ 2 < 1024L ^ 2",
+			")",
+		":",
+			"return(false)",
+		")",
+		"return(true)"
+	]
+}

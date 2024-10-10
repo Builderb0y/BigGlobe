@@ -23,6 +23,7 @@ public class StructureScriptEnvironment {
 		.addType("StructurePieceTypeTag",    StructurePieceTypeTagKey.TYPE)
 		.addType("ScriptStructurePiece",     type(ScriptedStructure.Piece.class))
 		.addType("StructurePlacementScript", type(StructurePlacementScriptEntry.class))
+
 		.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "structure", "pieces")
 		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
 		.addMethodInvokeSpecific(StructurePieceTypeTagKey.class, "random", StructurePieceTypeEntry.class, RandomGenerator.class)

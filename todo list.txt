@@ -29,6 +29,7 @@ where I left off:
 to finish before release:
 	test terralith already.
 	make sure DH backwards compatibility ASM code works.
+	document case (range[...]: body) syntax.
 
 changelog:
 	* Added some new fractal structures to the end dimension.

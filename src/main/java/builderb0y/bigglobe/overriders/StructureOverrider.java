@@ -79,7 +79,7 @@ public interface StructureOverrider extends ColumnScript {
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
 				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.configureEnvironment(NbtScriptEnvironment.createImmutable())
+				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
