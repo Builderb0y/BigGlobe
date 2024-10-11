@@ -198,6 +198,15 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		return null;
 	}
 
+	public static Version version(String version) {
+		try {
+			return Version.parse(version);
+		}
+		catch (VersionParsingException exception) {
+			throw AutoCodecUtil.rethrow(exception);
+		}
+	}
+
 	public static boolean checkMod(String mixinName, String modName) {
 		if (FabricLoader.getInstance().isModLoaded(modName)) {
 			LOGGER.info("Applying mixin " + mixinName + " because required mod " + modName + " is present.");
@@ -206,15 +215,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		else {
 			LOGGER.info("Not applying mixin " + mixinName + " because required mod " + modName + " is absent.");
 			return false;
-		}
-	}
-
-	public static Version version(String version) {
-		try {
-			return Version.parse(version);
-		}
-		catch (VersionParsingException exception) {
-			throw AutoCodecUtil.rethrow(exception);
 		}
 	}
 
@@ -232,6 +232,34 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		else {
 			LOGGER.info("Not applying mixin " + mixinName + " because a known version of required mod " + modName + " is absent.");
 			return false;
+		}
+	}
+
+	public static boolean checkNoMod(String mixinName, String modName) {
+		if (FabricLoader.getInstance().isModLoaded(modName)) {
+			LOGGER.info("Not applying mixin " + mixinName + " because incompatible mod " + modName + " is present.");
+			return false;
+		}
+		else {
+			LOGGER.info("Applying mixin " + mixinName + " because incompatible mod " + modName + " is absent.");
+			return true;
+		}
+	}
+
+	public static boolean checkNoMod(String mixinName, String modName, Predicate<Version> versionPredicate) {
+		if (
+			FabricLoader
+			.getInstance()
+			.getModContainer(modName)
+			.filter((ModContainer container) -> versionPredicate.test(container.getMetadata().getVersion()))
+			.isPresent()
+		) {
+			LOGGER.info("Not applying mixin " + mixinName + " because a known version of incompatible mod " + modName + " is present.");
+			return false;
+		}
+		else {
+			LOGGER.info("Applying mixin " + mixinName + " because a known version of incompatible mod " + modName + " is absent.");
+			return true;
 		}
 	}
 
@@ -260,6 +288,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			}
 			case "builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter" -> {
 				yield checkMod(mixinClassName, "voxy");
+			}
+			case "builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning" -> {
+				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connector");
 			}
 			default -> {
 				yield this.isEnabledInConfig(mixinClassName);

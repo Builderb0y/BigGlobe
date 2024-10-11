@@ -246,7 +246,7 @@ If the resulting integer value would be outside the range which can be represent
 	)
 	```
 	This will print the *even* numbers between 0 and 10. Like break(), you can also continue labeled loops with `continue(name)`.
-* switch - allows you to handle more than 2 possible options for some value.
+* `switch` - allows you to handle more than 2 possible options for some value.
 	```
 	String count = switch (number:
 		case (0: 'none')
@@ -262,6 +262,20 @@ If the resulting integer value would be outside the range which can be represent
 	* If number is 2, then count is 'a couple'.
 	* If number is 3, 4, or 5, then count is 'a few'.
 	* If number is anything else, then count is 'quite a few'.
+
+	New in V4.5.0: you can now use range syntax to match many numbers at once.
+	```
+	String count = switch (number:
+		case (range[0, 10): 'one digit')
+		case (range[10, 100): 'two digits')
+		default ('many digits')
+	)
+	```
+	Bracket type works like for loops, where square brackets indicate an inclusive range, and parentheses indicate an exclusive range. The lower and upper bound of the range must be compile-time constants.
+
+	Ranges can be repeated to match multiple ranges in the same case. Ranges can also be mixed and matched with regular constants, including in the same case. For example, `case (range[0, 10], 15, range[20, 30]: body)` is a valid case definition.
+
+	Note that this will still compile into many individual cases, so please do not try to make ranges that cover an excessive number of values. You will probably crash if you try to do `range[0, 1000000000]`.
 * compare is a switch-like construction for comparing 2 numbers:
 	```
 	String comparison = compare(a, b:
