@@ -29,19 +29,8 @@ where I left off:
 to finish before release:
 
 changelog:
-	* Added some new fractal structures to the end dimension.
-	* Sped up island generation some more (it'll be different on the border between old chunks and new chunks again).
-	* Some structures are now more common.
-	* Fixed loot tables that interact with silk touch.
-	* Fixed crash with Ryoamic Lights (integration code won't work though).
-	* Possibly fixed compatibility with Flashback.
-	* Better compatibility with Sinytra Connector out of the box.
-	* Big Globe biomes are no longer in vanilla "has_structure" tags.
-		* This prevents modded structures which use those tags from spawning, but also makes it easier to support such structures with data packs.
-		* The only vanilla biome tag remaining is `#required_ocean_monument_surrounding`.
-		* All vanilla structures are now delegated and use Big Globe biome tags instead of vanilla biome tags.
-	* Fixed scripts not being able to call Block.getRandomState(long seed).
-	* Marked terralith as incompatible because it always takes priority over Big Globe regardless of what world type the user selects.
+	* Fixed compatibility with LambDynamicLights in MC 1.21.1.
+	* Data packs that rely on some of the unused ore chance templates now work correctly.
 
 alternate world presets:
 	paradise.

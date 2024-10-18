@@ -12,7 +12,7 @@ import builderb0y.bigglobe.entities.WaypointEntity;
 public class LambDynamicLightsCompat implements DynamicLightsInitializer {
 
 	@Override
-	public void onInitializeDynamicLights() {
+	public void onInitializeDynamicLights(#if MC_VERSION >= MC_1_21_0 dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager manager #endif) {
 		try {
 			LambDynamicLightsCode.init();
 		}
