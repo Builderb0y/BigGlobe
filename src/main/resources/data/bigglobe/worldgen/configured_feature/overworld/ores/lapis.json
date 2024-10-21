@@ -14,14 +14,17 @@
 			"minecraft:deepslate":         "minecraft:deepslate_lapis_ore"
 		},
 		"chance": [
-			"sqrt(",
+			"if (world_traits.`bigglobe:exact_surface_y`.isBetween[y, world_traits.`bigglobe:sea_level`]:",
 				"unmixLinear(",
+					"world_traits.`bigglobe:exact_surface_y`,",
 					"world_traits.`bigglobe:sea_level`,",
-					"world_traits.`bigglobe:min_y`,",
-					"world_traits.`bigglobe:approximate_surface_y`",
+					"y",
 				")",
+				"+ 1.0L",
 			")",
-			"- `bigglobe:approximate_distance_below_surface` / 1024.0L"
+			"else (",
+				"0.0L",
+			")"
 		],
 		"radius": {
 			"type": "average",
