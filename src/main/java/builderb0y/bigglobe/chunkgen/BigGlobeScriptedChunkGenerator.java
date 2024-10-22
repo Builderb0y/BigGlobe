@@ -124,6 +124,8 @@ import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
 import builderb0y.bigglobe.structures.ScriptStructures;
+import builderb0y.bigglobe.structures.StructureManager;
+import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
@@ -213,6 +215,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
 	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
+	public final transient StructureManager structureManager;
 
 	public BigGlobeScriptedChunkGenerator(
 		DecodeContext<?> decodeContext,
@@ -260,6 +263,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			return columns;
 		});
 		this.rootDebugDisplay = new DisplayEntry(this);
+		this.structureManager = new StructureManager();
 
 		this
 		.columnEntryRegistry
@@ -300,6 +304,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			return columns;
 		});
 		this.rootDebugDisplay = new DisplayEntry(this);
+		this.structureManager = new StructureManager();
 	}
 
 	public static BiomeSource copyBiomeSource(BiomeSource source) {
@@ -804,88 +809,25 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public boolean trySetStructureStart(
-		StructureSet.WeightedEntry weightedEntry,
+	public void setStructureStarts(
+		DynamicRegistryManager registryManager,
+		StructurePlacementCalculator placementCalculator,
 		StructureAccessor structureAccessor,
-		DynamicRegistryManager dynamicRegistryManager,
-		NoiseConfig noiseConfig,
-		StructureTemplateManager structureManager,
-		long seed,
 		Chunk chunk,
-		ChunkPos pos,
-		ChunkSectionPos sectionPos
+		StructureTemplateManager structureTemplateManager
 	) {
-		if (ValkyrienSkiesCompat.isInShipyard(pos)) {
-			return false;
-		}
-		Structure structure = weightedEntry.structure().value();
-		Predicate<RegistryEntry<Biome>> predicate = structure.getValidBiomes()::contains;
-		while (structure instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
-			structure = delegating.delegate.value();
-		}
-		StructureStart existingStart = structureAccessor.getStructureStart(sectionPos, structure, chunk);
-		int references = existingStart != null ? existingStart.getReferences() : 0;
-		StructurePosition newStartPosition = structure.getValidStructurePosition(
-			new Structure.Context(
-				dynamicRegistryManager,
+		this.structureManager.setStructureStarts(
+			new StructureGenerationParams(
 				this,
-				this.biomeSource,
-				noiseConfig,
-				structureManager,
-				seed,
-				pos,
+				placementCalculator,
+				registryManager,
+				placementCalculator.getNoiseConfig(),
+				structureTemplateManager,
 				chunk,
-				Predicates.alwaysTrue()
-			)
-		)
-		.orElse(null);
-		if (newStartPosition == null) return false;
-		StructurePiecesCollector collector = newStartPosition.generate();
-		StructureStart newStart = new StructureStart(structure, chunk.getPos(), references, collector.toList());
-		if (!newStart.hasChildren()) return false;
-		int oldY = newStart.getBoundingBox().getMinY();
-		if (
-			!this.canStructureSpawn(
-				weightedEntry.structure(),
-				newStart,
-				new Permuter(
-					Permuter.permute(
-						this.columnSeed ^ 0xD59E69D9AB0D41BAL,
-						//String.hashCode() will be cached, which means faster permutation times.
-						UnregisteredObjectException.getID(weightedEntry.structure()).hashCode(),
-						chunk.getPos().x,
-						chunk.getPos().z
-					)
-				),
-				DistantHorizonsCompat.isOnDistantHorizonThread()
-			)
-		) {
-			return false;
-		}
-		int newY = newStart.getBoundingBox().getMinY();
-		if (
-			!predicate.test(
-				this.biomeSource.getBiome(
-					newStartPosition.position().getX() >> 2,
-					(newStartPosition.position().getY() + (newY - oldY)) >> 2,
-					newStartPosition.position().getZ() >> 2,
-					noiseConfig.getMultiNoiseSampler()
-				)
-			)
-		) {
-			return false;
-		}
-		//expand structure bounding boxes so that overriders
-		//which depend on them being expanded work properly.
-		((StructureStart_BoundingBoxSetter)(Object)(newStart)).bigglobe_setBoundingBox(
-			newStart.getBoundingBox().expand(
-				weightedEntry.structure().value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
-				? 16
-				: 4
-			)
+				chunk.getPos()
+			),
+			chunk
 		);
-		structureAccessor.setStructureStart(sectionPos, structure, newStart, chunk);
-		return true;
 	}
 
 	public boolean canStructureSpawn(
