@@ -66,6 +66,7 @@
 		"SingularPalette_EntryAccess",
 		"SlimeEntity_AllowSpawningFromSpawner",
 		"SpawnHelper_AllowSlimeSpawningInLakes",
+		"SpawnHelper_MoreMobsInTallerWorlds",
 		"SpawnRestriction_BackingMapAccess",
 		"StairsBlock_MirrorProperly",
 		"StructurePiece_DirectRotationSetter",

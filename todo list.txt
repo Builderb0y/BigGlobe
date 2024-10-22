@@ -30,6 +30,9 @@ to finish before release:
 
 changelog:
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.
+	* gold, redstone, and lapis ore are now more common.
+	* Mega dungeons are now less common.
+	* The bogged mob now spawns in swamps.
 	* Data packs that rely on some of the unused ore chance templates now work correctly.
 
 alternate world presets:
