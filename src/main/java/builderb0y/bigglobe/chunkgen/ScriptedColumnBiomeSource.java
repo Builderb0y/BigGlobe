@@ -22,8 +22,9 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
@@ -59,7 +60,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 						0,
 						this.generator.height.min_y(),
 						this.generator.height.max_y(),
-						Purpose.generic(),
+						ColumnUsage.GENERIC.maybeDhHints(),
 						this.generator.compiledWorldTraits
 					)
 				);
@@ -91,14 +92,14 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 
 	@Override
 	protected Stream<RegistryEntry<Biome>> biomeStream() {
-		throw new UnsupportedOperationException("Call getBiomes().stream() instead of reflecting into this protected method.");
+		return this.getBiomes().stream();
 	}
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {
-			column.setParams(column.params.at(x << 2, z << 2));
+			column.setParams(column.params.at(x << 2, z << 2).hints(ColumnUsage.GENERIC.maybeDhHints()));
 			return this.script.get(column, y << 2).entry();
 		}
 		else {

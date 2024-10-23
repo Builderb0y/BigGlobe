@@ -22,7 +22,8 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -53,7 +54,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 			if (context.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 				columns = new ScriptedColumnLookup.Impl(
 					generator.columnEntryRegistry.columnFactory,
-					new ScriptedColumn.Params(generator, 0, 0, Purpose.features())
+					new ScriptedColumn.Params(generator, 0, 0, ColumnUsage.FEATURES.maybeDhHints())
 				);
 			}
 			else {

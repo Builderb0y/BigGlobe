@@ -11,7 +11,6 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -27,7 +26,7 @@ public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 	}
 
 	public static ScriptStructures getStructures(StructureAccessor structureAccessor, ChunkPos chunkPos, boolean distantHorizons) {
-		if (distantHorizons && BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipStructures) {
+		if (distantHorizons) {
 			return EMPTY_SCRIPT_STRUCTURES;
 		}
 		List<StructureStart> starts = structureAccessor.getStructureStarts(chunkPos, Predicates.alwaysTrue());
@@ -40,7 +39,7 @@ public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 		return new ScriptStructures(
 			starts
 			.stream()
-			.map(start -> StructureStartWrapper.of(
+			.map((StructureStart start) -> StructureStartWrapper.of(
 				structureRegistry.entryOf(
 					UnregisteredObjectException.getKey(
 						structureRegistry,

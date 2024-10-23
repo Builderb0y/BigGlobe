@@ -3,7 +3,7 @@
 		"boolean canReplace(int*(x, y, z):",
 			"return(getBlockState(x, y, z).isIn(REPLACE))",
 		")",
-		"if (distantHorizons: return(false))",
+		"if (!hints.decorate: return(false))",
 		"unless (canReplace(originX, originY, originZ): return(false))",
 		"class Pos (int*(x, y, z))",
 		"void Pos.setBlockState(BlockState state:",

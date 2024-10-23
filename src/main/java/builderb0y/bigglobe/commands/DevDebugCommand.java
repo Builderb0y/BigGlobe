@@ -18,7 +18,8 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.TagOrObject;
@@ -56,7 +57,7 @@ public class DevDebugCommand {
 									context.getSource().getWorld(),
 									BigGlobeMath.floorI(pos.x),
 									BigGlobeMath.floorI(pos.z),
-									Purpose.GENERIC
+									ColumnUsage.GENERIC.normalHints()
 								);
 								context.getSource().sendFeedback(
 									() -> Text.literal(
@@ -96,7 +97,7 @@ public class DevDebugCommand {
 							context.getSource().getWorld(),
 							BigGlobeMath.floorI(pos.x),
 							BigGlobeMath.floorI(pos.z),
-							Purpose.GENERIC
+							ColumnUsage.GENERIC.normalHints()
 						);
 						Arrays
 						.stream(generator.feature_dispatcher.rock_replacers)

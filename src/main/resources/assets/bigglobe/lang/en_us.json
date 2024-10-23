@@ -275,15 +275,12 @@
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[1]": "If false, Big Globe will allow Distant Horizons to wrap Big Globe's default chunk generator.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[2]": "Enabling this config option will skip structures and features. In particular, you will not see any trees with this option enabled until you get close to them.",
 
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures": "Skip Structures",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures.@Tooltip[0]": "If true, structures will not be generated in distant chunks, and you will not see structures until you get close enough to them.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures.@Tooltip[1]": "If false, structures will be generated in distant chunks, and you will be able to see them at any distance.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipStructures.@Tooltip[2]": "Note that some structures may appear to be cut off or missing some chunks until you get close. This is an issue with Distant Horizons, not Big Globe.",
-
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipUnderground": "Skip Underground",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipUnderground.@Tooltip[0]": "If true, Big Globe will not generate any terrain below the surface in distant chunks.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipUnderground.@Tooltip[1]": "If false, Big Globe will generate all terrain down to bedrock in distant chunks.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.skipUnderground.@Tooltip[2]": "Enabling this option can result in a massive speed boost when generating distant terrain.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode": "Underground Mode",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[0]": "0 - The underground and all blocks in it are completely skipped.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[1]": "1 - The underground will be filled with stone, but no caves will generate.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[2]": "2 - Caves will generate, but underground structures and features will not.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[3]": "3 - All underground stuff will generate normally.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate chunks for Distant Horizons at.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration": "Voxy Integration",
 	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[0]": "Configures special actions to take or skip when generating chunks for Voxy.",
@@ -294,10 +291,12 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[1]": "If false, Voxy will only process chunks you've visited.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[2]": "Note that terrain generated this way may be a simplified representation of actual terrain, and finer details may be filled in only when you get closer to it.",
 
-	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground": "Skip Underground",
-	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[0]": "If true, Big Globe will not generate any terrain below the surface in voxy chunks.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[1]": "If false, Big Globe will generate all terrain down to bedrock in voxy chunks.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.skipUnderground.@Tooltip[2]": "Enabling this option can result in a massive speed boost when generating voxy terrain.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode": "Underground Mode",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[0]": "0 - The underground and all blocks in it are completely skipped.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[1]": "1 - The underground will be filled with stone, but no caves will generate.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[2]": "2 - Caves will generate, but underground structures and features will not.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[3]": "3 - Currently the same as 2, but maybe some day underground structures and features might generate too.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate chunks for Voxy at.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir": "Light Air",
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[0]": "If true, Big Globe will tell Voxy what the light level of air blocks are.",

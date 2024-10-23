@@ -48,7 +48,7 @@
 		"result"
 	],
 	"valid": {
-		"where": "!distantHorizons && is_volcano",
+		"where": "hints.carve && is_volcano",
 		"min_y": "-1024",
 		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
 		"fallback": 1.0

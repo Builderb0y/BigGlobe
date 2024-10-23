@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"feature_generation": false,
 	"script": [
-		"if (surfaceOnly: return())",
+		"if (!hints.carve: return())",
 		"void excludeSurface(double amount:",
 			"if (amount > 0.0L:",
 				"double basicY     = world_traits.`bigglobe:approximate_surface_y`",

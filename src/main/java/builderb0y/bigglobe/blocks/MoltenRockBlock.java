@@ -21,7 +21,8 @@ import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.noise.Permuter;
@@ -64,7 +65,7 @@ public class MoltenRockBlock extends Block {
 			serverWorld.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
 			if (serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && serverWorld.random.nextInt(8) < this.heat) {
 				RandomSelector<BlockState> selector = new RandomSelector<>(new Permuter(serverWorld.random.nextLong()));
-				ScriptedColumn column = generator.newColumn(world, pos.getX(), pos.getZ(), Purpose.GENERIC);
+				ScriptedColumn column = generator.newColumn(world, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints());
 				for (ConfiguredRockReplacerFeature<?> feature : generator.feature_dispatcher.getFlattenedRockReplacers()) {
 					if (feature.config() instanceof OreFeature.Config config) {
 						BlockState newState = config.blocks.runtimeStates.get(BlockStates.STONE);

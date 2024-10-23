@@ -14,7 +14,8 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 
@@ -47,7 +48,7 @@ public abstract class BigGlobeStructure extends Structure {
 		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
 		int y = (
 			this.surface_y != null && context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator scripted
-			? this.surface_y.get(scripted.newColumn(context.world(), x, z, Purpose.generic()))
+			? this.surface_y.get(scripted.newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints()))
 			: context.chunkGenerator().getHeightInGround(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())
 		);
 		if (y >= context.world().getBottomY()) {
@@ -66,7 +67,7 @@ public abstract class BigGlobeStructure extends Structure {
 		int maxY = context.chunkGenerator().getHeight(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig());
 		ScriptedColumn column = (
 			this.surface_y != null && context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator scripted
-			? scripted.newColumn(context.world(), x, z, Purpose.generic())
+			? scripted.newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints())
 			: null
 		);
 		for (int angleIndex = 0; angleIndex < 8; angleIndex++) {

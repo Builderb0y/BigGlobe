@@ -2,31 +2,25 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.google.common.base.Predicates;
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
@@ -38,20 +32,17 @@ import net.minecraft.structure.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.*;
 import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
@@ -60,7 +51,6 @@ import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -72,7 +62,6 @@ import builderb0y.autocodec.decoders.DecodeContext.RootDecodePath;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
-import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -88,11 +77,11 @@ import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
@@ -108,7 +97,6 @@ import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFe
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
-import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -258,7 +246,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
 			ScriptedColumn[] columns = new ScriptedColumn[256];
 			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, Purpose.GENERIC, traits));
+				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
 			}
 			return columns;
 		});
@@ -299,7 +287,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
 			ScriptedColumn[] columns = new ScriptedColumn[256];
 			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, Purpose.GENERIC, traits));
+				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
 			}
 			return columns;
 		});
@@ -433,14 +421,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		}
 	}
 
-	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, Purpose purpose) {
+	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, Hints hints) {
 		return this.columnEntryRegistry.columnFactory.create(
 			new ScriptedColumn.Params(
 				this.columnSeed,
 				x,
 				z,
 				world,
-				purpose,
+				hints,
 				this.compiledWorldTraits
 			)
 		);
@@ -512,7 +500,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), Purpose.rawGeneration(distantHorizons), this.compiledWorldTraits);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons), this.compiledWorldTraits);
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();
@@ -639,7 +627,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 						WorldUtil.chunkBox(chunk),
 						WorldUtil.chunkBox(chunk)
 					),
-					Purpose.rawGeneration(distantHorizons)
+					ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons)
 				);
 				worldWrapper.overriders = new AutoOverride(
 					structures,
@@ -696,7 +684,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 				WorldUtil.chunkBox(chunk),
 				WorldUtil.surroundingChunkBox(chunk)
 			),
-			Purpose.features()
+			ColumnUsage.FEATURES.maybeDhHints()
 		);
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons());
 		ScriptedColumn[] columns = this.chunkReuseColumns.get();
@@ -836,10 +824,16 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		Permuter permuter,
 		boolean distantHorizons
 	) {
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(this.columnEntryRegistry.columnFactory, new ScriptedColumn.Params(this, 0, 0, Purpose.generic(distantHorizons)));
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
+			this.columnEntryRegistry.columnFactory,
+			new ScriptedColumn.Params(
+				this, 0, 0, hints
+			)
+		);
 		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (StructureOverrider overrider : this.getOverriders().structures) {
-			if (!overrider.override(lookup, wrapper, permuter, this.columnSeed, distantHorizons)) {
+			if (!overrider.override(lookup, wrapper, permuter, this.columnSeed, hints)) {
 				return false;
 			}
 		}
@@ -964,7 +958,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 			() -> {
 				int bottomY = chunk.getBottomY();
 				int topY = chunk.getTopY();
-				ScriptedColumn column = this.newColumn(chunk, 0, 0, Purpose.generic(distantHorizons));
+				ScriptedColumn column = this.newColumn(chunk, 0, 0, ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
 				for (int z = 0; z < 16; z += 4) {
 					for (int x = 0; x < 16; x += 4) {
 						column.setParamsUnchecked(column.params.at(chunk.getPos().getStartX() | x, chunk.getPos().getStartZ() | z));
@@ -1004,7 +998,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
+		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		return getHeight(list, heightmap);
@@ -1022,7 +1016,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-		ScriptedColumn column = this.newColumn(world, x, z, Purpose.heightmap());
+		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
 		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
 		this.layer.emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);
@@ -1034,13 +1028,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
-		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), Purpose.GENERIC));
+		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints()));
 		this.rootDebugDisplay.forEach(column, pos.getY(), (String id, Object value) -> text.add(id + ": " + value));
 	}
 
 	public void setDisplay(String regex) {
 		this.displayPattern = regex != null ? Pattern.compile(regex) : null;
-		this.rootDebugDisplay.recomputeChildren(this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, 0, 0, Purpose.GENERIC)));
+		this.rootDebugDisplay.recomputeChildren(this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, 0, 0, ColumnUsage.GENERIC.normalHints())));
 	}
 
 	public static class DisplayEntry {

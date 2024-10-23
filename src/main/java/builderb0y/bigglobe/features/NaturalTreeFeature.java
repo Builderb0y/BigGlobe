@@ -22,7 +22,8 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -57,7 +58,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
 		int startY = origin.getY();
 		double startZ = origin.getZ() + Permuter.nextUniformDouble(permuter) * 0.5D;
-		ScriptedColumn column = generator.newColumn(context.getWorld(), origin.getX(), origin.getZ(), Purpose.generic(distantHorizons));
+		ScriptedColumn column = generator.newColumn(context.getWorld(), origin.getX(), origin.getZ(), ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
 		double height = config.height.get(column, permuter, origin.getY());
 		if (!(height > 0.0D)) return false;
 		TrunkConfig trunkConfig = config.trunk.create(

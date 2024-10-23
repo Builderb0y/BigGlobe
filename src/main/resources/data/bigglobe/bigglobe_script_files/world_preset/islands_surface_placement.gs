@@ -17,10 +17,11 @@ double rawDepth = floorInt(
 )
 
 if (`bigglobe:islands/is_volcano`:
-	int limit = surfaceY - (surfaceOnly ? 32 : (seed := seed.newSeed()).nextInt(16, 32))
+	int limit = surfaceY - (hints.fill ? (seed := seed.newSeed()).nextInt(16, 32) : hints.distanceBetweenColumns << 2)
 	int segmentTop = surfaceY - 1
 	while (segmentTop >= limit:
 		int segmentBottom = getBottomOfSegment(segmentTop)
+		if (segmentBottom == 16x8000_0000u: break())
 		if (getBlockState(segmentTop) ==. 'minecraft:stone':
 			setBlockStates(max(segmentBottom, limit), segmentTop + 1, 'minecraft:basalt[axis=y]')
 		)
@@ -50,6 +51,7 @@ else if (states.surfaceState ==. 'minecraft:blackstone':
 	int segmentTop = surfaceY - 1
 	while (segmentTop >= limit:
 		int segmentBottom = getBottomOfSegment(segmentTop)
+		if (segmentBottom == 16x8000_0000u: break())
 		if (getBlockState(segmentTop).?hasFullCubeCollision():
 			setBlockStates(max(segmentBottom, limit), segmentTop + 1, 'minecraft:blackstone')
 		)
@@ -64,6 +66,7 @@ else (
 		boolean hadBlock = false
 		while (segmentTop >= limit:
 			int segmentBottom = getBottomOfSegment(segmentTop)
+			if (segmentBottom == 16x8000_0000u: break())
 			hadBlock = (getBlockState(segmentTop).?hasFullCubeCollision()).if (
 				setBlockStates(max(segmentBottom, limit), segmentTop, states.subsurfaceState)
 				unless (hadBlock: setBlockState(segmentTop, states.surfaceState))

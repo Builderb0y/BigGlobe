@@ -63,6 +63,8 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_smoother_resample"), SmootherDerivativeZResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_cubic_resample"),       CubicDerivativeZResampleGrid3D.class);
 
+			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid3D.class);
+
 			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                                    NegateGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                          AbsGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("square"),                                    SquareGrid3D.class);

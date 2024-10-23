@@ -8,6 +8,8 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
@@ -28,6 +30,7 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
 		RootLayer layer = this.generator.layer;
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, ColumnUsage.RAW_GENERATION.voxyHints(level));
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 32; offsetZ += 2) {
 				int offsetZ_ = offsetZ;
@@ -42,10 +45,10 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 							column01 = columns[baseIndex |  1],
 							column10 = columns[baseIndex | 32],
 							column11 = columns[baseIndex | 33];
-						column00.setParamsUnchecked(column00.params.at(x,        z       ));
-						column01.setParamsUnchecked(column01.params.at(x | step, z       ));
-						column10.setParamsUnchecked(column10.params.at(x,        z | step));
-						column11.setParamsUnchecked(column11.params.at(x | step, z | step));
+						column00.setParamsUnchecked(params.at(x,        z       ));
+						column01.setParamsUnchecked(params.at(x | step, z       ));
+						column10.setParamsUnchecked(params.at(x,        z | step));
+						column11.setParamsUnchecked(params.at(x | step, z | step));
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),

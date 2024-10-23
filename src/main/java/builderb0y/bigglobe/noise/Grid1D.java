@@ -56,6 +56,8 @@ public interface Grid1D extends Grid, CoderRegistryTyped<Grid1D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), SmootherDerivativeXResampleGrid1D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"),       CubicDerivativeXResampleGrid1D.class);
 
+			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid1D.class);
+
 			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                                    NegateGrid1D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                          AbsGrid1D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("square"),                                    SquareGrid1D.class);

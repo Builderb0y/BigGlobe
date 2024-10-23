@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"feature_generation": false,
 	"script": [
-		"if (surfaceOnly: return())",
+		"if (!hints.carve: return())",
 		"for (StructureStart start in structures:",
 			"if (start.structure ==. 'bigglobe:core_spire':",
 				"for (int y in range(start.minY - 12, start.maxY + 16):",

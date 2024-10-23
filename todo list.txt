@@ -27,7 +27,10 @@ where I left off:
 	actual biomes for cave types?
 
 to finish before release:
-	implement Hints system, but leave old system in-place for backwards compatibility.
+	document version for Purpose/Hints refactors.
+	document version for offset grids.
+	tag-based feature dispatcher.
+	try to make deprecation warning in log for legacy Purpose usage.
 
 changelog:
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.
@@ -35,6 +38,7 @@ changelog:
 	* Mega dungeons are now less common.
 	* The bogged mob now spawns in swamps.
 	* Structures should no longer collide with each other.
+	* Fixed some holes in terrain with Distant Horizons and Voxy when using hyperspeed generation (you may need to reset your database though).
 	* Data packs that rely on some of the unused ore chance templates now work correctly.
 
 alternate world presets:

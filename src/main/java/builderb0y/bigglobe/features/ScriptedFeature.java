@@ -21,7 +21,9 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -138,7 +140,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				generator,
 				permuter,
 				coordination,
-				Purpose.features()
+				ColumnUsage.FEATURES.maybeDhHints()
 			);
 			if (
 				context.getConfig().script.generate(
@@ -206,6 +208,8 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 							.addVariableLoad("originX", TypeInfos.INT)
 							.addVariableLoad("originY", TypeInfos.INT)
 							.addVariableLoad("originZ", TypeInfos.INT)
+							.addVariable("hints", WORLD.hints)
+							.configure(ScriptedColumn.hintsEnvironment())
 							.addVariable("distantHorizons", WORLD.distantHorizons)
 							.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
 							.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" )))),

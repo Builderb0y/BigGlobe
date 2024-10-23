@@ -15,6 +15,7 @@ import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
@@ -69,17 +70,16 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean hyperspeedGeneration = false;
 
-		@Tooltip(count = 3)
-		@UseName("Skip Structures")
+		@Tooltip(count = 5)
+		@UseName("Underground Mode")
 		@DefaultIgnore
-		public boolean skipStructures = false;
+		public int undergroundMode = Hints.FILL;
 
-		@Tooltip(count = 3)
-		@UseName("Skip Underground")
-		@DefaultIgnore
-		public boolean skipUnderground = true;
-
-		public void validatePostLoad() {}
+		public void validatePostLoad() {
+			if (!Hints.isValidUndergroundMode(this.undergroundMode)) {
+				throw new IllegalStateException("Invalid value for Distant Horizons Integration > Underground Mode: " + this.undergroundMode);
+			}
+		}
 	}
 
 	@Tooltip(count = 2)
@@ -95,17 +95,21 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean useWorldgenThread = true;
 
-		@Tooltip(count = 3)
-		@UseName("Skip Underground")
+		@Tooltip(count = 5)
+		@UseName("Underground Mode")
 		@DefaultIgnore
-		public boolean skipUnderground = true;
+		public int undergroundMode = Hints.NO_UNDERGROUND;
 
 		@Tooltip(count = 3)
 		@UseName("Light Air")
 		@DefaultIgnore
 		public boolean lightAir = false;
 
-		public void validatePostLoad() {}
+		public void validatePostLoad() {
+			if (!Hints.isValidUndergroundMode(this.undergroundMode)) {
+				throw new IllegalStateException("Invalid value for Voxy Integration > Underground Mode: " + this.undergroundMode);
+			}
+		}
 	}
 
 	@Tooltip(count = 2)

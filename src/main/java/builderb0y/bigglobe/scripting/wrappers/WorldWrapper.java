@@ -26,7 +26,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
@@ -55,7 +55,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static class Info extends InfoHolder {
 
 		public FieldInfo random;
-		public MethodInfo seed, minValidYLevel, maxValidYLevel, distantHorizons, surfaceOnly;
+		public MethodInfo seed, minValidYLevel, maxValidYLevel, hints, distantHorizons, surfaceOnly;
 
 		public InsnTree seed(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.seed);
@@ -73,6 +73,10 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			return getField(loadWorld, this.random);
 		}
 
+		public InsnTree hints(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.hints);
+		}
+
 		public InsnTree distantHorizons(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.distantHorizons);
 		}
@@ -85,7 +89,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
 	public static class BoundInfo extends BoundInfoHolder {
 
-		public InsnTree random, seed, distantHorizons;
+		public InsnTree random, seed, hints, distantHorizons;
 
 		public BoundInfo(InsnTree loadWorld) {
 			super(INFO, loadWorld);
@@ -106,7 +110,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		BigGlobeScriptedChunkGenerator chunkGenerator,
 		RandomGenerator random,
 		Coordination coordination,
-		Purpose purpose
+		Hints hints
 	) {
 		this.world = world;
 		this.coordination = coordination;
@@ -119,7 +123,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			0,
 			coordination.mutableArea.getMinY(),
 			coordination.mutableArea.getMaxY(),
-			purpose,
+			hints,
 			chunkGenerator.compiledWorldTraits
 		);
 		if (world instanceof ChunkDelegator delegator) {
@@ -178,12 +182,16 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return this.world.getSeed();
 	}
 
+	public Hints hints() {
+		return this.params.hints();
+	}
+
 	public boolean distantHorizons() {
-		return this.params.purpose().isForLODs();
+		return this.params.hints().isLod();
 	}
 
 	public boolean surfaceOnly() {
-		return this.params.purpose().surfaceOnly();
+		return !this.params.hints().fill();
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {

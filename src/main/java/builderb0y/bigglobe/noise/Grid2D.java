@@ -55,6 +55,8 @@ public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smoother_resample"), SmootherDerivativeYResampleGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"),       CubicDerivativeYResampleGrid2D.class);
 
+			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid2D.class);
+
 			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                                    NegateGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                          AbsGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("square"),                                    SquareGrid2D.class);

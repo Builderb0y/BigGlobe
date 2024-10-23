@@ -25,7 +25,7 @@
 							"state": "'minecraft:stone'",
 							"valid": {
 								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
-								"min_y": "distantHorizons ? world_traits.`bigglobe:y_level_on_surface` - 32 : 16x8000_0000U"
+								"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - hints.distanceBetweenColumns << 2"
 							},
 							"after_children": {
 								"file": "bigglobe:world_preset/islands_surface_placement",
@@ -39,7 +39,7 @@
 									"state": "'minecraft:air'",
 									"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
 									"valid": {
-										"where": "!surfaceOnly",
+										"where": "hints.carve",
 										"min_y": "world_traits.`bigglobe:core_min_y`",
 										"max_y": "world_traits.`bigglobe:core_max_y`"
 									},
@@ -58,7 +58,7 @@
 									"state": "'minecraft:air'",
 									"condition": "`bigglobe:islands/volcano_excluded_deep_dark` > 0.0I",
 									"valid": {
-										"where": "!surfaceOnly",
+										"where": "hints.carve",
 										"min_y": "world_traits.`bigglobe:deep_dark_min_y`",
 										"max_y": "world_traits.`bigglobe:deep_dark_max_y`"
 									}
@@ -88,7 +88,7 @@
 										")"
 									],
 									"valid": {
-										"where": "!surfaceOnly",
+										"where": "hints.carve",
 										"max_y": "`bigglobe:islands/is_volcano` ? world_traits.`bigglobe:y_level_on_surface` : world_traits.`bigglobe:core_max_y`"
 									}
 								},
@@ -100,7 +100,7 @@
 										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
 									},
 									"valid": {
-										"where": "!surfaceOnly",
+										"where": "hints.carve",
 										"min_y": "world_traits.`bigglobe:cave_min_y`",
 										"max_y": "world_traits.`bigglobe:cave_max_y`"
 									}
@@ -120,7 +120,7 @@
 							"state": "'bigglobe:cloud'",
 							"condition": "`bigglobe:islands/cloud_sdf` > 0.0I",
 							"valid": {
-								"where": "purpose != 'heightmap' && `bigglobe:islands/is_floating` && abs(`bigglobe:islands/island`.soft_distance_squared - `bigglobe:islands/cloud_horizontal_center`) < `bigglobe:islands/cloud_horizontal_extent`",
+								"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/is_floating` && abs(`bigglobe:islands/island`.soft_distance_squared - `bigglobe:islands/cloud_horizontal_center`) < `bigglobe:islands/cloud_horizontal_extent`",
 								"min_y": "higherInt(`bigglobe:islands/cloud_vertical_center` - `bigglobe:islands/cloud_vertical_limit`)",
 								"max_y": "  ceilInt(`bigglobe:islands/cloud_vertical_center` + `bigglobe:islands/cloud_vertical_limit`)"
 							}

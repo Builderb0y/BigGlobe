@@ -23,7 +23,8 @@ import net.minecraft.world.chunk.WorldChunk;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 
@@ -45,7 +46,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerWorld world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3d> callback) {
 		bigglobe_exitPosition = null;
 		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
-			ScriptedColumn column = generator.newColumn(world, 0, 0, Purpose.GENERIC);
+			ScriptedColumn column = generator.newColumn(world, 0, 0, ColumnUsage.GENERIC.normalHints());
 			Vector2d direction = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize();
 			Vector2d position = new Vector2d();
 			double minRadius = generator.end_overrides.outer_gateways().min_radius();

@@ -7,6 +7,8 @@ import net.minecraft.structure.StructurePiece;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -18,6 +20,7 @@ import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironme
 import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
 import builderb0y.bigglobe.util.CheckedList;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -38,7 +41,7 @@ public interface StructureLayoutScript extends Script {
 		long seed,
 		RandomGenerator random,
 		CheckedList<StructurePiece> pieces,
-		boolean distantHorizons
+		Hints hints
 	);
 
 	@Wrapper
@@ -76,7 +79,10 @@ public interface StructureLayoutScript extends Script {
 						.addMethod(type(Piece.class), "rotateAndFlipRandomly", Handlers.builder(Piece.class, "rotateAndFlipRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
 						.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 						.addVariableLoad("pieces", type(CheckedList.class))
-						.addVariableLoad("distantHorizons", TypeInfos.BOOLEAN),
+						.addVariableLoad("hints", type(Hints.class))
+						.configure(ScriptedColumn.hintsEnvironment())
+						.addVariableRenamedInvoke(load("hints", type(Hints.class)), "distantHorizons", MethodInfo.getMethod(Hints.class, "isLod")),
+
 						new ExternalEnvironmentParams()
 						.withLookup(load("lookup", type(ScriptedColumnLookup.class)))
 						.withXZ(
@@ -100,12 +106,12 @@ public interface StructureLayoutScript extends Script {
 			long seed,
 			RandomGenerator random,
 			CheckedList<StructurePiece> pieces,
-			boolean distantHorizons
+			Hints hints
 		) {
 			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
-				this.script.layout(lookup, originX, originZ, seed, random, pieces, distantHorizons);
+				this.script.layout(lookup, originX, originZ, seed, random, pieces, hints);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

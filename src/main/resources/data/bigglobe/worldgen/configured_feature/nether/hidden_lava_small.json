@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"(",
-				"!distantHorizons &&",
+				"hints.decorate &&",
 				"getBlockState(originX,     originY,     originZ    ).isIn('minecraft:base_stone_nether') &&",
 				"getBlockState(originX - 1, originY,     originZ    ).isIn('minecraft:base_stone_nether') &&",
 				"getBlockState(originX + 1, originY,     originZ    ).isIn('minecraft:base_stone_nether') &&",

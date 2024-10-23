@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted;
 
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import net.minecraft.world.HeightLimitView;
@@ -11,15 +12,13 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.scripting.bytecode.InsnTrees;
-import builderb0y.scripting.bytecode.LazyVarInfo;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.InfoHolder;
 
+import static builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints.*;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 /** subclassed at runtime to add necessary fields. */
@@ -33,6 +32,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			z,
 			minY,
 			maxY,
+			hints,
 			purpose,
 			distantHorizons,
 			surfaceOnly,
@@ -56,6 +56,10 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 
 		public InsnTree maxY(InsnTree loadColumn) {
 			return invokeInstance(loadColumn, this.maxY);
+		}
+
+		public InsnTree hints(InsnTree loadColumn) {
+			return invokeInstance(loadColumn, this.hints);
 		}
 
 		public InsnTree purpose(InsnTree loadColumn) {
@@ -98,6 +102,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			.addVariable("z", INFO.z(loadColumn))
 			.addVariable("minCachedYLevel", INFO.minY(loadColumn))
 			.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
+			.addVariable("hints", INFO.hints(loadColumn))
 			.addVariable("purpose", INFO.purpose(loadColumn))
 			.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
 			.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
@@ -105,6 +110,17 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
 			.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
 			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
+			.configure(hintsEnvironment())
+			;
+		};
+	}
+
+	public static Consumer<MutableScriptEnvironment> hintsEnvironment() {
+		return (MutableScriptEnvironment environment) -> {
+			environment
+			.addType("Hints", Hints.class)
+			.addFieldInvokes(Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate")
+			.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
 			;
 		};
 	}
@@ -129,141 +145,118 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		int z,
 		int minY,
 		int maxY,
-		Purpose purpose,
+		Hints hints,
 		WorldTraits worldTraits
 	) {
 
-		public Params(long seed, int x, int z, HeightLimitView world, Purpose purpose, WorldTraits traits) {
-			this(seed, x, z, world.getBottomY(), world.getTopY(), purpose, traits);
+		public Params(long seed, int x, int z, HeightLimitView world, Hints hints, WorldTraits traits) {
+			this(seed, x, z, world.getBottomY(), world.getTopY(), hints, traits);
 		}
 
-		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Purpose purpose) {
-			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), purpose, generator.compiledWorldTraits);
+		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Hints hints) {
+			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), hints, generator.compiledWorldTraits);
 		}
 
 		public Params withSeed(long seed) {
-			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.purpose, this.worldTraits);
+			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.hints, this.worldTraits);
 		}
 
 		public Params at(int x, int z) {
-			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.purpose, this.worldTraits);
+			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.hints, this.worldTraits);
 		}
 
 		public Params heightRange(int minY, int maxY) {
-			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.purpose, this.worldTraits);
+			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.hints, this.worldTraits);
 		}
 
 		public Params heightRange(HeightLimitView world) {
 			return this.heightRange(world.getBottomY(), world.getTopY());
 		}
 
-		public Params purpose(Purpose purpose) {
-			return this.purpose == purpose ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, purpose, this.worldTraits);
+		public Params hints(Hints hints) {
+			return this.hints.equals(hints) ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, hints, this.worldTraits);
 		}
 	}
 
-	public static interface Purpose {
+	public static record Hints(
+		boolean isLod,
+		byte underground,
+		byte lod,
+		ColumnUsage usage
+	) {
 
-		public static final Purpose
-			GENERIC        = new Impl("generic", false, false),
-			GENERIC_DH     = new DHLod("generic"),
-			GENERIC_VOXY   = new VoxyLod("generic"),
-			HEIGHTMAP      = new Impl("heightmap", false, true),
-			HEIGHTMAP_DH   = new Impl("heightmap", true, true),
-			HEIGHTMAP_VOXY = new Impl("heightmap", true, true),
-			RAW_GENERATION = new Impl("raw_generation", false, false),
-			RAW_DH         = new DHLod("raw_generation"),
-			RAW_VOXY       = new VoxyLod("raw_generation"),
-			FEATURES       = new Impl("features", false, false),
-			FEATURES_DH    = new DHLod("features"),
-			FEATURES_VOXY  = new VoxyLod("features");
+		public static final int
+			NO_UNDERGROUND = 0,
+			FILL           = 1,
+			CARVE          = 2,
+			DECORATE       = 3;
 
-		public static Purpose generic() {
-			return generic(DistantHorizonsCompat.isOnDistantHorizonThread());
+		public static boolean isValidUndergroundMode(int mode) {
+			return mode >= NO_UNDERGROUND && mode <= DECORATE;
 		}
 
-		public static Purpose generic(boolean distantHorizons) {
-			return distantHorizons ? GENERIC_DH : GENERIC;
+		public Hints(boolean isLod, int flags, int lod, ColumnUsage usage) {
+			this(isLod, (byte)(flags), (byte)(lod), usage);
 		}
 
-		public static Purpose rawGeneration() {
-			return rawGeneration(DistantHorizonsCompat.isOnDistantHorizonThread());
+		public boolean fill() {
+			return this.underground >= FILL;
 		}
 
-		public static Purpose rawGeneration(boolean distantHorizons) {
-			return distantHorizons ? RAW_DH : RAW_GENERATION;
+		public boolean carve() {
+			return this.underground >= CARVE;
 		}
 
-		public static Purpose features() {
-			return features(DistantHorizonsCompat.isOnDistantHorizonThread());
+		public boolean decorate() {
+			return this.underground >= DECORATE;
 		}
 
-		public static Purpose features(boolean distantHorizons) {
-			return distantHorizons ? FEATURES_DH : FEATURES;
+		public int distanceBetweenColumns() {
+			return 1 << this.lod;
+		}
+	}
+
+	public static enum ColumnUsage {
+		GENERIC,
+		HEIGHTMAP,
+		RAW_GENERATION,
+		FEATURES;
+
+		public static final FieldConstantFactory CONSTANT_FACTORY = FieldConstantFactory.forEnum(ColumnUsage.class, ColumnUsage::lowerCaseName);
+
+		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
+
+		public String lowerCaseName() {
+			return this.lowerCaseName;
 		}
 
-		public static Purpose heightmap() {
-			return heightmap(DistantHorizonsCompat.isOnDistantHorizonThread());
+		public int defaultUndergroundMode() {
+			return switch (this) {
+				case GENERIC        -> CARVE;
+				case HEIGHTMAP      -> FILL;
+				case RAW_GENERATION -> DECORATE;
+				case FEATURES       -> DECORATE;
+			};
 		}
 
-		public static Purpose heightmap(boolean distantHorizons) {
-			return distantHorizons ? HEIGHTMAP_DH : HEIGHTMAP;
+		public Hints normalHints() {
+			return new Hints(false, this.defaultUndergroundMode(), 0, this);
 		}
 
-		public abstract String name();
-
-		public abstract boolean isForLODs();
-
-		public abstract boolean surfaceOnly();
-
-		public static record Impl(String name, boolean isForLODs, boolean surfaceOnly) implements Purpose {
-
-			public Impl {
-				name = name.intern();
-			}
+		public Hints dhHints(int lod) {
+			return new Hints(true, Math.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.undergroundMode), lod, this);
 		}
 
-		public static abstract class Lod implements Purpose {
-
-			public final String name;
-
-			public Lod(String name) {
-				this.name = name.intern();
-			}
-
-			@Override
-			public String name() {
-				return this.name;
-			}
-
-			@Override
-			public boolean isForLODs() {
-				return true;
-			}
+		public Hints voxyHints(int lod) {
+			return new Hints(true, Math.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().voxyIntegration.undergroundMode), lod, this);
 		}
 
-		public static class DHLod extends Lod {
-
-			public DHLod(String name) {
-				super(name);
-			}
-
-			@Override
-			public boolean surfaceOnly() {
-				return BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.skipUnderground;
-			}
+		public Hints maybeDhHints() {
+			return this.maybeDhHints(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}
 
-		public static class VoxyLod extends Lod {
-
-			public VoxyLod(String name) {
-				super(name);
-			}
-
-			@Override
-			public boolean surfaceOnly() {
-				return BigGlobeConfig.INSTANCE.get().voxyIntegration.skipUnderground;
-			}
+		public Hints maybeDhHints(boolean dh) {
+			return dh ? this.dhHints(0) : this.normalHints();
 		}
 	}
 
@@ -279,14 +272,15 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		public abstract ScriptedColumn create(Params params);
 	}
 
-	public int         x              () { return this.params.x                    ; }
-	public int         z              () { return this.params.z                    ; }
-	public int         minY           () { return this.params.minY                 ; }
-	public int         maxY           () { return this.params.maxY                 ; }
-	public String      purpose        () { return this.params.purpose.name       (); }
-	public boolean     distantHorizons() { return this.params.purpose.isForLODs  (); }
-	public boolean     surfaceOnly    () { return this.params.purpose.surfaceOnly(); }
-	public WorldTraits worldTraits    () { return this.params.worldTraits          ; }
+	public int         x              () { return  this.params.x; }
+	public int         z              () { return  this.params.z; }
+	public int         minY           () { return  this.params.minY; }
+	public int         maxY           () { return  this.params.maxY; }
+	public String      purpose        () { return  this.params.hints.usage.lowerCaseName; }
+	public boolean     distantHorizons() { return  this.params.hints.isLod(); }
+	public boolean     surfaceOnly    () { return !this.params.hints.fill(); }
+	public Hints       hints          () { return  this.params.hints; }
+	public WorldTraits worldTraits    () { return  this.params.worldTraits; }
 
 	public long baseSeed() {
 		return this.params.seed;

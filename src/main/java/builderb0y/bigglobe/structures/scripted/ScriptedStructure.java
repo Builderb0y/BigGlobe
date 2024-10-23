@@ -31,8 +31,9 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
@@ -68,9 +69,20 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		int x = context.chunkPos().getStartX() | permuter.nextInt(16);
 		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(generator.columnEntryRegistry.columnFactory, new Params(generator.columnSeed, 0, 0, context.world(), Purpose.generic(distantHorizons), generator.compiledWorldTraits));
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
+			generator.columnEntryRegistry.columnFactory,
+			new Params(
+				generator.columnSeed,
+				0,
+				0,
+				context.world(),
+				hints,
+				generator.compiledWorldTraits
+			)
+		);
 		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
-		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces, distantHorizons);
+		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces, hints);
 		StructurePiecesCollector collector = new StructurePiecesCollector();
 		int minY = Integer.MAX_VALUE;
 		int maxY = Integer.MIN_VALUE;
@@ -280,7 +292,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 						),
 						chunkBox
 					),
-					Purpose.rawGeneration(context.distantHorizons)
+					ColumnUsage.RAW_GENERATION.maybeDhHints(context.distantHorizons)
 				),
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
@@ -341,7 +353,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 						),
 						WorldUtil.surroundingChunkBox(chunkPos, world)
 					),
-					Purpose.features()
+					ColumnUsage.FEATURES.maybeDhHints()
 				),
 				minX, minY, minZ,
 				maxX, maxY, maxZ,

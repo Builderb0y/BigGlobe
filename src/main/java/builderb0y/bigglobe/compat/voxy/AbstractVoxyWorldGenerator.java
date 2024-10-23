@@ -26,8 +26,9 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.commands.VoxyDebugCommand;
 import builderb0y.bigglobe.compat.voxy.QueueingStorageBackend.GenerationQueue;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -65,7 +66,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
 		this.columns = new ScriptedColumn[1024];
 		ScriptedColumn.Factory factory = generator.columnEntryRegistry.columnFactory;
-		Params params = new Params(generator, 0, 0, Purpose.RAW_VOXY);
+		Params params = new Params(generator, 0, 0, ColumnUsage.RAW_GENERATION.voxyHints(0));
 		for (int index = 0; index < 1024; index++) {
 			this.columns[index] = factory.create(params);
 		}

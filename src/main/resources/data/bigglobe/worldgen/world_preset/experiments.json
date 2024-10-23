@@ -212,7 +212,7 @@
 							"condition": "`bigglobe:paradise/upper_ring_cloud_sdf` > 0.0I",
 							"valid": {
 								"where": [
-									"if (purpose == 'heightmap': return(false))",
+									"if (hints.usage ==. 'heightmap': return(false))",
 									"`bigglobe:paradise/warp_radius`.isBetween(`bigglobe:paradise/ring_cloud_min_radius`, `bigglobe:paradise/ring_cloud_max_radius`)"
 								],
 								"min_y": " ceilInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/ring_cloud_center_offset` - `bigglobe:paradise/ring_cloud_thickness`)",
@@ -225,7 +225,7 @@
 							"condition": "`bigglobe:paradise/upper_bridge_cloud_sdf` > 0.0I",
 							"valid": {
 								"where": [
-									"if (purpose == 'heightmap': return(false))",
+									"if (hints.usage ==. 'heightmap': return(false))",
 									"`bigglobe:paradise/warp_radius` > `bigglobe:paradise/bridge_cloud_min_radius`"
 								],
 								"min_y": " ceilInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/bridge_cloud_center_offset` - `bigglobe:paradise/bridge_cloud_thickness`)",

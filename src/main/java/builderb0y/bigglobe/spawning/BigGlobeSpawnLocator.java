@@ -11,7 +11,8 @@ import net.minecraft.world.Heightmap;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
@@ -61,7 +62,7 @@ public class BigGlobeSpawnLocator {
 		long seed
 	) {
 		if (generator.spawn_point == null) return null;
-		ScriptedColumn column = generator.newColumn(world, 0, 0, Purpose.GENERIC);
+		ScriptedColumn column = generator.newColumn(world, 0, 0, ColumnUsage.GENERIC.normalHints());
 		double radius = BigGlobeConfig.INSTANCE.get().playerSpawning.maxSpawnRadius;
 		HaltonIterator2D halton = new HaltonIterator2D(
 			-radius,

@@ -167,11 +167,6 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public boolean trySetStructureStart(WeightedEntry weightedEntry, StructureAccessor structureAccessor, DynamicRegistryManager dynamicRegistryManager, NoiseConfig noiseConfig, StructureTemplateManager structureManager, long seed, Chunk chunk, ChunkPos pos, ChunkSectionPos sectionPos) {
-		return false;
-	}
-
-	@Override
 	public void addStructureReferences(StructureWorldAccess world, StructureAccessor structureAccessor, Chunk chunk) {
 
 	}

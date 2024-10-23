@@ -12,6 +12,8 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
@@ -38,17 +40,18 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, ColumnUsage.GENERIC.voxyHints(level));
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
-			for (int offsetZ = 0; offsetZ < 32; offsetZ ++) {
+			for (int offsetZ = 0; offsetZ < 32; offsetZ++) {
 				int offsetZ_ = offsetZ;
-				for (int offsetX = 0; offsetX < 32; offsetX ++) {
+				for (int offsetX = 0; offsetX < 32; offsetX++) {
 					int offsetX_ = offsetX;
 					async.submit(() -> {
 						int x = startX | (offsetX_ << level);
 						int z = startZ | (offsetZ_ << level);
 						int baseIndex = (offsetZ_ << 5) | offsetX_;
 						ScriptedColumn column = columns[baseIndex];
-						column.setParamsUnchecked(column.params.at(x, z));
+						column.setParamsUnchecked(params.at(x, z));
 						BlockSegmentList list = new BlockSegmentList(minY, maxY);
 						for (
 							ObjectIterator<Object2ObjectMap.Entry<BlockState, ColumnToIntScript.Holder>> iterator = this.states.object2ObjectEntrySet().fastIterator();

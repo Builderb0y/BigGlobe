@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"if (distantHorizons: return(false))",
+			"if (!hints.decorate: return(false))",
 			"for (int base in range[int(`bigglobe:nether/min_y`), int(`bigglobe:nether/max_y`)) % 16:",
 				"int y = base + random.nextInt(16)",
 				"double fraction = unmixLinear(double(`bigglobe:nether/min_y`), double(`bigglobe:nether/max_y`), double(y))",

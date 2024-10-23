@@ -159,7 +159,7 @@
 			".offset(originX, originY, originZ)",
 		")",
 
-		"int desiredPieces = distantHorizons ? 2 : int(exp(random.nextDouble(log(16.0L), log(256.0L))))",
+		"int desiredPieces = !hints.decorate ? 2 : int(exp(random.nextDouble(log(16.0L), log(256.0L))))",
 		"for (int attempt = 0, attempt < 1024 && pieces.size < desiredPieces, ++attempt:",
 			"ScriptStructurePiece from = pieces.(random.nextInt(pieces.size))",
 			"random.if (((from.midX - originX) ^ 2 + (from.midZ - originZ) ^ 2) / 96.0L ^ 2: continue())",
@@ -169,6 +169,6 @@
 		")",
 
 		"if (pieces.size == 1: pieces.removeIndex(0))",
-		"else if (distantHorizons: pieces.removeIndex(1))"
+		"else if (!hints.decorate: pieces.removeIndex(1))"
 	]
 }

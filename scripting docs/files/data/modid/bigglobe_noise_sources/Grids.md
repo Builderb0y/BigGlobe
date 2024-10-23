@@ -69,6 +69,9 @@ The following other fields are also available when `type` is...
 	They control the same thing as the normal resample grids.
 
 	Note: The "linear" derivative grids will be discontinuous every scaleX/Y/Z blocks!
+* "offset" (upcoming) - samples another grid at a different position. Has the following additional properties:
+	* `source` - the other grid to sample.
+	* `offsetX/Y/Z` - the offset from the current position to the sampled position. In other words, the sampled position is the requested position + offset.
 * "negate" - negates another grid. The resulting value at every position will be the negative of the wrapped grid's value.
 	* `grid` - the grid to negate.
 * "abs" - takes the absolute value of another grid.

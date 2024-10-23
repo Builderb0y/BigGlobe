@@ -22,7 +22,8 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
@@ -66,7 +67,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		long seed = chunkSeed(context, 0x462E8B50AE715A33L);
 		double x = context.chunkPos().getStartX() + context.random().nextDouble() * 16.0D;
 		double z = context.chunkPos().getStartZ() + context.random().nextDouble() * 16.0D;
-		ScriptedColumn column = context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.newColumn(context.world(), floorI(x), floorI(z), Purpose.generic()) : null;
+		ScriptedColumn column = context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.newColumn(context.world(), floorI(x), floorI(z), ColumnUsage.GENERIC.maybeDhHints()) : null;
 		double y = (column != null && this.surface_y != null ? this.surface_y.get(column) : context.chunkGenerator().getHeightInGround(floorI(x), floorI(z), Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())) + 1;
 		double foliage = column != null && this.data.foliage != null ? this.data.foliage.get(column) : 0.0D;
 		return Optional.of(

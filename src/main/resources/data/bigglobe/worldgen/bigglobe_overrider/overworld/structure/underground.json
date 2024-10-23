@@ -2,7 +2,7 @@
 	"type": "structure",
 	"script": [
 		"!(",
-			"distantHorizons && (",
+			"hints.isLod && (",
 				"start.structure.isIn('bigglobe:underground') ||",
 				"start.structure.type.isIn('bigglobe:underground')",
 			")",

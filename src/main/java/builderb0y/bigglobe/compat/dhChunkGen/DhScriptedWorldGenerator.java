@@ -23,7 +23,8 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Purpose;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
@@ -51,10 +52,11 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		ScriptedColumn[] columns = this.columns.get();
 		if (columns == null || columns.length < length) {
 			columns = new ScriptedColumn[length];
-			ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
+			ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.normalHints());
 			ScriptedColumn.Factory factory = this.chunkGenerator.columnEntryRegistry.columnFactory;
 			for (int index = 0; index < length; index++) {
-				columns[index] = factory.create(params);
+				if (columns[index] == null) columns[index] = factory.create(params);
+				else columns[index].setParamsUnchecked(params);
 			}
 			this.columns.set(columns);
 		}
@@ -104,6 +106,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 				for (int index = 0; index < totalColumns; index++) {
 					dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, yOffset);
 				}
+				ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.dhHints(detailLevel));
 				try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 					for (int offsetZ = 0; offsetZ < width; offsetZ += 2) {
 						final int offsetZ_ = offsetZ;
@@ -118,10 +121,10 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 									column01 = columns[baseIndex + 1        ],
 									column10 = columns[baseIndex + width    ],
 									column11 = columns[baseIndex + width + 1];
-								column00.setParamsUnchecked(column00.params.at(quadX,        quadZ       ));
-								column01.setParamsUnchecked(column01.params.at(quadX | step, quadZ       ));
-								column10.setParamsUnchecked(column10.params.at(quadX,        quadZ | step));
-								column11.setParamsUnchecked(column11.params.at(quadX | step, quadZ | step));
+								column00.setParamsUnchecked(params.at(quadX,        quadZ       ));
+								column01.setParamsUnchecked(params.at(quadX | step, quadZ       ));
+								column10.setParamsUnchecked(params.at(quadX,        quadZ | step));
+								column11.setParamsUnchecked(params.at(quadX | step, quadZ | step));
 								BlockSegmentList
 									list00 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
 									list01 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
@@ -216,7 +219,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 			dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, 0);
 		}
 		ScriptedColumn[] columns = this.chunkGenerator.chunkReuseColumns.get();
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, Purpose.RAW_DH);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.dhHints(0));
 		int startX = chunkX << 4;
 		int startZ = chunkZ << 4;
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
