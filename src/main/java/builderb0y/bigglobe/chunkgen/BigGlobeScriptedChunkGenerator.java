@@ -74,6 +74,7 @@ import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.*;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
@@ -118,11 +119,12 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
 @AddPseudoField("biome_source")
 @AddPseudoField("decodeContext")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
-public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
+public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements DelayedCompileable {
 
 	public static final boolean WORLD_SLICES = false;
 
@@ -147,7 +149,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 
 	public final @VerifyNullable String reload_preset;
 	public final @VerifyNullable String reload_dimension;
-	public final transient ColumnEntryRegistry columnEntryRegistry;
 	public static record Height(
 		@VerifyDivisibleBy16 int min_y,
 		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
@@ -192,9 +193,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		) {}
 	}
 	public final @VerifyNullable EndOverrides end_overrides;
+
 	public final @VerifyNullable Identifier world_traits;
 	public final transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
-	public final transient WorldTraits compiledWorldTraits;
+	public transient WorldTraits compiledWorldTraits;
+	public transient ColumnEntryRegistry columnEntryRegistry;
 
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
@@ -202,7 +205,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 	public transient boolean seedSet;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
-	public final transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
+	public transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 	public final transient StructureManager structureManager;
 
 	public BigGlobeScriptedChunkGenerator(
@@ -226,7 +229,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
 		}
-		this.columnEntryRegistry = ColumnEntryRegistry.Loading.get().getRegistry();
 		this.reload_preset       = reload_preset;
 		this.reload_dimension    = reload_dimension;
 		this.height              = height;
@@ -240,28 +242,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		this.world_traits        = world_traits;
 		this.sortedStructures    = sortedStructures;
 		this.loadedWorldTraits   = TraitLoader.load(world_traits, decodeContext);
-		this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.loadedWorldTraits);
-		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
-		WorldTraits traits = this.compiledWorldTraits;
-		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
-			ScriptedColumn[] columns = new ScriptedColumn[256];
-			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
-			}
-			return columns;
-		});
-		this.rootDebugDisplay = new DisplayEntry(this);
-		this.structureManager = new StructureManager();
-
-		this
-		.columnEntryRegistry
-		.registries
-		.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
-		.streamEntries()
-		.forEach(new CyclicDependencyAnalyzer(this.compiledWorldTraits));
-
-		new CyclicDependencyAnalyzer(this.compiledWorldTraits).accept(this.feature_dispatcher.normal);
-		new CyclicDependencyAnalyzer(this.compiledWorldTraits).accept(this.feature_dispatcher.raw);
+		this.rootDebugDisplay    = new DisplayEntry(this);
+		this.structureManager    = new StructureManager();
 	}
 
 	@Hidden //copy constructor.
@@ -293,6 +275,28 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator {
 		});
 		this.rootDebugDisplay = new DisplayEntry(this);
 		this.structureManager = new StructureManager();
+	}
+
+	@Override
+	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+		this.columnEntryRegistry = registry;
+		this.compiledWorldTraits = registry.traitManager.createTraits(this.loadedWorldTraits);
+
+		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
+		WorldTraits traits = this.compiledWorldTraits;
+		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
+			ScriptedColumn[] columns = new ScriptedColumn[256];
+			for (int index = 0; index < 256; index++) {
+				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
+			}
+			return columns;
+		});
+
+		registry
+		.registries
+		.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
+		.streamEntries()
+		.forEach(new CyclicDependencyAnalyzer(this.compiledWorldTraits));
 	}
 
 	public static BiomeSource copyBiomeSource(BiomeSource source) {

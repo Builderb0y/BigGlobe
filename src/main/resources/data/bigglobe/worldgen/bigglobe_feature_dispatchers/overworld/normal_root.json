@@ -1,12 +1,9 @@
 {
 	"type": "group",
 	"dispatchers": [
-		"bigglobe:overworld/caves",
-		"bigglobe:overworld/swamp_surface",
-		"bigglobe:overworld/large_surface",
-		"bigglobe:overworld/skylands",
-		"bigglobe:overworld/glacier_surface",
-		"bigglobe:overworld/medium_foliage",
-		"bigglobe:overworld/small_surface"
+		"bigglobe:overworld/in_terrain",
+		"bigglobe:overworld/large_features",
+		"bigglobe:overworld/medium_features",
+		"bigglobe:overworld/small_features"
 	]
 }

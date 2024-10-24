@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/glow_lichen",
+		"bigglobe:overworld/flowers",
+		"bigglobe:overworld/small_foliage",
+		"bigglobe:overworld/surface_materials"
+	]
+}

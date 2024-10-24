@@ -17,7 +17,7 @@
 				"floorInt(minSample - depth),",
 				"originZ - RADIUS,",
 				"originX + RADIUS,",
-				"ceilInt(maxSample),",
+				"ceilInt(maxSample) + 16,",
 				"originZ + RADIUS,",
 				"'bigglobe:lake',",
 				"DATA.$=topY(ceilInt(minSample))",

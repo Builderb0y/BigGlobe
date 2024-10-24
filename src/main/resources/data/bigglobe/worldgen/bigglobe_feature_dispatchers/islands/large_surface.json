@@ -1,9 +1,0 @@
-{
-	"type": "group",
-	"dispatchers": [
-		"bigglobe:islands/liquidfalls",
-		"bigglobe:islands/trees",
-		"bigglobe:overworld/bushes",
-		"bigglobe:overworld/prismarine"
-	]
-}

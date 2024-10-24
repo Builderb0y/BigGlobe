@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/glow_lichen",
+		"bigglobe:overworld/flowers",
+		"bigglobe:islands/small_foliage",
+		"bigglobe:islands/surface_materials",
+		"bigglobe:islands/skyland_surface_materials"
+	]
+}

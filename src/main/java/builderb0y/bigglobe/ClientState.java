@@ -337,14 +337,14 @@ public class ClientState {
 
 		@Hidden //we want AutoCodec to target the other constructor.
 		public ClientGeneratorParams(BigGlobeScriptedChunkGenerator generator, Syncing syncing) {
-			this.minY = generator.height.min_y();
-			this.maxY = generator.height.max_y();
-			this.seaLevel = generator.height.sea_level();
-			this.columnSeed = generator.columnSeed;
-			this.grassColor = generator.colors != null ? generator.colors.grass() : null;
+			this.minY         = generator.height.min_y();
+			this.maxY         = generator.height.max_y();
+			this.seaLevel     = generator.height.sea_level();
+			this.columnSeed   = generator.columnSeed;
+			this.grassColor   = generator.colors != null ? generator.colors.grass() : null;
 			this.foliageColor = generator.colors != null ? generator.colors.foliage() : null;
-			this.waterColor = generator.colors != null ? generator.colors.water() : null;
-			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
+			this.waterColor   = generator.colors != null ? generator.colors.water() : null;
+			this.worldTraits  = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
 			if (generator.world_traits != null) {
 				for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : generator.loadedWorldTraits.entrySet()) {
 					if (syncing.worldTraits.containsKey(UnregisteredObjectException.getID(entry.getKey()))) {
@@ -357,11 +357,9 @@ public class ClientState {
 
 		public void compile(ColumnEntryRegistry.Loading loading) throws Exception {
 			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null) return;
+			loading.compile();
 			this.columnEntryRegistry = loading.getRegistry();
 			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.worldTraits);
-			if (this.grassColor   != null) this.  grassColor.compile(this.columnEntryRegistry);
-			if (this.foliageColor != null) this.foliageColor.compile(this.columnEntryRegistry);
-			if (this.waterColor   != null) this.  waterColor.compile(this.columnEntryRegistry);
 		}
 
 		public ScriptedColumn createColumn() {

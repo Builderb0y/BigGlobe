@@ -1,8 +1,0 @@
-{
-	"type": "group",
-	"dispatchers": [
-		"bigglobe:overworld/small_dungeons",
-		"bigglobe:overworld/glow_lichen",
-		"bigglobe:overworld/cave_decorators"
-	]
-}

@@ -3,6 +3,7 @@ package builderb0y.bigglobe.mixins;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,15 +31,12 @@ public class SaveLoading_UnloadColumnEntryRegistry {
 		ColumnEntryRegistry.Loading.reset();
 	}
 
-	@Inject(method = "load", at = @At("RETURN"))
-	private static void bigglobe_finishLoadingColumnEntryRegistry(
-		ServerConfig serverConfig,
-		LoadContextSupplier<?> loadContextSupplier,
-		SaveApplierFactory<?, ?> saveApplierFactory,
-		Executor prepareExecutor,
-		Executor applyExecutor,
-		CallbackInfoReturnable<CompletableFuture<?>> callback
+	@ModifyReturnValue(method = "load", at = @At("RETURN"))
+	private static CompletableFuture<?> bigglobe_finishLoadingColumnEntryRegistry(
+		CompletableFuture<?> original
 	) {
-		ColumnEntryRegistry.Loading.endLoad(!callback.getReturnValue().isCompletedExceptionally());
+		return original.whenComplete((Object result, Throwable exception) -> {
+			ColumnEntryRegistry.Loading.endLoad(exception == null);
+		});
 	}
 }

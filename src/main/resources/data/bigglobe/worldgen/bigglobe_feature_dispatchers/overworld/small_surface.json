@@ -1,8 +1,0 @@
-{
-	"type": "group",
-	"dispatchers": [
-		"bigglobe:overworld/flowers",
-		"bigglobe:overworld/surface_materials",
-		"bigglobe:overworld/small_foliage"
-	]
-}

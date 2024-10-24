@@ -2,8 +2,9 @@
 	"type": "group",
 	"dispatchers": [
 		"bigglobe:islands/lava_tick_scheduler",
-		"bigglobe:overworld/caves",
-		"bigglobe:islands/surface",
-		"bigglobe:islands/skylands"
+		"bigglobe:islands/in_terrain",
+		"bigglobe:islands/large_features",
+		"bigglobe:islands/medium_features",
+		"bigglobe:islands/small_features"
 	]
 }

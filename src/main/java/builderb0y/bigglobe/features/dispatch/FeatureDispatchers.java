@@ -2,6 +2,8 @@ package builderb0y.bigglobe.features.dispatch;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,22 +11,19 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
-import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.features.RockReplacerFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.parsing.ScriptParsingException;
 
-public class FeatureDispatchers {
+public class FeatureDispatchers implements DelayedCompileable {
 
 	public final TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers;
 	public transient ConfiguredRockReplacerFeature<?> @Nullable [] flattenedRockReplacers;
@@ -38,6 +37,31 @@ public class FeatureDispatchers {
 		this.rock_replacers = rock_replacers;
 		this.raw = raw;
 		this.normal = normal;
+	}
+
+	@Override
+	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+		this.checkCyclicDependencies(this.raw, this.raw, new HashSet<>());
+		this.checkCyclicDependencies(this.normal, this.normal, new HashSet<>());
+	}
+
+	@SuppressWarnings("unchecked")
+	public void checkCyclicDependencies(
+		RegistryEntry<FeatureDispatcher> root,
+		RegistryEntry<FeatureDispatcher> entry,
+		Set<RegistryEntry<FeatureDispatcher>> seen
+	) {
+		if (seen.add(entry)) {
+			entry
+			.value()
+			.streamDirectDependencies()
+			.filter(dependency -> dependency.value() instanceof FeatureDispatcher)
+			.map((RegistryEntry<? extends DependencyView> e) -> (RegistryEntry<FeatureDispatcher>)(e))
+			.forEach((RegistryEntry<FeatureDispatcher> e) -> this.checkCyclicDependencies(root, e, seen));
+		}
+		else {
+			throw new IllegalStateException("Feature dispatcher " + UnregisteredObjectException.getID(entry) + " generates more than once in root " + UnregisteredObjectException.getID(root));
+		}
 	}
 
 	public void generateRaw(WorldWrapper world) {

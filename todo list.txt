@@ -29,7 +29,7 @@ where I left off:
 to finish before release:
 	document version for Purpose/Hints refactors.
 	document version for offset grids.
-	tag-based feature dispatcher.
+	document version for tag-type feature dispatchers.
 	try to make deprecation warning in log for legacy Purpose usage.
 
 changelog:

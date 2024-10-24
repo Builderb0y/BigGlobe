@@ -244,7 +244,9 @@ public class ColumnEntryRegistry {
 		}
 
 		public ColumnEntryRegistry getRegistry() {
-			this.compile();
+			if (this.columnEntryRegistry == null) {
+				throw new IllegalStateException("ColumnEntryRegistry not compiled yet!");
+			}
 			return this.columnEntryRegistry;
 		}
 

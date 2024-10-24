@@ -1,0 +1,18 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:overworld/small_dungeons",
+
+		"bigglobe:overworld/glacier_surface",
+
+		"bigglobe:islands/liquidfalls",
+		"bigglobe:islands/trees",
+		"bigglobe:overworld/bushes",
+		"bigglobe:overworld/prismarine",
+
+		"bigglobe:islands/skyland_amethyst",
+		"bigglobe:islands/skyland_bushes",
+		"bigglobe:islands/skyland_hanging_roots",
+		"bigglobe:islands/skyland_trees"
+	]
+}

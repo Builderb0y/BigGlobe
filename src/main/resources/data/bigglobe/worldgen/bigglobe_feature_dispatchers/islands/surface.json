@@ -1,9 +1,0 @@
-{
-	"type": "group",
-	"dispatchers": [
-		"bigglobe:overworld/swamp_surface",
-		"bigglobe:islands/large_surface",
-		"bigglobe:overworld/medium_foliage",
-		"bigglobe:islands/small_surface"
-	]
-}

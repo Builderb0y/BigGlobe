@@ -18,6 +18,7 @@ public interface FeatureDispatcher extends CoderRegistryTyped<FeatureDispatcher>
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptedFeatureDispatcher.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("group"),     GroupFeatureDispatcher.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("tag"),         TagFeatureDispatcher.class);
 	}};
 
 	public abstract void generate(WorldWrapper world, Permuter random, long chunkSeed, RegistryEntry<FeatureDispatcher> selfEntry);
