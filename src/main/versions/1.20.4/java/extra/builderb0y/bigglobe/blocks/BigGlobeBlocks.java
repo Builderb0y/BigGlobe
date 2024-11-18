@@ -246,7 +246,7 @@ public class BigGlobeBlocks {
 					.mapColor(heat > 4 ? MapColor.ORANGE : MapColor.STONE_GRAY)
 					.requiresTool()
 					.luminance((BlockState state) -> lightLevel)
-					.strength(0.6F)
+					.strength(1.5F - heat / 10.0F, 6.0F - heat * (4.0F / 10.0F))
 					.allowsSpawning((BlockState state, BlockView world, BlockPos pos, EntityType<?> entityType) -> entityType.isFireImmune()),
 					heat
 				)

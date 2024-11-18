@@ -67,12 +67,28 @@ public class CastingTest extends TestCommon {
 	public void testCasting() throws ScriptParsingException {
 		for (Rounder rounder : Rounder.VALUES) {
 			for (float in : FLOATS) {
-				assertSuccess(Float.isFinite(in) ? toInt(rounder.round(new BigDecimal(in))) : (int)(in), rounder.name().toLowerCase(Locale.ROOT) + "Int(" + OperatorTest.FLOAT_FORMAT.format(in) + ')');
-				assertSuccess(Float.isFinite(in) ? toLong(rounder.round(new BigDecimal(in))) : (long)(in), rounder.name().toLowerCase(Locale.ROOT) + "Long(" + OperatorTest.FLOAT_FORMAT.format(in) + ')');
+				String intScript = rounder.name().toLowerCase(Locale.ROOT) + "Int(" + OperatorTest.FLOAT_FORMAT.format(in) + ')';
+				String longScript = rounder.name().toLowerCase(Locale.ROOT) + "Long(" + OperatorTest.FLOAT_FORMAT.format(in) + ')';
+				if (Float.isNaN(in) && rounder != Rounder.TRUNC) {
+					assertFail("Attempt to cast NaN to int", intScript);
+					assertFail("Attempt to cast NaN to long", longScript);
+				}
+				else {
+					assertSuccess(Float.isFinite(in) ? toInt(rounder.round(new BigDecimal(in))) : (int)(in), intScript);
+					assertSuccess(Float.isFinite(in) ? toLong(rounder.round(new BigDecimal(in))) : (long)(in), longScript);
+				}
 			}
 			for (double in : DOUBLES) {
-				assertSuccess(Double.isFinite(in) ? toInt(rounder.round(new BigDecimal(in))) : (int)(in), rounder.name().toLowerCase(Locale.ROOT) + "Int(" + OperatorTest.DOUBLE_FORMAT.format(in) + ')');
-				assertSuccess(Double.isFinite(in) ? toLong(rounder.round(new BigDecimal(in))) : (long)(in), rounder.name().toLowerCase(Locale.ROOT) + "Long(" + OperatorTest.DOUBLE_FORMAT.format(in) + ')');
+				String intScript = rounder.name().toLowerCase(Locale.ROOT) + "Int(" + OperatorTest.DOUBLE_FORMAT.format(in) + ')';
+				String longScript = rounder.name().toLowerCase(Locale.ROOT) + "Long(" + OperatorTest.DOUBLE_FORMAT.format(in) + ')';
+				if (Double.isNaN(in) && rounder != Rounder.TRUNC) {
+					assertFail("Attempt to cast NaN to int", intScript);
+					assertFail("Attempt to cast NaN to long", longScript);
+				}
+				else {
+					assertSuccess(Double.isFinite(in) ? toInt(rounder.round(new BigDecimal(in))) : (int)(in), intScript);
+					assertSuccess(Double.isFinite(in) ? toLong(rounder.round(new BigDecimal(in))) : (long)(in), longScript);
+				}
 			}
 		}
 	}

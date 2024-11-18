@@ -3,6 +3,7 @@ package builderb0y.bigglobe.mixins;
 import java.util.List;
 import java.util.Map;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,17 +25,14 @@ public class RegistryLoader_LoadColumnEntryRegistry {
 
 	@Inject(
 		method = "load(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/DynamicRegistryManager;Ljava/util/List;)Lnet/minecraft/registry/DynamicRegistryManager$Immutable;",
-		at = @At(value = "INVOKE", target = "Ljava/util/List;forEach(Ljava/util/function/Consumer;)V", ordinal = 0),
-		locals = LocalCapture.CAPTURE_FAILHARD
+		at = @At(value = "INVOKE", target = "Ljava/util/List;forEach(Ljava/util/function/Consumer;)V", ordinal = 0)
 	)
 	private static void bigglobe_beginLoading(
 		ResourceManager resourceManager,
 		DynamicRegistryManager baseRegistryManager,
 		List<RegistryLoader.Entry<?>> entries,
 		CallbackInfoReturnable<Immutable> callback,
-		Map<RegistryKey<?>, Exception> map,
-		List<?> loadableRegistries,
-		RegistryInfoGetter registryInfoGetter
+		@Local RegistryInfoGetter registryInfoGetter
 	) {
 		ColumnEntryRegistry.Loading.beginLoad(new BetterRegistry.Lookup() {
 

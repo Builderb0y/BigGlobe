@@ -38,6 +38,7 @@ import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class StructureManager {
 
@@ -100,7 +101,7 @@ public class StructureManager {
 	}
 
 	public static RegistryKey<Structure> structureKey(Structure structure) {
-		return BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeys.STRUCTURE).getKey(structure).orElseThrow();
+		return RegistryVersions.getRegistry(BigGlobeMod.getCurrentServer().getRegistryManager(), RegistryKeys.STRUCTURE).getKey(structure).orElseThrow();
 	}
 
 	public static Identifier structureID(Structure structure) {

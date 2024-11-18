@@ -27,6 +27,7 @@ where I left off:
 	4'th temperature threshold used for savannah and jungle.
 	tall plateaus for hot wasteland.
 	more mud in swamps.
+	64-ish blocks of (red) sandstone below surface in deserts.
 
 to finish before release:
 	document seed on noise-typed column values.
@@ -42,6 +43,7 @@ changelog:
 	* Island noise is different in this version. Expect discontinuities across the boundary between old chunks and new chunks.
 		* On the plus side, pseudo-erosion looks much better on islands now.
 	* Snow generating over a cave looks better now.
+	* Fixed molten rocks not breaking faster with pickaxes.
 	# Changes for data pack makers
 	* Added new way to ensure that two noise-typed column values use the same seed.
 	* Added analytical derivatives of voronoi.soft_distance_squared and voronoi.soft_distance.
@@ -55,7 +57,6 @@ alternate world presets:
 			prevent ancient cities from spawning in volcanoes.
 
 breaking changes I want to make:
-	rename cavern-related overworld column values to "deep dark".
 	expose IntBoundingBox and DoubleBoundingBox to scripts, with min, mid, and max properties.
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.

@@ -1,3 +1,6 @@
+import java.lang.reflect.Method
+import java.util.concurrent.TimeUnit
+
 plugins() {
 	id('fabric-loom') version('1.8-SNAPSHOT')
 	//id('maven-publish')
@@ -146,11 +149,65 @@ task copyToReleases(type: Copy) {
 	into(file("releases/${project.version.toString().replace('.' as char, '/' as char)}"))
 }
 
+runClient() {
+	workingDir = file('run')
+}
+
+runServer() {
+	//can't seem to find any other way to do this...
+	Method getInternalRunDir = it.getClass().getDeclaredMethod('getInternalRunDir')
+	getInternalRunDir.setAccessible(true)
+	getInternalRunDir.invoke(it).set('server')
+	workingDir = file('server')
+	jvmArgs("-Duser.dir=${file('server').getAbsolutePath()}")
+	doFirst() {
+		assert file('server/world').deleteDir()
+	}
+}
+
+static Process makeProcess(String taskName) {
+	ProcessBuilder builder = new ProcessBuilder('./gradlew', taskName, '--no-daemon').redirectErrorStream(true)
+	builder.environment().put('JAVA_HOME', System.getProperty('java.home'))
+	Process process = builder.start()
+	System.out.println("${taskName} gradle process started with pid ${process.pid()}")
+	new Thread({
+		while (process.isAlive()) {
+			String line = process.inputReader().readLine()
+			if (line != null) {
+				System.out.println("${ taskName }: ${ line }")
+				//this really shouldn't be necessary, but *for some reason*, it is.
+				if (line.endsWith('\u001B[32m[Render thread/INFO]\u001B[m \u001B[36m(Minecraft)\u001B[m \u001B[0mStopping!')) {
+					process.waitFor(10L, TimeUnit.SECONDS)
+					process.descendants().forEach(ProcessHandle::destroyForcibly)
+					process.destroyForcibly()
+					break
+				}
+			}
+		}
+	})
+	.start()
+	return process
+}
+
 test() {
 	useJUnitPlatform()
 	doFirst() {
 		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$archivesBaseName-$project.version-MC${minecraft_version}.jar").exists()) {
 			throw new IllegalStateException("Release file $project.version-MC$minecraft_version already exists. If you intend to overwrite this file, delete it first. Otherwise, you probably forgot to bump the version.")
+		}
+		Process client = makeProcess('runClient')
+		Process server = makeProcess('runServer')
+		try {
+			println("runClient exited with exit code ${ client.waitFor() }")
+			server.descendants().forEach(ProcessHandle::destroy)
+			server.destroy()
+			println("runServer exited with exit code ${ server.waitFor() }")
+		}
+		finally {
+			client.descendants().forEach(ProcessHandle::destroyForcibly)
+			client.destroyForcibly()
+			server.descendants().forEach(ProcessHandle::destroyForcibly)
+			server.destroyForcibly()
 		}
 	}
 }
