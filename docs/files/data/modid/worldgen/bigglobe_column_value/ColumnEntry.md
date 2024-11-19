@@ -9,6 +9,7 @@ This is the structure for the actual json files in `/data/(modid)/worldgen/biggl
 		* `grid` - if `params > is_3d` is set to true, then this must be a 3D grid. Otherwise, it must be a 2D grid.
 		* `cache` - if set to true, the value will be stored so that if it is queried again, it is not computed again. If this column value is 3D according to its params, then all valid Y levels are computed in bulk on first access. Computing values in bulk is faster than computing all valid Y levels individually, but slower than computing only a single Y level. It is recommended to use caching if you plan on accessing many different Y levels or, if the value is 2D, if you plan on accessing the value  more than once.
 		* `valid` - declares where this column value is valid.
+		* `seed` (Optional; New in V4.7.0) - the seed to use for the noise. If absent, this is derived from the file path. This can be used to enforce that multiple noise-typed column entries use the same seed, which itself is useful when one of them is the derivative of another one.
 
 		A noise type has the following additional restrictions:
 		* `params > type` must be either `float` or `double`.

@@ -30,18 +30,15 @@ where I left off:
 	64-ish blocks of (red) sandstone below surface in deserts.
 
 to finish before release:
-	document seed on noise-typed column values.
-	document dx and dz fields on voronoi data bases.
-		document d_soft_distance being NaN at the center point.
-	document goldenRatio and goldenAngle constants new in MathScriptEnvironment.
 
 changelog:
 	# Changes for normal players
 	* Fixed crash on startup on dedicated servers.
 	* Revamped rivers, they are now bigger, rarer, and more eroded.
+		* Rivers do not always spawn in the same places they used to, so expect them to get cut off at the border between old chunks and new chunks.
 	* Villages are now more common and more likely to have their spawn conditions met.
-	* Island noise is different in this version. Expect discontinuities across the boundary between old chunks and new chunks.
-		* On the plus side, pseudo-erosion looks much better on islands now.
+	* Pseudo-erosion on islands looks much better now.
+		* Noise for islands is also different, so expect large discontinuities on the border between old chunks and new chunks.
 	* Snow generating over a cave looks better now.
 	* Fixed molten rocks not breaking faster with pickaxes.
 	# Changes for data pack makers

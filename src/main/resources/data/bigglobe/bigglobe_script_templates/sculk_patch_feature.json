@@ -214,7 +214,7 @@
 				"getBlockState(pos.x, pos.y - 1, pos.z).blocksLight()",
 			":",
 				"setBlockState(pos.x, pos.y, pos.z,",
-					"random.if ('minecraft:sculk_catalyst')",
+					"random.if ('minecraft:sculk_catalyst[bloom=false]')",
 					"else (BlockState('minecraft:sculk_shrieker', can_summon: true, shrieking: false, waterlogged: centered.hasWater()))",
 				")",
 			")",

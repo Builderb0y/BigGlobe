@@ -5,6 +5,8 @@
 * `double e` - the double closest to [Euler's constant](https://en.wikipedia.org/wiki/E_(mathematical_constant)).
 * `float nan` - the floating point constant [NaN](https://en.wikipedia.org/wiki/NaN). This constant can be implicitly cast to type `double` as needed.
 * `float inf` - the floating point constant [infinity](https://en.wikipedia.org/wiki/IEEE_754#Infinities). This constant can be implicitly cast to type `double` as needed.
+* `double goldenRatio` (New in V4.7.0) - the [golden ratio](https://en.wikipedia.org/wiki/Golden_ratio).
+* `double goldenAngle` (New in V4.7.0) - the [golden angle](https://en.wikipedia.org/wiki/Golden_angle).
 
 # Functions
 

@@ -32,9 +32,18 @@ public abstract class CatEntity_PetTheKitty extends TameableEntity {
 	@Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
 	public void bigglobe_petTheKitty(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> callback) {
 		if (player.isSneaking() && player.getStackInHand(hand).isEmpty()) {
-			if (!EntityVersions.getWorld(this).isClient) {
-				EntityVersions.getWorld(this).sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
-				this.playSound(SoundEvents.ENTITY_CAT_PURR, this.getSoundVolume(), this.getSoundPitch());
+			if (EntityVersions.getWorld(this).isClient) {
+				this.handleStatus(EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+				EntityVersions.getWorld(this).playSound(
+					player,
+					this.getX(),
+					this.getY(),
+					this.getZ(),
+					SoundEvents.ENTITY_CAT_PURR,
+					this.getSoundCategory(),
+					this.getSoundVolume(),
+					this.getSoundPitch()
+				);
 			}
 			callback.setReturnValue(ActionResult.SUCCESS);
 		}

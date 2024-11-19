@@ -189,12 +189,9 @@ static Process makeProcess(String taskName) {
 	return process
 }
 
-test() {
-	useJUnitPlatform()
+task runClientServer() {
+	group('fabric')
 	doFirst() {
-		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$archivesBaseName-$project.version-MC${minecraft_version}.jar").exists()) {
-			throw new IllegalStateException("Release file $project.version-MC$minecraft_version already exists. If you intend to overwrite this file, delete it first. Otherwise, you probably forgot to bump the version.")
-		}
 		Process client = makeProcess('runClient')
 		Process server = makeProcess('runServer')
 		try {
@@ -208,6 +205,16 @@ test() {
 			client.destroyForcibly()
 			server.descendants().forEach(ProcessHandle::destroyForcibly)
 			server.destroyForcibly()
+		}
+	}
+}
+
+test() {
+	dependsOn(runClientServer)
+	useJUnitPlatform()
+	doFirst() {
+		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$archivesBaseName-$project.version-MC${minecraft_version}.jar").exists()) {
+			throw new IllegalStateException("Release file $project.version-MC$minecraft_version already exists. If you intend to overwrite this file, delete it first. Otherwise, you probably forgot to bump the version.")
 		}
 	}
 }
