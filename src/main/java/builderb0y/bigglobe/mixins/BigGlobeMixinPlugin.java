@@ -14,21 +14,19 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
-	public static final Logger LOGGER = LoggerFactory.getLogger("Big Globe/Mixins");
+	public static final Logger
+		LOGGER     = LoggerFactory.getLogger("Big Globe/Mixins"),
+		ASM_LOGGER = LoggerFactory.getLogger("Big Globe/ASM");
 	public static BigGlobeMixinPlugin INSTANCE;
 
 	public Map<String, Boolean> defaults, settings;
@@ -324,25 +322,25 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 		if (targetClassName.equals("builderb0y.bigglobe.compat.dhChunkGen.DhScriptedWorldGenerator")) {
-			BigGlobeMod.LOGGER.info("DhScriptedWorldGenerator class loaded");
+			ASM_LOGGER.info("DhScriptedWorldGenerator class loaded");
 			try {
 				Class<?> returnTypeClass = Class.forName("com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiWorldGeneratorReturnType");
 				returnTypeClass.getDeclaredField("API_DATA_SOURCES");
-				BigGlobeMod.LOGGER.info("API_DATA_SOURCES available. No class modifications necessary.");
+				ASM_LOGGER.info("API_DATA_SOURCES available. No class modifications necessary.");
 			}
 			catch (Exception ignored) {
-				BigGlobeMod.LOGGER.info("API_DATA_SOURCES not available. Attempting modifications...");
+				ASM_LOGGER.info("API_DATA_SOURCES not available. Attempting modifications...");
 				for (Iterator<MethodNode> iterator = targetClass.methods.iterator(); iterator.hasNext();) {
 					MethodNode method = iterator.next();
 					if (method.name.equals("generateLod")) {
-						BigGlobeMod.LOGGER.info("Found generateLod(). Removing.");
+						ASM_LOGGER.info("Found generateLod(). Removing.");
 						iterator.remove();
 					}
 					else if (method.name.equals("getReturnType")) {
-						BigGlobeMod.LOGGER.info("Found getReturnType(). Attempting to change to API_CHUNKS...");
+						ASM_LOGGER.info("Found getReturnType(). Attempting to change to API_CHUNKS...");
 						for (AbstractInsnNode instruction = method.instructions.getFirst(); instruction != null; instruction = instruction.getNext()) {
 							if (instruction instanceof FieldInsnNode field) {
-								BigGlobeMod.LOGGER.info("Found field. Changing to API_CHUNKS.");
+								ASM_LOGGER.info("Found field. Changing to API_CHUNKS.");
 								field.name = "API_CHUNKS";
 								break;
 							}

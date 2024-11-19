@@ -830,37 +830,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				placementCalculator.getNoiseConfig(),
 				structureTemplateManager,
 				chunk,
-				chunk.getPos()
+				chunk.getPos(),
+				DistantHorizonsCompat.isOnDistantHorizonThread()
 			),
 			chunk
 		);
-	}
-
-	public boolean canStructureSpawn(
-		RegistryEntry<Structure> entry,
-		StructureStart start,
-		Permuter permuter,
-		boolean distantHorizons
-	) {
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
-			this.columnEntryRegistry.columnFactory,
-			new ScriptedColumn.Params(
-				this, 0, 0, hints
-			)
-		);
-		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
-		for (StructureOverrider.Entry overrider : this.getOverriders().structures) {
-			if (!overrider.script().override(lookup, wrapper, permuter, this.columnSeed, hints)) {
-				/*
-				if (StructureManager.DEBUG_REMOVED) {
-					StructureManager.addPotentialStructure(start, "overrider " + BigGlobeMod.getCurrentServer().getRegistryManager().get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY).getId(overrider) + " said no.");
-				}
-				*/
-				return false;
-			}
-		}
-		return true;
 	}
 
 	@Override

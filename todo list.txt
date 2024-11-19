@@ -32,19 +32,6 @@ where I left off:
 to finish before release:
 
 changelog:
-	# Changes for normal players
-	* Fixed crash on startup on dedicated servers.
-	* Revamped rivers, they are now bigger, rarer, and more eroded.
-		* Rivers do not always spawn in the same places they used to, so expect them to get cut off at the border between old chunks and new chunks.
-	* Villages are now more common and more likely to have their spawn conditions met.
-	* Pseudo-erosion on islands looks much better now.
-		* Noise for islands is also different, so expect large discontinuities on the border between old chunks and new chunks.
-	* Snow generating over a cave looks better now.
-	* Fixed molten rocks not breaking faster with pickaxes.
-	# Changes for data pack makers
-	* Added new way to ensure that two noise-typed column values use the same seed.
-	* Added analytical derivatives of voronoi.soft_distance_squared and voronoi.soft_distance.
-	* Script template inputs can now have default values.
 
 alternate world presets:
 	paradise.

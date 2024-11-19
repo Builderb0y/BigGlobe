@@ -33,10 +33,15 @@ import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.StructureOverrider;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -58,7 +63,8 @@ public class StructureManager {
 		NoiseConfig noiseConfig,
 		StructureTemplateManager structureTemplateManager,
 		HeightLimitView heightLimitView,
-		ChunkPos chunkPos
+		ChunkPos chunkPos,
+		boolean distantHorizons
 	) {
 
 		public BiomeSource biomeSource() {
@@ -95,7 +101,8 @@ public class StructureManager {
 				this.noiseConfig,
 				this.structureTemplateManager,
 				this.heightLimitView,
-				pos
+				pos,
+				this.distantHorizons
 			);
 		}
 	}
@@ -161,12 +168,15 @@ public class StructureManager {
 	}
 
 	public ChunkUngeneratedStructures getStructureStarts(StructureGenerationParams params) {
-		ChunkUngeneratedStructures structures = this.worldUngeneratedStructures.get(params.chunkPos);
+		ChunkUngeneratedStructures structures;
+		synchronized (this.worldUngeneratedStructures) {
+			structures = this.worldUngeneratedStructures.get(params.chunkPos);
+		}
 		if (structures == null) {
-			this.worldUngeneratedStructures.put(
-				params.chunkPos.toLong(),
-				structures = this.computeStructureStarts(params)
-			);
+			structures = this.computeStructureStarts(params);
+			synchronized (this.worldUngeneratedStructures) {
+				this.worldUngeneratedStructures.put(params.chunkPos.toLong(), structures);
+			}
 		}
 		else {
 			//System.out.println("Got cached structure starts at " + params.chunkPos);
@@ -258,7 +268,8 @@ public class StructureManager {
 		if (!newStart.hasChildren()) return SortedStructurePieces.EMPTY;
 		int oldY = newStart.getBoundingBox().getMinY();
 		if (
-			!params.generator.canStructureSpawn(
+			!this.canStructureSpawn(
+				params,
 				weightedEntry.structure(),
 				newStart,
 				new Permuter(
@@ -269,8 +280,7 @@ public class StructureManager {
 						params.chunkPos.x,
 						params.chunkPos.z
 					)
-				),
-				DistantHorizonsCompat.isOnDistantHorizonThread()
+				)
 			)
 		) {
 			return SortedStructurePieces.EMPTY;
@@ -303,6 +313,33 @@ public class StructureManager {
 			)
 		);
 		return SortedStructurePieces.create(newStart);
+	}
+
+	public boolean canStructureSpawn(
+		StructureGenerationParams params,
+		RegistryEntry<Structure> entry,
+		StructureStart start,
+		Permuter permuter
+	) {
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints(params.distantHorizons);
+		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
+			params.generator.columnEntryRegistry.columnFactory,
+			new ScriptedColumn.Params(
+				params.generator, 0, 0, hints
+			)
+		);
+		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
+		for (StructureOverrider.Entry overrider : params.generator.getOverriders().structures) {
+			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed, hints)) {
+				/*
+				if (StructureManager.DEBUG_REMOVED) {
+					StructureManager.addPotentialStructure(start, "overrider " + BigGlobeMod.getCurrentServer().getRegistryManager().get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY).getId(overrider) + " said no.");
+				}
+				*/
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static class WorldUngeneratedStructures
