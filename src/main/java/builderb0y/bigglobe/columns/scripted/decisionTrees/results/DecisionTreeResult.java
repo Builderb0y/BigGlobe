@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.decisionTrees;
+package builderb0y.bigglobe.columns.scripted.decisionTrees.results;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +11,7 @@ import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;

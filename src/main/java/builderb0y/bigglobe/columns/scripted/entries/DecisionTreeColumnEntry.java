@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -9,6 +10,7 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.ConditionBasedDecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -25,16 +27,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 
 	public final RegistryEntry<DecisionTreeSettings> root;
+	public final @VerifyNullable Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches;
 
 	public DecisionTreeColumnEntry(
 		AccessSchema params,
 		@VerifyNullable Valid valid,
 		@DefaultBoolean(true) boolean cache,
 		RegistryEntry<DecisionTreeSettings> root,
+		@VerifyNullable Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches,
 		DecodeContext<?> decodeContext
 	) {
 		super(params, valid, cache, decodeContext);
 		this.root = root;
+		this.patches = patches;
 	}
 
 	@Override
@@ -44,14 +49,14 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 
 	@Override
 	public void populateCompute2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		return_(this.root.value().createInsnTree(this.root, this.params, context, null)).emitBytecode(computeMethod);
+		return_(this.root.value().createInsnTree(this.root, this.params, context, this.patches, null)).emitBytecode(computeMethod);
 		computeMethod.endCode();
 		this.printIfEnabled(memory);
 	}
 
 	@Override
 	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		return_(this.root.value().createInsnTree(this.root, this.params, context, load("y", TypeInfos.INT))).emitBytecode(computeMethod);
+		return_(this.root.value().createInsnTree(this.root, this.params, context, patches, load("y", TypeInfos.INT))).emitBytecode(computeMethod);
 		computeMethod.endCode();
 		this.printIfEnabled(memory);
 	}
@@ -59,7 +64,7 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 	public void printIfEnabled(ColumnEntryMemory memory) {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			BigGlobeMod.LOGGER.info(
-				Printer.parse(this.root).print(
+				Printer.parse(this.root, this.patches).print(
 					new StringBuilder(128)
 					.append(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID))
 					.append(" decision tree, as requested in Big Globe's config file:\n")
@@ -86,17 +91,19 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 			this.name = name;
 		}
 
-		public static Printer parse(RegistryEntry<DecisionTreeSettings> root) {
-			Printer printer = convert(root);
+		public static Printer parse(RegistryEntry<DecisionTreeSettings> root, Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches) {
+			Printer printer = convert(root, patches);
 			printer.updateDepthSize(0, BigInteger.ZERO);
 			return printer;
 		}
 
-		public static Printer convert(RegistryEntry<DecisionTreeSettings> entry) {
-			if (entry == null) return null;
+		public static Printer convert(RegistryEntry<DecisionTreeSettings> entry, Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches) {
+			if (patches != null) entry = patches.getOrDefault(entry, entry);
 			Printer printer = new Printer(UnregisteredObjectException.getID(entry).toString());
-			printer.ifMatch = convert(entry.value().if_true);
-			printer.unlessMatch = convert(entry.value().if_false);
+			if (entry.value() instanceof ConditionBasedDecisionTreeSettings condition) {
+				printer.ifMatch = convert(condition.if_true, patches);
+				printer.unlessMatch = convert(condition.if_false, patches);
+			}
 			return printer;
 		}
 

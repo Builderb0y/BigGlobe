@@ -1,7 +1,16 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "unmixClamp(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`) ^ 2"
+		"type": "and",
+		"conditions": [
+			{
+				"type": "script",
+				"script": "`bigglobe:overworld/unbounded_river_dip` > 1.0L"
+			},
+			{
+				"type": "script_chance",
+				"script": "unmixClamp(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`) ^ 2"
+			}
+		]
 	},
 	"if_true": "bigglobe:overworld/surface_state/overgrown_test_forest",
 	"if_false": "bigglobe:overworld/surface_state/temperate_test_wasteland"

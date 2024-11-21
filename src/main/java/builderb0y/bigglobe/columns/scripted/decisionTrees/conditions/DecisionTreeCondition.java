@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.decisionTrees;
+package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +12,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;

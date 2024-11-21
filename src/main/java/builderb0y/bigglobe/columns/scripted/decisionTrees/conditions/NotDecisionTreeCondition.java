@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.decisionTrees;
+package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.stream.Stream;
 
@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;

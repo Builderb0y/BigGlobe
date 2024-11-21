@@ -15,7 +15,7 @@
 			},
 			{
 				"type": "script_chance",
-				"script": "unmixSmooth(0.75I, 0.25I, `bigglobe:overworld/surface_temperature`)"
+				"script": "unmixSmooth(0.75I, 0.5I, `bigglobe:overworld/surface_temperature`)"
 			}
 		]
 	},

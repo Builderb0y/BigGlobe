@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.decisionTrees;
+package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,9 +12,10 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeException;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
-import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodCompileContext;
