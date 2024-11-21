@@ -1,0 +1,10 @@
+{
+	"type": "structure",
+	"script": {
+		"template": "bigglobe:restrict_to_biome",
+		"inputs": {
+			"STRUCTURE": "'minecraft:village_savanna'",
+			"BIOMES":    "'#bigglobe:spillover/village_savanna'"
+		}
+	}
+}

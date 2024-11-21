@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"float foliage = world_traits.`bigglobe:foliage_at_sea_level`",
+		"unless (is_floating:",
+			"foliage -= float(abs(y - world_traits.`bigglobe:sea_level`) / 1024.0L)",
+		")",
+		"return(foliage)"
+	],
+	"cache": false
+}

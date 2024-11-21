@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": "unmixSmooth(-0.125, 0.125, `bigglobe:overworld/surface_temperature`)"
+	},
+	"if_true": "bigglobe:overworld/biome/test_hot",
+	"if_false": "bigglobe:overworld/biome/test_cold"
+}

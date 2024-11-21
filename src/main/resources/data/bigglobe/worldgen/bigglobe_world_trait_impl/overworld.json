@@ -9,7 +9,9 @@
 	"bigglobe:core_max_y":               "-784I",
 	"bigglobe:deep_dark_min_y":          "-752I",
 	"bigglobe:deep_dark_max_y":          "-624I",
-	"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/river_adjusted_foliage`",
+	"bigglobe:foliage_at":               "`bigglobe:overworld/height_adjusted_foliage`",
+	"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw_foliage`",
+	"bigglobe:foliage_at_surface":       "`bigglobe:overworld/surface_foliage`",
 	"bigglobe:has_skylands":             "SkylandBounds*(bounds := `bigglobe:overworld/skyland`.bounds) != null && bounds.max_y > bounds.min_y",
 	"bigglobe:hilliness":                "`bigglobe:overworld/hilliness`",
 	"bigglobe:lava_y":                   "-896I",
@@ -19,11 +21,17 @@
 	"bigglobe:sea_level":                "0I",
 	"bigglobe:skyland_min_y":            " floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
 	"bigglobe:skyland_max_y":            "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)",
+	"bigglobe:temperature_at":           "`bigglobe:overworld/height_adjusted_temperature`",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
+	"bigglobe:temperature_at_surface":   "`bigglobe:overworld/surface_temperature`",
 	"bigglobe:wood_palette":             "`bigglobe:overworld/wood_palette`",
 	"bigglobe:approximate_surface_y": {
 		"get": "`bigglobe:overworld/basic_surface_y`",
 		"set": "`bigglobe:overworld/basic_surface_y` = value"
+	},
+	"bigglobe:automatic_lake_surface_states": {
+		"get": "`bigglobe:overworld/lake_surface_states`",
+		"set": "`bigglobe:overworld/lake_surface_states` = value"
 	},
 	"bigglobe:automatic_snow_y": {
 		"get": "`bigglobe:overworld/snow_y`",

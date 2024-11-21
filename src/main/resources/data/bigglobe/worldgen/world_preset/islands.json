@@ -162,8 +162,8 @@
 						"inputs": {
 							"COLOR": [
 								"getDefaultGrassColor(",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
+									"1.0L / (exp(-8.0L * world_traits.`bigglobe:temperature_at`(y) - 2.0L) + 1.0L),",
+									"1.0L / (exp(-4.0L * world_traits.`bigglobe:foliage_at`(y) + 1.0L) + 1.0L)",
 								")"
 							]
 						}
@@ -173,8 +173,8 @@
 						"inputs": {
 							"COLOR": [
 								"getDefaultFoliageColor(",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L),",
-								"1.0L / (exp(-4.0L * `bigglobe:overworld/height_adjusted_foliage`(y)) + 1.0L)",
+									"1.0L / (exp(-8.0L * world_traits.`bigglobe:temperature_at`(y) - 2.0L) + 1.0L),",
+									"1.0L / (exp(-4.0L * world_traits.`bigglobe:foliage_at`(y) + 1.0L) + 1.0L)",
 								")"
 							]
 						}

@@ -18,7 +18,7 @@
 					"float lakeChance = unmixSmooth(topY, topY - 4, world_traits.`bigglobe:automatic_surface_y`(start.minY)).as(float)",
 					"`bigglobe:overworld/surface_foliage` *= 1.0I - lakeChance,,",
 					"(worldSeed # 16x73675EE7D46B59A3UL).newSeed(x, z).if (lakeChance:",
-						"`bigglobe:overworld/lake_surface_states` = LakeSurfaceStates.new(",
+						"world_traits.`bigglobe:automatic_lake_surface_states`(start.minY) = LakeSurfaceStates.new(",
 							"BlockState(piece.data.surface.asString()),",
 							"BlockState(piece.data.subsurface.asString())",
 						")",

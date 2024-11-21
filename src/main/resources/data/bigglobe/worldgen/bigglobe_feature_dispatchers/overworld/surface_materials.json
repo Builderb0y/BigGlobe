@@ -1,32 +1,35 @@
 {
 	"type": "script",
 	"dispatcher": [
+		"double riverBias = `bigglobe:overworld/unbounded_river_dip`(minModifiableX | 8, minModifiableZ | 8)",
+		"riverBias = 1.0L / (1.0L + riverBias + riverBias ^ 2 * 0.5L)",
+
 		";rocks",
 		"repeat (",
 			"random.roundInt(",
 				"`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L +",
-				"(`bigglobe:overworld/river_dip`(minModifiableX | 8, minModifiableZ | 8) / `bigglobe:overworld/river_depth`(minModifiableX | 8, minModifiableZ | 8)) * 12.0L",
+				"riverBias * 12.0L",
 			")",
 		":",
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
-			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 			"placeFeature(x, y, z, 'bigglobe:overworld/rock')",
 		")",
 
 		";flint",
-		"random.if (1.0L - `bigglobe:overworld/river_dip`(minModifiableX | 8, minModifiableZ | 8):",
+		"random.if (riverBias:",
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
-			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 			"placeFeature(x, y, z, 'bigglobe:overworld/flint')",
 		")",
 
 		";sticks",
-		"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
+		"repeat (random.roundInt(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
-			"int y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 			"placeFeature(x, y, z, 'bigglobe:overworld/stick')",
 		")"
 	]

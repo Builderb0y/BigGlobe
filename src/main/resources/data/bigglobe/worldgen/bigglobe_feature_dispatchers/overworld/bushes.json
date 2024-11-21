@@ -1,13 +1,16 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
+		"repeat (random.roundInt(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 16.0I):",
 			"int*(",
 				"x = minModifiableX | random.nextInt(16)",
 				"z = minModifiableZ | random.nextInt(16)",
-				"y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 			")",
-			"if (`bigglobe:overworld/height_adjusted_foliage`(x, y, z) > 0.0L:",
+			"if (",
+				"world_traits.`bigglobe:foliage_at_surface`(x, z) > 0.0L &&",
+				"`bigglobe:overworld/unbounded_river_dip`(x, z) > 1.0L",
+			":",
+				"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 				"placeFeature(x, y, z, 'bigglobe:overworld/bush')",
 			")",
 		")"

@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:vanilla/village_desert",
+		"bigglobe:vanilla/village_plains",
+		"bigglobe:vanilla/village_savanna",
+		"bigglobe:vanilla/village_snowy",
+		"bigglobe:vanilla/village_taiga"
+	]
+}

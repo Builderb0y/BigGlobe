@@ -2,6 +2,8 @@
 	"replace": false,
 	"values": [
 		"#bigglobe:light_forest",
-		"#bigglobe:dense_forest"
+		"#bigglobe:dense_forest",
+		"bigglobe:cherry_forest",
+		"bigglobe:swamp_forest"
 	]
 }

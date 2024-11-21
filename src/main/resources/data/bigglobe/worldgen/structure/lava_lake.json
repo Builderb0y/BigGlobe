@@ -1,6 +1,6 @@
 {
 	"type": "bigglobe:script",
-	"biomes": "#bigglobe:has_structure/lake",
+	"biomes": "#bigglobe:has_structure/lava_lake",
 	"spawn_overrides": {},
 	"step": "surface_structures",
 	"layout": {

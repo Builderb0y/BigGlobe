@@ -1,6 +1,6 @@
 {
 	"type": "bigglobe:script",
-	"biomes": "#bigglobe:has_structure/lake",
+	"biomes": "#bigglobe:has_structure/water_lake",
 	"spawn_overrides": {
 		"monster": {
 			"bounding_box": "full",

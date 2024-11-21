@@ -127,7 +127,7 @@ public class StructureManager {
 	}
 	*/
 
-	public synchronized void setStructureStarts(StructureGenerationParams params, Chunk chunk) {
+	public void setStructureStarts(StructureGenerationParams params, Chunk chunk) {
 		if (!chunk.getStructureStarts().isEmpty()) {
 			BigGlobeMod.LOGGER.warn(chunk + " already has structure starts");
 			return;

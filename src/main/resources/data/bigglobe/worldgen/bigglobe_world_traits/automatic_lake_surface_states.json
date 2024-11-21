@@ -7,6 +7,5 @@
 			{ "name": "under", "type": "block_state" }
 		]
 	},
-	"is_3d": true,
-	"default": "`bigglobe:overworld/lake_surface_states`"
+	"is_3d": true
 }

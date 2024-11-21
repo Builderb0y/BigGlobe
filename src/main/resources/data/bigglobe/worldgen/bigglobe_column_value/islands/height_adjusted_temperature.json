@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"float temperature = world_traits.`bigglobe:temperature_at_sea_level`",
+		"unless (is_floating:",
+			"temperature -= float((y - world_traits.`bigglobe:sea_level`) / 1024.0L)",
+		")",
+		"return(temperature)"
+	],
+	"cache": false
+}

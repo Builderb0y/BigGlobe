@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": "unmixSmooth(-0.125I, 0.125I, `bigglobe:overworld/surface_temperature`)"
+	},
+	"if_true": "bigglobe:overworld/wood_palette/test_hot",
+	"if_false": "bigglobe:overworld/wood_palette/test_cold"
+}

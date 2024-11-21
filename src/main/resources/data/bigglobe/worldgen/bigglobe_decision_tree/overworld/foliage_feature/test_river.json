@@ -1,9 +1,7 @@
 {
 	"condition": {
-		"type": "threshold",
-		"min": -16.0,
-		"max": -24.0,
-		"column_value": "bigglobe:overworld/river_dip"
+		"type": "script",
+		"script": "`bigglobe:overworld/unbounded_river_dip` < 1.0L"
 	},
 	"if_true": "bigglobe:overworld/foliage_feature/no_feature",
 	"if_false": "bigglobe:overworld/foliage_feature/test_beach"

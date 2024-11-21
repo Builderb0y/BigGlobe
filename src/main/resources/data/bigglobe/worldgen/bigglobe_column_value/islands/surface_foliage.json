@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"is_floating",
+		"? world_traits.`bigglobe:foliage_at_sea_level`",
+		": height_adjusted_foliage(ceilInt(world_traits.`bigglobe:approximate_surface_y`))"
+	]
+}

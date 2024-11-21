@@ -28,10 +28,19 @@ where I left off:
 	tall plateaus for hot wasteland.
 	more mud in swamps.
 	64-ish blocks of (red) sandstone below surface in deserts.
+	abandon hard threshold for where trees can exist?
+		instead replace it with an exponential density curve?
+	remove (overgrown) podzol from rivers.
 
 to finish before release:
 
 changelog:
+	* Added a 4'th temperature zone: warm, between temperate and hot.
+		* Jungles and savannas spawn here.
+		* Jungle and acacia trees no longer spawn in the hot temperature zone (AKA deserts).
+	* Improved performance of block tinting in big globe worlds.
+		* This helps chunks load in faster, and reduces delay and lag when placing and breaking blocks.
+	* Fixed some glacier-related decorations spawning in island worlds.
 
 alternate world presets:
 	paradise.

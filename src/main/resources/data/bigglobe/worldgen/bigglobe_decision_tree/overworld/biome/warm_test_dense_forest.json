@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`)"
+	},
+	"if_true": "bigglobe:overworld/biome/warm_dense_forest",
+	"if_false": "bigglobe:overworld/biome/warm_light_forest"
+}

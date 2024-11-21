@@ -4,5 +4,5 @@
 		"script": "unmixSmooth(8.0I, 4.0I, world_traits.`bigglobe:exact_surface_y`)"
 	},
 	"if_true": "bigglobe:overworld/biome/beach_test_shallow_ocean",
-	"if_false": "bigglobe:overworld/biome/test_hot"
+	"if_false": "bigglobe:overworld/biome/test_warm"
 }
