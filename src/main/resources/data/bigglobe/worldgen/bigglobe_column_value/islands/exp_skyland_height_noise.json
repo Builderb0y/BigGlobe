@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"exp(skyland_height_noise)"
+		"fastExp(skyland_height_noise)"
 	],
 	"valid": {
 		"where": "is_floating",

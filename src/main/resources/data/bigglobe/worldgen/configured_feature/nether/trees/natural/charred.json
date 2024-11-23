@@ -3,7 +3,7 @@
 	"config": {
 		"delay_generation": true,
 		"palette": "bigglobe:charred",
-		"height": "exp2(random.nextDouble(3.0, 5.0))",
+		"height": "fastExp2(random.nextDouble(3.0, 5.0))",
 		"trunk": {
 			"type": "bigglobe:slanted",
 			"slant": { "type": "gaussian", "samples": 8, "min": 0.0, "max": 0.5 },

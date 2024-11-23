@@ -17,8 +17,8 @@
 				"phase             = (seed := seed.newSeed()).nextDouble(tau)",
 				"projection        = (unitX * x + unitZ * z) + phase",
 				"adjustedAmplitude = ((unitX * -dz + unitZ * dx) / (sqrt(dx ^ 2 + dz ^ 2) + dampening)) ^ 2",
-				"addedValue        = approxSin(projection / wavelength) * adjustedAmplitude * wavelength",
-				"addedDerivative   = approxCos(projection / wavelength) * adjustedAmplitude",
+				"addedValue        = fastSin(projection / wavelength) * adjustedAmplitude * wavelength",
+				"addedDerivative   = fastCos(projection / wavelength) * adjustedAmplitude",
 				"nextUnitX         = unitX * goldenCos + unitZ * -goldenSin",
 				"nextUnitZ         = unitX * goldenSin + unitZ *  goldenCos",
 			")",
@@ -29,9 +29,6 @@
 			"unitZ   = nextUnitZ",
 		")",
 		"return(result * amplitude)"
-	],
-	"includes": [
-		"bigglobe:include/approx_trig"
 	],
 	"inputs": [
 		{ "name": "dx", "type": "double" },

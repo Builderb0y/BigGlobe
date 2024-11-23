@@ -14,7 +14,7 @@
 					"- `bigglobe:end/bridge_cloud_center_offset`",
 					"+ `bigglobe:end/bridge_cloud_thickness`"
 				],
-				"HUE": "exp(`bigglobe:end/warp_radius`) * 12.0L"
+				"HUE": "fastExp(`bigglobe:end/warp_radius`) * 12.0L"
 			}
 		}
 	}

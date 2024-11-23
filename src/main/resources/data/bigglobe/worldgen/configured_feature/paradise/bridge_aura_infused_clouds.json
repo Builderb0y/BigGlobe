@@ -14,7 +14,7 @@
 					"+ `bigglobe:paradise/bridge_cloud_center_offset`",
 					"+ `bigglobe:paradise/bridge_cloud_thickness`"
 				],
-				"HUE": "exp(`bigglobe:paradise/warp_radius`) * 12.0L"
+				"HUE": "fastExp(`bigglobe:paradise/warp_radius`) * 12.0L"
 			}
 		}
 	}

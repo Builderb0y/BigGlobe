@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"double wave = sin((warp_angle + log2(warp_radius)) * 8.0L)",
+		"double wave = fastSin((warp_angle + fastLog2(warp_radius)) * 8.0L)",
 		"double amplitude = warp_radius * raw_mountain_thickness * 0.25L",
 		"return(wave * amplitude)"
 	]

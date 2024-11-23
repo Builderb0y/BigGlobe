@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "exp2(-4.0L * warp_radius)"
+	"script": "fastLog2(warp_radius * 10.0L + 1.0L) * -0.25L + 1.0L"
 }

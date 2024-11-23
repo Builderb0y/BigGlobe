@@ -5,7 +5,7 @@
 			";;place between 1 and 16 root blocks going downwards,",
 			"biased towards smaller numbers,",
 			"where each block along the way has a 25% chance of moving sideways.;;",
-			"repeat (int(exp(log(16.0) * random.nextDouble())):",
+			"repeat (int(fastExp2(log2(16.0) * random.nextDouble())):",
 				"unless (getBlockState(originX, originY, originZ).isReplaceable(): return(true))",
 				"setBlockState(originX, originY, originZ, 'minecraft:mangrove_roots[waterlogged=false]')",
 				"random.if (0.25:",

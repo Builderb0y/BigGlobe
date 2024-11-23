@@ -15,7 +15,7 @@
 		},
 		"chance": [
 			"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",
-			"double curve = 1.0L - exp(-line)",
+			"double curve = 1.0L - fastExp(-line)",
 			"return(curve * 0.25L)"
 		],
 		"radius": {

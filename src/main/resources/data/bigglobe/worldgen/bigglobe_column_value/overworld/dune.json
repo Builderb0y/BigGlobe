@@ -28,7 +28,7 @@
 				"type": "script",
 				"min": 0.0,
 				"max": 16.0,
-				"script": "exp(-abs(in)) * 24.0L",
+				"script": "fastExp(-abs(in)) * 24.0L",
 				"inputs": {
 					"in": {
 						"type": "sum",

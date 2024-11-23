@@ -2,8 +2,8 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 2117550406,
-		"separation": 20,
-		"spacing": 48
+		"separation": 16,
+		"spacing": 32
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:endger_sponge" },

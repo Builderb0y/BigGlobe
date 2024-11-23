@@ -15,8 +15,8 @@
 
 			"double r = random.nextDouble(0.5L)",
 			"double theta = random.nextDouble(tau)",
-			"double dx = cos(theta) * r",
-			"double dz = sin(theta) * r",
+			"double dx = fastCos(theta) * r",
+			"double dz = fastSin(theta) * r",
 
 			"double centerX = originX + random.nextDouble(-0.5L, +0.5L)",
 			"double centerZ = originZ + random.nextDouble(-0.5L, +0.5L)",

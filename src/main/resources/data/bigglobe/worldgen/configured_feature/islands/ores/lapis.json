@@ -28,7 +28,7 @@
 				")",
 			")",
 			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
-				"exp2(",
+				"fastExp2(",
 					"-(",
 						"(",
 							"(y - `bigglobe:islands/skyland_top_plain`) / 64.0L",

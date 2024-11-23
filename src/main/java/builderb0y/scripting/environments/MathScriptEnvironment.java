@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -14,6 +15,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.ReduceInsnTree;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -33,13 +35,17 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 		.addVariableConstant("nan", Float.NaN)
 		.addVariableConstant("inf", Float.POSITIVE_INFINITY)
 		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow")
-		.addFunctionRenamedInvokeStatic("ln", Math.class, "log")
 		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh", "atan2")
+		.addFunctionRenamedInvokeStatic("ln", Math.class, "log")
+		.addFunctionInvokeStatics(FastMath.Trig.class, "fastSin", "fastCos", "fastTan", "fastAsin", "fastAcos", "fastAtan", "fastAtan2", "fastSinh", "fastCosh", "fastTanh", "fastAsinh", "fastAcosh", "fastAtanh")
+		.addFunctionInvokeStatics(FastMath.Exp.class, "fastExp", "fastExp2")
+		.addFunctionInvokeStatics(FastMath.Log.class, "fastLog", "fastLog2")
+		.addFunctionRenamedInvokeStatic("fastLn", FastMath.Log.class, "fastLog")
 		.addFunctionMultiInvokeStatics(Math.class, "abs", "copySign")
 		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
 		.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
 		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
-		.addFunction("mod", new FunctionHandler.Named("mod(a, b)", (parser, name, arguments) -> {
+		.addFunction("mod", new FunctionHandler.Named("mod(a, b)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			if (arguments.length != 2) return null;
 			return new CastResult(mod(parser, arguments[0], arguments[1]), false);
 		}))

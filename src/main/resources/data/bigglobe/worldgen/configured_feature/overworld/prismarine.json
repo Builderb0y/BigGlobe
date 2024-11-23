@@ -28,7 +28,7 @@
 						": this.set(index, this.removeIndex(this.size() - 1))",
 					")",
 				")",
-				"int size = random.roundInt(exp(mixLinear(log(4.0), log(64.0), random.nextDouble())))",
+				"int size = random.roundInt(fastExp2(mixLinear(log2(4.0), log2(64.0), random.nextDouble())))",
 				"double chance = random.nextDouble(0.25, 0.75)",
 				"HashSet positions = new(size)",
 				"ArrayList queue = new(size)",

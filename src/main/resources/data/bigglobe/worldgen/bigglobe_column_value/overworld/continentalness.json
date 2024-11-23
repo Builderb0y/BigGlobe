@@ -8,7 +8,7 @@
 		"type": "script",
 		"min": 0.0,
 		"max": 1.0,
-		"script": "2.0L / (exp(-4.0L * raw) + 1.0L) - 1.0L",
+		"script": "2.0L / (fastExp(-4.0L * raw) + 1.0L) - 1.0L",
 		"inputs": {
 			"raw": {
 				"type": "sum",

@@ -3,7 +3,7 @@
 	"config": {
 		"delay_generation": true,
 		"palette": "minecraft:warped",
-		"height": "exp2(random.nextDouble(3.0, 6.0))",
+		"height": "fastExp2(random.nextDouble(3.0, 6.0))",
 		"trunk": {
 			"type": "bigglobe:twisted",
 			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",

@@ -3,7 +3,7 @@
 	"type": "script",
 	"min": 0.0,
 	"max": 1.0,
-	"script": "1.0L / (exp(base) + 1.0L)",
+	"script": "1.0L / (fastExp(base) + 1.0L)",
 	"inputs": {
 		"base": {
 			"type": "change_range",

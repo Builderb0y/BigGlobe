@@ -5,7 +5,7 @@
 			"debug_name": "ConfiguredFeatureNetherGlowstoneExtra",
 			"template": "bigglobe:glowstone",
 			"inputs": {
-				"SIZE": "int(exp(random.nextDouble(log(12.0), log(192.0))))",
+				"SIZE": "int(fastExp2(random.nextDouble(log2(12.0), log2(192.0))))",
 				"STATE": "'minecraft:glowstone'"
 			}
 		}

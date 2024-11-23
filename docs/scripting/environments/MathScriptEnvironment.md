@@ -19,16 +19,20 @@
 * `double asinh(double value)`, `double acosh(double value)`, and `double atanh(double value)` - [inverse hyperbolic sine, cosine, and tangent](https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions).
 * `double atan2(double x, double y)` - the [arc tangent function of 2 arguments](https://en.wikipedia.org/wiki/Atan2).
 
+(upcoming) faster, but less accurate versions of the above functions are also available. For example, `fastSin(radians)`.
+
 ## Exponentials
 
 * `double exp(double value)` - the [exponential function](https://en.wikipedia.org/wiki/Exponential_function).
 * `double log(double value)` - the [natural logarithm function](https://en.wikipedia.org/wiki/Natural_logarithm)
-* `double ln(double value)` - alias for `log(value)` coming in Big Globe 4.0.
+* `double ln(double value)` (New in V4.0) - alias for `log(value)`.
 * `double exp2(double value)` - 2 raised to the power of value.
 * `double log2(double value)` - logarithm in base 2.
 * `double sqrt(double value)` - the [square root function](https://en.wikipedia.org/wiki/Square_root).
 * `double cbrt(double value)` - the [cube root function](https://en.wikipedia.org/wiki/Cube_root).
 * `double pow(double value, double exponent)` - the [power function](https://en.wikipedia.org/wiki/Exponentiation). Slightly more accurate than typing `value ^ exponent` in some cases.
+
+(upcoming) faster, but less accurate versions of `exp`, `log`, `ln`, `exp2`, and `log2` are also available. For example, `fastLog2(radians)`.
 
 ## Interpolation
 

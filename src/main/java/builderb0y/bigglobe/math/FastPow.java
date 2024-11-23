@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.math;
 
 import java.lang.invoke.*;
-import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.function.LongUnaryOperator;

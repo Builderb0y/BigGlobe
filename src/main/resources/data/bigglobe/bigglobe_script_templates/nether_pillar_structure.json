@@ -10,8 +10,8 @@
 				"double*(",
 					"angle = random.nextDouble(tau)",
 					"radius = random.nextDouble(1.0L, MAX_RADIUS)",
-					"dx = cos(angle) * radius",
-					"dz = sin(angle) * radius",
+					"dx = fastCos(angle) * radius",
+					"dz = fastSin(angle) * radius",
 				")",
 
 				"int*(",

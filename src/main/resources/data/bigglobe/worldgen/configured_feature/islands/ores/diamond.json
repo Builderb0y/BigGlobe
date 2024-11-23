@@ -16,7 +16,7 @@
 		"chance": [
 			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
 				"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",
-				"double curve = 1.0L - exp(-line)",
+				"double curve = 1.0L - fastExp(-line)",
 				"return(curve * 0.25L)",
 			")",
 			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",

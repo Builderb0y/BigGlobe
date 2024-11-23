@@ -15,10 +15,10 @@
 		},
 		"chance": [
 			"if (y <= world_traits.`bigglobe:exact_surface_y`:",
-				"return(exp2((world_traits.`bigglobe:exact_surface_y` - y) / -512.0L))",
+				"return(fastExp2((world_traits.`bigglobe:exact_surface_y` - y) / -512.0L))",
 			")",
 			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
-				"return(exp2((world_traits.`bigglobe:skyland_max_y` - y) / -256.0L))",
+				"return(fastExp2((world_traits.`bigglobe:skyland_max_y` - y) / -256.0L))",
 			")",
 			"else (",
 				"return(0.0L)",

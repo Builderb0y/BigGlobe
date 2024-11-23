@@ -7,7 +7,7 @@
 				"PLACE": "'bigglobe:soul_magma'",
 				"REPLACE": "'bigglobe:soul_lava[level=0]'",
 				"CHANCE": "1.0L / 256.0L",
-				"COUNT": "int(exp2(random.nextDouble(8.0L)))"
+				"COUNT": "int(fastExp2(random.nextDouble(8.0L)))"
 			}
 		}
 	}

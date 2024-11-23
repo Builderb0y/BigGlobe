@@ -16,7 +16,7 @@
 				"class Height (int y)",
 
 				"double maxHeightD = 1.0L - `bigglobe:nether/bubble`.soft_distance",
-				"maxHeightD *= exp2(random.nextDouble(3.0L, 7.0L))",
+				"maxHeightD *= fastExp2(random.nextDouble(3.0L, 7.0L))",
 				"int maxHeightI = random.roundInt(maxHeightD) + originY",
 				"double standardDeviation = sqrt(maxHeightD * 0.125L)",
 

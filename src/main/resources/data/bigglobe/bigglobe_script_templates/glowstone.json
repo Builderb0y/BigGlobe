@@ -17,8 +17,8 @@
 				"random.switch(dx = -1, dx = +1, dy = -1, dy = +1, dz = -1, dz = +1)",
 			")",
 
-			"boolean placeIfValid(int x, int y, int z:",
-				"boolean noGlowstoneAt(int dx2, int dy2, int dz2:",
+			"boolean placeIfValid(int*(x, y, z):",
+				"boolean noGlowstoneAt(int*(dx2, dy2, dz2):",
 					"return(",
 						"(dx2 == dx && dy2 == dy && dz2 == dz) ||",
 						"getBlockState(x + dx2, y + dy2, z + dz2) != STATE",

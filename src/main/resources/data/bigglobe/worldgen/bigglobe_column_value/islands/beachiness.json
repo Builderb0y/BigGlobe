@@ -6,7 +6,7 @@
 	},
 	"grid": {
 		"type": "script",
-		"script": "16.0L / (exp(base) + 1.0L)",
+		"script": "16.0L / (fastExp(base) + 1.0L)",
 		"min": 0.0,
 		"max": 8.0,
 		"inputs": {

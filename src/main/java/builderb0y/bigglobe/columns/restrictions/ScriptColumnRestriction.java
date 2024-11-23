@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.columns.restrictions;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.scripting.environments.MutableScriptEnvironment;

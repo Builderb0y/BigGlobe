@@ -26,10 +26,11 @@ where I left off:
 	64-ish blocks of (red) sandstone below surface in deserts.
 	abandon hard threshold for where trees can exist?
 		instead replace it with an exponential density curve?
-	remove (overgrown) podzol from rivers.
 
 to finish before release:
 	document version that patches for decision tree column entries were added in.
+	document version that new fast math functions were added in.
+	remove experimental column values, move them to a local data pack.
 
 changelog:
 	* Added a 4'th temperature zone: warm, between temperate and hot.
@@ -38,6 +39,9 @@ changelog:
 	* Improved performance of block tinting in big globe worlds.
 		* This helps chunks load in faster, and reduces delay and lag when placing and breaking blocks.
 	* Fixed some glacier-related decorations spawning in island worlds.
+	* Increased the amount of land area in the end dimension.
+	* Reduced number of bridge clouds in the end dimension.
+	* Made end fractal structures more common.
 
 alternate world presets:
 	paradise.
