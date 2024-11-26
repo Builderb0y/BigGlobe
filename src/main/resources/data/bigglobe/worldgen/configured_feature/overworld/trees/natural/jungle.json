@@ -2,29 +2,29 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:jungle",
-		"height": "random.nextDouble() * max(`bigglobe:overworld/surface_foliage`, 0.0I) * 24.0 + 4.0",
+		"height": "fastExp2(world_traits.`bigglobe:foliage_at` + 4.0I) * random.nextDouble() + 8.0L",
 		"trunk": {
 			"type": "bigglobe:straight",
-			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
+			"thickness": "mixLinear(max(height * 0.09375L, minThickness), minThickness, fraction)",
 			"require_natural_ground": true,
 			"can_generate_in_liquid": false
 		},
 		"branches": {
-			"start_frac_y": { "type": "uniform", "min": 0.5, "max": 0.75 },
+			"start_frac_y": { "type": "uniform", "min": 0.0, "max": 0.25 },
 			"count_per_layer": { "type": "uniform", "min": 4.0, "max": 8.0 },
-			"length_function": "fraction ^ 2 * random.nextDouble(1.0, 1.5)",
+			"length_function": "fraction * 2.0L - (fraction > 0.5L ? 1.5L : 0.75L)",
 			"height_function": "-0.25 * fraction ^ 2"
 		},
 		"decorations": {
 			"trunk": [
-				{ "type": "bigglobe:drooping_leaves", "is_trunk": true },
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": true },
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
 				{ "type": "bigglobe:stubby_branch", "chance": 0.125 },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/cocoa_eighth_chance" },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/vines_quarter_chance" }
 			],
 			"branches": [
-				{ "type": "bigglobe:drooping_leaves", "is_trunk": false },
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/cocoa_eighth_chance" }
 			]
 		},

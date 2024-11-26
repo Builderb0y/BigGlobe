@@ -22,6 +22,7 @@
 	"bigglobe:sea_level":                "0I",
 	"bigglobe:skyland_min_y":            "lowerInt(`bigglobe:islands/skyland_bottom`)",
 	"bigglobe:skyland_max_y":            " ceilInt(`bigglobe:islands/skyland_top`)",
+	"bigglobe:snow_chance_at":           "`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128 ? `bigglobe:islands/skyland_snow_chance` : world_traits.`bigglobe:snow_chance`",
 	"bigglobe:temperature_at":           "`bigglobe:islands/height_adjusted_temperature`",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:islands/surface_temperature`",

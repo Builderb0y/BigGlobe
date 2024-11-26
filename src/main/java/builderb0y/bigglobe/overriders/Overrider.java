@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.overriders;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
@@ -19,15 +20,18 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.structures.StructureManager.SortedStructurePieces;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureOverrider.Entry {
+public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueOverrider.Entry, StructureOverrider.Entry {
 
 	public static final AutoCoder<Overrider> CODER = new KeyDispatchCoder<>(ReifiedType.from(Overrider.class), BigGlobeAutoCodec.AUTO_CODEC.createCoder(Type.class)) {
 
@@ -59,6 +63,7 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 
 	public static enum Type {
 		STRUCTURE(StructureOverrider.Entry.class),
+		COLLISION(CollisionOverrider.Entry.class),
 		COLUMN_VALUE(ColumnValueOverrider.Entry.class);
 
 		public final Class<? extends Overrider> overriderClass;
@@ -73,16 +78,31 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 	public static class SortedOverriders {
 
 		public final StructureOverrider.Entry[] structures;
+		public final CollisionOverrider.Entry[] collisions;
 		public final ColumnValueOverrider.Holder[] rawColumnValues, featureColumnValues;
 		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
 		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
 			Map<Type, List<Overrider>> map = generator.overriders.objectStream().collect(Collectors.groupingBy(Overrider::getOverriderType));
 			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(StructureOverrider.Entry.class::cast).toArray(StructureOverrider.Entry[]::new);
+			this.collisions = map.getOrDefault(Type.COLLISION, Collections.emptyList()).stream().map(CollisionOverrider.Entry.class::cast).toArray(CollisionOverrider.Entry[]::new);
 			this.rawColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::raw_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
 			this.featureColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::feature_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
 			this.rawColumnValueDependencies = this.extractDependencies(this.rawColumnValues, generator);
 			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues, generator);
+		}
+
+		public int getCollisionPriority(
+			ScriptedColumnLookup columns,
+			SortedStructurePieces currentStructure,
+			SortedStructurePieces otherStructure,
+			Hints hints
+		) {
+			for (CollisionOverrider.Entry collision : this.collisions) {
+				int priority = collision.script().override(columns, currentStructure.getWrapper(), otherStructure.getWrapper(), hints);
+				if (priority != 0) return priority;
+			}
+			return 0;
 		}
 
 		public String[] extractDependencies(ColumnValueOverrider.Holder[] holders, BigGlobeScriptedChunkGenerator generator) {

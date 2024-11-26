@@ -81,7 +81,6 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
@@ -274,7 +273,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
 			ScriptedColumn[] columns = new ScriptedColumn[256];
 			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
+				columns[index] = factory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
 			}
 			return columns;
 		});
@@ -292,7 +291,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
 			ScriptedColumn[] columns = new ScriptedColumn[256];
 			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
+				columns[index] = factory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
 			}
 			return columns;
 		});
@@ -436,6 +435,20 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				this.columnSeed,
 				x,
 				z,
+				world,
+				hints,
+				this.compiledWorldTraits
+			)
+		);
+	}
+
+	public ScriptedColumnLookup.Impl newColumnLookup(HeightLimitView world, Hints hints) {
+		return new ScriptedColumnLookup.Impl(
+			this.columnEntryRegistry.columnFactory,
+			new ScriptedColumn.Params(
+				this.columnSeed,
+				0,
+				0,
 				world,
 				hints,
 				this.compiledWorldTraits
@@ -822,16 +835,28 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		Chunk chunk,
 		StructureTemplateManager structureTemplateManager
 	) {
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
 		this.structureManager.setStructureStarts(
 			new StructureGenerationParams(
 				this,
+				new ScriptedColumnLookup.Impl(
+					this.columnEntryRegistry.columnFactory,
+					new ScriptedColumn.Params(
+						this,
+						0,
+						0,
+						hints
+					)
+				),
+				hints,
 				placementCalculator,
 				registryManager,
 				placementCalculator.getNoiseConfig(),
 				structureTemplateManager,
 				chunk,
 				chunk.getPos(),
-				DistantHorizonsCompat.isOnDistantHorizonThread()
+				distantHorizons
 			),
 			chunk
 		);

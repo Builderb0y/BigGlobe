@@ -21,6 +21,7 @@
 	"bigglobe:sea_level":                "0I",
 	"bigglobe:skyland_min_y":            " floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
 	"bigglobe:skyland_max_y":            "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)",
+	"bigglobe:snow_chance_at":           "world_traits.`bigglobe:approximate_surface_y` < world_traits.`bigglobe:sea_level` && y > world_traits.`bigglobe:sea_level` + 128 ? 0.0I : world_traits.`bigglobe:snow_chance`",
 	"bigglobe:temperature_at":           "`bigglobe:overworld/height_adjusted_temperature`",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:overworld/surface_temperature`",

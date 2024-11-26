@@ -1,8 +1,8 @@
 {
 	"condition": {
 		"type": "script_chance",
-		"script": "unmixClamp(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`) ^ 2"
+		"script": "0.75L / (fastExp(2.0L - 4.0L * `bigglobe:overworld/surface_foliage`) + 1.0L)"
 	},
 	"if_true": "bigglobe:overworld/surface_state/overgrown_test_forest",
-	"if_false": "bigglobe:overworld/surface_state/temperate_test_wasteland"
+	"if_false": "bigglobe:overworld/surface_state/temperate"
 }

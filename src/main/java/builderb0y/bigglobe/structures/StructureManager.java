@@ -9,7 +9,11 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.debug.DebugRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -19,6 +23,7 @@ import net.minecraft.structure.*;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.HeightLimitView;
@@ -38,8 +43,10 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -47,17 +54,19 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class StructureManager {
 
-	//public static final boolean DEBUG_REMOVED = false;
-	//public static final List<PotentialStructure> POTENTIAL_STRUCTURES = DEBUG_REMOVED ? new ArrayList<>() : null;
+	public static final boolean DEBUG_REMOVED = false;
+	public static final List<PotentialStructure> POTENTIAL_STRUCTURES = DEBUG_REMOVED ? new ArrayList<>() : null;
 
 	public final WorldUngeneratedStructures worldUngeneratedStructures = new WorldUngeneratedStructures(60_000);
 
 	public StructureManager() {
-		//POTENTIAL_STRUCTURES.clear();
+		if (DEBUG_REMOVED) POTENTIAL_STRUCTURES.clear();
 	}
 
 	public static record StructureGenerationParams(
 		BigGlobeScriptedChunkGenerator generator,
+		ScriptedColumnLookup columns,
+		Hints hints,
 		StructurePlacementCalculator structurePlacementCalculator,
 		DynamicRegistryManager dynamicRegistries,
 		NoiseConfig noiseConfig,
@@ -96,6 +105,8 @@ public class StructureManager {
 		public StructureGenerationParams at(ChunkPos pos) {
 			return new StructureGenerationParams(
 				this.generator,
+				this.columns,
+				this.hints,
 				this.structurePlacementCalculator,
 				this.dynamicRegistries,
 				this.noiseConfig,
@@ -119,13 +130,9 @@ public class StructureManager {
 		return structureID(structure).toString();
 	}
 
-	/*
 	public static void addPotentialStructure(StructureStart start, String failureReason) {
-		if (structureName(start.getStructure()).endsWith("village_plains")) {
-			POTENTIAL_STRUCTURES.add(new PotentialStructure(start, failureReason));
-		}
+
 	}
-	*/
 
 	public void setStructureStarts(StructureGenerationParams params, Chunk chunk) {
 		if (!chunk.getStructureStarts().isEmpty()) {
@@ -143,17 +150,15 @@ public class StructureManager {
 						params.chunkPos.x + offsetX,
 						params.chunkPos.z + offsetZ
 					);
-					toAdd.removeIntersecting(this.getStructureStarts(params2));
+					toAdd.removeIntersecting(this.getStructureStarts(params2), params);
 					if (toAdd.isEmpty()) break outer;
 				}
 			}
 			Map<Structure, StructureStart> map = new HashMap<>(toAdd.size());
 			for (SortedStructurePieces pieces : toAdd) {
-				/*
 				if (DEBUG_REMOVED) {
 					addPotentialStructure(pieces.getStart(), null);
 				}
-				*/
 				//System.out.println("Survivor: " + toString(pieces.getStart()));
 				map.merge(pieces.getStart().getStructure(), pieces.getStart(), (StructureStart start1, StructureStart start2) -> {
 					//todo: handle multiple of the same structure in the same chunk.
@@ -198,7 +203,7 @@ public class StructureManager {
 					int index = getRandomIndex(possibilities, totalWeight, structureChooser);
 					WeightedEntry entry = possibilities.get(index);
 					SortedStructurePieces structure = this.computeStructureStart(params, entry);
-					if (structure.getStart().hasChildren()) {
+					if (structure.hasChildren()) {
 						toAdd.add(structure);
 						break;
 					}
@@ -216,12 +221,7 @@ public class StructureManager {
 			}
 		}
 		if (!toAdd.isEmpty()) {
-			toAdd.sort(
-				Comparator.comparingInt(
-					SortedStructurePieces::volume
-				)
-			);
-			toAdd.checkSelfIntersections();
+			toAdd.checkSelfIntersections(params);
 		}
 		return toAdd;
 	}
@@ -250,7 +250,7 @@ public class StructureManager {
 
 	public @NotNull SortedStructurePieces computeStructureStart(StructureGenerationParams params, WeightedEntry weightedEntry) {
 		if (ValkyrienSkiesCompat.isInShipyard(params.chunkPos)) {
-			return SortedStructurePieces.EMPTY;
+			return EmptySortedStructurePieces.INSTANCE;
 		}
 		//System.out.println("Computing " + UnregisteredObjectException.getID(weightedEntry.structure()) + " at " + params.chunkPos);
 		Structure structure = weightedEntry.structure().value();
@@ -262,15 +262,16 @@ public class StructureManager {
 			params.toStructureContext(Predicates.alwaysTrue())
 		)
 		.orElse(null);
-		if (newStartPosition == null) return SortedStructurePieces.EMPTY;
+		if (newStartPosition == null) return EmptySortedStructurePieces.INSTANCE;
 		StructurePiecesCollector collector = newStartPosition.generate();
 		StructureStart newStart = new StructureStart(structure, params.chunkPos, 0, collector.toList());
-		if (!newStart.hasChildren()) return SortedStructurePieces.EMPTY;
+		if (!newStart.hasChildren()) return EmptySortedStructurePieces.INSTANCE;
+		StructureStartWrapper wrapper = StructureStartWrapper.of(weightedEntry.structure(), newStart);
 		int oldY = newStart.getBoundingBox().getMinY();
 		if (
 			!this.canStructureSpawn(
 				params,
-				weightedEntry.structure(),
+				wrapper,
 				newStart,
 				new Permuter(
 					Permuter.permute(
@@ -283,7 +284,7 @@ public class StructureManager {
 				)
 			)
 		) {
-			return SortedStructurePieces.EMPTY;
+			return EmptySortedStructurePieces.INSTANCE;
 		}
 		int newY = newStart.getBoundingBox().getMinY();
 		if (
@@ -296,12 +297,10 @@ public class StructureManager {
 				)
 			)
 		) {
-			/*
 			if (DEBUG_REMOVED) {
 				addPotentialStructure(newStart, "Incorrect biome");
 			}
-			*/
-			return SortedStructurePieces.EMPTY;
+			return EmptySortedStructurePieces.INSTANCE;
 		}
 		//expand structure bounding boxes so that overriders
 		//which depend on them being expanded work properly.
@@ -312,12 +311,12 @@ public class StructureManager {
 				: 4
 			)
 		);
-		return SortedStructurePieces.create(newStart);
+		return SortedStructurePieces.create(wrapper);
 	}
 
 	public boolean canStructureSpawn(
 		StructureGenerationParams params,
-		RegistryEntry<Structure> entry,
+		StructureStartWrapper wrapper,
 		StructureStart start,
 		Permuter permuter
 	) {
@@ -328,14 +327,11 @@ public class StructureManager {
 				params.generator, 0, 0, hints
 			)
 		);
-		StructureStartWrapper wrapper = StructureStartWrapper.of(entry, start);
 		for (StructureOverrider.Entry overrider : params.generator.getOverriders().structures) {
 			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed, hints)) {
-				/*
 				if (StructureManager.DEBUG_REMOVED) {
 					StructureManager.addPotentialStructure(start, "overrider " + BigGlobeMod.getCurrentServer().getRegistryManager().get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY).getId(overrider) + " said no.");
 				}
-				*/
 				return false;
 			}
 		}
@@ -404,53 +400,63 @@ public class StructureManager {
 			return this.timestamp >= deadline;
 		}
 
-		public void checkSelfIntersections() {
+		public void checkSelfIntersections(StructureGenerationParams params) {
 			int size = this.size;
 			if (size <= 1) return;
 			Object[] elements = this.elements();
-			for (int smallerIndex = 0; smallerIndex < size; smallerIndex++) {
-				SortedStructurePieces smallerStructure = (SortedStructurePieces)(elements[smallerIndex]);
-				for (int largerIndex = smallerIndex; ++largerIndex < size;) {
-					SortedStructurePieces largerStructure = (SortedStructurePieces)(elements[largerIndex]);
-					if (SortedStructurePieces.intersects(smallerStructure, largerStructure)) {
-						/*
-						if (DEBUG_REMOVED) {
-							addPotentialStructure(smallerStructure.getStart(), "Collision");
+			for (int currentIndex = 0; currentIndex < size; currentIndex++) {
+				SortedStructurePieces currentStructure = (SortedStructurePieces)(elements[currentIndex]);
+				for (int otherIndex = 0; otherIndex < size; otherIndex++) {
+					if (otherIndex == currentIndex) continue;
+					SortedStructurePieces otherStructure = (SortedStructurePieces)(elements[otherIndex]);
+					if (otherStructure != null && SortedStructurePieces.intersects(currentStructure, otherStructure)) {
+						int priority = params.generator.getOverriders().getCollisionPriority(params.columns, currentStructure, otherStructure, params.hints);
+						if (priority < 0) {
+							if (DEBUG_REMOVED) {
+								addPotentialStructure(currentStructure.getStart(), "Self collision priority < 0");
+							}
+							elements[currentIndex] = null;
 						}
-						*/
-						//System.out.println("Prevented self-intersection between " + StructureManager.toString(smallerStructure.getStart()) + " and " + StructureManager.toString(largerStructure.getStart()));
-						elements[smallerIndex] = null;
-						break;
+						else if (priority == 0 && currentStructure.volume() <= otherStructure.volume()) {
+							if (DEBUG_REMOVED) {
+								addPotentialStructure(currentStructure.getStart(), "Self collision with larger structure " + structureName(otherStructure.getStart().getStructure()) + " (priority 0)");
+							}
+							elements[currentIndex] = null;
+						}
 					}
 				}
 			}
 			this.removeNulls();
 		}
 
-		public void removeIntersecting(ChunkUngeneratedStructures other) {
+		public void removeIntersecting(
+			ChunkUngeneratedStructures other,
+			StructureGenerationParams params
+		) {
 			int size = this.size;
 			if (size == 0) return;
 			int otherSize = other.size();
 			if (otherSize == 0) return;
 			Object[] elements = this.elements();
-			for (int smallerIndex = 0; smallerIndex < size; smallerIndex++) {
-				SortedStructurePieces smallerStructure = (SortedStructurePieces)(elements[smallerIndex]);
-				for (int largerIndex = otherSize; --largerIndex >= 0;) {
-					SortedStructurePieces largerStructure = other.get(largerIndex);
-					if (largerStructure.volume() >= smallerStructure.volume()) {
-						if (SortedStructurePieces.intersects(smallerStructure, largerStructure)) {
-							/*
+			SortedOverriders overriders = params.generator.getOverriders();
+			for (int currentIndex = 0; currentIndex < size; currentIndex++) {
+				SortedStructurePieces currentStructure = (SortedStructurePieces)(elements[currentIndex]);
+				for (int otherIndex = 0; otherIndex < otherSize; otherIndex++) {
+					SortedStructurePieces otherStructure = other.get(otherIndex);
+					if (SortedStructurePieces.intersects(currentStructure, otherStructure)) {
+						int priority = overriders.getCollisionPriority(params.columns, currentStructure, otherStructure, params.hints);
+						if (priority < 0) {
 							if (DEBUG_REMOVED) {
-								addPotentialStructure(smallerStructure.getStart(), "Collision");
+								addPotentialStructure(currentStructure.getStart(), "Other collision priority < 0");
 							}
-							*/
-							//System.out.println("Prevented intersection between " + StructureManager.toString(smallerStructure.getStart()) + " and " + StructureManager.toString(largerStructure.getStart()));
-							elements[smallerIndex] = null;
-							break;
+							elements[currentIndex] = null;
 						}
-					}
-					else {
-						break;
+						else if (priority == 0 && currentStructure.volume() <= otherStructure.volume()) {
+							if (DEBUG_REMOVED) {
+								addPotentialStructure(currentStructure.getStart(), "Other collision with larger structure " + structureName(otherStructure.getStart().getStructure()) + " (priority 0)");
+							}
+							elements[currentIndex] = null;
+						}
 					}
 				}
 			}
@@ -475,14 +481,20 @@ public class StructureManager {
 
 	public static interface SortedStructurePieces {
 
-		public static final SortedStructurePieces EMPTY = create(StructureStart.DEFAULT);
-
-		public static SortedStructurePieces create(StructureStart start) {
-			assert start.hasChildren() || EMPTY == null;
-			return new SectionSortedStructurePieces(start);
+		public static SortedStructurePieces create(StructureStartWrapper wrapper) {
+			assert wrapper.start().hasChildren();
+			return new SectionSortedStructurePieces(wrapper);
 		}
 
-		public abstract StructureStart getStart();
+		public abstract StructureStartWrapper getWrapper();
+
+		public default StructureStart getStart() {
+			return this.getWrapper().start();
+		}
+
+		public default boolean hasChildren() {
+			return this.getStart().hasChildren();
+		}
 
 		public abstract boolean intersects(StructurePiece piece);
 
@@ -517,16 +529,43 @@ public class StructureManager {
 		}
 	}
 
+	public static enum EmptySortedStructurePieces implements SortedStructurePieces {
+		INSTANCE;
+
+		@Override
+		public StructureStartWrapper getWrapper() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean intersects(StructurePiece piece) {
+			return false;
+		}
+
+		@Override
+		public int volume() {
+			return 0;
+		}
+
+		@Override
+		public boolean hasChildren() {
+			return false;
+		}
+	}
+
 	public static class ChunkSortedStructurePieces extends Long2ObjectOpenHashMap<List<StructurePiece>> implements SortedStructurePieces {
 
-		public final StructureStart start;
-		public final int volume;
+		public final StructureStartWrapper wrapper;
+		@Override public StructureStartWrapper getWrapper() { return this.wrapper; }
 
-		public ChunkSortedStructurePieces(StructureStart start) {
-			super(start.getChildren().size());
-			this.start = start;
-			this.volume = SortedStructurePieces.volumeOf(start);
-			for (StructurePiece piece : start.getChildren()) {
+		public final int volume;
+		@Override public int volume() { return this.volume; }
+
+		public ChunkSortedStructurePieces(StructureStartWrapper wrapper) {
+			super(wrapper.start().getChildren().size());
+			this.wrapper = wrapper;
+			this.volume = SortedStructurePieces.volumeOf(wrapper.start());
+			for (StructurePiece piece : wrapper.start().getChildren()) {
 				BlockBox box = piece.getBoundingBox();
 				int minX = box.getMinX() >> 4;
 				int minZ = box.getMinZ() >> 4;
@@ -566,16 +605,6 @@ public class StructureManager {
 		}
 
 		@Override
-		public StructureStart getStart() {
-			return this.start;
-		}
-
-		@Override
-		public int volume() {
-			return this.volume;
-		}
-
-		@Override
 		public String toString() {
 			return this.defaultToString();
 		}
@@ -583,14 +612,17 @@ public class StructureManager {
 
 	public static class SectionSortedStructurePieces extends Long2ObjectOpenHashMap<List<StructurePiece>> implements SortedStructurePieces {
 
-		public final StructureStart start;
-		public final int volume;
+		public final StructureStartWrapper wrapper;
+		@Override public StructureStartWrapper getWrapper() { return this.wrapper; }
 
-		public SectionSortedStructurePieces(StructureStart start) {
-			super(start.getChildren().size());
-			this.start = start;
-			this.volume = SortedStructurePieces.volumeOf(start);
-			for (StructurePiece piece : start.getChildren()) {
+		public final int volume;
+		@Override public int volume() { return this.volume; }
+
+		public SectionSortedStructurePieces(StructureStartWrapper wrapper) {
+			super(wrapper.start().getChildren().size());
+			this.wrapper = wrapper;
+			this.volume = SortedStructurePieces.volumeOf(wrapper.start());
+			for (StructurePiece piece : wrapper.start().getChildren()) {
 				BlockBox box = piece.getBoundingBox();
 				int minX = box.getMinX() >> 4;
 				int minY = box.getMinY() >> 4;
@@ -638,22 +670,11 @@ public class StructureManager {
 		}
 
 		@Override
-		public StructureStart getStart() {
-			return this.start;
-		}
-
-		@Override
-		public int volume() {
-			return this.volume;
-		}
-
-		@Override
 		public String toString() {
 			return this.defaultToString();
 		}
 	}
 
-	/*
 	public static class PotentialStructure {
 
 		public final StructureStart start;
@@ -719,5 +740,4 @@ public class StructureManager {
 			);
 		}
 	}
-	*/
 }

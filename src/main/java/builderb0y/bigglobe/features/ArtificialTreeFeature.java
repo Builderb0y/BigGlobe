@@ -27,6 +27,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.CompileTiming;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -120,7 +121,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		DecoratorConfig.Builder decorationsBuilder = new DecoratorConfig.Builder();
 		if (config.decorations != null) config.decorations.addTo(decorationsBuilder);
 
+		ScriptedColumnLookup.Impl columns = generator.newColumnLookup(world, ColumnUsage.FEATURES.maybeDhHints());
 		return new TreeGenerator(
+			columns,
 			world,
 			blockQueue,
 			permuter,
@@ -162,11 +165,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			@NotNull BlockDecorator @Nullable [] toAdd,
 			@Nullable List<@NotNull BlockDecorator> addTo
 		) {
-			if (toAdd != null) {
+			if (toAdd != null && toAdd.length != 0) {
 				if (addTo == null) addTo = new ArrayList<>(toAdd.length + 2);
-				for (BlockDecorator decorator : toAdd) {
-					addTo.add(decorator.copyIfMutable());
-				}
+				addTo.addAll(Arrays.asList(toAdd));
 			}
 			return addTo;
 		}

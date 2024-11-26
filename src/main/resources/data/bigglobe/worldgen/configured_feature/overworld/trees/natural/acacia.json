@@ -2,17 +2,17 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:acacia",
-		"height": "random.nextDouble() * max(`bigglobe:overworld/surface_foliage`, 0.0I) * 24.0 + 4.0",
+		"height": "fastExp2(world_traits.`bigglobe:foliage_at` + 3.0I) * random.nextDouble() + 4.0L",
 		"trunk": {
 			"type": "bigglobe:straight",
-			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
+			"thickness": "mixLinear(max(height * 0.09375L, minThickness), minThickness, fraction)",
 			"require_natural_ground": true,
 			"can_generate_in_liquid": false
 		},
 		"branches": {
 			"start_frac_y": { "type": "uniform", "min": 0.5, "max": 0.75 },
 			"count_per_layer": { "type": "uniform", "min": 4.0, "max": 8.0 },
-			"length_function": "fraction ^ 2 * random.nextDouble(1.0, 1.5)",
+			"length_function": "fraction * random.nextDouble(1.5L, 2.0L)",
 			"height_function": "-0.25 * fraction ^ 2"
 		},
 		"decorations": {

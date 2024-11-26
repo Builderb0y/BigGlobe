@@ -7,7 +7,7 @@
 	"layout": {
 		"template": "bigglobe:nether_pillar_structure",
 		"inputs": {
-			"PILLARS_PER_CHUNK": "0.25",
+			"CHANCE_PER_CHUNK": "0.25",
 			"CENTER_ATTEMPTS": "16",
 			"MAX_RADIUS": "96.0",
 			"BROKEN_CHANCE": "0.625"

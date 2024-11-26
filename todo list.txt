@@ -15,6 +15,7 @@ testing:
 	compatibility with chunk pre-generator mods.
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
+	"veil" causes missing registries.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
@@ -25,12 +26,18 @@ where I left off:
 	more mud in swamps.
 	64-ish blocks of (red) sandstone below surface in deserts.
 	abandon hard threshold for where trees can exist?
-		instead replace it with an exponential density curve?
+		remove wasteland biomes.
+		check on cactus and bamboo spawning frequencies and see if they need changing.
+		test island worlds again.
+		adjust foliage excluders now that 0 is no longer the minimum foliage.
+	verify that nether fortresses and bastion remnants spawn correctly.
+	add world_trait type to decision trees and column restrictions.
 
 to finish before release:
 	document version that patches for decision tree column entries were added in.
 	document version that new fast math functions were added in.
 	remove experimental column values, move them to a local data pack.
+	prevent lakes from spawning low enough to create beaches.
 
 changelog:
 	* Added a 4'th temperature zone: warm, between temperate and hot.
@@ -39,6 +46,7 @@ changelog:
 	* Improved performance of block tinting in big globe worlds.
 		* This helps chunks load in faster, and reduces delay and lag when placing and breaking blocks.
 	* Fixed some glacier-related decorations spawning in island worlds.
+	* Fixed nether structures spawning incredibly rarely.
 	* Increased the amount of land area in the end dimension.
 	* Reduced number of bridge clouds in the end dimension.
 	* Made end fractal structures more common.
@@ -186,6 +194,8 @@ scripting:
 		attempts to cast the expression to Type, but returns null if this fails for any reason.
 		can be chained with ?:
 		might also need to make "as" into a keyword too so I can do .as?(Type)
+	random.repeat (float/double times: body)
+		also seed.repeat(...)
 	enhanced type system?
 		Type(attribute1: constant1, attribute2: constant2, ...) defines a full type.
 		ExpressionParser.nextType() will be added as a replacement for environment.getType().

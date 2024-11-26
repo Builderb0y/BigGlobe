@@ -17,7 +17,7 @@ public class RandomWalkLeafDecorator extends ConfiguredLeafDecorator {
 
 	@Override
 	public void decorate(TreeGenerator generator, BlockPos branchPos, BlockState branchState) {
-		if (this.is_trunk && generator.trunk.currentFracY < generator.branches.startFracY) return;
+		if (this.is_trunk && generator.trunk.currentFracY != 1.0D) return;
 		double radius = generator.trunk.currentRadius * 0.5D + 2.0D;
 		int walks = Permuter.roundRandomlyI(generator.random, radius * radius * radius);
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();

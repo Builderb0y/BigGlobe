@@ -19,7 +19,7 @@ public class ScatterLeafDecorator extends ConfiguredLeafDecorator {
 
 	@Override
 	public void decorate(TreeGenerator generator, BlockPos pos, BlockState state) {
-		if (this.is_trunk && generator.trunk.currentFracY < generator.branches.startFracY) return;
+		if (this.is_trunk && generator.trunk.currentFracY != 1.0D) return;
 		double radius = generator.trunk.currentRadius * 0.5D + 2.0D;
 		int blocks = Permuter.roundRandomlyI(generator.random, radius * radius * radius * 2.0D);
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
@@ -30,6 +30,7 @@ public class ScatterLeafDecorator extends ConfiguredLeafDecorator {
 				generator.random,
 				generator.random.nextDouble(1.0D, radius)
 			)
+			.add(0.5D, 0.5D, 0.5D)
 			.add(pos.getX(), pos.getY(), pos.getZ());
 			this.placeAt(
 				generator,

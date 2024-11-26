@@ -23,7 +23,6 @@
 	},
 	"features": {
 		"sapling_grow": "bigglobe:overworld/trees/artificial/dark_oak",
-		"natural_surface": "bigglobe:overworld/trees/natural/dark_oak",
-		"skylands": "bigglobe:overworld/trees/skylands/dark_oak"
+		"natural_surface": "bigglobe:overworld/trees/natural/dark_oak"
 	}
 }

@@ -9,6 +9,7 @@ import net.minecraft.world.StructureWorldAccess;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
@@ -26,6 +27,7 @@ import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
 public class TreeGenerator {
 
+	public final ScriptedColumnLookup columns;
 	public final BlockQueueStructureWorldAccess worldQueue;
 	public final Permuter random;
 	public final WoodPalette palette;
@@ -36,6 +38,7 @@ public class TreeGenerator {
 	public final ScriptedColumn column;
 
 	public TreeGenerator(
+		ScriptedColumnLookup columns,
 		StructureWorldAccess world,
 		BlockQueue queue,
 		Permuter random,
@@ -46,6 +49,7 @@ public class TreeGenerator {
 		DecoratorConfig decorators,
 		ScriptedColumn column
 	) {
+		this.columns            = columns;
 		this.worldQueue         = queue.createWorld(world);
 		this.random             = random;
 		this.palette            = palette;

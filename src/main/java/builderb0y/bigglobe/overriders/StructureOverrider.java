@@ -15,7 +15,7 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
+import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
@@ -92,7 +92,7 @@ public interface StructureOverrider extends ColumnScript {
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
-						.addFieldGet(Piece.class, "data")
+						.addFieldGet(ScriptedStructure.Piece.class, "data")
 						.addVariableLoad("start", StructureStartWrapper.TYPE)
 						.addMethodInvokeStatics(StructureOverrider.class, "move", "moveToRange")
 						.addMethod(

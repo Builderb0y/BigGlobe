@@ -10,9 +10,9 @@
 			"can_generate_in_liquid": false
 		},
 		"branches": {
-			"start_frac_y": { "type": "uniform", "min": 0.25, "max": 0.5 },
+			"start_frac_y": 0.25,
 			"count_per_layer": { "type": "uniform", "min": 2.0, "max": 4.0 },
-			"length_function": "(0.5 - 0.5 * fraction) * random.nextDouble(0.5, 1.0)",
+			"length_function": "0.375 - 0.375 * fraction",
 			"height_function": "fraction * -0.25"
 		},
 		"decorations": {

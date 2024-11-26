@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "unmixSmooth(-0.125I, 0.125I, world_traits.`bigglobe:temperature_at_sea_level`)"
 	},
-	"if_true": "bigglobe:islands/foliage_feature/test_hot",
-	"if_false": "bigglobe:islands/foliage_feature/test_cold"
+	"if_true": "bigglobe:islands/skyland_foliage_feature/test_hot",
+	"if_false": "bigglobe:islands/skyland_foliage_feature/test_cold"
 }

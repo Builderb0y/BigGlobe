@@ -25,19 +25,4 @@ public interface BlockDecorator extends CoderRegistryTyped<BlockDecorator> {
 	}};
 
 	public abstract void decorate(TreeGenerator generator, BlockPos pos, BlockState state);
-
-	/**
-	the BlockDecorator is deserialized from {@link #REGISTRY},
-	which is a problem if the decorator has an internal state,
-	since the same instance of it will be re-used over and over again,
-	instead of a new instance being created for every tree.
-	I didn't feel like making a dedicated BlockDecoratorFactory
-	interface to create new instances when, at the time of writing this,
-	only one implementation has an internal state to begin with.
-	so instead I have this method to copy decorators with internal
-	states before adding them to the {@link DecoratorConfig}.
-	*/
-	public default BlockDecorator copyIfMutable() {
-		return this;
-	}
 }

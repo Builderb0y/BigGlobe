@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": "`bigglobe:islands/skyland_snow_chance`"
+	},
+	"if_true": "bigglobe:islands/skyland_foliage_feature/cold_test_forest",
+	"if_false": "bigglobe:islands/skyland_foliage_feature/temperate_test_magical"
+}

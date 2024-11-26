@@ -23,7 +23,6 @@
 	},
 	"features": {
 		"sapling_grow": "bigglobe:overworld/trees/artificial/acacia",
-		"natural_surface": "bigglobe:overworld/trees/natural/acacia",
-		"skylands": "bigglobe:overworld/trees/skylands/acacia"
+		"natural_surface": "bigglobe:overworld/trees/natural/acacia"
 	}
 }

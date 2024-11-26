@@ -1,12 +1,12 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:overworld/trees/skylands/oak",
-		"bigglobe:overworld/trees/skylands/spruce",
-		"bigglobe:overworld/trees/skylands/birch",
-		"bigglobe:overworld/trees/skylands/jungle",
-		"bigglobe:overworld/trees/skylands/acacia",
-		"bigglobe:overworld/trees/skylands/dark_oak",
-		"bigglobe:overworld/trees/skylands/cherry"
+		"bigglobe:overworld/trees/natural/oak",
+		"bigglobe:overworld/trees/natural/spruce",
+		"bigglobe:overworld/trees/natural/birch",
+		"bigglobe:overworld/trees/natural/jungle",
+		"bigglobe:overworld/trees/natural/acacia",
+		"bigglobe:overworld/trees/natural/dark_oak",
+		"bigglobe:overworld/trees/natural/cherry"
 	]
 }

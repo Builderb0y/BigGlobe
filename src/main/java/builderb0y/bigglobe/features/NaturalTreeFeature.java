@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleSc
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -58,7 +60,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
 		int startY = origin.getY();
 		double startZ = origin.getZ() + Permuter.nextUniformDouble(permuter) * 0.5D;
-		ScriptedColumn column = generator.newColumn(context.getWorld(), origin.getX(), origin.getZ(), ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
+		ScriptedColumnLookup columns = generator.newColumnLookup(context.getWorld(), ColumnUsage.FEATURES.maybeDhHints(distantHorizons));
+		ScriptedColumn column = columns.lookupColumn(origin.getX(), origin.getZ());
 		double height = config.height.get(column, permuter, origin.getY());
 		if (!(height > 0.0D)) return false;
 		TrunkConfig trunkConfig = config.trunk.create(
@@ -91,6 +94,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			}
 		}
 		return new TreeGenerator(
+			columns,
 			context.getWorld(),
 			config.delay_generation
 			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
@@ -141,11 +145,9 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			@NotNull BlockDecorator @Nullable [] toAdd,
 			@Nullable List<@NotNull BlockDecorator> addTo
 		) {
-			if (toAdd != null) {
+			if (toAdd != null && toAdd.length != 0) {
 				if (addTo == null) addTo = new ArrayList<>(toAdd.length + 2);
-				for (BlockDecorator decorator : toAdd) {
-					addTo.add(decorator.copyIfMutable());
-				}
+				addTo.addAll(Arrays.asList(toAdd));
 			}
 			return addTo;
 		}

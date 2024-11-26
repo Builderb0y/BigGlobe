@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:oak",
-		"height": "random.nextDouble() * max(`bigglobe:overworld/surface_foliage`, 0.0I) * 32.0 + 4.0",
+		"height": "fastExp2(world_traits.`bigglobe:foliage_at` + 3.0I) * random.nextDouble() + 4.0L",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
@@ -12,15 +12,8 @@
 		"branches": {
 			"start_frac_y": { "type": "uniform", "min": 0.25, "max": 0.5 },
 			"count_per_layer": { "type": "uniform", "min": 2.0, "max": 4.0 },
-			"length_function": [
-				"double length = fraction * (1.0 - fraction)",
-				"length = fraction > 0.5 ? sqrt(length) : length * 2.0",
-				"length = length * random.nextDouble(0.5, 1.0)",
-				"return(length)"
-			],
-			"height_function": [
-				"return(fraction * (fraction * -0.5 + 0.5))"
-			]
+			"length_function": "((fraction -: fraction * fraction) > 0.5 ? sqrt(fraction) : fraction * 2.0L) * random.nextDouble(0.5L, 1.0L)",
+			"height_function": "return(fraction * (fraction * -0.5 + 0.5))"
 		},
 		"decorations": {
 			"trunk": [
@@ -28,14 +21,14 @@
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
 				{ "type": "bigglobe:stubby_branch", "chance": 0.125 },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/vines_half_chance" },
-				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance`" }
+				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
 			],
 			"branches": [
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
-				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance`" }
+				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
 			],
 			"leaves": [
-				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance`" },
+				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" },
 				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/bee_nest" }
 			]
 		},
@@ -69,10 +62,7 @@
 			"bigglobe:overgrown_podzol": "minecraft:dirt",
 			"minecraft:farmland":        "minecraft:dirt",
 			"minecraft:coarse_dirt":     "minecraft:coarse_dirt",
-			"minecraft:rooted_dirt":     "minecraft:rooted_dirt",
-			"minecraft:sand":            "minecraft:sand",
-			"minecraft:red_sand":        "minecraft:red_sand",
-			"bigglobe:overgrown_sand":   "minecraft:sand"
+			"minecraft:rooted_dirt":     "minecraft:rooted_dirt"
 		}
 	}
 }

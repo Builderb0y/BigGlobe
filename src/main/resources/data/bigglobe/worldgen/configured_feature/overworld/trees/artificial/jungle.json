@@ -2,27 +2,27 @@
 	"type": "bigglobe:artificial_tree",
 	"config": {
 		"palette": "minecraft:jungle",
-		"height": "max(random.roundInt(baseRadius * 8.0L), 4)",
+		"height": "random.roundInt(baseRadius * 16.0L)",
 		"trunk": {
 			"type": "bigglobe:straight",
-			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
+			"thickness": "mixLinear(max(height * 0.0625L, minThickness), minThickness, fraction)",
 			"require_natural_ground": false,
 			"can_generate_in_liquid": false
 		},
 		"branches": {
-			"start_frac_y": { "type": "uniform", "min": 0.5, "max": 0.75 },
+			"start_frac_y": { "type": "uniform", "min": 0.0, "max": 0.25 },
 			"count_per_layer": { "type": "uniform", "min": 4.0, "max": 8.0 },
-			"length_function": "fraction ^ 2 * random.nextDouble(1.5, 2.0)",
+			"length_function": "fraction * 2.0L - (fraction > 0.5L ? 1.5L : 0.75L)",
 			"height_function": "-0.25 * fraction ^ 2"
 		},
 		"decorations": {
 			"trunk": [
-				{ "type": "bigglobe:drooping_leaves", "is_trunk": true },
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": true },
 				{ "type": "bigglobe:adjacent_leaf", "chance": 0.5 },
 				{ "type": "bigglobe:stubby_branch", "chance": 0.125 }
 			],
 			"branches": [
-				{ "type": "bigglobe:drooping_leaves", "is_trunk": false }
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false }
 			]
 		},
 		"ground_replacements": {

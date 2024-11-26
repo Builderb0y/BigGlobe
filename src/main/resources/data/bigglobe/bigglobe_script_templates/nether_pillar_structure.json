@@ -1,7 +1,6 @@
 {
 	"script": [
-		"int pillarCount = random.roundInt(PILLARS_PER_CHUNK)",
-		"repeat (pillarCount:",
+		"random.if (CHANCE_PER_CHUNK:",
 			"repeat centerAttempt (CENTER_ATTEMPTS:",
 				"int centerY = random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`)",
 				"unless (`bigglobe:nether/bubble`.noise(centerY) < 0.5I:",
@@ -103,9 +102,9 @@
 		")"
 	],
 	"inputs": [
-		{ "name": "PILLARS_PER_CHUNK", "type": "float"  },
-		{ "name": "CENTER_ATTEMPTS",   "type": "int"    },
-		{ "name": "MAX_RADIUS",        "type": "double" },
-		{ "name": "BROKEN_CHANCE",     "type": "float"  }
+		{ "name": "CHANCE_PER_CHUNK", "type": "float"  },
+		{ "name": "CENTER_ATTEMPTS",  "type": "int"    },
+		{ "name": "MAX_RADIUS",       "type": "double" },
+		{ "name": "BROKEN_CHANCE",    "type": "float"  }
 	]
 }
