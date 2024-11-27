@@ -38,6 +38,7 @@ to finish before release:
 	document version that new fast math functions were added in.
 	remove experimental column values, move them to a local data pack.
 	prevent lakes from spawning low enough to create beaches.
+	do something about waterfalls spawning in trees.
 
 changelog:
 	* Added a 4'th temperature zone: warm, between temperate and hot.
@@ -50,6 +51,7 @@ changelog:
 	* Increased the amount of land area in the end dimension.
 	* Reduced number of bridge clouds in the end dimension.
 	* Made end fractal structures more common.
+	* Fixed compatibility with Veil.
 
 alternate world presets:
 	paradise.

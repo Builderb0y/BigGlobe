@@ -80,10 +80,21 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		}
 	}
 
-	public static boolean checkFluids(BlockView world, BlockPos origin, BlockState[] states, Predicate<BlockState> replace) {
+	public static int
+		CAN_PLACE = 1,
+		REPLACE_BELOW = 2,
+		REPLACE_ABOVE = 4;
+
+	public static int checkFluids(BlockView world, BlockPos origin, BlockState[] states, Predicate<BlockState> replace) {
+		int result = CAN_PLACE;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
 			BlockState oldState = world.getBlockState(origin.up(offsetY));
-			if (!replace.test(oldState)) return false;
+			if (!replace.test(oldState)) return 0;
+			DoubleBlockHalf half = oldState.getOrEmpty(Properties.DOUBLE_BLOCK_HALF).orElse(null);
+			if (half != null) switch (half) {
+				case LOWER -> { if (offsetY + 1 >= length && oldState.getBlock() == world.getBlockState(origin.up(offsetY + 1)).getBlock()) result |= REPLACE_ABOVE; }
+				case UPPER -> { if (offsetY - 1 <  0      && oldState.getBlock() == world.getBlockState(origin.up(offsetY - 1)).getBlock()) result |= REPLACE_BELOW; }
+			}
 			BlockState newState = states[offsetY];
 			FluidState fluidState = oldState.getFluidState();
 			if (fluidState.isEmpty()) {
@@ -91,7 +102,7 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 					newState = newState.with(Properties.WATERLOGGED, Boolean.FALSE);
 				}
 				else if (!states[offsetY].getFluidState().isEmpty()) {
-					return false;
+					return 0;
 				}
 			}
 			else if (fluidState.getFluid() == Fluids.WATER) {
@@ -99,15 +110,15 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 					newState = newState.with(Properties.WATERLOGGED, Boolean.TRUE);
 				}
 				else if (states[offsetY].getFluidState().getFluid() != Fluids.WATER) {
-					return false;
+					return 0;
 				}
 			}
 			else {
-				return false;
+				return 0;
 			}
 			states[offsetY] = newState;
 		}
-		return true;
+		return result;
 	}
 
 	public static boolean place(
@@ -126,9 +137,18 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 			if (!place.canPlaceAt(world, pos)) return false;
 		}
 		BlockState[] states = getStates(place);
-		if (!checkFluids(world, pos, states, replace)) return false;
+		int flags = checkFluids(world, pos, states, replace);
+		if ((flags & CAN_PLACE) == 0) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
 			world.setBlockState(pos.up(offsetY), states[offsetY], Block.NOTIFY_ALL);
+		}
+		if ((flags & REPLACE_BELOW) != 0) {
+			BlockPos down = pos.down();
+			world.setBlockState(down, world.getFluidState(down).getBlockState(), Block.NOTIFY_ALL);
+		}
+		if ((flags & REPLACE_ABOVE) != 0) {
+			BlockPos up = pos.up(states.length);
+			world.setBlockState(up, world.getFluidState(up).getBlockState(), Block.NOTIFY_ALL);
 		}
 		return true;
 	}
@@ -140,9 +160,18 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		Predicate<BlockState> replace
 	) {
 		BlockState[] states = getStates(place);
-		if (!checkFluids(chunk, pos, states, replace)) return false;
+		int flags = checkFluids(chunk, pos, states, replace);
+		if ((flags & CAN_PLACE) == 0) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
 			chunk.setBlockState(pos.up(offsetY), states[offsetY], false);
+		}
+		if ((flags & REPLACE_BELOW) != 0) {
+			BlockPos down = pos.down();
+			chunk.setBlockState(down, chunk.getFluidState(down).getBlockState(), false);
+		}
+		if ((flags & REPLACE_ABOVE) != 0) {
+			BlockPos up = pos.up(states.length);
+			chunk.setBlockState(up, chunk.getFluidState(up).getBlockState(), false);
 		}
 		return true;
 	}

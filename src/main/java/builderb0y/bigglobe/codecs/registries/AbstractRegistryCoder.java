@@ -29,10 +29,10 @@ public abstract class AbstractRegistryCoder<T_Object, T_Result> extends NamedCod
 	}
 
 	public static <T_Encoded, T_Object> BetterRegistry<T_Object> registry(@NotNull RegistryKey<Registry<T_Object>> key, @NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-		if (BigGlobeDynamicRegistries.KEYS.contains(key) && ColumnEntryRegistry.Loading.LOADING != null && ColumnEntryRegistry.Loading.OVERRIDE.getCurrent() == null) {
+		/* if (BigGlobeDynamicRegistries.KEYS.contains(key) && ColumnEntryRegistry.Loading.LOADING != null && ColumnEntryRegistry.Loading.OVERRIDE.getCurrent() == null) {
 			return ColumnEntryRegistry.Loading.LOADING.betterRegistryLookup.getRegistry(key);
 		}
-		else if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
+		else */ if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
 			RegistryEntryLookup<T_Object> lookup = registryOps.getEntryLookup(key).orElse(null);
 			if (lookup == null) {
 				throw new DecodeException(() -> "Registry " + key.getValue() + " not present in RegistryOps");

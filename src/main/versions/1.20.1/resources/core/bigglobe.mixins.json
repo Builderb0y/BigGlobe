@@ -87,6 +87,7 @@
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
+		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_ResetColumnEntryRegistryWhenSelectingAWorld",
 		"MinecraftClient_SetWorldEvent",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds"

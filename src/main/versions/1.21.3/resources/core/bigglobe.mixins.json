@@ -90,9 +90,10 @@
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
+		"MinecraftClient_LoadingFinishedHook",
+		"MinecraftClient_ResetColumnEntryRegistryWhenSelectingAWorld",
 		"MinecraftClient_SetWorldEvent",
 		"PostEffectProcessor_PassesAccess",
-		"MinecraftClient_ResetColumnEntryRegistryWhenSelectingAWorld",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
 		"WorldRenderer_RenderHyperspaceSky",
 		"WorldRenderer_RenderWaypoints"
