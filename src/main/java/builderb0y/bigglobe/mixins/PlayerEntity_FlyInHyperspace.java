@@ -12,7 +12,7 @@ import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
+import builderb0y.bigglobe.hyperspace.HyperspaceFlight;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntity_FlyInHyperspace extends LivingEntity {
@@ -25,9 +25,6 @@ public abstract class PlayerEntity_FlyInHyperspace extends LivingEntity {
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void bigglobe_flyInHyperspace(CallbackInfo callback) {
-		if (this.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			this.getAbilities().allowFlying = true;
-			this.getAbilities().flying = true;
-		}
+		HyperspaceFlight.onPlayerTick((PlayerEntity)(Object)(this));
 	}
 }

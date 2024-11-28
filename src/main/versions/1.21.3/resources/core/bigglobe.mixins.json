@@ -60,7 +60,6 @@
 		"RegistryLoader_LoadColumnEntryRegistry",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"SaveLoading_UnloadColumnEntryRegistry",
-		"ServerPlayerEntity_StopFlyingWhenExitingHyperspace",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",

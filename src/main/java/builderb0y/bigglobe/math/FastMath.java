@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.math;
 
-import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
-
 public class FastMath {
 
 	public static class Trig {
@@ -26,10 +24,14 @@ public class FastMath {
 		}
 
 		public static double fastAsin(double x) {
-			double startingPoint = Math.sqrt(2.0D - 2.0D * Math.abs(x));
-			double alt = 1.0D - Math.abs(x);
-			double correction = (startingPoint + alt) * alt * 0.06485870465738149D; //((pi/2 - sqrt(2)) / (sqrt(2) + 1.0D));
-			return Math.copySign(Math.PI * 0.5D - (startingPoint + correction), x);
+			final double t1 = 1.0D / (Math.PI * 0.5D - 1.0D);
+			final double t5 = t1 - 1.0D;
+			final double t7 = t5 / -3.0D;
+			final double t3 = t7 * 5.0D;
+			double x2 = x * x;
+			double circle = Math.PI * 0.5D - Math.sqrt(1.0D - x2);
+			double poly = (((t7 * x2 + t5) * x2 + t3) * x2 + t1) * x;
+			return poly * circle;
 		}
 
 		public static double fastAcos(double x) {
@@ -43,6 +45,8 @@ public class FastMath {
 		}
 
 		public static double fastAtan2(double x, double y) {
+			//note: don't replace with copySign(),
+			//because that handles the case where y == 0 differently.
 			if (x == 0.0D) return (Math.PI * 0.5D) * Math.signum(y);
 			double result = fastAtan(y / x);
 			if (x < 0.0D) result += Math.copySign(Math.PI, y);

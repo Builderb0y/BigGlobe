@@ -59,7 +59,6 @@
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"SaveLoading_UnloadColumnEntryRegistry",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
-		"ServerPlayerEntity_StopFlyingWhenExitingHyperspace",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
 		"World_UseCorrectSeaLevel",
