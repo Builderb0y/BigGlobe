@@ -15,6 +15,7 @@ import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.Vec3i;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.scripting.bytecode.CastingSupport;
 
 /**
 the primary intention of this class is to use the
@@ -799,11 +800,11 @@ public class Permuter implements RandomGenerator {
 	and a 0% chance of rounding to 2 or 4.
 	*/
 	public static int roundRandomlyI(long seed, float number) {
-		return BigGlobeMath.floorI(number + nextPositiveFloat(seed));
+		return CastingSupport.floorInt(number + nextPositiveFloat(seed));
 	}
 
 	public static int roundRandomlyI(RandomGenerator random, float number) {
-		return BigGlobeMath.floorI(number + random.nextFloat());
+		return CastingSupport.floorInt(number + random.nextFloat());
 	}
 
 	/**
@@ -817,11 +818,11 @@ public class Permuter implements RandomGenerator {
 	and a 0% chance of rounding to 2 or 4.
 	*/
 	public static int roundRandomlyI(long seed, double number) {
-		return BigGlobeMath.floorI(number + nextPositiveDouble(seed));
+		return CastingSupport.floorInt(number + nextPositiveDouble(seed));
 	}
 
 	public static int roundRandomlyI(RandomGenerator random, double number) {
-		return BigGlobeMath.floorI(number + random.nextDouble());
+		return CastingSupport.floorInt(number + random.nextDouble());
 	}
 
 	/**
@@ -835,11 +836,11 @@ public class Permuter implements RandomGenerator {
 	and a 0% chance of rounding to 2 or 4.
 	*/
 	public static long roundRandomlyL(long seed, float number) {
-		return BigGlobeMath.floorL(number + nextPositiveFloat(seed));
+		return CastingSupport.floorLong(number + nextPositiveFloat(seed));
 	}
 
 	public static long roundRandomlyL(RandomGenerator random, float number) {
-		return BigGlobeMath.floorL(number + random.nextFloat());
+		return CastingSupport.floorLong(number + random.nextFloat());
 	}
 
 	/**
@@ -853,11 +854,11 @@ public class Permuter implements RandomGenerator {
 	and a 0% chance of rounding to 2 or 4.
 	*/
 	public static long roundRandomlyL(long seed, double number) {
-		return BigGlobeMath.floorL(number + nextPositiveDouble(seed));
+		return CastingSupport.floorLong(number + nextPositiveDouble(seed));
 	}
 
 	public static long roundRandomlyL(RandomGenerator random, double number) {
-		return BigGlobeMath.floorL(number + random.nextDouble());
+		return CastingSupport.floorLong(number + random.nextDouble());
 	}
 
 	/**

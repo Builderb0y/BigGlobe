@@ -11,7 +11,6 @@
 	"bigglobe:deep_dark_max_y":          "-624I",
 	"bigglobe:foliage_at":               "`bigglobe:overworld/height_adjusted_foliage`",
 	"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw_foliage`",
-	"bigglobe:foliage_at_surface":       "`bigglobe:overworld/surface_foliage`",
 	"bigglobe:has_skylands":             "SkylandBounds*(bounds := `bigglobe:overworld/skyland`.bounds) != null && bounds.max_y > bounds.min_y",
 	"bigglobe:hilliness":                "`bigglobe:overworld/hilliness`",
 	"bigglobe:lava_y":                   "-896I",
@@ -49,6 +48,10 @@
 	"bigglobe:exact_surface_y": {
 		"get": "`bigglobe:overworld/processed_surface_y`",
 		"set": "`bigglobe:overworld/processed_surface_y` = value"
+	},
+	"bigglobe:foliage_at_surface": {
+		"get": "`bigglobe:overworld/surface_foliage`",
+		"set": "`bigglobe:overworld/surface_foliage` = value"
 	},
 	"bigglobe:snow_y": {
 		"get": "`bigglobe:overworld/snow_y`",

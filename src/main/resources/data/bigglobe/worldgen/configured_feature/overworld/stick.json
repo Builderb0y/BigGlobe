@@ -3,7 +3,10 @@
 	"config": {
 		"script": [
 			"BlockState under = null",
-			"while ((under := getBlockState(originX, originY - 1, originZ)).isReplaceable(): --originY)",
+			"block (",
+				"unless (isYLevelValid(originY - 1): return(false))",
+				"if ((under := getBlockState(originX, originY - 1, originZ)).isReplaceable(): --originY,, continue())",
+			")",
 			"unless (",
 				"under.isIn('#minecraft:sand') || (",
 					"BlockState state = getBlockState(originX, originY, originZ),,",

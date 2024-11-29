@@ -18,7 +18,9 @@
 						"double mixLevel = smooth(1.0L - distance * 0.125L)",
 						"world_traits.`bigglobe:automatic_snow_y`(start.minY) = mixLinear(world_traits.`bigglobe:automatic_snow_y`(start.minY), world_traits.`bigglobe:automatic_surface_y`(start.minY) - 1.0L, mixLevel)",
 					")",
-					"`bigglobe:overworld/surface_foliage` *= float(smooth(distanceToSquare(piece) * 0.0625L))",
+					"if (double*(distance := distanceToSquare(piece)) < 16.0L:",
+						"world_traits.`bigglobe:foliage_at_surface` -= float((distance * 0.0625L - 1.0L) ^ 2)",
+					")",
 				")",
 			")",
 		")"

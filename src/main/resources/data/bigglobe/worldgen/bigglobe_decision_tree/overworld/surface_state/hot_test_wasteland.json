@@ -1,7 +1,10 @@
 {
 	"condition": {
 		"type": "script_chance",
-		"script": "unmixSmooth(-0.25I, -0.5I, `bigglobe:overworld/surface_foliage`)"
+		"script": [
+			";re-calculate surface foliage to prevent overriding.",
+			"unmixSmooth(-0.25I, -0.5I, world_traits.`bigglobe:foliage_at`(int(world_traits.`bigglobe:approximate_surface_y`)))"
+		]
 	},
 	"if_true": "bigglobe:overworld/surface_state/hot_wasteland",
 	"if_false": "bigglobe:overworld/surface_state/hot"

@@ -4,5 +4,5 @@
 		"script": "unmixSmooth(0.5I, 1.0I, world_traits.`bigglobe:magicalness`)"
 	},
 	"if_true": "bigglobe:overworld/biome/cherry_test_forest",
-	"if_false": "bigglobe:overworld/biome/temperate_test_ominous"
+	"if_false": "bigglobe:overworld/biome/temperate_test_light_forest"
 }

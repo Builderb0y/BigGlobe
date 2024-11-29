@@ -131,7 +131,11 @@ public class StructureManager {
 	}
 
 	public static void addPotentialStructure(StructureStart start, String failureReason) {
-
+		/*
+		if (structureID(start.getStructure()).getPath().contains("mega_tree")) {
+			POTENTIAL_STRUCTURES.add(new PotentialStructure(start, failureReason));
+		}
+		//*/
 	}
 
 	public void setStructureStarts(StructureGenerationParams params, Chunk chunk) {

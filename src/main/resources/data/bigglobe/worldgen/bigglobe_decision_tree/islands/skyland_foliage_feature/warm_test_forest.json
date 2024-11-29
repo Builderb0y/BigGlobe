@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script_chance",
+		"script": "unmixSmooth(0.25I, 0.5I, world_traits.`bigglobe:foliage_at_sea_level`)"
+	},
+	"if_true": "bigglobe:islands/skyland_foliage_feature/jungle_tree",
+	"if_false": "bigglobe:islands/skyland_foliage_feature/acacia_tree"
+}

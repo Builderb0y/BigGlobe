@@ -11,7 +11,6 @@
 	"bigglobe:deep_dark_max_y":          "-624I",
 	"bigglobe:foliage_at":               "`bigglobe:islands/height_adjusted_foliage`",
 	"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
-	"bigglobe:foliage_at_surface":       "`bigglobe:islands/surface_foliage`",
 	"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
 	"bigglobe:hilliness":                "`bigglobe:islands/is_floating` ? `bigglobe:islands/skyland_hilliness` : `bigglobe:islands/mountainness`",
 	"bigglobe:lake_y":                   "`bigglobe:islands/has_skylands` ? `bigglobe:islands/skyland_top` : `bigglobe:islands/basic_surface_height`",
@@ -74,6 +73,10 @@
 	"bigglobe:exact_surface_y": {
 		"get": "`bigglobe:islands/eroded_surface_height`",
 		"set": "`bigglobe:islands/eroded_surface_height` = value"
+	},
+	"bigglobe:foliage_at_surface": {
+		"get": "`bigglobe:islands/surface_foliage`",
+		"set": "`bigglobe:islands/surface_foliage` = value"
 	},
 	"bigglobe:snow_y": {
 		"get": "`bigglobe:islands/snow_height`",

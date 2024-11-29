@@ -175,7 +175,7 @@
 						"template": "bigglobe:block_color_adjustment",
 						"inputs": {
 							"COLOR": [
-								"double temperature = 1.0L / (fastExp(-4.0L * `bigglobe:overworld/height_adjusted_temperature`(y)) + 1.0L)",
+								"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
 								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
 							]
 						}

@@ -8,7 +8,7 @@
 			},
 			{
 				"type": "script_chance",
-				"script": "0.75L / (fastExp(2.0L - 4.0L * `bigglobe:overworld/surface_foliage`) + 1.0L)"
+				"script": "0.75L / (fastExp(3.0L - 6.0L * world_traits.`bigglobe:foliage_at_surface`) + 1.0L)"
 			}
 		]
 	},

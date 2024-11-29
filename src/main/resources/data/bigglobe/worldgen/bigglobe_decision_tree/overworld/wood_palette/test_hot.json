@@ -4,5 +4,5 @@
 		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_temperature`)"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/none",
-	"if_false": "bigglobe:overworld/wood_palette/warm_test_forest"
+	"if_false": "bigglobe:overworld/wood_palette/warm_test_ominous"
 }

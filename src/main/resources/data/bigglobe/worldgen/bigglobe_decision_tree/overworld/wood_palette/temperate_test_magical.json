@@ -4,5 +4,5 @@
 		"script": "unmixSmooth(0.5I, 1.0I, world_traits.`bigglobe:magicalness`)"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/cherry",
-	"if_false": "bigglobe:overworld/wood_palette/temperate_test_ominous"
+	"if_false": "bigglobe:overworld/wood_palette/temperate_test_forest"
 }
