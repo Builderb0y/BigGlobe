@@ -1,0 +1,25 @@
+{
+	"replace": false,
+	"values": [
+		"minecraft:clay",
+		"minecraft:dirt",
+		"minecraft:coarse_dirt",
+		"minecraft:grass_block",
+		"minecraft:mycelium",
+		"minecraft:podzol",
+		"bigglobe:overgrown_podzol",
+		"minecraft:rooted_dirt",
+		"minecraft:gravel",
+		"minecraft:calcite",
+		"minecraft:dripstone_block",
+		"minecraft:stone",
+		"minecraft:cobblestone",
+		"minecraft:granite",
+		"minecraft:polished_granite",
+		"minecraft:diorite",
+		"minecraft:polished_diorite",
+		"minecraft:andesite",
+		"minecraft:polished_andesite",
+		"minecraft:tuff"
+	]
+}

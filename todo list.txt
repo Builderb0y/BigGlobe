@@ -27,18 +27,12 @@ where I left off:
 	64-ish blocks of (red) sandstone below surface in deserts.
 	abandon hard threshold for where trees can exist?
 		check on cactus and bamboo spawning frequencies and see if they need changing.
-		test island worlds again.
 	add world_trait type to decision trees and column restrictions.
 	jungle trees are spawning right next to snow.
 
 to finish before release:
 	document version that patches for decision tree column entries were added in.
 	document version that new fast math functions were added in.
-	remove experimental column values, move them to a local data pack.
-	prevent lakes from spawning low enough to create beaches.
-	do something about waterfalls spawning in trees.
-	there seems to be a mismatch in the temperature/foliage implied by grass color and by tree types on floating islands.
-	new foliage exclusion code turns deserts into desert wastelands.
 
 changelog:
 	* Added a 4'th temperature zone: warm, between temperate and hot.

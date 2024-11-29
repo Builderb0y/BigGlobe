@@ -9,7 +9,7 @@
 				"int side  in range[-2, 2],",
 				"int up    in range[-1, 3]",
 			":",
-				"if (getBlockState(originX + front, originY + up, originZ + side).isReplaceable(): return(false))",
+				"unless (getBlockState(originX + front, originY + up, originZ + side).isIn('#bigglobe:waterfall_replaceable'): return(false))",
 			")",
 
 			";place blocks",
