@@ -3,19 +3,16 @@
 		"type": "and",
 		"conditions": [
 			{
-				"type": "script_chance",
-				"script": "unmixSmooth(2.0L, 6.0L, world_traits.`bigglobe:exact_surface_y`)"
+				"type": "world_trait_threshold",
+				"min": 2.0,
+				"max": 6.0,
+				"trait": "bigglobe:exact_surface_y"
 			},
 			{
-				"type": "script_chance",
-				"script": [
-					"float result = unmixClamp(-0.625I, -0.375I, world_traits.`bigglobe:foliage_at_surface`)",
-					"result * (2.0I - result)"
-				]
-			},
-			{
-				"type": "script_chance",
-				"script": "unmixSmooth(0.75I, 0.5I, world_traits.`bigglobe:temperature_at_surface`)"
+				"type": "world_trait_threshold",
+				"min": 0.75,
+				"max": 0.5,
+				"trait": "bigglobe:temperature_at_surface"
 			}
 		]
 	},

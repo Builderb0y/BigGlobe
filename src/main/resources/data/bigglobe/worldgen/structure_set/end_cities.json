@@ -2,8 +2,8 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 10387313,
-		"separation": 20,
-		"spacing": 40
+		"separation": 16,
+		"spacing": 32
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:vanilla/end_city" }

@@ -1,7 +1,9 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "unmixSmooth(8.0L, 4.0L, world_traits.`bigglobe:exact_surface_y`)"
+		"type": "world_trait_threshold",
+		"min": 8.0,
+		"max": 4.0,
+		"trait": "bigglobe:exact_surface_y"
 	},
 	"if_true": "bigglobe:overworld/surface_state/beach_test_overgrown",
 	"if_false": "bigglobe:overworld/surface_state/test_hot"

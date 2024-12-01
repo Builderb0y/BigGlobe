@@ -23,7 +23,6 @@ where I left off:
 	blanket replace surface Y level with trait.
 	actual biomes for cave types?
 	tall plateaus for hot wasteland.
-	more mud in swamps.
 	64-ish blocks of (red) sandstone below surface in deserts.
 	abandon hard threshold for where trees can exist?
 		check on cactus and bamboo spawning frequencies and see if they need changing.
@@ -33,6 +32,8 @@ where I left off:
 to finish before release:
 	document version that patches for decision tree column entries were added in.
 	document version that new fast math functions were added in.
+	document world_trait_threshold decision trees.
+	more mud in swamps.
 
 changelog:
 	* Added a 4'th temperature zone: warm, between temperate and hot.
@@ -44,7 +45,7 @@ changelog:
 	* Fixed nether structures spawning incredibly rarely.
 	* Increased the amount of land area in the end dimension.
 	* Reduced number of bridge clouds in the end dimension.
-	* Made end fractal structures more common.
+	* Made end structures more common.
 	* Fixed compatibility with Veil.
 
 alternate world presets:
