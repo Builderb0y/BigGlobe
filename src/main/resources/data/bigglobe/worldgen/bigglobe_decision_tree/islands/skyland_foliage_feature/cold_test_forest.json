@@ -1,8 +1,8 @@
 {
 	"condition": {
 		"type": "world_trait_threshold",
-		"min": 0.25,
-		"max": 0.5,
+		"min": 0.125,
+		"max": 0.375,
 		"trait": "bigglobe:foliage_at_sea_level"
 	},
 	"if_true": "bigglobe:islands/skyland_foliage_feature/dark_oak_tree",

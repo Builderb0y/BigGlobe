@@ -46,6 +46,7 @@ Option 2: the node checks a condition and delegates to a different decision tree
 
 				If max equals min, then an exception is thrown and data packs will fail to load.
 			* `smooth_min` and `smooth_max` - if both of these are false, then the chance of choosing true or false is equal to `(value - min) / (max - min)` (clamped to the 0-1 range). Since min and max are constant values, this is a linear function of value. But sometimes a linear function can make it obvious where the transition starts and ends, which may not be desirable. smooth_min applies a curve to the chance to make it less obvious where the transition begins (or ends, depending on your perspective) near min, and smooth_max does the same for max. Both of these properties are optional and default to true.
+		* `world_trait_threshold` - identical to `threshold` except that it gets the value from a world trait instead of a column value. The `column_value` property is replaced by a `trait` property. The `min`, `max`, `smooth_min`, and `smooth_max` properties work exactly the same as they do in the `threshold` type.
 		* `script` has the following additional properties:
 			* `script` - a script which returns true or false. This script has the following environments available:
 				* MathScriptEnvironment

@@ -6,5 +6,5 @@
 		"trait": "bigglobe:temperature_at_surface"
 	},
 	"if_true": "bigglobe:overworld/surface_state/hot_test_wasteland",
-	"if_false": "bigglobe:overworld/surface_state/temperate_test_overgrown"
+	"if_false": "bigglobe:overworld/surface_state/temperate_test_swamp"
 }

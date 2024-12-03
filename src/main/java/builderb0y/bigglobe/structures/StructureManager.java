@@ -334,7 +334,14 @@ public class StructureManager {
 		for (StructureOverrider.Entry overrider : params.generator.getOverriders().structures) {
 			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed, hints)) {
 				if (StructureManager.DEBUG_REMOVED) {
-					StructureManager.addPotentialStructure(start, "overrider " + BigGlobeMod.getCurrentServer().getRegistryManager().get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY).getId(overrider) + " said no.");
+					StructureManager.addPotentialStructure(
+						start,
+						"overrider " + RegistryVersions.getRegistry(
+							BigGlobeMod.getCurrentServer().getRegistryManager(),
+							BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
+						)
+						.getId(overrider) + " said no."
+					);
 				}
 				return false;
 			}

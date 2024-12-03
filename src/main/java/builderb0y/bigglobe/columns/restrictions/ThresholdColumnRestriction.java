@@ -75,7 +75,9 @@ public class ThresholdColumnRestriction extends PropertyColumnRestriction {
 			obj instanceof ThresholdColumnRestriction that &&
 			this.property.equals(that.property) &&
 			this.min == that.min &&
-			this.max == that.max
+			this.max == that.max &&
+			this.smooth_min == that.smooth_min &&
+			this.smooth_max == that.smooth_max
 		);
 	}
 

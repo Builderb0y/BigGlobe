@@ -1,0 +1,29 @@
+{
+	"condition": {
+		"type": "and",
+		"conditions": [
+			{
+				"type": "world_trait_threshold",
+				"min": -0.125,
+				"max":  0.125,
+				"trait": "bigglobe:temperature_at_surface"
+			},
+			{
+				"type": "world_trait_threshold",
+				"min": -0.5,
+				"max": -1.0,
+				"trait": "bigglobe:magicalness"
+			},
+			{
+				"type": "script",
+				"script": "`bigglobe:overworld/unbounded_river_dip` > 1.0L"
+			},
+			{
+				"type": "script_chance",
+				"script": "1.0L / (fastExp(3.0L - 6.0L * world_traits.`bigglobe:foliage_at_surface`) + 1.0L)"
+			}
+		]
+	},
+	"if_true": "bigglobe:overworld/surface_state/swamp_test_wet",
+	"if_false": "bigglobe:overworld/surface_state/temperate_test_overgrown"
+}

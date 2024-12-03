@@ -1,7 +1,9 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "unmixSmooth(-0.125, 0.125, `bigglobe:overworld/surface_temperature`)"
+		"type": "world_trait_threshold",
+		"min": -0.125,
+		"max":  0.125,
+		"trait": "bigglobe:temperature_at_surface"
 	},
 	"if_true": "bigglobe:overworld/foliage_feature/test_hot",
 	"if_false": "bigglobe:overworld/foliage_feature/test_cold"

@@ -1,7 +1,9 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "unmixSmooth(-0.375I, -0.625I, `bigglobe:overworld/surface_foliage`)"
+		"type": "world_trait_threshold",
+		"min": -0.375,
+		"max": -0.625,
+		"trait": "bigglobe:foliage_at_surface"
 	},
 	"if_true": "bigglobe:overworld/biome/warm_wasteland",
 	"if_false": "bigglobe:overworld/biome/warm_plains"

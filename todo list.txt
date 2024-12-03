@@ -15,7 +15,6 @@ testing:
 	compatibility with chunk pre-generator mods.
 		"chunky" is the one reported to me, and apparently it either
 		uses up a stupid amount of RAM, or has a memory leak.
-	"veil" causes missing registries.
 
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
@@ -24,16 +23,9 @@ where I left off:
 	actual biomes for cave types?
 	tall plateaus for hot wasteland.
 	64-ish blocks of (red) sandstone below surface in deserts.
-	abandon hard threshold for where trees can exist?
-		check on cactus and bamboo spawning frequencies and see if they need changing.
-	add world_trait type to decision trees and column restrictions.
-	jungle trees are spawning right next to snow.
+	foliage exclusion for villages on island skylands affects mainland below.
 
 to finish before release:
-	document version that patches for decision tree column entries were added in.
-	document version that new fast math functions were added in.
-	document world_trait_threshold decision trees.
-	more mud in swamps.
 
 changelog:
 	* Added a 4'th temperature zone: warm, between temperate and hot.

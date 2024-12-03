@@ -1,7 +1,9 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "unmixSmooth(0.25I, 0.75I, `bigglobe:overworld/surface_foliage`)"
+		"type": "world_trait_threshold",
+		"min": 0.25,
+		"max": 0.75,
+		"trait": "bigglobe:foliage_at_surface"
 	},
 	"if_true": "bigglobe:overworld/biome/warm_dense_forest",
 	"if_false": "bigglobe:overworld/biome/warm_light_forest"

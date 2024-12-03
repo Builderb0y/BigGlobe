@@ -13,7 +13,8 @@
 	},
 	"root": "bigglobe:islands/surface_state/test_beach",
 	"patches": {
-		"bigglobe:overworld/surface_state/temperate_test_overgrown": "bigglobe:islands/surface_state/temperate_test_overgrown"
+		"bigglobe:overworld/surface_state/temperate_test_overgrown": "bigglobe:islands/surface_state/temperate_test_overgrown",
+		"bigglobe:overworld/surface_state/temperate_test_swamp": "bigglobe:islands/surface_state/temperate_test_swamp"
 	},
 	"cache": false
 }
