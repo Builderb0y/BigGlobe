@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "unmixLinear(320.0I - 32.0I, 320.0I, float(y))",
+	"cache": false
+}

@@ -86,6 +86,7 @@
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
+		"IntegratedServerLoader_YetAnotherHookRequiredToResetTheColumnEntryRegistryCorrectly",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_ResetColumnEntryRegistryWhenSelectingAWorld",
 		"MinecraftClient_SetWorldEvent",

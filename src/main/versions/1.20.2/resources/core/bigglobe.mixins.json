@@ -61,7 +61,6 @@
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
-		"World_UseCorrectSeaLevel",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
 		"SingularPalette_EntryAccess",
 		"SlimeEntity_AllowSpawningFromSpawner",
@@ -75,6 +74,7 @@
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
+		"World_UseCorrectSeaLevel",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [
@@ -86,9 +86,10 @@
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
+		"IntegratedServerLoader_YetAnotherHookRequiredToResetTheColumnEntryRegistryCorrectly",
 		"MinecraftClient_LoadingFinishedHook",
-		"MinecraftClient_SetWorldEvent",
 		"MinecraftClient_ResetColumnEntryRegistryWhenSelectingAWorld",
+		"MinecraftClient_SetWorldEvent",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds"
 	],
 	"injectors": {

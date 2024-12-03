@@ -28,17 +28,9 @@ where I left off:
 to finish before release:
 
 changelog:
-	* Added a 4'th temperature zone: warm, between temperate and hot.
-		* Jungles and savannas spawn here.
-		* Jungle and acacia trees no longer spawn in the hot temperature zone (AKA deserts).
-	* Improved performance of block tinting in big globe worlds.
-		* This helps chunks load in faster, and reduces delay and lag when placing and breaking blocks.
-	* Fixed some glacier-related decorations spawning in island worlds.
-	* Fixed nether structures spawning incredibly rarely.
-	* Increased the amount of land area in the end dimension.
-	* Reduced number of bridge clouds in the end dimension.
-	* Made end structures more common.
-	* Fixed compatibility with Veil.
+	This version fixes a couple of bugs that only happen in MC 1.20.4 and earlier. **V4.8.0 is still the latest version for MC 1.20.5 and later.**
+	* Fixed worlds sometimes failing to load on old MC versions.
+	* Fixed some crafting recipes referencing tags that didn't exist on old MC versions.
 
 alternate world presets:
 	paradise.

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "clamp(0.0I, 0.0625I, terrain_bias - 1.0I)",
+	"cache": false
+}

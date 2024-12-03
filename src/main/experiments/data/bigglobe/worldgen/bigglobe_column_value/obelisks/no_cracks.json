@@ -1,0 +1,8 @@
+{
+	"type": "constant",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"value": 0.0
+}

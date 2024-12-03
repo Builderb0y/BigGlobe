@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"float smoothMin(float*(a, b):",
+			"float diff = a - b",
+			"if (diff <= -1.0I: return(a))",
+			"if (diff >= +1.0I: return(b))",
+			"return((diff ^ 2 + 1.0I) * -0.25I + (a + b) * 0.5I)",
+		")",
+		"base_noise + max(smoothMin(terrain_bias, obelisk_side_bias), obelisk_top_bias)"
+	],
+	"cache": false,
+	"valid": {
+		"min_y": "obelisk_voronoi.min_y",
+		"max_y": "obelisk_voronoi.max_y"
+	}
+}

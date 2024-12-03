@@ -1,0 +1,18 @@
+{
+	"weight": 1.0,
+	"owner": "bigglobe:obelisks/obelisk_voronoi",
+	"enables": [
+		"bigglobe:obelisks/obelisk_sdf",
+		"bigglobe:obelisks/obelisk_cracked_sdf",
+		"bigglobe:obelisks/noise_min_y",
+		"bigglobe:obelisks/obelisk_max_y",
+		"bigglobe:obelisks/yes_cracks"
+	],
+	"exports": {
+		"sdf": "bigglobe:obelisks/obelisk_sdf",
+		"cracked_sdf": "bigglobe:obelisks/obelisk_cracked_sdf",
+		"min_y": "bigglobe:obelisks/noise_min_y",
+		"max_y": "bigglobe:obelisks/obelisk_max_y",
+		"crack_threshold": "bigglobe:obelisks/yes_cracks"
+	}
+}

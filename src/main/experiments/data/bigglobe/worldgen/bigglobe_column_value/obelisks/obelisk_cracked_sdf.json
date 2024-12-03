@@ -1,0 +1,15 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"obelisk_sdf + clamp(0.0I, 1.0I, terrain_bias - 1.0I) / (crack_noise * 32.0I + 1.0I)"
+	],
+	"cache": false,
+	"valid": {
+		"min_y": "obelisk_voronoi.min_y",
+		"max_y": "obelisk_voronoi.max_y"
+	}
+}
