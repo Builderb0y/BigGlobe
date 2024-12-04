@@ -1,0 +1,18 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": {
+		"template": "bigglobe:sine_wave_erosion",
+		"inputs": {
+			"dx": "d_plateau_y * plateau.dx_soft_distance",
+			"dz": "d_plateau_y * plateau.dz_soft_distance",
+			"minWavelength": "4.0L",
+			"maxWavelength": "64.0L",
+			"seed": "worldSeed # 16x6BB5F80E34409C21UL",
+			"amplitude": "128.0L"
+		}
+	}
+}

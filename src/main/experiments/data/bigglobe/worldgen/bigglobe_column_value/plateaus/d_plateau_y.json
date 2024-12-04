@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "(-8.0L / 0.75L ^ 4) * plateau.soft_distance * (1.0L - plateau.soft_distance_squared) ^ 3"
+}

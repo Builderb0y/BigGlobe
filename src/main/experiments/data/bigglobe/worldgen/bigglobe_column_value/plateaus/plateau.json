@@ -1,0 +1,14 @@
+{
+	"type": "voronoi",
+	"params": {
+		"type": {
+			"type": "voronoi",
+			"name": "Plateau"
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 512,
+		"variation": 384
+	}
+}

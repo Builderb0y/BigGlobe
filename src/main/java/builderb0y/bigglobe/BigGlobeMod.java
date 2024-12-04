@@ -15,6 +15,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import org.apache.commons.io.file.PathUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,6 +183,7 @@ public class BigGlobeMod implements ModInitializer {
 			@SuppressWarnings({ "CastToIncompatibleInterface", "resource" })
 			LevelStorage.Session session = ((MinecraftServer_SessionAccess)(server)).bigglobe_getSession();
 
+			MutableBoolean deletedAnything = new MutableBoolean(false);
 			RegistryVersions
 			.getRegistry(
 				server.getRegistryManager(),
@@ -195,11 +197,12 @@ public class BigGlobeMod implements ModInitializer {
 				RegistryKey.of(RegistryKeys.WORLD, UnregisteredObjectException.getID(options))
 			))
 			.flatMap((Path dimensionFolder) ->
-				Stream.of("advancements", "data", "entities", "playerdata", "poi", "region", "stats", "voxy")
+				Stream.of("advancements", "data", "entities", "playerdata", "poi", "region", "stats")
 				.map(dimensionFolder::resolve)
 			)
 			.forEach((Path toDelete) -> {
 				if (Files.exists(toDelete)) try {
+					deletedAnything.setTrue();
 					PathUtils.deleteDirectory(toDelete);
 					LOGGER.info("Deleted " + toDelete);
 				}
@@ -207,6 +210,16 @@ public class BigGlobeMod implements ModInitializer {
 					LOGGER.error("Could not delete " + toDelete, exception);
 				}
 			});
+			if (deletedAnything.isTrue()) {
+				Path voxy = session.getDirectory().path().resolve("voxy");
+				if (Files.exists(voxy)) try {
+					PathUtils.deleteDirectory(voxy);
+					LOGGER.info("Deleted " + voxy);
+				}
+				catch (Exception exception) {
+					LOGGER.error("Could not delete " + voxy, exception);
+				}
+			}
 		}
 	}
 

@@ -1,0 +1,51 @@
+{
+	"type": "minecraft:overworld",
+	"generator": {
+		"type": "bigglobe:scripted",
+		"height": {
+			"min_y": -64,
+			"max_y": 320
+		},
+		"biome_source": {
+			"type": "minecraft:fixed",
+			"biome": "minecraft:badlands"
+		},
+		"layer": {
+			"state": "'minecraft:air'",
+			"children": [
+				{
+					"type": "simple_2d",
+					"state": "'minecraft:terracotta'",
+					"valid": {
+						"max_y": "int(`bigglobe:plateaus/plateau_y` + `bigglobe:plateaus/base_noise`)"
+					}
+				}
+			],
+			"after_children": [
+				"if (",
+					"int*(",
+						"surfaceY = int(`bigglobe:plateaus/plateau_y` + `bigglobe:plateaus/base_noise`)",
+						"depth := int(",
+							"(",
+								"`bigglobe:plateaus/plateau_y` == 128.0",
+								"? 4.0L",
+								": 4.0L - `bigglobe:plateaus/plateau_y` * 0.25L",
+							")",
+							"+ (columnSeed # 16x979303DE39989D2FUL).nextDouble(2.0L)",
+						")",
+					")",
+					"> 0",
+				":",
+					"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:dirt')",
+					"setBlockState(surfaceY - 1, 'minecraft:grass_block')",
+				")"
+			]
+		},
+		"feature_dispatcher": {
+			"rock_replacers": [],
+			"raw": "bigglobe:noop",
+			"normal": "bigglobe:noop"
+		},
+		"overriders": "#bigglobe:empty"
+	}
+}
