@@ -30,7 +30,7 @@ public class CubicDerivativePolynomial extends Polynomial4 {
 		return FORM;
 	}
 
-	public static class Form implements PolyForm4 {
+	public static class Form extends PolyForm4 {
 
 		@Override
 		public double calcMinValue(double min, double max, double rcp) {

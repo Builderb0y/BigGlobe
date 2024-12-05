@@ -90,7 +90,6 @@
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
-		"MinecraftClient_ResetColumnEntryRegistryWhenSelectingAWorld",
 		"MinecraftClient_SetWorldEvent",
 		"PostEffectProcessor_PassesAccess",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",

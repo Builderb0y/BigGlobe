@@ -27,7 +27,7 @@ public class LinearPolynomial extends Polynomial2 {
 		return FORM;
 	}
 
-	public static class Form implements PolyForm2 {
+	public static class Form extends PolyForm2 {
 
 		@Override
 		public double calcMinValue(double min, double max, double rcp) {

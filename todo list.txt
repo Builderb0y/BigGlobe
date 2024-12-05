@@ -28,9 +28,7 @@ where I left off:
 to finish before release:
 
 changelog:
-	This version fixes a couple of bugs that only happen in MC 1.20.4 and earlier. **V4.8.0 is still the latest version for MC 1.20.5 and later.**
-	* Fixed worlds sometimes failing to load on old MC versions.
-	* Fixed some crafting recipes referencing tags that didn't exist on old MC versions.
+	Fixed even more edge cases that could trigger data pack validation errors.
 
 alternate world presets:
 	paradise.

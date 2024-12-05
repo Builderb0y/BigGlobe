@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.noise.polynomials;
 
-public abstract class Polynomial2 implements Polynomial {
+public abstract class Polynomial2 extends Polynomial {
 
 	public double value0, value1;
 
@@ -15,7 +15,7 @@ public abstract class Polynomial2 implements Polynomial {
 
 	public abstract void update(double value0, double value1, double rcp);
 
-	public static interface PolyForm2 extends PolyForm {
+	public static abstract class PolyForm2 extends PolyForm {
 
 		public abstract Polynomial createPolynomial(double value0, double value1, double rcp);
 

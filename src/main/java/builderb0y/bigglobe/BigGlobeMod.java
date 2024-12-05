@@ -32,6 +32,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourcePack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.gen.WorldPreset;
 import net.minecraft.world.level.storage.LevelStorage;
@@ -211,7 +212,7 @@ public class BigGlobeMod implements ModInitializer {
 				}
 			});
 			if (deletedAnything.isTrue()) {
-				Path voxy = session.getDirectory().path().resolve("voxy");
+				Path voxy = session.getWorldDirectory(World.OVERWORLD).resolve("voxy");
 				if (Files.exists(voxy)) try {
 					PathUtils.deleteDirectory(voxy);
 					LOGGER.info("Deleted " + voxy);

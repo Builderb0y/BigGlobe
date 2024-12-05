@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.noise.polynomials;
 
-public interface Polynomial {
+public abstract class Polynomial {
 
 	public abstract void push(double next, double rcp);
 
@@ -8,7 +8,7 @@ public interface Polynomial {
 
 	public abstract PolyForm form();
 
-	public static interface PolyForm {
+	public static abstract class PolyForm {
 
 		public abstract double calcMinValue(double min, double max, double rcp);
 
