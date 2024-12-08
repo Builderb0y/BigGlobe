@@ -34,7 +34,7 @@ public class WorleyGrid1D extends WorleyGrid implements Grid1D {
 	public void getBulkX(long seed, int startX, NumberArray samples) {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		samples.fill(Double.POSITIVE_INFINITY);
+		samples.fillD(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv(startX - this.scale, this.scale);
 		int maxCellX = Math.floorDiv(startX + sampleCount + this.scale, this.scale);
 		for (int cell = minCellX; cell <= maxCellX; cell++) {

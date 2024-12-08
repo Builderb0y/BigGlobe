@@ -1,0 +1,11 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 1491215984,
+		"separation": 8,
+		"spacing": 16
+	},
+	"structures": [
+		{ "structure": "bigglobe:overworld_fortress", "weight": 1 }
+	]
+}

@@ -227,8 +227,8 @@ public class ColumnEntryRegistry {
 			if (successful && LOADING != null) LOADING.compile();
 		}
 
-		public void delay(DelayedCompileable compileable, CompileTiming timing) {
-			if (this.columnEntryRegistry != null && timing != CompileTiming.ALWAYS_DELAYED) {
+		public void delay(DelayedCompileable compileable) {
+			if (this.columnEntryRegistry != null) {
 				try {
 					compileable.compile(this.columnEntryRegistry);
 				}
@@ -310,14 +310,13 @@ public class ColumnEntryRegistry {
 				throw new RuntimeException(exception);
 			}
 			else {
-				ColumnEntryRegistry.Loading.get().delay(compileable, compileable.compileTiming());
+				ColumnEntryRegistry.Loading.get().delay(compileable);
 			}
 		}
 	}
 
 	public static enum CompileTiming {
 		INSTANT,
-		DELAYED_IF_NECESSARY,
-		ALWAYS_DELAYED;
+		DELAYED_IF_NECESSARY;
 	}
 }

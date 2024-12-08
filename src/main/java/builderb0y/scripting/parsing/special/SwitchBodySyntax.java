@@ -77,9 +77,10 @@ public record SwitchBodySyntax(InsnTree value, Int2ObjectSortedMap<InsnTree> cas
 				int[] elements = builder.elements();
 				int size = builder.size();
 				for (int index = 0; index < size; index++) {
-					if (cases.putIfAbsent(elements[index], body) != null) {
+					if (cases.containsKey(elements[index])) {
 						throw new ScriptParsingException("Duplicate case: " + elements[index], parser.input);
 					}
+					cases.put(elements[index], body);
 				}
 				builder.clear();
 			}

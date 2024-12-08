@@ -8,7 +8,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.*;
 
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.util.Tripwire;
 

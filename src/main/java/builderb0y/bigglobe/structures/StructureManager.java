@@ -3,6 +3,7 @@ package builderb0y.bigglobe.structures;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -43,6 +44,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -165,12 +167,30 @@ public class StructureManager {
 				}
 				//System.out.println("Survivor: " + toString(pieces.getStart()));
 				map.merge(pieces.getStart().getStructure(), pieces.getStart(), (StructureStart start1, StructureStart start2) -> {
-					//todo: handle multiple of the same structure in the same chunk.
-					return StructureStart.DEFAULT;
+					if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+						BigGlobeMod.LOGGER.info("More than one copy of structure " + structureName(start1.getStructure()) + " started in the same chunk. It may be present in more than one structure set.");
+					}
+					return new StructureStart(
+						start1.getStructure(),
+						start1.getPos(),
+						0,
+						new StructurePiecesList(
+							Stream
+							.concat(
+								start1.getChildren().stream(),
+								start2.getChildren().stream()
+							)
+							.toList()
+						)
+					);
 				});
 			}
-			map.entrySet().removeIf((Map.Entry<Structure, StructureStart> entry) -> !entry.getValue().hasChildren());
 			if (!map.isEmpty()) {
+				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+					for (StructureStart start : map.values()) {
+						BigGlobeMod.LOGGER.info("Structure " + structureName(start.getStructure()) + " spawned at " + start.getBoundingBox().getCenter());
+					}
+				}
 				chunk.setStructureStarts(map);
 			}
 		}
@@ -254,6 +274,9 @@ public class StructureManager {
 
 	public @NotNull SortedStructurePieces computeStructureStart(StructureGenerationParams params, WeightedEntry weightedEntry) {
 		if (ValkyrienSkiesCompat.isInShipyard(params.chunkPos)) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because Valkyrien Skies reserves this area.");
+			}
 			return EmptySortedStructurePieces.INSTANCE;
 		}
 		//System.out.println("Computing " + UnregisteredObjectException.getID(weightedEntry.structure()) + " at " + params.chunkPos);
@@ -266,10 +289,20 @@ public class StructureManager {
 			params.toStructureContext(Predicates.alwaysTrue())
 		)
 		.orElse(null);
-		if (newStartPosition == null) return EmptySortedStructurePieces.INSTANCE;
+		if (newStartPosition == null) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because the structure itself decided not to.");
+			}
+			return EmptySortedStructurePieces.INSTANCE;
+		}
 		StructurePiecesCollector collector = newStartPosition.generate();
 		StructureStart newStart = new StructureStart(structure, params.chunkPos, 0, collector.toList());
-		if (!newStart.hasChildren()) return EmptySortedStructurePieces.INSTANCE;
+		if (!newStart.hasChildren()) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because the resulting structure has no pieces.");
+			}
+			return EmptySortedStructurePieces.INSTANCE;
+		}
 		StructureStartWrapper wrapper = StructureStartWrapper.of(weightedEntry.structure(), newStart);
 		int oldY = newStart.getBoundingBox().getMinY();
 		if (
@@ -288,6 +321,7 @@ public class StructureManager {
 				)
 			)
 		) {
+			//canStructureSpawn() prints a message on its own.
 			return EmptySortedStructurePieces.INSTANCE;
 		}
 		int newY = newStart.getBoundingBox().getMinY();
@@ -303,6 +337,9 @@ public class StructureManager {
 		) {
 			if (DEBUG_REMOVED) {
 				addPotentialStructure(newStart, "Incorrect biome");
+			}
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn at " + newStart.getBoundingBox().getCenter() + " because the biome at this location is not in the structure's biome tag.");
 			}
 			return EmptySortedStructurePieces.INSTANCE;
 		}
@@ -333,14 +370,31 @@ public class StructureManager {
 		);
 		for (StructureOverrider.Entry overrider : params.generator.getOverriders().structures) {
 			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed, hints)) {
-				if (StructureManager.DEBUG_REMOVED) {
+				if (DEBUG_REMOVED) {
 					StructureManager.addPotentialStructure(
 						start,
-						"overrider " + RegistryVersions.getRegistry(
+						"overrider " +
+						RegistryVersions.getRegistry(
 							BigGlobeMod.getCurrentServer().getRegistryManager(),
 							BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
 						)
-						.getId(overrider) + " said no."
+						.getId(overrider) +
+						" said no."
+					);
+				}
+				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+					BigGlobeMod.LOGGER.info(
+						"Structure " +
+						structureName(start.getStructure()) +
+						" did not spawn at " +
+						start.getBoundingBox().getCenter() +
+						" because overrider " +
+						RegistryVersions.getRegistry(
+							BigGlobeMod.getCurrentServer().getRegistryManager(),
+							BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
+						)
+						.getId(overrider) +
+						" said no."
 					);
 				}
 				return false;
@@ -426,11 +480,17 @@ public class StructureManager {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Self collision priority < 0");
 							}
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in the same chunk and a collision overrider returned a negative priority.");
+							}
 							elements[currentIndex] = null;
 						}
 						else if (priority == 0 && currentStructure.volume() <= otherStructure.volume()) {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Self collision with larger structure " + structureName(otherStructure.getStart().getStructure()) + " (priority 0)");
+							}
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in the same chunk and the other structure is bigger.");
 							}
 							elements[currentIndex] = null;
 						}
@@ -460,11 +520,17 @@ public class StructureManager {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Other collision priority < 0");
 							}
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in a different chunk and a collision overrider returned a negative priority.");
+							}
 							elements[currentIndex] = null;
 						}
 						else if (priority == 0 && currentStructure.volume() <= otherStructure.volume()) {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Other collision with larger structure " + structureName(otherStructure.getStart().getStructure()) + " (priority 0)");
+							}
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in a different chunk and the other structure is bigger.");
 							}
 							elements[currentIndex] = null;
 						}

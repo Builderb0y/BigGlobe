@@ -57,7 +57,7 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 	public void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		samples.fill(Double.POSITIVE_INFINITY);
+		samples.fillD(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(startX - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(startX + sampleCount + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
@@ -95,7 +95,7 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 	public void getBulkY(long seed, int x, int startY, int z, NumberArray samples) {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		samples.fill(Double.POSITIVE_INFINITY);
+		samples.fillD(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(startY - this.radius), this.scale);
@@ -133,7 +133,7 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 	public void getBulkZ(long seed, int x, int y, int startZ, NumberArray samples) {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		samples.fill(Double.POSITIVE_INFINITY);
+		samples.fillD(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);

@@ -90,13 +90,13 @@ public class NumberArray implements AutoCloseable {
 			allocateDoublesHeap,
 			allocateBooleansHeap,
 
-			allocateBytesDirect,
-			allocateShortsDirect,
-			allocateIntsDirect,
-			allocateLongsDirect,
-			allocateFloatsDirect,
-			allocateDoublesDirect,
-			allocateBooleansDirect,
+			allocateBytesDirectZero,
+			allocateShortsDirectZero,
+			allocateIntsDirectZero,
+			allocateLongsDirectZero,
+			allocateFloatsDirectZero,
+			allocateDoublesDirectZero,
+			allocateBooleansDirectZero,
 
 			getB,
 			getS,
@@ -129,6 +129,22 @@ public class NumberArray implements AutoCloseable {
 			implSetF,
 			implSetD,
 			implSetZ,
+
+			fillB,
+			fillS,
+			fillI,
+			fillL,
+			fillF,
+			fillD,
+			fillZ,
+
+			fillFromToB,
+			fillFromToS,
+			fillFromToI,
+			fillFromToL,
+			fillFromToF,
+			fillFromToD,
+			fillFromToZ,
 
 			length,
 			prefix,
@@ -215,21 +231,29 @@ public class NumberArray implements AutoCloseable {
 
 	//////////////////////////////// allocation ////////////////////////////////
 
-	public static NumberArray allocateBytesHeap     (int bytes   ) { return new Manager(bytes    <<   BYTE_SHIFT).allocateBytesHeap   (        ); }
-	public static NumberArray allocateShortsHeap    (int shorts  ) { return new Manager(shorts   <<  SHORT_SHIFT).allocateShortsHeap  (        ); }
-	public static NumberArray allocateIntsHeap      (int ints    ) { return new Manager(ints     <<    INT_SHIFT).allocateIntsHeap    (        ); }
-	public static NumberArray allocateLongsHeap     (int longs   ) { return new Manager(longs    <<   LONG_SHIFT).allocateLongsHeap   (        ); }
-	public static NumberArray allocateFloatsHeap    (int floats  ) { return new Manager(floats   <<  FLOAT_SHIFT).allocateFloatsHeap  (        ); }
-	public static NumberArray allocateDoublesHeap   (int doubles ) { return new Manager(doubles  << DOUBLE_SHIFT).allocateDoublesHeap (        ); }
-	public static NumberArray allocateBooleansHeap  (int booleans) { return new Manager(((booleans - 1) >> 3) + 1).allocateBooleansHeap(booleans); }
+	public static NumberArray allocateBytesHeap         (int bytes   ) { return new Manager(bytes    <<   BYTE_SHIFT).allocateBytesHeap   (        ); }
+	public static NumberArray allocateShortsHeap        (int shorts  ) { return new Manager(shorts   <<  SHORT_SHIFT).allocateShortsHeap  (        ); }
+	public static NumberArray allocateIntsHeap          (int ints    ) { return new Manager(ints     <<    INT_SHIFT).allocateIntsHeap    (        ); }
+	public static NumberArray allocateLongsHeap         (int longs   ) { return new Manager(longs    <<   LONG_SHIFT).allocateLongsHeap   (        ); }
+	public static NumberArray allocateFloatsHeap        (int floats  ) { return new Manager(floats   <<  FLOAT_SHIFT).allocateFloatsHeap  (        ); }
+	public static NumberArray allocateDoublesHeap       (int doubles ) { return new Manager(doubles  << DOUBLE_SHIFT).allocateDoublesHeap (        ); }
+	public static NumberArray allocateBooleansHeap      (int booleans) { return new Manager(((booleans - 1) >> 3) + 1).allocateBooleansHeap(booleans); }
 
-	public static NumberArray allocateBytesDirect   (int bytes   ) { return Manager.INSTANCES.get().allocateBytesDirect   (bytes   ); }
-	public static NumberArray allocateShortsDirect  (int shorts  ) { return Manager.INSTANCES.get().allocateShortsDirect  (shorts  ); }
-	public static NumberArray allocateIntsDirect    (int ints    ) { return Manager.INSTANCES.get().allocateIntsDirect    (ints    ); }
-	public static NumberArray allocateLongsDirect   (int longs   ) { return Manager.INSTANCES.get().allocateLongsDirect   (longs   ); }
-	public static NumberArray allocateFloatsDirect  (int floats  ) { return Manager.INSTANCES.get().allocateFloatsDirect  (floats  ); }
-	public static NumberArray allocateDoublesDirect (int doubles ) { return Manager.INSTANCES.get().allocateDoublesDirect (doubles ); }
-	public static NumberArray allocateBooleansDirect(int booleans) { return Manager.INSTANCES.get().allocateBooleansDirect(booleans); }
+	public static NumberArray allocateBytesDirect       (int bytes   ) { return Manager.INSTANCES.get().allocateBytesDirect   (bytes   ); }
+	public static NumberArray allocateShortsDirect      (int shorts  ) { return Manager.INSTANCES.get().allocateShortsDirect  (shorts  ); }
+	public static NumberArray allocateIntsDirect        (int ints    ) { return Manager.INSTANCES.get().allocateIntsDirect    (ints    ); }
+	public static NumberArray allocateLongsDirect       (int longs   ) { return Manager.INSTANCES.get().allocateLongsDirect   (longs   ); }
+	public static NumberArray allocateFloatsDirect      (int floats  ) { return Manager.INSTANCES.get().allocateFloatsDirect  (floats  ); }
+	public static NumberArray allocateDoublesDirect     (int doubles ) { return Manager.INSTANCES.get().allocateDoublesDirect (doubles ); }
+	public static NumberArray allocateBooleansDirect    (int booleans) { return Manager.INSTANCES.get().allocateBooleansDirect(booleans); }
+
+	public static NumberArray allocateBytesDirectZero   (int bytes   ) { NumberArray array = allocateBytesDirect   (bytes   ); array.implFillFromTo(0, bytes   , (byte )(0)  ); return array; }
+	public static NumberArray allocateShortsDirectZero  (int shorts  ) { NumberArray array = allocateShortsDirect  (shorts  ); array.implFillFromTo(0, shorts  , (short)(0)  ); return array; }
+	public static NumberArray allocateIntsDirectZero    (int ints    ) { NumberArray array = allocateIntsDirect    (ints    ); array.implFillFromTo(0, ints    ,         0   ); return array; }
+	public static NumberArray allocateLongsDirectZero   (int longs   ) { NumberArray array = allocateLongsDirect   (longs   ); array.implFillFromTo(0, longs   ,         0L  ); return array; }
+	public static NumberArray allocateFloatsDirectZero  (int floats  ) { NumberArray array = allocateFloatsDirect  (floats  ); array.implFillFromTo(0, floats  ,         0.0F); return array; }
+	public static NumberArray allocateDoublesDirectZero (int doubles ) { NumberArray array = allocateDoublesDirect (doubles ); array.implFillFromTo(0, doubles ,         0.0D); return array; }
+	public static NumberArray allocateBooleansDirectZero(int booleans) { NumberArray array = allocateBooleansDirect(booleans); array.implFillFromTo(0, booleans, false       ); return array; }
 
 	//////////////////////////////// util ////////////////////////////////
 
@@ -601,15 +625,15 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fill(byte    value) { this.fillFromTo(0, this.elementCount, value); }
-	public void fill(short   value) { this.fillFromTo(0, this.elementCount, value); }
-	public void fill(int     value) { this.fillFromTo(0, this.elementCount, value); }
-	public void fill(long    value) { this.fillFromTo(0, this.elementCount, value); }
-	public void fill(float   value) { this.fillFromTo(0, this.elementCount, value); }
-	public void fill(double  value) { this.fillFromTo(0, this.elementCount, value); }
-	public void fill(boolean value) { this.fillFromTo(0, this.elementCount, value); }
+	public void fillB(byte    value) { this.fillFromToB(0, this.elementCount, value); }
+	public void fillS(short   value) { this.fillFromToS(0, this.elementCount, value); }
+	public void fillI(int     value) { this.fillFromToI(0, this.elementCount, value); }
+	public void fillL(long    value) { this.fillFromToL(0, this.elementCount, value); }
+	public void fillF(float   value) { this.fillFromToF(0, this.elementCount, value); }
+	public void fillD(double  value) { this.fillFromToD(0, this.elementCount, value); }
+	public void fillZ(boolean value) { this.fillFromToZ(0, this.elementCount, value); }
 
-	public void fillFromTo(int from, int to, byte value) {
+	public void fillFromToB(int from, int to, byte value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
@@ -622,7 +646,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillFromTo(int from, int to, short value) {
+	public void fillFromToS(int from, int to, short value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
@@ -635,7 +659,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillFromTo(int from, int to, int value) {
+	public void fillFromToI(int from, int to, int value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
@@ -648,7 +672,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillFromTo(int from, int to, long value) {
+	public void fillFromToL(int from, int to, long value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
@@ -661,7 +685,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillFromTo(int from, int to, float value) {
+	public void fillFromToF(int from, int to, float value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
@@ -674,7 +698,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillFromTo(int from, int to, double value) {
+	public void fillFromToD(int from, int to, double value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
@@ -687,7 +711,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillFromTo(int from, int to, boolean value) {
+	public void fillFromToZ(int from, int to, boolean value) {
 		switch (this.type) {
 			case    BYTE_TYPE -> this.implFillFromTo(from, to, value ? (byte )(1)   : (byte )(0)  );
 			case   SHORT_TYPE -> this.implFillFromTo(from, to, value ? (short)(1)   : (short)(0)  );

@@ -5,7 +5,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.world.gen.feature.Feature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeFeatures {
 
@@ -27,6 +26,7 @@ public class BigGlobeFeatures {
 	public static final BedrockFeature                                          BEDROCK                            = register("bedrock",                            new                  BedrockFeature());
 	public static final RockLayerFeature                                        ROCK_LAYER                         = register("rock_layer",                         new                RockLayerFeature());
 	public static final OreFeature                                              ORE                                = register("ore",                                new                      OreFeature());
+	public static final ScriptedOreFeature                                      SCRIPTED_ORE                       = register("scripted_ore",                       new              ScriptedOreFeature());
 
 	public static final ScriptedFeature                                         SCRIPT                             = register("script",                             new                 ScriptedFeature());
 

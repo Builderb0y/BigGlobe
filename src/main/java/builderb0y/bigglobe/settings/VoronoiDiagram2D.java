@@ -10,7 +10,6 @@ import net.minecraft.util.crash.CrashReportSection;
 
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Derivative2D;
@@ -26,50 +25,23 @@ public class VoronoiDiagram2D {
 	/**
 	when {@link #variation} is less than or equal to half of {@link #distance},
 	it is guaranteed that every desired point will be in one of the 8 nearest cells.
+	these constants store the offsets to the 8 nearest cells.
+	each offset is encoded with 2 bits, and represented in 2's compliment.
+	the magic constants end with 16 extra 0's for padding.
 	*/
-	public static final byte[] ADJACENT_8 = {
-		-1, -1,
-		-1, +0,
-		-1, +1,
-
-		+0, -1,
-		+0, +1,
-
-		+1, -1,
-		+1, +0,
-		+1, +1,
-	};
-
+	public static final int
+		ADJACENT_8_X = 0b11_00_01_11_01_11_00_01_0000_0000_0000_0000,
+		ADJACENT_8_Z = 0b11_11_11_00_00_01_01_01_0000_0000_0000_0000;
 	/**
 	when {@link #variation} is greater than half of {@link #distance},
 	it is guaranteed that every desired point will be in one of the 20 nearest cells.
+	these constants store the offsets to the 20 nearest cells.
+	each offset is encoded with 3 bits, and represented in 2's compliment.
+	the magic constants end with 4 extra 0's for padding.
 	*/
-	public static final byte[] ADJACENT_20 = {
-		-2, -1,
-		-2, +0,
-		-2, +1,
-
-		-1, -2,
-		-1, -1,
-		-1, +0,
-		-1, +1,
-		-1, +2,
-
-		+0, -2,
-		+0, -1,
-		+0, +1,
-		+0, +2,
-
-		+1, -2,
-		+1, -1,
-		+1, +0,
-		+1, +1,
-		+1, +2,
-
-		+2, -1,
-		+2, +0,
-		+2, +1,
-	};
+	public static final long
+		ADJACENT_20_X = 0b111_000_001_110_111_000_001_010_110_111_001_010_110_111_000_001_010_111_000_001_0000L,
+		ADJACENT_20_Z = 0b110_110_110_111_111_111_111_111_000_000_000_000_001_001_001_001_001_010_010_010_0000L;
 
 	public final Seed seed;
 	public final @VerifyIntRange(min = 0, minInclusive = false) int distance;
@@ -246,11 +218,19 @@ public class VoronoiDiagram2D {
 	public Cell getCellUncached(SeedPoint center) {
 		//get all the candidate points.
 		LinkedArrayList<AdjacentSeedPoint> adjacent = new LinkedArrayList<>();
-		byte[] nearest = this.variation <= this.distance >> 1 ? ADJACENT_8 : ADJACENT_20;
-		for (int index = 0, length = nearest.length; index < length;) {
-			int newX = center.cellX + nearest[index++];
-			int newZ = center.cellZ + nearest[index++];
-			adjacent.addElementToEnd(this.getAdjacentSeedPoint(center, newX, newZ));
+		if (this.variation <= this.distance >> 1) {
+			for (int index = 0; index < 8; index++) {
+				int newX = center.cellX + (ADJACENT_8_X << (index + index) >> 30);
+				int newZ = center.cellZ + (ADJACENT_8_Z << (index + index) >> 30);
+				adjacent.addElementToEnd(this.getAdjacentSeedPoint(center, newX, newZ));
+			}
+		}
+		else {
+			for (int index = 0; index < 20; index++) {
+				int newX = center.cellX + (int)(ADJACENT_20_X << (index + index + index) >> 61);
+				int newZ = center.cellZ + (int)(ADJACENT_20_Z << (index + index + index) >> 61);
+				adjacent.addElementToEnd(this.getAdjacentSeedPoint(center, newX, newZ));
+			}
 		}
 		//sort the candidate points by angle.
 		//a point will be removed if it is not inside the circumcircle of

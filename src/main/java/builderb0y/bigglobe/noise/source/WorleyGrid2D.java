@@ -48,7 +48,7 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		samples.fill(Double.POSITIVE_INFINITY);
+		samples.fillD(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(startX - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(startX + sampleCount + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
@@ -81,7 +81,7 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 	public void getBulkY(long seed, int x, int startY, NumberArray samples) {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
-		samples.fill(Double.POSITIVE_INFINITY);
+		samples.fillD(Double.POSITIVE_INFINITY);
 		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
 		int minCellY = Math.floorDiv( ceilI(startY - this.radius), this.scale);

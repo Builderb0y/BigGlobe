@@ -1,0 +1,48 @@
+{
+	"type": "minecraft:overworld",
+	"generator": {
+		"type": "bigglobe:scripted",
+		"height": {
+			"min_y": -64,
+			"max_y": 320
+		},
+		"biome_source": {
+			"type": "minecraft:fixed",
+			"biome": "minecraft:plains"
+		},
+		"layer": {
+			"state": "'minecraft:air'",
+			"children": [
+				{
+					"type": "simple_2d",
+					"state": "'minecraft:stone'",
+					"valid": {
+						"max_y": "60"
+					}
+				},
+				{
+					"type": "simple_2d",
+					"state": "'minecraft:dirt'",
+					"valid": {
+						"min_y": "60",
+						"max_y": "63"
+					}
+				},
+				{
+					"type": "simple_2d",
+					"state": "'minecraft:grass_block'",
+					"valid": {
+						"min_y": "63",
+						"max_y": "64"
+					}
+				}
+			]
+		},
+		"feature_dispatcher": {
+			"rock_replacers": [],
+			"raw": "bigglobe:noop",
+			"normal": "bigglobe:noop"
+		},
+		"overriders": "#bigglobe:empty"
+	}
+}

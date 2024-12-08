@@ -23,6 +23,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
+import builderb0y.bigglobe.features.ScriptedOreFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.RandomSelector;
 
@@ -78,6 +79,22 @@ public class MoltenRockBlock extends Block {
 				for (ConfiguredRockReplacerFeature<?> feature : generator.feature_dispatcher.getFlattenedRockReplacers()) {
 					if (feature.config() instanceof OreFeature.Config config) {
 						BlockState newState = config.blocks.runtimeStates.get(BlockStates.STONE);
+						if (newState != null) selector.accept(newState, config.chance.get(column, pos.getY()));
+					}
+					else if (feature.config() instanceof ScriptedOreFeature.Config config) {
+						BlockState newState = config.replacer_script.getReplacement(
+							column,
+							BlockStates.STONE,
+							pos.getX(),
+							pos.getY(),
+							pos.getZ(),
+							serverWorld.random.nextLong(),
+							pos.getX(),
+							pos.getY(),
+							pos.getZ(),
+							1.0D,
+							serverWorld.random.nextDouble()
+						);
 						if (newState != null) selector.accept(newState, config.chance.get(column, pos.getY()));
 					}
 				}

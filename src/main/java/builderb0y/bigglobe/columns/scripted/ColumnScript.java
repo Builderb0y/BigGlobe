@@ -1,5 +1,9 @@
 package builderb0y.bigglobe.columns.scripted;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashSet;
@@ -84,11 +88,14 @@ public interface ColumnScript extends Script {
 					}
 				}
 				else if (paramType == int.class) {
-					if (y == null) {
-						this.bridgeParams[paramIndex] = this.actualParams[paramIndex] = y = new LazyVarInfo(parameter.getName(), TypeInfos.INT);
-					}
-					else {
-						throw new IllegalStateException(this.implMethod + " takes more than one int (assuming Y level)!");
+					this.bridgeParams[paramIndex] = this.actualParams[paramIndex] = new LazyVarInfo(parameter.getName(), TypeInfos.INT);
+					if (!parameter.isAnnotationPresent(NotY.class)) {
+						if (y == null) {
+							y = this.bridgeParams[paramIndex];
+						}
+						else {
+							throw new IllegalStateException(this.implMethod + " takes more than one int (assuming Y level)!");
+						}
 					}
 				}
 				else {
@@ -104,6 +111,10 @@ public interface ColumnScript extends Script {
 			this.y = y;
 		}
 	}
+
+	@Target(ElementType.PARAMETER)
+	@Retention(RetentionPolicy.RUNTIME)
+	public static @interface NotY {}
 
 	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements SetBasedMutableDependencyView {
 

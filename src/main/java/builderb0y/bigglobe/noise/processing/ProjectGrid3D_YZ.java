@@ -30,7 +30,7 @@ public class ProjectGrid3D_YZ implements Grid3D {
 
 	@Override
 	public void getBulkX(long seed, int startX, int y, int z, NumberArray samples) {
-		samples.fill(this.grid.getValue(seed, y, z));
+		samples.fillD(this.grid.getValue(seed, y, z));
 	}
 
 	@Override

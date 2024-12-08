@@ -6,15 +6,17 @@ This environment can be used to sample grids defined in `/data/modid/bigglobe_no
 * `grid.maxValue` - the largest (closest to positive infinity) value that the grid can produce at any coordinate.
 * `grid.dimensions` - the number of dimensions the grid has. This will always be between 1 and 3 (inclusive).
 
+* `numberArray.length` (upcoming) - the number of elements in the array.
+
 # Functions
 
-* `NumberArray newBooleanArray(int length)` allocates a new NumberArray containing (length) booleans.
-* `NumberArray newByteArray(int length)` allocates a new NumberArray containing (length) bytes.
-* `NumberArray newShortArray(int length)` allocates a new NumberArray containing (length) shorts.
-* `NumberArray newIntArray(int length)` allocates a new NumberArray containing (length) ints.
-* `NumberArray newLongArray(int length)` allocates a new NumberArray containing (length) longs.
-* `NumberArray newFloatArray(int length)` allocates a new NumberArray containing (length) floats.
-* `NumberArray newDoubleArray(int length)` allocates a new NumberArray containing (length) doubles.
+* `NumberArray newBooleanArray(int length)` allocates a new NumberArray containing (length) booleans. Upcoming: all booleans in the array are initialized to false.
+* `NumberArray newByteArray(int length)` allocates a new NumberArray containing (length) bytes. Upcoming: all bytes in the array are initialized to 0.
+* `NumberArray newShortArray(int length)` allocates a new NumberArray containing (length) shorts. Upcoming: all shorts in the array are initialized to 0.
+* `NumberArray newIntArray(int length)` allocates a new NumberArray containing (length) ints. Upcoming: all ints in the array are initialized to 0.
+* `NumberArray newLongArray(int length)` allocates a new NumberArray containing (length) longs. Upcoming: all longs in the array are initialized to 0.
+* `NumberArray newFloatArray(int length)` allocates a new NumberArray containing (length) floats. Upcoming: all floats in the array are initialized to 0.
+* `NumberArray newDoubleArray(int length)` allocates a new NumberArray containing (length) doubles. Upcoming: all doubles in the array are initialized to 0.
 
 # Methods
 
@@ -28,7 +30,7 @@ This environment can be used to sample grids defined in `/data/modid/bigglobe_no
 * `grid3D.getValuesY(long seed, int x, int y, int z, NumberArray samples)` - ditto, but continuing in the positive Y direction.
 * `grid3D.getValuesZ(long seed, int x, int y, int z, NumberArray samples)` - ditto, but continuing in the positive Z direction.
 
-If an implicit seed is present (which it usually is), then the seed parameter of the above methods can be omitted.
+If an implicit seed is present (which it usually is), then the seed parameter of the above methods is optional.
 
 * `numberArray.getBoolean(int index)` - casts the number at the provided index in the array to a boolean and returns it.
 * `numberArray.getByte(int index)` - casts the number at the provided index in the array to a byte and returns it.
@@ -39,12 +41,28 @@ If an implicit seed is present (which it usually is), then the seed parameter of
 * `numberArray.getDouble(int index)` - casts the number at the provided index in the array to a double and returns it.
 
 * `numberArray.setBoolean(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
-* `numberArray.setByte(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
-* `numberArray.setShort(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
-* `numberArray.setInt(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
-* `numberArray.setLong(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
-* `numberArray.setFloat(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
-* `numberArray.setDouble(int index, boolean value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+* `numberArray.setByte(int index, byte value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+* `numberArray.setShort(int index, short value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+* `numberArray.setInt(int index, int value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+* `numberArray.setLong(int index, long value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+* `numberArray.setFloat(int index, float value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+* `numberArray.setDouble(int index, double value)` - casts the provided value to the underlying type of the array, and stores it in the array at the provided index.
+
+* `numberArray.fillBoolean(boolean value)` - fills the array with the provided value.
+* `numberArray.fillByte(byte value)` - fills the array with the provided value.
+* `numberArray.fillShort(short value)` - fills the array with the provided value.
+* `numberArray.fillInt(int value)` - fills the array with the provided value.
+* `numberArray.fillLong(long value)` - fills the array with the provided value.
+* `numberArray.fillFloat(float value)` - fills the array with the provided value.
+* `numberArray.fillDouble(double value)` - fills the array with the provided value.
+
+* `numberArray.fillBoolean(int from, int to, boolean value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
+* `numberArray.fillByte(int from, int to, byte value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
+* `numberArray.fillShort(int from, int to, short value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
+* `numberArray.fillInt(int from, int to, int value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
+* `numberArray.fillLong(int from, int to, long value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
+* `numberArray.fillFloat(int from, int to, float value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
+* `numberArray.fillDouble(int from, int to, double value)` - fills the array with the provided value starting at index (from) (inclusive) and continuing until index (to) (exclusive).
 
 * `numberArray.(int index)` - attempts to infer the desired type from context, casts the value in the array at the provided index to that type, and returns it.
 	* The desired type is inferred from what you attempt to cast the value to, either implicitly or explicitly.

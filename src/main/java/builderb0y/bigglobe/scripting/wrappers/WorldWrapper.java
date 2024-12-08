@@ -204,22 +204,26 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public void setBlockState(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, null);
+		this.setBlockStateConditional(x, y, z, state, false, null);
+	}
+
+	public void setBlockStateAuto(int x, int y, int z, BlockState state) {
+		this.setBlockStateConditional(x, y, z, state, true, null);
 	}
 
 	public void setBlockStateReplaceable(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, SingleBlockFeature.IS_REPLACEABLE);
+		this.setBlockStateConditional(x, y, z, state, false, SingleBlockFeature.IS_REPLACEABLE);
 	}
 
 	public void setBlockStateNonReplaceable(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, SingleBlockFeature.NOT_REPLACEABLE);
+		this.setBlockStateConditional(x, y, z, state, false, SingleBlockFeature.NOT_REPLACEABLE);
 	}
 
-	public void setBlockStateConditional(int x, int y, int z, BlockState state, Predicate<BlockState> predicate) {
+	public void setBlockStateConditional(int x, int y, int z, BlockState state, boolean auto, Predicate<BlockState> predicate) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null && (predicate == null || predicate.test(this.world.getBlockState(pos)))) {
 			state = this.coordination.modifyState(state);
-			this.world.setBlockState(pos, state);
+			this.world.setBlockState(pos, state, auto);
 			if (!state.getFluidState().isEmpty()) {
 				this.world.scheduleFluidTick(pos, state.getFluidState());
 			}
@@ -266,7 +270,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 				for (int y = minY; y <= maxY; y++) {
 					pos.setY(y);
 					if (predicate == null || predicate.test(this.world.getBlockState(pos))) {
-						this.world.setBlockState(pos, state);
+						this.world.setBlockState(pos, state, false);
 						if (!state.getFluidState().isEmpty()) {
 							this.world.scheduleFluidTick(pos, state.getFluidState());
 						}
@@ -279,7 +283,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
-			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, feature.identifier().hashCode(), x, y, z));
+			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
 			return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 		}
 		return false;

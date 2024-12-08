@@ -24,11 +24,16 @@ where I left off:
 	tall plateaus for hot wasteland.
 	64-ish blocks of (red) sandstone below surface in deserts.
 	foliage exclusion for villages on island skylands affects mainland below.
+	generic scripted ore?
 
 to finish before release:
+	search for "upcoming" in docs and assign specific version, as usual.
 
 changelog:
-	Fixed even more edge cases that could trigger data pack validation errors.
+	* The "data pack debugging" config option now prints information about structure spawning to the game log.
+	* Fixed old half-generated dungeons crashing the game in new versions.
+	* Fixed a few bugs in scripts.
+	* Added a new scripted ore feature for data pack makers.
 
 alternate world presets:
 	paradise.

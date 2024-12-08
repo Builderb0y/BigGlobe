@@ -32,6 +32,7 @@ When a world is present, the following functions can be called:
 * `setBlockState(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position.
 * `setBlockStateReplaceable(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is replaceable.
 * `setBlockStateNonReplaceable(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is NOT replaceable.
+* `setBlockStateAuto(int x, int y, int z, BlockState state)` (upcoming) - changes the BlockState at the provided position, but also adjusts the state based on its neighbors. For example, when changing the state to a fence post or wall, it will have its connections set automatically.
 * `placeBlockState(int x, int y, int z, BlockState state)` - similar to `setBlockState(x, y, z, state)`, with 3 differences:
 	* `state.canPlaceAt(x, y, z)` is called for you automatically, and the block will not be set if it isn't able to be placed at the provided position.
 	* If the block is meant to be 2 blocks tall (doors, sunflowers, etc...), then both halves are placed. With setBlockState(), you only get one half (unless you call the function twice).

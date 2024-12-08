@@ -35,7 +35,7 @@ public class NumberArrayTest {
 	public static void testBooleans(RandomGenerator random, IntFunction<NumberArray> allocator) {
 		for (int length = 1; length <= 100; length++) {
 			NumberArray wrapped = allocator.apply(length);
-			wrapped.fill(false);
+			wrapped.fillZ(false);
 			boolean[] unwrapped = new boolean[length];
 			for (int operationTrial = 0; operationTrial < 100; operationTrial++) {
 				if (random.nextBoolean()) {
@@ -53,7 +53,7 @@ public class NumberArrayTest {
 						index2 = tmp;
 					}
 					boolean value = random.nextBoolean();
-					wrapped.fillFromTo(index1, index2, value);
+					wrapped.fillFromToZ(index1, index2, value);
 					Arrays.fill(unwrapped, index1, index2, value);
 				}
 				checkEqual(wrapped, unwrapped);

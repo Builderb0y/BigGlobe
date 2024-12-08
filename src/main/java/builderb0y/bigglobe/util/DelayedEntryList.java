@@ -185,11 +185,6 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	}
 
 	@Override
-	public CompileTiming compileTiming() {
-		return CompileTiming.ALWAYS_DELAYED;
-	}
-
-	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		if (!this.isResolved()) this.resolve();
 	}

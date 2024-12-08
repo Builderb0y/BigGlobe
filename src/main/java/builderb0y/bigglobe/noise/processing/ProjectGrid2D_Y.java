@@ -30,7 +30,7 @@ public class ProjectGrid2D_Y implements Grid2D {
 
 	@Override
 	public void getBulkX(long seed, int startX, int y, NumberArray samples) {
-		samples.fill(this.grid.getValue(seed, y));
+		samples.fillD(this.grid.getValue(seed, y));
 	}
 
 	@Override

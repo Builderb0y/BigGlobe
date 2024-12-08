@@ -11,7 +11,8 @@
 			"minecraft:polished_diorite":  "minecraft:coal_ore",
 			"minecraft:granite":           "minecraft:coal_ore",
 			"minecraft:polished_granite":  "minecraft:coal_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_coal_ore"
+			"minecraft:deepslate":         "minecraft:deepslate_coal_ore",
+			"minecraft:cobbled_deepslate": "minecraft:deepslate_coal_ore"
 		},
 		"chance": "1.0L",
 		"radius": {

@@ -16,6 +16,6 @@ public class ConstantGrid1D extends ConstantGrid implements Grid1D {
 
 	@Override
 	public void getBulkX(long seed, int startX, NumberArray samples) {
-		samples.fill(this.value);
+		samples.fillD(this.value);
 	}
 }

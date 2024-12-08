@@ -1,4 +1,6 @@
-# Json structure
+# Regular ores
+
+## Json structure
 
 * `type` - must be `bigglobe:ore`
 * `config`:
@@ -32,10 +34,51 @@ If the above requirements are too strict and you need to place an ore feature in
 * `chance` is ignored. If you tell the ore to spawn somewhere with a placed feature or command, it'll always spawn there.
 * `blocks` is renamed to `states`.
 
-# Reasoning
+## Notes
 
-Regular ores, when used as a rock replacer, are more efficient than generic ores, and can be multi-threaded. Generic ores are less efficient, and single-threaded.
+Regular ores, when used as a rock replacer, are more efficient than generic ores, and are multi-threaded. Generic ores are less efficient, and single-threaded.
+
+# Scripted ores (upcoming)
+
+When `type` is set to `bigglobe:scripted_ore`, a script determines what blocks to replace with what other blocks. In this type, the `blocks` property is removed, and a new `replacer_script` property is added. The replacer script has the following environments available:
+* MathScriptEnvironment
+* StatelessRandomScriptEnvironment
+* GridScriptEnvironment
+* MinecraftScriptEnvironment
+* BaseColumnScriptEnvironment
+* ColumnEntryRegistry
+* ColorScriptEnvironment
+* ExternalImageScriptEnvironment
+* ExternalDataScriptEnvironment
+
+And the following additional variables:
+* `BlockState oldState` - the state being replaced.
+* `int*(blockX, blockY, blockZ)` - the position of the block being replaced.
+* `long blockSeed` - a random number based on the block position and the seed of the ore.
+* `double*(centerX, centerY, centerZ)` - the center of the ore vein.
+* `double radius` - the radius of the ore vein.
+* `double radialFraction` - how close the block is to the center of the vein. 0 indicates that the block is at the center of the vein, while 1 indicates that the block is on the edge of the vein.
+
+The script will be called for every block inside the vein, and is expected to return a BlockState to replace oldState with. If the script returns null, oldState is left unchanged.
+
+## Notes
+
+The other ore types have a `(1.0 - radialFraction ^ 2) ^ 2` chance of modifying the current block, so if you want to match that, now you know the curve for it.
+
+Column values are available for scripted ores, but the column used will be positioned at the center of the vein, not at the current block being replaced. The `x` and `z` variables typically obtained from the column will reflect this. Despite this, the Y level of 3D column values defaults to the Y level of the block being replaced, not the Y level of the center of the vein. The Y level of 3D column values can also be manually specified as usual.
+
+Scripted ores are slightly less efficient than regular ores, but are still multi-threaded.
 
 # Interactions with molten rock
 
 When cooling molten rock, it can turn into a random ore. But you might wonder, how does it decide which ore to turn into? Well, the answer is simple: it can turn into any ore present in the feature dispatcher for the current dimension, weighted based on the chance of the ore spawning at the molten rock's location. This also means that it will never turn into a generic ore, and it will never turn into anything except stone in non-scripted worlds.
+
+## Scripted ore interactions with molten rock
+
+Scripted ores work mostly the same as regular ores when it comes to molten rocks turning into them, but there are a few important differences:
+
+* `oldState` will always be stone.
+* `blockSeed` will be completely random and unrelated to position or the ore's seed.
+* `centerX`, `centerY`, and `centerZ` will be set to `blockX`, `blockY`, and `blockZ` respectively.
+* `radius` will be set to 1.0, regardless of whether or not this is in the range specified by the feature's config.
+* `radialFraction` will be set to a random number between 0 and 1.

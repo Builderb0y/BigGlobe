@@ -69,13 +69,13 @@ public class GridScriptEnvironment {
 
 		.addType("NumberArray", NumberArray.class)
 
-		.addFunctionInvokeStatic("newBooleanArray", NumberArray.INFO.allocateBooleansDirect)
-		.addFunctionInvokeStatic("newByteArray",    NumberArray.INFO.allocateBytesDirect)
-		.addFunctionInvokeStatic("newShortArray",   NumberArray.INFO.allocateShortsDirect)
-		.addFunctionInvokeStatic("newIntArray",     NumberArray.INFO.allocateIntsDirect)
-		.addFunctionInvokeStatic("newLongArray",    NumberArray.INFO.allocateLongsDirect)
-		.addFunctionInvokeStatic("newFloatArray",   NumberArray.INFO.allocateFloatsDirect)
-		.addFunctionInvokeStatic("newDoubleArray",  NumberArray.INFO.allocateDoublesDirect)
+		.addFunctionInvokeStatic("newBooleanArray", NumberArray.INFO.allocateBooleansDirectZero)
+		.addFunctionInvokeStatic("newByteArray",    NumberArray.INFO.allocateBytesDirectZero)
+		.addFunctionInvokeStatic("newShortArray",   NumberArray.INFO.allocateShortsDirectZero)
+		.addFunctionInvokeStatic("newIntArray",     NumberArray.INFO.allocateIntsDirectZero)
+		.addFunctionInvokeStatic("newLongArray",    NumberArray.INFO.allocateLongsDirectZero)
+		.addFunctionInvokeStatic("newFloatArray",   NumberArray.INFO.allocateFloatsDirectZero)
+		.addFunctionInvokeStatic("newDoubleArray",  NumberArray.INFO.allocateDoublesDirectZero)
 
 		.addMethodInvoke("getBoolean", NumberArray.INFO.getZ)
 		.addMethodInvoke("getByte",    NumberArray.INFO.getB)
@@ -93,6 +93,22 @@ public class GridScriptEnvironment {
 		.addMethodInvoke("setFloat",   NumberArray.INFO.setF)
 		.addMethodInvoke("setDouble",  NumberArray.INFO.setD)
 
+		.addMethodInvoke("fillBoolean", NumberArray.INFO.fillZ)
+		.addMethodInvoke("fillByte",    NumberArray.INFO.fillB)
+		.addMethodInvoke("fillShort",   NumberArray.INFO.fillS)
+		.addMethodInvoke("fillInt",     NumberArray.INFO.fillI)
+		.addMethodInvoke("fillLong",    NumberArray.INFO.fillL)
+		.addMethodInvoke("fillFloat",   NumberArray.INFO.fillF)
+		.addMethodInvoke("fillDouble",  NumberArray.INFO.fillD)
+
+		.addMethodInvoke("fillBoolean", NumberArray.INFO.fillFromToZ)
+		.addMethodInvoke("fillByte",    NumberArray.INFO.fillFromToB)
+		.addMethodInvoke("fillShort",   NumberArray.INFO.fillFromToS)
+		.addMethodInvoke("fillInt",     NumberArray.INFO.fillFromToI)
+		.addMethodInvoke("fillLong",    NumberArray.INFO.fillFromToL)
+		.addMethodInvoke("fillFloat",   NumberArray.INFO.fillFromToF)
+		.addMethodInvoke("fillDouble",  NumberArray.INFO.fillFromToD)
+
 		.addMethod(type(NumberArray.class), "", new MethodHandler.Named(
 			"Automatic-precision getter and setter for NumberArray",
 			(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
@@ -101,6 +117,7 @@ public class GridScriptEnvironment {
 			}
 		))
 
+		.addFieldInvoke("length", NumberArray.INFO.length)
 		.addMethodInvoke("prefix", NumberArray.INFO.prefix)
 		.addMethodInvoke("sliceFromTo", NumberArray.INFO.sliceFromTo)
 		.addMethodInvoke("sliceOffsetLength", NumberArray.INFO.sliceOffsetLength)
@@ -192,8 +209,8 @@ public class GridScriptEnvironment {
 			this.type = type;
 		}
 
-		public MethodInfo getter() {
-			return switch (this.type.getSort()) {
+		public static MethodInfo getter(TypeInfo type) {
+			return switch (type.getSort()) {
 				case BYTE    -> NumberArray.INFO.getB;
 				case SHORT   -> NumberArray.INFO.getS;
 				case INT     -> NumberArray.INFO.getI;
@@ -201,12 +218,12 @@ public class GridScriptEnvironment {
 				case FLOAT   -> NumberArray.INFO.getF;
 				case DOUBLE  -> NumberArray.INFO.getD;
 				case BOOLEAN -> NumberArray.INFO.getZ;
-				case CHAR, VOID, OBJECT, ARRAY -> throw new IllegalStateException("Invalid NumberArray type: " + this.type);
+				case CHAR, VOID, OBJECT, ARRAY -> throw new IllegalStateException("Invalid NumberArray type: " + type);
 			};
 		}
 
-		public MethodInfo setter() {
-			return switch (this.type.getSort()) {
+		public static MethodInfo setter(TypeInfo type) {
+			return switch (type.getSort()) {
 				case BYTE    -> NumberArray.INFO.setB;
 				case SHORT   -> NumberArray.INFO.setS;
 				case INT     -> NumberArray.INFO.setI;
@@ -214,7 +231,7 @@ public class GridScriptEnvironment {
 				case FLOAT   -> NumberArray.INFO.setF;
 				case DOUBLE  -> NumberArray.INFO.setD;
 				case BOOLEAN -> NumberArray.INFO.setZ;
-				case CHAR, VOID, OBJECT, ARRAY -> throw new IllegalStateException("Invalid NumberArray type: " + this.type);
+				case CHAR, VOID, OBJECT, ARRAY -> throw new IllegalStateException("Invalid NumberArray type: " + type);
 			};
 		}
 
@@ -222,7 +239,7 @@ public class GridScriptEnvironment {
 		public void emitBytecode(MethodCompileContext method) {
 			this.loadArray.emitBytecode(method);
 			this.loadIndex.emitBytecode(method);
-			this.getter().emitBytecode(method);
+			getter(this.type).emitBytecode(method);
 		}
 
 		@Override
@@ -249,8 +266,8 @@ public class GridScriptEnvironment {
 					ArgumentedObjectUpdateEmitters.forGetterSetter(
 						this.loadArray,
 						this.loadIndex,
-						this.getter(),
-						this.setter(),
+						getter(rightValue.getTypeInfo()),
+						setter(rightValue.getTypeInfo()),
 						rightValue
 					)
 				);
