@@ -4,12 +4,15 @@ import me.cortex.voxy.common.world.WorldEngine;
 
 import net.minecraft.server.world.ServerWorld;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
+import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
@@ -49,6 +52,21 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 						column01.setParamsUnchecked(params.at(x | step, z       ));
 						column10.setParamsUnchecked(params.at(x,        z | step));
 						column11.setParamsUnchecked(params.at(x | step, z | step));
+						for (String name : this.generator.getOverriders().rawColumnValueDependencies) try {
+							column00.preComputeColumnValue(name);
+							column01.preComputeColumnValue(name);
+							column10.preComputeColumnValue(name);
+							column11.preComputeColumnValue(name);
+						}
+						catch (Throwable throwable) {
+							BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+						}
+						for (ColumnValueOverrider.Holder overrider : this.generator.getOverriders().rawColumnValues) {
+							overrider.override(column00, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+							overrider.override(column01, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+							overrider.override(column10, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+							overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+						}
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),

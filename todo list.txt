@@ -28,10 +28,12 @@ where I left off:
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
+	test dungeons in 1.20.1.
+		especially partially-generated ones.
 
 changelog:
 	* The "data pack debugging" config option now prints information about structure spawning to the game log.
-	* Fixed old half-generated dungeons crashing the game in new versions.
+	* Probably fixed mega dungeons sometimes crashing the game.
 	* Fixed a few bugs in scripts.
 	* Added a new scripted ore feature for data pack makers.
 

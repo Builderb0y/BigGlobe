@@ -1,0 +1,21 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scale": 64, "amplitude": 0.4 },
+			{ "type": "smooth", "scale": 32, "amplitude": 0.16 },
+			{ "type": "smooth", "scale": 16, "amplitude": 0.064 },
+			{ "type": "smooth", "scale":  8, "amplitude": 0.0256 },
+			{ "type": "constant", "value": 1.0 }
+		]
+	},
+	"valid": {
+		"min_y": "-64",
+		"max_y": "192"
+	}
+}
