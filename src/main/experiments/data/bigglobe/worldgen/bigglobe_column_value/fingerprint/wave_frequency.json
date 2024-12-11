@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"(worldSeed # 16x385722A79992E0E3UL).newSeed(main_voronoi.cell_x, main_voronoi.cell_z).nextInt(2, 8) * pi"
+	]
+}

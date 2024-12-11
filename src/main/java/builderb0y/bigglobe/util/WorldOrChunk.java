@@ -35,9 +35,11 @@ between worlds and chunks, and allows {@link WorldWrapper} to operate on both.
 */
 public interface WorldOrChunk extends BlockView {
 
-	public abstract void setBlockState(BlockPos pos, BlockState state, boolean auto);
+	public abstract void setBlockState(BlockPos pos, BlockState state);
 
 	public abstract boolean placeBlockState(BlockPos pos, BlockState state);
+
+	public abstract void updateBlockState(BlockPos pos);
 
 	public abstract boolean canPlace(BlockPos pos, BlockState state);
 
@@ -84,8 +86,15 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void setBlockState(BlockPos pos, BlockState state, boolean auto) {
-			WorldUtil.setBlockState(this.world, pos, state, auto ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+		public void setBlockState(BlockPos pos, BlockState state) {
+			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+		}
+
+		@Override
+		public void updateBlockState(BlockPos pos) {
+			BlockState oldState = this.getBlockState(pos);
+			BlockState newState = Block.postProcessState(oldState, this.world, pos);
+			if (oldState != newState) this.setBlockState(pos, newState);
 		}
 
 		@Override
@@ -184,9 +193,13 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void setBlockState(BlockPos pos, BlockState state, boolean auto) {
+		public void setBlockState(BlockPos pos, BlockState state) {
 			this.chunk.setBlockState(pos, state, false);
-			if (auto) this.chunk.markBlockForPostProcessing(pos);
+		}
+
+		@Override
+		public void updateBlockState(BlockPos pos) {
+			this.chunk.markBlockForPostProcessing(pos);
 		}
 
 		@Override

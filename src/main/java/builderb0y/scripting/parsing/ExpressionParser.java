@@ -48,6 +48,7 @@ import builderb0y.scripting.parsing.special.MultiDeclarationSyntax;
 import builderb0y.scripting.parsing.special.ParenthesizedScript;
 import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.StringSimilarity;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -396,32 +397,32 @@ public class ExpressionParser {
 				switch (operator) {
 					case "&&" -> {
 						this.input.onCharsRead(operator);
-						this.checkBoolean(left, operator);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 						left = and(this, left, this.nextCompare());
 					}
 					case "||" -> {
 						this.input.onCharsRead(operator);
-						this.checkBoolean(left, operator);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 						left = or(this, left, this.nextCompare());
 					}
 					case "##" -> {
 						this.input.onCharsRead(operator);
-						this.checkBoolean(left, operator);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 						left = xor(this, left, this.nextCompare());
 					}
 					case "!&&" -> {
 						this.input.onCharsRead(operator);
-						this.checkBoolean(left, operator);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 						left = not(this, and(this, left, this.nextCompare()));
 					}
 					case "!||" -> {
 						this.input.onCharsRead(operator);
-						this.checkBoolean(left, operator);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 						left = not(this, or(this, left, this.nextCompare()));
 					}
 					case "!##" -> {
 						this.input.onCharsRead(operator);
-						this.checkBoolean(left, operator);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
 						left = not(this, xor(this, left, this.nextCompare()));
 					}
 					default -> {

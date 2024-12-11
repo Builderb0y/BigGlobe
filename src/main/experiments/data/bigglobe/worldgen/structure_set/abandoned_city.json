@@ -2,10 +2,10 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 1491215984,
-		"separation": 8,
-		"spacing": 16
+		"separation": 32,
+		"spacing": 64
 	},
 	"structures": [
-		{ "structure": "bigglobe:overworld_fortress", "weight": 1 }
+		{ "structure": "bigglobe:abandoned_city", "weight": 1 }
 	]
 }

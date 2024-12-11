@@ -149,7 +149,7 @@ public interface BetterRegistry<T> {
 
 		@Override
 		public RegistryEntryList<T> getTag(TagKey<T> key) {
-			return this.lookup.getOptional(key).orElse(null);
+			return this.wrapperImpl.getOptional(key).orElse(null);
 		}
 
 		@Override

@@ -157,6 +157,9 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	@Override
 	public ScriptedColumn lookupColumn(int x, int z) {
+		BlockPos pos = this.unboundedPos(x, 0, z);
+		x = pos.getX();
+		z = pos.getZ();
 		return this.columns.computeIfAbsent(ColumnPos.pack(x, z), (long packedPos) -> {
 			ScriptedColumn column = this.columnFactory.create(
 				this.params.at(ColumnPos.getX(packedPos), ColumnPos.getZ(packedPos))
@@ -203,36 +206,43 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return pos == null ? BlockStates.AIR : this.coordination.unmodifyState(this.world.getBlockState(pos));
 	}
 
-	public void setBlockState(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, false, null);
+	public boolean setBlockState(int x, int y, int z, BlockState state) {
+		return this.setBlockStateConditional(x, y, z, state, false, null);
 	}
 
-	public void setBlockStateAuto(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, true, null);
+	public boolean setBlockStateReplaceable(int x, int y, int z, BlockState state) {
+		return this.setBlockStateConditional(x, y, z, state, false, SingleBlockFeature.IS_REPLACEABLE);
 	}
 
-	public void setBlockStateReplaceable(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, false, SingleBlockFeature.IS_REPLACEABLE);
+	public boolean setBlockStateNonReplaceable(int x, int y, int z, BlockState state) {
+		return this.setBlockStateConditional(x, y, z, state, false, SingleBlockFeature.NOT_REPLACEABLE);
 	}
 
-	public void setBlockStateNonReplaceable(int x, int y, int z, BlockState state) {
-		this.setBlockStateConditional(x, y, z, state, false, SingleBlockFeature.NOT_REPLACEABLE);
-	}
-
-	public void setBlockStateConditional(int x, int y, int z, BlockState state, boolean auto, Predicate<BlockState> predicate) {
+	public boolean setBlockStateConditional(int x, int y, int z, BlockState state, boolean auto, Predicate<BlockState> predicate) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null && (predicate == null || predicate.test(this.world.getBlockState(pos)))) {
 			state = this.coordination.modifyState(state);
-			this.world.setBlockState(pos, state, auto);
+			this.world.setBlockState(pos, state);
 			if (!state.getFluidState().isEmpty()) {
 				this.world.scheduleFluidTick(pos, state.getFluidState());
 			}
+			return true;
 		}
+		return false;
 	}
 
 	public boolean placeBlockState(int x, int y, int z, BlockState state) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		return pos != null && this.world.placeBlockState(pos, this.coordination.modifyState(state));
+	}
+
+	public boolean updateBlockState(int x, int y, int z) {
+		BlockPos pos = this.mutablePos(x, y, z);
+		if (pos != null) {
+			this.world.updateBlockState(pos);
+			return true;
+		}
+		return false;
 	}
 
 	public void fillBlockState(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
@@ -270,11 +280,37 @@ public class WorldWrapper implements ScriptedColumnLookup {
 				for (int y = minY; y <= maxY; y++) {
 					pos.setY(y);
 					if (predicate == null || predicate.test(this.world.getBlockState(pos))) {
-						this.world.setBlockState(pos, state, false);
+						this.world.setBlockState(pos, state);
 						if (!state.getFluidState().isEmpty()) {
 							this.world.scheduleFluidTick(pos, state.getFluidState());
 						}
 					}
+				}
+			}
+		}
+	}
+
+	public void updateBlockStates(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+		BlockPos.Mutable pos = this.unboundedPos(minX, minY, minZ);
+		minX = pos.getX(); minY = pos.getY(); minZ = pos.getZ();
+		pos = this.unboundedPos(maxX, maxY, maxZ);
+		maxX = pos.getX(); maxY = pos.getY(); maxZ = pos.getZ();
+		int tmp;
+		if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
+		if (maxY < minY) { tmp = minY; minY = maxY; maxY = tmp; }
+		if (maxZ < minZ) { tmp = minZ; minZ = maxZ; maxZ = tmp; }
+		minX = Math.max(minX, this.coordination.mutableArea.getMinX());
+		minY = Math.max(minY, this.coordination.mutableArea.getMinY());
+		minZ = Math.max(minZ, this.coordination.mutableArea.getMinZ());
+		maxX = Math.min(maxX, this.coordination.mutableArea.getMaxX());
+		maxY = Math.min(maxY, this.coordination.mutableArea.getMaxY());
+		maxZ = Math.min(maxZ, this.coordination.mutableArea.getMaxZ());
+		for (int z = minZ; z <= maxZ; z++) {
+			pos.setZ(z);
+			for (int x = minX; x <= maxX; x++) {
+				pos.setX(x);
+				for (int y = minY; y <= maxY; y++) {
+					this.world.updateBlockState(pos.setY(y));
 				}
 			}
 		}

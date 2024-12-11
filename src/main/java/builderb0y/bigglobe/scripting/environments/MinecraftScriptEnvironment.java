@@ -56,7 +56,23 @@ public class MinecraftScriptEnvironment {
 		.addMethodMultiInvokeStatic(BlockWrapper.class, "getRandomState")
 		.addMethodInvokeSpecific(BlockTag.class, "random", Block.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(BlockTag.class, "random", Block.class, long.class)
-		.addMethodInvokeStatics(BlockStateWrapper.class, "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
+		.addMethodInvokeStatics(
+			BlockStateWrapper.class,
+			"getBlock",
+			"isAir",
+			"isReplaceable",
+			"hasWater",
+			"hasLava",
+			"hasSoulLava",
+			"hasFluid",
+			"blocksLight",
+			"hasCollision",
+			"hasFullCubeCollision",
+			"hasFullCubeOutline",
+			"rotate",
+			"mirror",
+			"with"
+		)
 		.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 			return mode.makeInvoker(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
 		}))
@@ -102,7 +118,27 @@ public class MinecraftScriptEnvironment {
 			environment
 			.configure(createWithRandom(loadRandom))
 			.addVariable("worldSeed", WorldWrapper.INFO.seed(loadWorld))
-			.addFunctionInvokes(loadWorld, WorldWrapper.class, "getBlockState", "setBlockState", "setBlockStateReplaceable", "setBlockStateNonReplaceable", "setBlockStateAuto", "placeBlockState", "fillBlockState", "fillBlockStateReplaceable", "fillBlockStateNonReplaceable", "placeFeature", /* "getBiome", */ "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData")
+			.addFunctionInvokes(
+				loadWorld,
+				WorldWrapper.class,
+				"getBlockState",
+				"setBlockState",
+				"setBlockStateReplaceable",
+				"setBlockStateNonReplaceable",
+				"updateBlockState",
+				"placeBlockState",
+				"fillBlockState",
+				"fillBlockStateReplaceable",
+				"fillBlockStateNonReplaceable",
+				"updateBlockStates",
+				"placeFeature",
+				//"getBiome",
+				"isYLevelValid",
+				"isPositionValid",
+				"getBlockData",
+				"setBlockData",
+				"mergeBlockData"
+			)
 			.addVariableInvokes(loadWorld, WorldWrapper.class, "minValidYLevel", "maxValidYLevel")
 			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "summon")
 			.addMethod(BlockStateWrapper.TYPE, "canPlaceAt", Handlers.builder(BlockStateWrapper.class, "canPlaceAt").addImplicitArgument(loadWorld).addReceiverArgument(BlockStateWrapper.TYPE).addArguments("III").buildMethod())

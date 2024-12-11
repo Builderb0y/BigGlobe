@@ -28,26 +28,35 @@ No functions on the "base" MinecraftScriptEnvironment, *however*...
 
 When a world is present, the following functions can be called:
 
-* `getBlockState(int x, int y, int z)` - returns the BlockState at the provided position.
-* `setBlockState(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position.
-* `setBlockStateReplaceable(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is replaceable.
-* `setBlockStateNonReplaceable(int x, int y, int z, BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is NOT replaceable.
-* `setBlockStateAuto(int x, int y, int z, BlockState state)` (upcoming) - changes the BlockState at the provided position, but also adjusts the state based on its neighbors. For example, when changing the state to a fence post or wall, it will have its connections set automatically.
-* `placeBlockState(int x, int y, int z, BlockState state)` - similar to `setBlockState(x, y, z, state)`, with 3 differences:
+* `getBlockState(int*(x, y, z))` - returns the BlockState at the provided position.
+* `setBlockState(int*(x, y, z), BlockState state)` - changes the BlockState at the provided position.
+* `setBlockStateReplaceable(int*(x, y, z), BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is replaceable.
+* `setBlockStateNonReplaceable(int*(x, y, z), BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is NOT replaceable.
+* `updateBlockState(int*(x, y, z))` (upcoming) - changes the BlockState at the provided position based on its neighbors. For example, when changing the state of a fence post or wall, it will have its connections set automatically.
+
+	Note: in some cases, particularly if this function is called during raw generation, the updating process may be delayed until more chunks are loaded. This can sometimes lead to counter-intuitive behavior. Consider the following example:
+	```
+	setBlockState(x, y, z, 'minecraft:oak_fence[north=false,south=false,east=false,west=false,waterlogged=false]')
+	updateBlockState(x, y, z)
+	setBlockState(x, y, z, 'minecraft:spruce_fence[north=false,south=false,east=false,west=false,waterlogged=false]')
+	```
+	The expected outcome of this code is that you get a spruce fence at (x, y, z) with no connections to any adjacent blocks. And sometimes, this is exactly what will happen. But other times, you get a spruce fence that is connected to other adjacent blocks. As a rule of thumb, to avoid confusing issues like this, it is recommended to not modify blocks after updating them.
+* `placeBlockState(int*(x, y, z), BlockState state)` - similar to `setBlockState(x, y, z, state)`, with 3 differences:
 	* `state.canPlaceAt(x, y, z)` is called for you automatically, and the block will not be set if it isn't able to be placed at the provided position.
 	* If the block is meant to be 2 blocks tall (doors, sunflowers, etc...), then both halves are placed. With setBlockState(), you only get one half (unless you call the function twice).
 	* For waterloggable states, the state's waterlogged status will be updated to match whether or not there's already water at the given position before being placed.
 	
 	These two differences stack with each other btw. If the block is 2 blocks tall, and is waterloggable, then both halves will check for water and update their states accordingly.
-* `fillBlockState(int x1, int y1, int z1, int x2, int y2, int z2, BlockState state)` - similar to the `/fill` command; this function sets block states in a cuboid region of blocks.
-* `fillBlockStateReplaceable(int x1, int y1, int z1, int x2, int y2, int z2, BlockState state)` - similar to `fillBlockState(x1, y1, z1, x2, y2, z2, state)`, but will only place blocks where the existing block already at that position is replaceable.
-* `fillBlockStateNonReplaceable(int x1, int y1, int z1, int x2, int y2, int z2, BlockState state)` - similar to `fillBlockState(x1, y1, z1, x2, y2, z2, state)`, but will only place blocks where the existing block already at that position is NOT replaceable.
-* `placeFeature(int x, int y, int z, ConfiguredFeature feature)` - works like the `/place feature` command; places the feature at the provided coordinates.
+* `fillBlockState(int*(x1, y1, z1, x2, y2, z2), BlockState state)` - similar to the `/fill` command; this function sets block states in a cuboid region of blocks.
+* `fillBlockStateReplaceable(int*(x1, y1, z1, x2, y2, z2), BlockState state)` - similar to `fillBlockState(x1, y1, z1, x2, y2, z2, state)`, but will only place blocks where the existing block already at that position is replaceable.
+* `fillBlockStateNonReplaceable(int*(x1, y1, z1, x2, y2, z2), BlockState state)` - similar to `fillBlockState(x1, y1, z1, x2, y2, z2, state)`, but will only place blocks where the existing block already at that position is NOT replaceable.
+* `updateBlockStates(int*(x1, y1, z1, x2, y2, z2))` (upcoming) - works just like `setBlockState(x, y, z)`, but in a cuboid area. The same note about delayed updates still applies.
+* `placeFeature(int*(x, y, z), ConfiguredFeature feature)` - works like the `/place feature` command; places the feature at the provided coordinates.
 * `isYLevelValid(int y)` - returns true if y is between `minValidYLevel` and `maxValidYLevel`, false otherwise.
-* `isPositionValid(int x, int y, int z)` - returns true if y is between `minValidYLevel` and `maxValidYLevel`, and the chunk at the provided x/z position is loaded, false otherwise.
-* `getBlockData(int x, int y, int z)` - acts like the `/data get` command; returns an NbtCompound containing the block data at the given position, or null if there is no block entity at the given position.
-* `setBlockData(int x, int y, int z, NbtCompound data)` - sets the NBT data of the block at the given position. Any tags that the block needs, but you don't provide, are regenerated. Does nothing if the block at the given position is not a block entity.
-* `mergeBlockData(int x, int y, int z, NbtCompound data)` - acts like the `/data merge` command; merges the existing NBT data at the given position with the provided NBT data, then sets it on the block at the given position. Does nothing if the block at the given position is not a block entity.
+* `isPositionValid(int*(x, y, z))` - returns true if y is between `minValidYLevel` and `maxValidYLevel`, and the chunk at the provided x/z position is loaded, false otherwise.
+* `getBlockData(int*(x, y, z))` - acts like the `/data get` command; returns an NbtCompound containing the block data at the given position, or null if there is no block entity at the given position.
+* `setBlockData(int*(x, y, z), NbtCompound data)` - sets the NBT data of the block at the given position. Any tags that the block needs, but you don't provide, are regenerated. Does nothing if the block at the given position is not a block entity.
+* `mergeBlockData(int*(x, y, z), NbtCompound data)` - acts like the `/data merge` command; merges the existing NBT data at the given position with the provided NBT data, then sets it on the block at the given position. Does nothing if the block at the given position is not a block entity.
 * `summon(double x, double y, double z, String entityType)` - acts like the `/summon` command; spawns the given entity at the given position.
 * `summon(double x, double y, double z, String entityType, NbtCompound nbt)` - also acts like `/summon`, with custom NBT data to apply to the entity when spawning it.
 
@@ -98,8 +107,8 @@ When an implicit RandomGenerator object is provided, the following additional me
 
 When a world is present, the following additional methods can be called:
 
-* `BlockState.canPlaceAt(int x, int y, int z)` - returns true if the block at the provided position is replaceable and the state can exist at the provided position. For example, most plants require grass or dirt below them.
-* `BlockState.canStayAt(int x, int y, int z)` - returns true if the block can exist at this location without popping off. For example, most plants require grass or dirt below them.
+* `BlockState.canPlaceAt(int*(x, y, z))` - returns true if the block at the provided position is replaceable and the state can exist at the provided position. For example, most plants require grass or dirt below them.
+* `BlockState.canStayAt(int*(x, y, z))` - returns true if the block can exist at this location without popping off. For example, most plants require grass or dirt below them.
 
 # Keywords
 

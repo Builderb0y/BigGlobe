@@ -26,6 +26,8 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
+import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -126,6 +128,21 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 								column01.setParamsUnchecked(params.at(quadX | step, quadZ       ));
 								column10.setParamsUnchecked(params.at(quadX,        quadZ | step));
 								column11.setParamsUnchecked(params.at(quadX | step, quadZ | step));
+								for (String name : this.chunkGenerator.getOverriders().rawColumnValueDependencies) try {
+									column00.preComputeColumnValue(name);
+									column01.preComputeColumnValue(name);
+									column10.preComputeColumnValue(name);
+									column11.preComputeColumnValue(name);
+								}
+								catch (Throwable throwable) {
+									BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+								}
+								for (ColumnValueOverrider.Holder overrider : this.chunkGenerator.getOverriders().rawColumnValues) {
+									overrider.override(column00, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+									overrider.override(column01, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+									overrider.override(column10, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+									overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+								}
 								BlockSegmentList
 									list00 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
 									list01 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
