@@ -105,6 +105,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public final WorldOrChunk world;
 	public final Coordination coordination;
 	public final BlockPos.Mutable pos;
+	public Vector3d doublePos;
 	public final RandomGenerator random;
 	public final ScriptedColumn.Factory columnFactory;
 	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
@@ -198,6 +199,28 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public int transformZ(int x, int y, int z) {
 		return this.unboundedPos(x, y, z).getZ();
+	}
+
+	public Vector3d transform(double x, double y, double z) {
+		return this.coordination.modifyVecUnbounded(this.doublePos(x, y, z));
+	}
+
+	public double transformX(double x, double y, double z) {
+		return this.transform(x, y, z).x;
+	}
+
+	public double transformY(double x, double y, double z) {
+		return this.transform(x, y, z).y;
+	}
+
+	public double transformZ(double x, double y, double z) {
+		return this.transform(x, y, z).z;
+	}
+
+	public Vector3d doublePos(double x, double y, double z) {
+		Vector3d pos = this.doublePos;
+		if (pos == null) pos = this.doublePos = new Vector3d();
+		return pos.set(x, y, z);
 	}
 
 	public int offsetY() {
@@ -428,9 +451,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public void summon(double x, double y, double z, String entityType) {
 		Vector3d newPos = this.coordination.filterVecMutable(
-			this.coordination.modifyVecUnbounded(
-				new Vector3d(x, y, z)
-			)
+			this.transform(x, y, z)
 		);
 		if (newPos == null) return;
 		double newX = newPos.x;
@@ -456,9 +477,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public void summon(double x, double y, double z, String entityType, NbtCompound nbt) {
 		Vector3d newPos = this.coordination.filterVecMutable(
-			this.coordination.modifyVecUnbounded(
-				new Vector3d(x, y, z)
-			)
+			this.transform(x, y, z)
 		);
 		if (newPos == null) return;
 		double newX = newPos.x;

@@ -50,6 +50,7 @@
 	"block.bigglobe.slated_prismarine_stairs": "Slated Prismarine Stairs",
 	"block.bigglobe.small_quartz_bud": "Small Quartz Bud",
 	"block.bigglobe.soul_cauldron": "Soul Cauldron",
+	"block.bigglobe.soul_lava": "Soul Lava",
 	"block.bigglobe.soul_magma": "Soul Magma",
 	"block.bigglobe.spelunking_rope": "Spelunking Rope",
 	"block.bigglobe.stick": "Stick",
@@ -151,6 +152,7 @@
 	"item.bigglobe.magenta_red_bottled_aura": "Magenta Red Bottled Aura",
 	"item.bigglobe.omni_bottled_aura": "Omni Bottled Aura",
 
+	"tag.fluid.bigglobe.soul_lava": "Soul Lava",
 	"tag.item.bigglobe.aura_bottles": "Bottles of Aura",
 	"tag.item.bigglobe.charred_logs": "Charred Logs",
 	"tag.item.bigglobe.coal_crafting_materials": "Coal or Sulfur",

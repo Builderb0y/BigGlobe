@@ -121,9 +121,6 @@ public class MinecraftScriptEnvironment {
 			.addFunctionInvokes(
 				loadWorld,
 				WorldWrapper.class,
-				"transformX",
-				"transformY",
-				"transformZ",
 				"getBlockState",
 				"setBlockState",
 				"setBlockStateReplaceable",
@@ -141,6 +138,13 @@ public class MinecraftScriptEnvironment {
 				"getBlockData",
 				"setBlockData",
 				"mergeBlockData"
+			)
+			.addFunctionMultiInvokes(
+				loadWorld,
+				WorldWrapper.class,
+				"transformX",
+				"transformY",
+				"transformZ"
 			)
 			.addVariableInvokes(loadWorld, WorldWrapper.class, "minValidYLevel", "maxValidYLevel")
 			.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "summon")

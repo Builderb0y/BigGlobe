@@ -10,6 +10,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -22,7 +23,7 @@ import builderb0y.bigglobe.versions.BlockEntityVersions;
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
 
-	public SerializableBlockQueue blockQueue;
+	public @Nullable SerializableBlockQueue blockQueue;
 	public @Nullable BlockState oldState;
 	public @Nullable NbtCompound oldBlockData;
 
@@ -59,8 +60,8 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 	@Override
 	public void readNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
 		super.readNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
-		try {
-			this.blockQueue = SerializableBlockQueue.read(nbt.getCompound("queue"));
+		if (nbt.get("queue") instanceof NbtCompound queue) try {
+			this.blockQueue = SerializableBlockQueue.read(queue);
 		}
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.error("Error reading NBT data for delayed generation at " + this.pos, exception);
@@ -80,7 +81,7 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 	@Override
 	public void writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
 		super.writeNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
-		nbt.put("queue", this.blockQueue.toNBT());
+		if (this.blockQueue != null) nbt.put("queue", this.blockQueue.toNBT());
 		if (this.oldState != null) nbt.putString("old_state", BlockArgumentParser.stringifyBlockState(this.oldState));
 		if (this.oldBlockData != null) nbt.put("old_data", this.oldBlockData);
 	}

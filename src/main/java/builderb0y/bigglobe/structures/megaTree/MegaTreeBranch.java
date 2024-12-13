@@ -7,6 +7,7 @@ import net.minecraft.world.Heightmap;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
@@ -48,6 +49,7 @@ public class MegaTreeBranch {
 		this.lastBall            = new MegaTreeBall(
 			BigGlobeStructures.MEGA_TREE_BALL_TYPE,
 			context.structure,
+			context.palette,
 			x,
 			y,
 			z,
@@ -81,12 +83,20 @@ public class MegaTreeBranch {
 			else {
 				shyness.set(0.0D);
 			}
-			if (column != null) column.setParams(column.params.at(floorI(position.x), floorI(position.z)));
-			double surfaceY = column != null && surfaceYGetter != null ? surfaceYGetter.get(column) : context.structureContext.chunkGenerator().getHeightOnGround(floorI(position.x), floorI(position.z), Heightmap.Type.OCEAN_FLOOR_WG, context.structureContext.world(), context.structureContext.noiseConfig());
+			column.setParams(column.params.at(floorI(position.x), floorI(position.z)));
+			int surfaceY = (
+				surfaceYGetter != null
+				? surfaceYGetter.get(column)
+				: context.structureContext.chunkGenerator().getHeightOnGround(
+					floorI(position.x),
+					floorI(position.z),
+					Heightmap.Type.OCEAN_FLOOR_WG,
+					context.structureContext.world(),
+					context.structureContext.noiseConfig()
+				)
+			);
 			Vectors.setInSphere(scratchPos, context.permuter, 0.25D);
-			if (!Double.isNaN(surfaceY)) {
-				scratchPos.y += exp2((surfaceY - position.y) * 0.125D + 2.0D);
-			}
+			scratchPos.y += FastMath.Exp.fastExp2((surfaceY - position.y) * 0.125D + 2.0D);
 			scratchPos.add(shyness)
 			.add(this.acceleration)
 			.mul(0.125D / this.startRadius);
@@ -95,7 +105,14 @@ public class MegaTreeBranch {
 			this.acceleration = new Vector3d(nextVelocity).sub(prevVelocity).normalize();
 			this.velocity = nextVelocity;
 
-			this.lastBall = new MegaTreeBall(BigGlobeStructures.MEGA_TREE_BALL_TYPE, this.context.structure, this, position.add(nextVelocity), currentRadius);
+			this.lastBall = new MegaTreeBall(
+				BigGlobeStructures.MEGA_TREE_BALL_TYPE,
+				this.context.structure,
+				this.context.palette,
+				this,
+				position.add(nextVelocity),
+				currentRadius
+			);
 			context.addBall(this.lastBall);
 
 			if (this.stepsUntilNextSplit <= 0 && this.totalSteps - this.currentStep >= 4) {

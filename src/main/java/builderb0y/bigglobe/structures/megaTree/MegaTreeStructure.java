@@ -21,12 +21,14 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToWoodPaletteScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 
@@ -52,7 +54,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		FoliageRange size,
 		FoliageRange trunk_radius,
 		FoliageRange branch_sparsity,
-		RegistryEntry<WoodPalette> palette
+		ColumnYToWoodPaletteScript.Holder palette
 	) {}
 
 	public final @EncodeInline Data data;
@@ -64,12 +66,15 @@ public class MegaTreeStructure extends BigGlobeStructure {
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		long seed = chunkSeed(context, 0x462E8B50AE715A33L);
 		double x = context.chunkPos().getStartX() + context.random().nextDouble() * 16.0D;
 		double z = context.chunkPos().getStartZ() + context.random().nextDouble() * 16.0D;
-		ScriptedColumn column = context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.newColumn(context.world(), floorI(x), floorI(z), ColumnUsage.GENERIC.maybeDhHints()) : null;
-		double y = (column != null && this.surface_y != null ? this.surface_y.get(column) : context.chunkGenerator().getHeightInGround(floorI(x), floorI(z), Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())) + 1;
-		double foliage = column != null && this.data.foliage != null ? this.data.foliage.get(column) : 0.0D;
+		ScriptedColumn column = generator.newColumn(context.world(), floorI(x), floorI(z), ColumnUsage.GENERIC.maybeDhHints());
+		double y = (this.surface_y != null ? this.surface_y.get(column) : context.chunkGenerator().getHeightInGround(floorI(x), floorI(z), Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())) + 1;
+		WoodPaletteEntry palette = this.data.palette.get(column, floorI(y));
+		if (palette == null) return Optional.empty();
+		double foliage = this.data.foliage != null ? this.data.foliage.get(column) : 0.0D;
 		return Optional.of(
 			new StructurePosition(
 				BlockPos.ofFloored(x, y, z),
@@ -81,6 +86,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 						new Permuter(seed),
 						column,
 						foliage,
+						palette.entry,
 						new MegaTreeOctree(
 							x - size,
 							y - size,
@@ -103,7 +109,8 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		public final MegaTreeStructure structure;
 		public final Structure.Context structureContext;
 		public final Permuter permuter;
-		public final @Nullable ScriptedColumn column;
+		public final ScriptedColumn column;
+		public final RegistryEntry<WoodPalette> palette;
 		public final double foliage;
 		public final MegaTreeOctree octree;
 		public final StructurePiecesCollector ballCollector;
@@ -114,8 +121,9 @@ public class MegaTreeStructure extends BigGlobeStructure {
 			MegaTreeStructure structure,
 			Structure.Context structureContext,
 			Permuter permuter,
-			@Nullable ScriptedColumn column,
+			ScriptedColumn column,
 			double foliage,
+			RegistryEntry<WoodPalette> palette,
 			MegaTreeOctree octree,
 			StructurePiecesCollector ballCollector
 		) {
@@ -124,6 +132,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 			this.permuter           = permuter;
 			this.column             = column;
 			this.foliage            = foliage;
+			this.palette            = palette;
 			this.octree             = octree;
 			this.ballCollector      = ballCollector;
 			this.branches           = new ArrayDeque<>(256);

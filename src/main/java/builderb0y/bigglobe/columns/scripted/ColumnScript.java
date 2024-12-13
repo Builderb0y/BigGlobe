@@ -32,6 +32,7 @@ import builderb0y.bigglobe.scripting.wrappers.ExternalData;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
+import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -995,11 +996,46 @@ public interface ColumnScript extends Script {
 				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
+					BiomeEntry entry = this.script.get(column, y);
+					if (entry != null) return entry;
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+				}
+				finally {
+					manager.used = used;
+				}
+				return BiomeEntry.of("minecraft:plains");
+			}
+		}
+	}
+
+	public static interface ColumnYToWoodPaletteScript extends ColumnScript {
+
+		public abstract WoodPaletteEntry get(ScriptedColumn column, int y);
+
+		@Wrapper
+		public static class Holder extends BaseHolder<ColumnYToWoodPaletteScript> implements ColumnYToWoodPaletteScript {
+
+			public Holder(ScriptUsage usage) {
+				super(usage);
+			}
+
+			@Override
+			public Class<ColumnYToWoodPaletteScript> getScriptClass() {
+				return ColumnYToWoodPaletteScript.class;
+			}
+
+			@Override
+			public @Nullable WoodPaletteEntry get(ScriptedColumn column, int y) {
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
+				int used = manager.used;
+				try {
 					return this.script.get(column, y);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);
-					return BiomeEntry.of("minecraft:plains");
+					return null;
 				}
 				finally {
 					manager.used = used;

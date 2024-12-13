@@ -28,10 +28,8 @@ where I left off:
 	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
 	noise-based 3D column value population needs to check if maxCachedY > minCachedY.
 		possibly other 3D column value types too.
-	merge mega tree structures into just one structure with a property for wood palette.
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
-	add transformX/Y/Z methods which take doubles.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -39,8 +37,10 @@ to finish before release:
 		especially partially-generated ones.
 
 changelog:
+	* Added a config option to control the number of threads Big Globe uses for worldgen tasks.
 	* The "data pack debugging" config option now prints information about structure spawning to the game log.
 	* Probably fixed mega dungeons sometimes crashing the game.
+	* Fixed delayed generation block sometimes crashing the game.
 	* Fixed a few bugs in scripts.
 	* Added a new scripted ore feature for data pack makers.
 

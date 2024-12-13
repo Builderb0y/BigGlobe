@@ -95,6 +95,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	public MegaTreeBall(
 		StructurePieceType type,
 		MegaTreeStructure structure,
+		RegistryEntry<WoodPalette> palette,
 		double x,
 		double y,
 		double z,
@@ -106,7 +107,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 			type,
 			0,
 			null,
-			new Data(structure, x, y, z, radius, currentStep, totalSteps, structure.data.palette())
+			new Data(structure, x, y, z, radius, currentStep, totalSteps, palette)
 		);
 		double extraLeafRadius = this.data.extraLeafRadius();
 		double totalRadius = radius + extraLeafRadius;
@@ -123,6 +124,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	public MegaTreeBall(
 		StructurePieceType type,
 		MegaTreeStructure structure,
+		RegistryEntry<WoodPalette> palette,
 		MegaTreeBranch branch,
 		Vector3d position,
 		double radius
@@ -130,6 +132,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		this(
 			type,
 			structure,
+			palette,
 			position.x,
 			position.y,
 			position.z,

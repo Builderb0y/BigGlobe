@@ -201,12 +201,12 @@ public class ColumnEntryRegistry {
 		}
 
 		public static void reset() {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("Stack trace"));
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			LOADING = null;
 		}
 
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("Stack trace"));
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			if (BigGlobeMod.currentRegistries == null || BigGlobeMod.currentRegistries.getClass() == betterRegistryLookup.getClass()) {
 				BigGlobeMod.currentRegistries = betterRegistryLookup;
 			}
@@ -223,7 +223,7 @@ public class ColumnEntryRegistry {
 		}
 
 		public static void endLoad(boolean successful) {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("Stack trace"));
+			BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			if (successful && LOADING != null) LOADING.compile();
 		}
 
