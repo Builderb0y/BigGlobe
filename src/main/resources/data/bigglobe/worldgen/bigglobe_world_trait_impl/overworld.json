@@ -25,6 +25,7 @@
 	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:overworld/surface_temperature`",
 	"bigglobe:wood_palette":             "`bigglobe:overworld/wood_palette`",
+	"bigglobe:automatic_surface_states": "`bigglobe:overworld/surface_states`",
 	"bigglobe:approximate_surface_y": {
 		"get": "`bigglobe:overworld/basic_surface_y`",
 		"set": "`bigglobe:overworld/basic_surface_y` = value"

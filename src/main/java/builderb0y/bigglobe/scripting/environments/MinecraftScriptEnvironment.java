@@ -121,6 +121,9 @@ public class MinecraftScriptEnvironment {
 			.addFunctionInvokes(
 				loadWorld,
 				WorldWrapper.class,
+				"transformX",
+				"transformY",
+				"transformZ",
 				"getBlockState",
 				"setBlockState",
 				"setBlockStateReplaceable",

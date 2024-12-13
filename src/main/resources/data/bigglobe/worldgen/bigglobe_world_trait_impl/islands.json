@@ -26,6 +26,11 @@
 	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:islands/surface_temperature`",
 	"bigglobe:wood_palette":             "`bigglobe:islands/wood_palette`",
+	"bigglobe:automatic_surface_states": [
+		"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+		"? `bigglobe:islands/skyland_surface_states`",
+		": `bigglobe:islands/surface_states`"
+	],
 	"bigglobe:approximate_surface_y": {
 		"get": "`bigglobe:islands/basic_surface_height`",
 		"set": "`bigglobe:islands/basic_surface_height` = value"

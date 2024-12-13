@@ -25,6 +25,13 @@ where I left off:
 	64-ish blocks of (red) sandstone below surface in deserts.
 	foliage exclusion for villages on island skylands affects mainland below.
 	generic scripted ore?
+	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
+	noise-based 3D column value population needs to check if maxCachedY > minCachedY.
+		possibly other 3D column value types too.
+	merge mega tree structures into just one structure with a property for wood palette.
+	add STRUCTURE column usage.
+		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
+	add transformX/Y/Z methods which take doubles.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.

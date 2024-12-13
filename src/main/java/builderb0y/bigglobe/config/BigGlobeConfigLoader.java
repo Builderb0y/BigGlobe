@@ -61,6 +61,7 @@ public class BigGlobeConfigLoader {
 	}
 
 	public static void save(BigGlobeConfig config) throws Exception {
+		config.validatePostLoad();
 		Files.createDirectories(CONFIG_FOLDER);
 		Files.writeString(TEMPORARY_CONFIG_FILE, toString(config), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		Files.move(TEMPORARY_CONFIG_FILE, CONFIG_FILE, StandardCopyOption.REPLACE_EXISTING);
@@ -118,6 +119,9 @@ public class BigGlobeConfigLoader {
 		}
 		else if (object instanceof String s) {
 			return appendString(builder, s);
+		}
+		else if (object instanceof Enum<?> e) {
+			return appendString(builder, e.name());
 		}
 		else {
 			builder.append('{');

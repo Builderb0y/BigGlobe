@@ -57,7 +57,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static class Info extends InfoHolder {
 
 		public FieldInfo random;
-		public MethodInfo seed, minValidYLevel, maxValidYLevel, hints, distantHorizons, surfaceOnly;
+		public MethodInfo seed, minValidYLevel, maxValidYLevel, hints, distantHorizons, surfaceOnly, offsetY;
 
 		public InsnTree seed(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.seed);
@@ -86,12 +86,16 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		public InsnTree surfaceOnly(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.surfaceOnly);
 		}
+
+		public InsnTree offsetY(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.offsetY);
+		}
 	}
 
 	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
 	public static class BoundInfo extends BoundInfoHolder {
 
-		public InsnTree random, seed, hints, distantHorizons;
+		public InsnTree random, seed, hints, distantHorizons, offsetY;
 
 		public BoundInfo(InsnTree loadWorld) {
 			super(INFO, loadWorld);
@@ -119,24 +123,25 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		this.pos = new BlockPos.Mutable();
 		this.random = random;
 		this.columnFactory = chunkGenerator.columnEntryRegistry.columnFactory;
-		this.params = new ScriptedColumn.Params(
-			chunkGenerator.columnSeed,
-			0,
-			0,
-			coordination.mutableArea.getMinY(),
-			coordination.mutableArea.getMaxY(),
-			hints,
-			chunkGenerator.compiledWorldTraits
-		);
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
 		if (ScriptedColumnLookup.GLOBAL.getCurrent() instanceof WorldWrapper parent) {
 			this.columns = parent.columns;
 			this.overriders = parent.overriders;
+			this.params = parent.params;
 		}
 		else {
 			this.columns = new Long2ObjectOpenHashMap<>(64);
+			this.params = new ScriptedColumn.Params(
+				chunkGenerator.columnSeed,
+				0,
+				0,
+				coordination.mutableArea.getMinY(),
+				coordination.mutableArea.getMaxY() + 1,
+				hints,
+				chunkGenerator.compiledWorldTraits
+			);
 		}
 	}
 
@@ -181,6 +186,22 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public BlockPos.@Nullable Mutable immutablePos(int x, int y, int z) {
 		return this.coordination.filterPosImmutable(this.unboundedPos(x, y, z));
+	}
+
+	public int transformX(int x, int y, int z) {
+		return this.unboundedPos(x, y, z).getX();
+	}
+
+	public int transformY(int x, int y, int z) {
+		return this.unboundedPos(x, y, z).getY();
+	}
+
+	public int transformZ(int x, int y, int z) {
+		return this.unboundedPos(x, y, z).getZ();
+	}
+
+	public int offsetY() {
+		return this.coordination.transformation.offsetY();
 	}
 
 	public long seed() {

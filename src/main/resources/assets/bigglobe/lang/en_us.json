@@ -266,6 +266,11 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[1]": "If false, no debugging information will be output anywhere.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[2]": "This can be helpful for data pack makers, since the decision tree's and the column value dependency web's structure can be a bit non-trivial at times.",
 
+	"text.autoconfig.bigglobe.option.threads": "Threads",
+	"text.autoconfig.bigglobe.option.threads.@Tooltip[0]": "Number of threads to use for worldgen tasks (including worldgen for Distant Horizons and Voxy)",
+	"text.autoconfig.bigglobe.option.threads.@Tooltip[1]": "More threads will result in faster terrain gen, but may reduce performance in other areas of the game.",
+	"text.autoconfig.bigglobe.option.threads.@Tooltip[2]": "Less threads will result in slower terrain gen, but may improve performance in other areas of the game.",
+
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Distant Horizons Integration",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating chunks for Distant Horizons.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[1]": "None of these actions will ever be skipped for normal chunks. This category will have no effect if Distant Horizons is not installed.",
@@ -276,10 +281,10 @@
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[2]": "Enabling this config option will skip structures and features. In particular, you will not see any trees with this option enabled until you get close to them.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode": "Underground Mode",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[0]": "0 - The underground and all blocks in it are completely skipped.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[1]": "1 - The underground will be filled with stone, but no caves will generate.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[2]": "2 - Caves will generate, but underground structures and features will not.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[3]": "3 - All underground stuff will generate normally.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[0]": "NONE - The underground and all blocks in it are completely skipped.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[1]": "FILL - The underground will be filled with stone, but no caves will generate.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[2]": "CARVE - Caves will generate, but underground structures and features will not.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[3]": "DECORATE - All underground stuff will generate normally.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate chunks for Distant Horizons at.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration": "Voxy Integration",
@@ -292,10 +297,10 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[2]": "Note that terrain generated this way may be a simplified representation of actual terrain, and finer details may be filled in only when you get closer to it.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode": "Underground Mode",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[0]": "0 - The underground and all blocks in it are completely skipped.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[1]": "1 - The underground will be filled with stone, but no caves will generate.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[2]": "2 - Caves will generate, but underground structures and features will not.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[3]": "3 - Currently the same as 2, but maybe some day underground structures and features might generate too.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[0]": "NONE - The underground and all blocks in it are completely skipped.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[1]": "FILL - The underground will be filled with stone, but no caves will generate.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[2]": "CARVE - Caves will generate, but underground structures and features will not.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[3]": "DECORATE - Currently the same as 2, but maybe some day underground structures and features might generate too.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate chunks for Voxy at.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir": "Light Air",

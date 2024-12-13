@@ -10,7 +10,7 @@ if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:is
 	setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')
 )
 
-IslandSurfaceStates states = `bigglobe:islands/surface_states`
+SurfaceStates states = `bigglobe:islands/surface_states`
 double rawDepth = floorInt(
 	(seed := seed.newSeed()).nextDouble(3.0L, 7.0L)
 	- slopeSquared * 3.0L

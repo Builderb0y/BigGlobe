@@ -181,39 +181,58 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 
 	public static record Hints(
 		boolean isLod,
-		byte underground,
+		UndergroundMode underground,
 		byte lod,
 		ColumnUsage usage
 	) {
 
-		public static final int
-			NO_UNDERGROUND = 0,
-			FILL           = 1,
-			CARVE          = 2,
-			DECORATE       = 3;
-
-		public static boolean isValidUndergroundMode(int mode) {
-			return mode >= NO_UNDERGROUND && mode <= DECORATE;
-		}
-
-		public Hints(boolean isLod, int flags, int lod, ColumnUsage usage) {
-			this(isLod, (byte)(flags), (byte)(lod), usage);
+		public Hints(boolean isLod, UndergroundMode underground, int lod, ColumnUsage usage) {
+			this(isLod, underground, (byte)(lod), usage);
 		}
 
 		public boolean fill() {
-			return this.underground >= FILL;
+			return this.underground.shouldFill();
 		}
 
 		public boolean carve() {
-			return this.underground >= CARVE;
+			return this.underground.shouldCarve();
 		}
 
 		public boolean decorate() {
-			return this.underground >= DECORATE;
+			return this.underground.shouldDecorate();
 		}
 
 		public int distanceBetweenColumns() {
 			return 1 << this.lod;
+		}
+	}
+
+	public static enum UndergroundMode {
+		NONE,
+		FILL,
+		CARVE,
+		DECORATE;
+
+		public static final UndergroundMode[] VALUES = values();
+
+		public boolean shouldFill() {
+			return this.ordinal() >= FILL.ordinal();
+		}
+
+		public boolean shouldCarve() {
+			return this.ordinal() >= CARVE.ordinal();
+		}
+
+		public boolean shouldDecorate() {
+			return this.ordinal() >= DECORATE.ordinal();
+		}
+
+		public static UndergroundMode min(UndergroundMode a, UndergroundMode b) {
+			return VALUES[Math.min(a.ordinal(), b.ordinal())];
+		}
+
+		public static UndergroundMode max(UndergroundMode a, UndergroundMode b) {
+			return VALUES[Math.max(a.ordinal(), b.ordinal())];
 		}
 	}
 
@@ -231,12 +250,12 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			return this.lowerCaseName;
 		}
 
-		public int defaultUndergroundMode() {
+		public UndergroundMode defaultUndergroundMode() {
 			return switch (this) {
-				case GENERIC        -> DECORATE;
-				case HEIGHTMAP      -> FILL;
-				case RAW_GENERATION -> DECORATE;
-				case FEATURES       -> DECORATE;
+				case GENERIC        -> UndergroundMode.DECORATE;
+				case HEIGHTMAP      -> UndergroundMode.FILL;
+				case RAW_GENERATION -> UndergroundMode.DECORATE;
+				case FEATURES       -> UndergroundMode.DECORATE;
 			};
 		}
 
@@ -245,11 +264,11 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		}
 
 		public Hints dhHints(int lod) {
-			return new Hints(true, Math.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.undergroundMode), lod, this);
+			return new Hints(true, UndergroundMode.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.undergroundMode), lod, this);
 		}
 
 		public Hints voxyHints(int lod) {
-			return new Hints(true, Math.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().voxyIntegration.undergroundMode), lod, this);
+			return new Hints(true, UndergroundMode.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().voxyIntegration.undergroundMode), lod, this);
 		}
 
 		public Hints maybeDhHints() {

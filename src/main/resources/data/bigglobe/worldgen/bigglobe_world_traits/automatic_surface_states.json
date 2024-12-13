@@ -1,0 +1,11 @@
+{
+	"type": {
+		"type": "class",
+		"name": "SurfaceStates",
+		"fields": [
+			{ "name": "surfaceState",    "type": "block_state" },
+			{ "name": "subsurfaceState", "type": "block_state" }
+		]
+	},
+	"is_3d": true
+}

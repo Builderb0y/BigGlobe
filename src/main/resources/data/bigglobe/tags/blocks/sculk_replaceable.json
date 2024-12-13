@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"#minecraft:sculk_replaceable_world_gen",
+		"minecraft:cobblestone",
+		"minecraft:polished_andesite",
+		"minecraft:polished_diorite",
+		"minecraft:polished_granite"
+	]
+}

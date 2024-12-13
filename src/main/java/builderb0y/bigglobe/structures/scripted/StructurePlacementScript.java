@@ -81,6 +81,7 @@ public interface StructurePlacementScript extends Script {
 						.addVariable("distantHorizons", WORLD.distantHorizons),
 						new ExternalEnvironmentParams()
 						.withLookup(WORLD.loadSelf)
+						.offsetY(WORLD.offsetY)
 					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)

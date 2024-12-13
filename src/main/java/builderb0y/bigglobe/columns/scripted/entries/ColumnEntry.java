@@ -31,6 +31,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.binary.AddInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.ArgumentedGetterSetterInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
@@ -313,7 +314,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		if loadColumn is specified, then loadX and loadZ are ignored.
 		must specify both loadX and loadZ, or neither.
 		*/
-		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ;
+		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ, offsetY;
 		public boolean mutable;
 		public MutableDependencyView dependencies;
 
@@ -321,6 +322,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
 		public ExternalEnvironmentParams withXZ    (InsnTree loadX, InsnTree loadZ) { this.loadX = loadX; this.loadZ = loadZ; return this; }
 		public ExternalEnvironmentParams withY     (InsnTree loadY     ) { this.loadY      = loadY     ; return this; }
+		public ExternalEnvironmentParams offsetY   (InsnTree offsetY   ) { this.offsetY    = offsetY   ; return this; }
 		public ExternalEnvironmentParams mutable   (boolean  mutable   ) { this.mutable    = mutable   ; return this; }
 		public ExternalEnvironmentParams mutable   (                   ) { this.mutable    = true      ; return this; }
 		public ExternalEnvironmentParams trackDependencies(MutableDependencyView dependencies) { this.dependencies = dependencies; return this; }
@@ -397,6 +399,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			if (error != null) throw new ScriptParsingException(error.toString(), parser.input);
 
 			if (!this.mutable) valueSetter = null;
+			if (this.offsetY != null) y = new AddInsnTree(y, this.offsetY, IADD);
 
 			InsnTree result;
 			if (this.loadColumn != null) {

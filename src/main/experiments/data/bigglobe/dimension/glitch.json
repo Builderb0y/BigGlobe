@@ -89,7 +89,7 @@
 									"'minecraft:basalt[axis=y]',",
 									"'minecraft:blackstone'",
 								"),",
-								"BlockTag(        'c:ores'  ).random(seed := seed.newSeed()).getDefaultState(),",
+								"BlockTag(        '#c:ores'  ).random(seed := seed.newSeed()).getDefaultState(),",
 								"BlockTag('#minecraft:logs'  ).random(seed := seed.newSeed()).getDefaultState(),",
 								"BlockState(BlockTag('#minecraft:leaves').random(seed := seed.newSeed()), persistent: true, distance: 7, waterlogged: false),",
 								"(seed := seed.newSeed()).switch (",

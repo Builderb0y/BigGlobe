@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 
 public class BigGlobeThreadPool {
 
@@ -28,16 +29,33 @@ public class BigGlobeThreadPool {
 		MAIN_EXECUTOR = TASKS::addFirst,
 		LOD_EXECUTOR  = TASKS::addLast;
 
+	public static void checkThreads() {
+		int threads = BigGlobeConfig.INSTANCE.get().threads();
+		synchronized (POOL) {
+			if (threads < POOL.getMaximumPoolSize()) {
+				POOL.setCorePoolSize(threads);
+				POOL.setMaximumPoolSize(threads);
+			}
+			else if (threads > POOL.getMaximumPoolSize()) {
+				POOL.setMaximumPoolSize(threads);
+				POOL.setCorePoolSize(threads);
+				POOL.prestartAllCoreThreads();
+			}
+		}
+	}
+
 	public static void onMainTaskStarted() {
 		BUSY.set(true);
 	}
 
 	public static Executor mainExecutor() {
+		checkThreads();
 		onMainTaskStarted();
 		return MAIN_EXECUTOR;
 	}
 
 	public static Executor lodExecutor() {
+		checkThreads();
 		return LOD_EXECUTOR;
 	}
 

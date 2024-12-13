@@ -1,6 +1,6 @@
 int surfaceY = world_traits.`bigglobe:skyland_max_y`
 long seed = columnSeed(16x6C744C12C6BC713CUL)
-IslandSurfaceStates states = `bigglobe:islands/skyland_surface_states`
+SurfaceStates states = `bigglobe:islands/skyland_surface_states`
 double slopeSquared = (
 	+ dx(`bigglobe:islands/skyland_top`) ^ 2
 	+ dz(`bigglobe:islands/skyland_top`) ^ 2

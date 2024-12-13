@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.EnumHandler;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.EnumHandler.EnumDisplayOption;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Excluded;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
@@ -15,7 +17,7 @@ import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
@@ -27,6 +29,7 @@ public class BigGlobeConfig {
 	public static void init() {}
 
 	public void validatePostLoad() {
+		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
 		this.distantHorizonsIntegration.validatePostLoad();
 		this.voxyIntegration.validatePostLoad();
 		this.playerSpawning.validatePostLoad();
@@ -52,6 +55,15 @@ public class BigGlobeConfig {
 	@DefaultIgnore
 	public boolean dataPackDebugging = false;
 
+	@Tooltip(count = 3)
+	@UseName("Threads")
+	@DefaultIgnore
+	public int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1);
+
+	public int threads() {
+		return Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
+	}
+
 	@Tooltip(count = 2)
 	@UseName("Distant Horizons Integration")
 	@CollapsibleObject(startExpanded = true)
@@ -67,14 +79,11 @@ public class BigGlobeConfig {
 
 		@Tooltip(count = 5)
 		@UseName("Underground Mode")
+		@EnumHandler(option = EnumDisplayOption.BUTTON)
 		@DefaultIgnore
-		public int undergroundMode = Hints.FILL;
+		public UndergroundMode undergroundMode = UndergroundMode.FILL;
 
-		public void validatePostLoad() {
-			if (!Hints.isValidUndergroundMode(this.undergroundMode)) {
-				throw new IllegalStateException("Invalid value for Distant Horizons Integration > Underground Mode: " + this.undergroundMode);
-			}
-		}
+		public void validatePostLoad() {}
 	}
 
 	@Tooltip(count = 2)
@@ -92,19 +101,16 @@ public class BigGlobeConfig {
 
 		@Tooltip(count = 5)
 		@UseName("Underground Mode")
+		@EnumHandler(option = EnumDisplayOption.BUTTON)
 		@DefaultIgnore
-		public int undergroundMode = Hints.NO_UNDERGROUND;
+		public UndergroundMode undergroundMode = UndergroundMode.NONE;
 
 		@Tooltip(count = 3)
 		@UseName("Light Air")
 		@DefaultIgnore
 		public boolean lightAir = false;
 
-		public void validatePostLoad() {
-			if (!Hints.isValidUndergroundMode(this.undergroundMode)) {
-				throw new IllegalStateException("Invalid value for Voxy Integration > Underground Mode: " + this.undergroundMode);
-			}
-		}
+		public void validatePostLoad() {}
 	}
 
 	@Tooltip(count = 2)
