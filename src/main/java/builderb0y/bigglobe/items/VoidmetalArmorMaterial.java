@@ -7,6 +7,7 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
@@ -14,6 +15,11 @@ import net.minecraft.util.Identifier;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION >= MC_1_21_4
+	import net.minecraft.item.equipment.EquipmentAsset;
+	import net.minecraft.item.equipment.EquipmentAssetKeys;
+#endif
 
 #if MC_VERSION >= MC_1_21_2
 	import net.minecraft.item.equipment.ArmorMaterial;
@@ -24,7 +30,33 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class VoidmetalArmorMaterial {
 
-	#if MC_VERSION >= MC_1_21_2
+	#if MC_VERSION >= MC_1_21_4
+
+		public static final RegistryKey<EquipmentAsset> MODEL = RegistryKey.of(
+			EquipmentAssetKeys.REGISTRY_KEY,
+			BigGlobeMod.modID("voidmetal")
+		);
+		public static final ArmorMaterial INSTANCE;
+		static {
+			EnumMap<EquipmentType, Integer> defence = new EnumMap<>(EquipmentType.class);
+			defence.put(EquipmentType.BOOTS,      3);
+			defence.put(EquipmentType.LEGGINGS,   6);
+			defence.put(EquipmentType.CHESTPLATE, 8);
+			defence.put(EquipmentType.HELMET,     3);
+			defence.put(EquipmentType.BODY,      11);
+			INSTANCE = new ArmorMaterial(
+				37,
+				defence,
+				15,
+				BigGlobeSoundEvents.ITEM_ARMOR_EQUIP_VOIDMETAL,
+				3.0F,
+				0.0F,
+				BigGlobeItemTags.REPAIRS_VOIDMETAL_ARMOR,
+				MODEL
+			);
+		}
+
+	#elif MC_VERSION >= MC_1_21_2
 
 		public static final Identifier MODEL = BigGlobeMod.modID("voidmetal");
 		public static final ArmorMaterial INSTANCE;

@@ -517,7 +517,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 						entityNBT.putString("id", "armor_stand");
 						entityNBT.put("Pos", makeEntityPos(archPosition.getX() + 0.5D, archPosition.getY(), archPosition.getZ() + 0.5D));
 						NbtList rotation = new NbtList();
-						rotation.add(NbtFloat.of(archPosition.getRandomDirection(random).asRotation()));
+						rotation.add(NbtFloat.of(DirectionVersions.horizontalAngle(archPosition.getRandomDirection(random))));
 						rotation.add(NbtFloat.ZERO);
 						entityNBT.put("Rotation", rotation);
 						NbtList armorItemsNBT = new NbtList();

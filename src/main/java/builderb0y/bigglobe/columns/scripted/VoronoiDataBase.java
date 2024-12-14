@@ -185,7 +185,9 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 	/* public final synthetic ScriptedColumn$Generated_XXX column; */
 	public final VoronoiDiagram2D.Cell cell;
 	public int flags_0;
-	public Derivative2D softDistanceSquared, softDistance;
+	public final Derivative2D
+		softDistanceSquared = new Derivative2D(),
+		softDistance = new Derivative2D();
 	public double hardDistance, euclideanDistance;
 
 	public VoronoiDataBase(VoronoiDiagram2D.Cell cell) {
@@ -242,9 +244,6 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 		int newFlags = oldFlags | 1;
 		if (oldFlags != newFlags) {
 			this.flags_0 = newFlags;
-			if (this.softDistanceSquared == null) {
-				this.softDistanceSquared = new Derivative2D();
-			}
 			this.cell.derivativeProgressToEdgeSquaredD(this.softDistanceSquared, this.column().x(), this.column().z());
 		}
 	}
@@ -269,9 +268,6 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 		int newFlags = oldFlags | 2;
 		if (oldFlags != newFlags) {
 			this.flags_0 = newFlags;
-			if (this.softDistance == null) {
-				this.softDistance = new Derivative2D();
-			}
 			this.pre_compute_soft_distance_squared();
 			this.softDistance.set(this.softDistanceSquared).sqrt();
 		}

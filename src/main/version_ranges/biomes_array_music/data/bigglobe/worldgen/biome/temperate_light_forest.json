@@ -1,0 +1,47 @@
+{
+	"carvers": [],
+	"downfall": 0.66666666,
+	"effects": {
+		"fog_color": 12638463,
+		"mood_sound": {
+			"block_search_extent": 8,
+			"offset": 2.0,
+			"sound": "minecraft:ambient.cave",
+			"tick_delay": 6000
+		},
+		"sky_color": 7972607,
+		"water_color": 4159204,
+		"water_fog_color": 329011
+	},
+	"features": [ [], [], [], [], [], [], [], [], [], [] ],
+	"has_precipitation": true,
+	"spawn_costs": {},
+	"spawners": {
+		"ambient": [
+			{ "type": "minecraft:bat",             "weight": 100, "minCount": 1, "maxCount": 4 }
+		],
+		"creature": [
+			{ "type": "minecraft:pig",             "weight": 120, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:chicken",         "weight": 120, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:sheep",           "weight": 100, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:cow",             "weight":  80, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:wolf",            "weight":  40, "minCount": 2, "maxCount": 4 }
+		],
+		"misc": [],
+		"monster": [
+			{ "type": "minecraft:zombie",          "weight":  95, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:zombie_villager", "weight":   5, "minCount": 1, "maxCount": 2 },
+			{ "type": "minecraft:skeleton",        "weight": 100, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:spider",          "weight": 100, "minCount": 1, "maxCount": 4 },
+			{ "type": "minecraft:creeper",         "weight": 100, "minCount": 2, "maxCount": 4 },
+			{ "type": "minecraft:enderman",        "weight":  10, "minCount": 1, "maxCount": 3 },
+			{ "type": "minecraft:witch",           "weight":   5, "minCount": 1, "maxCount": 1 }
+		],
+		"underground_water_creature": [
+			{ "type": "minecraft:glow_squid",      "weight":  10, "minCount": 4, "maxCount": 6 }
+		],
+		"water_ambient": [],
+		"water_creature": []
+	},
+	"temperature": 0.5
+}

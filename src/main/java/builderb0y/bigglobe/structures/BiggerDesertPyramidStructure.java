@@ -41,6 +41,7 @@ import builderb0y.bigglobe.structures.LabyrinthLayout.LabyrinthPiece;
 import builderb0y.bigglobe.structures.LabyrinthLayout.RoomPiece;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.DirectionVersions;
 
 public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
@@ -573,12 +574,12 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 		@Override
 		public RoomPiece getConnectedRoom(Direction direction) {
-			return this.connections[direction.getHorizontal()];
+			return this.connections[DirectionVersions.horizontal(direction)];
 		}
 
 		@Override
 		public void setConnectedRoom(Direction direction, RoomPiece connection) {
-			this.connections[direction.getHorizontal()] = (UndergroundRoomPiece)(connection);
+			this.connections[DirectionVersions.horizontal(direction)] = (UndergroundRoomPiece)(connection);
 		}
 	}
 

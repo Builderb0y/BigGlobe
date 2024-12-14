@@ -1,0 +1,8 @@
+{
+	"match": {
+		"type": "bigglobe:waypoint"
+	},
+	"luminance": {
+		"type": "bigglobe:waypoint"
+	}
+}

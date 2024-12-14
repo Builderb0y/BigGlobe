@@ -38,16 +38,16 @@ public interface BetterRegistry<T> {
 		RegistryEntry<T> entry = this.getEntry(key);
 		if (entry != null) return entry;
 		StringBuilder message = new StringBuilder(128).append("Key ").append(key.getValue()).append(" not present in registry ").append(this.getKey().getValue()).append('.');
-		if (this.getTag(TagKey.of(RegistryVersions.getRegistryKey(key), key.getValue())) != null) {
+		if (this.getTag(TagKey.of(RegistryVersions.getRegistryKey(key), key.getValue()), false) != null) {
 			message.append(" Note: a tag with this name exists. Did you forget to prefix the name with '#'?");
 		}
 		throw new IllegalStateException(message.toString());
 	}
 
-	public abstract @Nullable RegistryEntryList<T> getTag(TagKey<T> key);
+	public abstract @Nullable RegistryEntryList<T> getTag(TagKey<T> key, boolean create);
 
 	public default @NotNull RegistryEntryList<T> requireTag(TagKey<T> key) {
-		RegistryEntryList<T> tag = this.getTag(key);
+		RegistryEntryList<T> tag = this.getTag(key, true);
 		if (tag != null) return tag;
 		StringBuilder message = new StringBuilder().append("Tag ").append(key.id()).append(" not present in registry ").append(this.getKey().getValue()).append('.');
 		if (this.getEntry(RegistryKey.of(RegistryVersions.getRegistryKey(key), key.id())) != null) {
@@ -103,7 +103,7 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
-		public RegistryEntryList<T> getTag(TagKey<T> key) {
+		public RegistryEntryList<T> getTag(TagKey<T> key, boolean create) {
 			#if MC_VERSION >= MC_1_21_2
 				return this.registry.getOptional(key).orElse(null);
 			#else
@@ -148,8 +148,8 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
-		public RegistryEntryList<T> getTag(TagKey<T> key) {
-			return this.wrapperImpl.getOptional(key).orElse(null);
+		public RegistryEntryList<T> getTag(TagKey<T> key, boolean create) {
+			return (create ? this.lookup : this.wrapperImpl).getOptional(key).orElse(null);
 		}
 
 		@Override

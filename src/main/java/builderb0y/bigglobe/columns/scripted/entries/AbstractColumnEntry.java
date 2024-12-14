@@ -289,8 +289,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			int oldFlags = flagsField
 			int newFlags = oldFlags | flagsBitmask
 			if (oldFlags != newFlags:
-				flagsField = newFlags
 				value = compute()
+				flagsField = newFlags
 			)
 			""",
 			(MutableScriptEnvironment environment) -> {
@@ -313,8 +313,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			int oldFlags = flagsField
 			int newFlags = oldFlags | flagsBitmask
 			if (oldFlags != newFlags:
-				flagsField = newFlags
 				compute()
+				flagsField = newFlags
 			)
 			""",
 			(MutableScriptEnvironment environment) -> {
@@ -514,8 +514,9 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 					if (this.valid.max_y() != null) {
 						return """
 							if (test():
-								valueField.reallocateBoth(column, minY(), maxY())
-								actuallyCompute()
+								if (valueField.reallocateBoth(column, minY(), maxY()):
+									actuallyCompute()
+								)
 							)
 							else (
 								valueField.invalidate()
@@ -525,8 +526,9 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 					else {
 						return """
 							if (test():
-								valueField.reallocateMin(column, minY())
-								actuallyCompute()
+								if (valueField.reallocateMin(column, minY()):
+									actuallyCompute()
+								)
 							)
 							else (
 								valueField.invalidate()
@@ -538,8 +540,9 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 					if (this.valid.max_y() != null) {
 						return """
 							if (test():
-								valueField.reallocateMax(column, maxY())
-								actuallyCompute()
+								if (valueField.reallocateMax(column, maxY()):
+									actuallyCompute()
+								)
 							)
 							else (
 								valueField.invalidate()
@@ -549,8 +552,9 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 					else {
 						return """
 							if (test():
-								valueField.reallocateNone(column, )
-								actuallyCompute()
+								if (valueField.reallocateNone(column):
+									actuallyCompute()
+								)
 							)
 							else (
 								valueField.invalidate()
@@ -563,28 +567,32 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 				if (this.valid.min_y() != null) {
 					if (this.valid.max_y() != null) {
 						return """
-							valueField.reallocateBoth(column, minY(), maxY())
-							actuallyCompute()
+							if (valueField.reallocateBoth(column, minY(), maxY()):
+								actuallyCompute()
+							)
 						""";
 					}
 					else {
 						return """
-							valueField.reallocateMin(column, minY())
-							actuallyCompute()
+							if (valueField.reallocateMin(column, minY()):
+								actuallyCompute()
+							)
 						""";
 					}
 				}
 				else {
 					if (this.valid.max_y() != null) {
 						return """
-							valueField.reallocateMax(column, maxY())
-							actuallyCompute()
+							if (valueField.reallocateMax(column, maxY()):
+								actuallyCompute()
+							)
 						""";
 					}
 					else {
 						return """
-							valueField.reallocateNone(column)
-							actuallyCompute()
+							if (valueField.reallocateNone(column):
+								actuallyCompute()
+							)
 						""";
 					}
 				}
@@ -592,8 +600,9 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		}
 		else {
 			return """
-				valueField.reallocateNone(column)
-				actuallyCompute()
+				if (valueField.reallocateNone(column):
+					actuallyCompute()
+				)
 			""";
 		}
 	}

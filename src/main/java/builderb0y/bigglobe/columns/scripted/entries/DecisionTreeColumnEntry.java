@@ -65,7 +65,7 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
 			BigGlobeMod.LOGGER.info(
 				Printer.parse(this.root, this.patches).print(
-					new StringBuilder(128)
+					new StringBuilder(1024)
 					.append(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID))
 					.append(" decision tree, as requested in Big Globe's config file:\n")
 				)

@@ -1,0 +1,26 @@
+{
+	"model": {
+		"type": "minecraft:condition",
+		"property": "minecraft:using_item",
+		"on_false": {
+			"type": "minecraft:model",
+			"model": "bigglobe:item/slingshot"
+		},
+		"on_true": {
+			"type": "minecraft:range_dispatch",
+			"property": "minecraft:use_duration",
+			"entries": [{
+				"model": {
+					"type": "minecraft:model",
+					"model": "bigglobe:item/slingshot_loaded"
+				},
+				"threshold": 0.5
+			}],
+			"fallback": {
+				"type": "minecraft:model",
+				"model": "bigglobe:item/slingshot_loading"
+			},
+			"scale": 0.05
+		}
+	}
+}

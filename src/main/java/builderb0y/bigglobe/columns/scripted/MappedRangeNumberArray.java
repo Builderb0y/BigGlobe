@@ -23,7 +23,7 @@ public class MappedRangeNumberArray extends MappedRangeArray {
 	}
 
 	@Override
-	public void reallocate(int requiredLength) {
+	public boolean reallocate(int requiredLength) {
 		this.valid = true;
 		if (this.array.length() < requiredLength) {
 			requiredLength = Math.max(requiredLength, this.array.length() << 1);
@@ -39,5 +39,6 @@ public class MappedRangeNumberArray extends MappedRangeArray {
 				default -> throw new IllegalStateException("Invalid type: " + this.array.type);
 			};
 		}
+		return requiredLength > 0;
 	}
 }

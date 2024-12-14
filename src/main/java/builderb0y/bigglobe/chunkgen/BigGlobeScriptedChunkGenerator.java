@@ -22,10 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.MinecraftServer;
@@ -834,6 +831,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		StructureAccessor structureAccessor,
 		Chunk chunk,
 		StructureTemplateManager structureTemplateManager
+		#if MC_VERSION >= MC_1_21_4 , RegistryKey<World> dimension #endif
 	) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);

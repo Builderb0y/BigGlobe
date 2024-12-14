@@ -72,6 +72,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.DirectionVersions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -293,12 +294,12 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		@Override
 		public RoomDungeonPiece getConnectedRoom(Direction direction) {
-			return this.connections[direction.getHorizontal()];
+			return this.connections[DirectionVersions.horizontal(direction)];
 		}
 
 		@Override
 		public void setConnectedRoom(Direction direction, RoomPiece connection) {
-			this.connections[direction.getHorizontal()] = (RoomDungeonPiece)(connection);
+			this.connections[DirectionVersions.horizontal(direction)] = (RoomDungeonPiece)(connection);
 		}
 
 		@Override

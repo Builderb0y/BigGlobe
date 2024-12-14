@@ -12,11 +12,12 @@ public class MappedRangeObjectArray<T> extends MappedRangeArray {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void reallocate(int requiredLength) {
+	public boolean reallocate(int requiredLength) {
 		this.valid = true;
 		if (this.array.length < requiredLength) {
 			requiredLength = Math.max(requiredLength, this.array.length << 1);
 			this.array = (T[])(Array.newInstance(this.array.getClass().getComponentType(), requiredLength));
 		}
+		return requiredLength > 0;
 	}
 }

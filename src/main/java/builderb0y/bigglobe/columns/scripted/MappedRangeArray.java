@@ -30,37 +30,41 @@ public abstract class MappedRangeArray {
 		this.valid = false;
 	}
 
-	public void reallocateNone(ScriptedColumn column) {
-		this.reallocate(
+	public boolean reallocateNone(ScriptedColumn column) {
+		return this.reallocate(
 			(this.maxCached = column.maxY())
 			-
 			(this.minCached = column.minY())
 		);
 	}
 
-	public void reallocateMin(ScriptedColumn column, int minAccessible) {
-		this.reallocate(
+	public boolean reallocateMin(ScriptedColumn column, int minAccessible) {
+		return this.reallocate(
 			(this.maxCached = column.maxY())
 			-
 			(this.minCached = Math.max(column.minY(), this.minAccessible = minAccessible))
 		);
 	}
 
-	public void reallocateMax(ScriptedColumn column, int maxAccessible) {
-		this.reallocate(
+	public boolean reallocateMax(ScriptedColumn column, int maxAccessible) {
+		return this.reallocate(
 			(this.maxCached = Math.min(column.maxY(), this.maxAccessible = maxAccessible))
 			-
 			(this.minCached = column.minY())
 		);
 	}
 
-	public void reallocateBoth(ScriptedColumn column, int minAccessible, int maxAccessible) {
-		this.reallocate(
+	public boolean reallocateBoth(ScriptedColumn column, int minAccessible, int maxAccessible) {
+		return this.reallocate(
 			(this.maxCached = Math.min(column.maxY(), this.maxAccessible = maxAccessible))
 			-
 			(this.minCached = Math.max(column.minY(), this.minAccessible = minAccessible))
 		);
 	}
 
-	public abstract void reallocate(int requiredLength);
+	/**
+	@return requiredLength > 0. this implies that the runtime-generated
+	code should proceed with filling the array with values.
+	*/
+	public abstract boolean reallocate(int requiredLength);
 }

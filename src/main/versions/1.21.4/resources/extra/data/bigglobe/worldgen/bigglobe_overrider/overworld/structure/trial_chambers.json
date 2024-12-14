@@ -1,0 +1,16 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure ==. 'minecraft:trial_chambers':",
+			"int minSpawnY = world_traits.`bigglobe:deep_dark_max_y`(start.midX, start.midZ)",
+			"int maxSpawnY = min(",
+				"int(`bigglobe:overworld/basic_surface_y`(start.minX, start.minZ) - `bigglobe:overworld/cave`(start.minX, start.minZ).depth),",
+				"int(`bigglobe:overworld/basic_surface_y`(start.minX, start.maxZ) - `bigglobe:overworld/cave`(start.minX, start.maxZ).depth),",
+				"int(`bigglobe:overworld/basic_surface_y`(start.maxX, start.minZ) - `bigglobe:overworld/cave`(start.maxX, start.minZ).depth),",
+				"int(`bigglobe:overworld/basic_surface_y`(start.maxX, start.maxZ) - `bigglobe:overworld/cave`(start.maxX, start.maxZ).depth)",
+			")",
+			"return(start.moveToRange(minSpawnY, maxSpawnY))",
+		")",
+		"return(true)"
+	]
+}

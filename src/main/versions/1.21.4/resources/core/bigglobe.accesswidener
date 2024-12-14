@@ -1,0 +1,39 @@
+accessWidener v1 named
+
+#used for really fast multi-threaded worldgen magic.
+accessible class net/minecraft/world/chunk/PalettedContainer$Data
+
+#used to filter where structures can spawn.
+#no longer needed as I have now re-written structure placement logic from the ground up.
+#extendable method net/minecraft/world/gen/chunk/ChunkGenerator trySetStructureStart (Lnet/minecraft/structure/StructureSet$WeightedEntry;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/registry/DynamicRegistryManager;Lnet/minecraft/world/gen/noise/NoiseConfig;Lnet/minecraft/structure/StructureTemplateManager;JLnet/minecraft/world/chunk/Chunk;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/ChunkSectionPos;)Z
+
+#used to make ocean monuments spawn at the correct Y level,
+#instead of a hard-coded Y level which only works for vanilla worlds.
+accessible class net/minecraft/structure/OceanMonumentGenerator$Piece
+
+#used to expose biome downfall to scripts.
+accessible class net/minecraft/world/biome/Biome$Weather
+
+#used by spore particles in the end to, you know, construct the particle.
+#did you know that crimson and warped spore particles are instances of WaterSuspendParticle?
+accessible method net/minecraft/client/particle/WaterSuspendParticle <init> (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/particle/SpriteProvider;DDDDDD)V
+
+#used to get the list of loaded chunks on the client,
+#which itself is used to manage the fake client-side waypoint entities,
+#and load and unload them at the correct times.
+accessible class net/minecraft/client/world/ClientChunkManager$ClientChunkMap
+accessible field net/minecraft/client/world/ClientChunkManager chunks Lnet/minecraft/client/world/ClientChunkManager$ClientChunkMap;
+accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;
+
+#used by the /bigglobe:respawn command.
+#this method used to be public and return an Optional<BlockPos>.
+#now it's been refactored into yet another unnecessary record.
+accessible class net/minecraft/server/network/ServerPlayerEntity$RespawnPos
+accessible method net/minecraft/server/network/ServerPlayerEntity findRespawnPosition (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;FZZ)Ljava/util/Optional;
+
+#this method became private in 1.21 but is still needed by TorchArrowEntity.
+accessible method net/minecraft/entity/projectile/PersistentProjectileEntity setPierceLevel (B)V
+
+#fabris's built-in AW for these seems to be missing in 1.21.3.
+accessible method net/minecraft/block/entity/BlockEntityType <init> (Lnet/minecraft/block/entity/BlockEntityType$BlockEntityFactory;Ljava/util/Set;)V
+accessible class net/minecraft/block/entity/BlockEntityType$BlockEntityFactory

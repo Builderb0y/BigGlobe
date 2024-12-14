@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.items;
 
+import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -14,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
@@ -40,6 +41,10 @@ import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+
+#if MC_VERSION < MC_1_21_4
+	import net.minecraft.client.item.ModelPredicateProviderRegistry;
+#endif
 
 #if MC_VERSION >= MC_1_21_0
 	import net.minecraft.world.biome.GrassColors;
@@ -371,15 +376,17 @@ public class BigGlobeItems {
 	@Environment(EnvType.CLIENT)
 	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
-		ColorProviderRegistry.ITEM.register(
-			(ItemStack stack, int tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
-			OVERGROWN_PODZOL,
-			SHORT_GRASS
-		);
-		ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (ItemStack stack, ClientWorld world, LivingEntity entity, int seed) -> {
-			if (entity == null || entity.getActiveItem() != stack) return 0.0F;
-			return ((float)(stack.getMaxUseTime(#if MC_VERSION >= MC_1_21_0 entity #endif) - entity.getItemUseTimeLeft())) / 20.0F;
-		});
+		#if MC_VERSION < MC_1_21_4
+			ColorProviderRegistry.ITEM.register(
+				(ItemStack stack, int tintIndex) -> GrassColors.getColor(0.5D, 1.0D),
+				OVERGROWN_PODZOL,
+				SHORT_GRASS
+			);
+			ModelPredicateProviderRegistry.register(SLINGSHOT, BigGlobeMod.modID("loaded"), (ItemStack stack, ClientWorld world, LivingEntity entity, int seed) -> {
+				if (entity == null || entity.getActiveItem() != stack) return 0.0F;
+				return ((float)(stack.getMaxUseTime(#if MC_VERSION >= MC_1_21_0 entity #endif) - entity.getItemUseTimeLeft())) / 20.0F;
+			});
+		#endif
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
 			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB);

@@ -1,0 +1,10 @@
+{
+	"match": {
+		"type": "bigglobe:torch_arrow"
+	},
+	"luminance": {
+		"type": "lambdynlights:wet_sensitive",
+		"dry": 14,
+		"wet": 0
+	}
+}
