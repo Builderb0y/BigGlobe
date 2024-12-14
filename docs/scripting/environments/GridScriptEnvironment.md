@@ -6,17 +6,17 @@ This environment can be used to sample grids defined in `/data/modid/bigglobe_no
 * `grid.maxValue` - the largest (closest to positive infinity) value that the grid can produce at any coordinate.
 * `grid.dimensions` - the number of dimensions the grid has. This will always be between 1 and 3 (inclusive).
 
-* `numberArray.length` (upcoming) - the number of elements in the array.
+* `numberArray.length` (New in V4.8.3) - the number of elements in the array.
 
 # Functions
 
-* `NumberArray newBooleanArray(int length)` allocates a new NumberArray containing (length) booleans. Upcoming: all booleans in the array are initialized to false.
-* `NumberArray newByteArray(int length)` allocates a new NumberArray containing (length) bytes. Upcoming: all bytes in the array are initialized to 0.
-* `NumberArray newShortArray(int length)` allocates a new NumberArray containing (length) shorts. Upcoming: all shorts in the array are initialized to 0.
-* `NumberArray newIntArray(int length)` allocates a new NumberArray containing (length) ints. Upcoming: all ints in the array are initialized to 0.
-* `NumberArray newLongArray(int length)` allocates a new NumberArray containing (length) longs. Upcoming: all longs in the array are initialized to 0.
-* `NumberArray newFloatArray(int length)` allocates a new NumberArray containing (length) floats. Upcoming: all floats in the array are initialized to 0.
-* `NumberArray newDoubleArray(int length)` allocates a new NumberArray containing (length) doubles. Upcoming: all doubles in the array are initialized to 0.
+* `NumberArray newBooleanArray(int length)` allocates a new NumberArray containing (length) booleans. New in V4.8.3: all booleans in the array are initialized to false.
+* `NumberArray newByteArray(int length)` allocates a new NumberArray containing (length) bytes. New in V4.8.3: all bytes in the array are initialized to 0.
+* `NumberArray newShortArray(int length)` allocates a new NumberArray containing (length) shorts. New in V4.8.3: all shorts in the array are initialized to 0.
+* `NumberArray newIntArray(int length)` allocates a new NumberArray containing (length) ints. New in V4.8.3: all ints in the array are initialized to 0.
+* `NumberArray newLongArray(int length)` allocates a new NumberArray containing (length) longs. New in V4.8.3: all longs in the array are initialized to 0.
+* `NumberArray newFloatArray(int length)` allocates a new NumberArray containing (length) floats. New in V4.8.3: all floats in the array are initialized to 0.
+* `NumberArray newDoubleArray(int length)` allocates a new NumberArray containing (length) doubles. New in V4.8.3: all doubles in the array are initialized to 0.
 
 # Methods
 

@@ -38,7 +38,7 @@ If the above requirements are too strict and you need to place an ore feature in
 
 Regular ores, when used as a rock replacer, are more efficient than generic ores, and are multi-threaded. Generic ores are less efficient, and single-threaded.
 
-# Scripted ores (upcoming)
+# Scripted ores (New in V4.8.3)
 
 When `type` is set to `bigglobe:scripted_ore`, a script determines what blocks to replace with what other blocks. In this type, the `blocks` property is removed, and a new `replacer_script` property is added. The replacer script has the following environments available:
 * MathScriptEnvironment

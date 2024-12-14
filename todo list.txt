@@ -30,11 +30,10 @@ where I left off:
 		possibly other 3D column value types too.
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
+	make player spawning condition require being above beach level, not just above sea level.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
-	test dungeons in 1.20.1.
-		especially partially-generated ones.
 
 changelog:
 	* Added a config option to control the number of threads Big Globe uses for worldgen tasks.

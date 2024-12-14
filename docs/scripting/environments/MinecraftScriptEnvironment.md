@@ -32,7 +32,7 @@ When a world is present, the following functions can be called:
 * `setBlockState(int*(x, y, z), BlockState state)` - changes the BlockState at the provided position.
 * `setBlockStateReplaceable(int*(x, y, z), BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is replaceable.
 * `setBlockStateNonReplaceable(int*(x, y, z), BlockState state)` - changes the BlockState at the provided position if, and only if, the current BlockState that's already at that position is NOT replaceable.
-* `updateBlockState(int*(x, y, z))` (upcoming) - changes the BlockState at the provided position based on its neighbors. For example, when changing the state of a fence post or wall, it will have its connections set automatically.
+* `updateBlockState(int*(x, y, z))` (New in V4.8.3) - changes the BlockState at the provided position based on its neighbors. For example, when changing the state of a fence post or wall, it will have its connections set automatically.
 
 	Note: in some cases, particularly if this function is called during raw generation, the updating process may be delayed until more chunks are loaded. This can sometimes lead to counter-intuitive behavior. Consider the following example:
 	```
@@ -50,7 +50,7 @@ When a world is present, the following functions can be called:
 * `fillBlockState(int*(x1, y1, z1, x2, y2, z2), BlockState state)` - similar to the `/fill` command; this function sets block states in a cuboid region of blocks.
 * `fillBlockStateReplaceable(int*(x1, y1, z1, x2, y2, z2), BlockState state)` - similar to `fillBlockState(x1, y1, z1, x2, y2, z2, state)`, but will only place blocks where the existing block already at that position is replaceable.
 * `fillBlockStateNonReplaceable(int*(x1, y1, z1, x2, y2, z2), BlockState state)` - similar to `fillBlockState(x1, y1, z1, x2, y2, z2, state)`, but will only place blocks where the existing block already at that position is NOT replaceable.
-* `updateBlockStates(int*(x1, y1, z1, x2, y2, z2))` (upcoming) - works just like `setBlockState(x, y, z)`, but in a cuboid area. The same note about delayed updates still applies.
+* `updateBlockStates(int*(x1, y1, z1, x2, y2, z2))` (New in V4.8.3) - works just like `setBlockState(x, y, z)`, but in a cuboid area. The same note about delayed updates still applies.
 * `placeFeature(int*(x, y, z), ConfiguredFeature feature)` - works like the `/place feature` command; places the feature at the provided coordinates.
 * `isYLevelValid(int y)` - returns true if y is between `minValidYLevel` and `maxValidYLevel`, false otherwise.
 * `isPositionValid(int*(x, y, z))` - returns true if y is between `minValidYLevel` and `maxValidYLevel`, and the chunk at the provided x/z position is loaded, false otherwise.
