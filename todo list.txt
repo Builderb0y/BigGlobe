@@ -34,10 +34,6 @@ where I left off:
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
-	ensure torch arrows emit light with lambdynamiclights.
-	separate plants tag into versions into "extra" folder.
-		eyeblossoms didn't exist before 1.21.4.
-		#minecraft:small_flowers and #minecraft:tall_flowers didn't exist since 1.21.4.
 	waypoints break depth testing for particles???
 	fix missing blockstate properties in abandoned cities.
 

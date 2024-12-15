@@ -224,7 +224,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	public DhApiChunk generateChunkOfDataPoints(int chunkX, int chunkZ) {
 		IDhApiBiomeWrapper biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(
 			new Object[] {
-				RegistryVersions.getObject(
+				RegistryVersions.getEntry(
 					this
 					.serverWorld
 					.getRegistryManager(),

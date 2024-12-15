@@ -30,9 +30,9 @@ public class WorldRenderer_RenderWaypoints {
 	@Inject(
 		method = "render",
 		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
-			shift = Shift.AFTER
+			value  = "INVOKE",
+			target = "Lnet/minecraft/client/render/WorldRenderer;renderLateDebug(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/client/render/Fog;)V",
+			shift  = Shift.AFTER
 		)
 	)
 	private void bigglobe_renderWaypoints(
