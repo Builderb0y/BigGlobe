@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#minecraft:short_flowers",
+		"#minecraft:small_flowers",
 		"#minecraft:tall_flowers",
 		"#minecraft:saplings",
 		"#minecraft:crops",

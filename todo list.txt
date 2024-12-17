@@ -30,14 +30,16 @@ where I left off:
 		possibly other 3D column value types too.
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
-	make player spawning condition require being above beach level, not just above sea level.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
-	waypoints break depth testing for particles???
 	fix missing blockstate properties in abandoned cities.
 
 changelog:
+	* Ported to MC 1.21.4.
+		* The pale garden biome is NOT implemented yet.
+	* Fixed occasional script error being shown in the chat menu and log file.
+	* Possibly fixed some data packs failing to load correctly.
 
 alternate world presets:
 	paradise.

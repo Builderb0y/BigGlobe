@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.compat;
 
 import dev.lambdaurora.lambdynlights.api.DynamicLightsInitializer;
-import dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -50,7 +49,7 @@ public class LambDynamicLightsCompat implements DynamicLightsInitializer {
 					}
 
 					@Override
-					public @Range(from = 0L, to = 15L) int getLuminance(@NotNull ItemLightSourceManager manager, @NotNull Entity entity) {
+					public @Range(from = 0L, to = 15L) int getLuminance(@NotNull dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager manager, @NotNull Entity entity) {
 						return entity instanceof WaypointEntity waypoint ? ((int)(waypoint.health * (15.0F / WaypointEntity.MAX_HEALTH))) : 0;
 					}
 				}
