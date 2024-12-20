@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"": [
+			{ "model": "bigglobe:block/pale_netherrack", "y":   0 },
+			{ "model": "bigglobe:block/pale_netherrack", "y":  90 },
+			{ "model": "bigglobe:block/pale_netherrack", "y": 180 },
+			{ "model": "bigglobe:block/pale_netherrack", "y": 270 }
+		]
+	}
+}

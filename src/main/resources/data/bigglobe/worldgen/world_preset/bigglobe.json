@@ -198,6 +198,9 @@
 				"nether_overrides": {
 					"place_portal_at_high_y_level": true
 				},
+				"creaking_overrides": {
+					"time_reference": "minecraft:overworld"
+				},
 				"world_traits": "bigglobe:nether",
 				"layer": {
 					"state": "`bigglobe:nether/bubble`.filler",

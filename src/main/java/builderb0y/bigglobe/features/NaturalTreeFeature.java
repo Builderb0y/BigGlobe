@@ -18,13 +18,17 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
@@ -72,15 +76,21 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			Math.max(Permuter.roundRandomlyI(permuter, height), 4),
 			permuter
 		);
-		double startFracY = config.branches.start_frac_y.get(column, startY, permuter);
-		BranchesConfig branchesConfig = BranchesConfig.create(
-			startFracY,
-			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(column, startY, permuter) * height * (1.0D - startFracY)),
-			permuter.nextDouble(BigGlobeMath.TAU),
-			trunkConfig.baseRadius,
-			config.branches.length_function,
-			config.branches.height_function
-		);
+		BranchesConfig branchesConfig;
+		if (config.branches != null) {
+			double startFracY = config.branches.start_frac_y.get(column, startY, permuter);
+			branchesConfig = BranchesConfig.create(
+				startFracY,
+				Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(column, startY, permuter) * height * (1.0D - startFracY)),
+				permuter.nextDouble(BigGlobeMath.TAU),
+				trunkConfig.baseRadius,
+				config.branches.length_function,
+				config.branches.height_function
+			);
+		}
+		else {
+			branchesConfig = null;
+		}
 
 		DecoratorConfig.Builder decoratorsBuilder = new DecoratorConfig.Builder();
 		if (config.decorations != null) config.decorations.addTo(decoratorsBuilder);
@@ -90,7 +100,17 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 				shelves.add(ShelfPlacer.create(shelf.state), shelf.restrictions.getRestriction(column, startY));
 			}
 			if (shelves.totalWeight > 0.0D) {
-				decoratorsBuilder.trunkLayer(new ShelfDecorator(shelves, branchesConfig.startFracY, shelves.totalWeight));
+				decoratorsBuilder.trunkLayer(
+					new ShelfDecorator(
+						shelves,
+						branchesConfig != null
+						? branchesConfig.startFracY
+						: config.stump != null
+						? config.stump.cutoff_frac.minValue()
+						: 1.0D,
+						shelves.totalWeight
+					)
+				);
 			}
 		}
 		return new TreeGenerator(
@@ -105,7 +125,9 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			trunkConfig,
 			branchesConfig,
 			decoratorsBuilder.build(),
-			column
+			config.stump != null
+			? config.stump.cutoff_frac
+			: null
 		)
 		.generate();
 	}
@@ -116,11 +138,16 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		Map<BlockState, BlockState> ground_replacements,
 		ColumnRandomYToDoubleScript.Holder height,
 		TrunkFactory trunk,
-		Branches branches,
+		@VerifyNullable Branches branches,
 		Shelf @VerifyNullable [] shelves,
-		@VerifyNullable Decorations decorations
+		@VerifyNullable Decorations decorations,
+		@VerifyNullable Stump stump
 	)
 	implements FeatureConfig {}
+
+	public static record Stump(
+		RandomSource cutoff_frac
+	) {}
 
 	public static record Branches(
 		RandomSource start_frac_y,
@@ -138,7 +165,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		BlockDecorator @VerifyNullable [] trunk,
 		BlockDecorator @VerifyNullable [] branches,
 		BlockDecorator @VerifyNullable [] leaves,
-		@VerifyNullable BallLeaves ball_leaves
+		@VerifyNullable BallLeaves ball_leaves,
+		@VerifyNullable PostFeatureDecorator post_feature
 	) {
 
 		public static List<BlockDecorator> addAll(
@@ -159,6 +187,9 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			if (this.ball_leaves != null) {
 				BallLeafDecorator decorator = new BallLeafDecorator(this.ball_leaves.inner_state);
 				builder.branch(decorator).trunk(decorator);
+			}
+			if (this.post_feature != null) {
+				builder.trunk(this.post_feature);
 			}
 		}
 	}

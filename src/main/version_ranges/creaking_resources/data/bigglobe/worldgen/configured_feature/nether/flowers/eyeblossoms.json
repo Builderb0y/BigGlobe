@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.25,
+		"randomize_radius": 8,
+		"entries": [
+			{ "weight": 1.0, "radius": 8, "state": "minecraft:closed_eyeblossom" },
+			{ "weight": 1.0, "radius": 8, "state": "minecraft:open_eyeblossom" }
+		]
+	}
+}

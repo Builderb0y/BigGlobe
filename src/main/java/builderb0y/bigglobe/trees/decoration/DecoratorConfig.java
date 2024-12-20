@@ -10,7 +10,6 @@ public class DecoratorConfig {
 	public static final BranchDecorator[] EMPTY_BRANCH_ARRAY = {};
 	public static final BlockDecorator[] EMPTY_BLOCK_ARRAY = {};
 
-
 	public final TrunkDecorator[] trunk;
 	public final TrunkLayerDecorator[] trunkLayer;
 	public final BlockDecorator[] trunkBlock;
@@ -91,12 +90,12 @@ public class DecoratorConfig {
 
 		public DecoratorConfig build() {
 			return new DecoratorConfig(
-				toArray(this.trunk, EMPTY_TRUNK_ARRAY),
-				toArray(this.trunkLayer, EMPTY_TRUNK_LAYER_ARRAY),
-				toArray(this.trunkBlock, EMPTY_BLOCK_ARRAY),
-				toArray(this.branch, EMPTY_BRANCH_ARRAY),
+				toArray(this.trunk,       EMPTY_TRUNK_ARRAY),
+				toArray(this.trunkLayer,  EMPTY_TRUNK_LAYER_ARRAY),
+				toArray(this.trunkBlock,  EMPTY_BLOCK_ARRAY),
+				toArray(this.branch,      EMPTY_BRANCH_ARRAY),
 				toArray(this.branchBlock, EMPTY_BLOCK_ARRAY),
-				toArray(this.leafBlock, EMPTY_BLOCK_ARRAY)
+				toArray(this.leafBlock,   EMPTY_BLOCK_ARRAY)
 			);
 		}
 	}

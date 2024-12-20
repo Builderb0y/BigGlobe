@@ -2,19 +2,21 @@ package builderb0y.bigglobe.trees;
 
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.StructureWorldAccess;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.trees.branches.BranchConfig;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ThickBranchConfig;
@@ -33,9 +35,9 @@ public class TreeGenerator {
 	public final WoodPalette palette;
 	public final Map<BlockState, BlockState> groundReplacements;
 	public final TrunkConfig trunk;
-	public final BranchesConfig branches;
+	public final @Nullable BranchesConfig branches;
 	public final DecoratorConfig decorators;
-	public final ScriptedColumn column;
+	public final @Nullable RandomSource stumpThreshold;
 
 	public TreeGenerator(
 		ScriptedColumnLookup columns,
@@ -45,9 +47,9 @@ public class TreeGenerator {
 		WoodPalette palette,
 		Map<BlockState, BlockState> groundReplacements,
 		TrunkConfig trunk,
-		BranchesConfig branches,
+		@Nullable BranchesConfig branches,
 		DecoratorConfig decorators,
-		ScriptedColumn column
+		@Nullable RandomSource stumpThreshold
 	) {
 		this.columns            = columns;
 		this.worldQueue         = queue.createWorld(world);
@@ -57,7 +59,7 @@ public class TreeGenerator {
 		this.trunk              = trunk;
 		this.branches           = branches;
 		this.decorators         = decorators;
-		this.column             = column;
+		this.stumpThreshold     = stumpThreshold;
 	}
 
 	public boolean generate() {
@@ -80,7 +82,7 @@ public class TreeGenerator {
 
 	public void generateQueue() throws NotEnoughSpaceException {
 		this.generateTrunk();
-		this.generateBranches();
+		if (this.branches != null) this.generateBranches();
 	}
 
 	public void generateTrunk() throws NotEnoughSpaceException {
@@ -107,12 +109,16 @@ public class TreeGenerator {
 
 	public boolean generateTrunkLayer(int y) throws NotEnoughSpaceException {
 		Map<BlockState, BlockState> groundReplacements = this.groundReplacements;
-		double radius = this.trunk.currentRadius;
-		double radius2 = squareD(radius);
-		double centerX = this.trunk.currentX;
-		double centerZ = this.trunk.currentZ;
-		int minX = ceilI(centerX - radius), maxX = floorI(centerX + radius);
-		int minZ = ceilI(centerZ - radius), maxZ = floorI(centerZ + radius);
+		double
+			radius  = this.trunk.currentRadius,
+			radius2 = squareD(radius),
+			centerX = this.trunk.currentX,
+			centerZ = this.trunk.currentZ;
+		int
+			minX =  ceilI(centerX - radius),
+			minZ =  ceilI(centerZ - radius),
+			maxX = floorI(centerX + radius),
+			maxZ = floorI(centerZ + radius);
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 		mutablePos.setY(y);
 		boolean placedAny = false;
@@ -121,6 +127,10 @@ public class TreeGenerator {
 			double offsetX2 = squareD(blockX - centerX);
 			for (int blockZ = minZ; blockZ <= maxZ; blockZ++) {
 				if (offsetX2 + squareD(blockZ - centerZ) < radius2) {
+					if (this.stumpThreshold != null && this.trunk.currentFracY >= this.stumpThreshold.get(this.columns.lookupColumn(blockX, blockZ), y, Permuter.permute(this.worldQueue.getSeed() ^ 0x224675B0BEF71707L, blockX, blockZ))) {
+						placedAny = true;
+						continue;
+					}
 					mutablePos.setZ(blockZ);
 					BlockState existingState = this.worldQueue.getWorldState(mutablePos);
 					boolean workaroundForBushes = false;

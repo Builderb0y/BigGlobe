@@ -35,6 +35,7 @@ import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.dimension.DimensionType;
@@ -241,6 +242,14 @@ public class BigGlobeAutoCodec {
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
 							}
+							this.addGeneric(
+								ReifiedType.parameterize(RegistryKey.class, ReifiedType.from(World.class)),
+								PrimitiveCoders.stringBased(
+									"AutoCoder<RegistryKey<World>>",
+									(String string) -> RegistryKey.of(RegistryKeys.WORLD, IdentifierVersions.create(string)),
+									(RegistryKey<World> key) -> key.getValue().toString()
+								)
+							);
 							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);

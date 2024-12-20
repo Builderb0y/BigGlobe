@@ -1,0 +1,36 @@
+{
+	"type": "bigglobe:natural_tree",
+	"config": {
+		"delay_generation": true,
+		"palette": "minecraft:pale_oak",
+		"height": "fastExp2(random.nextDouble(3.0, 6.0))",
+		"trunk": {
+			"type": "bigglobe:straight",
+			"thickness": "mixLinear(1.5L, max(height * 0.1875L, 1.5L), (1.0L - fraction) ^ 4)",
+			"require_natural_ground": true,
+			"can_generate_in_liquid": false
+		},
+		"stump": {
+			"cutoff_frac": {
+				"type": "uniform",
+				"min": 0.125,
+				"max": 0.375
+			}
+		},
+		"decorations": {
+			"trunk": [
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": true }
+			],
+			"branches": [
+				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false }
+			],
+			"leaves": [
+				{ "type": "bigglobe:feature", "feature": "bigglobe:nether/foliage/pale_hanging_moss_leaves" }
+			]
+		},
+		"ground_replacements": {
+			"bigglobe:pale_netherrack": "minecraft:netherrack",
+			"minecraft:netherrack": "minecraft:netherrack"
+		}
+	}
+}

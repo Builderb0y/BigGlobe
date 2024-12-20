@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -178,6 +179,10 @@ public class ColumnEntryRegistry {
 		for (Map.Entry<ColumnValueType, TypeContext> entry : this.columnContext.columnValueTypeInfos.entrySet()) {
 			entry.getKey().setupExternalEnvironment(environment, entry.getValue(), this.columnContext, params);
 		}
+	}
+
+	public Consumer<MutableScriptEnvironment> externalEnvironmentSetterUpper(ExternalEnvironmentParams params) {
+		return (MutableScriptEnvironment environment) -> this.setupExternalEnvironment(environment, params);
 	}
 
 	public static class Loading {

@@ -1,0 +1,38 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"void replace(int*(x, y, z), BlockState state:",
+				"unless (setBlockStateReplaceable(originX + x, originY + y, originZ + z, state):",
+					"abort()",
+				")",
+			")",
+			"int centerHeight = random.nextInt(8, 12)",
+			"for (int y in range[0, centerHeight - 1):",
+				"replace(0, y, 0, 'minecraft:pale_oak_wood[axis=y]')",
+			")",
+			"for (int*(x, y, z) in range[-1, 1]:",
+				"if (abs(x) + abs(y) + abs(z) < 3:",
+					"replace(x, y + centerHeight, z, 'minecraft:shroomlight')",
+				")",
+			")",
+			"void decorateSide(int*(dx, dz):",
+				"for (int y in range[0, random.nextInt(4)):",
+					"replace(dx, y, dz, 'minecraft:pale_oak_wood[axis=y]')",
+				")",
+				"replace(dx, centerHeight - 4, dz, BlockState('minecraft:stripped_pale_oak_wood', axis: dx != 0 ? 'x' : 'z'))",
+				"replace(dx << 1, centerHeight - 4, dz << 1, BlockState('minecraft:stripped_pale_oak_wood', axis: dx != 0 ? 'x' : 'z'))",
+				"replace(dx << 1 + dx, centerHeight - 3, dz << 1 + dz, BlockState('minecraft:stripped_pale_oak_wood', axis: dx != 0 ? 'x' : 'z'))",
+				"for (int y in range[-2, random.nextInt(-1, 2)]:",
+					"replace(dx << 2, centerHeight + y, dz << 2, 'minecraft:stripped_pale_oak_wood[axis=y]')",
+				")",
+			")",
+			"decorateSide( 1,  0)",
+			"decorateSide(-1,  0)",
+			"decorateSide( 0,  1)",
+			"decorateSide( 0, -1)",
+			"true"
+		],
+		"queue": "delayed"
+	}
+}

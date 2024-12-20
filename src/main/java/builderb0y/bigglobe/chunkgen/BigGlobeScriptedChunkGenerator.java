@@ -194,6 +194,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		) {}
 	}
 	public final @VerifyNullable EndOverrides end_overrides;
+	public static record CreakingOverrides(
+		RegistryKey<World> time_reference
+	) {}
+	public final @VerifyNullable CreakingOverrides creaking_overrides;
 
 	public final @VerifyNullable Identifier world_traits;
 	public final transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
@@ -222,6 +226,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
+		@VerifyNullable CreakingOverrides creaking_overrides,
 		@VerifyNullable Identifier world_traits,
 		SortedStructures sortedStructures
 	)
@@ -240,6 +245,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.colors              = colors;
 		this.nether_overrides    = nether_overrides;
 		this.end_overrides       = end_overrides;
+		this.creaking_overrides  = creaking_overrides;
 		this.world_traits        = world_traits;
 		this.sortedStructures    = sortedStructures;
 		this.loadedWorldTraits   = TraitLoader.load(world_traits, decodeContext);
@@ -261,6 +267,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.colors              = from.colors;
 		this.nether_overrides    = from.nether_overrides;
 		this.end_overrides       = from.end_overrides;
+		this.creaking_overrides  = from.creaking_overrides;
 		this.world_traits        = from.world_traits;
 		this.loadedWorldTraits   = from.loadedWorldTraits;
 		this.compiledWorldTraits = from.compiledWorldTraits;

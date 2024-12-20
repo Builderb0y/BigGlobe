@@ -1,0 +1,9 @@
+{
+	"parent": "block/cube_bottom_top",
+	"textures": {
+		"particle": "bigglobe:block/pale_netherrack_side",
+		"top":      "minecraft:block/pale_moss_block",
+		"side":     "bigglobe:block/pale_netherrack_side",
+		"bottom":   "minecraft:block/netherrack"
+	}
+}

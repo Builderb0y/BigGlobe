@@ -138,6 +138,9 @@ public class BigGlobeItems {
 		MEDIUM_QUARTZ_BUD        = registerPlacer(BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
 		LARGE_QUARTZ_BUD         = registerPlacer(BigGlobeBlocks.LARGE_QUARTZ_BUD),
 		QUARTZ_CLUSTER           = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER),
+		#if MC_VERSION >= MC_1_21_4
+		PALE_NETHERRACK          = registerPlacer(BigGlobeBlocks.PALE_NETHERRACK),
+		#endif
 		CHORUS_NYLIUM            = registerPlacer(BigGlobeBlocks.CHORUS_NYLIUM),
 		OVERGROWN_END_STONE      = registerPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
 		TALL_CHORUS_SPORES       = registerPlacer(BigGlobeBlocks.TALL_CHORUS_SPORES),
@@ -406,10 +409,10 @@ public class BigGlobeItems {
 			entries.addAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
 			entries.addAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
 			entries.addBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
-			entries.addBefore(Items.#if MC_VERSION >= MC_1_20_3 SHORT_GRASS #else GRASS #endif, SHORT_GRASS);
+			entries.addBefore(#if MC_VERSION >= MC_1_20_3 Items.SHORT_GRASS #else Items.GRASS #endif, SHORT_GRASS);
 			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(Items.TORCHFLOWER, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
+			entries.addAfter(#if MC_VERSION >= MC_1_21_4 Items.OPEN_EYEBLOSSOM #else Items.TORCHFLOWER #endif, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
 			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
 			entries.addAfter(Items.STONE, ROCK);
 			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);

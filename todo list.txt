@@ -36,10 +36,8 @@ to finish before release:
 	fix missing blockstate properties in abandoned cities.
 
 changelog:
-	* Ported to MC 1.21.4.
-		* The pale garden biome is NOT implemented yet.
-	* Fixed occasional script error being shown in the chat menu and log file.
-	* Possibly fixed some data packs failing to load correctly.
+	* Added pale garden biome to the nether.
+		* Yes, I said nether, not overworld.
 
 alternate world presets:
 	paradise.

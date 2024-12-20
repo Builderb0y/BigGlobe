@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"int y = originY + random.nextInt(1, 9)",
+			"(",
+				"getBlockState(originX, y - 1, originZ).getBlock() ==. 'minecraft:pale_oak_log' &&",
+				"getBlockState(originX, y,     originZ).getBlock() ==. 'minecraft:pale_oak_log' &&",
+				"getBlockState(originX, y + 1, originZ).getBlock() ==. 'minecraft:pale_oak_log'",
+			")",
+			".if (",
+				"setBlockState(originX, y, originZ, 'minecraft:creaking_heart[axis=y,active=true,natural=true]')",
+			")"
+		]
+	}
+}

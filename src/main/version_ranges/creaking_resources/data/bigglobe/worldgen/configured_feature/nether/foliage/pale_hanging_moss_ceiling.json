@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"unless (getBlockState(originX, originY + 1, originZ).hasFullCubeCollision(): return(false))",
+			"while (getBlockState(originX, originY, originZ).isAir():",
+				"setBlockState(originX, originY, originZ, 'minecraft:pale_hanging_moss[tip=false]')",
+				"--originY",
+				"unless (random.nextBoolean(0.75): break())",
+			")",
+			"++originY",
+			"if (getBlockState(originX, originY, originZ) ==. 'minecraft:pale_hanging_moss[tip=false]':",
+				"setBlockState(originX, originY, originZ, 'minecraft:pale_hanging_moss[tip=true]')",
+			")",
+			"return(true)"
+		]
+	}
+}

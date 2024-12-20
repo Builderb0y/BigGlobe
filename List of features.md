@@ -50,6 +50,8 @@ Nevertheless, the full list of overworld biomes is:
 	* AKA soul sand valley, but once again, I like cool names.
 	* Wither skeletons can spawn here.
 * Warped Forest
+* Pale Garden
+	* Yes, this is a nether biome in Big Globe, not an overworld biome.
 
 ### End
 

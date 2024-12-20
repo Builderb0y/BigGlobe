@@ -1,0 +1,25 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:rope_anchor",
+		"bigglobe:ashen_netherrack",
+		"bigglobe:pale_netherrack",
+		"bigglobe:crystalline_prismarine",
+		"bigglobe:slated_prismarine",
+		"bigglobe:slated_prismarine_slab",
+		"bigglobe:slated_prismarine_stairs",
+		"bigglobe:soul_magma",
+		"bigglobe:soul_cauldron",
+		"bigglobe:rough_quartz",
+		"bigglobe:small_quartz_bud",
+		"bigglobe:medium_quartz_bud",
+		"bigglobe:large_quartz_bud",
+		"bigglobe:quartz_cluster",
+		"bigglobe:budding_quartz",
+		"bigglobe:overgrown_end_stone",
+		"bigglobe:chorus_nylium",
+		"bigglobe:sulfur_ore",
+		"bigglobe:sulfur_block",
+		"#bigglobe:molten_rocks"
+	]
+}

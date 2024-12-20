@@ -132,7 +132,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			trunkConfig,
 			branchesConfig,
 			decorationsBuilder.build(),
-			column
+			null
 		)
 		.generate();
 	}
