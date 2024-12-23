@@ -67,7 +67,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 		ClientState.generatorParams = data;
 		//note for future self: columnEntryRegistry can be null if
 		//compiling was skipped because foliage colors were not present.
-		if (data != null && data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+		if (data != null && data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
 			DependencyDepthSorter.start(
 				data.compiledWorldTraits,
 				data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),

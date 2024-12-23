@@ -26,18 +26,21 @@ where I left off:
 	foliage exclusion for villages on island skylands affects mainland below.
 	generic scripted ore?
 	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
-	noise-based 3D column value population needs to check if maxCachedY > minCachedY.
-		possibly other 3D column value types too.
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
+	some mechanism to add mobs to big globe worlds without adding them to biomes.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
-	fix missing blockstate properties in abandoned cities.
+	remove backslash in level-type from modrinth description.
 
 changelog:
 	* Added pale garden biome to the nether.
-		* Yes, I said nether, not overworld.
+	* Added abandoned cities to the overworld.
+	* Fixed strongholds sometimes spawning in the deep dark.
+	* Spiders are now more likely to spawn in mineshafts and surface mineshafts.
+	* Endermen are now more likely to spawn in strongholds.
+	* Split up "data pack debugging" config option into multiple sub-options that show different information.
 
 alternate world presets:
 	paradise.
@@ -53,7 +56,6 @@ breaking changes I want to make:
 		migrate equivalent getters from Structure/StructurePiece.
 
 4.0 stuff:
-	ore features that can place more than one block state randomly.
 	/waypoint
 		add <x y z> <dimension> <owner>
 		remove <id>

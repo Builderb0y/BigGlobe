@@ -212,8 +212,8 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 
 	@UseCoder(name = "new", in = ConfigCoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 	public static record Config(
-		@VerifyNotEmpty List<BlockState> place,
-		@VerifyNotEmpty @VerifyNullable Set<BlockState> replace
+		@VerifyNotEmpty @SingletonArray List<BlockState> place,
+		@VerifyNotEmpty @SingletonArray @VerifyNullable Set<BlockState> replace
 	)
 	implements FeatureConfig, Predicate<BlockState> {
 

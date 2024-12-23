@@ -62,7 +62,7 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 	}
 
 	public void printIfEnabled(ColumnEntryMemory memory) {
-		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.decisionTrees) {
 			BigGlobeMod.LOGGER.info(
 				Printer.parse(this.root, this.patches).print(
 					new StringBuilder(1024)

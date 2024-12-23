@@ -137,7 +137,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	static {
 		ServerLifecycleEvents.SERVER_STARTED.register((MinecraftServer server) -> {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
 				for (ServerWorld world : server.getWorlds()) {
 					if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 						Identifier worldID = world.getRegistryKey().getValue();

@@ -51,17 +51,41 @@ public class BigGlobeConfig {
 	public boolean hyperspaceEnabled = true;
 
 	@Tooltip(count = 3)
-	@UseName("Output Data Pack Debugging Information")
-	@DefaultIgnore
-	public boolean dataPackDebugging = false;
-
-	@Tooltip(count = 3)
 	@UseName("Threads")
 	@DefaultIgnore
 	public int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1);
 
 	public int threads() {
 		return Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
+	}
+
+	@Tooltip(count = 2)
+	@UseName("Data Pack Debugging")
+	@CollapsibleObject(startExpanded = false)
+	@DefaultIgnore
+	public final DataPackDebugging dataPackDebugging = new DataPackDebugging();
+
+	public static class DataPackDebugging {
+
+		@Tooltip(count = 3)
+		@UseName("Generate dependency graphs")
+		@DefaultIgnore
+		public boolean dependencyGraphs = false;
+
+		@Tooltip(count = 3)
+		@UseName("Print decision trees")
+		@DefaultIgnore
+		public boolean decisionTrees = false;
+
+		@Tooltip(count = 3)
+		@UseName("Log structure spawn attempts")
+		@DefaultIgnore
+		public boolean structureSpawning = false;
+
+		@Tooltip(count = 3)
+		@UseName("Log empty tags")
+		@DefaultIgnore
+		public boolean emptyTags = false;
 	}
 
 	@Tooltip(count = 2)

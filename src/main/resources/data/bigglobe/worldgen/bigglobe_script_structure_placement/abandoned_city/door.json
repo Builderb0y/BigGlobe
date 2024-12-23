@@ -1,0 +1,20 @@
+{
+	"placement": [
+		"boolean isBrick(int*(x, y, z):",
+			"getBlockState(x, y, z).isIn(",
+				"'minecraft:stone_bricks',",
+				"'minecraft:cracked_stone_bricks',",
+				"'minecraft:mossy_stone_bricks',",
+				"'minecraft:glass_pane'",
+			")",
+		")",
+		"String hinge = random.if ('left') else ('right')",
+		"String facing = random.if ('north') else ('south')",
+		"boolean open = random.nextBoolean()",
+		"if (isBrick(0, 0, -1): setBlockState(0, 0, -1, BlockState('minecraft:iron_door', facing: facing, half: 'lower', open: open, hinge: hinge, powered: false)))",
+		"if (isBrick(0, 1, -1): setBlockState(0, 1, -1, BlockState('minecraft:iron_door', facing: facing, half: 'upper', open: open, hinge: hinge, powered: false)))",
+		"if (isBrick(0, 2, -1): setBlockState(0, 2, -1, 'minecraft:chiseled_stone_bricks'))",
+		"random.if (setBlockStateReplaceable(0, 2, -2, 'minecraft:stone_button[face=wall,facing=north,powered=false]'))",
+		"random.if (setBlockStateReplaceable(0, 2,  0, 'minecraft:stone_button[face=wall,facing=south,powered=false]'))"
+	]
+}

@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -195,6 +196,10 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public void setBlockState(BlockPos pos, BlockState state) {
 			this.chunk.setBlockState(pos, state, false);
+			if (state.hasBlockEntity()) {
+				BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(pos, state);
+				if (blockEntity != null) this.chunk.setBlockEntity(blockEntity);
+			}
 		}
 
 		@Override

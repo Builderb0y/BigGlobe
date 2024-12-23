@@ -1,0 +1,117 @@
+{
+	"type": "minecraft:chest",
+	"pools": [
+		{
+			"rolls": 0.5,
+			"entries": [{
+				"type": "minecraft:item",
+				"name": "minecraft:cobweb",
+				"weight": 100
+			}]
+		},
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:string",
+					"weight": 100,
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": {
+							"type": "minecraft:uniform",
+							"min": 1,
+							"max": 2
+						}
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:paper",
+					"weight": 75,
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": {
+							"type": "minecraft:uniform",
+							"min": 1,
+							"max": 4
+						}
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:book",
+					"weight": 50
+				}
+			]
+		},
+		{
+			"rolls": 0.5,
+			"entries": [
+				{ "weight": 100, "type": "minecraft:item", "name": "minecraft:glass_bottle" },
+				{ "weight": 25,  "type": "minecraft:item", "name": "minecraft:honey_bottle" },
+				{ "weight": 25,  "type": "minecraft:item", "name": "minecraft:poisonous_potato" },
+				{
+					"weight": 25,
+					"type": "minecraft:item",
+					"name": "minecraft:potion",
+					"functions": [{
+						"function": "minecraft:set_potion",
+						"id": "minecraft:water"
+					}]
+				}
+			]
+		},
+		{
+			"rolls": 0.75,
+			"entries": [
+				{
+					"type": "bigglobe:group",
+					"children": [
+						{ "type": "minecraft:item", "weight": 100, "name": "minecraft:leather_helmet" },
+						{ "type": "minecraft:item", "weight": 100, "name": "minecraft:leather_chestplate" },
+						{ "type": "minecraft:item", "weight": 100, "name": "minecraft:leather_leggings" },
+						{ "type": "minecraft:item", "weight": 100, "name": "minecraft:leather_boots" }
+					],
+					"functions": [
+						{
+							"function": "bigglobe:randomize_dye_color",
+							"show_in_tooltip": false
+						},
+						{
+							"function": "minecraft:set_damage",
+							"damage": {
+								"type": "minecraft:uniform",
+								"min": 0.5,
+								"max": 1.0
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"rolls": 0.5,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:leather",
+					"weight": 100
+				},
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:rabbit_hide",
+					"weight": 100,
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": {
+							"type": "minecraft:uniform",
+							"min": 1,
+							"max": 2
+						}
+					}]
+				}
+			]
+		}
+	]
+}

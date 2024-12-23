@@ -37,7 +37,7 @@ public interface StructureLayoutScript extends Script {
 		ScriptedColumnLookup lookup,
 		int originX,
 		int originZ,
-		long seed,
+		long worldSeed,
 		RandomGenerator random,
 		CheckedList<StructurePiece> pieces,
 		Hints hints
@@ -65,7 +65,7 @@ public interface StructureLayoutScript extends Script {
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.configureEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
@@ -74,11 +74,13 @@ public interface StructureLayoutScript extends Script {
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					registry.setupExternalEnvironment(
 						environment
+						.addVariableLoad("worldSeed", TypeInfos.LONG)
 						.addFieldGet(ScriptedStructure.Piece.class, "data")
 						.addVariableLoad("originX", TypeInfos.INT)
 						.addVariableLoad("originZ", TypeInfos.INT)
 						.addQualifiedSpecificConstructor(Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, NbtCompound.class)
 						.addMethodInvokes(Piece.class, "withRotation", "rotateAround", "symmetrify", "symmetrifyAround", "offset")
+						.addMethodMultiInvokes(Piece.class, "rotateRandomly", "rotateAndFlipRandomly")
 						.addMethod(type(Piece.class), "rotateRandomly", Handlers.builder(Piece.class, "rotateRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
 						.addMethod(type(Piece.class), "rotateAndFlipRandomly", Handlers.builder(Piece.class, "rotateAndFlipRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
 						.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
@@ -107,7 +109,7 @@ public interface StructureLayoutScript extends Script {
 			ScriptedColumnLookup lookup,
 			int originX,
 			int originZ,
-			long seed,
+			long worldSeed,
 			RandomGenerator random,
 			CheckedList<StructurePiece> pieces,
 			Hints hints
@@ -115,7 +117,7 @@ public interface StructureLayoutScript extends Script {
 			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
-				this.script.layout(lookup, originX, originZ, seed, random, pieces, hints);
+				this.script.layout(lookup, originX, originZ, worldSeed, random, pieces, hints);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

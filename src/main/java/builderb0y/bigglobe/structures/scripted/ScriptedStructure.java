@@ -194,6 +194,14 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			return this.symmetrify(Symmetry.VALUES[random.nextInt(8)]);
 		}
 
+		public Piece rotateRandomly(long seed) {
+			return this.symmetrify(Symmetry.VALUES[Permuter.nextBoundedInt(seed, 4)]);
+		}
+
+		public Piece rotateAndFlipRandomly(long seed) {
+			return this.symmetrify(Symmetry.VALUES[Permuter.nextBoundedInt(seed, 8)]);
+		}
+
 		public Piece offset(int x, int y, int z) {
 			this.translate(x, y, z);
 			return this;

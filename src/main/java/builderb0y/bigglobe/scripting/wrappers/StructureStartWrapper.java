@@ -47,7 +47,7 @@ public record StructureStartWrapper(
 		}
 		RegistryEntry<Structure> entry = original;
 		if (entry.value() instanceof DelegatingStructure delegating) {
-			entry = delegating.delegate;
+			entry = delegating.delegate();
 		}
 		return new StructureStartWrapper(
 			new StructureEntry(

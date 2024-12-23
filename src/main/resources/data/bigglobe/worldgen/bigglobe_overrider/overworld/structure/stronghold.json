@@ -2,12 +2,7 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure.type ==. 'minecraft:stronghold':",
-			"int lowerBound = max(",
-				"world_traits.`bigglobe:deep_dark_min_y`(start.minX, start.minZ),",
-				"world_traits.`bigglobe:deep_dark_min_y`(start.minX, start.maxZ),",
-				"world_traits.`bigglobe:deep_dark_min_y`(start.maxX, start.minZ),",
-				"world_traits.`bigglobe:deep_dark_min_y`(start.maxX, start.maxZ)",
-			")",
+			"int lowerBound = world_traits.`bigglobe:deep_dark_max_y`(start.midX, start.midZ)",
 			"int upperBound = min(",
 				"world_traits.`bigglobe:cave_min_y`(start.minX, start.minZ),",
 				"world_traits.`bigglobe:cave_min_y`(start.minX, start.maxZ),",

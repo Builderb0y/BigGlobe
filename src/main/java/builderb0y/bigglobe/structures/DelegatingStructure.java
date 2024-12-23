@@ -3,9 +3,11 @@ package builderb0y.bigglobe.structures;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -23,7 +25,9 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class DelegatingStructure extends Structure {
 
@@ -35,6 +39,7 @@ public class DelegatingStructure extends Structure {
 
 	public final RegistryEntry<Structure> delegate;
 	public final @EncodeInline NullableConfig nullable_config;
+	public boolean checkedCyclicReference;
 
 	public DelegatingStructure(NullableConfig nullable_config, RegistryEntry<Structure> delegate) {
 		super(nullable_config.toConfig());
@@ -42,36 +47,49 @@ public class DelegatingStructure extends Structure {
 		this.delegate = delegate;
 	}
 
+	public RegistryEntry<Structure> delegate() {
+		if (!this.checkedCyclicReference) {
+			Set<Structure> stack = new ReferenceOpenHashSet<>();
+			for (Structure structure = this; structure instanceof DelegatingStructure delegating; structure = delegating.delegate.value()) {
+				if (!stack.add(structure)) {
+					throw new CyclicDependencyException("Cyclic delegating structure: first structure delegates to " + UnregisteredObjectException.getID(this.delegate));
+				}
+			}
+			this.checkedCyclicReference = true;
+		}
+		return this.delegate;
+	}
+
 	public static RegistryEntry<Structure> unwrap(RegistryEntry<Structure> structure) {
 		while (structure.value() instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
-			structure = delegating.delegate;
+			structure = delegating.delegate();
 		}
 		return structure;
 	}
 
 	@Override
 	public RegistryEntryList<Biome> getValidBiomes() {
-		return this.nullable_config.biomes != null ? this.nullable_config.biomes.tag() : this.delegate.value().getValidBiomes();
+		return this.nullable_config.biomes != null ? this.nullable_config.biomes.tag() : this.delegate().value().getValidBiomes();
 	}
 
 	@Override
 	public Map<SpawnGroup, StructureSpawns> getStructureSpawns() {
-		return this.nullable_config.spawn_overrides != null ? this.nullable_config.spawn_overrides : this.delegate.value().getStructureSpawns();
+		return this.nullable_config.spawn_overrides != null ? this.nullable_config.spawn_overrides : this.delegate().value().getStructureSpawns();
 	}
 
 	@Override
 	public GenerationStep.Feature getFeatureGenerationStep() {
-		return this.nullable_config.step != null ? this.nullable_config.step : this.delegate.value().getFeatureGenerationStep();
+		return this.nullable_config.step != null ? this.nullable_config.step : this.delegate().value().getFeatureGenerationStep();
 	}
 
 	@Override
 	public StructureTerrainAdaptation getTerrainAdaptation() {
-		return this.nullable_config.terrain_adaptation != null ? this.nullable_config.terrain_adaptation : this.delegate.value().getTerrainAdaptation();
+		return this.nullable_config.terrain_adaptation != null ? this.nullable_config.terrain_adaptation : this.delegate().value().getTerrainAdaptation();
 	}
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		return this.delegate.value().getValidStructurePosition(context);
+		return this.delegate().value().getValidStructurePosition(context);
 	}
 
 	public boolean canDelegateStart() {

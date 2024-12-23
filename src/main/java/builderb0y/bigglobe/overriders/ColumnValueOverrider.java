@@ -14,6 +14,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
@@ -148,11 +149,16 @@ public interface ColumnValueOverrider extends ColumnScript {
 
 		@Override
 		public void override(ScriptedColumn column, ScriptStructures structures) {
+			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
+			int used = manager.used;
 			try {
 				this.script.override(column, structures);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);
+			}
+			finally {
+				manager.used = used;
 			}
 		}
 	}

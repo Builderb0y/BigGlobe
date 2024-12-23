@@ -161,7 +161,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 				if (element.isTag()) {
 					TagKey<T> key = TagKey.of(this.resolver.getKey(), element.id);
 					RegistryEntryList<T> resolution = this.resolver.requireTag(key);
-					if (resolution.size() == 0 && BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+					if (resolution.size() == 0 && BigGlobeConfig.INSTANCE.get().dataPackDebugging.emptyTags) {
 						BigGlobeMod.LOGGER.warn("Empty tag: " + key);
 					}
 					return resolution.stream();

@@ -149,8 +149,8 @@ public class StructureManager {
 		outer:
 		if (!toAdd.isEmpty()) {
 			toAdd = new ChunkUngeneratedStructures(toAdd);
-			for (int offsetZ = -8; offsetZ <= 8; offsetZ++) {
-				for (int offsetX = -8; offsetX <= 8; offsetX++) {
+			for (int offsetZ = -16; offsetZ <= 16; offsetZ++) {
+				for (int offsetX = -16; offsetX <= 16; offsetX++) {
 					if (offsetX == 0 && offsetZ == 0) continue;
 					StructureGenerationParams params2 = params.at(
 						params.chunkPos.x + offsetX,
@@ -167,7 +167,7 @@ public class StructureManager {
 				}
 				//System.out.println("Survivor: " + toString(pieces.getStart()));
 				map.merge(pieces.getStart().getStructure(), pieces.getStart(), (StructureStart start1, StructureStart start2) -> {
-					if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+					if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 						BigGlobeMod.LOGGER.info("More than one copy of structure " + structureName(start1.getStructure()) + " started in the same chunk. It may be present in more than one structure set.");
 					}
 					return new StructureStart(
@@ -186,7 +186,7 @@ public class StructureManager {
 				});
 			}
 			if (!map.isEmpty()) {
-				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 					for (StructureStart start : map.values()) {
 						BigGlobeMod.LOGGER.info("Structure " + structureName(start.getStructure()) + " spawned at " + start.getBoundingBox().getCenter());
 					}
@@ -274,7 +274,7 @@ public class StructureManager {
 
 	public @NotNull SortedStructurePieces computeStructureStart(StructureGenerationParams params, WeightedEntry weightedEntry) {
 		if (ValkyrienSkiesCompat.isInShipyard(params.chunkPos)) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because Valkyrien Skies reserves this area.");
 			}
 			return EmptySortedStructurePieces.INSTANCE;
@@ -283,14 +283,14 @@ public class StructureManager {
 		Structure structure = weightedEntry.structure().value();
 		RegistryEntryList<Biome> validBiomes = structure.getValidBiomes();
 		while (structure instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
-			structure = delegating.delegate.value();
+			structure = delegating.delegate().value();
 		}
 		StructurePosition newStartPosition = structure.getValidStructurePosition(
 			params.toStructureContext(Predicates.alwaysTrue())
 		)
 		.orElse(null);
 		if (newStartPosition == null) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because the structure itself decided not to.");
 			}
 			return EmptySortedStructurePieces.INSTANCE;
@@ -298,7 +298,7 @@ public class StructureManager {
 		StructurePiecesCollector collector = newStartPosition.generate();
 		StructureStart newStart = new StructureStart(structure, params.chunkPos, 0, collector.toList());
 		if (!newStart.hasChildren()) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because the resulting structure has no pieces.");
 			}
 			return EmptySortedStructurePieces.INSTANCE;
@@ -338,7 +338,7 @@ public class StructureManager {
 			if (DEBUG_REMOVED) {
 				addPotentialStructure(newStart, "Incorrect biome");
 			}
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn at " + newStart.getBoundingBox().getCenter() + " because the biome at this location is not in the structure's biome tag.");
 			}
 			return EmptySortedStructurePieces.INSTANCE;
@@ -382,7 +382,7 @@ public class StructureManager {
 						" said no."
 					);
 				}
-				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 					BigGlobeMod.LOGGER.info(
 						"Structure " +
 						structureName(start.getStructure()) +
@@ -480,7 +480,7 @@ public class StructureManager {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Self collision priority < 0");
 							}
-							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in the same chunk and a collision overrider returned a negative priority.");
 							}
 							elements[currentIndex] = null;
@@ -489,7 +489,7 @@ public class StructureManager {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Self collision with larger structure " + structureName(otherStructure.getStart().getStructure()) + " (priority 0)");
 							}
-							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in the same chunk and the other structure is bigger.");
 							}
 							elements[currentIndex] = null;
@@ -520,7 +520,7 @@ public class StructureManager {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Other collision priority < 0");
 							}
-							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in a different chunk and a collision overrider returned a negative priority.");
 							}
 							elements[currentIndex] = null;
@@ -529,7 +529,7 @@ public class StructureManager {
 							if (DEBUG_REMOVED) {
 								addPotentialStructure(currentStructure.getStart(), "Other collision with larger structure " + structureName(otherStructure.getStart().getStructure()) + " (priority 0)");
 							}
-							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging) {
+							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 								BigGlobeMod.LOGGER.info("Structure " + structureName(currentStructure.getStart().getStructure()) + " did not spawn at " + currentStructure.getStart().getBoundingBox().getCenter() + " because it collided with a " + structureName(otherStructure.getStart().getStructure()) + " in a different chunk and the other structure is bigger.");
 							}
 							elements[currentIndex] = null;

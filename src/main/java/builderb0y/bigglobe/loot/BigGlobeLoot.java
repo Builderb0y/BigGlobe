@@ -6,7 +6,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION < MC_1_20_2
 	import net.minecraft.util.JsonSerializer;
@@ -20,6 +19,7 @@ public class BigGlobeLoot {
 
 	public static final LootPoolEntryType FUNCTIONAL_GROUP = registerEntry("group", FunctionalGroupEntry.SERIALIZER);
 	public static final LootFunctionType CHOOSE_POTION_TYPE = registerFunction("choose_potion", ChoosePotionLootFunction.SERIALIZER);
+	public static final LootFunctionType RANDOMIZE_DYE_COLOR = registerFunction("randomize_dye_color", RandomizeDyeColorLootFunction.SERIALIZER);
 
 	static { BigGlobeMod.LOGGER.debug("Done registering loot pool entry types."); }
 
