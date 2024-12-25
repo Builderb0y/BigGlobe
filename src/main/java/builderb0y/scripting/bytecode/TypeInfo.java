@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

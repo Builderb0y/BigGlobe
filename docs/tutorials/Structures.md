@@ -36,7 +36,7 @@ Delegating solves all of these problems: a delegating structure is one which is 
 	"biomes": "#modid:has_structure/example_structure"
 }
 ```
-Simply put add a structure like this to your compatibility pack, along with a biome tag for it to spawn in, and a structure set to control how often it spawns, and you should be good to go.
+Simply add a structure like this to your compatibility pack, along with a biome tag for it to spawn in, and a structure set to control how often it spawns, and you should be good to go.
 
 Delegating structures can also tweak the spawn_overrides, the step, and the terrain_adaptation, just like for any vanilla structures. Delegating structures cannot override any other properties of the structure they're delegating to.
 

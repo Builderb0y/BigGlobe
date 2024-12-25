@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemStack.TooltipSection;
 import net.minecraft.loot.condition.LootCondition;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.function.ConditionalLootFunction;
@@ -16,7 +17,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 @AddPseudoField("conditions")
 public class RandomizeDyeColorLootFunction extends ConditionalLootFunction {
 
-	public static final LootFunctionType SERIALIZER = new LootFunctionType(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RandomizeDyeColorLootFunction.class));
+	public static final LootFunctionType SERIALIZER = new LootFunctionType(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RandomizeDyeColorLootFunction.class).codec());
 
 	public final boolean show_in_tooltip;
 
