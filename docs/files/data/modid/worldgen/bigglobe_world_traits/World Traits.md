@@ -2,7 +2,7 @@ New in V4.3.3: World traits allow chunk generators to share information with scr
 
 Example: The default Big Globe overworld has a specific Y level for the surface at every given position. However, some data packs may want to use different logic for how this Y level is computed. Depending on what the data pack is doing, it might not be beneficial to override the column value which controls this directly. If the data pack author instead wishes to use a different column value for the surface Y level, then they are left with the annoying task of updating all the feature dispatchers, configured features, and other data pack files to reflect the column value they want to represent the surface Y level. This is where traits come in: they can tell other scripts which column value controls the surface Y level, so that the data pack doesn't need to edit 50+ different files.
 
-Many column values already have an associated trait for use in the WIP experimental "islands" world preset, and more traits for other column values might be added in the future.
+Many column values already have an associated trait for use in the "islands" world preset, and more traits for other column values might be added in the future.
 
 # Json structure
 

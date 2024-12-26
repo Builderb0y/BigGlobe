@@ -32,14 +32,9 @@ where I left off:
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
+	fix river biomes in the middle of ocean biomes.
 
 changelog:
-	* Added pale garden biome to the nether (MC 1.21.4 only).
-	* Added abandoned cities to the overworld.
-	* Fixed strongholds sometimes spawning in the deep dark.
-	* Spiders are now more likely to spawn in mineshafts and surface mineshafts.
-	* Endermen are now more likely to spawn in strongholds.
-	* Split up "data pack debugging" config option into multiple sub-options that show different information.
 
 alternate world presets:
 	paradise.
