@@ -13,7 +13,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 public interface TrunkThicknessScript extends Script {
 
-	public abstract double getThickness(double height, double fraction);
+	public abstract double getThickness(double height, double fraction, double minThickness);
 
 	@Wrapper
 	public static class Holder extends ScriptHolder<TrunkThicknessScript> implements TrunkThicknessScript {
@@ -32,7 +32,7 @@ public interface TrunkThicknessScript extends Script {
 					environment
 					.addVariableLoad("height", TypeInfos.DOUBLE)
 					.addVariableLoad("fraction", TypeInfos.DOUBLE)
-					.addVariableConstant("minThickness", TrunkConfig.MIN_RADIUS);
+					.addVariableLoad("minThickness", TypeInfos.DOUBLE);
 				})
 				.parse(new ScriptClassLoader())
 			);
@@ -44,13 +44,13 @@ public interface TrunkThicknessScript extends Script {
 		}
 
 		@Override
-		public double getThickness(double height, double fraction) {
+		public double getThickness(double height, double fraction, double minThickness) {
 			try {
-				return this.script.getThickness(height, fraction);
+				return this.script.getThickness(height, fraction, minThickness);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);
-				return TrunkConfig.MIN_RADIUS;
+				return minThickness;
 			}
 		}
 	}
