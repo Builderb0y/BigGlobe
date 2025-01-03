@@ -126,7 +126,7 @@ All suffixes are case-insensitive.
 
 ### U
 
-Specifies that the number is unsigned. **This does NOT mean that normal arithmetic operations will treat it as an unsigned value!** It just means the range that it uses for validity checking and auto-typing is shifted. For example, if the default precision of a number without a suffix were allowed to be a byte or short (like it was in old versions), then `255` would be a `short` literal, because the `byte` range is -128 to +127 (inclusive). However, `255u` would be a `byte` literal, because the *unsighed* `byte` range is 0 to 255 (also inclusive).
+Specifies that the number is unsigned. **This does NOT mean that normal arithmetic operations will treat it as an unsigned value!** It just means the range that it uses for validity checking and auto-typing is shifted. For example, if the default precision of a number without a suffix were allowed to be a byte or short (like it was in old versions), then `255` would be a `short` literal, because the `byte` range is -128 to +127 (inclusive). However, `255u` would be a `byte` literal, because the *unsigned* `byte` range is 0 to 255 (also inclusive).
 
 The unsigned suffix is not allowed for numbers which have a fractional part.
 
@@ -158,7 +158,7 @@ An operator *character* is one of the following: `!#%&*+,-./:<=>?@\^|~`
 
 Operator characters do NOT include parentheses, square brackets, curly braces, tick marks, or underscores.
 
-The significance of this is that an *operator* is composed of one or more operator characters with no whitespace between them. Examples of operators include:
+The significance of this is that an *operator* is composed of one or more operator characters with no whitespace or other non-operator characters between them. Examples of operators include:
 ```
 +
 +-
@@ -227,7 +227,7 @@ print("The price is $$5") ;prints "the price is $5" (without quotes)
 
 # Embedding into JSON
 
-Most script instances are represented by either a string, or an array of strings. when using an array, the elements are concatenated, with a newline character separating them. As such, if you want to specify a String literal in a JSON script, it is recommended to use single quote marks, as double quote marks will need to be escaped with backslashes to be JSON-compliant.
+Most script instances are represented by either a string, or an array of strings. When using an array, the elements are concatenated, with a newline character separating them. As such, if you want to specify a String literal in a JSON script, it is recommended to use single quote marks, as double quote marks will need to be escaped with backslashes to be JSON-compliant.
 
 ## Formatting and indentation
 

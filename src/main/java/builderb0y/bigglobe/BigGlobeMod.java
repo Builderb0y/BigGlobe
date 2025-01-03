@@ -37,6 +37,7 @@ import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.chunkgen.*;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
+import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dispensers.BigGlobeDispenserBehaviors;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
@@ -104,6 +105,8 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeRecipeSerializers.init();
 		ExpressionParser.clinit();
 		BigGlobeParticles.init();
+
+		DistantHorizonsCompat.init();
 
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));

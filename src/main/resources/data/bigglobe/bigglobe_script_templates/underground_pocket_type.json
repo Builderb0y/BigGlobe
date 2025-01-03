@@ -12,16 +12,30 @@
 
 			"minY = max(",
 				"world_traits.`bigglobe:cave_min_y`(minX, minZ),",
+				"world_traits.`bigglobe:cave_min_y`(minX, originX),",
 				"world_traits.`bigglobe:cave_min_y`(minX, maxZ),",
+
+				"world_traits.`bigglobe:cave_min_y`(originX, minZ),",
+				"world_traits.`bigglobe:cave_min_y`(originX, originX),",
+				"world_traits.`bigglobe:cave_min_y`(originX, maxZ),",
+
 				"world_traits.`bigglobe:cave_min_y`(maxX, minZ),",
+				"world_traits.`bigglobe:cave_min_y`(maxX, originX),",
 				"world_traits.`bigglobe:cave_min_y`(maxX, maxZ)",
 			")",
 			"+ verticalSize",
 
 			"maxY = min(",
 				"world_traits.`bigglobe:cave_max_y`(minX, minZ),",
+				"world_traits.`bigglobe:cave_max_y`(minX, originZ),",
 				"world_traits.`bigglobe:cave_max_y`(minX, maxZ),",
+
+				"world_traits.`bigglobe:cave_max_y`(originX, minZ),",
+				"world_traits.`bigglobe:cave_max_y`(originX, originZ),",
+				"world_traits.`bigglobe:cave_max_y`(originX, maxZ),",
+
 				"world_traits.`bigglobe:cave_max_y`(maxX, minZ),",
+				"world_traits.`bigglobe:cave_max_y`(maxX, originZ),",
 				"world_traits.`bigglobe:cave_max_y`(maxX, maxZ)",
 			")",
 			"- verticalSize",

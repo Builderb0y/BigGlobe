@@ -61,7 +61,7 @@ public interface IRandomList<E> extends List<E> {
 		if (this.isEmpty()) throw new NoSuchElementException();
 		E choice = this.get(this.size() - 1);
 		double totalWeight = 0.0D;
-		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
+		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext();) {
 			E element = iterator.next();
 			double weight = iterator.getWeight();
 			if (weight > 0.0D && random.nextDouble() * (totalWeight += weight) < weight) {
@@ -76,7 +76,7 @@ public interface IRandomList<E> extends List<E> {
 		if (this.isEmpty()) throw new NoSuchElementException();
 		E choice = this.get(this.size() - 1);
 		double totalWeight = 0.0D;
-		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
+		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext();) {
 			E element = iterator.next();
 			double weight = iterator.getWeight();
 			if (weight > 0.0D && Permuter.nextPositiveDouble(seed += Permuter.PHI64) * (totalWeight += weight) < weight) {

@@ -29,12 +29,23 @@ where I left off:
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	some mechanism to add mobs to big globe worlds without adding them to biomes.
+	tweak tree minThickness to equal distance to nearest block corner.
+		this makes it so that if you specify minRadius as the thickness,
+		you always get a one-block-wide tree. it won't potentially intersect multiple blocks anymore.
+	(random or seed).switch (
+		weight1: value1,
+		weight2: value2,
+		...
+	)
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	fix river biomes in the middle of ocean biomes.
+	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 
 changelog:
+	* Fixed saplings failing to grow outside of big globe worlds.
+	* Fixed a lot of blocks not breaking quickly with the proper tool.
 
 alternate world presets:
 	paradise.

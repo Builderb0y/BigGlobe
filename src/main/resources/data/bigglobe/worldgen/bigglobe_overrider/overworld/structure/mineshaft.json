@@ -4,14 +4,28 @@
 		"if (start.structure.type ==. 'minecraft:mineshaft':",
 			"int minCave = max(",
 				"world_traits.`bigglobe:cave_min_y`(start.minX, start.minZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.minX, start.midZ),",
 				"world_traits.`bigglobe:cave_min_y`(start.minX, start.maxZ),",
+
+				"world_traits.`bigglobe:cave_min_y`(start.midX, start.minZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.midX, start.midZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.midX, start.maxZ),",
+
 				"world_traits.`bigglobe:cave_min_y`(start.maxX, start.minZ),",
+				"world_traits.`bigglobe:cave_min_y`(start.maxX, start.midZ),",
 				"world_traits.`bigglobe:cave_min_y`(start.maxX, start.maxZ)",
 			")",
 			"int maxCave = min(",
 				"world_traits.`bigglobe:cave_max_y`(start.minX, start.minZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.minX, start.midZ),",
 				"world_traits.`bigglobe:cave_max_y`(start.minX, start.maxZ),",
+
+				"world_traits.`bigglobe:cave_max_y`(start.midX, start.minZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.midX, start.midZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.midX, start.maxZ),",
+
 				"world_traits.`bigglobe:cave_max_y`(start.maxX, start.minZ),",
+				"world_traits.`bigglobe:cave_max_y`(start.maxX, start.midZ),",
 				"world_traits.`bigglobe:cave_max_y`(start.maxX, start.maxZ)",
 			")",
 			"return(start.moveToRange(minCave, maxCave))",
