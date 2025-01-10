@@ -34,6 +34,8 @@ where I left off:
 		weight2: value2,
 		...
 	)
+	no loading context available with cyanide installed.
+		possibly only an issue on dedicated servers.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
