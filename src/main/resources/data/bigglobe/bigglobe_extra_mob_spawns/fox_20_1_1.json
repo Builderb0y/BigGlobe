@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:cold_plains"
+	],
+	"type": "minecraft:fox",
+	"weight": 20,
+	"minCount": 1,
+	"maxCount": 1
+}

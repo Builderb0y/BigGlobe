@@ -37,3 +37,6 @@ accessible method net/minecraft/entity/projectile/PersistentProjectileEntity set
 #fabris's built-in AW for these seems to be missing in 1.21.3.
 accessible method net/minecraft/block/entity/BlockEntityType <init> (Lnet/minecraft/block/entity/BlockEntityType$BlockEntityFactory;Ljava/util/Set;)V
 accessible class net/minecraft/block/entity/BlockEntityType$BlockEntityFactory
+
+#used by chunk generator to spawn mobs during worldgen.
+accessible method net/minecraft/world/SpawnHelper getEntitySpawnPos (Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityType;II)Lnet/minecraft/util/math/BlockPos;

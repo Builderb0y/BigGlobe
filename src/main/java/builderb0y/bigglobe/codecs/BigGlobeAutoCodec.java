@@ -78,6 +78,7 @@ import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
+import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.DelayedEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
@@ -152,6 +153,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<CombinedStructureScripts> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
 	public static final RegistryCoders<FeatureDispatcher>                FEATURE_DISPATCHER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(FeatureDispatcher                     .class), BigGlobeDynamicRegistries.        FEATURE_DISPATCHER_REGISTRY_KEY);
 	public static final RegistryCoders<WorldTrait>                              WORLD_TRAIT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WorldTrait                            .class), BigGlobeDynamicRegistries.               WORLD_TRAIT_REGISTRY_KEY);
+	public static final RegistryCoders<ExtraSpawn>                              EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ExtraSpawn                            .class), BigGlobeDynamicRegistries.               EXTRA_SPAWN_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                                         DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
@@ -184,6 +186,7 @@ public class BigGlobeAutoCodec {
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS,
 		FEATURE_DISPATCHER_REGISTRY_CODERS,
 		WORLD_TRAIT_REGISTRY_CODERS,
+		EXTRA_SPAWN_REGISTRY_CODERS,
 	};
 
 	public static final AutoCodec AUTO_CODEC = new AutoCodec() {

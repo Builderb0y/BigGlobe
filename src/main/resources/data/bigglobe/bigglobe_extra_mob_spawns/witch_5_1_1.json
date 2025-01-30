@@ -1,0 +1,31 @@
+{
+	"biomes": [
+		"bigglobe:beach",
+		"bigglobe:cold_dense_forest",
+		"bigglobe:cold_light_forest",
+		"bigglobe:cold_plains",
+		"bigglobe:cold_wasteland",
+		"bigglobe:deep_ocean",
+		"bigglobe:glacier",
+		"bigglobe:hot_dense_forest",
+		"bigglobe:hot_light_forest",
+		"bigglobe:hot_plains",
+		"bigglobe:hot_wasteland",
+		"bigglobe:ocean",
+		"bigglobe:overgrown_beach",
+		"bigglobe:river",
+		"bigglobe:shallow_ocean",
+		"bigglobe:temperate_dense_forest",
+		"bigglobe:temperate_light_forest",
+		"bigglobe:temperate_plains",
+		"bigglobe:temperate_wasteland",
+		"bigglobe:warm_dense_forest",
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
+	],
+	"type": "minecraft:witch",
+	"weight": 5,
+	"minCount": 1,
+	"maxCount": 1
+}

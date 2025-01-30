@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:warm_dense_forest",
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
+	],
+	"type": "minecraft:bat",
+	"weight": 10,
+	"minCount": 8,
+	"maxCount": 8
+}

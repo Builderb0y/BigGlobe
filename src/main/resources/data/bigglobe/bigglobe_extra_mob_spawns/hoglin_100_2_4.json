@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:crimson_forest"
+	],
+	"type": "minecraft:hoglin",
+	"weight": 100,
+	"minCount": 2,
+	"maxCount": 4
+}

@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:cold_light_forest"
+	],
+	"type": "minecraft:snow_golem",
+	"weight": 20,
+	"minCount": 1,
+	"maxCount": 2
+}

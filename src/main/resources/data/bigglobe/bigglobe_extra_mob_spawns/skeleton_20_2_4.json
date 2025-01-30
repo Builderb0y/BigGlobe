@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:cold_dense_forest",
+		"bigglobe:cold_light_forest",
+		"bigglobe:cold_plains",
+		"bigglobe:cold_wasteland"
+	],
+	"type": "minecraft:skeleton",
+	"weight": 20,
+	"minCount": 2,
+	"maxCount": 4
+}

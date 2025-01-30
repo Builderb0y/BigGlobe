@@ -19,6 +19,7 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.overriders.Overrider;
+import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 
@@ -34,6 +35,7 @@ public class BigGlobeDynamicRegistries {
 	public static final RegistryKey<Registry<WoodPalette>>                            WOOD_PALETTE_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
 	public static final RegistryKey<Registry<FeatureDispatcher>>                FEATURE_DISPATCHER_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_feature_dispatchers"));
 	public static final RegistryKey<Registry<WorldTrait>>                              WORLD_TRAIT_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_world_traits"));
+	public static final RegistryKey<Registry<ExtraSpawn>>                              EXTRA_SPAWN_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_extra_mob_spawns"));
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static final Set<RegistryKey<Registry<?>>> KEYS = (Set)(Set.of(
 		SCRIPT_TEMPLATE_REGISTRY_KEY,
@@ -45,7 +47,8 @@ public class BigGlobeDynamicRegistries {
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY,
 		WOOD_PALETTE_REGISTRY_KEY,
 		FEATURE_DISPATCHER_REGISTRY_KEY,
-		WORLD_TRAIT_REGISTRY_KEY
+		WORLD_TRAIT_REGISTRY_KEY,
+		EXTRA_SPAWN_REGISTRY_KEY
 	));
 
 	public static void init() {
@@ -64,6 +67,7 @@ public class BigGlobeDynamicRegistries {
 		addBefore(RegistryKeys.STRUCTURE,         SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
 		addBefore(RegistryKeys.CONFIGURED_CARVER,               WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette             .class));
 		addAfter (RegistryKeys.PLACED_FEATURE,            FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher       .class));
+		addAfter (RegistryKeys.BIOME,                            EXTRA_SPAWN_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ExtraSpawn              .class));
 	}
 
 	public static <T> RegistryLoader.Entry<T> entry(RegistryKey<Registry<T>> key, Codec<T> codec) {

@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:warped_forest"
+	],
+	"type": "minecraft:enderman",
+	"weight": 100,
+	"minCount": 2,
+	"maxCount": 4
+}

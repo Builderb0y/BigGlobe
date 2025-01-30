@@ -33,3 +33,6 @@ accessible method net/minecraft/server/network/ServerPlayerEntity findRespawnPos
 
 #this method became private in 1.21 but is still needed by TorchArrowEntity.
 accessible method net/minecraft/entity/projectile/PersistentProjectileEntity setPierceLevel (B)V
+
+#used by chunk generator to spawn mobs during worldgen.
+accessible method net/minecraft/world/SpawnHelper getEntitySpawnPos (Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityType;II)Lnet/minecraft/util/math/BlockPos;

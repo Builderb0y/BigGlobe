@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:temperate_plains"
+	],
+	"type": "minecraft:rabbit",
+	"weight": 160,
+	"minCount": 3,
+	"maxCount": 4
+}

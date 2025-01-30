@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:temperate_plains"
+	],
+	"type": "minecraft:horse",
+	"weight": 40,
+	"minCount": 3,
+	"maxCount": 6
+}

@@ -39,16 +39,9 @@
 	"spawners": {
 		"ambient": [],
 		"axolotls": [],
-		"creature": [
-			{ "type": "minecraft:strider", "maxCount": 2, "minCount": 1, "weight": 60 }
-		],
+		"creature": [],
 		"misc": [],
-		"monster": [
-			{ "type": "minecraft:piglin",           "weight": 100, "minCount": 2, "maxCount": 4 },
-			{ "type": "minecraft:zombified_piglin", "weight": 10,  "minCount": 2, "maxCount": 4 },
-			{ "type": "minecraft:hoglin",           "weight": 100, "minCount": 2, "maxCount": 4 },
-			{ "type": "minecraft:zoglin",           "weight": 10,  "minCount": 2, "maxCount": 4 }
-		],
+		"monster": [],
 		"underground_water_creature": [],
 		"water_ambient": [],
 		"water_creature": []

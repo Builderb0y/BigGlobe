@@ -51,6 +51,11 @@ public class BigGlobeConfig {
 	public boolean hyperspaceEnabled = true;
 
 	@Tooltip(count = 3)
+	@UseName("Molten rocks turn into ores")
+	@DefaultIgnore
+	public boolean moltenRocksTurnIntoOres = true;
+
+	@Tooltip(count = 3)
 	@UseName("Threads")
 	@DefaultIgnore
 	public int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1);

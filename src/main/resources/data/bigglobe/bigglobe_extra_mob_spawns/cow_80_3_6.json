@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:temperate_plains"
+	],
+	"type": "minecraft:cow",
+	"weight": 80,
+	"minCount": 3,
+	"maxCount": 6
+}

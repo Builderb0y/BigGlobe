@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:deep_ocean",
+		"bigglobe:ocean"
+	],
+	"type": "minecraft:squid",
+	"weight": 100,
+	"minCount": 1,
+	"maxCount": 4
+}

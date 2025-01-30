@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:temperate_dense_forest",
+		"bigglobe:temperate_light_forest"
+	],
+	"type": "minecraft:wolf",
+	"weight": 40,
+	"minCount": 2,
+	"maxCount": 4
+}

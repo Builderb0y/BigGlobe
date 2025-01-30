@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:hot_dense_forest"
+	],
+	"type": "minecraft:armadillo",
+	"weight": 60,
+	"minCount": 1,
+	"maxCount": 2
+}

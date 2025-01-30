@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:hot_dense_forest",
+		"bigglobe:hot_light_forest"
+	],
+	"type": "minecraft:rabbit",
+	"weight": 80,
+	"minCount": 2,
+	"maxCount": 4
+}

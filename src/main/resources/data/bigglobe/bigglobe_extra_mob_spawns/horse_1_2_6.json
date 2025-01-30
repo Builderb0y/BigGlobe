@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
+	],
+	"type": "minecraft:horse",
+	"weight": 1,
+	"minCount": 2,
+	"maxCount": 6
+}

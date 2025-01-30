@@ -1,0 +1,14 @@
+{
+	"biomes": [
+		"bigglobe:chorus_forest",
+		"bigglobe:end_barrens",
+		"bigglobe:end_mountain",
+		"bigglobe:end_plains",
+		"bigglobe:overgrown_end",
+		"bigglobe:the_void"
+	],
+	"type": "minecraft:enderman",
+	"weight": 10,
+	"minCount": 4,
+	"maxCount": 4
+}

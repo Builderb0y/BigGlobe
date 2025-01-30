@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
+	],
+	"type": "minecraft:donkey",
+	"weight": 1,
+	"minCount": 1,
+	"maxCount": 1
+}

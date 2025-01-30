@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:glacier"
+	],
+	"type": "minecraft:salmon",
+	"weight": 15,
+	"minCount": 1,
+	"maxCount": 5
+}

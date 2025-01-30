@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:cherry_forest",
+		"bigglobe:cherry_plains",
+		"bigglobe:temperate_dense_forest",
+		"bigglobe:temperate_light_forest"
+	],
+	"type": "minecraft:chicken",
+	"weight": 120,
+	"minCount": 2,
+	"maxCount": 4
+}

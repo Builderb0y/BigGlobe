@@ -1,0 +1,14 @@
+{
+	"biomes": [
+		"bigglobe:beach",
+		"bigglobe:deep_ocean",
+		"bigglobe:ocean",
+		"bigglobe:overgrown_beach",
+		"bigglobe:river",
+		"bigglobe:shallow_ocean"
+	],
+	"type": "minecraft:zombie",
+	"weight": 100,
+	"minCount": 2,
+	"maxCount": 4
+}

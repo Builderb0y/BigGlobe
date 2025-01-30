@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:cherry_forest",
+		"bigglobe:cherry_plains",
+		"bigglobe:temperate_dense_forest",
+		"bigglobe:temperate_light_forest"
+	],
+	"type": "minecraft:cow",
+	"weight": 80,
+	"minCount": 2,
+	"maxCount": 4
+}

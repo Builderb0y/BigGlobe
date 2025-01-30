@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -14,14 +15,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.*;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -31,12 +35,16 @@ import net.minecraft.structure.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
+import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.world.*;
+import net.minecraft.world.StructureSpawns.BoundingBox;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.*;
@@ -101,11 +109,10 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
-import builderb0y.bigglobe.overriders.StructureOverrider;
-import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.AutoOverride;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
+import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
@@ -203,6 +210,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
 	public transient WorldTraits compiledWorldTraits;
 	public transient ColumnEntryRegistry columnEntryRegistry;
+	public final BetterRegistry<ExtraSpawn> extraSpawnRegistry;
+	public static record BiomeSpawnGroup(RegistryEntry<Biome> biome, SpawnGroup spawnGroup) {}
+	public final transient Map<BiomeSpawnGroup, Pool<SpawnEntry>> extraSpawns;
 
 	public transient SortedOverriders actualOverriders;
 	public final SortedStructures sortedStructures;
@@ -228,6 +238,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable EndOverrides end_overrides,
 		@VerifyNullable CreakingOverrides creaking_overrides,
 		@VerifyNullable Identifier world_traits,
+		BetterRegistry<ExtraSpawn> extraSpawnRegistry,
 		SortedStructures sortedStructures
 	)
 	throws VerifyException {
@@ -235,22 +246,24 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
 		}
-		this.reload_preset       = reload_preset;
-		this.reload_dimension    = reload_dimension;
-		this.height              = height;
-		this.layer               = layer;
-		this.feature_dispatcher  = feature_dispatcher;
-		this.overriders          = overriders;
-		this.spawn_point         = spawn_point;
-		this.colors              = colors;
-		this.nether_overrides    = nether_overrides;
-		this.end_overrides       = end_overrides;
-		this.creaking_overrides  = creaking_overrides;
-		this.world_traits        = world_traits;
-		this.sortedStructures    = sortedStructures;
-		this.loadedWorldTraits   = TraitLoader.load(world_traits, decodeContext);
-		this.rootDebugDisplay    = new DisplayEntry(this);
-		this.structureManager    = new StructureManager();
+		this.reload_preset      = reload_preset;
+		this.reload_dimension   = reload_dimension;
+		this.height             = height;
+		this.layer              = layer;
+		this.feature_dispatcher = feature_dispatcher;
+		this.overriders         = overriders;
+		this.spawn_point        = spawn_point;
+		this.colors             = colors;
+		this.nether_overrides   = nether_overrides;
+		this.end_overrides      = end_overrides;
+		this.creaking_overrides = creaking_overrides;
+		this.world_traits       = world_traits;
+		this.extraSpawnRegistry = extraSpawnRegistry;
+		this.sortedStructures   = sortedStructures;
+		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
+		this.rootDebugDisplay   = new DisplayEntry(this);
+		this.structureManager   = new StructureManager();
+		this.extraSpawns        = Collections.synchronizedMap(new HashMap<>(64));
 	}
 
 	@Hidden //copy constructor.
@@ -271,6 +284,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.world_traits        = from.world_traits;
 		this.loadedWorldTraits   = from.loadedWorldTraits;
 		this.compiledWorldTraits = from.compiledWorldTraits;
+		this.extraSpawnRegistry  = from.extraSpawnRegistry;
 		this.sortedStructures    = from.sortedStructures;
 		ScriptedColumn.Factory factory = from.columnEntryRegistry.columnFactory;
 		WorldTraits traits = from.compiledWorldTraits;
@@ -283,6 +297,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		});
 		this.rootDebugDisplay = new DisplayEntry(this);
 		this.structureManager = new StructureManager();
+		this.extraSpawns      = from.extraSpawns;
 	}
 
 	@Override
@@ -501,7 +516,62 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	}
 
+	public Pool<SpawnEntry> getSpawnEntries(RegistryEntry<Biome> biome, SpawnGroup group) {
+		return this.extraSpawns.computeIfAbsent(new BiomeSpawnGroup(biome, group), (BiomeSpawnGroup data) -> {
+			Pool<SpawnEntry> base = data.biome.value().getSpawnSettings().getSpawnEntries(data.spawnGroup);
+			List<SpawnEntry> extra = (
+				this
+				.extraSpawnRegistry
+				.streamEntries()
+				.map(RegistryEntry<ExtraSpawn>::value)
+				.filter((ExtraSpawn spawn) -> (
+					spawn.type().value().getSpawnGroup() == data.spawnGroup
+					&& spawn.biomes().contains(data.biome)
+				))
+				.map(ExtraSpawn::toEntry)
+				.toList()
+			);
+			if (!extra.isEmpty()) {
+				if (base.isEmpty()) {
+					return Pool.of(extra);
+				}
+				ArrayList<SpawnEntry> combined = new ArrayList<>(base.getEntries().size() + extra.size());
+				combined.addAll(base.getEntries());
+				combined.addAll(extra);
+				return Pool.of(combined);
+			}
+			return base;
+		});
+	}
+
 	@Override
+	@SuppressWarnings({ "RedundantCast", "LambdaParameterTypeCanBeSpecified" })
+	public Pool<SpawnEntry> getEntitySpawnList(RegistryEntry<Biome> biome, StructureAccessor accessor, SpawnGroup group, BlockPos pos) {
+		//copy-pasted from super implementation,
+		Map<Structure, LongSet> map = accessor.getStructureReferences(pos);
+		for(Map.Entry<Structure, LongSet> entry : map.entrySet()) {
+			Structure structure = (Structure)entry.getKey();
+			StructureSpawns structureSpawns = (StructureSpawns)structure.getStructureSpawns().get(group);
+			if (structureSpawns != null) {
+				MutableBoolean mutableBoolean = new MutableBoolean(false);
+				Predicate<StructureStart> predicate = structureSpawns.boundingBox() == BoundingBox.PIECE ? (start) -> accessor.structureContains(pos, start) : (start) -> start.getBoundingBox().contains(pos);
+				accessor.acceptStructureStarts(structure, (LongSet)entry.getValue(), (start) -> {
+					if (mutableBoolean.isFalse() && predicate.test(start)) {
+						mutableBoolean.setTrue();
+					}
+				});
+				if (mutableBoolean.isTrue()) {
+					return structureSpawns.spawns();
+				}
+			}
+		}
+
+		//my logic.
+		return this.getSpawnEntries(biome, group);
+	}
+
+	@Override
+	@SuppressWarnings("RedundantCast")
 	public void populateEntities(ChunkRegion region) {
 		//copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
@@ -509,7 +579,71 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(seaLevel != null ? seaLevel.intValue() : HeightLimitViewVersions.getMaxY(region) - 1));
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
-		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
+
+		//inlined from SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
+		SpawnSettings spawnSettings = registryEntry.value().getSpawnSettings();
+		Pool<SpawnEntry> pool = this.getSpawnEntries(registryEntry, SpawnGroup.CREATURE);
+		if (!pool.isEmpty()) {
+			int i = chunkPos.getStartX();
+			int j = chunkPos.getStartZ();
+
+			while (chunkRandom.nextFloat() < spawnSettings.getCreatureSpawnProbability()) {
+				Optional<SpawnEntry> optional = pool.getOrEmpty(chunkRandom);
+				if (!optional.isEmpty()) {
+					SpawnEntry spawnEntry = (SpawnEntry)optional.get();
+					int k = spawnEntry.minGroupSize + chunkRandom.nextInt(1 + spawnEntry.maxGroupSize - spawnEntry.minGroupSize);
+					EntityData entityData = null;
+					int l = i + chunkRandom.nextInt(16);
+					int m = j + chunkRandom.nextInt(16);
+					int n = l;
+					int o = m;
+
+					for (int p = 0; p < k; p++) {
+						boolean bl = false;
+
+						for (int q = 0; !bl && q < 4; q++) {
+							BlockPos blockPos = SpawnHelper.getEntitySpawnPos((ServerWorldAccess)region, spawnEntry.type, l, m);
+							if (spawnEntry.type.isSummonable() && SpawnRestriction.isSpawnPosAllowed(spawnEntry.type, region, blockPos)) {
+								float f = spawnEntry.type.getWidth();
+								double d = MathHelper.clamp((double)l, (double)i + (double)f, (double)i + 16.0 - (double)f);
+								double e = MathHelper.clamp((double)m, (double)j + (double)f, (double)j + 16.0 - (double)f);
+								if (!region.isSpaceEmpty(spawnEntry.type.getSpawnBox(d, (double)blockPos.getY(), e))
+									|| !SpawnRestriction.canSpawn(
+										spawnEntry.type, region, SpawnReason.CHUNK_GENERATION, BlockPos.ofFloored(d, (double)blockPos.getY(), e), region.getRandom()
+									)) {
+									continue;
+								}
+
+								Entity entity;
+								try {
+									entity = spawnEntry.type.create(((ServerWorldAccess)region).toServerWorld() #if MC_VERSION >= MC_1_21_2 , SpawnReason.NATURAL #endif);
+								} catch (Exception var27) {
+									BigGlobeMod.LOGGER.warn("Failed to create mob", (Throwable)var27);
+									continue;
+								}
+
+								if (entity == null) {
+									continue;
+								}
+
+								entity.refreshPositionAndAngles(d, (double)blockPos.getY(), e, chunkRandom.nextFloat() * 360.0F, 0.0F);
+								if (entity instanceof MobEntity mobEntity && mobEntity.canSpawn(region, SpawnReason.CHUNK_GENERATION) && mobEntity.canSpawn(region)) {
+									entityData = mobEntity.initialize(region, region.getLocalDifficulty(mobEntity.getBlockPos()), SpawnReason.CHUNK_GENERATION, entityData);
+									region.spawnEntityAndPassengers(mobEntity);
+									bl = true;
+								}
+							}
+
+							l += chunkRandom.nextInt(5) - chunkRandom.nextInt(5);
+
+							for (m += chunkRandom.nextInt(5) - chunkRandom.nextInt(5); l < i || l >= i + 16 || m < j || m >= j + 16; m = o + chunkRandom.nextInt(5) - chunkRandom.nextInt(5)) {
+								l = n + chunkRandom.nextInt(5) - chunkRandom.nextInt(5);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override

@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:beach"
+	],
+	"type": "minecraft:turtle",
+	"weight": 5,
+	"minCount": 2,
+	"maxCount": 5
+}

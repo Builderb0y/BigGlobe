@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:deep_ocean",
+		"bigglobe:ocean",
+		"bigglobe:river",
+		"bigglobe:shallow_ocean"
+	],
+	"type": "minecraft:cod",
+	"weight": 100,
+	"minCount": 3,
+	"maxCount": 6
+}

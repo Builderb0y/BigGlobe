@@ -30,9 +30,7 @@
 		"axolotls": [],
 		"creature": [],
 		"misc": [],
-		"monster": [
-			{ "type": "minecraft:enderman", "weight": 10, "minCount": 4, "maxCount": 4 }
-		],
+		"monster": [],
 		"underground_water_creature": [],
 		"water_ambient": [],
 		"water_creature": []

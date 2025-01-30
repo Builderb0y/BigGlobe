@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:warm_dense_forest"
+	],
+	"type": "minecraft:ocelot",
+	"weight": 10,
+	"minCount": 1,
+	"maxCount": 3
+}

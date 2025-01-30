@@ -28,3 +28,6 @@ accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap ch
 #protected in 1.20.4, but private and package-private respectively in 1.20.2.
 accessible method net/minecraft/registry/entry/RegistryEntry$Reference <init> (Lnet/minecraft/registry/entry/RegistryEntry$Reference$Type;Lnet/minecraft/registry/entry/RegistryEntryOwner;Lnet/minecraft/registry/RegistryKey;Ljava/lang/Object;)V
 accessible class net/minecraft/registry/entry/RegistryEntry$Reference$Type
+
+#used by chunk generator to spawn mobs during worldgen.
+accessible method net/minecraft/world/SpawnHelper getEntitySpawnPos (Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityType;II)Lnet/minecraft/util/math/BlockPos;

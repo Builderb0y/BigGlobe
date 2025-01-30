@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:ashen_wastes",
+		"bigglobe:nether_wastes"
+	],
+	"type": "minecraft:piglin",
+	"weight": 10,
+	"minCount": 2,
+	"maxCount": 4
+}

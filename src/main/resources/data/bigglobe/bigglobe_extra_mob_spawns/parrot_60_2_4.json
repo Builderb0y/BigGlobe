@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:hot_light_forest"
+	],
+	"type": "minecraft:parrot",
+	"weight": 60,
+	"minCount": 2,
+	"maxCount": 4
+}

@@ -1,0 +1,21 @@
+{
+	"biomes": [
+		"bigglobe:cherry_forest",
+		"bigglobe:cherry_plains",
+		"bigglobe:cold_dense_forest",
+		"bigglobe:cold_light_forest",
+		"bigglobe:cold_plains",
+		"bigglobe:cold_wasteland",
+		"bigglobe:swamp_forest",
+		"bigglobe:swamp_plains",
+		"bigglobe:swamp_wasteland",
+		"bigglobe:temperate_dense_forest",
+		"bigglobe:temperate_light_forest",
+		"bigglobe:temperate_plains",
+		"bigglobe:temperate_wasteland"
+	],
+	"type": "minecraft:zombie",
+	"weight": 95,
+	"minCount": 2,
+	"maxCount": 4
+}

@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:ashen_wastes",
+		"bigglobe:nether_wastes"
+	],
+	"type": "minecraft:ghast",
+	"weight": 50,
+	"minCount": 1,
+	"maxCount": 1
+}

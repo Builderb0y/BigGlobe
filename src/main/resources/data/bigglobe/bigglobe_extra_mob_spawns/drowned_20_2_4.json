@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:river",
+		"bigglobe:shallow_ocean"
+	],
+	"type": "minecraft:drowned",
+	"weight": 20,
+	"minCount": 2,
+	"maxCount": 4
+}

@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"bigglobe:swamp_forest",
+		"bigglobe:swamp_plains",
+		"bigglobe:swamp_wasteland"
+	],
+	"type": "minecraft:witch",
+	"weight": 25,
+	"minCount": 1,
+	"maxCount": 1
+}

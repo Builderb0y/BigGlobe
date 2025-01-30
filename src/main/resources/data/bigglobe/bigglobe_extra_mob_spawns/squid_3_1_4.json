@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:glacier"
+	],
+	"type": "minecraft:squid",
+	"weight": 3,
+	"minCount": 1,
+	"maxCount": 4
+}

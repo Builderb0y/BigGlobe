@@ -1,0 +1,31 @@
+{
+	"biomes": [
+		"bigglobe:beach",
+		"bigglobe:cherry_forest",
+		"bigglobe:cherry_plains",
+		"bigglobe:cold_dense_forest",
+		"bigglobe:cold_light_forest",
+		"bigglobe:cold_plains",
+		"bigglobe:cold_wasteland",
+		"bigglobe:deep_ocean",
+		"bigglobe:hot_dense_forest",
+		"bigglobe:hot_light_forest",
+		"bigglobe:hot_plains",
+		"bigglobe:hot_wasteland",
+		"bigglobe:ocean",
+		"bigglobe:overgrown_beach",
+		"bigglobe:river",
+		"bigglobe:shallow_ocean",
+		"bigglobe:swamp_forest",
+		"bigglobe:swamp_plains",
+		"bigglobe:swamp_wasteland",
+		"bigglobe:temperate_dense_forest",
+		"bigglobe:temperate_light_forest",
+		"bigglobe:temperate_plains",
+		"bigglobe:temperate_wasteland"
+	],
+	"type": "minecraft:bat",
+	"weight": 100,
+	"minCount": 1,
+	"maxCount": 4
+}

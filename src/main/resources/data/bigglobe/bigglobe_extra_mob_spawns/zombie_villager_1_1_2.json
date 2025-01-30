@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:hot_dense_forest",
+		"bigglobe:hot_light_forest",
+		"bigglobe:hot_plains",
+		"bigglobe:hot_wasteland"
+	],
+	"type": "minecraft:zombie_villager",
+	"weight": 1,
+	"minCount": 1,
+	"maxCount": 2
+}

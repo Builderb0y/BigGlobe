@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:cold_plains",
+		"bigglobe:cold_wasteland"
+	],
+	"type": "minecraft:snow_golem",
+	"weight": 40,
+	"minCount": 2,
+	"maxCount": 4
+}

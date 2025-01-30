@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:swamp_plains"
+	],
+	"type": "minecraft:skeleton",
+	"weight": 50,
+	"minCount": 2,
+	"maxCount": 4
+}

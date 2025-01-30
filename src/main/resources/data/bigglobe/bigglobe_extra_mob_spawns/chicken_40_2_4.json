@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"bigglobe:cold_dense_forest",
+		"bigglobe:cold_light_forest"
+	],
+	"type": "minecraft:chicken",
+	"weight": 40,
+	"minCount": 2,
+	"maxCount": 4
+}

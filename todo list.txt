@@ -20,7 +20,6 @@ where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	blanket replace surface Y level with trait.
-	actual biomes for cave types?
 	tall plateaus for hot wasteland.
 	64-ish blocks of (red) sandstone below surface in deserts.
 	foliage exclusion for villages on island skylands affects mainland below.
@@ -28,7 +27,6 @@ where I left off:
 	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
-	some mechanism to add mobs to big globe worlds without adding them to biomes.
 	(random or seed).switch (
 		weight1: value1,
 		weight2: value2,
@@ -41,11 +39,20 @@ to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	fix river biomes in the middle of ocean biomes.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
+	use layer for molten rock in overworld instead of configured feature.
+	verify that BlockEntityType access wideners are still necessary in 1.21.3-1.21.4.
+		transitive access widener from fabric API was missing, but surely that must be fixed now... right?
+	make sure axolotl's spawn.
+	document extra spawn system.
+	make sure there are bees in all MC versions.
+	actual biomes for cave types.
 
 changelog:
+	* Added new mechanism for data packs to add mob spawns to the world without replacing biomes.
 	* Fixed saplings failing to grow outside of big globe worlds.
 	* Fixed a lot of blocks not breaking quickly with the proper tool.
 	* Fixed a few blocks dropping the wrong items.
+	* Fixed bees not spawning in beehives in 1.20.5 and later.
 
 alternate world presets:
 	paradise.

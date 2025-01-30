@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:warm_dense_forest",
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
+	],
+	"type": "minecraft:chicken",
+	"weight": 10,
+	"minCount": 4,
+	"maxCount": 4
+}

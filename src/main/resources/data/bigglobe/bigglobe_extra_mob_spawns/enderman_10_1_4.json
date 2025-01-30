@@ -1,0 +1,13 @@
+{
+	"biomes": [
+		"bigglobe:glacier",
+		"bigglobe:warm_dense_forest",
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
+	],
+	"type": "minecraft:enderman",
+	"weight": 10,
+	"minCount": 1,
+	"maxCount": 4
+}
