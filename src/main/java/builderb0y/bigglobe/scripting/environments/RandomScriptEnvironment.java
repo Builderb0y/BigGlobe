@@ -1,15 +1,24 @@
 package builderb0y.bigglobe.scripting.environments;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
 
+import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomLists.RandomSwitch;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.TypeInfo.Sort;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -21,6 +30,7 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordH
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
+import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode.MemberKeywordFunction;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.InfoHolder;
@@ -284,51 +294,13 @@ public class RandomScriptEnvironment {
 		.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
 		.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
 		.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
-		.addMethod(type(RandomGenerator.class), "switch", new MethodHandler.Named("random.switch(cases) ;nullable random not yet supported", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-			if (arguments.length < 2) {
-				throw new ScriptParsingException("switch() requires at least 2 arguments", parser.input);
-			}
-			Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
-			for (int index = 0, length = arguments.length; index < length; index++) {
-				cases.put(index, arguments[index]);
-			}
-			cases.defaultReturnValue(
-				throw_(
-					newInstance(
-						ASSERT_FAIL,
-						ldc("Random returned value out of range")
-					)
-				)
-			);
-			return new CastResult(
-				(
-					switch (mode) {
-						case NORMAL -> MemberKeywordMode.NORMAL;
-						case NULLABLE -> MemberKeywordMode.NULLABLE;
-						case RECEIVER -> MemberKeywordMode.RECEIVER;
-						case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
-					}
-				)
-				.apply(receiver, (InsnTree actualReceiver) -> {
-					return switch_(
-						parser,
-						invokeInstance(
-							actualReceiver,
-							RNG_INFO.nextIntBound,
-							ldc(arguments.length)
-						),
-						cases
-					);
-				}),
-				false
-			);
-		}))
 		.addMemberKeyword(type(RandomGenerator.class), "if", new MemberKeywordHandler.Named("random.if (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapRandomIf(parser, receiver, false, mode);
 		}))
 		.addMemberKeyword(type(RandomGenerator.class), "unless", new MemberKeywordHandler.Named("random.unless (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			return wrapRandomIf(parser, receiver, true, mode);
 		}))
+		.addMemberKeyword(type(RandomGenerator.class), "switch", new MemberKeywordHandler.Named("random.switch(case1, case2, ...) or random.switch(weight1: case1, weight2: case2, ...)", randomSwitch()))
 	);
 
 	public static Consumer<MutableScriptEnvironment> create(InsnTree loader) {
@@ -380,5 +352,107 @@ public class RandomScriptEnvironment {
 		else {
 			return ifThen(conditionTree, body);
 		}
+	}
+
+	public static MemberKeywordHandler randomSwitch() {
+		return (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			parser.beginCodeBlock();
+			Int2ObjectSortedMap<InsnTree> cases = new Int2ObjectAVLTreeMap<>();
+			MemberKeywordFunction selector;
+			InsnTree first = parser.nextScript();
+			if (parser.input.hasOperatorAfterWhitespace(",")) {
+				cases.defaultReturnValue(
+					throw_(
+						newInstance(
+							ASSERT_FAIL,
+							ldc("Random returned value out of range")
+						)
+					)
+				);
+				cases.put(0, first);
+				do cases.put(cases.size(), parser.nextScript());
+				while (parser.input.hasOperatorAfterWhitespace(","));
+				if (parser.endCodeBlock()) throw new ScriptParsingException("Can't declare variables *directly* inside a random switch.", parser.input);
+				selector = (InsnTree actualReceiver) -> invokeInstance(
+					actualReceiver,
+					RNG_INFO.nextIntBound,
+					ldc(cases.size())
+				);
+			}
+			else if (parser.input.hasOperatorAfterWhitespace(":")) {
+				List<InsnTree> weights = new ArrayList<>();
+				weights.add(first);
+				cases.put(0, parser.nextScript());
+				while (parser.input.hasOperatorAfterWhitespace(",")) {
+					if (parser.input.hasIdentifierAfterWhitespace("default")) {
+						if (cases.defaultReturnValue() != null) {
+							throw new ScriptParsingException("Default already provided", parser.input);
+						}
+						parser.input.expectOperatorAfterWhitespace(":");
+						cases.defaultReturnValue(parser.nextScript());
+					}
+					else {
+						weights.add(parser.nextScript());
+						parser.input.expectOperatorAfterWhitespace(":");
+						cases.put(cases.size(), parser.nextScript());
+					}
+				}
+				if (parser.endCodeBlock()) throw new ScriptParsingException("Can't declare variables *directly* inside a random switch.", parser.input);
+				TypeInfo weightType = TypeInfos.widenUntilSameInt(weights.stream().map(InsnTree::getTypeInfo));
+				weights.replaceAll((InsnTree tree) -> tree.cast(parser, weightType, CastMode.IMPLICIT_THROW));
+				if (cases.defaultReturnValue() == null && weights.stream().map(InsnTree::getConstantValue).anyMatch((ConstantValue value) -> value.isConstant() && value.asDouble() > 0.0D)) {
+					cases.defaultReturnValue(
+						throw_(
+							newInstance(
+								ASSERT_FAIL,
+								ldc("Random returned value out of range")
+							)
+						)
+					);
+				}
+				MethodInfo runtimeMethod = new MethodInfo(
+					ACC_PUBLIC,
+					TypeInfos.OBJECT /* not used */,
+					"randomSwitch",
+					TypeInfos.INT,
+					Stream.concat(
+						Stream.of(receiver.getTypeInfo()),
+						weights
+						.stream()
+						.filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic())
+						.map(InsnTree::getTypeInfo)
+					)
+					.toArray(TypeInfo.ARRAY_FACTORY)
+				);
+				ConstantValue[] constantArgs = Stream.concat(
+					Stream.of(constant(weightType)),
+					weights
+					.stream()
+					.map((InsnTree tree) -> tree.getConstantValue().isConstantOrDynamic() ? tree.getConstantValue() : constant(0, tree.getTypeInfo()))
+				)
+				.toArray(ConstantValue.ARRAY_FACTORY);
+				InsnTree[] runtimeArgs = weights.stream().filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic()).toArray(InsnTree.ARRAY_FACTORY);
+				selector = (InsnTree actualReceiver) -> switch_(
+					parser,
+					invokeDynamic(
+						RandomSwitch.BOOTSTRAP_METHOD,
+						runtimeMethod,
+						constantArgs,
+						ObjectArrays.concat(actualReceiver, runtimeArgs)
+					),
+					cases
+				);
+			}
+			else {
+				throw new ScriptParsingException("Expected ',' or ':'", parser.input);
+			}
+			return (switch (mode) {
+				case NORMAL -> MemberKeywordMode.NORMAL;
+				case NULLABLE -> MemberKeywordMode.NULLABLE;
+				case RECEIVER -> MemberKeywordMode.RECEIVER;
+				case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
+			})
+			.apply(receiver, selector);
+		};
 	}
 }

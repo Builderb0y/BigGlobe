@@ -1,10 +1,13 @@
 package builderb0y.scripting.bytecode.tree;
 
+import java.lang.invoke.ConstantBootstraps;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Objects;
 
 import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Type;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
@@ -93,14 +96,14 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 	public default Number asNumber() {
 		return switch (this.getTypeInfo().getSort()) {
-			case BYTE    -> Byte     .valueOf(this.asByte   ());
-			case SHORT   -> Short    .valueOf(this.asShort  ());
-			case INT     -> Integer  .valueOf(this.asInt    ());
-			case LONG    -> Long     .valueOf(this.asLong   ());
-			case FLOAT   -> Float    .valueOf(this.asFloat  ());
-			case DOUBLE  -> Double   .valueOf(this.asDouble ());
-			case CHAR    -> Integer  .valueOf(this.asChar   ());
-			case BOOLEAN -> Byte     .valueOf(this.asBoolean() ? ((byte)(1)) : ((byte)(0)));
+			case BYTE    -> Byte   .valueOf(this.asByte   ());
+			case SHORT   -> Short  .valueOf(this.asShort  ());
+			case INT     -> Integer.valueOf(this.asInt    ());
+			case LONG    -> Long   .valueOf(this.asLong   ());
+			case FLOAT   -> Float  .valueOf(this.asFloat  ());
+			case DOUBLE  -> Double .valueOf(this.asDouble ());
+			case CHAR    -> Integer.valueOf(this.asChar   ());
+			case BOOLEAN -> Byte   .valueOf(this.asBoolean() ? ((byte)(1)) : ((byte)(0)));
 			case OBJECT, ARRAY, VOID -> throw new IllegalStateException(this.getTypeInfo().toString());
 		};
 	}
@@ -445,6 +448,13 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 	public static class ClassConstantValue implements ConstantValue {
 
+		public static final Handle PRIMITIVE_CLASS = new Handle(
+			H_INVOKESTATIC,
+			Type.getInternalName(ConstantBootstraps.class),
+			"primitiveClass",
+			Type.getMethodDescriptor(Type.getType(Class.class), Type.getType(MethodHandles.Lookup.class), Type.getType(String.class), Type.getType(Class.class)),
+			false
+		);
 		public final TypeInfo value;
 
 		public ClassConstantValue(TypeInfo value) {
@@ -473,7 +483,12 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		@Override
 		public Object asAsmObject() {
-			return this.value.toAsmType();
+			if (this.value.isPrimitive()) {
+				return new ConstantDynamic(this.value.getDescriptor(), TypeInfos.CLASS.getDescriptor(), PRIMITIVE_CLASS);
+			}
+			else {
+				return this.value.toAsmType();
+			}
 		}
 
 		@Override

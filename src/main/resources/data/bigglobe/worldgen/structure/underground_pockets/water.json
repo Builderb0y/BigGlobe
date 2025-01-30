@@ -14,6 +14,12 @@
 				{ "type": "minecraft:enderman",        "weight":  10, "minCount": 1, "maxCount": 3 },
 				{ "type": "minecraft:witch",           "weight":   5, "minCount": 1, "maxCount": 1 }
 			]
+		},
+		"axolotls": {
+			"bounding_box": "full",
+			"spawns": [
+				{ "type": "minecraft:axolotl", "weight": 10, "minCount": 4, "maxCount": 6 }
+			]
 		}
 	},
 	"step": "underground_structures",
