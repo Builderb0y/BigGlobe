@@ -7,9 +7,11 @@
 		"bigglobe:overworld/caves/lush_floor",
 		"bigglobe:overworld/caves/lush_ceiling",
 		"bigglobe:overworld/caves/lush_decorator",
-		"bigglobe:overworld/caves/no_dungeons"
+		"bigglobe:overworld/caves/no_dungeons",
+		"bigglobe:overworld/caves/biome_lush_cave"
 	],
 	"exports": {
+		"biome":           "bigglobe:overworld/caves/biome_lush_cave",
 		"surface_depth":   "bigglobe:islands/cave_surface_depth",
 		"floor_states":    "bigglobe:overworld/caves/lush_floor",
 		"ceiling_states":  "bigglobe:overworld/caves/lush_ceiling",

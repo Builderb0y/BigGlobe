@@ -3,6 +3,6 @@
 		"type": "script",
 		"script": "y <= world_traits.`bigglobe:deep_dark_max_y`"
 	},
-	"if_true": "bigglobe:overworld/biome/deep_dark",
-	"if_false": "bigglobe:overworld/biome/test_river"
+	"if_true": "bigglobe:overworld/biome/test_core",
+	"if_false": "bigglobe:overworld/biome/cave"
 }

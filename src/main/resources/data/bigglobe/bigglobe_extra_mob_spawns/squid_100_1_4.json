@@ -1,6 +1,7 @@
 {
 	"biomes": [
 		"bigglobe:deep_ocean",
+		"bigglobe:glacier",
 		"bigglobe:ocean"
 	],
 	"type": "minecraft:squid",

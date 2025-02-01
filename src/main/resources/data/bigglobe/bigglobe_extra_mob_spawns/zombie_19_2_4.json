@@ -3,7 +3,8 @@
 		"bigglobe:hot_dense_forest",
 		"bigglobe:hot_light_forest",
 		"bigglobe:hot_plains",
-		"bigglobe:hot_wasteland"
+		"bigglobe:hot_wasteland",
+		"bigglobe:sandy_cave"
 	],
 	"type": "minecraft:zombie",
 	"weight": 19,

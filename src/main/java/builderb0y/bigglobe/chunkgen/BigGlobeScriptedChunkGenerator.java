@@ -8,6 +8,7 @@ import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.hash.Hashing;
@@ -531,16 +532,25 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				.map(ExtraSpawn::toEntry)
 				.toList()
 			);
+			Pool<SpawnEntry> result;
 			if (!extra.isEmpty()) {
 				if (base.isEmpty()) {
-					return Pool.of(extra);
+					result = Pool.of(extra);
 				}
-				ArrayList<SpawnEntry> combined = new ArrayList<>(base.getEntries().size() + extra.size());
-				combined.addAll(base.getEntries());
-				combined.addAll(extra);
-				return Pool.of(combined);
+				else {
+					ArrayList<SpawnEntry> combined = new ArrayList<>(base.getEntries().size() + extra.size());
+					combined.addAll(base.getEntries());
+					combined.addAll(extra);
+					result = Pool.of(combined);
+				}
 			}
-			return base;
+			else {
+				result = base;
+			}
+			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logExtraMobSpawns) {
+				BigGlobeMod.LOGGER.info(data.spawnGroup + " spawns for " + UnregisteredObjectException.getID(data.biome) + ": " + result.getEntries());
+			}
+			return result;
 		});
 	}
 

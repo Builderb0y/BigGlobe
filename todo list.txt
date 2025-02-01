@@ -32,16 +32,17 @@ where I left off:
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
-	fix river biomes in the middle of ocean biomes.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
-	use layer for molten rock in overworld instead of configured feature.
 	verify that BlockEntityType access wideners are still necessary in 1.21.3-1.21.4.
 		transitive access widener from fabric API was missing, but surely that must be fixed now... right?
 	document extra spawn system.
 	make sure there are bees in all MC versions.
-	actual biomes for cave types.
+	use layer for molten rock in overworld instead of configured feature.
+	fix river biomes in the middle of ocean biomes.
+	simplify AutoCodec logging.
 
 changelog:
+	* Added cave biomes.
 	* Axolotls now spawn in underground pockets. Due to vanilla logic, they only spawn when clay is below them. Not all underground pockets will have clay in them.
 	* Added new mechanism for data packs to add mob spawns to the world without replacing biomes.
 	* Added new weighted random switch statement for scripts.

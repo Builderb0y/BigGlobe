@@ -6,9 +6,11 @@
 		"bigglobe:overworld/caves/no_floor",
 		"bigglobe:overworld/caves/no_ceiling",
 		"bigglobe:overworld/caves/generic_decorator",
-		"bigglobe:overworld/caves/generic_dungeons"
+		"bigglobe:overworld/caves/generic_dungeons",
+		"bigglobe:overworld/caves/biome_generic_cave"
 	],
 	"exports": {
+		"biome":           "bigglobe:overworld/caves/biome_generic_cave",
 		"surface_depth":   "bigglobe:overworld/caves/no_surface_depth",
 		"floor_states":    "bigglobe:overworld/caves/no_floor",
 		"ceiling_states":  "bigglobe:overworld/caves/no_ceiling",

@@ -4,6 +4,6 @@
 		"type": "biome",
 		"is_3d": true
 	},
-	"root": "bigglobe:islands/biome/test_core",
+	"root": "bigglobe:islands/biome/test_cave",
 	"cache": false
 }

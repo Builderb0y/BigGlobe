@@ -2,6 +2,7 @@
 	"weight": 1.0,
 	"owner": "bigglobe:overworld/cave",
 	"enables": [
+		"bigglobe:overworld/caves/biome_lush_cave",
 		"bigglobe:overworld/caves/easy_noise",
 		"bigglobe:overworld/caves/easy_depth",
 		"bigglobe:overworld/caves/easy_width",
@@ -15,6 +16,7 @@
 		"bigglobe:overworld/caves/no_dungeons"
 	],
 	"exports": {
+		"biome":           "bigglobe:overworld/caves/biome_lush_cave",
 		"noise":           "bigglobe:overworld/caves/easy_noise",
 		"depth":           "bigglobe:overworld/caves/easy_depth",
 		"surface_depth":   "bigglobe:overworld/caves/surface_depth_noise",

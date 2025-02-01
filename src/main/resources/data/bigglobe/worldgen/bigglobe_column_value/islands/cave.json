@@ -5,6 +5,7 @@
 			"type": "voronoi",
 			"name": "IslandCaveCell",
 			"exports": {
+				"biome": { "type": "biome", "is_3d": false },
 				"surface_depth": { "type": "float", "is_3d": false },
 				"floor_states": {
 					"type": {

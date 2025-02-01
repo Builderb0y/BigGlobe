@@ -4,7 +4,6 @@
 		"#bigglobe:land_except_volcano",
 		"#bigglobe:beach",
 		"#bigglobe:ocean",
-		"bigglobe:deep_dark",
-		"bigglobe:the_core"
+		"#bigglobe:underground"
 	]
 }

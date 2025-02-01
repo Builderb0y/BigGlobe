@@ -1,0 +1,9 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure ==. 'bigglobe:geodes/prismarine':",
+			"return(world_traits.`bigglobe:approximate_surface_y`(start.midX, start.midZ) < world_traits.`bigglobe:sea_level`(start.midX, start.midZ))",
+		")",
+		"return(true)"
+	]
+}

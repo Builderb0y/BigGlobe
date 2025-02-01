@@ -33,6 +33,7 @@
 		"FlowableFluid_DontFlowInRivers",
 		"FungusBlock_GrowIntoBigGlobeTree",
 		"Heightmap_StorageAccess",
+		"HuskEntity_AllowSpawningUndergroundInBigGlobeWorlds",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",
 		"ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds",
 		"Items_PlaceableFlint",

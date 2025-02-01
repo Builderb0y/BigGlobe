@@ -7,9 +7,11 @@
 		"bigglobe:overworld/caves/sandy_floor",
 		"bigglobe:overworld/caves/no_ceiling",
 		"bigglobe:overworld/caves/sandy_decorator",
-		"bigglobe:overworld/caves/sandy_dungeons"
+		"bigglobe:overworld/caves/sandy_dungeons",
+		"bigglobe:overworld/caves/biome_sandy_cave"
 	],
 	"exports": {
+		"biome":           "bigglobe:overworld/caves/biome_sandy_cave",
 		"surface_depth":   "bigglobe:islands/cave_surface_depth",
 		"floor_states":    "bigglobe:overworld/caves/sandy_floor",
 		"ceiling_states":  "bigglobe:overworld/caves/no_ceiling",

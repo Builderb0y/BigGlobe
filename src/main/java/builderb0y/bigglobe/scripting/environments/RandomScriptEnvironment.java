@@ -373,10 +373,14 @@ public class RandomScriptEnvironment {
 				do cases.put(cases.size(), parser.nextScript());
 				while (parser.input.hasOperatorAfterWhitespace(","));
 				if (parser.endCodeBlock()) throw new ScriptParsingException("Can't declare variables *directly* inside a random switch.", parser.input);
-				selector = (InsnTree actualReceiver) -> invokeInstance(
-					actualReceiver,
-					RNG_INFO.nextIntBound,
-					ldc(cases.size())
+				selector = (InsnTree actualReceiver) -> switch_(
+					parser,
+					invokeInstance(
+						actualReceiver,
+						RNG_INFO.nextIntBound,
+						ldc(cases.size())
+					),
+					cases
 				);
 			}
 			else if (parser.input.hasOperatorAfterWhitespace(":")) {

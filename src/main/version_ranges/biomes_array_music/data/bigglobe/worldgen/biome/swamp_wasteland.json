@@ -24,7 +24,7 @@
 		"water_color": 6388580,
 		"water_fog_color": 2302743
 	},
-	"features": [ [], [], [], [], [], [], [], [], [], [] ],
+	"features": [],
 	"has_precipitation": true,
 	"precipitation": "rain",
 	"spawn_costs": {},

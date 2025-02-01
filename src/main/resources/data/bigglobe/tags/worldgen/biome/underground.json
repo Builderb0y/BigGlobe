@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:caves",
+		"bigglobe:deep_dark",
+		"bigglobe:the_core"
+	]
+}

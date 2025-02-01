@@ -7,9 +7,11 @@
 		"bigglobe:overworld/caves/molten_floor",
 		"bigglobe:overworld/caves/molten_ceiling",
 		"bigglobe:overworld/caves/molten_decorator",
-		"bigglobe:overworld/caves/generic_dungeons"
+		"bigglobe:overworld/caves/generic_dungeons",
+		"bigglobe:overworld/caves/biome_molten_cave"
 	],
 	"exports": {
+		"biome":           "bigglobe:overworld/caves/biome_molten_cave",
 		"surface_depth":   "bigglobe:islands/cave_surface_depth",
 		"floor_states":    "bigglobe:overworld/caves/molten_floor",
 		"ceiling_states":  "bigglobe:overworld/caves/molten_ceiling",

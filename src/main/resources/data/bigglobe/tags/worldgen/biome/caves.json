@@ -1,0 +1,12 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:generic_cave",
+		"bigglobe:lush_cave",
+		"bigglobe:mushroom_cave",
+		"bigglobe:sandy_cave",
+		"bigglobe:frozen_cave",
+		"bigglobe:dripping_cave",
+		"bigglobe:molten_cave"
+	]
+}

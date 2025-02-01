@@ -91,6 +91,11 @@ public class BigGlobeConfig {
 		@UseName("Log empty tags")
 		@DefaultIgnore
 		public boolean emptyTags = false;
+
+		@Tooltip(count = 3)
+		@UseName("Log extra mob spawns")
+		@DefaultIgnore
+		public boolean logExtraMobSpawns = false;
 	}
 
 	@Tooltip(count = 2)

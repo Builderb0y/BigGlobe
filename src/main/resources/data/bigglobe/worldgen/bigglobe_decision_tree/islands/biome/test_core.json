@@ -4,5 +4,5 @@
 		"script": "y <= -768"
 	},
 	"if_true": "bigglobe:overworld/biome/the_core",
-	"if_false": "bigglobe:islands/biome/test_deep_dark"
+	"if_false": "bigglobe:overworld/biome/deep_dark"
 }

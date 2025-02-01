@@ -2,6 +2,7 @@
 	"weight": 0.5,
 	"owner": "bigglobe:overworld/cave",
 	"enables": [
+		"bigglobe:overworld/caves/biome_molten_cave",
 		"bigglobe:overworld/caves/hard_noise",
 		"bigglobe:overworld/caves/hard_depth",
 		"bigglobe:overworld/caves/hard_width",
@@ -14,6 +15,7 @@
 		"bigglobe:overworld/caves/generic_dungeons"
 	],
 	"exports": {
+		"biome":           "bigglobe:overworld/caves/biome_molten_cave",
 		"noise":           "bigglobe:overworld/caves/hard_noise",
 		"depth":           "bigglobe:overworld/caves/hard_depth",
 		"surface_depth":   "bigglobe:overworld/caves/surface_depth_noise",

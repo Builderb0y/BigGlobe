@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:constant",
+	"params": {
+		"type": "bigglobe:biome",
+		"is_3d": false
+	},
+	"value": "bigglobe:sandy_cave"
+}

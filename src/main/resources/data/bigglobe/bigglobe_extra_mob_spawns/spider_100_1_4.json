@@ -8,6 +8,7 @@
 		"bigglobe:cold_plains",
 		"bigglobe:cold_wasteland",
 		"bigglobe:deep_ocean",
+		"bigglobe:glacier",
 		"bigglobe:hot_dense_forest",
 		"bigglobe:hot_light_forest",
 		"bigglobe:hot_plains",
@@ -22,7 +23,11 @@
 		"bigglobe:temperate_dense_forest",
 		"bigglobe:temperate_light_forest",
 		"bigglobe:temperate_plains",
-		"bigglobe:temperate_wasteland"
+		"bigglobe:temperate_wasteland",
+		"bigglobe:warm_dense_forest",
+		"bigglobe:warm_light_forest",
+		"bigglobe:warm_plains",
+		"bigglobe:warm_wasteland"
 	],
 	"type": "minecraft:spider",
 	"weight": 100,
