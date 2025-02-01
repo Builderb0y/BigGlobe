@@ -65,6 +65,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.FloatRangeVerifier;
 import builderb0y.autocodec.verifiers.VerifierFactoryList;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.registries.*;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
@@ -153,6 +154,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<CombinedStructureScripts> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts              .class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
 	public static final RegistryCoders<FeatureDispatcher>                FEATURE_DISPATCHER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(FeatureDispatcher                     .class), BigGlobeDynamicRegistries.        FEATURE_DISPATCHER_REGISTRY_KEY);
 	public static final RegistryCoders<WorldTrait>                              WORLD_TRAIT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WorldTrait                            .class), BigGlobeDynamicRegistries.               WORLD_TRAIT_REGISTRY_KEY);
+	public static final RegistryCoders<Layer>                                         LAYER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Layer                                 .class), BigGlobeDynamicRegistries.                     LAYER_REGISTRY_KEY);
 	public static final RegistryCoders<ExtraSpawn>                              EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ExtraSpawn                            .class), BigGlobeDynamicRegistries.               EXTRA_SPAWN_REGISTRY_KEY);
 	public static final RegistryCoders<?>[]                                         DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
@@ -186,6 +188,7 @@ public class BigGlobeAutoCodec {
 		SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS,
 		FEATURE_DISPATCHER_REGISTRY_CODERS,
 		WORLD_TRAIT_REGISTRY_CODERS,
+		LAYER_REGISTRY_CODERS,
 		EXTRA_SPAWN_REGISTRY_CODERS,
 	};
 

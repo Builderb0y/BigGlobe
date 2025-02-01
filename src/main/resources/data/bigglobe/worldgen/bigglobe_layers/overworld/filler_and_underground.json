@@ -1,0 +1,22 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:stone'",
+	"before_children": {
+		"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
+	},
+	"after_children": {
+		"file": "bigglobe:world_preset/overworld_surface_placement",
+		"includes": [
+			"bigglobe:include/generate_snow"
+		]
+	},
+	"valid": {
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
+		"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 16)"
+	},
+	"children": [
+		"bigglobe:overworld/the_core",
+		"bigglobe:overworld/deep_dark_carver",
+		"bigglobe:overworld/cave_carver"
+	]
+}

@@ -1,0 +1,13 @@
+{
+	"type": "simple_3d",
+	"state": "'bigglobe:void_cloud'",
+	"condition": "`bigglobe:end/upper_ring_cloud_sdf` > 0.0I",
+	"valid": {
+		"where": [
+			"if (hints.usage ==. 'heightmap': return(false))",
+			"`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)"
+		],
+		"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
+		"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
+	}
+}

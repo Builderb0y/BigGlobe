@@ -1,0 +1,16 @@
+{
+	"type": "simple_2d",
+	"state": "'bigglobe:cloud'",
+	"after_children": {
+		"file": "bigglobe:world_preset/overworld_skyland_surface_placement"
+	},
+	"valid": {
+		"where": [
+			"if (hints.usage ==. 'heightmap': return(false))",
+			"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
+			"bounds != null && bounds.max_y > bounds.min_y"
+		],
+		"min_y": "floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
+		"max_y": "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)"
+	}
+}

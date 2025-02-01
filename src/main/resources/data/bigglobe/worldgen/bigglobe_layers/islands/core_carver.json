@@ -1,0 +1,13 @@
+{
+	"type": "simple_3d",
+	"state": "'minecraft:air'",
+	"condition": "`bigglobe:islands/volcano_excluded_core` < 0.625I",
+	"valid": {
+		"where": "hints.carve",
+		"min_y": "world_traits.`bigglobe:core_min_y`",
+		"max_y": "world_traits.`bigglobe:core_max_y`"
+	},
+	"children": [
+		"bigglobe:overworld/core_lava"
+	]
+}

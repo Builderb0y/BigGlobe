@@ -46,6 +46,8 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	* `before_children` and `after_children` (optional) (added in V4.3.0) - scripts which can place additional blocks before and after the children place blocks. See the documentation on layers for more info.
 
 	Note: the root layer does not have a `valid` property. If you provide one anyway, it will be ignored.
+
+	**New in V4.10.0:** Layers have been moved into their own files. The "layer" property on the chunk generator is now a single string representing the namespace and path of the root layer. The specified layer should be of type "root".
 * `feature_dispatcher` - has the following properties:
 	* `rock_replacers` - array containing strings which represent either a configured feature, or a tag of configured features. All configured features in this array must have one of the following types:
 		* `bigglobe:chunk_sprinkle`

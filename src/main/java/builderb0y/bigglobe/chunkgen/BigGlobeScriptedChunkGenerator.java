@@ -77,6 +77,7 @@ import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -165,7 +166,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable Integer sea_level
 	) {}
 	public final Height height;
-	public final RootLayer layer;
+	public final RegistryEntry<Layer> layer;
 	public final FeatureDispatchers feature_dispatcher;
 	public final DelayedEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
@@ -230,7 +231,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable String reload_preset,
 		@VerifyNullable String reload_dimension,
 		Height height,
-		RootLayer layer,
+		RegistryEntry<Layer> layer,
 		FeatureDispatchers feature_dispatcher,
 		BiomeSource biome_source,
 		DelayedEntryList<Overrider> overriders,
@@ -727,10 +728,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									list01 = new BlockSegmentList(chunkMinY, chunkMaxY),
 									list10 = new BlockSegmentList(chunkMinY, chunkMaxY),
 									list11 = new BlockSegmentList(chunkMinY, chunkMaxY);
-								this.layer.emitSegments(column00, column01, column10, column11, list00);
-								this.layer.emitSegments(column01, column00, column11, column10, list01);
-								this.layer.emitSegments(column10, column11, column00, column01, list10);
-								this.layer.emitSegments(column11, column10, column01, column00, list11);
+								Layer layer = this.layer.value();
+								layer.emitSegments(column00, column01, column10, column11, list00);
+								layer.emitSegments(column01, column00, column11, column10, list01);
+								layer.emitSegments(column10, column11, column00, column01, list10);
+								layer.emitSegments(column11, column10, column01, column00, list11);
 								lists[baseIndex     ] = list00;
 								lists[baseIndex |  1] = list01;
 								lists[baseIndex | 16] = list10;
@@ -1179,7 +1181,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public int getHeight(ScriptedColumn column, Heightmap.Type heightmap, HeightLimitView world) {
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
-		this.layer.emitSegments(column, list);
+		this.layer.value().emitSegments(column, list);
 		return getHeight(list, heightmap);
 	}
 
@@ -1197,7 +1199,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
-		this.layer.emitSegments(column, list);
+		this.layer.value().emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);
 		for (int index = 0, length = states.length; index < length; index++) {
 			if (states[index] == null) states[index] = BlockStates.AIR;

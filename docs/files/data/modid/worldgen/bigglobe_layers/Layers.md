@@ -1,6 +1,4 @@
-# New in V4.10.0: Layers have been moved out of the world preset, and into their own files.
-
-These files are located in `data/modid/worldgen/bigglobe_layers`. What follows below is LEGACY documentation for how layers used to work.
+# New in V4.10.0. For older versions, see `/data/modid/worldgen/world_preset/Layers.md`.
 
 Layers are responsible for filling a column with blocks. They are the first step in block placement. All layer types have the following properties:
 * `valid` (optional) - where this layer should place blocks.
@@ -18,7 +16,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 		* ColorScriptEnvironment
 		* ExternalImageScriptEnvironment
 		* ExternalDataScriptEnvironment
-* `children` - an array of other layers to generate. Every child in the array will only be able to replace blocks that this layer placed. Additionally, each child will only be able to place blocks where the previous child didn't.
+* `children` - an array of references (namespace and path) to other layers to generate. Every child in the array will only be able to replace blocks that this layer placed. Additionally, each child will only be able to place blocks where the previous child didn't.
 * `before_children` - a script which can place blocks in this column before our children do.
 * `after_children` - a script which can place blocks in this column after our children do.
 
@@ -54,6 +52,19 @@ Layers are responsible for filling a column with blocks. They are the first step
 
 	Note: you cannot nest dx and dz expressions to get higher-order derivatives. In fact, you can't nest dx and dz expressions at all. The reason for this has to do with the internal details of how adjacent columns are selected, but the tl;dr is that if you tried to get a higher-order derivative by nesting dx or dz calls, the result would always be 0. This is not usually helpful, and I wanted to avoid confusion about why you get 0 instead of the higher-order derivative you were probably expecting, so I just made it a compile-time error instead telling you that this is not supported.
 * `type` - may be one of the following:
+	* `noop` - does nothing and has no properties besides type.
+		* This type can be used by data packs which wish to disable an existing layer.
+	* `root` - similar to simple_2d, but does not have a "valid" property. It fills the entire Y range with the specified state no matter what.
+		* `state` - a script returning the BlockState that this layer will attempt to place. This script has the following environments available:
+			* MathScriptEnvironment
+			* StatelessRandomScriptEnvironment
+			* GridScriptEnvironment (with implicit seed)
+			* MinecraftScriptEnvironment
+			* BaseColumnScriptEnvironment
+			* ColumnEntryRegistry
+			* ColorScriptEnvironment
+			* ExternalImageScriptEnvironment
+			* ExternalDataScriptEnvironment
 	* `simple_2d` - fills the Y range between `valid >= min_y` and `valid < max_y` (or the bounds of the chunk, if either of those values are not specified) with a single block state. This type has the following additional properties:
 		* `state` - a script returning the BlockState that this layer will attempt to place. This script has the following environments available:
 			* MathScriptEnvironment
@@ -89,7 +100,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* ExternalDataScriptEnvironment
 
 			The Y level itself can also be accessed via the `y` variable.
-	* `multi_state_3d` (new in V4.3.0) - fills the Y range between `valid >= min_y` and `valid < max_y` (or the chunk bounds) with a block state which depends on Y level. This type has the following additional properties:
+	* `multi_state_3d` - fills the Y range between `valid >= min_y` and `valid < max_y` (or the chunk bounds) with a block state which depends on Y level. This type has the following additional properties:
 		* `state` - a script returning the BlockState that this layer will attempt to place at the current Y level. If this script returns null, no block is placed at that Y level. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment
@@ -102,7 +113,7 @@ Layers are responsible for filling a column with blocks. They are the first step
 			* ExternalDataScriptEnvironment
 
 			The Y level itself can also be accessed via the `y` variable.
-	* `scripted` (new in V4.3.0) - allows a script to place any block wherever it wants (as long as it's within the valid range and the chunk bounds). This type has the following additional properties:
+	* `scripted` - allows a script to place any block wherever it wants (as long as it's within the valid range and the chunk bounds). This type has the following additional properties:
 		* `script` - a script which places blocks. This script has the following environments available:
 			* MathScriptEnvironment
 			* StatelessRandomScriptEnvironment

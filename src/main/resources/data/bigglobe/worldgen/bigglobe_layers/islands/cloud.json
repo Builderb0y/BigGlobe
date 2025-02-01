@@ -1,0 +1,10 @@
+{
+	"type": "simple_3d",
+	"state": "'bigglobe:cloud'",
+	"condition": "`bigglobe:islands/cloud_sdf` > 0.0I",
+	"valid": {
+		"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/is_floating` && abs(`bigglobe:islands/island`.soft_distance_squared - `bigglobe:islands/cloud_horizontal_center`) < `bigglobe:islands/cloud_horizontal_extent`",
+		"min_y": "higherInt(`bigglobe:islands/cloud_vertical_center` - `bigglobe:islands/cloud_vertical_limit`)",
+		"max_y": "  ceilInt(`bigglobe:islands/cloud_vertical_center` + `bigglobe:islands/cloud_vertical_limit`)"
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:end_stone'",
+	"after_children": {
+		"file": "bigglobe:world_preset/end_surface_placement"
+	},
+	"valid": {
+		"where": "`bigglobe:end/has_mountain`",
+		"min_y": "floorInt(`bigglobe:end/mountain_min_y`)",
+		"max_y": "higherInt(`bigglobe:end/mountain_max_y`)"
+	}
+}

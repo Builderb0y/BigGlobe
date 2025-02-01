@@ -1,0 +1,19 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:stone'",
+	"valid": {
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
+		"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 8)"
+	},
+	"after_children": {
+		"file": "bigglobe:world_preset/islands_surface_placement",
+		"includes": [
+			"bigglobe:include/generate_snow"
+		]
+	},
+	"children": [
+		"bigglobe:islands/the_core",
+		"bigglobe:islands/deep_dark_carver",
+		"bigglobe:islands/cave_carver"
+	]
+}

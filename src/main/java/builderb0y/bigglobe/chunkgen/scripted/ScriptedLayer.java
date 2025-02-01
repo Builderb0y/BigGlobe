@@ -2,6 +2,8 @@ package builderb0y.bigglobe.chunkgen.scripted;
 
 import org.objectweb.asm.Type;
 
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
@@ -36,7 +38,7 @@ public class ScriptedLayer extends Layer {
 
 	public ScriptedLayer(
 		@VerifyNullable Valid valid,
-		Layer @DefaultEmpty [] children,
+		RegistryEntry<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children,
 		Impl.Holder script

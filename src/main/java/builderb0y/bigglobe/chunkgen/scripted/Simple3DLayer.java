@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -15,7 +16,7 @@ public class Simple3DLayer extends Layer {
 
 	public Simple3DLayer(
 		@VerifyNullable Valid valid,
-		Layer @DefaultEmpty [] children,
+		RegistryEntry<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children,
 		ColumnToBlockStateScript.Holder state,

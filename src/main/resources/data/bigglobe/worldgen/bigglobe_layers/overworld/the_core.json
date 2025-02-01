@@ -1,0 +1,23 @@
+{
+	"type": "multi_state_3d",
+	"state": [
+		"switch (clamp(0I, 8I, int(unmixLinear(-896.0L, -768.0L, y + `bigglobe:islands/core_gradient_offset`) * 8.0L)):",
+			"case (0: 'bigglobe:molten_rock_8')",
+			"case (1: 'bigglobe:molten_rock_7')",
+			"case (2: 'bigglobe:molten_rock_6')",
+			"case (3: 'bigglobe:molten_rock_5')",
+			"case (4: 'bigglobe:molten_rock_4')",
+			"case (5: 'bigglobe:molten_rock_3')",
+			"case (6: 'bigglobe:molten_rock_2')",
+			"case (7: 'bigglobe:molten_rock_1')",
+			"default (null)",
+		")"
+	],
+	"valid": {
+		"where": "hints.carve",
+		"max_y": "world_traits.`bigglobe:core_max_y`"
+	},
+	"children": [
+		"bigglobe:overworld/core_carver"
+	]
+}

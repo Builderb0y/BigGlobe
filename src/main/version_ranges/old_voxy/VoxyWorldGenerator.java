@@ -7,7 +7,7 @@ import net.minecraft.server.world.ServerWorld;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
-import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
+import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
@@ -32,7 +32,7 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
-		RootLayer layer = this.generator.layer;
+		Layer layer = this.generator.layer.value();
 		ScriptedColumn.Params params = new ScriptedColumn.Params(this.generator, 0, 0, ColumnUsage.RAW_GENERATION.voxyHints(level));
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int offsetZ = 0; offsetZ < 32; offsetZ += 2) {

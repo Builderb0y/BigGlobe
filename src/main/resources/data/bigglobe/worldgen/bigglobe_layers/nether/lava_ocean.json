@@ -1,0 +1,8 @@
+{
+	"type": "simple_2d",
+	"state": "`bigglobe:nether/bubble`.lava_fluid",
+	"valid": {
+		"min_y": "`bigglobe:nether/min_y`",
+		"max_y": "world_traits.`bigglobe:lava_y`"
+	}
+}

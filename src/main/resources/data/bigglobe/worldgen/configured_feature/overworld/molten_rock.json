@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:molten_rock",
-	"config": {
-		"cold_y": -768,
-		"hot_y":  -897,
-		"replace": "minecraft:stone"
-	}
-}

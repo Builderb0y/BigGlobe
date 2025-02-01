@@ -1,0 +1,18 @@
+{
+	"type": "simple_2d",
+	"state": "'bigglobe:river_water[level=0]'",
+	"before_children": [
+		"double waterSurfaceY = `bigglobe:overworld/river_water_y`",
+		"int y = int(waterSurfaceY)",
+		"if (y >= world_traits.`bigglobe:y_level_on_surface`:",
+			"int levels = int((waterSurfaceY - floor(waterSurfaceY)) * 8.0L)",
+			"if (levels > 0:",
+				"setBlockState(y, BlockState('bigglobe:river_water', level: 7 - levels))",
+			")",
+		")"
+	],
+	"valid": {
+		"min_y": "max(world_traits.`bigglobe:y_level_on_surface`, world_traits.`bigglobe:sea_level`)",
+		"max_y": "int(`bigglobe:overworld/river_water_y`)"
+	}
+}

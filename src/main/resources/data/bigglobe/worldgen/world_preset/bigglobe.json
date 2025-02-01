@@ -11,126 +11,9 @@
 					"sea_level": 0
 				},
 				"world_traits": "bigglobe:overworld",
-				"layer": {
-					"state": "'minecraft:air'",
-					"children": [
-						{
-							"type": "simple_2d",
-							"state": "'minecraft:stone'",
-							"before_children": {
-								"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
-							},
-							"after_children": {
-								"file": "bigglobe:world_preset/overworld_surface_placement",
-								"includes": [
-									"bigglobe:include/generate_snow"
-								]
-							},
-							"valid": {
-								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
-								"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 16)"
-							},
-							"children": [
-								{
-									"type": "simple_3d",
-									"state": "'minecraft:air'",
-									"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
-									"after_children": {
-										"file": "bigglobe:world_preset/overworld_cave_surface_placement"
-									},
-									"valid": {
-										"where": "hints.carve",
-										"min_y": "higherInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth)",
-										"max_y": "world_traits.`bigglobe:y_level_on_surface`"
-									}
-								},
-								{
-									"type": "simple_3d",
-									"state": "'minecraft:air'",
-									"condition": "`bigglobe:overworld/biased_deep_dark_noise`(y) > 0.0I",
-									"valid": {
-										"where": "hints.carve",
-										"min_y": "world_traits.`bigglobe:deep_dark_min_y`",
-										"max_y": "world_traits.`bigglobe:deep_dark_max_y`"
-									}
-								},
-								{
-									"type": "simple_3d",
-									"state": "'minecraft:air'",
-									"condition": "`bigglobe:overworld/biased_core_noise`(y) < 0.625I",
-									"children": [
-										{
-											"type": "simple_2d",
-											"state": "'minecraft:lava[level=0]'",
-											"valid": {
-												"min_y": "world_traits.`bigglobe:min_y`",
-												"max_y": "world_traits.`bigglobe:lava_y`"
-											}
-										}
-									],
-									"valid": {
-										"where": "hints.carve",
-										"min_y": "world_traits.`bigglobe:core_min_y`",
-										"max_y": "world_traits.`bigglobe:core_max_y`"
-									}
-								},
-								{
-									"type": "simple_2d",
-									"state": "'bigglobe:molten_rock_8'",
-									"valid": {
-										"where": "hints.carve",
-										"max_y": "world_traits.`bigglobe:lava_y`"
-									}
-								}
-							]
-						},
-						{
-							"type": "simple_2d",
-							"state": "'minecraft:water[level=0]'",
-							"valid": {
-								"min_y": "world_traits.`bigglobe:y_level_on_surface`",
-								"max_y": "`bigglobe:overworld/sea_level`"
-							}
-						},
-						{
-							"type": "simple_2d",
-							"state": "'bigglobe:river_water[level=0]'",
-							"before_children": [
-								"double waterSurfaceY = `bigglobe:overworld/river_water_y`",
-								"int y = int(waterSurfaceY)",
-								"if (y >= world_traits.`bigglobe:y_level_on_surface`:",
-									"int levels = int((waterSurfaceY - floor(waterSurfaceY)) * 8.0L)",
-									"if (levels > 0:",
-										"setBlockState(y, BlockState('bigglobe:river_water', level: 7 - levels))",
-									")",
-								")"
-							],
-							"valid": {
-								"min_y": "max(world_traits.`bigglobe:y_level_on_surface`, world_traits.`bigglobe:sea_level`)",
-								"max_y": "int(`bigglobe:overworld/river_water_y`)"
-							}
-						},
-						{
-							"type": "simple_2d",
-							"state": "'bigglobe:cloud'",
-							"after_children": {
-								"file": "bigglobe:world_preset/overworld_skyland_surface_placement"
-							},
-							"valid": {
-								"where": [
-									"if (hints.usage ==. 'heightmap': return(false))",
-									"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
-									"bounds != null && bounds.max_y > bounds.min_y"
-								],
-								"min_y": "floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
-								"max_y": "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)"
-							}
-						}
-					]
-				},
+				"layer": "bigglobe:overworld/root",
 				"feature_dispatcher": {
 					"rock_replacers": [
-						"bigglobe:overworld/molten_rock",
 						"bigglobe:overworld/bedrock",
 						"bigglobe:overworld/cobblestone_sprinkle",
 						"#bigglobe:overworld/rock_layers",
@@ -202,33 +85,7 @@
 					"time_reference": "minecraft:overworld"
 				},
 				"world_traits": "bigglobe:nether",
-				"layer": {
-					"state": "`bigglobe:nether/bubble`.filler",
-					"children": [
-						{
-							"type": "simple_3d",
-							"state": "'minecraft:air'",
-							"condition": "`bigglobe:nether/bubble`.noise(y) < 0.5I",
-							"valid": {
-								"min_y": "`bigglobe:nether/min_y` + 16",
-								"max_y": "`bigglobe:nether/max_y` - 16"
-							},
-							"before_children": {
-								"file": "bigglobe:world_preset/nether_surface_placement"
-							},
-							"children": [
-								{
-									"type": "simple_2d",
-									"state": "`bigglobe:nether/bubble`.lava_fluid",
-									"valid": {
-										"min_y": "`bigglobe:nether/min_y`",
-										"max_y": "world_traits.`bigglobe:lava_y`"
-									}
-								}
-							]
-						}
-					]
-				},
+				"layer": "bigglobe:nether/root",
 				"feature_dispatcher": {
 					"rock_replacers": [
 						"bigglobe:nether/lower_bedrock",
@@ -260,85 +117,7 @@
 					"max_y":  512
 				},
 				"world_traits": "bigglobe:end",
-				"layer": {
-					"state": "'minecraft:air'",
-					"children": [
-						{
-							"type": "simple_3d",
-							"state": "'bigglobe:void_cloud'",
-							"condition": "`bigglobe:end/lower_ring_cloud_sdf` > 0.0I",
-							"valid": {
-								"where": [
-									"if (hints.usage ==. 'heightmap': return(false))",
-									"`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)"
-								],
-								"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
-								"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
-							}
-						},
-						{
-							"type": "simple_3d",
-							"state": "'bigglobe:void_cloud'",
-							"condition": "`bigglobe:end/lower_bridge_cloud_sdf` > 0.0I",
-							"valid": {
-								"where": [
-									"if (hints.usage ==. 'heightmap': return(false))",
-									"`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`"
-								],
-								"min_y": " ceilInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
-								"max_y": "floorInt(`bigglobe:end/mountain_center` - `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
-							}
-						},
-						{
-							"type": "simple_2d",
-							"state": "'minecraft:end_stone'",
-							"after_children": {
-								"file": "bigglobe:world_preset/end_surface_placement"
-							},
-							"valid": {
-								"where": "`bigglobe:end/has_mountain`",
-								"min_y": "floorInt(`bigglobe:end/mountain_min_y`)",
-								"max_y": "higherInt(`bigglobe:end/mountain_max_y`)"
-							}
-						},
-						{
-							"type": "simple_3d",
-							"state": "'minecraft:end_stone'",
-							"condition": "`bigglobe:end/nest_sdf` > 0.0I",
-							"valid": {
-								"where": "`bigglobe:end/distance_to_origin` < 148.0L",
-								"min_y": "28",
-								"max_y": "152"
-							}
-						},
-						{
-							"type": "simple_3d",
-							"state": "'bigglobe:void_cloud'",
-							"condition": "`bigglobe:end/upper_ring_cloud_sdf` > 0.0I",
-							"valid": {
-								"where": [
-									"if (hints.usage ==. 'heightmap': return(false))",
-									"`bigglobe:end/warp_radius`.isBetween(`bigglobe:end/ring_cloud_min_radius`, `bigglobe:end/ring_cloud_max_radius`)"
-								],
-								"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` - `bigglobe:end/ring_cloud_thickness`)",
-								"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/ring_cloud_center_offset` + `bigglobe:end/ring_cloud_thickness`)"
-							}
-						},
-						{
-							"type": "simple_3d",
-							"state": "'bigglobe:void_cloud'",
-							"condition": "`bigglobe:end/upper_bridge_cloud_sdf` > 0.0I",
-							"valid": {
-								"where": [
-									"if (hints.usage ==. 'heightmap': return(false))",
-									"`bigglobe:end/warp_radius` > `bigglobe:end/bridge_cloud_min_radius`"
-								],
-								"min_y": " ceilInt(`bigglobe:end/mountain_center` + `bigglobe:end/bridge_cloud_center_offset` - `bigglobe:end/bridge_cloud_thickness`)",
-								"max_y": "floorInt(`bigglobe:end/mountain_center` + `bigglobe:end/bridge_cloud_center_offset` + `bigglobe:end/bridge_cloud_thickness`)"
-							}
-						}
-					]
-				},
+				"layer": "bigglobe:end/root",
 				"feature_dispatcher": {
 					"rock_replacers": [
 						"#bigglobe:end/rock_layers",

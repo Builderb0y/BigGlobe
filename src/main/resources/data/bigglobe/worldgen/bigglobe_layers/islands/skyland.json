@@ -1,0 +1,15 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:stone'",
+	"valid": {
+		"where": "`bigglobe:islands/has_skylands`",
+		"min_y": "world_traits.`bigglobe:skyland_min_y`",
+		"max_y": "world_traits.`bigglobe:skyland_max_y`"
+	},
+	"after_children": {
+		"file": "bigglobe:world_preset/islands_skyland_surface_placement",
+		"includes": [
+			"bigglobe:include/generate_snow"
+		]
+	}
+}

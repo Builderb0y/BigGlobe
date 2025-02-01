@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -10,26 +12,27 @@ import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.Valid;
 
 @UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class Layer implements CoderRegistryTyped<Layer> {
 
 	public static final CoderRegistry<Layer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
 	static {
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"), Simple2DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"), Simple3DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("root"),                   RootLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"),          Simple2DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"),          Simple3DLayer.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("multi_state_3d"), MultiState3DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"), ScriptedLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),           ScriptedLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("noop"),                   NoopLayer.class);
 	}
 
 	public final @VerifyNullable Valid valid;
-	public final Layer @DefaultEmpty [] children;
+	public final RegistryEntry<Layer> @DefaultEmpty [] children;
 	public final SurfaceScript.@VerifyNullable Holder before_children, after_children;
 
 	public Layer(
 		@VerifyNullable Valid valid,
-		Layer @DefaultEmpty [] children,
+		RegistryEntry<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children
 	) {
@@ -52,8 +55,8 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 				BlockSegmentList split = selfSegments.splitAtPlacedRange();
 				if (split != null) {
 					BlockSegmentList split2 = split.split();
-					for (Layer child : this.children) {
-						child.emitSegments(column, altX, altZ, altXZ, split2);
+					for (RegistryEntry<Layer> child : this.children) {
+						child.value().emitSegments(column, altX, altZ, altXZ, split2);
 						split.mergeAndKeepWhereThereArentBlocks(split2);
 						split2.reset();
 					}
@@ -75,8 +78,8 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 				BlockSegmentList split = selfSegments.splitAtPlacedRange();
 				if (split != null) {
 					BlockSegmentList split2 = split.split();
-					for (Layer child : this.children) {
-						child.emitSegments(column, split2);
+					for (RegistryEntry<Layer> child : this.children) {
+						child.value().emitSegments(column, split2);
 						split.mergeAndKeepWhereThereArentBlocks(split2);
 						split2.reset();
 					}

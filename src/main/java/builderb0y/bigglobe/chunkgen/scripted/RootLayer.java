@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import net.minecraft.registry.entry.RegistryEntry;
+
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBlockStateScript;
@@ -10,7 +12,7 @@ public class RootLayer extends Layer {
 	public final ColumnToBlockStateScript.Holder state;
 
 	public RootLayer(
-		Layer @DefaultEmpty [] children,
+		RegistryEntry<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children,
 		ColumnToBlockStateScript.Holder state

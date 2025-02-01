@@ -1,0 +1,12 @@
+{
+	"type": "root",
+	"state": "'minecraft:air'",
+	"children": [
+		"bigglobe:end/lower_ring_cloud",
+		"bigglobe:end/lower_bridge_cloud",
+		"bigglobe:end/outer_mountains",
+		"bigglobe:end/nest",
+		"bigglobe:end/upper_ring_cloud",
+		"bigglobe:end/upper_bridge_cloud"
+	]
+}

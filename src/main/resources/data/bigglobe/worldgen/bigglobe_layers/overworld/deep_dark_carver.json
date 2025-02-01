@@ -1,0 +1,10 @@
+{
+	"type": "simple_3d",
+	"state": "'minecraft:air'",
+	"condition": "`bigglobe:overworld/biased_deep_dark_noise`(y) > 0.0I",
+	"valid": {
+		"where": "hints.carve",
+		"min_y": "world_traits.`bigglobe:deep_dark_min_y`",
+		"max_y": "world_traits.`bigglobe:deep_dark_max_y`"
+	}
+}

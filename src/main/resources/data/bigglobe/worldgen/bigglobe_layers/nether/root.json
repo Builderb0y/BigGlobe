@@ -1,0 +1,7 @@
+{
+	"type": "root",
+	"state": "`bigglobe:nether/bubble`.filler",
+	"children": [
+		"bigglobe:nether/bubble_carver"
+	]
+}

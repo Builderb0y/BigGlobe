@@ -1,0 +1,7 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:lava[level=0]'",
+	"valid": {
+		"max_y": "world_traits.`bigglobe:lava_y`"
+	}
+}

@@ -21,10 +21,9 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
-import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
+import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.structures.ScriptStructures;
@@ -148,10 +147,11 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 									list01 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
 									list10 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
 									list11 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y());
-								generator.layer.emitSegments(column00, column01, column10, column11, list00);
-								generator.layer.emitSegments(column01, column00, column11, column10, list01);
-								generator.layer.emitSegments(column10, column11, column00, column01, list10);
-								generator.layer.emitSegments(column11, column10, column01, column00, list11);
+								Layer layer = generator.layer.value();
+								layer.emitSegments(column00, column01, column10, column11, list00);
+								layer.emitSegments(column01, column00, column11, column10, list01);
+								layer.emitSegments(column10, column11, column00, column01, list10);
+								layer.emitSegments(column11, column10, column01, column00, list11);
 								this.convertToDataPoints(dataPointBuilders[baseIndex            ], list00);
 								this.convertToDataPoints(dataPointBuilders[baseIndex + 1        ], list01);
 								this.convertToDataPoints(dataPointBuilders[baseIndex + width    ], list10);
@@ -249,7 +249,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 					async.submit(() -> {
 						int minY = this.chunkGenerator.height.min_y();
 						int maxY = this.chunkGenerator.height.max_y();
-						RootLayer layer = this.chunkGenerator.layer;
+						Layer layer = this.chunkGenerator.layer.value();
 						int baseIndex = (offsetZ_ << 4) | offsetX_;
 						int quadX = startX | offsetX_;
 						int quadZ = startZ | offsetZ_;

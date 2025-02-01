@@ -1,0 +1,13 @@
+{
+	"type": "simple_3d",
+	"state": "'minecraft:air'",
+	"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
+	"after_children": {
+		"file": "bigglobe:world_preset/overworld_cave_surface_placement"
+	},
+	"valid": {
+		"where": "hints.carve",
+		"min_y": "higherInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth)",
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
+	}
+}

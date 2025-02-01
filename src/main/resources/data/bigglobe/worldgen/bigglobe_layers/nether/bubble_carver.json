@@ -1,0 +1,15 @@
+{
+	"type": "simple_3d",
+	"state": "'minecraft:air'",
+	"condition": "`bigglobe:nether/bubble`.noise(y) < 0.5I",
+	"valid": {
+		"min_y": "`bigglobe:nether/min_y` + 16",
+		"max_y": "`bigglobe:nether/max_y` - 16"
+	},
+	"before_children": {
+		"file": "bigglobe:world_preset/nether_surface_placement"
+	},
+	"children": [
+		"bigglobe:nether/lava_ocean"
+	]
+}

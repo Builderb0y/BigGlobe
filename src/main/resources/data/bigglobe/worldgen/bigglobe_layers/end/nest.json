@@ -1,0 +1,10 @@
+{
+	"type": "simple_3d",
+	"state": "'minecraft:end_stone'",
+	"condition": "`bigglobe:end/nest_sdf` > 0.0I",
+	"valid": {
+		"where": "`bigglobe:end/distance_to_origin` < 148.0L",
+		"min_y": "28",
+		"max_y": "152"
+	}
+}

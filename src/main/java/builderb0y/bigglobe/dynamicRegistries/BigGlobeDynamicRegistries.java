@@ -11,6 +11,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryLoader;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
@@ -35,6 +36,7 @@ public class BigGlobeDynamicRegistries {
 	public static final RegistryKey<Registry<WoodPalette>>                            WOOD_PALETTE_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_wood_palettes"));
 	public static final RegistryKey<Registry<FeatureDispatcher>>                FEATURE_DISPATCHER_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_feature_dispatchers"));
 	public static final RegistryKey<Registry<WorldTrait>>                              WORLD_TRAIT_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_world_traits"));
+	public static final RegistryKey<Registry<Layer>>                                         LAYER_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_layers"));
 	public static final RegistryKey<Registry<ExtraSpawn>>                              EXTRA_SPAWN_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_extra_mob_spawns"));
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static final Set<RegistryKey<Registry<?>>> KEYS = (Set)(Set.of(
@@ -48,6 +50,7 @@ public class BigGlobeDynamicRegistries {
 		WOOD_PALETTE_REGISTRY_KEY,
 		FEATURE_DISPATCHER_REGISTRY_KEY,
 		WORLD_TRAIT_REGISTRY_KEY,
+		LAYER_REGISTRY_KEY,
 		EXTRA_SPAWN_REGISTRY_KEY
 	));
 
@@ -61,7 +64,8 @@ public class BigGlobeDynamicRegistries {
 				entry(          COLUMN_ENTRY_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ColumnEntry         .class)),
 				entry(      VORONOI_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(VoronoiSettings     .class)),
 				entry(DECISION_TREE_SETTINGS_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(DecisionTreeSettings.class)),
-				entry(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider           .class))
+				entry(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider           .class)),
+				entry(                 LAYER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Layer               .class))
 			)
 		);
 		addBefore(RegistryKeys.STRUCTURE,         SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
