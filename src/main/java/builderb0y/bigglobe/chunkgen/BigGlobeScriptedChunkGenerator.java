@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -613,11 +614,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 						for (int q = 0; !bl && q < 4; q++) {
 							BlockPos blockPos = SpawnHelper.getEntitySpawnPos((ServerWorldAccess)region, spawnEntry.type, l, m);
-							if (spawnEntry.type.isSummonable() && SpawnRestriction.isSpawnPosAllowed(spawnEntry.type, region, blockPos)) {
+							if (spawnEntry.type.isSummonable() && #if MC_VERSION >= MC_1_20_5 SpawnRestriction.isSpawnPosAllowed(spawnEntry.type, region, blockPos) #else SpawnHelper.canSpawn(SpawnRestriction.getLocation(spawnEntry.type), region, blockPos, spawnEntry.type) #endif) {
 								float f = spawnEntry.type.getWidth();
 								double d = MathHelper.clamp((double)l, (double)i + (double)f, (double)i + 16.0 - (double)f);
 								double e = MathHelper.clamp((double)m, (double)j + (double)f, (double)j + 16.0 - (double)f);
-								if (!region.isSpaceEmpty(spawnEntry.type.getSpawnBox(d, (double)blockPos.getY(), e))
+								if (!region.isSpaceEmpty(spawnEntry.type.#if MC_VERSION >= MC_1_20_5 getSpawnBox #else createSimpleBoundingBox #endif(d, (double)blockPos.getY(), e))
 									|| !SpawnRestriction.canSpawn(
 										spawnEntry.type, region, SpawnReason.CHUNK_GENERATION, BlockPos.ofFloored(d, (double)blockPos.getY(), e), region.getRandom()
 									)) {
@@ -638,7 +639,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 								entity.refreshPositionAndAngles(d, (double)blockPos.getY(), e, chunkRandom.nextFloat() * 360.0F, 0.0F);
 								if (entity instanceof MobEntity mobEntity && mobEntity.canSpawn(region, SpawnReason.CHUNK_GENERATION) && mobEntity.canSpawn(region)) {
-									entityData = mobEntity.initialize(region, region.getLocalDifficulty(mobEntity.getBlockPos()), SpawnReason.CHUNK_GENERATION, entityData);
+									entityData = mobEntity.initialize(region, region.getLocalDifficulty(mobEntity.getBlockPos()), SpawnReason.CHUNK_GENERATION, entityData #if MC_VERSION < MC_1_20_5 , null #endif);
 									region.spawnEntityAndPassengers(mobEntity);
 									bl = true;
 								}

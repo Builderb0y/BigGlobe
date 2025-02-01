@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.mixins;
 
 import me.cortex.voxy.common.storage.StorageBackend;
-import me.cortex.voxy.common.thread.ServiceThreadPool;
 import me.cortex.voxy.common.world.WorldEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,11 +17,15 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolde
 
 	public AbstractVoxyWorldGenerator bigglobe_generator;
 
-	@Inject(method = "<init>(Lme/cortex/voxy/common/storage/StorageBackend;Lme/cortex/voxy/common/thread/ServiceThreadPool;I)V", at = @At("RETURN"), remap = false)
+	#if MC_VERSION >= MC_1_21_2
+		@Inject(method = "<init>(Lme/cortex/voxy/common/storage/StorageBackend;Lme/cortex/voxy/common/thread/ServiceThreadPool;I)V", at = @At("RETURN"), remap = false)
+	#else
+		@Inject(method = "<init>", at = @At("RETURN"), remap = false)
+	#endif
 	private void bigglobe_startGenerator(
 		StorageBackend storageBackend,
 		#if MC_VERSION >= MC_1_21_2
-			ServiceThreadPool serviceThreadPool,
+			me.cortex.voxy.common.thread.ServiceThreadPool serviceThreadPool,
 		#else
 			int ingestWorkers,
 			int savingServiceWorkers,
