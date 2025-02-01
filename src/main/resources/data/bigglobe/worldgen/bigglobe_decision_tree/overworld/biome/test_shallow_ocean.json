@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:overworld/cliffy_surface_y` < world_traits.`bigglobe:sea_level`"
+	},
+	"if_true": "bigglobe:overworld/biome/shallow_ocean_test_glacier",
+	"if_false": "bigglobe:overworld/biome/test_river"
+}

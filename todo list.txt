@@ -36,10 +36,10 @@ to finish before release:
 	document extra spawn system.
 	make sure there are bees in all MC versions.
 	use layer for molten rock in overworld instead of configured feature.
-	fix river biomes in the middle of ocean biomes.
 
 changelog:
 	* Added cave biomes.
+	* River biomes no longer appear in oceans.
 	* Axolotls now spawn in underground pockets. Due to vanilla logic, they only spawn when clay is below them. Not all underground pockets will have clay in them.
 	* Added new mechanism for data packs to add mob spawns to the world without replacing biomes.
 	* Added new weighted random switch statement for scripts.
@@ -60,6 +60,7 @@ breaking changes I want to make:
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.
 		migrate equivalent getters from Structure/StructurePiece.
+	dynamic registry of chunk generator layers.
 
 4.0 stuff:
 	/waypoint

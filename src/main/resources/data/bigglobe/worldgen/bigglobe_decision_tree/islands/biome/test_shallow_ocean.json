@@ -3,6 +3,6 @@
 		"type": "script",
 		"script": "world_traits.`bigglobe:exact_surface_y` < world_traits.`bigglobe:sea_level`"
 	},
-	"if_true": "bigglobe:overworld/biome/shallow_ocean_test_ocean",
-	"if_false": "bigglobe:overworld/biome/beach_test_overgrown"
+	"if_true": "bigglobe:islands/biome/shallow_ocean_test_ocean",
+	"if_false": "bigglobe:islands/biome/test_beach"
 }
