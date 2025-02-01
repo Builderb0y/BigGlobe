@@ -19,17 +19,17 @@ import builderb0y.bigglobe.compat.voxy.ForgetfulMemoryStorageBackend;
 import builderb0y.bigglobe.compat.voxy.GeneratingStorageBackend;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
-@Mixin(ContextSelectionSystem.Selection.class)
+@Mixin(value = ContextSelectionSystem.Selection.class, remap = false)
 public class Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging {
 
-	@Inject(method = "createStorageBackend", at = @At("HEAD"), cancellable = true, remap = false)
+	@Inject(method = "createStorageBackend", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_useForgetfulStorageBackendWhenDebugging(CallbackInfoReturnable<StorageBackend> callback) {
 		if (AbstractVoxyWorldGenerator.override != null) {
 			callback.setReturnValue(new ForgetfulMemoryStorageBackend());
 		}
 	}
 
-	@ModifyReturnValue(method = "createStorageBackend", at = @At("RETURN"), remap = false)
+	@ModifyReturnValue(method = "createStorageBackend", at = @At("RETURN"))
 	private StorageBackend bigglobe_useGeneratingStorageBackend(StorageBackend original) {
 		ClientWorld clientWorld;
 		ServerWorld serverWorld;

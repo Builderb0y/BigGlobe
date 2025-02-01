@@ -12,15 +12,15 @@ import net.minecraft.client.MinecraftClient;
 import builderb0y.bigglobe.compat.voxy.AbstractVoxyWorldGenerator;
 import builderb0y.bigglobe.mixinInterfaces.VoxyGeneratorHolder;
 
-@Mixin(WorldEngine.class)
+@Mixin(value = WorldEngine.class, remap = false)
 public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolder {
 
 	public AbstractVoxyWorldGenerator bigglobe_generator;
 
 	#if MC_VERSION >= MC_1_21_2
-		@Inject(method = "<init>(Lme/cortex/voxy/common/storage/StorageBackend;Lme/cortex/voxy/common/thread/ServiceThreadPool;I)V", at = @At("RETURN"), remap = false)
+		@Inject(method = "<init>(Lme/cortex/voxy/common/storage/StorageBackend;Lme/cortex/voxy/common/thread/ServiceThreadPool;I)V", at = @At("RETURN"))
 	#else
-		@Inject(method = "<init>", at = @At("RETURN"), remap = false)
+		@Inject(method = "<init>", at = @At("RETURN"))
 	#endif
 	private void bigglobe_startGenerator(
 		StorageBackend storageBackend,
@@ -47,7 +47,7 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolde
 
 	#if MC_VERSION < MC_1_21_2
 
-		@Inject(method = "shutdown", at = @At("HEAD"), remap = false)
+		@Inject(method = "shutdown", at = @At("HEAD"))
 		private void bigglobe_stopGenerator(CallbackInfo callback) {
 			AbstractVoxyWorldGenerator generator = this.bigglobe_generator;
 			if (generator != null) {
