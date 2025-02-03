@@ -587,8 +587,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public void populateEntities(ChunkRegion region) {
 		//copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
-		Integer seaLevel = this.height.sea_level;
-		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(seaLevel != null ? seaLevel.intValue() : HeightLimitViewVersions.getMaxY(region) - 1));
+		RegistryEntry<Biome> registryEntry = region.getBiome(
+			new BlockPos(
+				chunkPos.getStartX(),
+				this.getHeight(
+					this.newColumn(region, chunkPos.getStartX(), chunkPos.getStartZ(), ColumnUsage.HEIGHTMAP.maybeDhHints()),
+					Heightmap.Type.OCEAN_FLOOR_WG,
+					region
+				),
+				chunkPos.getStartZ()
+			)
+		);
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
 

@@ -34,27 +34,10 @@ to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	document extra spawn system.
-	make sure there are bees in all MC versions.
 
 changelog:
-	# Changes for normal players
-	* Added cave biomes.
-	* River biomes no longer appear in oceans.
-	* Axolotls now spawn in underground pockets. Due to vanilla logic, they only spawn when clay is below them. Not all underground pockets will have clay in them.
-	* Molten rock in the core no longer spawns randomly. Instead, it's a smoother gradient.
-	* Fixed saplings failing to grow outside of big globe worlds.
-	* Fixed a lot of blocks not breaking quickly with the proper tool.
-	* Fixed a few blocks dropping the wrong items.
-	* Fixed bees not spawning in beehives in 1.20.5 and later.
-
-	# Changes for data pack makers
-	* Layers (the chunk generator kind, not the rock layer kind) have been split up into separate files. They are no longer in the world preset.
-		* This makes it easier to tweak them, but also means any data pack which already did this will need to update.
-	* Added a "noop"-typed layer, which does nothing, and does not have children or before/after children scripts.
-		* This layer type is intended for when you want to remove a layer with a data pack.
-	* The `molten_rock` configured feature type has been removed.
-	* Added new mechanism for data packs to add mob spawns to the world without replacing biomes.
-	* Added new weighted random switch statement for scripts.
+	* Fixed animals not spawning more than 16 blocks above sea level.
+	* Fixed bugs in new old random switches (for data pack scripts).
 
 alternate world presets:
 	paradise.

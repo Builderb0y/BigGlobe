@@ -25,7 +25,7 @@ public class RandomSwitchTest {
 		public abstract int get(RandomGenerator random);
 	}
 
-	public void test(RandomGenerator random, String source) throws Throwable {
+	public void testWeighted(RandomGenerator random, String source) throws Throwable {
 		RandomToIntScript script = (
 			new ScriptParser<>(RandomToIntScript.class, source)
 			.configureEnvironment(RandomScriptEnvironment.create(InsnTrees.load("random", InsnTrees.type(RandomGenerator.class))))
@@ -46,7 +46,7 @@ public class RandomSwitchTest {
 		public abstract int get(long seed);
 	}
 
-	public void test(String source) throws Throwable {
+	public void testWeighted(String source) throws Throwable {
 		SeedToIntScript script = (
 			new ScriptParser<>(SeedToIntScript.class, source)
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
@@ -63,7 +63,7 @@ public class RandomSwitchTest {
 	}
 
 	@Test
-	public void testAll() throws Throwable {
+	public void testWeighted() throws Throwable {
 		boolean[] falseTrue = { false, true };
 		for (TypeInfo.Sort sort : new TypeInfo.Sort[] { TypeInfo.Sort.INT, TypeInfo.Sort.LONG, TypeInfo.Sort.FLOAT, TypeInfo.Sort.DOUBLE }) {
 			String typeName = sort.name().toLowerCase(Locale.ROOT);
@@ -91,11 +91,51 @@ public class RandomSwitchTest {
 						source.append(": 1,\n");
 						source.append("\tdefault: -1\n");
 						source.append(')');
-						if (useSeed) this.test(source.toString());
-						else this.test(new Permuter(12345L), source.toString());
+						if (useSeed) this.testWeighted(source.toString());
+						else this.testWeighted(new Permuter(12345L), source.toString());
 					}
 				}
 			}
 		}
+	}
+
+	@Test
+	public void testUniformRandom() throws Throwable {
+		RandomToIntScript script = (
+			new ScriptParser<>(RandomToIntScript.class, "random.switch (1, 2)")
+			.configureEnvironment(RandomScriptEnvironment.create(InsnTrees.load("random", InsnTrees.type(RandomGenerator.class))))
+			.parse(new ScriptClassLoader())
+		);
+		RandomGenerator random = new Permuter(12345L);
+		int sum = 0;
+		for (int i = 0; i < 1_000_000; i++) {
+			int next = script.get(random);
+			switch (next) {
+				case 1 -> {}
+				case 2 -> sum++;
+				default -> fail(Integer.toString(next));
+			}
+		}
+		if (Math.abs(sum - 500_000) > 5000) fail("Incorrect distribution");
+	}
+
+	@Test
+	public void testUniformSeed() throws Throwable {
+		SeedToIntScript script = (
+			new ScriptParser<>(SeedToIntScript.class, "seed.switch (1, 2)")
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+			.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("seed", TypeInfos.LONG))
+			.parse(new ScriptClassLoader())
+		);
+		int sum = 0;
+		for (int i = 0; i < 1_000_000; i++) {
+			int next = script.get(i * Permuter.PHI64);
+			switch (next) {
+				case 1 -> {}
+				case 2 -> sum++;
+				default -> fail(Integer.toString(next));
+			}
+		}
+		if (Math.abs(sum - 500_000) > 5000) fail("Incorrect distribution");
 	}
 }

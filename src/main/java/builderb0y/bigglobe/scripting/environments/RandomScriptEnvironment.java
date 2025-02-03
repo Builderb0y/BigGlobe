@@ -21,6 +21,7 @@ import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -373,15 +374,27 @@ public class RandomScriptEnvironment {
 				do cases.put(cases.size(), parser.nextScript());
 				while (parser.input.hasOperatorAfterWhitespace(","));
 				if (parser.endCodeBlock()) throw new ScriptParsingException("Can't declare variables *directly* inside a random switch.", parser.input);
-				selector = (InsnTree actualReceiver) -> switch_(
-					parser,
-					invokeInstance(
-						actualReceiver,
-						RNG_INFO.nextIntBound,
-						ldc(cases.size())
-					),
-					cases
-				);
+				selector = (InsnTree actualReceiver) -> {
+					InsnTree switchValue;
+					if (actualReceiver.getTypeInfo().equals(type(RandomGenerator.class))) {
+						switchValue = invokeInstance(
+							actualReceiver,
+							RNG_INFO.nextIntBound,
+							ldc(cases.size())
+						);
+					}
+					else if (actualReceiver.getTypeInfo().equals(TypeInfos.LONG)) {
+						switchValue = invokeStatic(
+							PERMUTER_INFO.nextIntBound,
+							actualReceiver,
+							ldc(cases.size())
+						);
+					}
+					else {
+						throw new InvalidOperandException("Expected receiver to be long or RandomGenerator, but it was " + actualReceiver);
+					}
+					return switch_(parser, switchValue, cases);
+				};
 			}
 			else if (parser.input.hasOperatorAfterWhitespace(":")) {
 				List<InsnTree> weights = new ArrayList<>();
