@@ -1,18 +1,14 @@
 package builderb0y.bigglobe.compat.voxy;
 
-import me.cortex.voxy.common.util.MemoryBuffer;
 import me.cortex.voxy.common.world.WorldEngine;
 
 import net.minecraft.server.world.ServerWorld;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.overriders.ColumnValueOverrider;
-import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
@@ -23,7 +19,7 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 	}
 
 	@Override
-	public MemoryBuffer createChunk(long key, int levelX, int levelZ, int level) {
+	public void createChunk(long key, int levelX, int levelZ, int level) {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 		int step   = 1 << level;
@@ -52,6 +48,10 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 						column01.setParamsUnchecked(params.at(x | step, z       ));
 						column10.setParamsUnchecked(params.at(x,        z | step));
 						column11.setParamsUnchecked(params.at(x | step, z | step));
+						/*
+						//pre-computing column values results in
+						//computation of noise which will never
+						//be used, like cave/deep dark/core noise.
 						for (String name : this.generator.getOverriders().rawColumnValueDependencies) try {
 							column00.preComputeColumnValue(name);
 							column01.preComputeColumnValue(name);
@@ -67,6 +67,7 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 							overrider.override(column10, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 							overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 						}
+						*/
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),
@@ -88,6 +89,6 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		return this.convertSection(key, levelX, levelZ, level, lists);
+		this.convertSection(key, levelX, levelZ, level, lists);
 	}
 }

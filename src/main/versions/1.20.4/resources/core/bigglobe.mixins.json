@@ -79,6 +79,8 @@
 		"Voxy_WorldSection_DataGetter",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"World_UseCorrectSeaLevel",
+		"WorldGenProperties_LogLevelType",
+		"WorldPreset_DimensionsAccess",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [

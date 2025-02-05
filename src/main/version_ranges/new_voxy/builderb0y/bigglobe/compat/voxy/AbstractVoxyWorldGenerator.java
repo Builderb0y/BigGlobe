@@ -3,13 +3,8 @@ package builderb0y.bigglobe.compat.voxy;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicLong;
 
 import me.cortex.voxy.client.core.IGetVoxelCore;
-import me.cortex.voxy.common.storage.StorageBackend;
-import me.cortex.voxy.common.util.MemoryBuffer;
-import me.cortex.voxy.common.util.VolatileHolder;
-import me.cortex.voxy.common.world.SaveLoadSystem;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.WorldSection;
 import me.cortex.voxy.common.world.other.Mapper;
@@ -35,8 +30,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.commands.VoxyDebugCommand;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.mixins.Voxy_WorldSection_ConstructorAccess;
-import builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -56,11 +49,6 @@ public abstract class AbstractVoxyWorldGenerator {
 	public AbstractVoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator) {
 		this.engine = engine;
 		this.generator = generator;
-		for (StorageBackend backend : engine.storage.collectAllBackends()) {
-			if (backend instanceof QueueingStorageBackend queueing) {
-				queueing.setGenerator(this);
-			}
-		}
 		ScriptedColumn.Factory factory = generator.columnEntryRegistry.columnFactory;
 		Params params = new Params(generator, 0, 0, ColumnUsage.RAW_GENERATION.voxyHints(0));
 		this.columns = ThreadLocal.withInitial(() -> {
@@ -110,11 +98,11 @@ public abstract class AbstractVoxyWorldGenerator {
 		}
 	}
 
-	public MemoryBuffer generateNextChunk(long key) {
-		return this.createChunk(key, WorldEngine.getX(key), WorldEngine.getZ(key), WorldEngine.getLevel(key));
+	public void generateNextChunk(long key) {
+		this.createChunk(key, WorldEngine.getX(key), WorldEngine.getZ(key), WorldEngine.getLevel(key));
 	}
 
-	public abstract MemoryBuffer createChunk(long key, int levelX, int levelZ, int level);
+	public abstract void createChunk(long key, int levelX, int levelZ, int level);
 
 	public static final VarHandle nonEmptyChildHandle, nonEmptyBlockHandle;
 	static {
@@ -134,18 +122,17 @@ public abstract class AbstractVoxyWorldGenerator {
 		}
 	}
 
-	public MemoryBuffer convertSection(long key, int levelX, int levelZ, int level, BlockSegmentList[] lists) {
+	public void convertSection(long key, int levelX, int levelZ, int level, BlockSegmentList[] lists) {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
 		boolean lightAir = true; //required on hierarchical rewrite.
-		VolatileHolder<MemoryBuffer> returnValue = new VolatileHolder<>();
 		try (AsyncRunner async = new AsyncRunner(BigGlobeThreadPool.lodExecutor())) {
 			for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
 				final int sectionBottomY_ = sectionBottomY;
 				async.submit(() -> {
 					int levelY = sectionBottomY_ >> (level + 5);
-					WorldSection section = lightAir ? Voxy_WorldSection_ConstructorAccess.bigglobe_construct(level, levelX, levelY, levelZ, null) : null;
-					long[] sectionPayload = lightAir ? ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData() : null;
+					WorldSection section = lightAir ? WorldSection._createRawUntrackedUnsafeSection(level, levelX, levelY, levelZ) : null;
+					long[] sectionPayload = lightAir ? section._unsafeGetRawDataArray() : null;
 					if (lightAir) {
 						section.acquire();
 						Arrays.fill(sectionPayload, 0L);
@@ -164,9 +151,9 @@ public abstract class AbstractVoxyWorldGenerator {
 									if (segment.minY > (sectionBottomY_ | ((1 << (level + 5)) - 1))) break;
 									if (lightAir || !segment.value.isAir()) {
 										if (section == null) {
-											section = Voxy_WorldSection_ConstructorAccess.bigglobe_construct(level, levelX, levelY, levelZ, null);
+											section = WorldSection._createRawUntrackedUnsafeSection(level, levelX, levelY, levelZ);
 											section.acquire();
-											sectionPayload = ((Voxy_WorldSection_DataGetter)(Object)(section)).bigglobe_getData();
+											sectionPayload = section._unsafeGetRawDataArray();
 											Arrays.fill(sectionPayload, 0L);
 										}
 										int minRelativeY = Math.max((segment.minY - sectionBottomY_) >> level, 0);
@@ -206,14 +193,7 @@ public abstract class AbstractVoxyWorldGenerator {
 						if (section != null) {
 							nonEmptyChildHandle.setVolatile(section, (byte)(-1));
 							nonEmptyBlockHandle.setVolatile(section, nonEmptyBlocks);
-							MemoryBuffer data = SaveLoadSystem.serialize(section);
-							this.engine.storage.setSectionData(section.key, data);
-							if (section.key == key) {
-								returnValue.obj = data;
-							}
-							else {
-								data.free();
-							}
+							this.engine.storage.saveSection(section);
 						}
 					}
 					finally {
@@ -222,6 +202,5 @@ public abstract class AbstractVoxyWorldGenerator {
 				});
 			}
 		}
-		return returnValue.obj;
 	}
 }

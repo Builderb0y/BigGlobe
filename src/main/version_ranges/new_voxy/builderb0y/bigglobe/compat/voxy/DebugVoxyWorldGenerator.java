@@ -34,7 +34,7 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 	}
 
 	@Override
-	public MemoryBuffer createChunk(long key, int levelX, int levelZ, int level) {
+	public void createChunk(long key, int levelX, int levelZ, int level) {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 
@@ -67,6 +67,6 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		return this.convertSection(key, levelX, levelZ, level, lists);
+		this.convertSection(key, levelX, levelZ, level, lists);
 	}
 }

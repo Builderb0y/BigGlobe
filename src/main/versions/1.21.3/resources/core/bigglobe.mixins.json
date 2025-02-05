@@ -77,8 +77,9 @@
 		"ThrownEntity_CollisionHook",
 		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
 		"Voxy_WorldEngine_UseBigGlobeGenerator",
-		"Voxy_WorldSection_DataGetter",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
+		"WorldGenProperties_LogLevelType",
+		"WorldPreset_DimensionsAccess",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [

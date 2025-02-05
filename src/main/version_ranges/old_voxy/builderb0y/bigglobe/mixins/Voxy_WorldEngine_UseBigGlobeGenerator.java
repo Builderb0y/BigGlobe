@@ -17,19 +17,11 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolde
 
 	public AbstractVoxyWorldGenerator bigglobe_generator;
 
-	#if MC_VERSION >= MC_1_21_2
-		@Inject(method = "<init>(Lme/cortex/voxy/common/storage/StorageBackend;Lme/cortex/voxy/common/thread/ServiceThreadPool;I)V", at = @At("RETURN"))
-	#else
-		@Inject(method = "<init>", at = @At("RETURN"))
-	#endif
+	@Inject(method = "<init>", at = @At("RETURN"))
 	private void bigglobe_startGenerator(
 		StorageBackend storageBackend,
-		#if MC_VERSION >= MC_1_21_2
-			me.cortex.voxy.common.thread.ServiceThreadPool serviceThreadPool,
-		#else
-			int ingestWorkers,
-			int savingServiceWorkers,
-		#endif
+		int ingestWorkers,
+		int savingServiceWorkers,
 		int maxMipLayers,
 		CallbackInfo callback
 	) {
@@ -38,24 +30,18 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolde
 			(WorldEngine)(Object)(this)
 		);
 
-		#if MC_VERSION < MC_1_21_2
-			if (this.bigglobe_generator != null) {
-				this.bigglobe_generator.start();
-			}
-		#endif
+		if (this.bigglobe_generator != null) {
+			this.bigglobe_generator.start();
+		}
 	}
 
-	#if MC_VERSION < MC_1_21_2
-
-		@Inject(method = "shutdown", at = @At("HEAD"))
-		private void bigglobe_stopGenerator(CallbackInfo callback) {
-			AbstractVoxyWorldGenerator generator = this.bigglobe_generator;
-			if (generator != null) {
-				generator.stop();
-			}
+	@Inject(method = "shutdown", at = @At("HEAD"))
+	private void bigglobe_stopGenerator(CallbackInfo callback) {
+		AbstractVoxyWorldGenerator generator = this.bigglobe_generator;
+		if (generator != null) {
+			generator.stop();
 		}
-
-	#endif
+	}
 
 	@Override
 	public AbstractVoxyWorldGenerator bigglobe_getVoxyGenerator() {

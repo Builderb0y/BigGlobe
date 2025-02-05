@@ -127,6 +127,10 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 								column01.setParamsUnchecked(params.at(quadX | step, quadZ       ));
 								column10.setParamsUnchecked(params.at(quadX,        quadZ | step));
 								column11.setParamsUnchecked(params.at(quadX | step, quadZ | step));
+								/*
+								//pre-computing column values results in
+								//computation of noise which will never
+								//be used, like cave/deep dark/core noise.
 								for (String name : this.chunkGenerator.getOverriders().rawColumnValueDependencies) try {
 									column00.preComputeColumnValue(name);
 									column01.preComputeColumnValue(name);
@@ -142,6 +146,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 									overrider.override(column10, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 									overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 								}
+								*/
 								BlockSegmentList
 									list00 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
 									list01 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
