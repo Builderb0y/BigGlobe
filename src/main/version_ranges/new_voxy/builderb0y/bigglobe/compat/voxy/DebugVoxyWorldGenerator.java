@@ -3,9 +3,7 @@ package builderb0y.bigglobe.compat.voxy;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import me.cortex.voxy.common.util.MemoryBuffer;
 import me.cortex.voxy.common.world.WorldEngine;
-import me.cortex.voxy.common.world.WorldSection;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
@@ -15,7 +13,6 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
@@ -34,7 +31,7 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 	}
 
 	@Override
-	public void createChunk(long key, int levelX, int levelZ, int level) {
+	public void createChunk(int levelX, int levelZ, int level) {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 
@@ -67,6 +64,6 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		this.convertSection(key, levelX, levelZ, level, lists);
+		this.convertSection(levelX, levelZ, level, lists);
 	}
 }

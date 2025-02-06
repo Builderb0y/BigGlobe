@@ -45,6 +45,7 @@ public abstract class AbstractVoxyWorldGenerator {
 	public final BigGlobeScriptedChunkGenerator generator;
 	public final ThreadLocal<ScriptedColumn[]> columns;
 	public final int plainsBiomeId;
+	public final LockManager lockManager;
 
 	public AbstractVoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator) {
 		this.engine = engine;
@@ -59,6 +60,7 @@ public abstract class AbstractVoxyWorldGenerator {
 			return columns;
 		});
 		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
+		this.lockManager = new LockManager();
 	}
 
 	public static void reloadWith(Factory factory, IGetVoxelCore coreGetter) {
@@ -99,10 +101,15 @@ public abstract class AbstractVoxyWorldGenerator {
 	}
 
 	public void generateNextChunk(long key) {
-		this.createChunk(key, WorldEngine.getX(key), WorldEngine.getZ(key), WorldEngine.getLevel(key));
+		if (this.lockManager.tryBeginChunk(key)) try {
+			this.createChunk(WorldEngine.getX(key), WorldEngine.getZ(key), WorldEngine.getLevel(key));
+		}
+		finally {
+			this.lockManager.finishChunk(key);
+		}
 	}
 
-	public abstract void createChunk(long key, int levelX, int levelZ, int level);
+	public abstract void createChunk(int levelX, int levelZ, int level);
 
 	public static final VarHandle nonEmptyChildHandle, nonEmptyBlockHandle;
 	static {
@@ -122,7 +129,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		}
 	}
 
-	public void convertSection(long key, int levelX, int levelZ, int level, BlockSegmentList[] lists) {
+	public void convertSection(int levelX, int levelZ, int level, BlockSegmentList[] lists) {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
 		boolean lightAir = true; //required on hierarchical rewrite.
@@ -141,6 +148,7 @@ public abstract class AbstractVoxyWorldGenerator {
 					int previousColumnStateID = -1;
 					try {
 						int nonEmptyBlocks = 0;
+						byte nonEmptyChildren = 0;
 						for (int relativeZ = 0; relativeZ < 32; relativeZ++) {
 							for (int relativeX = 0; relativeX < 32; relativeX++) {
 								int packedXZ = (relativeZ << 5) | relativeX;
@@ -173,6 +181,7 @@ public abstract class AbstractVoxyWorldGenerator {
 												if (previousColumnStateID == 0 && !wasAir) continue;
 												sectionPayload[index] = id;
 												if (wasAir) nonEmptyBlocks++;
+												nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
 											}
 										}
 										else {
@@ -184,6 +193,7 @@ public abstract class AbstractVoxyWorldGenerator {
 												int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - absoluteY), 0);
 												sectionPayload[index] = Mapper.composeMappingId((byte)((15 - lightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
 												if (wasAir) nonEmptyBlocks++;
+												nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
 											}
 										}
 									}
@@ -191,7 +201,7 @@ public abstract class AbstractVoxyWorldGenerator {
 							}
 						}
 						if (section != null) {
-							nonEmptyChildHandle.setVolatile(section, (byte)(-1));
+							nonEmptyChildHandle.setVolatile(section, nonEmptyChildren);
 							nonEmptyBlockHandle.setVolatile(section, nonEmptyBlocks);
 							this.engine.storage.saveSection(section);
 						}

@@ -34,7 +34,6 @@ to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	document extra spawn system.
-	log information about level-type on dedicated servers.
 
 changelog:
 	* Fixed animals not spawning more than 16 blocks above sea level.

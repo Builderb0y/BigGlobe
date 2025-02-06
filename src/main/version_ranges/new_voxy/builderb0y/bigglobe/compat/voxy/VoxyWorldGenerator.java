@@ -19,7 +19,7 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 	}
 
 	@Override
-	public void createChunk(long key, int levelX, int levelZ, int level) {
+	public void createChunk(int levelX, int levelZ, int level) {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 		int step   = 1 << level;
@@ -89,6 +89,6 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 				}
 			}
 		}
-		this.convertSection(key, levelX, levelZ, level, lists);
+		this.convertSection(levelX, levelZ, level, lists);
 	}
 }
