@@ -19,9 +19,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.conditions.IntCompareZeroConditionTree;
-import builderb0y.scripting.bytecode.tree.instructions.ConditionToBooleanInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseAndInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -79,6 +77,22 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 			)
 			.emitBytecode(column);
 			column.endCode();
+		}
+
+		{
+			MethodCompileContext getCenterColumn = this.mainClass.newMethod(ACC_PUBLIC, "get_center_column", parent.columnType());
+			LazyVarInfo self = new LazyVarInfo("this", getCenterColumn.clazz.info);
+			return_(
+				new DirectCastInsnTree(
+					invokeInstance(
+						load(self),
+						VoronoiDataBase.INFO.get_center_base
+					),
+					getCenterColumn.info.returnType
+				)
+			)
+			.emitBytecode(getCenterColumn);
+			getCenterColumn.endCode();
 		}
 	}
 

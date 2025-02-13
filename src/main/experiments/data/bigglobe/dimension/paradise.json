@@ -12,6 +12,7 @@
 			"sea_level": -256
 		},
 		"layer": {
+			"type": "bigglobe:root",
 			"state": "'minecraft:air'",
 			"children": [
 				{

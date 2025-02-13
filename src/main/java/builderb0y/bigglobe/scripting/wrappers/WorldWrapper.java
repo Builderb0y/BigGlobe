@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
@@ -146,7 +147,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public static record AutoOverride(ScriptStructures structures, ColumnValueOverrider.Holder[] overriders, String[] preFetch) {
+	public static record AutoOverride(ScriptStructures structures, RegistryEntry<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
 
 		public void override(ScriptedColumn column) {
 			for (String name : this.preFetch) try {
@@ -155,8 +156,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			catch (Throwable throwable) {
 				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
 			}
-			for (ColumnValueOverrider.Holder overrider : this.overriders) {
-				overrider.override(column, this.structures);
+			for (RegistryEntry<ColumnValueOverrider.Entry> overrider : this.overriders) {
+				overrider.value().script().override(column, this.structures);
 			}
 		}
 	}

@@ -71,7 +71,9 @@ public class VoronoiColumnValueType implements ColumnValueType {
 		);
 		if (loadHolder != null) {
 			VoronoiDataBase.INFO.addAll(environment, loadHolder);
+			environment.addVariable("center_column", VoronoiDataBase.INFO.get_center_column(loadHolder, baseContext.root().columnType()));
 		}
+		environment.addFieldInvoke("center_column", VoronoiDataBase.INFO.get_center_column(typeContext.type(), context.root().columnType()));
 		for (Map.Entry<String, AccessSchema> export : this.exports.entrySet()) {
 			String name = export.getKey();
 			MethodInfo getter = export.getValue().getterDescriptor(ACC_PUBLIC, "get_" + export.getKey(), baseContext);
@@ -200,6 +202,7 @@ public class VoronoiColumnValueType implements ColumnValueType {
 				}
 			}
 		}
+		environment.addFieldInvoke("center_column", VoronoiDataBase.INFO.get_center_column(selfContext.selfType(), context.columnType()));
 	}
 
 	@Override

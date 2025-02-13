@@ -8,12 +8,14 @@ import me.cortex.voxy.client.core.IGetVoxelCore;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.WorldSection;
 import me.cortex.voxy.common.world.other.Mapper;
+import me.cortex.voxy.common.world.other.Mipper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -22,6 +24,7 @@ import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.biome.BiomeKeys;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
@@ -29,6 +32,8 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.commands.VoxyDebugCommand;
+import builderb0y.bigglobe.compat.voxy.DistanceGraph.LeafNode;
+import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
@@ -43,24 +48,24 @@ public abstract class AbstractVoxyWorldGenerator {
 
 	public final WorldEngine engine;
 	public final BigGlobeScriptedChunkGenerator generator;
-	public final ThreadLocal<ScriptedColumn[]> columns;
+	public final GenerationQueue generationQueue;
+	public final Thread thread;
+	public volatile boolean running;
+	public final ScriptedColumn[] columns;
 	public final int plainsBiomeId;
-	public final LockManager lockManager;
 
 	public AbstractVoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator) {
 		this.engine = engine;
 		this.generator = generator;
 		ScriptedColumn.Factory factory = generator.columnEntryRegistry.columnFactory;
 		Params params = new Params(generator, 0, 0, ColumnUsage.RAW_GENERATION.voxyHints(0));
-		this.columns = ThreadLocal.withInitial(() -> {
-			ScriptedColumn[] columns = new ScriptedColumn[1024];
-			for (int index = 0; index < 1024; index++) {
-				columns[index] = factory.create(params);
-			}
-			return columns;
-		});
+		this.generationQueue = new GenerationQueue();
+		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
+		this.columns = new ScriptedColumn[1024];
+		for (int index = 0; index < 1024; index++) {
+			this.columns[index] = factory.create(params);
+		}
 		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
-		this.lockManager = new LockManager();
 	}
 
 	public static void reloadWith(Factory factory, IGetVoxelCore coreGetter) {
@@ -100,13 +105,78 @@ public abstract class AbstractVoxyWorldGenerator {
 		}
 	}
 
-	public void generateNextChunk(long key) {
-		if (this.lockManager.tryBeginChunk(key)) try {
-			this.createChunk(WorldEngine.getX(key), WorldEngine.getZ(key), WorldEngine.getLevel(key));
+	public void start() {
+		this.running = true;
+		this.thread.start();
+	}
+
+	public void stop() {
+		this.running = false;
+		try {
+			this.thread.join();
 		}
-		finally {
-			this.lockManager.finishChunk(key);
+		catch (InterruptedException exception) {
+			BigGlobeMod.LOGGER.error("Unexpected interrupt while stopping " + this.thread.getName() + ": ", exception);
 		}
+	}
+
+	public void runLoop() {
+		BigGlobeMod.LOGGER.info("Big Globe voxy generation thread started.");
+		int failures = 0;
+		while (true) try {
+			if (!this.running) {
+				BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to voxy core shutting down.");
+				break;
+			}
+			if (BigGlobeThreadPool.isBusy()) try {
+				Thread.sleep(100L);
+			}
+			catch (InterruptedException ignored) {}
+			if (!this.generateNextChunk()) try {
+				Thread.sleep(1000L);
+			}
+			catch (InterruptedException ignored) {}
+			failures = 0;
+		}
+		catch (Exception exception) {
+			BigGlobeMod.LOGGER.error("Exception on Big Globe Voxy thread: ", exception);
+			if (++failures >= 3) {
+				BigGlobeMod.LOGGER.error("Failed 3 times. Assuming state is corrupt or something and shutting down.");
+				break;
+			}
+			else try {
+				Thread.sleep(5000L);
+			}
+			catch (InterruptedException ignored) {}
+		}
+	}
+
+	public void queueChunk(long key) {
+		this.generationQueue.queueChunk(key);
+	}
+
+	public boolean generateNextChunk() {
+		long next = this.generationQueue.nextChunk();
+		if (next == -1L) return false;
+		//System.out.println("generating " + WorldEngine.pprintPos(next));
+		this.generateChunkRecursive(next);
+		return true;
+	}
+
+	public void generateChunkRecursive(long key) {
+		int x   = WorldEngine.getX(key);
+		int z   = WorldEngine.getZ(key);
+		int lod = WorldEngine.getLevel(key);
+		/*
+		if (lod > 0) {
+			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1,  x << 1,      0,  z << 1     ));
+			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1,  x << 1,      0, (z << 1) | 1));
+			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1, (x << 1) | 1, 0,  z << 1     ));
+			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1, (x << 1) | 1, 0, (z << 1) | 1));
+		}
+		*/
+		this.createChunk(x, z, lod);
+		this.generationQueue.finishChunk(key);
 	}
 
 	public abstract void createChunk(int levelX, int levelZ, int level);
@@ -132,7 +202,7 @@ public abstract class AbstractVoxyWorldGenerator {
 	public void convertSection(int levelX, int levelZ, int level, BlockSegmentList[] lists) {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
-		boolean lightAir = true; //required on hierarchical rewrite.
+		boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
 		try (AsyncRunner async = new AsyncRunner(BigGlobeThreadPool.lodExecutor())) {
 			for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
 				final int sectionBottomY_ = sectionBottomY;
@@ -203,7 +273,7 @@ public abstract class AbstractVoxyWorldGenerator {
 						if (section != null) {
 							nonEmptyChildHandle.setVolatile(section, nonEmptyChildren);
 							nonEmptyBlockHandle.setVolatile(section, nonEmptyBlocks);
-							this.engine.storage.saveSection(section);
+							this.insert(section);
 						}
 					}
 					finally {
@@ -211,6 +281,87 @@ public abstract class AbstractVoxyWorldGenerator {
 					}
 				});
 			}
+		}
+	}
+
+	public void insert(WorldSection section) {
+		this.engine.markDirty(section);
+		/*
+		int firstLod = section.lvl;
+		boolean free = false;
+		for (int lod = firstLod; ++lod < WorldEngine.MAX_LOD_LAYERS;) {
+			WorldSection nextMip = this.engine.acquire(lod, section.x >> (lod - firstLod), section.y >> (lod - firstLod), section.z >> (lod - firstLod));
+			if (nextMip.updateEmptyChildState(section) != 0) {
+				this.engine.markDirty(nextMip, WorldEngine.UPDATE_TYPE_CHILD_EXISTENCE_BIT);
+				if (free) section.release();
+				section = nextMip;
+				free = true;
+			}
+			else {
+				if (free) section.release();
+				break;
+			}
+		}
+		*/
+	}
+
+	public static class GenerationQueue {
+
+		public static final int WORLD_SIZE_IN_LODS = DistanceGraph.WORLD_SIZE_IN_BLOCKS >> 5;
+
+		public final DistanceGraph[]
+			todo = new DistanceGraph[16],
+			done = new DistanceGraph[16];
+
+		public GenerationQueue() {
+			for (int lod = 0; lod < 16; lod++) {
+				this.todo[lod] = new DistanceGraph(
+					-WORLD_SIZE_IN_LODS >> lod,
+					-WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					false
+				);
+				this.done[lod] = new DistanceGraph(
+					-WORLD_SIZE_IN_LODS >> lod,
+					-WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					false
+				);
+			}
+		}
+
+		public void queueChunk(long key) {
+			//System.out.println("Queueing " + WorldEngine.pprintPos(key));
+			int x   = WorldEngine.getX(key);
+			int z   = WorldEngine.getZ(key);
+			int lod = WorldEngine.getLevel(key);
+			synchronized (this) {
+				if (!this.done[lod].get(x, z)) {
+					this.todo[lod].set(x, z, true);
+				}
+			}
+		}
+
+		public synchronized void finishChunk(long key) {
+			//System.out.println("Finished " + WorldEngine.pprintPos(key));
+			this.todo[WorldEngine.getLevel(key)].set(WorldEngine.getX(key), WorldEngine.getZ(key), false);
+			this.done[WorldEngine.getLevel(key)].set(WorldEngine.getX(key), WorldEngine.getZ(key), true);
+		}
+
+		public synchronized long nextChunk() {
+			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			if (player == null) return -1L;
+			int x = player.getBlockX() >> 5;
+			int z = player.getBlockZ() >> 5;
+			for (int lod = 0; lod < 16; lod++) {
+				Query query = this.todo[lod].current(x >> lod, z >> lod, true);
+				if (query != null) {
+					return WorldEngine.getWorldSectionId(lod, query.closestX, 0, query.closestZ);
+				}
+			}
+			return -1;
 		}
 	}
 }

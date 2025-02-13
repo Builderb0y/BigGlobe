@@ -24,7 +24,7 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 		int startZ = levelZ << (level + 5);
 		int step   = 1 << level;
 
-		ScriptedColumn[] columns = this.columns.get();
+		ScriptedColumn[] columns = this.columns;
 		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();

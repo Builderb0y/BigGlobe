@@ -219,6 +219,7 @@ public class BigGlobeAutoCodec {
 					super.setup();
 					this.addFactoryToStart(UseSuperClass.Coder.Factory.INSTANCE);
 					this.addFactoryBefore(LookupCoderFactory.class, GridRegistryEntryCoder.Factory.INSTANCE);
+					this.addFactoryAfter(LookupCoderFactory.class, RegistryEntryCoder.Factory.INSTANCE);
 					this.getFactory(EnumCoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}
 
@@ -375,7 +376,6 @@ public class BigGlobeAutoCodec {
 		public final @NotNull ReifiedType<DelayedEntryList<T>> delayedTagType;
 
 		public final @NotNull BetterRegistryCoder<T> betterRegistryCoder;
-		public final @NotNull RegistryEntryCoder<T> registryEntryCoder;
 		public final @NotNull DelayedEntryListCoder<T> delayedEntryListCoder;
 
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull RegistryKey<Registry<T>> registryKey) {
@@ -388,14 +388,13 @@ public class BigGlobeAutoCodec {
 			this.   betterRegistryType = ReifiedType.parameterize(  BetterRegistry.class, objectType);
 
 			this.  betterRegistryCoder = new   BetterRegistryCoder<>(this.betterRegistryType, registryKey);
-			this.   registryEntryCoder = new    RegistryEntryCoder<>(this. registryEntryType, registryKey);
 			this.delayedEntryListCoder = new DelayedEntryListCoder<>(this.    delayedTagType, registryKey);
 		}
 
 		public void addAllTo(LookupCoderFactory factory) {
 			factory.addGeneric(this.betterRegistryType, this.  betterRegistryCoder);
-			factory.addGeneric(this. registryEntryType, this.   registryEntryCoder);
 			factory.addGeneric(this.    delayedTagType, this.delayedEntryListCoder);
+			RegistryEntryCoder.Factory.INSTANCE.register(this.objectType, this.registryKey);
 		}
 	}
 

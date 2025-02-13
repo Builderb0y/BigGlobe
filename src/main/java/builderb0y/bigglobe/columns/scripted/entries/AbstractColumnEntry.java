@@ -289,8 +289,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			int oldFlags = flagsField
 			int newFlags = oldFlags | flagsBitmask
 			if (oldFlags != newFlags:
-				value = compute()
 				flagsField = newFlags
+				value = compute()
 			)
 			""",
 			(MutableScriptEnvironment environment) -> {
@@ -313,8 +313,8 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			int oldFlags = flagsField
 			int newFlags = oldFlags | flagsBitmask
 			if (oldFlags != newFlags:
-				compute()
 				flagsField = newFlags
+				compute()
 			)
 			""",
 			(MutableScriptEnvironment environment) -> {

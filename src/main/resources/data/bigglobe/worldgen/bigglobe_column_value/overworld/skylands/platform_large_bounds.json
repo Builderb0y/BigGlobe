@@ -13,9 +13,9 @@
 		"is_3d": false
 	},
 	"script": [
-		"double actualExclusion = 1.0L - (exclusion + `bigglobe:overworld/skyland`.soft_distance_squared * 1.25L)",
-		"if (actualExclusion !> 0.0L: return(null))",
 		"LargeSkylandPlatformCell platformCell = platform_large",
+		"double actualExclusion = 1.0L - (platformCell.center_column.`bigglobe:overworld/skylands/exclusion` + platformCell.center_column.`bigglobe:overworld/skyland`.soft_distance_squared * 1.25L)",
+		"if (actualExclusion !> 0.0L: return(null))",
 		"long seed = (worldSeed # 16x9E16B3F642DFC38FUL).newSeed(platformCell.cell_x, platformCell.cell_z)",
 		"double averageCenter = seed.nextDouble(-256.0L, +256.0L) * actualExclusion + 512.0L",
 		"double top = averageCenter + plains_center",

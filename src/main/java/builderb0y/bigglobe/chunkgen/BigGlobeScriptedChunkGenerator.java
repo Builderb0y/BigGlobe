@@ -5,10 +5,10 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.hash.Hashing;
@@ -16,7 +16,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -78,10 +77,10 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
-import builderb0y.bigglobe.chunkgen.scripted.RootLayer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
+import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder.Inlinable;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
@@ -126,6 +125,8 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import builderb0y.bigglobe.versions.TracyWrapper;
+import builderb0y.bigglobe.versions.TracyWrapper.ZoneWrapper;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 #if MC_VERSION < MC_1_21_2
@@ -138,6 +139,7 @@ import net.minecraft.world.gen.GenerationStep.Carver;
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements DelayedCompileable {
 
 	public static final boolean WORLD_SLICES = false;
+	public static final AtomicBoolean TRACE_OPERATION = new AtomicBoolean(false);
 
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class);
@@ -166,7 +168,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable Integer sea_level
 	) {}
 	public final Height height;
-	public final RegistryEntry<Layer> layer;
+	public final @Inlinable RegistryEntry<Layer> layer;
 	public final FeatureDispatchers feature_dispatcher;
 	public final DelayedEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
@@ -705,47 +707,61 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						for (int offsetX = 0; offsetX < 16; offsetX += 2) {
 							final int offsetX_ = offsetX;
 							async.submit(() -> {
-								int baseIndex = (offsetZ_ << 4) | offsetX_;
-								int quadX = startX | offsetX_;
-								int quadZ = startZ | offsetZ_;
-								ScriptedColumn
-									column00 = columns[baseIndex     ],
-									column01 = columns[baseIndex |  1],
-									column10 = columns[baseIndex | 16],
-									column11 = columns[baseIndex | 17];
-								column00.setParamsUnchecked(params.at(quadX,     quadZ    ));
-								column01.setParamsUnchecked(params.at(quadX | 1, quadZ    ));
-								column10.setParamsUnchecked(params.at(quadX,     quadZ | 1));
-								column11.setParamsUnchecked(params.at(quadX | 1, quadZ | 1));
-								for (String name : this.getOverriders().rawColumnValueDependencies) try {
-									column00.preComputeColumnValue(name);
-									column01.preComputeColumnValue(name);
-									column10.preComputeColumnValue(name);
-									column11.preComputeColumnValue(name);
+								boolean trace = TracyWrapper.ENABLED && TRACE_OPERATION.compareAndSet(true, false);
+								try (ZoneWrapper generateQuad = trace ? TracyWrapper.beginZone("generateQuad") : null) {
+									int baseIndex = (offsetZ_ << 4) | offsetX_;
+									int quadX = startX | offsetX_;
+									int quadZ = startZ | offsetZ_;
+									ScriptedColumn
+										column00 = columns[baseIndex],
+										column01 = columns[baseIndex | 1],
+										column10 = columns[baseIndex | 16],
+										column11 = columns[baseIndex | 17];
+									column00.setParamsUnchecked(params.at(quadX, quadZ));
+									column01.setParamsUnchecked(params.at(quadX | 1, quadZ));
+									column10.setParamsUnchecked(params.at(quadX, quadZ | 1));
+									column11.setParamsUnchecked(params.at(quadX | 1, quadZ | 1));
+									try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
+										for (String name : this.getOverriders().rawColumnValueDependencies)
+											try {
+												try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
+													column00.preComputeColumnValue(name);
+													column01.preComputeColumnValue(name);
+													column10.preComputeColumnValue(name);
+													column11.preComputeColumnValue(name);
+												}
+											}
+											catch (Throwable throwable) {
+												BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+											}
+									}
+									try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
+										for (RegistryEntry<ColumnValueOverrider.Entry> overrider : this.getOverriders().rawColumnValues) {
+											try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overrider)::toString) : null) {
+												overrider.value().script().override(column00, structures);
+												overrider.value().script().override(column01, structures);
+												overrider.value().script().override(column10, structures);
+												overrider.value().script().override(column11, structures);
+											}
+										}
+									}
+									BlockSegmentList
+										list00 = new BlockSegmentList(chunkMinY, chunkMaxY),
+										list01 = new BlockSegmentList(chunkMinY, chunkMaxY),
+										list10 = new BlockSegmentList(chunkMinY, chunkMaxY),
+										list11 = new BlockSegmentList(chunkMinY, chunkMaxY);
+									Layer layer = this.layer.value();
+									try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
+										layer.emitSegments(column00, column01, column10, column11, list00);
+										layer.emitSegments(column01, column00, column11, column10, list01);
+										layer.emitSegments(column10, column11, column00, column01, list10);
+										layer.emitSegments(column11, column10, column01, column00, list11);
+									}
+									lists[baseIndex     ] = list00;
+									lists[baseIndex |  1] = list01;
+									lists[baseIndex | 16] = list10;
+									lists[baseIndex | 17] = list11;
 								}
-								catch (Throwable throwable) {
-									BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
-								}
-								for (ColumnValueOverrider.Holder overrider : this.getOverriders().rawColumnValues) {
-									overrider.override(column00, structures);
-									overrider.override(column01, structures);
-									overrider.override(column10, structures);
-									overrider.override(column11, structures);
-								}
-								BlockSegmentList
-									list00 = new BlockSegmentList(chunkMinY, chunkMaxY),
-									list01 = new BlockSegmentList(chunkMinY, chunkMaxY),
-									list10 = new BlockSegmentList(chunkMinY, chunkMaxY),
-									list11 = new BlockSegmentList(chunkMinY, chunkMaxY);
-								Layer layer = this.layer.value();
-								layer.emitSegments(column00, column01, column10, column11, list00);
-								layer.emitSegments(column01, column00, column11, column10, list01);
-								layer.emitSegments(column10, column11, column00, column01, list10);
-								layer.emitSegments(column11, column10, column01, column00, list11);
-								lists[baseIndex     ] = list00;
-								lists[baseIndex |  1] = list01;
-								lists[baseIndex | 16] = list10;
-								lists[baseIndex | 17] = list11;
 							});
 						}
 					}

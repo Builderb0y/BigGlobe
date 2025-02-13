@@ -55,6 +55,7 @@ public class BigGlobeCommands {
 		EvaluateCommand      .register(dispatcher);
 		DumpRegistriesCommand.register(dispatcher);
 		DevDebugCommand      .register(dispatcher);
+		TracyCommand         .register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering commands to dispatcher.");
 	}
 

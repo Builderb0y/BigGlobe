@@ -11,6 +11,7 @@
 			"biome": "minecraft:plains"
 		},
 		"layer": {
+			"type": "bigglobe:root",
 			"state": "'minecraft:air'",
 			"children": [
 				{

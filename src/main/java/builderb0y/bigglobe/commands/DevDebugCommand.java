@@ -5,6 +5,7 @@ import java.util.Comparator;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.registry.RegistryKeys;
@@ -20,7 +21,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.DelayedEntryList;
@@ -29,10 +29,8 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DevDebugCommand {
 
-	public static final boolean ENABLED = false;
-
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-		if (!ENABLED) return;
+		if (!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":debug")

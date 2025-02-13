@@ -35,7 +35,7 @@ public class DebugVoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 		int startX = levelX << (level + 5);
 		int startZ = levelZ << (level + 5);
 
-		ScriptedColumn[] columns = this.columns.get();
+		ScriptedColumn[] columns = this.columns;
 		BlockSegmentList[] lists = new BlockSegmentList[1024];
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();

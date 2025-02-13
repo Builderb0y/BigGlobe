@@ -4,6 +4,7 @@
 		"#bigglobe:land_except_volcano",
 		"#bigglobe:beach",
 		"#bigglobe:ocean",
+		"bigglobe:river",
 		"#bigglobe:underground"
 	]
 }

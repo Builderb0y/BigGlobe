@@ -79,16 +79,17 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 
 		public final StructureOverrider.Entry[] structures;
 		public final CollisionOverrider.Entry[] collisions;
-		public final ColumnValueOverrider.Holder[] rawColumnValues, featureColumnValues;
+		public final RegistryEntry<ColumnValueOverrider.Entry>[] rawColumnValues, featureColumnValues;
 		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
+		@SuppressWarnings("unchecked")
 		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
-			Map<Type, List<Overrider>> map = generator.overriders.objectStream().collect(Collectors.groupingBy(Overrider::getOverriderType));
-			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(StructureOverrider.Entry.class::cast).toArray(StructureOverrider.Entry[]::new);
-			this.collisions = map.getOrDefault(Type.COLLISION, Collections.emptyList()).stream().map(CollisionOverrider.Entry.class::cast).toArray(CollisionOverrider.Entry[]::new);
-			this.rawColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::raw_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
-			this.featureColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::feature_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
-			this.rawColumnValueDependencies = this.extractDependencies(this.rawColumnValues, generator);
+			Map<Type, List<RegistryEntry<Overrider>>> map = generator.overriders.entryStream().collect(Collectors.groupingBy((RegistryEntry<Overrider> entry) -> entry.value().getOverriderType()));
+			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(RegistryEntry<Overrider>::value).map(StructureOverrider.Entry.class::cast).toArray(StructureOverrider.Entry[]::new);
+			this.collisions = map.getOrDefault(Type.COLLISION, Collections.emptyList()).stream().map(RegistryEntry<Overrider>::value).map(CollisionOverrider.Entry.class::cast).toArray(CollisionOverrider.Entry[]::new);
+			this.rawColumnValues     = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((RegistryEntry<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).    raw_generation()).toArray(RegistryEntry[]::new);
+			this.featureColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((RegistryEntry<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).feature_generation()).toArray(RegistryEntry[]::new);
+			this.    rawColumnValueDependencies = this.extractDependencies(this.    rawColumnValues, generator);
 			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues, generator);
 		}
 
@@ -105,10 +106,10 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 			return 0;
 		}
 
-		public String[] extractDependencies(ColumnValueOverrider.Holder[] holders, BigGlobeScriptedChunkGenerator generator) {
+		public String[] extractDependencies(RegistryEntry<ColumnValueOverrider.Entry>[] holders, BigGlobeScriptedChunkGenerator generator) {
 			IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
-			for (ColumnValueOverrider.Holder holder : holders) {
-				holder.streamDirectDependencies().forEach(collector);
+			for (RegistryEntry<ColumnValueOverrider.Entry> entry : holders) {
+				entry.value().script().streamDirectDependencies().forEach(collector);
 			}
 			return (
 				collector
