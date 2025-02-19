@@ -1,0 +1,30 @@
+{
+	"type": "column_value",
+	"script": [
+		"for (StructureStart start in structures:",
+			"if (start.structure ==. 'bigglobe:obelisk':",
+				"ScriptStructurePiece piece = start.pieces.(0)",
+				"float relativeX = x - start.midX",
+				"float relativeZ = z - start.midZ",
+				"float maxFrac = 0.0I",
+				"for (NbtCompound side in NbtList(piece.data.sides):",
+					"float sideX = side.x",
+					"float sideZ = side.z",
+					"float dot = relativeX * sideX + relativeZ * sideZ",
+					"float div = sideX ^ 2 + sideZ ^ 2",
+					"maxFrac = max(maxFrac, dot / div)",
+				")",
+				"if (maxFrac < 1.5I:",
+					"if (maxFrac <= 1.0I:",
+						"maxFrac = 1.0I",
+						"`bigglobe:overworld/lake_surface_states` = LakeSurfaceStates.new('minecraft:stone', 'minecraft:stone')",
+					")",
+					"int startY = piece.data.startY",
+					"float curve = float(1.0L - sqrt(1.0I - (2.0I * maxFrac - 3.0I) ^ 2))",
+					"world_traits.`bigglobe:approximate_surface_y` = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:approximate_surface_y`, startY + 0.5L, double(curve))",
+					"world_traits.`bigglobe:exact_surface_y` = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:exact_surface_y`, startY + 0.5L, double(curve))",
+				")",
+			")",
+		")"
+	]
+}

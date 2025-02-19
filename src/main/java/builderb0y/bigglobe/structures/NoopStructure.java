@@ -22,6 +22,11 @@ public class NoopStructure extends BigGlobeStructure {
 	}
 
 	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return 0;
+	}
+
+	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		return Optional.empty();
 	}

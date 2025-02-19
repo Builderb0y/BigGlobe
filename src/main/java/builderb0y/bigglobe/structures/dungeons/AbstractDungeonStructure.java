@@ -95,6 +95,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		this.palettes = palettes;
 	}
 
+	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return 8;
+	}
+
 	public abstract DungeonLayout layout(ScriptedColumn column, int y, RandomGenerator random);
 
 	@Override

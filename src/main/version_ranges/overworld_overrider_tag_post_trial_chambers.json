@@ -8,6 +8,7 @@
 		"bigglobe:overworld/column_value/surface_y/igloo",
 		"bigglobe:overworld/column_value/surface_y/jigsaw",
 		"bigglobe:overworld/column_value/surface_y/medium_large_house",
+		"bigglobe:overworld/column_value/surface_y/obelisk",
 		"bigglobe:overworld/column_value/surface_y/ocean_monument",
 		"bigglobe:overworld/column_value/surface_y/small_house",
 		"bigglobe:overworld/column_value/surface_y/well",
@@ -49,6 +50,8 @@
 		"bigglobe:overworld/structure/spillover/village_savanna",
 		"bigglobe:overworld/structure/spillover/village_snowy",
 		"bigglobe:overworld/structure/spillover/village_taiga",
-		"bigglobe:overworld/structure/spillover/woodland_mansion"
+		"bigglobe:overworld/structure/spillover/woodland_mansion",
+
+		"bigglobe:overworld/obelisk_collision"
 	]
 }

@@ -3,8 +3,6 @@ package builderb0y.bigglobe.chunkgen.scripted;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EmptyBlockView;
 
 public class BlockSegmentList extends SegmentList<BlockState> {
 

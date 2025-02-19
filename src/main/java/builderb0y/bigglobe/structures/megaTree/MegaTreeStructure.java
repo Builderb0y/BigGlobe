@@ -65,6 +65,11 @@ public class MegaTreeStructure extends BigGlobeStructure {
 	}
 
 	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return 8;
+	}
+
+	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		long seed = chunkSeed(context, 0x462E8B50AE715A33L);

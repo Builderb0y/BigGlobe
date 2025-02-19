@@ -1,0 +1,9 @@
+{
+	"type": "collision",
+	"script": [
+		"if (currentStart.structure ==. 'bigglobe:obelisk':",
+			"return(1)",
+		")",
+		"return(0)"
+	]
+}

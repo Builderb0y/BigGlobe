@@ -60,7 +60,7 @@ public interface StructureLayoutScript extends Script {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(StructureLayoutScript.class, usage)
+				new TemplateScriptParser<>(StructureLayoutScript.class, this.usage)
 				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))

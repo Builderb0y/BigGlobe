@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:land_except_volcano",
+		"bigglobe:river"
+	]
+}

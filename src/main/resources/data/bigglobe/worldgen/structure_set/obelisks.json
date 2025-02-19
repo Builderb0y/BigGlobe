@@ -1,0 +1,27 @@
+{
+	"placement": {
+		"type": "bigglobe:scripted",
+		"placement": [
+			"for (",
+				"int regionZ in range[(centerChunkZ - chunkRange) >> 8, (centerChunkZ + chunkRange) >> 8],",
+				"int regionX in range[(centerChunkX - chunkRange) >> 8, (centerChunkX + chunkRange) >> 8]",
+			":",
+				"int centerX = regionX << 8 | 128",
+				"int centerZ = regionZ << 8 | 128",
+				"long seed = (worldSeed # 16x9BE4C0276928FD38UL).newSeed(regionX, regionZ)",
+				"int count = min(numberOfLeadingZeros((seed := seed.newSeed()).nextInt()), 8)",
+				"double startAngle = (seed := seed.newSeed()).nextDouble(tau)",
+				"double radius = count * 4.0L",
+				"for (int index in range[0, count):",
+					"double angle = double(index) / double(count) * tau + startAngle",
+					"int newX = centerX + int(cos(angle) * radius)",
+					"int newZ = centerZ + int(sin(angle) * radius)",
+					"addStart(newX, newZ)",
+				")",
+			")"
+		]
+	},
+	"structures": [
+		{ "structure": "bigglobe:obelisk", "weight": 1 }
+	]
+}

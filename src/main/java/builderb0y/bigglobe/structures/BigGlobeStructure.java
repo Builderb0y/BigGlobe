@@ -23,7 +23,7 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 //config needs to be encoded inline, but I can't annotate the field on the super class.
 //and also my ReflectionManager can't see the backing field anyway.
 @AddPseudoField(name = "config", getter = "getConfig")
-public abstract class BigGlobeStructure extends Structure {
+public abstract class BigGlobeStructure extends Structure implements SizedStructure {
 
 	public final ColumnToIntScript.@VerifyNullable Holder surface_y;
 

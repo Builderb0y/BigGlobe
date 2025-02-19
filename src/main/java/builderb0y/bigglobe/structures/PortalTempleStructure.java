@@ -46,7 +46,6 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -71,6 +70,11 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	public PortalTempleStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y, RandomSource cracked_chance) {
 		super(config, surface_y);
 		this.cracked_chance = cracked_chance;
+	}
+
+	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return 4;
 	}
 
 	@Override
@@ -654,7 +658,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			//roof
 			root.setBlockStateCuboid(-7, 9, -7, 7, 9, 7, BlockStates.RED_NETHER_BRICKS);
 			//small walkway connecting the two sets of stairs
-			rotate4.setBlockStateCuboid(-2, 5, -14,2, 5, -12, BlockStates.RED_NETHER_BRICKS);
+			rotate4.setBlockStateCuboid(-2, 5, -14, 2, 5, -12, BlockStates.RED_NETHER_BRICKS);
 			//lower stairs
 			rotate8.stack(0, 0, 1, 3).setBlockStateLine(-6, 2, -14, 1, 1, 0, 4, RED_NETHER_BRICK_STAIRS('e'));
 			//upper stairs

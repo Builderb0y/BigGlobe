@@ -5,7 +5,7 @@
 	"step": "raw_generation",
 	"layout": [
 		"int*(",
-			"size = random.nextInt(4, 7)",
+			"size = random.nextInt(6, 8)",
 			"radius = 1 << size",
 			"minY = (",
 				"ceilInt(",

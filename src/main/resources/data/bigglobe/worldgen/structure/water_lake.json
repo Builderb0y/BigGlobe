@@ -20,7 +20,7 @@
 	"layout": {
 		"template": "bigglobe:lake_structure_placement",
 		"inputs": {
-			"RADIUS": "random.nextInt(32, 96)",
+			"RADIUS": "random.nextInt(128, 192)",
 			"DEPTH": "random.nextDouble(0.125L, 0.25L)",
 			"DATA": [
 				"nbtCompound(",
@@ -31,5 +31,6 @@
 				")"
 			]
 		}
-	}
+	},
+	"max_radius_in_chunks": 12
 }

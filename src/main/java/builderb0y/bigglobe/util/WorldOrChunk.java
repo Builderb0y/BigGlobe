@@ -18,7 +18,6 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.features.RawFeature;
@@ -47,8 +46,6 @@ public interface WorldOrChunk extends BlockView {
 	public abstract void scheduleFluidTick(BlockPos pos, FluidState state);
 
 	public abstract long getSeed();
-
-	public abstract Chunk getChunk(int x, int z, ChunkStatus status, boolean create);
 
 	public abstract boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random);
 
@@ -116,11 +113,6 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public long getSeed() {
 			return this.world.getSeed();
-		}
-
-		@Override
-		public Chunk getChunk(int x, int z, ChunkStatus status, boolean create) {
-			return this.world.getChunk(x, z, status, create);
 		}
 
 		@Override
@@ -225,19 +217,6 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public long getSeed() {
 			return this.seed;
-		}
-
-		@Override
-		public Chunk getChunk(int x, int z, ChunkStatus status, boolean create) {
-			if (this.chunk.getPos().x == x && this.chunk.getPos().z == z && this.chunk.getStatus().isAtLeast(status)) {
-				return this.chunk;
-			}
-			else if (create) {
-				throw new UnsupportedOperationException("Can't create chunk.");
-			}
-			else {
-				return null;
-			}
 		}
 
 		@Override

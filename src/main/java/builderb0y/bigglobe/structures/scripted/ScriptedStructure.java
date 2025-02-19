@@ -24,9 +24,11 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
+import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.scripted.ScriptedLayer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
@@ -53,10 +55,17 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	#endif
 
 	public final StructureLayoutScript.Holder layout;
+	public final @DefaultInt(8) int max_radius_in_chunks;
 
-	public ScriptedStructure(Config config, StructureLayoutScript.Holder layout) {
+	public ScriptedStructure(Config config, StructureLayoutScript.Holder layout, int max_radius_in_chunks) {
 		super(config, null);
 		this.layout = layout;
+		this.max_radius_in_chunks = max_radius_in_chunks;
+	}
+
+	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return this.max_radius_in_chunks;
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.structures.scripted;
 
-import net.minecraft.nbt.NbtCompound;
-
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;

@@ -29,21 +29,43 @@ where I left off:
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
+	make WoodPaletteScriptEnvironment accept long seed for getting a weighted random block.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	document extra spawn system.
+	document overriders.
+	obelisks:
+		obelisks in the end dimension.
+		wireworld automata block for accents.
+		big rooms on the inside. much bigger than what would be considered normal for a player.
+		spiral staircase.
+		surface cave exclusion near obelisks.
+	document hints.distanceBetweenYLevels and hints.verticalLod.
+	document scripted structure max_radius_in_chunks.
+	document scripted structure placement.
+	expose terrain adaptation to overrider scripts if it isn't already exposed,
+		make jigsaw column value overrider use this to not add
+		flat ground below structures with no terrain adaptation.
+
+structure rewrites:
+	hack StructureAccessor more.
 
 changelog:
 	# Changes for normal players
+	* Added very rare giant obelisks.
+	* Lakes are now larger and rarer.
+	* End fractal structures are now larger and rarer.
 	* Fixed platform-typed skylands being extremely lopsided sometimes.
 	* Lapis ore now spawns in rivers, in addition to under oceans.
 	* Fixed /locate command being unable to find rivers.
 	* Fixed swamp wasteland biome not spawning in the world.
+	* Performance improvements.
 	# Changes for data pack makers
 	* Voronoi cells now have a `center_column` field, useful for querying column values at the center of the cell.
 	* Layers (not rock layers) can now once again be defined inline if desired.
+	* Structures are no longer limited to 17x17 chunks in size.
 
 alternate world presets:
 	paradise.

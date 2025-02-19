@@ -29,7 +29,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyExcepti
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
-public class DelegatingStructure extends Structure {
+public class DelegatingStructure extends Structure implements SizedStructure {
 
 	#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<DelegatingStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelegatingStructure.class);
@@ -45,6 +45,11 @@ public class DelegatingStructure extends Structure {
 		super(nullable_config.toConfig());
 		this.nullable_config = nullable_config;
 		this.delegate = delegate;
+	}
+
+	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return ((SizedStructure)(unwrap(this.delegate()).value())).bigglobe_getMaxRadiusInChunks();
 	}
 
 	public RegistryEntry<Structure> delegate() {

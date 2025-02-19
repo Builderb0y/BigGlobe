@@ -1,0 +1,19 @@
+{
+	"dimensions": 3,
+	"type": "script",
+	"min": -3.0,
+	"max":  1.0,
+	"script": [
+		"sqrt(abs(source) / 7.0L) * 4.0L - 3.0L"
+	],
+	"inputs": {
+		"source": {
+			"type": "sum",
+			"layers": [
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 1.0 }, "scale": 16 },
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 2.0 }, "scale": 32 },
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 4.0 }, "scale": 64 }
+			]
+		}
+	}
+}

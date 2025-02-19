@@ -7,10 +7,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.google.common.base.Predicates;
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,9 +18,8 @@ import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +52,6 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -88,6 +86,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
@@ -96,14 +95,11 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
-import builderb0y.bigglobe.compat.voxy.DistanceGraph;
-import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -115,12 +111,11 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.AutoOverride;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.spawning.ExtraSpawn;
-import builderb0y.bigglobe.structures.DelegatingStructure;
-import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.structures.*;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
-import builderb0y.bigglobe.structures.ScriptStructures;
-import builderb0y.bigglobe.structures.StructureManager;
+import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
 import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
+import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
@@ -561,27 +556,23 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	@SuppressWarnings({ "RedundantCast", "LambdaParameterTypeCanBeSpecified" })
 	public Pool<SpawnEntry> getEntitySpawnList(RegistryEntry<Biome> biome, StructureAccessor accessor, SpawnGroup group, BlockPos pos) {
-		//copy-pasted from super implementation,
-		Map<Structure, LongSet> map = accessor.getStructureReferences(pos);
-		for(Map.Entry<Structure, LongSet> entry : map.entrySet()) {
-			Structure structure = (Structure)entry.getKey();
-			StructureSpawns structureSpawns = (StructureSpawns)structure.getStructureSpawns().get(group);
-			if (structureSpawns != null) {
-				MutableBoolean mutableBoolean = new MutableBoolean(false);
-				Predicate<StructureStart> predicate = structureSpawns.boundingBox() == BoundingBox.PIECE ? (start) -> accessor.structureContains(pos, start) : (start) -> start.getBoundingBox().contains(pos);
-				accessor.acceptStructureStarts(structure, (LongSet)entry.getValue(), (start) -> {
-					if (mutableBoolean.isFalse() && predicate.test(start)) {
-						mutableBoolean.setTrue();
-					}
-				});
-				if (mutableBoolean.isTrue()) {
-					return structureSpawns.spawns();
+		return (
+			accessor
+			.getStructureStarts(new ChunkPos(pos), Predicates.alwaysTrue())
+			.stream()
+			.map((StructureStart start) -> {
+				if (!start.getBoundingBox().contains(pos)) return null;
+				StructureSpawns spawns = start.getStructure().getStructureSpawns().get(group);
+				if (spawns == null) return null;
+				if (spawns.boundingBox() == BoundingBox.PIECE) {
+					return start.getChildren().stream().map(StructurePiece::getBoundingBox).anyMatch(box -> box.contains(pos)) ? spawns.spawns() : null;
 				}
-			}
-		}
-
-		//my logic.
-		return this.getSpawnEntries(biome, group);
+				return spawns.spawns();
+			})
+			.filter(Objects::nonNull)
+			.findAny()
+			.orElseGet(() -> this.getSpawnEntries(biome, group))
+		);
 	}
 
 	@Override
@@ -1014,18 +1005,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
-		this.structureManager.setStructureStarts(
+		FinalStructures starts = this.structureManager.getStructureStarts(
 			new StructureGenerationParams(
 				this,
-				new ScriptedColumnLookup.Impl(
-					this.columnEntryRegistry.columnFactory,
-					new ScriptedColumn.Params(
-						this,
-						0,
-						0,
-						hints
-					)
-				),
+				this.newColumnLookup(chunk, hints),
 				hints,
 				placementCalculator,
 				registryManager,
@@ -1034,9 +1017,54 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				chunk,
 				chunk.getPos(),
 				distantHorizons
-			),
-			chunk
+			)
 		);
+		boolean log = BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning;
+		Map<Structure, StructureStart> map = new Object2ObjectOpenHashMap<>(starts.size());
+		for (StructureStart start : starts) {
+			map.merge(start.getStructure(), start, (StructureStart start1, StructureStart start2) -> {
+				if (log) BigGlobeMod.LOGGER.info("More than one copy of structure " + StructureManager.structureName(start1.getStructure()) + " started in the same chunk. It may be present in more than one structure set.");
+				return new StructureStart(
+					start1.getStructure(),
+					start1.getPos(),
+					0,
+					new StructurePiecesList(
+						Stream
+						.concat(
+							start1.getChildren().stream(),
+							start2.getChildren().stream()
+						)
+						.toList()
+					)
+				);
+			});
+		}
+		chunk.setStructureStarts(map);
+	}
+
+	@Override
+	public void addStructureReferences(
+		StructureWorldAccess world,
+		StructureAccessor structureAccessor,
+		Chunk chunk
+	) {
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
+		FinalStructures intersecting = this.structureManager.getIntersectingStructures(
+			new StructureGenerationParams(
+				this,
+				this.newColumnLookup(chunk, hints),
+				hints,
+				world.toServerWorld(),
+				chunk.getPos(),
+				distantHorizons
+			)
+		);
+		for (StructureStart start : intersecting) {
+			if (StreamableStructurePlacement.distance(start.getPos(), chunk.getPos().x, chunk.getPos().z) <= 8) {
+				chunk.addStructureReference(start.getStructure(), start.getPos().toLong());
+			}
+		}
 	}
 
 	@Override
@@ -1047,88 +1075,55 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		int radius,
 		boolean skipReferencedStructures
 	) {
-		record PlacedStructure(RegistryEntry<Structure> structure, StructurePlacement placement) {}
-
-		int centerChunkX = center.getX() >> 4;
-		int centerChunkZ = center.getZ() >> 4;
-		Pair<BlockPos, RegistryEntry<Structure>> nearestConcentric = null;
-		int nearestConcentricDistance = Integer.MAX_VALUE;
-		Set<PlacedStructure> nonConcentricPlacements = null;
-		for (RegistryEntry<Structure> structure : structures) {
-			RegistryEntry<Structure> actualStructure = DelegatingStructure.unwrap(structure);
-			List<StructurePlacement> placements = world.getChunkManager().getStructurePlacementCalculator().getPlacements(structure);
-			for (StructurePlacement placement : placements) {
-				if (placement instanceof ConcentricRingsStructurePlacement concentric) {
-					List<ChunkPos> positions = world.getChunkManager().getStructurePlacementCalculator().getPlacementPositions(concentric);
-					if (positions != null) for (ChunkPos position : positions) {
-						int newDistance = BigGlobeMath.squareI(position.x - centerChunkX, position.z - centerChunkZ);
-						if (newDistance < nearestConcentricDistance) {
-							Pair<BlockPos, RegistryEntry<Structure>> found = getStructure(world, skipReferencedStructures, actualStructure, null, position.x, position.z);
-							if (found != null) {
-								nearestConcentric = found;
-								nearestConcentricDistance = newDistance;
-							}
-						}
-					}
-				}
-				else {
-					if (nonConcentricPlacements == null) nonConcentricPlacements = new HashSet<>();
-					nonConcentricPlacements.add(new PlacedStructure(actualStructure, placement));
-				}
-			}
-		}
-
-		if (nonConcentricPlacements != null) {
-			nearestConcentricDistance = Math.min(nearestConcentricDistance, radius * radius);
-			PlacedStructure[] array = nonConcentricPlacements.toArray(new PlacedStructure[nonConcentricPlacements.size()]);
-			DistanceGraph graph = DistanceGraph.worldOfChunks(false);
-			while (true) {
-				Query query = graph.next(centerChunkX, centerChunkZ, false);
-				if (query == null || query.distanceSquared >= nearestConcentricDistance) break;
-				for (PlacedStructure placedStructure : array) {
-					Pair<BlockPos, RegistryEntry<Structure>> found = getStructure(world, skipReferencedStructures, placedStructure.structure, placedStructure.placement, query.closestX, query.closestZ);
-					if (found != null) {
-						return found;
-					}
-				}
-			}
-		}
-
-		return nearestConcentric;
+		int centerX = center.getX() >> 4;
+		int centerZ = center.getZ() >> 4;
+		StructurePlacementCalculator calculator = world.getChunkManager().getStructurePlacementCalculator();
+		return structures.stream().flatMap((RegistryEntry<Structure> structureEntry) -> {
+			return calculator.getPlacements(structureEntry).stream().flatMap((StructurePlacement placement) -> {
+				return ((StreamableStructurePlacement)(placement)).bigglobe_getNearbyStartChunks(this, calculator, centerX, centerZ, radius);
+			});
+		})
+		.sorted(StreamableStructurePlacement.distanceComparator(centerX, centerZ))
+		.map((ChunkPos chunkPos) -> this.getStructure(world, structures, chunkPos.x, chunkPos.z))
+		.filter(Objects::nonNull)
+		.findFirst()
+		.orElse(null);
 	}
 
-	public static @Nullable Pair<BlockPos, RegistryEntry<Structure>> getStructure(
+	public @Nullable Pair<BlockPos, RegistryEntry<Structure>> getStructure(
 		ServerWorld world,
-		boolean skipReferencedStructures,
-		RegistryEntry<Structure> structure,
-		@Nullable StructurePlacement placement,
+		RegistryEntryList<Structure> structures,
 		int chunkX,
 		int chunkZ
 	) {
-		if (placement == null || placement.shouldGenerate(world.getChunkManager().getStructurePlacementCalculator(), chunkX, chunkZ)) {
-			Chunk chunk = world.getChunk(chunkX, chunkZ, ChunkStatus.STRUCTURE_STARTS);
-			StructureStart start = chunk.getStructureStart(structure.value());
-			if (start != null && start.hasChildren() && (!skipReferencedStructures || checkNotReferenced(world.getStructureAccessor(), start))) {
-				return Pair.of(start.getBoundingBox().getCenter(), structure);
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
+		FinalStructures starts = this.structureManager.getStructureStarts(
+			new StructureGenerationParams(
+				this,
+				new ScriptedColumnLookup.Impl(
+					this.columnEntryRegistry.columnFactory,
+					new Params(
+						this,
+						0,
+						0,
+						hints
+					)
+				),
+				hints,
+				world,
+				new ChunkPos(chunkX, chunkZ),
+				distantHorizons
+			)
+		);
+		for (RegistryEntry<Structure> structure : structures) {
+			for (StructureStart start : starts) {
+				if (start.getStructure() == structure.value()) {
+					return Pair.of(start.getBoundingBox().getCenter(), structure);
+				}
 			}
 		}
 		return null;
-	}
-
-	/**
-	copy-paste of {@link ChunkGenerator#checkNotReferenced(StructureAccessor, StructureStart)},
-	since it's a short enough method to copy-paste and I don't feel like making an AW or accessor for it.
-	*/
-	public static boolean checkNotReferenced(StructureAccessor structureAccessor, StructureStart start) {
-		//if this were my language, this could be represented more concisely as
-		//start.isNeverReferenced().if (structureAccessor.incrementReferences(start))
-		if (start.isNeverReferenced()) {
-			structureAccessor.incrementReferences(start);
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	@Override

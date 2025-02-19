@@ -2,11 +2,11 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 1772046710,
-		"separation": 8,
-		"spacing": 16
+		"separation": 24,
+		"spacing": 32
 	},
 	"structures": [
-		{ "weight": 1, "structure": "bigglobe:water_lake" },
+		{ "weight": 2, "structure": "bigglobe:water_lake" },
 		{ "weight": 1, "structure": "bigglobe:lava_lake" }
 	]
 }

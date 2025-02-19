@@ -56,6 +56,11 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 	}
 
 	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return 4;
+	}
+
+	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		BlockPos pos = this.randomBlockInSurface(context, 0);
 		if (pos == null) return Optional.empty();

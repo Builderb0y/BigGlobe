@@ -14,7 +14,6 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {

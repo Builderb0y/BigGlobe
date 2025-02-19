@@ -55,6 +55,7 @@ import builderb0y.bigglobe.particles.BigGlobeParticles;
 import builderb0y.bigglobe.recipes.BigGlobeRecipeSerializers;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.structures.placement.BigGlobeStructurePlacementTypes;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -96,6 +97,7 @@ public class BigGlobeMod implements ModInitializer {
 
 		BigGlobeFeatures.init();
 		BigGlobeStructures.init();
+		BigGlobeStructurePlacementTypes.init();
 		BigGlobeScriptedChunkGenerator.init();
 		EmptyChunkGenerator.init();
 

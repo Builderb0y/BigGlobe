@@ -78,6 +78,11 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		this.growth = growth;
 	}
 
+	@Override
+	public int bigglobe_getMaxRadiusInChunks() {
+		return (int)(this.radius.maxValue() * 0.0625D);
+	}
+
 	public static record GrowthConfig(
 		DelayedEntryList<Block> place,
 		DelayedEntryList<Block> against

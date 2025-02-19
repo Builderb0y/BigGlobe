@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.overriders;
 
 import java.util.*;
-import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
@@ -26,7 +25,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.structures.StructureManager.SortedStructurePieces;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -95,12 +94,12 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 
 		public int getCollisionPriority(
 			ScriptedColumnLookup columns,
-			SortedStructurePieces currentStructure,
-			SortedStructurePieces otherStructure,
+			StructureStartWrapper currentStructure,
+			StructureStartWrapper otherStructure,
 			Hints hints
 		) {
 			for (CollisionOverrider.Entry collision : this.collisions) {
-				int priority = collision.script().override(columns, currentStructure.getWrapper(), otherStructure.getWrapper(), hints);
+				int priority = collision.script().override(columns, currentStructure, otherStructure, hints);
 				if (priority != 0) return priority;
 			}
 			return 0;
