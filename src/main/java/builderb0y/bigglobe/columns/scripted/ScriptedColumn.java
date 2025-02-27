@@ -19,7 +19,6 @@ import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.InfoHolder;
 
-import static builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints.*;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 /** subclassed at runtime to add necessary fields. */
@@ -99,6 +98,8 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	public static Consumer<MutableScriptEnvironment> baseEnvironment(InsnTree loadColumn) {
 		return (MutableScriptEnvironment environment) -> {
 			environment
+
+			.addType("ScriptedColumn", loadColumn.getTypeInfo())
 			.addVariable("x", INFO.x(loadColumn))
 			.addVariable("z", INFO.z(loadColumn))
 			.addVariable("minCachedYLevel", INFO.minY(loadColumn))
@@ -111,6 +112,16 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
 			.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
 			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
+
+			.addFieldInvoke("x", INFO.x)
+			.addFieldInvoke("z", INFO.z)
+			.addFieldInvoke("minCachedYLevel", INFO.minY)
+			.addFieldInvoke("maxCachedYLevel", INFO.maxY)
+			.addFieldInvoke("hints", INFO.hints)
+			.addFieldInvoke("purpose", INFO.purpose)
+			.addFieldInvoke("distantHorizons", INFO.distantHorizons)
+			.addFieldInvoke("surfaceOnly", INFO.surfaceOnly)
+
 			.configure(hintsEnvironment())
 			;
 		};

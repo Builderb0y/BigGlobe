@@ -7,9 +7,9 @@
 	},
 	"step": "surface_structures",
 	"palette": "world_traits.`bigglobe:wood_palette`",
-	"size":            { "min": 96.0, "max": 192.0 },
-	"trunk_radius":    { "min":  4.0, "max":   8.0 },
-	"branch_sparsity": { "min":  2.0, "max":   4.0 },
+	"size":            { "min": 64.0, "max": 384.0 },
+	"trunk_radius":    { "min":  2.0, "max":  12.0 },
+	"branch_sparsity": { "min":  4.0, "max":   6.0 },
 	"surface_y": "world_traits.`bigglobe:y_level_in_surface`",
 	"foliage": "`bigglobe:overworld/surface_foliage`",
 	"snow_chance": "world_traits.`bigglobe:snow_chance`"

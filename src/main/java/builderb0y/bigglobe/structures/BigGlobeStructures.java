@@ -16,6 +16,7 @@ import builderb0y.bigglobe.structures.dungeons.LargeDungeonStructure;
 import builderb0y.bigglobe.structures.dungeons.MediumDungeonStructure;
 import builderb0y.bigglobe.structures.dungeons.SmallDungeonStructure;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall;
+import builderb0y.bigglobe.structures.megaTree.MegaTreePiece;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 
@@ -97,9 +98,10 @@ public class BigGlobeStructures {
 	//////////////// mega trees ////////////////
 
 	public static final StructureType<MegaTreeStructure>
-		MEGA_TREE_TYPE      = registerType("mega_tree", MegaTreeStructure.CODEC);
+		MEGA_TREE_TYPE       = registerType("mega_tree", MegaTreeStructure.CODEC);
 	public static final BigGlobeStructurePieceType
-		MEGA_TREE_BALL_TYPE = registerPiece("mega_tree_ball", MegaTreeBall::new);
+		MEGA_TREE_PIECE_TYPE = registerPiece("mega_tree_piece", MegaTreePiece::new),
+		MEGA_TREE_BALL_TYPE  = registerPiece("mega_tree_ball",  MegaTreeBall ::new);
 
 	//////////////// portal temple ////////////////
 

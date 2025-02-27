@@ -3,7 +3,7 @@
 		"type": "minecraft:random_spread",
 		"salt": 600892967,
 		"separation": 8,
-		"spacing": 32
+		"spacing": 24
 	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:mega_tree" }

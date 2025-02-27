@@ -43,6 +43,7 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
+@Deprecated //deprecated in favor of MegaTreePiece, which is more efficient for chunk serialization.
 public class MegaTreeBall extends DataStructurePiece<Data> {
 
 	public static record Data(

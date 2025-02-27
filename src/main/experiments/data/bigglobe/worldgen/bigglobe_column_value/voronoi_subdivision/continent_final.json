@@ -1,0 +1,23 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": [
+		"(worldSeed # 16x990A8C08A1355BEAUL).newSeed(",
+			"ScriptedColumn column = (",
+				"`bigglobe:voronoi_subdivision/continent_4`.center_column.",
+				"`bigglobe:voronoi_subdivision/continent_8`.center_column.",
+				"`bigglobe:voronoi_subdivision/continent_16`.center_column.",
+				"`bigglobe:voronoi_subdivision/continent_32`.center_column.",
+				"`bigglobe:voronoi_subdivision/continent_64`.center_column.",
+				"`bigglobe:voronoi_subdivision/continent_128`.center_column.",
+				"`bigglobe:voronoi_subdivision/continent_256`.center_column",
+			"),,",
+			"column.x,",
+			"column.z",
+		")",
+		".nextBoolean()"
+	]
+}

@@ -62,6 +62,7 @@ public class MegaTreeBranch {
 	public void generate() {
 		MegaTreeContext context = this.context;
 		context.addBall(this.lastBall);
+		double size = context.structure.data.size().get(context.foliage);
 		Vector3d scratchPos = new Vector3d();
 		Vector3d shyness = new Vector3d();
 		ScriptedColumn column = context.column;
@@ -96,7 +97,7 @@ public class MegaTreeBranch {
 				)
 			);
 			Vectors.setInSphere(scratchPos, context.permuter, 0.25D);
-			scratchPos.y += FastMath.Exp.fastExp2((surfaceY - position.y) * 0.125D + 2.0D);
+			scratchPos.y += FastMath.Exp.fastExp2((surfaceY - position.y) * 0.125D + size * 0.015625D);
 			scratchPos.add(shyness)
 			.add(this.acceleration)
 			.mul(0.125D / this.startRadius);

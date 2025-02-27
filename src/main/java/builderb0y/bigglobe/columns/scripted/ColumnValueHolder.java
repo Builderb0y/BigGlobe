@@ -4,10 +4,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.stream.Stream;
 
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.parsing.ScriptClassLoader;
 
 /**
 an interface to facilitate inter-op between runtime-generated classes

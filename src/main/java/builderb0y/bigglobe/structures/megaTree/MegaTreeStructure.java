@@ -31,6 +31,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
+import builderb0y.bigglobe.structures.megaTree.MegaTreePiece.BallCollection;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 
@@ -48,6 +49,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 			return Interpolator.mixLinear(this.min, this.max, foliage);
 		}
 	}
+
 	public static record Data(
 		ColumnToDoubleScript.@VerifyNullable Holder foliage,
 		ColumnToDoubleScript.@VerifyNullable Holder snow_chance,
@@ -66,7 +68,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 
 	@Override
 	public int bigglobe_getMaxRadiusInChunks() {
-		return 8;
+		return (int)(this.data.size.max * 0.0625D);
 	}
 
 	@Override
@@ -100,10 +102,18 @@ public class MegaTreeStructure extends BigGlobeStructure {
 							y + size,
 							z + size
 						),
-						collector
+						x,
+						y,
+						z
 					);
-					megaTreeContext.addFirstBranch(x, y, z);
+					megaTreeContext.addFirstBranch();
 					megaTreeContext.generate();
+					collector.addPiece(new MegaTreePiece(
+						BigGlobeStructures.MEGA_TREE_PIECE_TYPE,
+						this,
+						palette.entry,
+						megaTreeContext.ballCollector
+					));
 				}
 			)
 		);
@@ -118,7 +128,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		public final RegistryEntry<WoodPalette> palette;
 		public final double foliage;
 		public final MegaTreeOctree octree;
-		public final StructurePiecesCollector ballCollector;
+		public final BallCollection ballCollector;
 		public final ArrayDeque<MegaTreeBranch> branches;
 		public final ArrayDeque<MegaTreeBall> currentBranchBalls;
 
@@ -130,7 +140,9 @@ public class MegaTreeStructure extends BigGlobeStructure {
 			double foliage,
 			RegistryEntry<WoodPalette> palette,
 			MegaTreeOctree octree,
-			StructurePiecesCollector ballCollector
+			double x,
+			double y,
+			double z
 		) {
 			this.structure          = structure;
 			this.structureContext   = structureContext;
@@ -139,7 +151,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 			this.foliage            = foliage;
 			this.palette            = palette;
 			this.octree             = octree;
-			this.ballCollector      = ballCollector;
+			this.ballCollector      = new BallCollection(x, y, z);
 			this.branches           = new ArrayDeque<>(256);
 			this.currentBranchBalls = new ArrayDeque<>(256);
 		}
@@ -156,13 +168,13 @@ public class MegaTreeStructure extends BigGlobeStructure {
 			this.branches.addLast(branch);
 		}
 
-		public void addFirstBranch(double x, double y, double z) {
+		public void addFirstBranch() {
 			int totalSteps = (int)(this.foliageFactor(this.structure.data.size));
 			MegaTreeBranch branch = new MegaTreeBranch(
 				this,
-				x,
-				y,
-				z,
+				this.ballCollector.originX,
+				this.ballCollector.originY,
+				this.ballCollector.originZ,
 				this.foliageFactor(this.structure.data.trunk_radius),
 				totalSteps,
 				32,
@@ -178,7 +190,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 				branch.generate();
 				for (MegaTreeBall ball; (ball = this.currentBranchBalls.pollFirst()) != null;) {
 					this.octree.addBall(ball);
-					this.ballCollector.addPiece(ball);
+					this.ballCollector.accept(ball);
 				}
 			}
 			//long endTime = System.currentTimeMillis();

@@ -3,7 +3,7 @@
 		"type": "minecraft:random_spread",
 		"salt": 1491215984,
 		"separation": 32,
-		"spacing": 64
+		"spacing": 96
 	},
 	"structures": [
 		{ "structure": "bigglobe:abandoned_city", "weight": 1 }
