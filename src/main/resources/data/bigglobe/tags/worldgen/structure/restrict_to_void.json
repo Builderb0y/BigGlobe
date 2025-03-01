@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:end_fractals"
+		"#bigglobe:end_fractals",
+		"bigglobe:endelisk"
 	]
 }

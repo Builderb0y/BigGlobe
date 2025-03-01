@@ -37,12 +37,7 @@ to finish before release:
 	document extra spawn system.
 	document overriders.
 	obelisks:
-		obelisks in the end dimension.
 		wireworld automata block for accents.
-		big rooms on the inside. much bigger than what would be considered normal for a player.
-		spiral staircase.
-		surface cave exclusion near obelisks.
-	document hints.distanceBetweenYLevels and hints.verticalLod.
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
 	expose terrain adaptation to overrider scripts if it isn't already exposed,
@@ -52,6 +47,7 @@ to finish before release:
 	bigger mega trees?
 		parameter for max radius in chunks.
 	exiting hyperspace keeps flight enabled in survival. again.
+	add new structures to list of features.md.
 
 structure rewrites:
 	hack StructureAccessor more.
@@ -86,6 +82,7 @@ breaking changes I want to make:
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.
 		migrate equivalent getters from Structure/StructurePiece.
+		expose intersectionArea for scripted structure pieces specifically.
 
 4.0 stuff:
 	/waypoint

@@ -11,7 +11,7 @@
 				"long seed = (worldSeed # 16x9BE4C0276928FD38UL).newSeed(regionX, regionZ)",
 				"int count = min(numberOfLeadingZeros((seed := seed.newSeed()).nextInt()), 8)",
 				"double startAngle = (seed := seed.newSeed()).nextDouble(tau)",
-				"double radius = count * 4.0L",
+				"double radius = count * 6.0L",
 				"for (int index in range[0, count):",
 					"double angle = double(index) / double(count) * tau + startAngle",
 					"int newX = centerX + int(cos(angle) * radius)",
