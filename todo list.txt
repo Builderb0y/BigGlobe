@@ -43,10 +43,8 @@ to finish before release:
 	expose terrain adaptation to overrider scripts if it isn't already exposed,
 		make jigsaw column value overrider use this to not add
 		flat ground below structures with no terrain adaptation.
-	make it so that players can't spawn in structures.
 	bigger mega trees?
 		parameter for max radius in chunks.
-	exiting hyperspace keeps flight enabled in survival. again.
 	add new structures to list of features.md.
 
 structure rewrites:
@@ -61,9 +59,11 @@ changelog:
 	* Abandoned cities are now rarer.
 	* Fixed platform-typed skylands being extremely lopsided sometimes.
 	* Lapis ore now spawns in rivers, in addition to under oceans.
+	* The player should no longer spawn inside or on top of structures, or inside a cave.
 	* Fixed /locate command being unable to find rivers.
 	* Fixed swamp wasteland biome not spawning in the world.
 	* Possibly fixed crash that could occur with some mods.
+	* Possibly fixed player being able to fly after leaving hyperspace when using Sinytra connector.
 	* Performance improvements.
 	# Changes for data pack makers
 	* Voronoi cells now have a `center_column` field, useful for querying column values at the center of the cell.

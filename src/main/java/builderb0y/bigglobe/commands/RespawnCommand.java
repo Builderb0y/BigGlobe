@@ -276,9 +276,9 @@ public class RespawnCommand {
 					EntityVersions.teleport(
 						player,
 						EntityVersions.getServerWorld(player),
-						new Vec3d(spawnPoint.x, spawnPoint.y, spawnPoint.z),
+						new Vec3d(spawnPoint.x(), spawnPoint.y(), spawnPoint.z()),
 						Vec3d.ZERO,
-						spawnPoint.yaw,
+						spawnPoint.yaw(),
 						0.0F
 					);
 					return null;

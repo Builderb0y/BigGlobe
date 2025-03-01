@@ -2,10 +2,12 @@ package builderb0y.bigglobe.spawning;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.HeightLimitView;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Heightmap;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -19,6 +21,8 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
+import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class BigGlobeSpawnLocator {
@@ -57,7 +61,7 @@ public class BigGlobeSpawnLocator {
 	}
 
 	public static @Nullable SpawnPoint findSpawn(
-		HeightLimitView world,
+		ServerWorld world,
 		BigGlobeScriptedChunkGenerator generator,
 		long seed
 	) {
@@ -74,24 +78,31 @@ public class BigGlobeSpawnLocator {
 		double startAngle = Permuter.nextPositiveDouble(seed ^ 0x55E7F77A3DF91E6AL) * BigGlobeMath.TAU;
 		long startTime = System.currentTimeMillis();
 		Permuter permuter = new Permuter(0L);
+		int structureAttempt = 0;
 		for (int attempt = 0; attempt < 1024; attempt++) {
 			permuter.setSeed(Permuter.permute(seed ^ 0x5E7658F173C1CF0AL, attempt));
 			column.setParamsUnchecked(column.params.at(halton.floorX(), halton.floorY()));
 			if (generator.spawn_point.get(column, permuter)) {
-				long endTime = System.currentTimeMillis();
-				BigGlobeMod.LOGGER.debug("Found good spawn point after " + attempt + " attempts and " + (endTime - startTime) + " ms.");
-				return new SpawnPoint(
-					halton.x,
-					generator.getHeightOnGround(
-						halton.floorX(),
-						halton.floorY(),
-						Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
-						world,
-						null
-					),
-					halton.y,
-					(float)(startAngle)
+				int ground = generator.getHeightOnGround(
+					halton.floorX(),
+					halton.floorY(),
+					Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+					world,
+					null
 				);
+				if (structureAttempt >= 10 || checkStructures(world, generator, halton.floorX(), ground, halton.floorY())) {
+					long endTime = System.currentTimeMillis();
+					BigGlobeMod.LOGGER.debug("Found good spawn point after " + attempt + " attempts and " + (endTime - startTime) + " ms.");
+					return new SpawnPoint(
+						halton.x,
+						ground,
+						halton.y,
+						(float)(startAngle)
+					);
+				}
+				else if (++structureAttempt == 10) {
+					BigGlobeMod.LOGGER.warn("10 different potential spawn points were obstructed by structures. Abandoning no structure requirement.");
+				}
 			}
 			halton.next();
 		}
@@ -100,17 +111,28 @@ public class BigGlobeSpawnLocator {
 		return null;
 	}
 
-	public static class SpawnPoint {
-
-		public final double x, y, z;
-		public final float yaw;
-
-		public SpawnPoint(double x, double y, double z, float yaw) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.yaw = yaw;
+	public static boolean checkStructures(ServerWorld world, BigGlobeScriptedChunkGenerator generator, int blockX, int blockY, int blockZ) {
+		Hints hints = ColumnUsage.GENERIC.normalHints();
+		FinalStructures structures = generator.structureManager.getIntersectingStructures(
+			new StructureGenerationParams(
+				generator,
+				generator.newColumnLookup(world, hints),
+				hints,
+				world,
+				new ChunkPos(blockX >> 4, blockZ >> 4),
+				false
+			)
+		);
+		for (StructureStart start : structures) {
+			if (start.getBoundingBox().contains(blockX, blockY, blockZ)) {
+				BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + world.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE).getId(start.getStructure()));
+				return false;
+			}
 		}
+		return true;
+	}
+
+	public static record SpawnPoint(double x, double y, double z, float yaw) {
 
 		public BlockPos toBlockPos() {
 			return BlockPos.ofFloored(this.x, this.y, this.z);
