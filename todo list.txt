@@ -40,9 +40,7 @@ to finish before release:
 		wireworld automata block for accents.
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
-	expose terrain adaptation to overrider scripts if it isn't already exposed,
-		make jigsaw column value overrider use this to not add
-		flat ground below structures with no terrain adaptation.
+	document terrainAdaptation.
 	bigger mega trees?
 		parameter for max radius in chunks.
 	add new structures to list of features.md.
@@ -69,6 +67,7 @@ changelog:
 	* Voronoi cells now have a `center_column` field, useful for querying column values at the center of the cell.
 	* Layers (not rock layers) can now once again be defined inline if desired.
 	* Structures are no longer limited to 17x17 chunks in size.
+	* Structure.terrainAdaptation is now exposed to scripts.
 
 alternate world presets:
 	paradise.

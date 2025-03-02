@@ -1,9 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:hot_dense_forest",
-		"minecraft:bamboo_jungle",
-		"minecraft:jungle",
-		"minecraft:sparse_jungle"
-	]
-}

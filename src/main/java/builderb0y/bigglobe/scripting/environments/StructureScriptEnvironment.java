@@ -30,7 +30,7 @@ public class StructureScriptEnvironment {
 		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
 		.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, long.class)
-		.addFieldInvokes(StructureEntry.class, "type", "generationStep", "validBiomes")
+		.addFieldInvokes(StructureEntry.class, "type", "generationStep", "validBiomes", "terrainAdaptation")
 		.addMethodInvokeSpecific(StructureTag.class, "random", StructureEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(StructureTag.class, "random", StructureEntry.class, long.class)
 		.addMethodInvokeSpecific(StructureTypeTag.class, "random", StructureTypeEntry.class, RandomGenerator.class)

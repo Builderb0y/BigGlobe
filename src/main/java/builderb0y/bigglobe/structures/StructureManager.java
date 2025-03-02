@@ -205,27 +205,23 @@ public class StructureManager {
 			.flatMap((RegistryEntry<StructureSet> set) -> {
 				return maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
 			})
-			.flatMap((StructureKey key) -> (
-				this
-				.getStructureStarts(params.at(key.chunkX, key.chunkZ))
-				.stream()
-				.filter((StructureStart start) -> (
-					key
-					.set
-					.value()
-					.structures()
-					.stream()
-					.map(WeightedEntry::structure)
-					.map(RegistryEntry<Structure>::value)
-					.anyMatch(start.getStructure()::equals)
-				))
-			))
+			.map(StructureKey::chunkPos)
+			.distinct()
+			.flatMap((ChunkPos pos) -> this.getStructureStarts(params.at(pos)).stream())
 			.filter((StructureStart start) -> (
 				params.chunkPos.x >= start.getBoundingBox().getMinX() >> 4 &&
 				params.chunkPos.z >= start.getBoundingBox().getMinZ() >> 4 &&
 				params.chunkPos.x <= start.getBoundingBox().getMaxX() >> 4 &&
 				params.chunkPos.z <= start.getBoundingBox().getMaxZ() >> 4
 			))
+			.sorted(
+				Comparator.comparing(
+					(StructureStart start) -> start.getStructure().getFeatureGenerationStep()
+				)
+				.thenComparing(
+					(StructureStart start) -> structureID(start.getStructure())
+				)
+			)
 			.collect(Collectors.toCollection(FinalStructures::new))
 		);
 	}
@@ -417,7 +413,7 @@ public class StructureManager {
 			return null;
 		}
 		StructurePiecesCollector collector = newStartPosition.generate();
-		StructureStart newStart = new StructureStart(structure, params.chunkPos, 0, collector.toList());
+		StructureStart newStart = new StructureStart(weightedEntry.structure().value(), params.chunkPos, 0, collector.toList());
 		if (!newStart.hasChildren()) {
 			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos + " because the resulting structure has no pieces.");
@@ -482,9 +478,7 @@ public class StructureManager {
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints(params.distantHorizons);
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
 			params.generator.columnEntryRegistry.columnFactory,
-			new Params(
-				params.generator, 0, 0, hints
-			)
+			new Params(params.generator, 0, 0, hints)
 		);
 		for (StructureOverrider.Entry overrider : params.generator.getOverriders().structures) {
 			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed, hints)) {
@@ -548,7 +542,12 @@ public class StructureManager {
 		}
 	}
 
-	public static record StructureKey(int chunkX, int chunkZ, RegistryEntry<StructureSet> set) {}
+	public static record StructureKey(int chunkX, int chunkZ, RegistryEntry<StructureSet> set) {
+
+		public ChunkPos chunkPos() {
+			return new ChunkPos(this.chunkX, this.chunkZ);
+		}
+	}
 
 	public static interface Timestamped {
 

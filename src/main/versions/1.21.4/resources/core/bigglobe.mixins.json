@@ -76,6 +76,7 @@
 		"StairsBlock_MirrorProperly",
 		"Structure_ImplementSizedStructure",
 		"StructureAccessor_UseStructureManagerInBigGlobeWorlds",
+		"StructureAccessor_WorldAccess",
 		"StructurePiece_DirectRotationSetter",
 		"StructurePlacement_ImplementStreamableStructurePlacement",
 		"StructureStart_BoundingBoxSetter",

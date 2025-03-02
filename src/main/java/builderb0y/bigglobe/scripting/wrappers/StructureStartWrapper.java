@@ -46,7 +46,7 @@ public record StructureStartWrapper(
 			maxZ = Math.max(maxZ, box.getMaxZ());
 		}
 		RegistryEntry<Structure> entry = original;
-		if (entry.value() instanceof DelegatingStructure delegating) {
+		while (entry.value() instanceof DelegatingStructure delegating) {
 			entry = delegating.delegate();
 		}
 		return new StructureStartWrapper(
@@ -58,7 +58,8 @@ public record StructureStartWrapper(
 						original.value().getValidBiomes()
 					)
 				),
-				original.value().getFeatureGenerationStep()
+				original.value().getFeatureGenerationStep(),
+				original.value().getTerrainAdaptation()
 			),
 			start,
 			new BlockBox(minX, minY, minZ, maxX, maxY, maxZ)

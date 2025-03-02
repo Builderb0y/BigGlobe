@@ -6,6 +6,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.GenerationStep;
+import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -23,12 +24,14 @@ public class StructureEntry extends EntryWrapper<Structure, StructureTag> {
 
 	public final BiomeTag validBiomes;
 	public final GenerationStep.Feature step;
+	public final StructureTerrainAdaptation terrainAdaptation;
 	public final StructureTypeEntry type;
 
 	public StructureEntry(RegistryEntry<Structure> entry) {
 		super(entry);
 		this.validBiomes = new BiomeTag(new DelayedEntryList<>(BigGlobeMod.getRegistry(RegistryKeys.BIOME), entry.value().getValidBiomes()));
 		this.step = entry.value().getFeatureGenerationStep();
+		this.terrainAdaptation = entry.value().getTerrainAdaptation();
 		this.type = new StructureTypeEntry(
 			RegistryVersions.getEntry(
 				Registries.STRUCTURE_TYPE,
@@ -37,10 +40,16 @@ public class StructureEntry extends EntryWrapper<Structure, StructureTag> {
 		);
 	}
 
-	public StructureEntry(RegistryEntry<Structure> entry, BiomeTag validBiomes, GenerationStep.Feature step) {
+	public StructureEntry(
+		RegistryEntry<Structure> entry,
+		BiomeTag validBiomes,
+		GenerationStep.Feature step,
+		StructureTerrainAdaptation terrainAdaptation
+	) {
 		super(entry);
 		this.step = step;
 		this.validBiomes = validBiomes;
+		this.terrainAdaptation = terrainAdaptation;
 		this.type = new StructureTypeEntry(
 			RegistryVersions.getEntry(
 				Registries.STRUCTURE_TYPE,
@@ -68,6 +77,10 @@ public class StructureEntry extends EntryWrapper<Structure, StructureTag> {
 
 	public BiomeTag validBiomes() {
 		return this.validBiomes;
+	}
+
+	public String terrainAdaptation() {
+		return this.terrainAdaptation.asString();
 	}
 
 	@Override

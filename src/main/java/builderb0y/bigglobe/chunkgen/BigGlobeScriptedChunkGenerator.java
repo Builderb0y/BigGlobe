@@ -101,6 +101,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
+import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
@@ -554,7 +555,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	@SuppressWarnings({ "RedundantCast", "LambdaParameterTypeCanBeSpecified" })
 	public Pool<SpawnEntry> getEntitySpawnList(RegistryEntry<Biome> biome, StructureAccessor accessor, SpawnGroup group, BlockPos pos) {
 		return (
 			accessor
@@ -909,26 +909,35 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ScriptedColumnLookup columns) {
-		RawGenerationStructurePiece.Context context = null;
-		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
-		for (RegistryEntry<Structure> structureEntry : this.sortedStructures.sortedStructures) {
-			if (structureEntry.value() instanceof RawGenerationStructure) {
-				List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structureEntry.value());
-				for (int startIndex = 0, startCount = starts.size(); startIndex < startCount; startIndex++) {
-					StructureStart start = starts.get(startIndex);
-					if (start.hasChildren()) {
-						long structureSeed = getStructureSeed(this.columnSeed, structureEntry, start);
-						List<StructurePiece> children = start.getChildren();
-						for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
-							StructurePiece piece = children.get(pieceIndex);
-							if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
-								long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
-								if (context == null) {
-									context = new RawGenerationStructurePiece.Context(chunk, this, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
-								}
-								context.pieceSeed = pieceSeed;
-								rawPiece.generateRaw(context);
+		if (((StructureAccessor_WorldAccess)(structureAccessor)).bigglobe_getWorld() instanceof ServerWorldAccess serverWorldAccess) {
+			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+			Hints hints = ColumnUsage.GENERIC.maybeDhHints();
+			FinalStructures structures = this.structureManager.getIntersectingStructures(
+				new StructureGenerationParams(
+					this,
+					this.newColumnLookup(serverWorldAccess, hints),
+					hints,
+					serverWorldAccess.toServerWorld(),
+					chunk.getPos(),
+					distantHorizons
+				)
+			);
+			RawGenerationStructurePiece.Context context = null;
+			BlockBox chunkBox = WorldUtil.chunkBox(chunk);
+			Registry<Structure> structureRegistry = serverWorldAccess.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
+			for (StructureStart start : structures) {
+				if (start.getStructure() instanceof RawGenerationStructure) {
+					long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getId(start.getStructure()), start);
+					List<StructurePiece> children = start.getChildren();
+					for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
+						StructurePiece piece = children.get(pieceIndex);
+						if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
+							long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
+							if (context == null) {
+								context = new RawGenerationStructurePiece.Context(chunk, this, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
 							}
+							context.pieceSeed = pieceSeed;
+							rawPiece.generateRaw(context);
 						}
 					}
 				}
@@ -938,60 +947,67 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public void generateStructures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
-		for (RegistryEntry<Structure> structureEntry : this.sortedStructures.sortedStructures) {
-			List<StructureStart> starts = structureAccessor.getStructureStarts(ChunkSectionPos.from(chunk), structureEntry.value());
-			for (int startIndex = 0, startCount = starts.size(); startIndex < startCount; startIndex++) {
-				StructureStart start = starts.get(startIndex);
-				if (start.hasChildren()) {
-					long structureSeed = getStructureSeed(this.columnSeed, structureEntry, start);
-					List<StructurePiece> children = start.getChildren();
-					BlockBox firstPieceBB = children.get(0).getBoundingBox();
-					BlockPos pivot = new BlockPos(
-						(firstPieceBB.getMinX() + firstPieceBB.getMaxX() + 1) >> 1,
-						firstPieceBB.getMinY(),
-						(firstPieceBB.getMinZ() + firstPieceBB.getMaxZ() + 1) >> 1
-					);
-					for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
-						StructurePiece piece = children.get(pieceIndex);
-						if (piece.getBoundingBox().intersects(chunkBox)) {
-							long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
-							try {
-								piece.generate(
-									world,
-									structureAccessor,
-									this,
-									new MojangPermuter(pieceSeed),
-									chunkBox,
-									chunk.getPos(),
-									pivot
-								);
-							}
-							catch (NullPointerException exception) {
-								//I don't know why DH seems to have issues with this when it's a vanilla bug,
-								//but I'm tired of having my console spammed with errors.
-								if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
-									throw exception;
-								}
-								//else silently ignore.
-							}
-						}
+		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
+		FinalStructures structures = this.structureManager.getIntersectingStructures(
+			new StructureGenerationParams(
+				this,
+				this.newColumnLookup(world, hints),
+				hints,
+				world.toServerWorld(),
+				chunk.getPos(),
+				distantHorizons
+			)
+		);
+		Registry<Structure> structureRegistry = world.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
+		for (StructureStart start : structures) {
+			long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getId(start.getStructure()), start);
+			List<StructurePiece> children = start.getChildren();
+			BlockBox firstPieceBB = children.get(0).getBoundingBox();
+			BlockPos pivot = new BlockPos(
+				(firstPieceBB.getMinX() + firstPieceBB.getMaxX() + 1) >> 1,
+				firstPieceBB.getMinY(),
+				(firstPieceBB.getMinZ() + firstPieceBB.getMaxZ() + 1) >> 1
+			);
+			for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
+				StructurePiece piece = children.get(pieceIndex);
+				if (piece.getBoundingBox().intersects(chunkBox)) {
+					long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
+					try {
+						piece.generate(
+							world,
+							structureAccessor,
+							this,
+							new MojangPermuter(pieceSeed),
+							chunkBox,
+							chunk.getPos(),
+							pivot
+						);
 					}
-					start.getStructure().postPlace(
-						world,
-						structureAccessor,
-						this,
-						new MojangPermuter(structureSeed),
-						chunkBox,
-						chunk.getPos(),
-						((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
-					);
+					catch (NullPointerException exception) {
+						//I don't know why DH seems to have issues with this when it's a vanilla bug,
+						//but I'm tired of having my console spammed with errors.
+						if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
+							throw exception;
+						}
+						//else silently ignore.
+					}
 				}
 			}
+			start.getStructure().postPlace(
+				world,
+				structureAccessor,
+				this,
+				new MojangPermuter(structureSeed),
+				chunkBox,
+				chunk.getPos(),
+				((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
+			);
 		}
 	}
 
-	public static long getStructureSeed(long worldSeed, RegistryEntry<Structure> structureEntry, StructureStart start) {
-		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, UnregisteredObjectException.getID(structureEntry).hashCode(), start.getPos().x, start.getPos().z);
+	public static long getStructureSeed(long worldSeed, Identifier structureID, StructureStart start) {
+		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, structureID.hashCode(), start.getPos().x, start.getPos().z);
 	}
 
 	@Override

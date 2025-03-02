@@ -72,6 +72,7 @@
 		"SpawnRestriction_BackingMapAccess",
 		"StairsBlock_MirrorProperly",
 		"StructureAccessor_UseStructureManagerInBigGlobeWorlds",
+		"StructureAccessor_WorldAccess",
 		"Structure_ImplementSizedStructure",
 		"StructurePiece_DirectRotationSetter",
 		"StructurePlacement_ImplementStreamableStructurePlacement",
