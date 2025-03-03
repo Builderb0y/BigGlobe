@@ -12,7 +12,9 @@
 			"minWavelength": "4.0L",
 			"maxWavelength": "128.0L",
 			"seed": "worldSeed # 16x15E3E27467C7CC4CUL",
-			"amplitude": "128.0L"
+			"dampening": "4.0L",
+			"amplitude": "0.125L",
+			"preNormalize": "true"
 		}
 	}
 }

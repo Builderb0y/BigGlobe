@@ -5,8 +5,17 @@
 		"is_3d": false
 	},
 	"script": [
-		"double dip = abs(raw_rivers)",
-		"dip += river_erosion * (0.5L - 0.5L / (dip ^ 2 + 1.0L))",
-		"return(dip)"
+		"double curve(double value:",
+			"1.0L - 1.0L / (value ^ 2 + 1.0L)",
+		")",
+		"double macro = `bigglobe:overworld/raw_rivers`",
+		"return(",
+			"(macro ^ 2 * 32.0L + 0.09375L)",
+			"* curve((macro + `bigglobe:overworld/river_micro_noise_1`) * 128.0L)",
+			"* curve((macro + `bigglobe:overworld/river_micro_noise_2`) * 128.0L)",
+			"* curve((macro + `bigglobe:overworld/river_micro_noise_3`) * 128.0L)",
+			"* curve((macro + `bigglobe:overworld/river_micro_noise_4`) * 128.0L)",
+			"+ curve(macro * 6.0L) * `bigglobe:overworld/river_erosion`",
+		")"
 	]
 }

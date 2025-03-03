@@ -8,13 +8,10 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 4.0      }, "scale": 1024 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 1.6      }, "scale":  512 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.64     }, "scale":  256 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.256    }, "scale":  128 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.1024   }, "scale":   64 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.04096  }, "scale":   32 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.016384 }, "scale":   16 }
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 1.0   }, "scale": 1024 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.4   }, "scale":  512 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.16  }, "scale":  256 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.064 }, "scale":  128 }
 		]
 	}
 }

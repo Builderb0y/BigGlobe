@@ -1,6 +1,12 @@
 {
 	"script": [
 		"unless (maxWavelength > minWavelength: return(0.0L))",
+		"if (preNormalize:",
+			"double magnitude = sqrt(dx ^ 2 + dz ^ 2)",
+			"if (magnitude == 0.0L: return(0.0L))",
+			"dx /= magnitude",
+			"dz /= magnitude",
+		")",
 		"double*(",
 			"result       = 0.0L",
 			"theta        = seed.nextDouble(tau)",
@@ -37,6 +43,7 @@
 		{ "name": "maxWavelength", "type": "double" },
 		{ "name": "seed", "type": "long" },
 		{ "name": "dampening", "type": "double", "default": "4.0L" },
-		{ "name": "amplitude", "type": "double", "default": "1.0L" }
+		{ "name": "amplitude", "type": "double", "default": "1.0L" },
+		{ "name": "preNormalize", "type": "boolean", "default": "false" }
 	]
 }

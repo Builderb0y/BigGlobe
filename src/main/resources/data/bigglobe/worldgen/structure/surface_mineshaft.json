@@ -127,6 +127,7 @@
 
 		"int originY = world_traits.`bigglobe:y_level_on_surface`",
 		"if (originY <= world_traits.`bigglobe:sea_level`(originX, originZ) + 8: return())",
+		"if (world_traits.`bigglobe:biome`(originX, originY, originZ) ==. 'bigglobe:river': return())",
 		"WoodPalette palette = `bigglobe:overworld/wood_palette` ?: return()",
 
 		"ScriptStructurePiece newPiece(:",

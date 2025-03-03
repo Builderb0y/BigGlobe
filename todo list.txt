@@ -41,6 +41,7 @@ to finish before release:
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
 	document terrainAdaptation.
+	document center_column.
 	bigger mega trees?
 		parameter for max radius in chunks.
 	add new structures to list of features.md.
@@ -51,6 +52,7 @@ structure rewrites:
 changelog:
 	# Changes for normal players
 	* Added very rare giant obelisks.
+	* Rivers now split up and take slightly different paths.
 	* Tweaked size and frequency of mega trees.
 	* Lakes are now larger and rarer.
 	* End fractal structures are now larger and rarer.
