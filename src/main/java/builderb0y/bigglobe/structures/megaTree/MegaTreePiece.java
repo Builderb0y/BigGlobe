@@ -250,7 +250,7 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 		return pos.set(roundI(x), roundI(y), roundI(z));
 	}
 
-	public static class BallCollection implements Consumer<MegaTreeBall> {
+	public static class BallCollection implements Consumer<Ball> {
 
 		public final double originX, originY, originZ;
 		public double minX, minY, minZ, maxX, maxY, maxZ;
@@ -267,14 +267,14 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 		}
 
 		@Override
-		public void accept(MegaTreeBall ball) {
+		public void accept(Ball ball) {
 			if (this.ballIndex == this.balls.length) {
 				this.balls = Arrays.copyOf(this.balls, this.ballIndex << 1);
 			}
-			double x = ball.data.x();
-			double y = ball.data.y();
-			double z = ball.data.z();
-			double r = ball.data.radius();
+			double x = ball.x();
+			double y = ball.y();
+			double z = ball.z();
+			double r = ball.radius();
 			this.balls[this.ballIndex++] = (float)(x - this.originX);
 			this.balls[this.ballIndex++] = (float)(y - this.originY);
 			this.balls[this.ballIndex++] = (float)(z - this.originZ);

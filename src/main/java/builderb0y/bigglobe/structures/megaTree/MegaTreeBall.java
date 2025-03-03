@@ -43,7 +43,9 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
-@Deprecated //deprecated in favor of MegaTreePiece, which is more efficient for chunk serialization.
+//deprecated in favor of MegaTreePiece, which is more efficient for chunk serialization.
+//this class will be preserved to prevent old worlds from spamming log files.
+@Deprecated
 public class MegaTreeBall extends DataStructurePiece<Data> {
 
 	public static record Data(
@@ -104,21 +106,23 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		int currentStep,
 		int totalSteps
 	) {
-		super(
-			type,
-			0,
-			null,
-			new Data(structure, x, y, z, radius, currentStep, totalSteps, palette)
-		);
+		this(type, new Data(structure, x, y, z, radius, currentStep, totalSteps, palette));
+	}
+
+	public MegaTreeBall(
+		StructurePieceType type,
+		Data data
+	) {
+		super(type, 0, null, data);
 		double extraLeafRadius = this.data.extraLeafRadius();
-		double totalRadius = radius + extraLeafRadius;
+		double totalRadius = data.radius + extraLeafRadius;
 		this.boundingBox = WorldUtil.createBlockBox(
-			ceilI(x - totalRadius),
-			ceilI(y - totalRadius),
-			ceilI(z - totalRadius),
-			floorI(x + totalRadius),
-			floorI(y + totalRadius),
-			floorI(z + totalRadius)
+			ceilI(data.x - totalRadius),
+			ceilI(data.y - totalRadius),
+			ceilI(data.z - totalRadius),
+			floorI(data.x + totalRadius),
+			floorI(data.y + totalRadius),
+			floorI(data.z + totalRadius)
 		);
 	}
 

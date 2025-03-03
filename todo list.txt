@@ -42,8 +42,6 @@ to finish before release:
 	document scripted structure placement.
 	document terrainAdaptation.
 	document center_column.
-	bigger mega trees?
-		parameter for max radius in chunks.
 	add new structures to list of features.md.
 
 structure rewrites:

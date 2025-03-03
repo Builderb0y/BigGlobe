@@ -6,7 +6,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 
 public class MegaTreeOctree {
 
@@ -22,11 +21,11 @@ public class MegaTreeOctree {
 		this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
 	}
 
-	public void addBall(MegaTreeBall ball) {
+	public void addBall(Ball ball) {
 		this.root = this.root.addBall(ball);
 	}
 
-	public @Nullable MegaTreeBall findClosestBall(MegaTreeBall target) {
+	public @Nullable Ball findClosestBall(Ball target) {
 		Query query = this.query;
 		query.target = target;
 		query.found = null;
@@ -37,21 +36,19 @@ public class MegaTreeOctree {
 
 	public static class Query {
 
-		public MegaTreeBall target, found;
+		public Ball target, found;
 		public double distanceSquared;
 
-		public Query(MegaTreeBall target) {
+		public Query(Ball target) {
 			this.target = target;
 			this.distanceSquared = Double.POSITIVE_INFINITY;
 		}
 
-		public void accept(MegaTreeBall ball) {
-			Data oldData = this.target.data;
-			Data newData = ball.data;
+		public void accept(Ball ball) {
 			double newDistanceSquared = BigGlobeMath.squareD(
-				newData.x() - oldData.x(),
-				newData.y() - oldData.y(),
-				newData.z() - oldData.z()
+				ball.x() - this.target.x(),
+				ball.y() - this.target.y(),
+				ball.z() - this.target.z()
 			);
 			if (newDistanceSquared < this.distanceSquared) {
 				this.found = ball;
@@ -75,7 +72,7 @@ public class MegaTreeOctree {
 			this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
 		}
 
-		public abstract Node addBall(MegaTreeBall ball);
+		public abstract Node addBall(Ball ball);
 
 		public abstract void findClosest(Query query);
 
@@ -98,7 +95,7 @@ public class MegaTreeOctree {
 		}
 
 		@Override
-		public Node addBall(MegaTreeBall ball) {
+		public Node addBall(Ball ball) {
 			//assert this.contains(ball.data.x(), ball.data.y(), ball.data.z());
 			return new SingleNode(this, ball);
 		}
@@ -111,20 +108,20 @@ public class MegaTreeOctree {
 
 	public static class SingleNode extends Node {
 
-		public final MegaTreeBall ball;
+		public final Ball ball;
 
-		public SingleNode(double x1, double y1, double z1, double x2, double y2, double z2, MegaTreeBall ball) {
+		public SingleNode(double x1, double y1, double z1, double x2, double y2, double z2, Ball ball) {
 			super(x1, y1, z1, x2, y2, z2);
 			this.ball = ball;
 		}
 
-		public SingleNode(Box box, MegaTreeBall ball) {
+		public SingleNode(Box box, Ball ball) {
 			super(box);
 			this.ball = ball;
 		}
 
 		@Override
-		public Node addBall(MegaTreeBall ball) {
+		public Node addBall(Ball ball) {
 			//assert this.contains(ball.data.x(), ball.data.y(), ball.data.z());
 			//assert !this.ball.data.position().equals(ball.data.position()) : "Duplicate ball: " + ball;
 			return new OctNode(this).addBall(this.ball).addBall(ball);
@@ -192,21 +189,19 @@ public class MegaTreeOctree {
 			}
 		}
 
-		public int getClosestCorner(MegaTreeBall ball) {
-			MegaTreeBall.Data data = ball.data;
-			int x = (int)(Double.doubleToRawLongBits(this.midX - data.x()) >>> 63);
-			int y = (int)(Double.doubleToRawLongBits(this.midY - data.y()) >>> 63);
-			int z = (int)(Double.doubleToRawLongBits(this.midZ - data.z()) >>> 63);
+		public int getClosestCorner(Ball ball) {
+			int x = (int)(Double.doubleToRawLongBits(this.midX - ball.x()) >>> 63);
+			int y = (int)(Double.doubleToRawLongBits(this.midY - ball.y()) >>> 63);
+			int z = (int)(Double.doubleToRawLongBits(this.midZ - ball.z()) >>> 63);
 			return (x << 2) | (y << 1) | z;
 		}
 
 		@Override
-		public Node addBall(MegaTreeBall ball) {
+		public Node addBall(Ball ball) {
 			//assert this.contains(ball.data.x(), ball.data.y(), ball.data.z());
 			int corner = this.getClosestCorner(ball);
 			this.setNode(corner, this.getNode(corner).addBall(ball));
-			Data data = ball.data;
-			double x = data.x(), y = data.y(), z = data.z();
+			double x = ball.x(), y = ball.y(), z = ball.z();
 			if (x > this.effectiveMaxX) this.effectiveMaxX = x;
 			if (y > this.effectiveMaxY) this.effectiveMaxY = y;
 			if (z > this.effectiveMaxZ) this.effectiveMaxZ = z;
@@ -218,7 +213,7 @@ public class MegaTreeOctree {
 
 		@Override
 		public void findClosest(Query query) {
-			MegaTreeBall.Data ballData = query.target.data;
+			Ball ballData = query.target;
 			double clampX = MathHelper.clamp(ballData.x(), this.effectiveMinX, this.effectiveMaxX);
 			double clampY = MathHelper.clamp(ballData.y(), this.effectiveMinY, this.effectiveMaxY);
 			double clampZ = MathHelper.clamp(ballData.z(), this.effectiveMinY, this.effectiveMaxZ);

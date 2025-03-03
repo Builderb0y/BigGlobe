@@ -26,7 +26,7 @@ public class MegaTreeBranch {
 
 	public Vector3d velocity;
 	public Vector3d acceleration;
-	public MegaTreeBall lastBall;
+	public Ball lastBall;
 
 	public MegaTreeBranch(
 		MegaTreeContext context,
@@ -46,23 +46,13 @@ public class MegaTreeBranch {
 		this.startRadius         = startRadius;
 		this.velocity            = velocity;
 		this.acceleration        = acceleration;
-		this.lastBall            = new MegaTreeBall(
-			BigGlobeStructures.MEGA_TREE_BALL_TYPE,
-			context.structure,
-			context.palette,
-			x,
-			y,
-			z,
-			startRadius,
-			0,
-			totalSteps
-		);
+		this.lastBall            = new Ball(x, y, z, startRadius);
 	}
 
 	public void generate() {
 		MegaTreeContext context = this.context;
 		context.addBall(this.lastBall);
-		double size = context.structure.data.size().get(context.foliage);
+		double size = context.size;
 		Vector3d scratchPos = new Vector3d();
 		Vector3d shyness = new Vector3d();
 		ScriptedColumn column = context.column;
@@ -73,13 +63,13 @@ public class MegaTreeBranch {
 			double progress = ((double)(this.currentStep)) / ((double)(this.totalSteps));
 			double currentRadius = Interpolator.mixLinear(this.startRadius, 0.5D, progress);
 
-			Vector3d position = this.lastBall.data.position();
-			MegaTreeBall closestBall = context.octree.findClosestBall(this.lastBall);
+			Vector3d position = this.lastBall.position();
+			Ball closestBall = context.octree.findClosestBall(this.lastBall);
 			if (closestBall != null) {
 				shyness
-				.set(this.lastBall.data.position())
-				.sub(closestBall.data.position())
-				.mul(4.0D / squareD(Math.max(1.0D, shyness.length() - this.lastBall.data.radius() - closestBall.data.radius())));
+				.set(this.lastBall.position())
+				.sub(closestBall.position())
+				.mul(4.0D / squareD(Math.max(1.0D, shyness.length() - this.lastBall.radius() - closestBall.radius())));
 			}
 			else {
 				shyness.set(0.0D);
@@ -105,13 +95,12 @@ public class MegaTreeBranch {
 			Vector3d nextVelocity = new Vector3d(prevVelocity).add(scratchPos).normalize();
 			this.acceleration = new Vector3d(nextVelocity).sub(prevVelocity).normalize();
 			this.velocity = nextVelocity;
+			position.add(nextVelocity);
 
-			this.lastBall = new MegaTreeBall(
-				BigGlobeStructures.MEGA_TREE_BALL_TYPE,
-				this.context.structure,
-				this.context.palette,
-				this,
-				position.add(nextVelocity),
+			this.lastBall = new Ball(
+				position.x,
+				position.y,
+				position.z,
 				currentRadius
 			);
 			context.addBall(this.lastBall);
@@ -133,7 +122,7 @@ public class MegaTreeBranch {
 					cross
 				);
 				context.addBranch(split);
-				this.stepsUntilNextSplit = Permuter.roundRandomlyI(context.permuter.nextLong(), currentRadius * context.permuter.nextDouble(2.0D, 3.0D) + context.foliageFactor(context.structure.data.branch_sparsity()));
+				this.stepsUntilNextSplit = Permuter.roundRandomlyI(context.permuter.nextLong(), currentRadius * context.permuter.nextDouble(2.0D, 3.0D) + context.branchSparsity);
 			}
 		}
 	}

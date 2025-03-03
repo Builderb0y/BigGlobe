@@ -6,11 +6,11 @@
 		"monster": { "bounding_box": "full", "spawns": [] }
 	},
 	"step": "surface_structures",
-	"palette": "world_traits.`bigglobe:wood_palette`",
-	"size":            { "min": 64.0, "max": 384.0 },
-	"trunk_radius":    { "min":  2.0, "max":  12.0 },
-	"branch_sparsity": { "min":  4.0, "max":   6.0 },
-	"surface_y": "world_traits.`bigglobe:y_level_in_surface`",
-	"foliage": "`bigglobe:overworld/surface_foliage`",
-	"snow_chance": "world_traits.`bigglobe:snow_chance`"
+	"palette":         "world_traits.`bigglobe:wood_palette`",
+	"size":            "mixLinear(64.0L, 384.0L, world_traits.`bigglobe:foliage_at_surface`)",
+	"trunk_radius":    "mixLinear( 2.0L,  12.0L, world_traits.`bigglobe:foliage_at_surface`)",
+	"branch_sparsity": "mixLinear( 4.0L,   6.0L, world_traits.`bigglobe:foliage_at_surface`)",
+	"surface_y":       "world_traits.`bigglobe:y_level_in_surface`",
+	"snow_chance":     "world_traits.`bigglobe:snow_chance`",
+	"max_radius_in_chunks": 12
 }
