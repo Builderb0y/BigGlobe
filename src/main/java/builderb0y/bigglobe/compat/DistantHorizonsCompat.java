@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.compat;
 
+import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiLevelUnloadEvent;
+import com.seibel.distanthorizons.core.api.external.methods.config.DhApiConfig;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -125,10 +127,29 @@ public class DistantHorizonsCompat {
 							else {
 								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
 							}
+							//currently commented out because DH errors out when I do
+							//this and james isn't planning on fixing it for a while.
+							//DhApiConfig.INSTANCE.graphics().caveCullingEnabled().setValue(false);
 						}
 					}
 				}
 			});
+			//currently commented out because DH errors out when I do
+			//this and james isn't planning on fixing it for a while.
+			/*
+			DhApiEventRegister.on(DhApiLevelUnloadEvent.class, new DhApiLevelUnloadEvent() {
+
+				@Override
+				public void onLevelUnload(DhApiEventParam<EventParam> param) {
+					IDhApiLevelWrapper levelWrapper = param.value.levelWrapper;
+					if (levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld) {
+						if (serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+							//DhApiConfig.INSTANCE.graphics().caveCullingEnabled().clearValue();
+						}
+					}
+				}
+			});
+			*/
 		}
 	}
 }

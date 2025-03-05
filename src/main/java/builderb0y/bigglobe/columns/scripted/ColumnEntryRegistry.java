@@ -187,12 +187,16 @@ public class ColumnEntryRegistry {
 
 	public static class Loading {
 
+		public static final boolean SKIP_STACK_TRACES = Boolean.getBoolean("bigglobe.I_understand_that_disabling_column_entry_registry_loading_stack_traces_means_that_I_am_not_allowed_to_report_bugs");
 		/** the Loading instance used on the server thread when loading the world. */
 		public static Loading LOADING;
 		/** the Loading instance used on the client thread during synchronization of {@link ClientGeneratorParams}. */
 		public static final ScopeLocal<Loading> OVERRIDE = new ScopeLocal<>();
 
 		static {
+			if (SKIP_STACK_TRACES) {
+				BigGlobeMod.LOGGER.error("ColumnEntryRegistry loading stack traces are disabled. You are not allowed to report bugs.");
+			}
 			ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> reset());
 		}
 
@@ -206,12 +210,12 @@ public class ColumnEntryRegistry {
 		}
 
 		public static void reset() {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
+			if (!SKIP_STACK_TRACES) BigGlobeMod.LOGGER.info("ColumnEntryRegistry resetting: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			LOADING = null;
 		}
 
 		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
+			if (!SKIP_STACK_TRACES) BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			if (BigGlobeMod.currentRegistries == null || BigGlobeMod.currentRegistries.getClass() == betterRegistryLookup.getClass()) {
 				BigGlobeMod.currentRegistries = betterRegistryLookup;
 			}
@@ -228,7 +232,7 @@ public class ColumnEntryRegistry {
 		}
 
 		public static void endLoad(boolean successful) {
-			BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
+			if (!SKIP_STACK_TRACES) BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING + "; override: " + OVERRIDE.getCurrent(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			if (successful && LOADING != null) LOADING.compile();
 		}
 

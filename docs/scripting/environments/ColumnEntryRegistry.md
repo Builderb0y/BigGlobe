@@ -20,6 +20,7 @@ The following fields are also available on all voronoi cells:
 * `euclidean_distance` and `euclidean_distance_squared` - the number of blocks between the center position and the current position. Like soft distance, this is computed in terms of the square, so `euclidean_distance_squared` is faster to use than `euclidean_distance ^ 2`.
 * `dx_soft_distance` and `dz_soft_distance` (New in V4.7.0) - the derivatives of `soft_distance` with respect to x and z. Note that these are NaN at the cell's center point!
 * `dx_soft_distance_squared` and `dz_soft_distance_squared` (New in V4.7.0) - the derivatives of `soft_distance_squared` with respect to x and z. These are 0 at the cell's center point.
+* `center_column` (new in V4.11.0): a reference to the column at the cell's center point. All column values are exposed on this column as methods if they are 3D, and fields otherwise. The type of the `center_column` field is "ScriptedColumn".
 
 If the script is itself used to compute one of the values exported by a voronoi settings, then the above properties will be exposed as variables AND fields. Otherwise, they will be exposed as fields only.
 

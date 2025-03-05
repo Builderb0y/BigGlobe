@@ -95,6 +95,8 @@ In addition to all the vanilla structures, the following structures also spawn i
 	* If you get lost in one, try to find any corridor that goes upwards. Up always takes you out.
 * Well: Decorational, usually has water inside.
 * Windmill: Has a villager inside.
+* Abandoned cities (new in V4.9.0): Large city-like structures that are mostly empty and, well, abandoned.
+* Obelisks (new in V4.11.0): rare, massive pillars of deepslate. Hollow, with some clouds and aura on the inside.
 
 ### Nether
 
@@ -120,7 +122,8 @@ In addition to all the vanilla structures, the following structures also spawn i
 
 ### End
 
-There are no new structures for the end yet. Just vanilla end cities.
+* Fractals (new in V4.5.0): Large fractal-like structures made of deepslate. Several shapes. Found in the void between land masses.
+* Endelisk (new in V4.11.0): The end counterpart to the obelisk structures in the overworld. Contains void clouds and aura on the inside.
 
 # Blocks
 
@@ -317,3 +320,5 @@ There are no ores in the end yet.
 
 * Glowstone: Most common in crimson forests, warped forests, and infernos. Less common in nether and ashen wastes. Does not spawn at all in the valley of souls.
 * Shroomlights: In the centers of wart block clusters on crimson and warped trees.
+* Clouds, aura-infused clouds: Found in skylands above oceans and inside obelisks in the overworld.
+* Void clouds, aura-infused void clouds: Found in the end dimension above and below the main land masses. Also found in endelisk structures.

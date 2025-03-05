@@ -30,6 +30,8 @@ where I left off:
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
 	make WoodPaletteScriptEnvironment accept long seed for getting a weighted random block.
+	rename bigglobe_script_structure_placement directory to something else.
+	remove built-in Random object from script structure pieces.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -41,8 +43,6 @@ to finish before release:
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
 	document terrainAdaptation.
-	document center_column.
-	add new structures to list of features.md.
 
 structure rewrites:
 	hack StructureAccessor more.

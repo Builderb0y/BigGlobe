@@ -287,36 +287,22 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.compiledWorldTraits = from.compiledWorldTraits;
 		this.extraSpawnRegistry  = from.extraSpawnRegistry;
 		this.sortedStructures    = from.sortedStructures;
-		ScriptedColumn.Factory factory = from.columnEntryRegistry.columnFactory;
-		WorldTraits traits = from.compiledWorldTraits;
-		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
-			ScriptedColumn[] columns = new ScriptedColumn[256];
-			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
-			}
-			return columns;
-		});
-		this.rootDebugDisplay = new DisplayEntry(this);
-		this.structureManager = new StructureManager();
-		this.extraSpawns      = from.extraSpawns;
+		this.setCompiledWorldTraits(from.compiledWorldTraits);
+		this.rootDebugDisplay    = new DisplayEntry(this);
+		this.structureManager    = new StructureManager();
+		this.extraSpawns         = from.extraSpawns;
 	}
 
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		this.columnEntryRegistry = registry;
-		this.compiledWorldTraits = registry.traitManager.createTraits(this.loadedWorldTraits);
+		this.setCompiledWorldTraits(registry.traitManager.createTraits(this.loadedWorldTraits));
+		this.checkCyclicDependencies();
+	}
 
-		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
-		WorldTraits traits = this.compiledWorldTraits;
-		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
-			ScriptedColumn[] columns = new ScriptedColumn[256];
-			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
-			}
-			return columns;
-		});
-
-		registry
+	public void checkCyclicDependencies() {
+		this
+		.columnEntryRegistry
 		.registries
 		.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
 		.streamEntries()
@@ -327,11 +313,26 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		return source instanceof ScriptedColumnBiomeSource scripted ? new ScriptedColumnBiomeSource(scripted.script, scripted.all_possible_biomes, scripted.biomeRegistry) : source;
 	}
 
+	public void setCompiledWorldTraits(WorldTraits traits) {
+		this.compiledWorldTraits = traits;
+		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
+		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
+			ScriptedColumn[] columns = new ScriptedColumn[256];
+			for (int index = 0; index < 256; index++) {
+				columns[index] = factory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
+			}
+			return columns;
+		});
+	}
+
+	/** public API. */
 	public BigGlobeScriptedChunkGenerator copy() {
 		return new BigGlobeScriptedChunkGenerator(this);
 	}
 
 	/**
+	public API.
+
 	important note: because this seed is sent to clients,
 	it is highly recommended to ensure that it cannot be
 	used to derive the seed used to create the world.
@@ -346,6 +347,22 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		copy.columnSeed = seed;
 		copy.seedSet = true;
 		return copy;
+	}
+
+	/**
+	public API.
+
+	please only call this on a newly-copied chunk generator.
+	setting the world traits of a generator that is
+	already in-use is considered undefined behavior.
+	*/
+	public void setWorldTraits(JsonObject jsonTraits) {
+		this.setCompiledWorldTraits(
+			this.columnEntryRegistry.traitManager.createTraits(
+				TraitLoader.loadFromCode(jsonTraits)
+			)
+		);
+		this.checkCyclicDependencies();
 	}
 
 	/** used by pseudo-field. */

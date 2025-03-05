@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.traits;
 
+import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -9,12 +10,14 @@ import java.util.Map;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -46,6 +49,22 @@ public class TraitLoader {
 		}
 		if (failure != null) throw failure;
 		else return result;
+	}
+
+	public static Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadFromCode(JsonObject traits) {
+		try {
+			return BigGlobeAutoCodec.AUTO_CODEC.decode(
+				MAP_CODER,
+				traits,
+				RegistryOps.of(
+					JsonOps.INSTANCE,
+					BigGlobeMod.getCurrentServer().getRegistryManager()
+				)
+			);
+		}
+		catch (DecodeException exception) {
+			throw new IllegalArgumentException(exception);
+		}
 	}
 
 	public static class TraitLoadingException extends RuntimeException {
