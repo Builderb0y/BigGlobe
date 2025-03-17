@@ -94,6 +94,33 @@ public class WoodPalette {
 	public Block hangingSignBlock    (RandomGenerator random) { return this.getBlock(random, WoodPaletteType.HANGING_SIGN     ); }
 	public Block wallHangingSignBlock(RandomGenerator random) { return this.getBlock(random, WoodPaletteType.WALL_HANGING_SIGN); }
 
+	public Block getBlock(long seed, WoodPaletteType type) {
+		RegistryEntry<Block> block = this.getBlocks(type).getRandomElement(seed);
+		if (block != null) return block.value();
+		else throw new IllegalStateException("WoodPaletteType not present: " + type);
+	}
+
+	public Block logBlock            (long seed) { return this.getBlock(seed, WoodPaletteType.LOG              ); }
+	public Block woodBlock           (long seed) { return this.getBlock(seed, WoodPaletteType.WOOD             ); }
+	public Block strippedLogBlock    (long seed) { return this.getBlock(seed, WoodPaletteType.STRIPPED_LOG     ); }
+	public Block strippedWoodBlock   (long seed) { return this.getBlock(seed, WoodPaletteType.STRIPPED_WOOD    ); }
+	public Block planksBlock         (long seed) { return this.getBlock(seed, WoodPaletteType.PLANKS           ); }
+	public Block stairsBlock         (long seed) { return this.getBlock(seed, WoodPaletteType.STAIRS           ); }
+	public Block slabBlock           (long seed) { return this.getBlock(seed, WoodPaletteType.SLAB             ); }
+	public Block fenceBlock          (long seed) { return this.getBlock(seed, WoodPaletteType.FENCE            ); }
+	public Block fenceGateBlock      (long seed) { return this.getBlock(seed, WoodPaletteType.FENCE_GATE       ); }
+	public Block doorBlock           (long seed) { return this.getBlock(seed, WoodPaletteType.DOOR             ); }
+	public Block trapdoorBlock       (long seed) { return this.getBlock(seed, WoodPaletteType.TRAPDOOR         ); }
+	public Block pressurePlateBlock  (long seed) { return this.getBlock(seed, WoodPaletteType.PRESSURE_PLATE   ); }
+	public Block buttonBlock         (long seed) { return this.getBlock(seed, WoodPaletteType.BUTTON           ); }
+	public Block leavesBlock         (long seed) { return this.getBlock(seed, WoodPaletteType.LEAVES           ); }
+	public Block saplingBlock        (long seed) { return this.getBlock(seed, WoodPaletteType.SAPLING          ); }
+	public Block pottedSaplingBlock  (long seed) { return this.getBlock(seed, WoodPaletteType.POTTED_SAPLING   ); }
+	public Block standingSignBlock   (long seed) { return this.getBlock(seed, WoodPaletteType.STANDING_SIGN    ); }
+	public Block wallSignBlock       (long seed) { return this.getBlock(seed, WoodPaletteType.WALL_SIGN        ); }
+	public Block hangingSignBlock    (long seed) { return this.getBlock(seed, WoodPaletteType.HANGING_SIGN     ); }
+	public Block wallHangingSignBlock(long seed) { return this.getBlock(seed, WoodPaletteType.WALL_HANGING_SIGN); }
+
 	//////////////////////////////// blocks ////////////////////////////////
 
 	public IRandomList<RegistryEntry<Block>> getBlocks(WoodPaletteType type) {

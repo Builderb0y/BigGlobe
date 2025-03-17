@@ -74,6 +74,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					for (String name : new String[] {
 						"minModifiableX",

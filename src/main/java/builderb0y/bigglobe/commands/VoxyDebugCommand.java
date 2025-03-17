@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import me.cortex.voxy.client.core.IGetVoxelCore;
 import me.cortex.voxy.common.world.WorldEngine;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -30,6 +29,7 @@ import builderb0y.scripting.parsing.input.SourceScriptUsage;
 public class VoxyDebugCommand {
 
 	public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+		/*
 		dispatcher.register(
 			ClientCommandManager
 			.literal(BigGlobeMod.MODID + ":voxyDebug")
@@ -85,6 +85,7 @@ public class VoxyDebugCommand {
 				)
 			)
 		);
+		*/
 	}
 
 	public static boolean compile(ScriptHolder<?> script, FabricClientCommandSource source) {

@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"ddd",
+		"drd",
+		"ddd"
+	],
+	"key": {
+		"d": { "item": "minecraft:deepslate" },
+		"r": { "tag": "c:dusts/redstone" }
+	},
+	"result": {
+		"item": "bigglobe:automata",
+		"count": 8
+	}
+}

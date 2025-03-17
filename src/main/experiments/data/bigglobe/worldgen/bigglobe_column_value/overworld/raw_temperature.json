@@ -1,0 +1,20 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "constant", "value": 0.25 },
+			{ "type": "cubic", "scale": 2048, "amplitude": 1.0 },
+			{ "type": "cubic", "scale": 1024, "amplitude": 0.5 },
+			{ "type": "cubic", "scale":  512, "amplitude": 0.25 },
+			{ "type": "cubic", "scale":  256, "amplitude": 0.125 },
+			{ "type": "cubic", "scale":  128, "amplitude": 0.0625 },
+			{ "type": "cubic", "scale":   64, "amplitude": 0.03125 },
+			{ "type": "cubic", "scale":   32, "amplitude": 0.015625 }
+		]
+	}
+}

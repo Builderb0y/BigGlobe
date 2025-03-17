@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"1.0 / (",
+			"(fastExp(8.0L - 16.0L * raw_cliffiness) + 1.0L) *",
+			"(fastExp(4.0L - 16.0L * raw_hilliness ) + 1.0L)",
+		")"
+	]
+}

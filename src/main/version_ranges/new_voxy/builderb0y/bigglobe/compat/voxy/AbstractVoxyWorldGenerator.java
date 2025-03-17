@@ -4,7 +4,6 @@ import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import me.cortex.voxy.client.core.IGetVoxelCore;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.WorldSection;
 import me.cortex.voxy.common.world.other.Mapper;
@@ -68,6 +67,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
 	}
 
+	/*
 	public static void reloadWith(Factory factory, IGetVoxelCore coreGetter) {
 		AbstractVoxyWorldGenerator.override = factory;
 		try {
@@ -77,6 +77,7 @@ public abstract class AbstractVoxyWorldGenerator {
 			AbstractVoxyWorldGenerator.override = null;
 		}
 	}
+	*/
 
 	public static interface Factory {
 
@@ -158,8 +159,13 @@ public abstract class AbstractVoxyWorldGenerator {
 	public boolean generateNextChunk() {
 		long next = this.generationQueue.nextChunk();
 		if (next == -1L) return false;
-		//System.out.println("generating " + WorldEngine.pprintPos(next));
+		/*
+		if (WorldEngine.getLevel(next) < 4) {
+			System.out.println("generating " + WorldEngine.pprintPos(next));
+		}
+		*/
 		this.generateChunkRecursive(next);
+		//System.out.println("finished generating " + WorldEngine.pprintPos(next));
 		return true;
 	}
 
@@ -174,7 +180,7 @@ public abstract class AbstractVoxyWorldGenerator {
 			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1, (x << 1) | 1, 0,  z << 1     ));
 			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1, (x << 1) | 1, 0, (z << 1) | 1));
 		}
-		*/
+		//*/
 		this.createChunk(x, z, lod);
 		this.generationQueue.finishChunk(key);
 	}
@@ -302,7 +308,7 @@ public abstract class AbstractVoxyWorldGenerator {
 				break;
 			}
 		}
-		*/
+		//*/
 	}
 
 	public static class GenerationQueue {
@@ -344,10 +350,15 @@ public abstract class AbstractVoxyWorldGenerator {
 			}
 		}
 
-		public synchronized void finishChunk(long key) {
+		public void finishChunk(long key) {
 			//System.out.println("Finished " + WorldEngine.pprintPos(key));
-			this.todo[WorldEngine.getLevel(key)].set(WorldEngine.getX(key), WorldEngine.getZ(key), false);
-			this.done[WorldEngine.getLevel(key)].set(WorldEngine.getX(key), WorldEngine.getZ(key), true);
+			int lod = WorldEngine.getLevel(key);
+			int x = WorldEngine.getX(key);
+			int z = WorldEngine.getZ(key);
+			synchronized (this) {
+				this.todo[lod].set(x, z, false);
+				this.done[lod].set(x, z, true);
+			}
 		}
 
 		public synchronized long nextChunk() {

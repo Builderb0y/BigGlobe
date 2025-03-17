@@ -22,6 +22,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.WoodPaletteScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.ExternalData;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
@@ -35,6 +36,7 @@ import builderb0y.scripting.bytecode.tree.instructions.ConditionToBooleanInsnTre
 import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseAndInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -117,8 +119,10 @@ public abstract class DataCompileContext {
 	throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method)
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.configureEnvironment(MinecraftScriptEnvironment.create())
+		.configureEnvironment(JavaUtilScriptEnvironment.noAllocateNoModify())
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+		.configureEnvironment(MinecraftScriptEnvironment.create())
+		.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
 		.configureEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
 		.configureEnvironment((MutableScriptEnvironment environment) -> {
 			if (includeY) {
@@ -151,10 +155,7 @@ public abstract class DataCompileContext {
 					InsnTree case_ = new ConditionToBooleanInsnTree(
 						new IntCompareZeroConditionTree(
 							new BitwiseAndInsnTree(
-								getField(
-									this.loadSelf(),
-									field
-								),
+								getField(this.loadSelf(), field),
 								ldc(mask),
 								IAND
 							),

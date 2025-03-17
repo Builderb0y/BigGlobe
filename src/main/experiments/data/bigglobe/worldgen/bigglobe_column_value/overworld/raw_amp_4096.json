@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": { "type": "smooth", "scale": 4096, "amplitude": 1.0 }
+}

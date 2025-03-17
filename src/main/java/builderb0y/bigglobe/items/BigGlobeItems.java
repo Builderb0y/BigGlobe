@@ -85,6 +85,8 @@ public class BigGlobeItems {
 		SLATED_PRISMARINE_SLAB   = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
 		SLATED_PRISMARINE_STAIRS = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
 		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings(BigGlobeBlocks.ROCK))),
+		ANCIENT_AUTOMATA         = registerPlacer(BigGlobeBlocks.ANCIENT_AUTOMATA),
+		AUTOMATA                 = registerPlacer(BigGlobeBlocks.AUTOMATA),
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -427,6 +429,9 @@ public class BigGlobeItems {
 			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
 			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_HANGING_SIGN);
 		});
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register((FabricItemGroupEntries entries) -> {
+			entries.addAfter(Items.REDSTONE_ORE, ANCIENT_AUTOMATA, AUTOMATA);
+		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register((FabricItemGroupEntries entries) -> {
 			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
 			entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
@@ -438,6 +443,7 @@ public class BigGlobeItems {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
 			entries.addAfter(Items.NETHERITE_BOOTS, VOIDMETAL_HELMET, VOIDMETAL_CHESTPLATE, VOIDMETAL_LEGGINGS, VOIDMETAL_BOOTS);
+			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CHARCOAL, SULFUR);
@@ -447,9 +453,6 @@ public class BigGlobeItems {
 			entries.addAfter(Items.EXPERIENCE_BOTTLE, AURA_BOTTLES.values().toArray(Item[]::new));
 			entries.addAfter(Items.NETHERITE_INGOT, VOIDMETAL_INGOT);
 			entries.addAfter(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, VOIDMETAL_UPGRADE);
-		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
 		});
 	}
 

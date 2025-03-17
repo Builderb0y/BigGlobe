@@ -20,7 +20,7 @@ public class GeneratingStorageBackend extends SectionStorage {
 		int status = this.delegate.loadSection(into);
 		if (status == 1 && this.generator != null) {
 			this.generator.queueChunk(into.key);
-			status = this.delegate.loadSection(into);
+			//status = this.delegate.loadSection(into);
 		}
 		return status;
 	}

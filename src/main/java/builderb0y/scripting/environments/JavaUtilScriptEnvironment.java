@@ -45,40 +45,27 @@ public class JavaUtilScriptEnvironment {
 		CONSTANT_MAP  = MethodInfo.inCaller("constantMap"),
 		CONSTANT_SET  = MethodInfo.inCaller("constantSet");
 
-	@Deprecated //use withRandom() or withoutRandom() instead.
-	public static final MutableScriptEnvironment ALL = (
+	@Deprecated //use noAllocateNoModify() instead.
+	public static final MutableScriptEnvironment NO_ALLOCATE_NO_MODIFY = (
 		new MutableScriptEnvironment()
 		.addMethodInvokes(Object.class, "toString", "equals", "hashCode", "getClass")
 		.addType("Iterator", Iterator.class)
-		.addMethodInvokes(Iterator.class, "hasNext", "next", "remove")
+		.addMethodInvokes(Iterator.class, "hasNext", "next")
 		.addType("ListIterator", ListIterator.class)
-		.addMethodInvokes(ListIterator.class, "hasPrevious", "previous", "nextIndex", "previousIndex", "set", "add")
+		.addMethodInvokes(ListIterator.class, "hasPrevious", "previous", "nextIndex", "previousIndex")
 		.addType("Map", Map.class)
-		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "put", "remove", "putAll", "clear", "keySet", "values", "entrySet", "getOrDefault", "putIfAbsent", "replace")
+		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "keySet", "values", "entrySet", "getOrDefault")
 		.addFieldInvokes(Map.class, "size", "isEmpty")
-		.addMethod(TypeInfo.of(Map.class), "", new Named("Map.(key)", (parser, receiver, name, mode, arguments) -> {
-			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(
-				NormalListMapGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
-				key != arguments[0]
-			);
-		}))
 		.addType("MapEntry", Map.Entry.class)
-		.addMethodInvokes(Map.Entry.class, "getKey", "getValue", "setValue")
-		.addFieldRenamedInvoke("key", Map.Entry.class, "getKey")
-		.addFieldGetterSetter(type(Map.Entry.class), "value", MAP_ENTRY_GET, MAP_ENTRY_SET)
+		.addMethodInvokes(Map.Entry.class, "getKey", "getValue")
+		.addFieldInvoke("key", MAP_ENTRY_GET)
 		.addType("SortedMap", SortedMap.class)
 		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
 		.addType("NavigableMap", NavigableMap.class)
-		.addMethodMultiInvokes(NavigableMap.class, "lowerEntry", "lowerKey", "floorEntry", "floorKey", "ceilingEntry", "ceilingKey", "higherEntry", "higherKey", "firstEntry", "lastEntry", "pollFirstEntry", "pollLastEntry", "descendingMap", "navigableKeySet", "descendingKeySet", "subMap", "headMap", "tailMap")
+		.addMethodMultiInvokes(NavigableMap.class, "lowerEntry", "lowerKey", "floorEntry", "floorKey", "ceilingEntry", "ceilingKey", "higherEntry", "higherKey", "firstEntry", "lastEntry", "descendingMap", "navigableKeySet", "descendingKeySet", "subMap", "headMap", "tailMap")
 		.addType("TreeMap", TreeMap.class)
-		.addQualifiedSpecificConstructor(TreeMap.class, SortedMap.class)
-		.addQualifiedSpecificConstructor(TreeMap.class, Map.class)
-		.addQualifiedSpecificConstructor(TreeMap.class)
 		.addType("HashMap", HashMap.class)
-		.addQualifiedMultiConstructor(HashMap.class)
 		.addType("LinkedHashMap", LinkedHashMap.class)
-		.addQualifiedMultiConstructor(LinkedHashMap.class)
 		.addType("ConstantMap", ConstantMap.class)
 		.addMemberKeyword(TypeInfos.CLASS, "new", new MemberKeywordHandler.Named("ConstantMap.new(key1: value1, key2: value2, ...)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			if (receiver.getConstantValue().isConstant() && receiver.getConstantValue().asJavaObject().equals(type(ConstantMap.class))) {
@@ -89,28 +76,16 @@ public class JavaUtilScriptEnvironment {
 		.addType("Iterable", Iterable.class)
 		.addMethodInvoke(Iterable.class, "iterator")
 		.addType("Collection", Collection.class)
-		.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "add", "containsAll", "addAll", "removeAll", "retainAll", "clear")
-		.addMethodRenamedInvoke("removeElement", Collection.class, "remove")
+		.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "containsAll")
 		.addFieldInvokes(Collection.class, "size", "isEmpty")
 		.addType("Set", Set.class)
 		.addType("SortedSet", SortedSet.class)
 		.addMethodInvokes(SortedSet.class, "subSet", "headSet", "tailSet", "first", "last")
 		.addType("NavigableSet", NavigableSet.class)
-		.addMethodMultiInvokes(NavigableSet.class, "lower", "floor", "ceiling", "higher", "pollFirst", "pollLast", "descendingSet", "descendingIterator", "subSet", "headSet", "tailSet")
+		.addMethodMultiInvokes(NavigableSet.class, "lower", "floor", "ceiling", "higher", "descendingSet", "descendingIterator", "subSet", "headSet", "tailSet")
 		.addType("TreeSet", TreeSet.class)
-		.addQualifiedSpecificConstructor(TreeSet.class, SortedSet.class)
-		.addQualifiedSpecificConstructor(TreeSet.class, Collection.class)
-		.addQualifiedSpecificConstructor(TreeSet.class)
 		.addType("HashSet", HashSet.class)
-		.addQualifiedSpecificConstructor(HashSet.class)
-		.addQualifiedSpecificConstructor(HashSet.class, int.class)
-		.addQualifiedSpecificConstructor(HashSet.class, Collection.class)
-		.addQualifiedSpecificConstructor(HashSet.class, int.class, float.class)
 		.addType("LinkedHashSet", LinkedHashSet.class)
-		.addQualifiedSpecificConstructor(LinkedHashSet.class)
-		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class)
-		.addQualifiedSpecificConstructor(LinkedHashSet.class, Collection.class)
-		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class, float.class)
 		.addType("ConstantSet", ConstantSet.class)
 		.addQualifiedFunction(type(ConstantSet.class), "new", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			int elementCount = arguments.length;
@@ -123,21 +98,9 @@ public class JavaUtilScriptEnvironment {
 			return new CastResult(ldc(CONSTANT_SET, inflate(constants)), false);
 		})
 		.addType("List", List.class)
-		.addMethodMultiInvokes(List.class, "addAll", "add", "get", "set", "indexOf", "lastIndexOf", "listIterator", "subList")
-		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
-		.addMethodInvokeStatic(Collections.class, "reverse")
-		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
-		.addMethod(TypeInfo.of(List.class), "", new Named("List.(index)", (parser, receiver, name, mode, arguments) -> {
-			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
-			return new CastResult(
-				NormalListMapGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
-				index != arguments[0]
-			);
-		}))
+		.addMethodMultiInvokes(List.class, "addAll", "get", "indexOf", "lastIndexOf", "listIterator", "subList")
 		.addType("LinkedList", LinkedList.class)
-		.addQualifiedMultiConstructor(LinkedList.class)
 		.addType("ArrayList", ArrayList.class)
-		.addQualifiedMultiConstructor(ArrayList.class)
 		.addType("ConstantList", ArrayWrapper.class)
 		.addQualifiedFunction(type(ArrayWrapper.class), "new", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			int argumentCount = arguments.length;
@@ -149,19 +112,84 @@ public class JavaUtilScriptEnvironment {
 			}
 			return new CastResult(ldc(CONSTANT_LIST, inflate(constants)), false);
 		})
-		.addMethodInvokes(ArrayList.class, "trimToSize", "ensureCapacity")
 		.addType("Queue", Queue.class)
-		.addMethodInvokes(Queue.class, "offer", "remove", "poll", "element", "peek")
+		.addMethodInvokes(Queue.class, "element", "peek")
 		.addType("Deque", Deque.class)
-		.addMethodInvokes(Deque.class, "addFirst", "addLast", "offerFirst", "offerLast", "removeFirst", "removeLast", "pollFirst", "pollLast", "getFirst", "getLast", "peekFirst", "peekLast", "removeFirstOccurrence", "removeLastOccurrence", "push", "pop")
+		.addMethodInvokes(Deque.class, "getFirst", "getLast", "peekFirst", "peekLast")
 		.addType("ArrayDeque", ArrayDeque.class)
-		.addQualifiedMultiConstructor(ArrayDeque.class)
 		.addType("PriorityQueue", PriorityQueue.class)
-		.addQualifiedMultiConstructor(PriorityQueue.class)
 		.addType("RandomList", IRandomList.class)
-		.addMethodMultiInvokes(IRandomList.class, "getWeight", "setWeight", "add", "set", "iterator", "listIterator", "subList")
+		.addMethodMultiInvokes(IRandomList.class, "getWeight", "iterator", "listIterator", "subList")
 		.addMethodInvokeSpecific(IRandomList.class, "getRandomElement", Object.class, RandomGenerator.class)
 		.addType("RandomArrayList", RandomList.class)
+	);
+
+	public static Consumer<MutableScriptEnvironment> noAllocateNoModify() {
+		return (MutableScriptEnvironment environment) -> {
+			environment
+			.addAll(NO_ALLOCATE_NO_MODIFY)
+			.addMethodInvoke("", MAP_GET)
+			.addMethodInvoke("", LIST_GET)
+			.addFieldInvoke("value", MAP_ENTRY_GET)
+			;
+		};
+	}
+
+	@Deprecated //use withRandom() or withoutRandom() instead.
+	public static final MutableScriptEnvironment ALL = (
+		new MutableScriptEnvironment()
+		.addAll(NO_ALLOCATE_NO_MODIFY)
+		.addMethodInvokes(Iterator.class, "remove")
+		.addMethodInvokes(ListIterator.class, "set", "add")
+		.addMethodMultiInvokes(Map.class, "put", "remove", "putAll", "clear", "putIfAbsent", "replace")
+		.addMethod(type(Map.class), "", new Named("Map.(key)", (parser, receiver, name, mode, arguments) -> {
+			InsnTree key = ScriptEnvironment.castArgument(parser, "", TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, arguments);
+			return new CastResult(
+				NormalListMapGetterInsnTree.from(receiver, MAP_GET, key, MAP_PUT, "Map", mode),
+				key != arguments[0]
+			);
+		}))
+		.addMethodInvokes(Map.Entry.class, "setValue")
+		.addFieldGetterSetter(type(Map.Entry.class), "value", MAP_ENTRY_GET, MAP_ENTRY_SET)
+		.addMethodMultiInvokes(NavigableMap.class, "pollFirstEntry", "pollLastEntry")
+		.addQualifiedSpecificConstructor(TreeMap.class, SortedMap.class)
+		.addQualifiedSpecificConstructor(TreeMap.class, Map.class)
+		.addQualifiedSpecificConstructor(TreeMap.class)
+		.addQualifiedMultiConstructor(HashMap.class)
+		.addQualifiedMultiConstructor(LinkedHashMap.class)
+		.addMethodInvokes(Collection.class, "add", "addAll", "removeAll", "retainAll", "clear")
+		.addMethodRenamedInvoke("removeElement", Collection.class, "remove")
+		.addMethodMultiInvokes(NavigableSet.class, "pollFirst", "pollLast")
+		.addQualifiedSpecificConstructor(TreeSet.class, SortedSet.class)
+		.addQualifiedSpecificConstructor(TreeSet.class, Collection.class)
+		.addQualifiedSpecificConstructor(TreeSet.class)
+		.addQualifiedSpecificConstructor(HashSet.class)
+		.addQualifiedSpecificConstructor(HashSet.class, int.class)
+		.addQualifiedSpecificConstructor(HashSet.class, Collection.class)
+		.addQualifiedSpecificConstructor(HashSet.class, int.class, float.class)
+		.addQualifiedSpecificConstructor(LinkedHashSet.class)
+		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class)
+		.addQualifiedSpecificConstructor(LinkedHashSet.class, Collection.class)
+		.addQualifiedSpecificConstructor(LinkedHashSet.class, int.class, float.class)
+		.addMethodMultiInvokes(List.class, "add", "set")
+		.addMethodMultiInvokeStatic(JavaUtilScriptEnvironment.class, "shuffle")
+		.addMethodInvokeStatic(Collections.class, "reverse")
+		.addMethodRenamedInvokeSpecific("removeIndex", List.class, "remove", Object.class, int.class)
+		.addMethod(type(List.class), "", new Named("List.(index)", (parser, receiver, name, mode, arguments) -> {
+			InsnTree index = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
+			return new CastResult(
+				NormalListMapGetterInsnTree.from(receiver, LIST_GET, index, LIST_SET, "List", mode),
+				index != arguments[0]
+			);
+		}))
+		.addQualifiedMultiConstructor(LinkedList.class)
+		.addQualifiedMultiConstructor(ArrayList.class)
+		.addMethodInvokes(ArrayList.class, "trimToSize", "ensureCapacity")
+		.addMethodInvokes(Queue.class, "offer", "remove", "poll")
+		.addMethodInvokes(Deque.class, "addFirst", "addLast", "offerFirst", "offerLast", "removeFirst", "removeLast", "pollFirst", "pollLast", "removeFirstOccurrence", "removeLastOccurrence", "push", "pop")
+		.addQualifiedMultiConstructor(ArrayDeque.class)
+		.addQualifiedMultiConstructor(PriorityQueue.class)
+		.addMethodMultiInvokes(IRandomList.class, "setWeight", "add", "set")
 		.addQualifiedMultiConstructor(RandomList.class)
 	);
 

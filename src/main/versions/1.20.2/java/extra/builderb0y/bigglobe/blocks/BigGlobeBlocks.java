@@ -256,6 +256,30 @@ public class BigGlobeBlocks {
 			);
 		}
 	}
+	public static final AutomataBlock ANCIENT_AUTOMATA = register(
+		"ancient_automata",
+		new AutomataBlock(
+			AbstractBlock
+			.Settings
+			.create()
+			.mapColor(MapColor.BLACK)
+			.requiresTool()
+			.strength(1.5F, 6.0F),
+			true
+		)
+	);
+	public static final AutomataBlock AUTOMATA = register(
+		"automata",
+		new AutomataBlock(
+			AbstractBlock
+			.Settings
+			.create()
+			.mapColor(MapColor.BLACK)
+			.requiresTool()
+			.strength(1.5F, 6.0F),
+			false
+		)
+	);
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
 		"delayed_generation",
 		new DelayedGenerationBlock(

@@ -60,10 +60,7 @@
 					"radius: float(radius),",
 					"sides: sidePositions,",
 					"filler: 'minecraft:polished_deepslate',",
-					"accent: random.switch (",
-						"'minecraft:end_stone',",
-						"'minecraft:purpur_block'",
-					")",
+					"accent: 'bigglobe:ancient_automata[state=0]'",
 				")",
 			")",
 		")"

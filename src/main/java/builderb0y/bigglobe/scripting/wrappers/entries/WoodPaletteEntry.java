@@ -20,11 +20,22 @@ import builderb0y.bigglobe.randomLists.MappingRandomList;
 import builderb0y.bigglobe.scripting.wrappers.tags.WoodPaletteTag;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ConstantFactory;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.util.InfoHolder;
 
 public class WoodPaletteEntry extends EntryWrapper<WoodPalette, WoodPaletteTag> {
 
-	public static final TypeInfo TYPE = TypeInfo.of(WoodPaletteEntry.class);
+	public static final Info INFO = new Info();
+	public static final class Info extends InfoHolder {
+
+		public MethodInfo
+			features,
+			getBlocks,
+			getRandomBlock,
+			getRandomState,
+			getSeededBlock,
+			getSeededState;
+	}
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public WoodPaletteEntry(RegistryEntry<WoodPalette> entry) {
@@ -50,12 +61,20 @@ public class WoodPaletteEntry extends EntryWrapper<WoodPalette, WoodPaletteTag> 
 		else throw new IllegalStateException("WoodPaletteType " + type + " not present on WoodPalette " + UnregisteredObjectException.getID(this.entry));
 	}
 
-	public Block getBlock(RandomGenerator random, WoodPaletteType type) {
+	public Block getRandomBlock(RandomGenerator random, WoodPaletteType type) {
 		return this.getBlocks(type).getRandomElement(random);
 	}
 
-	public BlockState getState(RandomGenerator random, WoodPaletteType type) {
-		return this.getBlock(random, type).getDefaultState();
+	public BlockState getRandomState(RandomGenerator random, WoodPaletteType type) {
+		return this.getRandomBlock(random, type).getDefaultState();
+	}
+
+	public Block getSeededBlock(long seed, WoodPaletteType type) {
+		return this.getBlocks(type).getRandomElement(seed);
+	}
+
+	public BlockState getSeededState(long seed, WoodPaletteType type) {
+		return this.getSeededBlock(seed, type).getDefaultState();
 	}
 
 	@Override

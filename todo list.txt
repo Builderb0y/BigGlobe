@@ -29,17 +29,12 @@ where I left off:
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
-	make WoodPaletteScriptEnvironment accept long seed for getting a weighted random block.
-	rename bigglobe_script_structure_placement directory to something else.
-	remove built-in Random object from script structure pieces.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	document extra spawn system.
 	document overriders.
-	obelisks:
-		wireworld automata block for accents.
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
 	document terrainAdaptation.
@@ -50,6 +45,7 @@ structure rewrites:
 changelog:
 	# Changes for normal players
 	* Added very rare giant obelisks.
+		* Decorated with a new "automata" block, which has some interesting interactions with redstone.
 	* Rivers now split up and take slightly different paths.
 	* Tweaked size and frequency of mega trees.
 	* Lakes are now larger and rarer.
@@ -57,11 +53,13 @@ changelog:
 	* Abandoned cities are now rarer.
 	* Fixed platform-typed skylands being extremely lopsided sometimes.
 	* Lapis ore now spawns in rivers, in addition to under oceans.
+	* Diamond, gold, and redstone ore are now more common.
 	* The player should no longer spawn inside or on top of structures, or inside a cave.
 	* Fixed /locate command being unable to find rivers.
 	* Fixed swamp wasteland biome not spawning in the world.
 	* Possibly fixed crash that could occur with some mods.
 	* Possibly fixed player being able to fly after leaving hyperspace when using Sinytra connector.
+	* Fixed budding quartz not dropping rough quartz.
 	* Performance improvements.
 	# Changes for data pack makers
 	* Voronoi cells now have a `center_column` field, useful for querying column values at the center of the cell.

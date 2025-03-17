@@ -92,7 +92,7 @@ public class BigGlobeAutoCodec {
 	public static final Printer PRINTER = createPrinter(LOGGER);
 
 	public static final AutoCoder<Identifier> IDENTIFIER_CODER = PrimitiveCoders.stringBased(
-		"BigGlobeAutoCodec.IDENTIFIER_CODEC",
+		"BigGlobeAutoCodec.IDENTIFIER_CODER",
 		IdentifierVersions::create,
 		Identifier::toString
 	);

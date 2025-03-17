@@ -11,7 +11,8 @@
 			"minecraft:polished_diorite":  "minecraft:redstone_ore[lit=false]",
 			"minecraft:granite":           "minecraft:redstone_ore[lit=false]",
 			"minecraft:polished_granite":  "minecraft:redstone_ore[lit=false]",
-			"minecraft:deepslate":         "minecraft:deepslate_redstone_ore[lit=false]"
+			"minecraft:deepslate":         "minecraft:deepslate_redstone_ore[lit=false]",
+			"minecraft:cobbled_deepslate": "minecraft:deepslate_redstone_ore[lit=false]"
 		},
 		"chance": [
 			"if (y <= world_traits.`bigglobe:approximate_surface_y`:",
@@ -19,13 +20,13 @@
 				"double depthCurve = 1.0L - 1.0L / (max(depthLine, 0.0L) ^ 2 + 1.0L)",
 				"double heatLine   = `bigglobe:overworld/surface_temperature`",
 				"double heatCurve  = 1.0L / (fastExp2(2.0L + 4.0L * heatLine) + 1.0L)",
-				"return(depthCurve * heatCurve * 0.5L)",
+				"return(depthCurve * heatCurve * 0.75L)",
 			")",
 			"else if (`bigglobe:islands/is_floating` && y >= world_traits.`bigglobe:skyland_min_y` && y <= world_traits.`bigglobe:skyland_max_y`:",
 				"double curve     = ((world_traits.`bigglobe:skyland_max_y` - y) / 64.0L) ^ 2",
 				"double heatLine  = `bigglobe:overworld/surface_temperature`",
 				"double heatCurve = 1.0L / (fastExp2(2.0L + 4.0L * heatLine) + 1.0L)",
-				"return(curve / (curve + 1.0L) * heatCurve * 0.5L)",
+				"return(curve / (curve + 1.0L) * heatCurve * 0.75L)",
 			")",
 			"else (",
 				"return(0.0L)",

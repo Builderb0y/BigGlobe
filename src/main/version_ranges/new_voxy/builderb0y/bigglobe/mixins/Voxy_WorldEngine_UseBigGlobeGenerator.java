@@ -20,15 +20,14 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 
 	@Shadow @Final public SectionStorage storage;
 
-	@Inject(method = "<init>(Lme/cortex/voxy/common/config/section/SectionStorage;Lme/cortex/voxy/common/thread/ServiceThreadPool;II)V", at = @At("RETURN"))
+	@Inject(method = "<init>(Lme/cortex/voxy/common/config/section/SectionStorage;II)V", at = @At("RETURN"))
 	private void bigglobe_startGenerator(
 		SectionStorage storage,
-		ServiceThreadPool serviceThreadPool,
 		int maxMipLayers,
 		int cacheCount,
 		CallbackInfo callback
 	) {
-		if (false && storage instanceof GeneratingStorageBackend generating) {
+		if (true && storage instanceof GeneratingStorageBackend generating) {
 			generating.generator = (
 				AbstractVoxyWorldGenerator.createGenerator(
 					MinecraftClient.getInstance().world,
@@ -41,7 +40,7 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 		}
 	}
 
-	@Inject(method = "shutdown", at = @At("HEAD"))
+	@Inject(method = "free", at = @At("HEAD"))
 	private void bigglobe_shutdownGenerator(CallbackInfo callback) {
 		if (this.storage instanceof GeneratingStorageBackend generating && generating.generator != null) {
 			generating.generator.stop();

@@ -16,6 +16,7 @@ Feature Dispatchers are responsible for decorating chunks as they're being gener
 			* StatelessRandomScriptEnvironment
 			* GridScriptEnvironment (with implicit seed)
 			* StructureTemplateScriptEnvironment
+			* WoodPaletteScriptEnvironment (new in V4.11.0)
 			* ColumnEntryRegistry
 			* ColorScriptEnvironment
 			* ExternalImageScriptEnvironment

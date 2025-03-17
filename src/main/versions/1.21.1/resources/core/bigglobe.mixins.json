@@ -98,7 +98,6 @@
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
-		"Dev_DebugRenderer_RenderPotentialStructures",
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",

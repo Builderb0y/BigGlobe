@@ -1,5 +1,10 @@
 package builderb0y.bigglobe.randomSources;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +31,8 @@ public class RandomRangeVerifier implements AutoVerifier<RandomSource> {
 		this(annotation.min(), annotation.max(), annotation.minInclusive(), annotation.maxInclusive());
 	}
 
+	@Target(ElementType.TYPE_USE)
+	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface VerifyRandomRange {
 
 		public double min() default Double.NEGATIVE_INFINITY;

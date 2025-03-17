@@ -1,0 +1,6 @@
+{
+	"parent": "bigglobe:block/automata_base",
+	"textures": {
+		"all": "bigglobe:block/ancient_automata_empty"
+	}
+}

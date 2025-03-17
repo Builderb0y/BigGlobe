@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"state=0": { "model": "bigglobe:block/ancient_automata_empty" },
+		"state=1": { "model": "bigglobe:block/ancient_automata_half" },
+		"state=2": { "model": "bigglobe:block/ancient_automata_full" }
+	}
+}

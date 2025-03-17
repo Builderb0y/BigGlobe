@@ -19,7 +19,7 @@
 			"double depthCurve = 1.0L - 1.0L / (max(depthLine, 0.0L) ^ 2 + 1.0L)",
 			"double heatLine   = `bigglobe:overworld/surface_temperature`",
 			"double heatCurve  = 1.0L / (fastExp2(2.0L + 4.0L * heatLine) + 1.0L)",
-			"return(depthCurve * heatCurve * 0.5L)"
+			"return(depthCurve * heatCurve * 0.75L)"
 		],
 		"radius": {
 			"type": "average",

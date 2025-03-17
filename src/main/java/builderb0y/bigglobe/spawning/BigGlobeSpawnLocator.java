@@ -24,6 +24,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
 import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeSpawnLocator {
 
@@ -125,7 +126,7 @@ public class BigGlobeSpawnLocator {
 		);
 		for (StructureStart start : structures) {
 			if (start.getBoundingBox().contains(blockX, blockY, blockZ)) {
-				BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + world.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE).getId(start.getStructure()));
+				BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + RegistryVersions.getRegistry(world.getRegistryManager(), RegistryKeys.STRUCTURE).getId(start.getStructure()));
 				return false;
 			}
 		}

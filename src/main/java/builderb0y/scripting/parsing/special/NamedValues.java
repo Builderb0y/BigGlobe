@@ -13,7 +13,10 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 public record NamedValues(NamedValue[] values, boolean hasNewVariables) implements CodeBlock {
 
-	public static record NamedValue(String name, InsnTree value) {}
+	public static record NamedValue(String name, InsnTree value) {
+
+		public static final NamedValue[] EMPTY_ARRAY = new NamedValue[0];
+	}
 
 	public static NamedValues parse(ExpressionParser parser, @Nullable TypeInfo valueType, @Nullable NameChecker nameChecker) throws ScriptParsingException {
 		parser.beginCodeBlock();

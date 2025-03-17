@@ -121,6 +121,7 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.TracyWrapper;
 import builderb0y.bigglobe.versions.TracyWrapper.ZoneWrapper;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -208,7 +209,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final @VerifyNullable CreakingOverrides creaking_overrides;
 
 	public final @VerifyNullable Identifier world_traits;
-	public final transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
+	public transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
 	public transient WorldTraits compiledWorldTraits;
 	public transient ColumnEntryRegistry columnEntryRegistry;
 	public final BetterRegistry<ExtraSpawn> extraSpawnRegistry;
@@ -359,7 +360,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public void setWorldTraits(JsonObject jsonTraits) {
 		this.setCompiledWorldTraits(
 			this.columnEntryRegistry.traitManager.createTraits(
-				TraitLoader.loadFromCode(jsonTraits)
+				this.loadedWorldTraits = TraitLoader.loadFromCode(jsonTraits)
 			)
 		);
 		this.checkCyclicDependencies();
@@ -941,7 +942,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			);
 			RawGenerationStructurePiece.Context context = null;
 			BlockBox chunkBox = WorldUtil.chunkBox(chunk);
-			Registry<Structure> structureRegistry = serverWorldAccess.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
+			Registry<Structure> structureRegistry = RegistryVersions.getRegistry(serverWorldAccess.getRegistryManager(), RegistryKeys.STRUCTURE);
 			for (StructureStart start : structures) {
 				if (start.getStructure() instanceof RawGenerationStructure) {
 					long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getId(start.getStructure()), start);
@@ -976,7 +977,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				distantHorizons
 			)
 		);
-		Registry<Structure> structureRegistry = world.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
+		Registry<Structure> structureRegistry = RegistryVersions.getRegistry(world.getRegistryManager(), RegistryKeys.STRUCTURE);
 		for (StructureStart start : structures) {
 			long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getId(start.getStructure()), start);
 			List<StructurePiece> children = start.getChildren();
@@ -1250,7 +1251,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
+		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.GENERIC.maybeDhHints());
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.value().emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);

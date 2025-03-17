@@ -818,7 +818,7 @@ public class StructureManager {
 		public static boolean intersects(SectionSortedStructurePieces pieces1, SectionSortedStructurePieces pieces2) {
 			StructureStart start1 = pieces1.startWrapper.start();
 			StructureStart start2 = pieces2.startWrapper.start();
-			return start1.getChildren().size() < start2.getChildren().size() ? pieces2.intersects(start1) : pieces1.intersects(start2);
+			return start1.getBoundingBox().intersects(start2.getBoundingBox()) && (start1.getChildren().size() < start2.getChildren().size() ? pieces2.intersects(start1) : pieces1.intersects(start2));
 		}
 
 		public static int volumeOf(StructureStart start) {

@@ -258,7 +258,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			NbtCompound nbt
 		) {
 			super(type, context, nbt);
-			NbtElement nbtDecorators = nbt.get("decorators");
+			NbtElement nbtDecorators = nbt.get("decorators_v2");
 			if (nbtDecorators != null) try {
 				this.decorators = BigGlobeAutoCodec.AUTO_CODEC.decode(
 					DECORATORS_CODER,
@@ -278,7 +278,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super.writeNbt(context, nbt);
 			if (this.decorators != null) {
 				nbt.put(
-					"decorators",
+					"decorators_v2",
 					BigGlobeAutoCodec.AUTO_CODEC.encode(
 						DECORATORS_CODER,
 						this.decorators,

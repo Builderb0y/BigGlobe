@@ -2,6 +2,7 @@ package builderb0y.bigglobe.compat.voxy;
 
 import me.cortex.voxy.common.world.WorldEngine;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -52,6 +53,8 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 						column01.setParamsUnchecked(params.at(x | step, z       ));
 						column10.setParamsUnchecked(params.at(x,        z | step));
 						column11.setParamsUnchecked(params.at(x | step, z | step));
+						//reminder: pre-computing column values will compute things that aren't needed, like deep dark noise.
+						/*
 						for (String name : this.generator.getOverriders().rawColumnValueDependencies) try {
 							column00.preComputeColumnValue(name);
 							column01.preComputeColumnValue(name);
@@ -61,12 +64,13 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 						catch (Throwable throwable) {
 							BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
 						}
-						for (ColumnValueOverrider.Holder overrider : this.generator.getOverriders().rawColumnValues) {
+						for (RegistryEntry<ColumnValueOverrider.Entry> overrider : this.generator.getOverriders().rawColumnValues) {
 							overrider.override(column00, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 							overrider.override(column01, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 							overrider.override(column10, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 							overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 						}
+						*/
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),
