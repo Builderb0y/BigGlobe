@@ -12,6 +12,7 @@
 			"minecraft:granite":           "minecraft:copper_ore",
 			"minecraft:polished_granite":  "minecraft:copper_ore",
 			"minecraft:deepslate":         "minecraft:deepslate_copper_ore"
+			"minecraft:cobbleddeepslate":  "minecraft:deepslate_copper_ore"
 		},
 		"chance": {
 			"template": "bigglobe:ores/exponential",

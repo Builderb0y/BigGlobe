@@ -29,6 +29,7 @@ where I left off:
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
+	config option for generating structures multi-threaded when C2ME is installed.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.

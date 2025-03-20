@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.structures.placement;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.registry.Registries;
@@ -17,14 +18,18 @@ public class BigGlobeStructurePlacementTypes {
 	public static void init() {}
 
 	public static <T extends StructurePlacement> StructurePlacementType<T> register(String name, Class<T> type) {
-		MapCodec<T> codec = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(type);
+		#if MC_VERSION > MC_1_20_4
+			MapCodec<T> codec = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(type);
+		#else
+			Codec<T> codec = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(type).codec();
+		#endif
 		return Registry.register(
 			Registries.STRUCTURE_PLACEMENT,
 			BigGlobeMod.modID(name),
 			new StructurePlacementType<T>() {
 
 				@Override
-				public MapCodec<T> codec() {
+				public #if MC_VERSION > MC_1_20_4 MapCodec<T> #else Codec<T> #endif codec() {
 					return codec;
 				}
 
