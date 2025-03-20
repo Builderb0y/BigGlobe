@@ -3,6 +3,8 @@
 	"generator.bigglobe.islands": "Большой Глобус: Острова",
 
 	"block.bigglobe.ashen_netherrack": "Пепельный незерак",
+	"block.bigglobe.ancient_automata": "Древние автоматоны",
+	"block.bigglobe.automata": "Автоматоны",
 	"block.bigglobe.blazing_blossom": "Пылающий цветок",
 	"block.bigglobe.budding_quartz": "Цветущий кварц",
 	"block.bigglobe.charred_button": "Обугленная кнопка",
@@ -115,7 +117,7 @@
 	"biome.bigglobe.deep_dark": "Тёмные глубины",
 	"biome.bigglobe.deep_ocean": "Глубокий океан",
 	"biome.bigglobe.end_barrens": "Окраины Энда",
-	"biome.bigglobe.end_mountains": "Горы Энда",
+	"biome.bigglobe.end_mountain": "Гора Энда",
 	"biome.bigglobe.end_plains": "Равнины Энда",
 	"biome.bigglobe.glacier": "Ледник",
 	"biome.bigglobe.hot_dense_forest": "Жаркое густолесье",
