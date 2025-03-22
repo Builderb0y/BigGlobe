@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -14,7 +12,6 @@ import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.ConstantMap;
 import builderb0y.bigglobe.scripting.wrappers.ConstantSet;
 import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.ConstantValue.NullConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -22,7 +19,6 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler.Named;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -35,15 +31,16 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class JavaUtilScriptEnvironment {
 
 	public static final MethodInfo
-		MAP_GET       = MethodInfo.getMethod(Map      .class, "get"),
-		MAP_PUT       = MethodInfo.getMethod(Map      .class, "put"),
-		MAP_ENTRY_GET = MethodInfo.getMethod(Map.Entry.class, "getValue"),
-		MAP_ENTRY_SET = MethodInfo.inCaller("setEntryValue"),
-		LIST_GET      = MethodInfo.getMethod(List     .class, "get"),
-		LIST_SET      = MethodInfo.getMethod(List     .class, "set"),
-		CONSTANT_LIST = MethodInfo.inCaller("constantList"),
-		CONSTANT_MAP  = MethodInfo.inCaller("constantMap"),
-		CONSTANT_SET  = MethodInfo.inCaller("constantSet");
+		MAP_GET             = MethodInfo.getMethod(Map      .class, "get"),
+		MAP_PUT             = MethodInfo.getMethod(Map      .class, "put"),
+		MAP_ENTRY_GET_KEY   = MethodInfo.getMethod(Map.Entry.class, "getKey"),
+		MAP_ENTRY_GET_VALUE = MethodInfo.getMethod(Map.Entry.class, "getValue"),
+		MAP_ENTRY_SET_VALUE = MethodInfo.inCaller("setEntryValue"),
+		LIST_GET            = MethodInfo.getMethod(List     .class, "get"),
+		LIST_SET            = MethodInfo.getMethod(List     .class, "set"),
+		CONSTANT_LIST       = MethodInfo.inCaller("constantList"),
+		CONSTANT_MAP        = MethodInfo.inCaller("constantMap"),
+		CONSTANT_SET        = MethodInfo.inCaller("constantSet");
 
 	@Deprecated //use noAllocateNoModify() instead.
 	public static final MutableScriptEnvironment NO_ALLOCATE_NO_MODIFY = (
@@ -58,7 +55,7 @@ public class JavaUtilScriptEnvironment {
 		.addFieldInvokes(Map.class, "size", "isEmpty")
 		.addType("MapEntry", Map.Entry.class)
 		.addMethodInvokes(Map.Entry.class, "getKey", "getValue")
-		.addFieldInvoke("key", MAP_ENTRY_GET)
+		.addFieldInvoke("key", MAP_ENTRY_GET_KEY)
 		.addType("SortedMap", SortedMap.class)
 		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
 		.addType("NavigableMap", NavigableMap.class)
@@ -130,7 +127,7 @@ public class JavaUtilScriptEnvironment {
 			.addAll(NO_ALLOCATE_NO_MODIFY)
 			.addMethodInvoke("", MAP_GET)
 			.addMethodInvoke("", LIST_GET)
-			.addFieldInvoke("value", MAP_ENTRY_GET)
+			.addFieldInvoke("value", MAP_ENTRY_GET_VALUE)
 			;
 		};
 	}
@@ -150,7 +147,7 @@ public class JavaUtilScriptEnvironment {
 			);
 		}))
 		.addMethodInvokes(Map.Entry.class, "setValue")
-		.addFieldGetterSetter(type(Map.Entry.class), "value", MAP_ENTRY_GET, MAP_ENTRY_SET)
+		.addFieldGetterSetter(type(Map.Entry.class), "value", MAP_ENTRY_GET_VALUE, MAP_ENTRY_SET_VALUE)
 		.addMethodMultiInvokes(NavigableMap.class, "pollFirstEntry", "pollLastEntry")
 		.addQualifiedSpecificConstructor(TreeMap.class, SortedMap.class)
 		.addQualifiedSpecificConstructor(TreeMap.class, Map.class)

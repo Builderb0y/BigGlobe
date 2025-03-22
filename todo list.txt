@@ -44,29 +44,9 @@ structure rewrites:
 	hack StructureAccessor more.
 
 changelog:
-	# Changes for normal players
-	* Added very rare giant obelisks.
-		* Decorated with a new "automata" block, which has some interesting interactions with redstone.
-	* Rivers now split up and take slightly different paths.
-	* Tweaked size and frequency of mega trees.
-	* Lakes are now larger and rarer.
-	* End fractal structures are now larger and rarer.
-	* Abandoned cities are now rarer.
-	* Fixed platform-typed skylands being extremely lopsided sometimes.
-	* Lapis ore now spawns in rivers, in addition to under oceans.
-	* Diamond, gold, and redstone ore are now more common.
-	* The player should no longer spawn inside or on top of structures, or inside a cave.
-	* Fixed /locate command being unable to find rivers.
-	* Fixed swamp wasteland biome not spawning in the world.
-	* Possibly fixed crash that could occur with some mods.
-	* Possibly fixed player being able to fly after leaving hyperspace when using Sinytra connector.
-	* Fixed budding quartz not dropping rough quartz.
-	* Performance improvements.
-	# Changes for data pack makers
-	* Voronoi cells now have a `center_column` field, useful for querying column values at the center of the cell.
-	* Layers (not rock layers) can now once again be defined inline if desired.
-	* Structures are no longer limited to 17x17 chunks in size.
-	* Structure.terrainAdaptation is now exposed to scripts.
+	* Fixed exception spam in the nether.
+	* Fixed copper ore not being able to replace cobbled deepslate.
+	* Fixed new automata block not having russian translation (translations still provided by mpustovoi).
 
 alternate world presets:
 	paradise.
