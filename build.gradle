@@ -151,6 +151,9 @@ task copyToReleases(type: Copy) {
 
 runClient() {
 	workingDir = file('run')
+	doFirst() {
+		assert file('run/.voxy').deleteDir()
+	}
 }
 
 runServer() {

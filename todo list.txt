@@ -46,7 +46,7 @@ structure rewrites:
 changelog:
 	* Fixed exception spam in the nether.
 	* Fixed copper ore not being able to replace cobbled deepslate.
-	* Fixed new automata block not having russian translation (translations still provided by mpustovoi).
+	* Automata blocks now have russian translations (translations still provided by mpustovoi).
 
 alternate world presets:
 	paradise.
