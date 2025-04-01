@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double curve(double value:",
+			"1.0L - 1.0L / (value ^ 2 + 1.0L)",
+		")",
+		"double macro = raw_rivers",
+		"return(",
+			"(macro ^ 2 * 8.0L + 0.09375L)",
+			"* curve((macro + river_micro_noise_1) * 64.0L)",
+			"* curve((macro + river_micro_noise_2) * 64.0L)",
+			"* curve((macro + river_micro_noise_3) * 64.0L)",
+			"* curve((macro + river_micro_noise_4) * 64.0L)",
+			"+ curve(macro * 3.0L) * `bigglobe:overworld/river_erosion`",
+		")"
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"unbounded_river_dip * 64.0L - 4.0L + river_termination"
+	]
+}

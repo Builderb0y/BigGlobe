@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.compat.voxy;
 
 import java.nio.ByteBuffer;
+import java.util.function.LongConsumer;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import me.cortex.voxy.common.config.section.SectionStorage;
@@ -20,7 +21,6 @@ public class GeneratingStorageBackend extends SectionStorage {
 		int status = this.delegate.loadSection(into);
 		if (status == 1 && this.generator != null) {
 			this.generator.queueChunk(into.key);
-			//status = this.delegate.loadSection(into);
 		}
 		return status;
 	}
@@ -38,6 +38,11 @@ public class GeneratingStorageBackend extends SectionStorage {
 	@Override
 	public Int2ObjectOpenHashMap<byte[]> getIdMappingsData() {
 		return this.delegate.getIdMappingsData();
+	}
+
+	@Override
+	public void iterateStoredSectionPositions(LongConsumer consumer) {
+		this.delegate.iterateStoredSectionPositions(consumer);
 	}
 
 	@Override

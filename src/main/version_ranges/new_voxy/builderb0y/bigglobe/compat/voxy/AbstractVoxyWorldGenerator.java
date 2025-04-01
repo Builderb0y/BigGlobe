@@ -3,11 +3,11 @@ package builderb0y.bigglobe.compat.voxy;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.WorldSection;
 import me.cortex.voxy.common.world.other.Mapper;
-import me.cortex.voxy.common.world.other.Mipper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +31,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.commands.VoxyDebugCommand;
-import builderb0y.bigglobe.compat.voxy.DistanceGraph.LeafNode;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.AsyncRunner;
@@ -41,6 +40,8 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 @Environment(EnvType.CLIENT)
 public abstract class AbstractVoxyWorldGenerator {
+
+	public static final AtomicInteger RUNNING_COUNT = new AtomicInteger();
 
 	/** can be set by {@link VoxyDebugCommand}. */
 	public static @Nullable Factory override;
@@ -122,33 +123,42 @@ public abstract class AbstractVoxyWorldGenerator {
 	}
 
 	public void runLoop() {
-		BigGlobeMod.LOGGER.info("Big Globe voxy generation thread started.");
-		int failures = 0;
-		while (true) try {
-			if (!this.running) {
-				BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to voxy core shutting down.");
-				break;
+		RUNNING_COUNT.incrementAndGet();
+		try {
+			BigGlobeMod.LOGGER.info("Big Globe voxy generation thread started.");
+			int failures = 0;
+			while (true) try {
+				if (!this.running) {
+					BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to voxy core shutting down.");
+					break;
+				}
+
+				if (BigGlobeThreadPool.isBusy()) try {
+					Thread.sleep(100L);
+				}
+				catch (InterruptedException ignored) {}
+
+				if (!this.generateNextChunk()) try {
+					Thread.sleep(1000L);
+				}
+				catch (InterruptedException ignored) {}
+
+				failures = 0;
 			}
-			if (BigGlobeThreadPool.isBusy()) try {
-				Thread.sleep(100L);
+			catch (Exception exception) {
+				BigGlobeMod.LOGGER.error("Exception on Big Globe Voxy thread: ", exception);
+				if (++failures >= 3) {
+					BigGlobeMod.LOGGER.error("Failed 3 times. Assuming state is corrupt or something and shutting down.");
+					break;
+				}
+				else try {
+					Thread.sleep(5000L);
+				}
+				catch (InterruptedException ignored) {}
 			}
-			catch (InterruptedException ignored) {}
-			if (!this.generateNextChunk()) try {
-				Thread.sleep(1000L);
-			}
-			catch (InterruptedException ignored) {}
-			failures = 0;
 		}
-		catch (Exception exception) {
-			BigGlobeMod.LOGGER.error("Exception on Big Globe Voxy thread: ", exception);
-			if (++failures >= 3) {
-				BigGlobeMod.LOGGER.error("Failed 3 times. Assuming state is corrupt or something and shutting down.");
-				break;
-			}
-			else try {
-				Thread.sleep(5000L);
-			}
-			catch (InterruptedException ignored) {}
+		finally {
+			RUNNING_COUNT.decrementAndGet();
 		}
 	}
 
@@ -159,13 +169,7 @@ public abstract class AbstractVoxyWorldGenerator {
 	public boolean generateNextChunk() {
 		long next = this.generationQueue.nextChunk();
 		if (next == -1L) return false;
-		/*
-		if (WorldEngine.getLevel(next) < 4) {
-			System.out.println("generating " + WorldEngine.pprintPos(next));
-		}
-		*/
 		this.generateChunkRecursive(next);
-		//System.out.println("finished generating " + WorldEngine.pprintPos(next));
 		return true;
 	}
 
@@ -173,14 +177,6 @@ public abstract class AbstractVoxyWorldGenerator {
 		int x   = WorldEngine.getX(key);
 		int z   = WorldEngine.getZ(key);
 		int lod = WorldEngine.getLevel(key);
-		/*
-		if (lod > 0) {
-			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1,  x << 1,      0,  z << 1     ));
-			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1,  x << 1,      0, (z << 1) | 1));
-			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1, (x << 1) | 1, 0,  z << 1     ));
-			this.generateChunkRecursive(WorldEngine.getWorldSectionId(lod - 1, (x << 1) | 1, 0, (z << 1) | 1));
-		}
-		//*/
 		this.createChunk(x, z, lod);
 		this.generationQueue.finishChunk(key);
 	}
@@ -214,15 +210,14 @@ public abstract class AbstractVoxyWorldGenerator {
 				final int sectionBottomY_ = sectionBottomY;
 				async.submit(() -> {
 					int levelY = sectionBottomY_ >> (level + 5);
-					WorldSection section = lightAir ? WorldSection._createRawUntrackedUnsafeSection(level, levelX, levelY, levelZ) : null;
-					long[] sectionPayload = lightAir ? section._unsafeGetRawDataArray() : null;
-					if (lightAir) {
-						section.acquire();
-						Arrays.fill(sectionPayload, 0L);
-					}
-					BlockState previousColumnState = null;
-					int previousColumnStateID = -1;
+					WorldSection section = lightAir ? this.engine.acquire(level, levelX, levelY, levelZ) : null;
 					try {
+						long[] sectionPayload = lightAir ? section._unsafeGetRawDataArray() : null;
+						if (lightAir) {
+							Arrays.fill(sectionPayload, 0L);
+						}
+						BlockState previousColumnState = null;
+						int previousColumnStateID = -1;
 						int nonEmptyBlocks = 0;
 						byte nonEmptyChildren = 0;
 						for (int relativeZ = 0; relativeZ < 32; relativeZ++) {
@@ -235,8 +230,7 @@ public abstract class AbstractVoxyWorldGenerator {
 									if (segment.minY > (sectionBottomY_ | ((1 << (level + 5)) - 1))) break;
 									if (lightAir || !segment.value.isAir()) {
 										if (section == null) {
-											section = WorldSection._createRawUntrackedUnsafeSection(level, levelX, levelY, levelZ);
-											section.acquire();
+											section = this.engine.acquire(level, levelX, levelY, levelZ);
 											sectionPayload = section._unsafeGetRawDataArray();
 											Arrays.fill(sectionPayload, 0L);
 										}
@@ -279,7 +273,7 @@ public abstract class AbstractVoxyWorldGenerator {
 						if (section != null) {
 							nonEmptyChildHandle.setVolatile(section, nonEmptyChildren);
 							nonEmptyBlockHandle.setVolatile(section, nonEmptyBlocks);
-							this.insert(section);
+							this.engine.markDirty(section);
 						}
 					}
 					finally {
@@ -288,27 +282,6 @@ public abstract class AbstractVoxyWorldGenerator {
 				});
 			}
 		}
-	}
-
-	public void insert(WorldSection section) {
-		this.engine.markDirty(section);
-		/*
-		int firstLod = section.lvl;
-		boolean free = false;
-		for (int lod = firstLod; ++lod < WorldEngine.MAX_LOD_LAYERS;) {
-			WorldSection nextMip = this.engine.acquire(lod, section.x >> (lod - firstLod), section.y >> (lod - firstLod), section.z >> (lod - firstLod));
-			if (nextMip.updateEmptyChildState(section) != 0) {
-				this.engine.markDirty(nextMip, WorldEngine.UPDATE_TYPE_CHILD_EXISTENCE_BIT);
-				if (free) section.release();
-				section = nextMip;
-				free = true;
-			}
-			else {
-				if (free) section.release();
-				break;
-			}
-		}
-		//*/
 	}
 
 	public static class GenerationQueue {

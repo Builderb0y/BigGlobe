@@ -1,10 +1,10 @@
 {
-	"type": "bigglobe:script",
+	"type": "script",
 	"params": {
 		"type": "double",
 		"is_3d": false
 	},
 	"script": [
-		"0.25L / (raw_hilliness ^ 2 + 0.25L)"
+		"max(cliffy_surface_y * 0.25L - 16.0L, 0.0) ^ 2"
 	]
 }

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "river_dip < cliffy_surface_y ? river_termination * 0.875L : sea_level",
+	"cache": false
+}

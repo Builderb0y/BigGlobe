@@ -1,11 +1,12 @@
 {
 	"script": [
 		"double*(minSample = world_traits.`bigglobe:lake_y`, maxSample = minSample)",
-		"for (int angleIndex in range[0, 8):",
-			"double angle = angleIndex * (tau / 8.0L)",
+		"for (int angleIndex in range[0, 16):",
+			"double angle = angleIndex * (tau / 16.0L)",
 			"int sampleX = floorInt(originX + fastCos(angle) * RADIUS)",
 			"int sampleZ = floorInt(originZ + fastSin(angle) * RADIUS)",
 			"double sampleY = world_traits.`bigglobe:lake_y`(sampleX, sampleZ)",
+			"if (world_traits.`bigglobe:biome`(sampleX, int(sampleY), sampleZ) ==. 'bigglobe:river': return())",
 			"minSample = min(minSample, sampleY)",
 			"maxSample = max(maxSample, sampleY)",
 		")",

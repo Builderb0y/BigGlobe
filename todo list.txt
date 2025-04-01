@@ -39,14 +39,28 @@ to finish before release:
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
 	document terrainAdaptation.
+	computeNoTest not in ColumnEntryMemory when using valid with cache: false.
 
 structure rewrites:
 	hack StructureAccessor more.
 
+noise experiment:
+	yeet cliffs.
+	gravel in rivers.
+	derivatives/erosion.
+	I think rivers need some tweaking to be more sane.
+		anything that hard-codes unbounded_river_dip <=> 1.0 will need adjusting.
+		dunes avoiding rivers might need adjusting.
+	need to make oceans deeper in shallow areas without being too deep in deep areas.
+	yeet raw_snow, base off of raw_erosion.
+		add rivered_snow, which is an eroded version of river_dip.
+	variable number of octaves for raw_erosion based on LOD.
+	maybe remove river water?
+		maybe keep the block but don't use it?
+		would need to remove associated layer.
+	approximate_river_dip, which lacks erosion.
+
 changelog:
-	* Fixed exception spam in the nether.
-	* Fixed copper ore not being able to replace cobbled deepslate.
-	* Automata blocks now have russian translations (translations still provided by mpustovoi).
 
 alternate world presets:
 	paradise.

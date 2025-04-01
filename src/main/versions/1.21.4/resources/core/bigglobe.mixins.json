@@ -84,6 +84,8 @@
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
 		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
+		"Voxy_NodeManager_SuppressWarnings",
+		"Voxy_RenderService_ShutdownHook",
 		"Voxy_WorldEngine_UseBigGlobeGenerator",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"WorldGenProperties_LogLevelType",

@@ -285,8 +285,10 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");
 			}
 			case
+				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
+				"builderb0y.bigglobe.mixins.Voxy_NodeManager_SuppressWarnings",
 				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
-				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging"
+				"builderb0y.bigglobe.mixins.Voxy_RenderService_ShutdownHook"
 			-> {
 				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
 			}
