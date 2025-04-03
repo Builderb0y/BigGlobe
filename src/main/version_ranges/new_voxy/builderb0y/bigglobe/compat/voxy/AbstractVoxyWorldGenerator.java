@@ -204,7 +204,11 @@ public abstract class AbstractVoxyWorldGenerator {
 	public void convertSection(int levelX, int levelZ, int level, BlockSegmentList[] lists) {
 		int minY = this.generator.height.min_y();
 		int maxY = this.generator.height.max_y();
-		boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
+		#if MC_VERSION > MC_1_21_1
+			final boolean lightAir = true;
+		#else
+			boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
+		#endif
 		try (AsyncRunner async = new AsyncRunner(BigGlobeThreadPool.lodExecutor())) {
 			for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
 				final int sectionBottomY_ = sectionBottomY;
@@ -240,11 +244,11 @@ public abstract class AbstractVoxyWorldGenerator {
 											previousColumnState = segment.value;
 											previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
 										}
-										byte startLightLevel = segment.lightLevel;
+										byte startSkyLight = segment.lightLevel;
 										int diminishment = BlockStateVersions.getOpacity(previousColumnState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 										int blockLightLevel = previousColumnState.getLuminance() << 4;
-										if (startLightLevel == 0 || diminishment == 0) {
-											long id = Mapper.composeMappingId((byte)((15 - startLightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+										if (startSkyLight == 0 || diminishment == 0) {
+											long id = Mapper.composeMappingId((byte)((#if MC_VERSION <= MC_1_21_1 15 - #endif startSkyLight) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
 											for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
 												int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
 												boolean wasAir = Mapper.isAir(sectionPayload[index]);
@@ -260,8 +264,8 @@ public abstract class AbstractVoxyWorldGenerator {
 												boolean wasAir = Mapper.isAir(sectionPayload[index]);
 												if (previousColumnStateID == 0 && !wasAir) continue;
 												int absoluteY = ((relativeY + 1) << level) - 1 + sectionBottomY_;
-												int lightLevel = Math.max(startLightLevel - diminishment * (segment.maxY - absoluteY), 0);
-												sectionPayload[index] = Mapper.composeMappingId((byte)((15 - lightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+												int skylight = Math.max(startSkyLight - diminishment * (segment.maxY - absoluteY), 0);
+												sectionPayload[index] = Mapper.composeMappingId((byte)((#if MC_VERSION <= MC_1_21_1 15 - #endif skylight) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
 												if (wasAir) nonEmptyBlocks++;
 												nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
 											}

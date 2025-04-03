@@ -1,0 +1,27 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "SineWaveErosionData",
+			"fields": [
+				{ "name": "y",  "type": "double" },
+				{ "name": "dx", "type": "double" },
+				{ "name": "dz", "type": "double" }
+			]
+		},
+		"is_3d": false
+	},
+	"script": {
+		"template": "bigglobe:sine_wave_erosion_derivative",
+		"inputs": {
+			"dx": "dx_raw_rivers * copySign(32.0L, raw_rivers)",
+			"dz": "dz_raw_rivers * copySign(32.0L, raw_rivers)",
+			"minWavelength": "4.0L",
+			"maxWavelength": "64.0L",
+			"seed": "worldSeed # 16x15E3E27467C7CC4CUL",
+			"dampening": "4.0L",
+			"amplitude": "2.0L - 256.0L / (max(approximate_river_dip - river_termination, 0.0L) ^ 2 + 128.0L)"
+		}
+	}
+}

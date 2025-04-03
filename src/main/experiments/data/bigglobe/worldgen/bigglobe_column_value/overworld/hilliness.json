@@ -1,10 +1,10 @@
 {
-	"type": "bigglobe:script",
+	"type": "script",
 	"params": {
 		"type": "double",
 		"is_3d": false
 	},
 	"script": [
-		"0.25L / (raw_hilliness ^ 2 + 0.25L)"
+		"0.25L / (`raw/hilliness` ^ 2 + 0.25L)"
 	]
 }

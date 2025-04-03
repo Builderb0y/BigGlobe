@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "0.25L / (hilliness ^ 2 + 0.015625L)"
+}

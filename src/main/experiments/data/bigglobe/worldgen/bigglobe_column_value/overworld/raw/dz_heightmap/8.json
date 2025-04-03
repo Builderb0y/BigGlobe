@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"seed": "raw_erosion_8",
+	"grid": {
+		"type": "dy_smoother_resample",
+		"source": {
+			"type": "binary",
+			"amplitude": 1.0
+		},
+		"scale": 8
+	}
+}

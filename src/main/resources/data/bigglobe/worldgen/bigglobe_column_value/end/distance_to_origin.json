@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "sqrt(x ^ 2 + z ^ 2)"
+	"script": "sqrt(long(x) ^ 2 + long(z) ^ 2)"
 }

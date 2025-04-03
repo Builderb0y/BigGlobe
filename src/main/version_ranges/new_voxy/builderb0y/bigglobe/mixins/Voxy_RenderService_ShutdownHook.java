@@ -14,9 +14,9 @@ import builderb0y.bigglobe.compat.voxy.GeneratingStorageBackend;
 @Mixin(RenderService.class)
 public class Voxy_RenderService_ShutdownHook {
 
-	@Shadow @Final private WorldEngine world;
+	@Shadow(remap = false) @Final private WorldEngine world;
 
-	@Inject(method = "shutdown", at = @At("HEAD"))
+	@Inject(method = "shutdown", at = @At("HEAD"), remap = false)
 	private void bigglobe_shutdownVoxyWorldgenThread(CallbackInfo callback) {
 		if (this.world.storage instanceof GeneratingStorageBackend generating && generating.generator != null) {
 			generating.generator.stop();

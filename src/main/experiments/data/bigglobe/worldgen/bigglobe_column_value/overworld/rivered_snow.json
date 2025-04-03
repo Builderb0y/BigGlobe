@@ -4,5 +4,7 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "min(raw_snow, river_dip)"
+	"script": [
+		"min(raw_snow, approximate_river_dip + base_river_snow.y)"
+	]
 }

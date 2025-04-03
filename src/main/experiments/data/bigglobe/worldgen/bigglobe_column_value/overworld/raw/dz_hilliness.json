@@ -1,0 +1,18 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"seed": "hilliness",
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 0.5       }, "scale": 4096 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 0.25      }, "scale": 2048 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 0.125     }, "scale": 1024 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 0.0625    }, "scale":  512 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 0.03125   }, "scale":  256 }
+		]
+	}
+}

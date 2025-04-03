@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"seed": "raw_amp_512",
+	"grid": {
+		"type": "dx_smoother_resample",
+		"source": {
+			"type": "white_noise",
+			"amplitude": 1.0
+		},
+		"scale": 512
+	}
+}

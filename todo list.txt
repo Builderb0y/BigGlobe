@@ -47,10 +47,12 @@ structure rewrites:
 noise experiment:
 	yeet cliffs.
 	gravel in rivers.
-	derivatives/erosion.
 	I think rivers need some tweaking to be more sane.
-		anything that hard-codes unbounded_river_dip <=> 1.0 will need adjusting.
+		remove unbounded_river_dip.
+			anything that hard-codes unbounded_river_dip <=> 1.0 will need adjusting.
 		dunes avoiding rivers might need adjusting.
+		figure out how I want to handle river_termination.
+			I don't think I want it in approximate_river_dip.
 	need to make oceans deeper in shallow areas without being too deep in deep areas.
 	yeet raw_snow, base off of raw_erosion.
 		add rivered_snow, which is an eroded version of river_dip.
@@ -59,8 +61,16 @@ noise experiment:
 		maybe keep the block but don't use it?
 		would need to remove associated layer.
 	approximate_river_dip, which lacks erosion.
+	merge base_erosion/snow and raw_erosion/snow.
+	re-evaluate what needs caching.
+	remove temperature bias in foliage colors.
+	world trait for in_river.
+	merge sine_wave_erosion script templates.
+		expand more for regular + snow at the same time?
 
 changelog:
+	* Fixed being unable to craft gunpowder with sulfur.
+	* Fixed the end dimension not generating terrain more than about 46k blocks from the origin.
 
 alternate world presets:
 	paradise.
