@@ -1,0 +1,49 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "DualSineWaveErosionData",
+			"fields": [
+				{
+					"name": "high",
+					"type": {
+						"type": "class",
+						"name": "SineWaveErosionData",
+						"fields": [
+							{ "name": "y",  "type": "double" },
+							{ "name": "dx", "type": "double" },
+							{ "name": "dz", "type": "double" }
+						]
+					}
+				},
+				{
+					"name": "low",
+					"type": {
+						"type": "class",
+						"name": "SineWaveErosionData",
+						"fields": [
+							{ "name": "y",  "type": "double" },
+							{ "name": "dx", "type": "double" },
+							{ "name": "dz", "type": "double" }
+						]
+					}
+				}
+			]
+		},
+		"is_3d": false
+	},
+	"script": {
+		"template": "bigglobe:dual_sine_wave_erosion",
+		"inputs": {
+			"y": "`raw/river` + river_termination",
+			"dx": "`raw/river/dx_macro` * `raw/river/macro` ^ 3 * 4096.0L",
+			"dz": "`raw/river/dz_macro` * `raw/river/macro` ^ 3 * 4096.0L",
+			"minWavelength": "4  << hints.lod",
+			"midWavelength": "24 << hints.lod",
+			"maxWavelength": "64",
+			"seed": "worldSeed # 16x004DF3F0332599B7UL",
+			"dampening": "3.0L"
+		}
+	}
+}

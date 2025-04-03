@@ -1,19 +1,8 @@
 {
 	"condition": {
-		"type": "and",
-		"conditions": [
-			{
-				"type": "threshold",
-				"min": -52.0,
-				"max": -56.0,
-				"column_value": "bigglobe:overworld/river_dip"
-			},
-			{
-				"type": "script_chance",
-				"script": "smooth((`bigglobe:overworld/cliffy_snow` + `bigglobe:overworld/river_water_depth`) / 4.0L)"
-			}
-		]
+		"type": "script",
+		"script": "world_traits.`bigglobe:in_river`"
 	},
 	"if_true": "bigglobe:overworld/surface_state/river",
-	"if_false": "bigglobe:overworld/surface_state/test_beach"
+	"if_false": "bigglobe:overworld/surface_state/beach_test_overgrown"
 }

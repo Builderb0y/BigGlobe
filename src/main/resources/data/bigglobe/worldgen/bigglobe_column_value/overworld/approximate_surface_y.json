@@ -4,7 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": [
-		"0.25L / (`raw/hilliness` ^ 2 + 0.25L)"
-	]
+	"script": "min(`raw/river`, `raw/heightmap`)"
 }

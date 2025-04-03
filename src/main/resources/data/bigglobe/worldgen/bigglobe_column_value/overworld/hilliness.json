@@ -1,29 +1,10 @@
 {
-	"type": "bigglobe:noise",
+	"type": "script",
 	"params": {
 		"type": "double",
 		"is_3d": false
 	},
-	"grid": {
-		"type": "script",
-		"script": [
-			"1.0L / (fastExp(-4.0L * base) + 1.0L)"
-		],
-		"min": 0.0,
-		"max": 1.0,
-		"inputs": {
-			"base": {
-				"type": "sum",
-				"layers": [
-					{ "type": "cubic", "scale": 2048, "amplitude": 0.5 },
-					{ "type": "cubic", "scale": 1024, "amplitude": 0.25 },
-					{ "type": "cubic", "scale":  512, "amplitude": 0.125 },
-					{ "type": "cubic", "scale":  256, "amplitude": 0.0625 },
-					{ "type": "cubic", "scale":  128, "amplitude": 0.03125 },
-					{ "type": "cubic", "scale":   64, "amplitude": 0.015625 },
-					{ "type": "cubic", "scale":   32, "amplitude": 0.0078125 }
-				]
-			}
-		}
-	}
+	"script": [
+		"0.25L / (`raw/hilliness` ^ 2 + 0.25L)"
+	]
 }

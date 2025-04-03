@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": "eroded_river.high.y < eroded_heightmap.high.y",
+	"cache": false
+}

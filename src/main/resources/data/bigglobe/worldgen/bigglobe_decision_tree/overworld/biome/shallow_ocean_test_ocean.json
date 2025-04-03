@@ -5,7 +5,7 @@
 			"unmixSmooth(",
 				"-4.0L,",
 				"-8.0L,",
-				"`bigglobe:overworld/cliffy_surface_y` - world_traits.`bigglobe:sea_level`",
+				"world_traits.`bigglobe:approximate_surface_y` - world_traits.`bigglobe:sea_level`",
 			")"
 		]
 	},

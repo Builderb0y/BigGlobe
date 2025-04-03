@@ -5,7 +5,7 @@
 			"int z in range[minModifiableZ, maxModifiableZ],",
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
-			"if (ceilInt(`bigglobe:overworld/processed_surface_y`(x, z)) < `bigglobe:overworld/sea_level`(x, z) && `bigglobe:overworld/glacier_cell`(x, z).?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`(x, z):",
+			"if (world_traits.`bigglobe:y_level_on_surface`(x, z) < `bigglobe:overworld/sea_level`(x, z) && `bigglobe:overworld/glacier_cell`(x, z).?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`(x, z):",
 				"placeFeature(x, 0, z, 'bigglobe:overworld/glacier')",
 			")",
 		")"

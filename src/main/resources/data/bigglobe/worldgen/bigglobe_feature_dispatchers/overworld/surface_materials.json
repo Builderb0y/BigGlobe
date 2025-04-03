@@ -1,8 +1,8 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"double riverBias = `bigglobe:overworld/unbounded_river_dip`(minModifiableX | 8, minModifiableZ | 8)",
-		"riverBias = 1.0L / (1.0L + riverBias + riverBias ^ 2 * 0.5L)",
+		"double riverBias = `bigglobe:overworld/raw/river`(minModifiableX | 8, minModifiableZ | 8)",
+		"riverBias = 1.0L - riverBias / 64.0L",
 
 		";rocks",
 		"repeat (",

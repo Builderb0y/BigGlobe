@@ -6,17 +6,14 @@
 	},
 	"script": [
 		"double snowHeight = height_adjusted_snow_y",
-		"double terrainHeight = processed_surface_y",
-		"if (terrainHeight - river_water_y < 32.0L:",
+		"double terrainHeight = exact_surface_y",
+		"if (terrainHeight - sea_level < 32.0L:",
 			"snowHeight = mixSmooth(",
 				"terrainHeight,",
 				"snowHeight,",
-				"(terrainHeight - river_water_y) / 32.0L",
+				"(terrainHeight - sea_level) / 32.0L",
 			")",
 		")",
 		"return(snowHeight)"
-	],
-	"valid": {
-		"where": "processed_surface_y > sea_level"
-	}
+	]
 }

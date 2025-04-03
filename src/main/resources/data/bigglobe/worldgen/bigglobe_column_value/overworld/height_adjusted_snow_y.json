@@ -5,10 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"double snowHeight = rivered_snow",
-		"snowHeight + (-2.0L + surface_temperature * -4.0L)"
-	],
-	"valid": {
-		"where": "processed_surface_y > sea_level"
-	}
+		"min(eroded_heightmap.low.y, eroded_river.low.y)",
+		"+ (-8.0L + surface_temperature * -16.0L)"
+	]
 }

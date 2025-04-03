@@ -6,9 +6,9 @@
 	},
 	"script": [
 		"float(unmixSmooth(",
-			"river_water_y + 16.0L,",
-			"river_water_y + 8.0L,",
-			"processed_surface_y",
+			"sea_level + 16.0L,",
+			"sea_level + 8.0L,",
+			"world_traits.`bigglobe:exact_surface_y`",
 		"))"
 	]
 }

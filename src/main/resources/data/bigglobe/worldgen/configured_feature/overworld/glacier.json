@@ -4,7 +4,7 @@
 		"script": [
 			"int minY = floorInt(`bigglobe:overworld/glacier_min_y`)",
 			"int maxY = floorInt(`bigglobe:overworld/glacier_max_y`)",
-			"int terrainStart = ceilInt(`bigglobe:overworld/processed_surface_y`)",
+			"int terrainStart = world_traits.`bigglobe:y_level_on_surface`",
 			"for (int index in range[0, maxY - minY):",
 				"if (minY + index >= terrainStart:",
 					"setBlockState(originX, minY + index, originZ,",

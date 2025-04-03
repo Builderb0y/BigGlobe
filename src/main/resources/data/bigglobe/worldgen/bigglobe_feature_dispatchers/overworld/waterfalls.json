@@ -5,7 +5,7 @@
 			"int*(",
 				"x = minModifiableX | random.nextInt(16)",
 				"z = minModifiableZ | random.nextInt(16)",
-				"y = ceilInt(`bigglobe:overworld/processed_surface_y`(x, z))",
+				"y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 			")",
 			"placeFeature(x, y, z, 'bigglobe:overworld/waterfall')",
 		")"

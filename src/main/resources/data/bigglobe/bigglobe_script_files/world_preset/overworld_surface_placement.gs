@@ -4,10 +4,10 @@ int surfaceY = world_traits.`bigglobe:y_level_on_surface`
 if (surfaceY.isBetween[minY, maxY]:
 	long seed = columnSeed(16x89EA3521C6A72ABCUL)
 	double slopeSquared = (
-		+ dx(`bigglobe:overworld/basic_surface_y`) ^ 2
-		+ dz(`bigglobe:overworld/basic_surface_y`) ^ 2
+		+ dx(world_traits.`bigglobe:exact_surface_y`) ^ 2
+		+ dz(world_traits.`bigglobe:exact_surface_y`) ^ 2
 	)
-	if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, `bigglobe:overworld/processed_surface_y`):
+	if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, world_traits.`bigglobe:exact_surface_y`):
 		int depth = (seed := seed.newSeed()).nextInt(3, 7)
 		setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')
 	)
@@ -41,7 +41,7 @@ if (surfaceY.isBetween[minY, maxY]:
 			)
 		)
 	)
-	if (`bigglobe:overworld/processed_surface_y` > `bigglobe:overworld/sea_level` && (seed := seed.newSeed()).nextBoolean(world_traits.`bigglobe:snow_chance`):
+	if (world_traits.`bigglobe:exact_surface_y` > `bigglobe:overworld/sea_level` && (seed := seed.newSeed()).nextBoolean(world_traits.`bigglobe:snow_chance`):
 		generateSnow(surfaceY, `bigglobe:overworld/snow_y`)
 	)
 )

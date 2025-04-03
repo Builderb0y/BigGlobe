@@ -6,15 +6,15 @@
 	},
 	"script": [
 		"min(",
-			"unmixLinear(-0.25I, -0.5I, raw_temperature),",
+			"unmixLinear(-0.25I, -0.5I, world_traits.`bigglobe:temperature_at_sea_level`),",
 			"float(unmixLinear(",
 				"sea_level,",
 				"sea_level - hilliness * 128.0L,",
-				"raw_erosion",
+				"world_traits.`bigglobe:approximate_surface_y`",
 			"))",
 		")"
 	],
 	"valid": {
-		"where": "raw_erosion < sea_level"
+		"where": "world_traits.`bigglobe:approximate_surface_y` < sea_level"
 	}
 }

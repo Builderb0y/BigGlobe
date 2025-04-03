@@ -7,7 +7,7 @@
 	},
 	"valid": {
 		"where": "hints.carve",
-		"min_y": "higherInt(`bigglobe:overworld/basic_surface_y` - `bigglobe:overworld/cave`.depth)",
+		"min_y": "higherInt(world_traits.`bigglobe:approximate_surface_y` - `bigglobe:overworld/cave`.depth)",
 		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
 	}
 }

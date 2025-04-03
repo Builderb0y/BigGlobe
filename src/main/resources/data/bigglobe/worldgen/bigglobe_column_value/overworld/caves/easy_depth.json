@@ -4,6 +4,6 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "min(`bigglobe:overworld/basic_surface_y` - world_traits.`bigglobe:deep_dark_max_y`, 256.0L)",
+	"script": "min(world_traits.`bigglobe:approximate_surface_y` - world_traits.`bigglobe:deep_dark_max_y`, 256.0L)",
 	"cache": false
 }

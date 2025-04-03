@@ -4,7 +4,7 @@
 		"conditions": [
 			{
 				"type": "script",
-				"script": "`bigglobe:overworld/unbounded_river_dip` > 1.0L"
+				"script": "!world_traits.`bigglobe:in_river`"
 			},
 			{
 				"type": "script_chance",

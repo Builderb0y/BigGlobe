@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double curve(double value:",
+			"1.0L - 1.0L / (value ^ 2 + 1.0L)",
+		")",
+		"double macro = `river/macro`",
+		"return(",
+			"(macro ^ 2 * 8.0L + 0.09375L)",
+			"* curve((macro + `river/micro_1`) * 64.0L)",
+			"* curve((macro + `river/micro_2`) * 64.0L)",
+			"* curve((macro + `river/micro_3`) * 64.0L)",
+			"* curve((macro + `river/micro_4`) * 64.0L)",
+			"* 64.0L - 4.0L + `bigglobe:overworld/river_termination`",
+		")"
+	]
+}

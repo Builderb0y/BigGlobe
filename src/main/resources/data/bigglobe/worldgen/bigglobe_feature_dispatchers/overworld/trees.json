@@ -7,7 +7,7 @@
 				"x = minModifiableX | (rng & 15)",
 				"z = minModifiableZ | ((rng >>> 4) & 15)",
 			")",
-			"if (`bigglobe:overworld/unbounded_river_dip`(x, z) > 1.0L && `bigglobe:overworld/lake_surface_states`(x, z) == null:",
+			"if (!world_traits.`bigglobe:in_river`(x, z) && `bigglobe:overworld/lake_surface_states`(x, z) == null:",
 				"ConfiguredFeature feature = `bigglobe:overworld/foliage_feature`(x, z)",
 				"if (feature != null:",
 					"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",

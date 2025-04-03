@@ -1,8 +1,0 @@
-{
-	"type": "script",
-	"params": {
-		"type": "double",
-		"is_3d": false
-	},
-	"script": "max(cliffy_snow + river_water_depth, sea_level)"
-}

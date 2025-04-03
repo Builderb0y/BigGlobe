@@ -1,9 +1,9 @@
 {
 	"type": "script",
 	"params": {
-		"type": "double",
+		"type": "boolean",
 		"is_3d": false
 	},
-	"script": "sea_level",
+	"script": "`raw/river` < `raw/heightmap`",
 	"cache": false
 }

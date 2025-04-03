@@ -11,6 +11,6 @@
 		},
 		"is_3d": false
 	},
-	"root": "bigglobe:overworld/surface_state/test_river",
+	"root": "bigglobe:overworld/surface_state/test_beach",
 	"cache": false
 }

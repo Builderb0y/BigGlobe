@@ -6,9 +6,7 @@
 	},
 	"script": [
 		"float foliage = world_traits.`bigglobe:foliage_at_sea_level`",
-		"if (continentalness > 0.0L:",
-			"foliage -= float(abs(y - sea_level) / 1024.0L)",
-		")",
+		"foliage -= float(abs(y - sea_level) / 1024.0L)",
 		"return(foliage)"
 	],
 	"cache": false

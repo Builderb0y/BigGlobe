@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:flower_controller",
 	"config": {
-		"y_level": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
+		"y_level": "world_traits.`bigglobe:y_level_on_surface`",
 		"flowers": "#bigglobe:overworld/surface_flowers"
 	}
 }

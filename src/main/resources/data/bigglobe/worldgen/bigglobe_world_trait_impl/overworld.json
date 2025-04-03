@@ -1,8 +1,9 @@
 {
+	"bigglobe:approximately_in_river":   "`bigglobe:overworld/approximately_in_river`",
 	"bigglobe:biome":                    "`bigglobe:overworld/biome`",
 	"bigglobe:cave_decorator":           "`bigglobe:overworld/cave`.decorator",
 	"bigglobe:cave_dungeon_decorator":   "`bigglobe:overworld/cave`.dungeon_feature",
-	"bigglobe:cave_min_y":               "higherInt(`bigglobe:overworld/processed_surface_y` - `bigglobe:overworld/cave`.depth)",
+	"bigglobe:cave_min_y":               "higherInt(`bigglobe:overworld/exact_surface_y` - `bigglobe:overworld/cave`.depth)",
 	"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
 	"bigglobe:cave_surface_data":        "OverworldCaveCell*(cell := `bigglobe:overworld/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
 	"bigglobe:core_min_y":               "-912I",
@@ -10,9 +11,10 @@
 	"bigglobe:deep_dark_min_y":          "-752I",
 	"bigglobe:deep_dark_max_y":          "-624I",
 	"bigglobe:foliage_at":               "`bigglobe:overworld/height_adjusted_foliage`",
-	"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw_foliage`",
+	"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw/foliage`",
 	"bigglobe:has_skylands":             "SkylandBounds*(bounds := `bigglobe:overworld/skyland`.bounds) != null && bounds.max_y > bounds.min_y",
 	"bigglobe:hilliness":                "`bigglobe:overworld/hilliness`",
+	"bigglobe:in_river":                 "`bigglobe:overworld/in_river`",
 	"bigglobe:lava_y":                   "-896I",
 	"bigglobe:magicalness":              "`bigglobe:overworld/magicalness`",
 	"bigglobe:min_y":                    "-1024I",
@@ -20,15 +22,15 @@
 	"bigglobe:sea_level":                "0I",
 	"bigglobe:skyland_min_y":            " floorInt(`bigglobe:overworld/skyland`.bounds.min_y)",
 	"bigglobe:skyland_max_y":            "higherInt(`bigglobe:overworld/skyland`.bounds.max_y)",
-	"bigglobe:snow_chance_at":           "world_traits.`bigglobe:approximate_surface_y` < world_traits.`bigglobe:sea_level` && y > world_traits.`bigglobe:sea_level` + 128 ? 0.0I : world_traits.`bigglobe:snow_chance`",
+	"bigglobe:snow_chance_at":           "world_traits.`bigglobe:approximate_surface_y` < world_traits.`bigglobe:sea_level` ? 0.0I : world_traits.`bigglobe:snow_chance`",
 	"bigglobe:temperature_at":           "`bigglobe:overworld/height_adjusted_temperature`",
-	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw_temperature`",
+	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/raw/temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:overworld/surface_temperature`",
 	"bigglobe:wood_palette":             "`bigglobe:overworld/wood_palette`",
 	"bigglobe:automatic_surface_states": "`bigglobe:overworld/surface_states`",
 	"bigglobe:approximate_surface_y": {
-		"get": "`bigglobe:overworld/basic_surface_y`",
-		"set": "`bigglobe:overworld/basic_surface_y` = value"
+		"get": "`bigglobe:overworld/approximate_surface_y`",
+		"set": "`bigglobe:overworld/approximate_surface_y` = value"
 	},
 	"bigglobe:automatic_lake_surface_states": {
 		"get": "`bigglobe:overworld/lake_surface_states`",
@@ -39,16 +41,16 @@
 		"set": "`bigglobe:overworld/snow_y` = value"
 	},
 	"bigglobe:automatic_surface_y": {
-		"get": "`bigglobe:overworld/processed_surface_y`",
-		"set": "`bigglobe:overworld/processed_surface_y` = value"
+		"get": "`bigglobe:overworld/exact_surface_y`",
+		"set": "`bigglobe:overworld/exact_surface_y` = value"
 	},
 	"bigglobe:cave_noise": {
 		"get": "`bigglobe:overworld/cave`.noise(y)",
 		"set": "`bigglobe:overworld/cave`.noise(y) = value"
 	},
 	"bigglobe:exact_surface_y": {
-		"get": "`bigglobe:overworld/processed_surface_y`",
-		"set": "`bigglobe:overworld/processed_surface_y` = value"
+		"get": "`bigglobe:overworld/exact_surface_y`",
+		"set": "`bigglobe:overworld/exact_surface_y` = value"
 	},
 	"bigglobe:foliage_at_surface": {
 		"get": "`bigglobe:overworld/surface_foliage`",

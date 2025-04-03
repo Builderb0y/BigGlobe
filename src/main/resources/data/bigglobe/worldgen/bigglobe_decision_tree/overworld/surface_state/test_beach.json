@@ -5,6 +5,6 @@
 		"max": 4.0,
 		"trait": "bigglobe:exact_surface_y"
 	},
-	"if_true": "bigglobe:overworld/surface_state/beach_test_overgrown",
+	"if_true": "bigglobe:overworld/surface_state/test_river",
 	"if_false": "bigglobe:overworld/surface_state/test_hot"
 }

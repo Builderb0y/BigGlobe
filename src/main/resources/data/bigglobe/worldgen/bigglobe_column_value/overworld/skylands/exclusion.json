@@ -9,10 +9,10 @@
 			"unmixLinear(",
 				"`bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 256.0L,",
 				"`bigglobe:overworld/sea_level`,",
-				"`bigglobe:overworld/raw_erosion`",
+				"world_traits.`bigglobe:approximate_surface_y`",
 			"),",
 			"0.0",
 		") ^ 2",
-		"+ max(`bigglobe:overworld/raw_temperature` * -4.0, 0.0) ^ 2"
+		"+ max(world_traits.`bigglobe:temperature_at_sea_level` * -4.0, 0.0) ^ 2"
 	]
 }
