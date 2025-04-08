@@ -21,7 +21,6 @@ where I left off:
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	blanket replace surface Y level with trait.
 	tall plateaus for hot wasteland.
-	64-ish blocks of (red) sandstone below surface in deserts.
 	foliage exclusion for villages on island skylands affects mainland below.
 	generic scripted ore?
 	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
@@ -29,7 +28,6 @@ where I left off:
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
-	config option for generating structures multi-threaded when C2ME is installed.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -44,10 +42,15 @@ structure rewrites:
 	hack StructureAccessor more.
 
 noise experiment:
+	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
+	add slope threshold for abandoned cities to prevent them from spawning on steep mountainous areas.
 
 changelog:
-	# This version changes everything. Do not use it with existing worlds.
-	* Completely new overworld.
+	# This is a BETA release! It is ONLY intended for testing the new overworld!
+	# This version changes everything. Do not use it with existing worlds, and do not expect existing data packs to work flawlessly!
+
+	Changelog:
+	* Completely re-designed the overworld (shouldn't affect island worlds much, if at all).
 	* Fixed being unable to craft gunpowder with sulfur.
 	* Fixed the end dimension not generating terrain more than about 46k blocks from the origin.
 	* Fixed pale netherrack not being in the creative menu (1.21.4).

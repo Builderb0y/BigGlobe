@@ -35,7 +35,6 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -46,7 +45,6 @@ import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
 import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
 import builderb0y.bigglobe.trees.SaplingGrowHandler;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBlocks {
 
@@ -315,7 +313,8 @@ public class BigGlobeBlocks {
 			.create()
 			.mapColor(MapColor.DARK_RED)
 			.strength(3.0F)
-			.requiresTool(),
+			.requiresTool()
+			.sounds(BlockSoundGroup.NETHER_ORE),
 			UniformIntProvider.create(0, 2)
 		)
 	);

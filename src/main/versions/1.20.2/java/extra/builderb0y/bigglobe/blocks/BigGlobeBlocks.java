@@ -314,7 +314,8 @@ public class BigGlobeBlocks {
 			.create()
 			.mapColor(MapColor.DARK_RED)
 			.strength(3.0F)
-			.requiresTool(),
+			.requiresTool()
+			.sounds(BlockSoundGroup.NETHER_ORE),
 			UniformIntProvider.create(0, 2)
 		)
 	);

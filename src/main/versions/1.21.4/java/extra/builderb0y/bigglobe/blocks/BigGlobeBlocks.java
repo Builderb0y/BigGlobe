@@ -365,6 +365,7 @@ public class BigGlobeBlocks {
 			.mapColor(MapColor.DARK_RED)
 			.strength(3.0F)
 			.requiresTool()
+			.sounds(BlockSoundGroup.NETHER_ORE)
 		)
 	);
 	public static final Block SULFUR_BLOCK = register(
