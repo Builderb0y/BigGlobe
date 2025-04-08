@@ -10,7 +10,7 @@
 			"float curve(float value, float coefficient:",
 				"return(value > 0.0I ? value / (value + coefficient) : 0.0I)",
 			")",
-			"float chance = curve(`bigglobe:overworld/surface_foliage`, 0.25I)",
+			"float chance = curve(world_traits.`bigglobe:foliage_at_surface`, 0.25I)",
 			"chance *= curve(world_traits.`bigglobe:magicalness` - 0.5I, 1.0I)",
 			"chance *= unmixSmooth(0.125I, -0.125I, world_traits.`bigglobe:temperature_at_surface`)",
 			"chance *= clamp(0.0I, 1.0I, 1.0I - world_traits.`bigglobe:snow_chance`)",

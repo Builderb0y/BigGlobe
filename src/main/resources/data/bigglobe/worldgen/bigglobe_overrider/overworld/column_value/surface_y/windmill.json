@@ -1,13 +1,17 @@
 {
 	"type": "column_value",
-	"script": [
-		"for (StructureStart start in structures:",
-			"if (start.structure ==. 'bigglobe:windmill':",
-				"double distance = distanceToCircle(start, 4.0L)",
-				"double mixLevel = smooth(1.0L - distance * 0.0625L)",
-				"world_traits.`bigglobe:automatic_surface_y`(start.minY) = mixLinear(world_traits.`bigglobe:automatic_surface_y`(start.minY), start.minY + 0.5L, mixLevel)",
-				"world_traits.`bigglobe:automatic_snow_y`(start.minY) = mixLinear(world_traits.`bigglobe:automatic_snow_y`(start.minY), start.minY - 0.5L, mixLevel)",
-			")",
-		")"
-	]
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"if (start.structure ==. 'bigglobe:windmill':",
+					"double distance = distanceToCircle(start, 4.0L)",
+					"double mixLevel = smooth(distance * 0.0625L)",
+					"setSurfaceY(start.minY + 0.5L, mixLevel, setSnow)",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/surface_manipulation"
+		]
+	}
 }

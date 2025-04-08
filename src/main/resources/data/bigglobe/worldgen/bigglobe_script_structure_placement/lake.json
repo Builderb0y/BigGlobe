@@ -9,7 +9,7 @@
 		":",
 			"double distanceSquared = (x - piece.midX) ^ 2 + (z - piece.midZ) ^ 2",
 			"if (distanceSquared < radiusSquared:",
-				"for (int y in range[ceilInt(world_traits.`bigglobe:automatic_surface_y`(x, piece.minY, z)), topY - 4):",
+				"for (int y in range[ceilInt(world_traits.`bigglobe:automatic_exact_surface_y`(x, piece.minY, z)), topY - 4):",
 					"setBlockState(x, y, z, fluid)",
 				")",
 			")",

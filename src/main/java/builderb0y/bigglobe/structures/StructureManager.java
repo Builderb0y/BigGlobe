@@ -152,6 +152,10 @@ public class StructureManager {
 		return structureID(structure).toString();
 	}
 
+	public static <T> Stream<T> maybeParallel(Stream<T> stream) {
+		return BigGlobeConfig.INSTANCE.get().c2meIntegration.multiThreadedStructures() ? stream.parallel() : stream.sequential();
+	}
+
 	public static OptionalInt maxSize(RegistryEntry<StructureSet> set) {
 		return (
 			set
@@ -167,17 +171,19 @@ public class StructureManager {
 	}
 
 	public static Stream<StructureKey> getFilteredStartChunks(StructureGenerationParams params, RegistryEntry<StructureSet> set, int radius) {
-		return (
-			(StreamableStructurePlacement)(
-				set.value().placement()
+		return maybeParallel(
+			(
+				(StreamableStructurePlacement)(
+					set.value().placement()
+				)
 			)
-		)
-		.bigglobe_getFilteredStartChunks(
-			params.generator,
-			params.structurePlacementCalculator,
-			params.chunkPos.x,
-			params.chunkPos.z,
-			radius
+			.bigglobe_getFilteredStartChunks(
+				params.generator,
+				params.structurePlacementCalculator,
+				params.chunkPos.x,
+				params.chunkPos.z,
+				radius
+			)
 		)
 		.map((ChunkPos chunkPos) -> new StructureKey(chunkPos.x, chunkPos.z, set));
 	}
@@ -198,16 +204,18 @@ public class StructureManager {
 
 	public FinalStructures computeIntersectingStructures(StructureGenerationParams params) {
 		return (
-			params
-			.structurePlacementCalculator
-			.getStructureSets()
-			.stream()
+			maybeParallel(
+				params
+				.structurePlacementCalculator
+				.getStructureSets()
+				.stream()
+			)
 			.flatMap((RegistryEntry<StructureSet> set) -> {
 				return maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
 			})
 			.map(StructureKey::chunkPos)
 			.distinct()
-			.flatMap((ChunkPos pos) -> this.getStructureStarts(params.at(pos)).stream())
+			.flatMap((ChunkPos pos) -> maybeParallel(this.getStructureStarts(params.at(pos)).stream()))
 			.filter((StructureStart start) -> (
 				params.chunkPos.x >= start.getBoundingBox().getMinX() >> 4 &&
 				params.chunkPos.z >= start.getBoundingBox().getMinZ() >> 4 &&
@@ -246,16 +254,18 @@ public class StructureManager {
 
 		//step 1: get all the structures that start in the current chunk.
 		//also compute the size of the largest one.
-		params
-		.structurePlacementCalculator
-		.getStructureSets()
-		.stream()
+		maybeParallel(
+			params
+			.structurePlacementCalculator
+			.getStructureSets()
+			.stream()
+		)
 		.flatMap((RegistryEntry<StructureSet> set) -> {
 			return getFilteredStartChunks(params, set, 0);
 		})
 		.forEach((StructureKey key) -> {
 			SectionSortedStructurePieces pieces = this.getStructureStart(params.at(key.chunkX, key.chunkZ), key.set);
-			if (!pieces.isEmpty()) {
+			if (!pieces.isEmpty()) synchronized (starts) {
 				starts.addElementToEnd(pieces);
 				maxSize(key.set).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
 			}
@@ -263,10 +273,12 @@ public class StructureManager {
 		if (starts.isEmpty()) return new FinalStructures(0);
 
 		//step 2: get all the structures which could potentially collide with anything in the current chunk.
-		params
-		.structurePlacementCalculator
-		.getStructureSets()
-		.stream()
+		maybeParallel(
+			params
+			.structurePlacementCalculator
+			.getStructureSets()
+			.stream()
+		)
 		.flatMap((RegistryEntry<StructureSet> set) -> {
 			return maxSize(set).stream().mapToObj((int radius) -> {
 				return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
@@ -276,7 +288,7 @@ public class StructureManager {
 		.filter((StructureKey key) -> key.chunkX != params.chunkPos.x || key.chunkZ != params.chunkPos.z)
 		.forEach((StructureKey key) -> {
 			SectionSortedStructurePieces pieces = this.getStructureStart(params.at(key.chunkX, key.chunkZ), key.set);
-			if (!pieces.isEmpty()) {
+			if (!pieces.isEmpty()) synchronized (starts) {
 				starts.addElementToEnd(pieces);
 			}
 		});
@@ -442,18 +454,15 @@ public class StructureManager {
 			return null;
 		}
 		int newY = newStart.getBoundingBox().getMinY();
-		if (
-			!validBiomes.contains(
-				params.biomeSource().getBiome(
-					newStartPosition.position().getX() >> 2,
-					(newStartPosition.position().getY() + (newY - oldY)) >> 2,
-					newStartPosition.position().getZ() >> 2,
-					params.noiseConfig.getMultiNoiseSampler()
-				)
-			)
-		) {
+		RegistryEntry<Biome> biome = params.biomeSource().getBiome(
+			newStartPosition.position().getX() >> 2,
+			(newStartPosition.position().getY() + (newY - oldY)) >> 2,
+			newStartPosition.position().getZ() >> 2,
+			params.noiseConfig.getMultiNoiseSampler()
+		);
+		if (!validBiomes.contains(biome)) {
 			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
-				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn at " + newStart.getBoundingBox().getCenter() + " because the biome at this location is not in the structure's biome tag.");
+				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn at " + newStart.getBoundingBox().getCenter() + " because the biome at this location (" + biome + ") is not in the structure's biome tag.");
 			}
 			return null;
 		}

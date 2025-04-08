@@ -4,5 +4,8 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "skyland_top + skyland_snow_chance"
+	"script": "skyland_top_approximate + eroded_skyland_height.low.y + world_traits.`bigglobe:temperature_at_sea_level` * -4.0I - 2.0I",
+	"valid": {
+		"where": "is_floating"
+	}
 }

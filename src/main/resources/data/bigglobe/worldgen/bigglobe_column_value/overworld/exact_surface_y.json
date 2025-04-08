@@ -5,8 +5,8 @@
 		"is_3d": false
 	},
 	"script": [
-		"double height = min(eroded_river.high.y, eroded_heightmap.high.y)",
-		"double globalScalar = `raw/river` - `raw/heightmap`",
+		"double height = slope_surface_y",
+		"double globalScalar = `raw/river` - `raw/ocean_adjusted_heightmap`",
 		"globalScalar = 1.0L - 256.0L / (globalScalar ^ 2 + 256.0L)",
 		"double duneScalar = dune_scalar * globalScalar",
 		"if (duneScalar > 0.0L: height += dune * duneScalar)",

@@ -27,7 +27,7 @@ public class ConfiguredFeatureColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
+		if (object == null) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		RegistryEntry<ConfiguredFeature<?, ?>> entry = context.registry.registries.getRegistry(RegistryKeys.CONFIGURED_FEATURE).getByName(string);
 		return ldc(new ConfiguredFeatureEntry(entry), this.getTypeInfo());

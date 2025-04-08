@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted.decisionTrees.results;
 
 import java.util.stream.Stream;
 
+import com.mojang.datafixers.util.Unit;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -29,6 +30,6 @@ public class ConstantDecisionTreeResult implements DecisionTreeResult {
 
 	@Override
 	public InsnTree createResult(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, AccessSchema schema, @Nullable InsnTree loadY) throws ScriptParsingException {
-		return schema.createConstant(this.value, context.root());
+		return schema.createConstant(this.value == Unit.INSTANCE ? null : this.value, context.root());
 	}
 }

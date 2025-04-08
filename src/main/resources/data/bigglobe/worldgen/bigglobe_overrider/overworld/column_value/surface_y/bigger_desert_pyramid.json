@@ -1,13 +1,17 @@
 {
 	"type": "column_value",
-	"script": [
-		"for (StructureStart start in structures:",
-			"if (start.structure.type ==. 'bigglobe:bigger_desert_pyramid':",
-				"double distance = distanceToSquare(start)",
-				"double mixLevel = smooth(1.0L - distance * 0.0625L)",
-				"double oldY = world_traits.`bigglobe:automatic_surface_y`(start.minY) =: mixLinear(world_traits.`bigglobe:automatic_surface_y`(start.minY), start.minY + 16.5L, mixLevel)",
-				"world_traits.`bigglobe:automatic_snow_y`(start.minY) += world_traits.`bigglobe:automatic_surface_y`(start.minY) - oldY",
-			")",
-		")"
-	]
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"if (start.structure.type ==. 'bigglobe:bigger_desert_pyramid':",
+					"double distance = distanceToSquare(start)",
+					"double mixLevel = smooth(distance * 0.0625L)",
+					"setSurfaceY(start.minY + 16.5L, mixLevel, addSnow)",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/surface_manipulation"
+		]
+	}
 }

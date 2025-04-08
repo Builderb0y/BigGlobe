@@ -1,0 +1,5 @@
+{
+	"type": "float",
+	"is_3d": true,
+	"default": "world_traits.`bigglobe:foliage_at_surface`"
+}

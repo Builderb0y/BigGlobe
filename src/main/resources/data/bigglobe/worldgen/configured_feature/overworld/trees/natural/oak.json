@@ -38,8 +38,8 @@
 				"restrictions": {
 					"type": "bigglobe:and",
 					"restrictions": [
-						{ "type": "range", "property": "bigglobe:overworld/height_adjusted_temperature", "min": -0.5, "mid": 0.5, "max": 1.0 },
-						{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 1.0 },
+						{ "type": "range", "property": "bigglobe:overworld/temperature", "min": -0.5, "mid": 0.5, "max": 1.0 },
+						{ "type": "threshold", "property": "bigglobe:overworld/foliage", "min": 0.0, "max": 1.0 },
 						{ "type": "constant", "chance": 0.125 }
 					]
 				}
@@ -49,8 +49,8 @@
 				"restrictions": {
 					"type": "bigglobe:and",
 					"restrictions": [
-						{ "type": "range", "property": "bigglobe:overworld/height_adjusted_temperature", "min": -1.0, "mid": -0.5, "max": 0.5 },
-						{ "type": "threshold", "property": "bigglobe:overworld/height_adjusted_foliage", "min": 0.0, "max": 1.0 },
+						{ "type": "range", "property": "bigglobe:overworld/temperature", "min": -1.0, "mid": -0.5, "max": 0.5 },
+						{ "type": "threshold", "property": "bigglobe:overworld/foliage", "min": 0.0, "max": 1.0 },
 						{ "type": "constant", "chance": 0.125 }
 					]
 				}

@@ -1,13 +1,17 @@
 {
 	"type": "column_value",
-	"script": [
-		"for (StructureStart start in structures:",
-			"if (start.structure.type ==. 'minecraft:woodland_mansion':",
-				"double distance = distanceToSquare(start)",
-				"double mixLevel = smooth(1.0 - distance * 0.0625)",
-				"double oldY = world_traits.`bigglobe:automatic_surface_y`(start.minY) =: mixLinear(world_traits.`bigglobe:automatic_surface_y`(start.minY), start.minY - 0.5L, mixLevel)",
-				"world_traits.`bigglobe:automatic_snow_y`(start.minY) += world_traits.`bigglobe:automatic_surface_y`(start.minY) - oldY",
-			")",
-		")"
-	]
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"if (start.structure.type ==. 'minecraft:woodland_mansion':",
+					"double distance = distanceToSquare(start)",
+					"double mixLevel = smooth(distance * 0.0625)",
+					"setSurfaceY(start.minY - 0.5L, mixLevel, addSnow)",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/surface_manipulation"
+		]
+	}
 }

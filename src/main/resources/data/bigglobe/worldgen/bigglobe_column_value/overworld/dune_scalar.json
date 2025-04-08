@@ -5,8 +5,8 @@
 		"is_3d": false
 	},
 	"script": [
-		"double threshold = max(surface_temperature - 0.75L, 0.0L)",
-		"threshold *= max(magicalness, 0.0L)",
+		"double threshold = max(world_traits.`bigglobe:temperature_at_surface` - 0.75L, 0.0L)",
+		"threshold *= max(world_traits.`bigglobe:magicalness`, 0.0L)",
 		"threshold *= unmixSmooth(0.0L, 8.0L, world_traits.`bigglobe:approximate_surface_y`)",
 		"return(threshold / (threshold + 1.0L))"
 	]

@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"exp_skyland_height_noise + eroded_skyland_height + skyland_top_plain + world_traits.`bigglobe:sea_level`"
+		"skyland_top_approximate + eroded_skyland_height.high.y"
 	],
 	"valid": {
 		"where": "is_floating",

@@ -4,6 +4,6 @@
 		"type": "boolean",
 		"is_3d": false
 	},
-	"script": "`raw/river` < `raw/heightmap`",
+	"script": "`raw/river` < `raw/ocean_adjusted_heightmap`",
 	"cache": false
 }

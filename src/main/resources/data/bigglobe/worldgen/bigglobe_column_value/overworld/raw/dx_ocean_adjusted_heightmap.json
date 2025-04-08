@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "(heightmap + 1536.0L) * dx_heightmap / 2048.0L"
+}

@@ -2,7 +2,7 @@
 	"type": "script",
 	"dispatcher": [
 		"if (`bigglobe:islands/has_skylands`(minModifiableX | 8, minModifiableZ | 8):",
-			"repeat (random.roundInt(fastExp2(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 6.0I - 2.0I)):",
+			"repeat (random.roundInt(fastExp2(`bigglobe:islands/skyland_foliage`(minModifiableX | 8, minModifiableZ | 8) * 6.0I - 2.0I)):",
 				"int*(",
 					"x = minModifiableX | random.nextInt(16)",
 					"z = minModifiableZ | random.nextInt(16)",

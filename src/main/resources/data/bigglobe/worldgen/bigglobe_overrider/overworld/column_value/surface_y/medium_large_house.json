@@ -1,20 +1,24 @@
 {
 	"type": "column_value",
-	"script": [
-		"for (StructureStart start in structures:",
-			"if (",
-				"start.structure ==. 'bigglobe:medium_house' ||",
-				"start.structure ==. 'bigglobe:large_house' ||",
-				"start.structure ==. 'bigglobe:log_cabin' &&",
-				"double*(distance := distanceToSquare(start)) < 16.0L",
-			":",
-				"double mixLevel = smooth(distance :* 0.0625L)",
-				"int minY = start.minY",
-				"if (start.structure ==. 'bigglobe:log_cabin': ++minY)",
-				"world_traits.`bigglobe:automatic_surface_y`(start.minY) = mixLinear(minY - 0.5L, world_traits.`bigglobe:automatic_surface_y`(start.minY), mixLevel)",
-				"world_traits.`bigglobe:automatic_snow_y`(start.minY) = mixLinear(minY - 1.5L, world_traits.`bigglobe:automatic_snow_y`(start.minY), mixLevel)",
-				"world_traits.`bigglobe:foliage_at_surface` -= float((distance - 1.0L) ^ 2)",
-			")",
-		")"
-	]
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"if (",
+					"start.structure ==. 'bigglobe:medium_house' ||",
+					"start.structure ==. 'bigglobe:large_house' ||",
+					"start.structure ==. 'bigglobe:log_cabin' &&",
+					"double*(distance := distanceToSquare(start)) < 16.0L",
+				":",
+					"double mixLevel = smooth(distance * 0.0625L)",
+					"int minY = start.minY",
+					"if (start.structure ==. 'bigglobe:log_cabin': ++minY)",
+					"setSurfaceY(minY - 0.5L, mixLevel, setSnow)",
+					"setSurfaceFoliage(minY, mixLevel)",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/surface_manipulation"
+		]
+	}
 }

@@ -5,6 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"max(`raw/heightmap` * 0.25L - 16.0L, 0.0) ^ 2"
+		"max(`raw/ocean_adjusted_heightmap` * 0.25L - 16.0L, 0.0) ^ 2"
 	]
 }

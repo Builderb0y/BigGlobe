@@ -21,13 +21,13 @@
 	"bigglobe:sea_level":                "0I",
 	"bigglobe:skyland_min_y":            "lowerInt(`bigglobe:islands/skyland_bottom`)",
 	"bigglobe:skyland_max_y":            " ceilInt(`bigglobe:islands/skyland_top`)",
-	"bigglobe:snow_chance_at":           "`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128 ? `bigglobe:islands/skyland_snow_chance` : world_traits.`bigglobe:snow_chance`",
+	"bigglobe:snow_chance_at":           "`bigglobe:islands/automatic_is_skyland` ? `bigglobe:islands/skyland_snow_chance` : world_traits.`bigglobe:snow_chance`",
 	"bigglobe:temperature_at":           "`bigglobe:islands/height_adjusted_temperature`",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:islands/surface_temperature`",
 	"bigglobe:wood_palette":             "`bigglobe:islands/wood_palette`",
 	"bigglobe:automatic_surface_states": [
-		"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+		"`bigglobe:islands/automatic_is_skyland`",
 		"? `bigglobe:islands/skyland_surface_states`",
 		": `bigglobe:islands/surface_states`"
 	],
@@ -37,36 +37,72 @@
 	},
 	"bigglobe:automatic_snow_y": {
 		"get": [
-			"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+			"`bigglobe:islands/automatic_is_skyland`",
 			"? `bigglobe:islands/skyland_snow_y`",
 			": `bigglobe:islands/snow_height`"
 		],
 		"set": [
-			"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+			"`bigglobe:islands/automatic_is_skyland`",
 			"? (`bigglobe:islands/skyland_snow_y` = value)",
 			": (`bigglobe:islands/snow_height` = value)"
 		]
 	},
-	"bigglobe:automatic_surface_y": {
+	"bigglobe:automatic_approximate_surface_y": {
 		"get": [
-			"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+			"`bigglobe:islands/automatic_is_skyland`",
+			"? `bigglobe:islands/skyland_top_approximate`",
+			": `bigglobe:islands/basic_surface_height`"
+		],
+		"set": [
+			"`bigglobe:islands/automatic_is_skyland`",
+			"? (`bigglobe:islands/skyland_top_approximate` = value)",
+			": (`bigglobe:islands/basic_surface_height` = value)"
+		]
+	},
+	"bigglobe:automatic_slope_surface_y": {
+		"get": [
+			"`bigglobe:islands/automatic_is_skyland`",
 			"? `bigglobe:islands/skyland_top`",
 			": `bigglobe:islands/eroded_surface_height`"
 		],
 		"set": [
-			"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+			"`bigglobe:islands/automatic_is_skyland`",
 			"? (`bigglobe:islands/skyland_top` = value)",
 			": (`bigglobe:islands/eroded_surface_height` = value)"
 		]
 	},
+	"bigglobe:automatic_exact_surface_y": {
+		"get": [
+			"`bigglobe:islands/automatic_is_skyland`",
+			"? `bigglobe:islands/skyland_top`",
+			": `bigglobe:islands/eroded_surface_height`"
+		],
+		"set": [
+			"`bigglobe:islands/automatic_is_skyland`",
+			"? (`bigglobe:islands/skyland_top` = value)",
+			": (`bigglobe:islands/eroded_surface_height` = value)"
+		]
+	},
+	"bigglobe:automatic_surface_foliage": {
+		"get": [
+			"`bigglobe:islands/automatic_is_skyland`",
+			"? `bigglobe:islands/skyland_foliage`",
+			": `bigglobe:islands/surface_foliage`"
+		],
+		"set": [
+			"`bigglobe:islands/automatic_is_skyland`",
+			"? (`bigglobe:islands/skyland_foliage` = value)",
+			": (`bigglobe:islands/surface_foliage` = value)"
+		]
+	},
 	"bigglobe:automatic_lake_surface_states": {
 		"get": [
-			"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+			"`bigglobe:islands/automatic_is_skyland`",
 			"? `bigglobe:overworld/skyland_lake_surface_states`",
 			": `bigglobe:overworld/lake_surface_states`"
 		],
 		"set": [
-			"`bigglobe:islands/is_floating` && y > world_traits.`bigglobe:sea_level` + 128",
+			"`bigglobe:islands/automatic_is_skyland`",
 			"? (`bigglobe:overworld/skyland_lake_surface_states` = value)",
 			": (`bigglobe:overworld/lake_surface_states` = value)"
 		]
@@ -82,6 +118,10 @@
 	"bigglobe:foliage_at_surface": {
 		"get": "`bigglobe:islands/surface_foliage`",
 		"set": "`bigglobe:islands/surface_foliage` = value"
+	},
+	"bigglobe:slope_surface_y": {
+		"get": "`bigglobe:islands/eroded_surface_height`",
+		"set": "`bigglobe:islands/eroded_surface_height` = value"
 	},
 	"bigglobe:snow_y": {
 		"get": "`bigglobe:islands/snow_height`",

@@ -1,9 +1,7 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
-		"min": 0.5,
-		"max": 0.75,
-		"trait": "bigglobe:temperature_at_surface"
+		"type": "script",
+		"script": "`bigglobe:overworld/is_desert`"
 	},
 	"if_true": "bigglobe:overworld/biome/hot_test_light_forest",
 	"if_false": "bigglobe:overworld/biome/warm_test_ominous"

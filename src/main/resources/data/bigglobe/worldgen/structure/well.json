@@ -12,7 +12,7 @@
 		"if (biome.isIn('#bigglobe:hot'):",
 			"if (biome ==. 'bigglobe:hot_wasteland':",
 				"type = 2",
-				"palette = 'minecraft:acacia'",
+				"palette = null",
 			")",
 			"else (",
 				"type = 1",

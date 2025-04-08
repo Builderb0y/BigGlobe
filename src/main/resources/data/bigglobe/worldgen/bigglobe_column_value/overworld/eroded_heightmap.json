@@ -36,9 +36,10 @@
 	"script": {
 		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
-			"y": "`raw/heightmap`",
-			"dx": "`raw/dx_heightmap`",
-			"dz": "`raw/dz_heightmap`",
+			"lowY": "`raw/ocean_adjusted_heightmap`",
+			"highY": "`raw/ocean_adjusted_heightmap`",
+			"dx": "`raw/dx_ocean_adjusted_heightmap`",
+			"dz": "`raw/dz_ocean_adjusted_heightmap`",
 			"minWavelength": "4  << hints.lod",
 			"midWavelength": "24 << hints.lod",
 			"maxWavelength": "64",

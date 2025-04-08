@@ -26,7 +26,7 @@ public class BlockColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
+		if (object == null) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		RegistryEntry<Block> blockEntry = context.registry.registries.getRegistry(RegistryKeys.BLOCK).getByName(string);
 		return ldc(blockEntry.value(), type(Block.class));

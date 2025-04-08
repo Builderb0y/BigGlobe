@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": "surface_foliage"
+}

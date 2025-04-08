@@ -1,15 +1,19 @@
 {
 	"type": "column_value",
-	"script": [
-		"for (StructureStart start in structures:",
-			"if (start.structure ==. 'bigglobe:well':",
-				"StructurePiece piece = start.pieces.(0)",
-				"double distance = distanceToCircle(piece, 3.0L)",
-				"double mixLevel = smooth(1.0 - distance * 0.25)",
-				"double minY = piece.maxY - 4.5L",
-				"double oldY = world_traits.`bigglobe:automatic_surface_y`(start.minY) =: mixLinear(world_traits.`bigglobe:automatic_surface_y`(start.minY), minY, mixLevel)",
-				"world_traits.`bigglobe:automatic_snow_y`(start.minY) += world_traits.`bigglobe:automatic_surface_y`(start.minY) - oldY",
-			")",
-		")"
-	]
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"if (start.structure ==. 'bigglobe:well':",
+					"StructurePiece piece = start.pieces.(0)",
+					"double distance = distanceToCircle(piece, 3.0L)",
+					"double mixLevel = smooth(distance * 0.25L)",
+					"double minY = piece.maxY - 4.5L",
+					"setSurfaceY(minY, mixLevel, addSnow)",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/surface_manipulation"
+		]
+	}
 }

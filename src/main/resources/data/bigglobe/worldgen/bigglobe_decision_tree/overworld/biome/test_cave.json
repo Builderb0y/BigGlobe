@@ -4,5 +4,5 @@
 		"script": "y < world_traits.`bigglobe:approximate_surface_y` - 16"
 	},
 	"if_true": "bigglobe:overworld/biome/test_deep_dark",
-	"if_false": "bigglobe:overworld/biome/test_shallow_ocean"
+	"if_false": "bigglobe:overworld/biome/test_river"
 }

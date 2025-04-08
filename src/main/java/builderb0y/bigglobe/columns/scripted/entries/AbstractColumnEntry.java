@@ -125,12 +125,14 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		}
 		else {
 			if (this.hasValid()) {
-				MethodCompileContext actualComputer = context.mainClass.newMethod(ACC_PUBLIC, "computeTest_" + internalName, accessContext.exposedType());
-				memory.putTyped(ColumnEntryMemory.COMPUTE_TEST, actualComputer);
-				MethodCompileContext testMethod = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
-				memory.putTyped(ColumnEntryMemory.VALID_WHERE, testMethod);
+				if (this.hasField()) {
+					MethodCompileContext computeTest = context.mainClass.newMethod(ACC_PUBLIC, "computeTest_" + internalName, accessContext.exposedType());
+					memory.putTyped(ColumnEntryMemory.COMPUTE_TEST, computeTest);
+				}
+				MethodCompileContext test = context.mainClass.newMethod(ACC_PUBLIC, "test_" + internalName, TypeInfos.BOOLEAN);
+				memory.putTyped(ColumnEntryMemory.VALID_WHERE, test);
 			}
-			if (this.hasField()) {
+			if (this.hasField() || this.hasValid()) {
 				MethodCompileContext computeNoTest = context.mainClass.newMethod(ACC_PUBLIC, "computeNoTest_" + internalName, accessContext.commonType());
 				memory.putTyped(ColumnEntryMemory.COMPUTE_NO_TEST, computeNoTest);
 			}
@@ -721,7 +723,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		if (this.valid != null && this.valid.where() != null) {
 			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
 		}
-		this.populateCompute2D(memory, context, memory.getTyped(this.hasField() ? ColumnEntryMemory.COMPUTE_NO_TEST : ColumnEntryMemory.GETTER));
+		this.populateCompute2D(memory, context, memory.getTyped(this.hasField() || this.hasValid() ? ColumnEntryMemory.COMPUTE_NO_TEST : ColumnEntryMemory.GETTER));
 	}
 
 	public abstract void populateCompute2D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException;

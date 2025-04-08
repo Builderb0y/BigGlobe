@@ -21,8 +21,8 @@
 					")",
 					"int startY = piece.data.startY",
 					"float curve = float(1.0L - sqrt(1.0I - (2.0I * maxFrac - 3.0I) ^ 2))",
-					"world_traits.`bigglobe:approximate_surface_y` = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:approximate_surface_y`, startY + 0.5L, double(curve))",
-					"world_traits.`bigglobe:exact_surface_y` = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:exact_surface_y`, startY + 0.5L, double(curve))",
+					"world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY), startY + 0.5L, double(curve))",
+					"world_traits.`bigglobe:automatic_slope_surface_y`(piece.minY) = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:automatic_slope_surface_y`(piece.minY), startY + 0.5L, double(curve))",
 
 					"float frac = unmixLinear(1.5I, 1.0I, maxFrac)",
 					"for (int y in range(startY - 16, ceilInt(world_traits.`bigglobe:exact_surface_y`)):",

@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": [
+		"unless (is_desert: return(false))",
+		";re-calculate to prevent overriding.",
+		"int y = ceilInt(world_traits.`bigglobe:approximate_surface_y`) ;use correct y for island world types.",
+		"float surfaceFoliage = world_traits.`bigglobe:foliage_at`(y)",
+		"columnSeed(16x64222EA231843A51UL).nextBoolean(unmixSmooth(-0.125I, -0.375I, surfaceFoliage))"
+	]
+}

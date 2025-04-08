@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:ocean"
+		"#bigglobe:ocean",
+		"#bigglobe:underground"
 	]
 }

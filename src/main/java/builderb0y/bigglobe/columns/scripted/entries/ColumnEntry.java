@@ -497,7 +497,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 		@SuppressWarnings("unchecked")
 		public <T> T addOrGet(Key<T> key, Supplier<T> valueSupplier) {
-			return (T)(this.computeIfAbsent(key, k -> valueSupplier.get()));
+			return (T)(this.computeIfAbsent(key, (Key<?> k) -> valueSupplier.get()));
 		}
 
 		public <T> void replaceTyped(Key<T> key, T oldValue, T newValue) {

@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "world_traits.`bigglobe:temperature_at_sea_level` * -4.0I - 2.0I",
+	"script": "float(skyland_snow_y - skyland_top)",
 	"cache": false
 }

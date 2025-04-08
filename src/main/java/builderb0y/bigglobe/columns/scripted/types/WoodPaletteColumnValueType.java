@@ -21,7 +21,7 @@ public class WoodPaletteColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
+		if (object == null) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		context.registry.registries.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getByName(string);
 		return WoodPaletteEntry.CONSTANT_FACTORY.createConstant(constant(string));

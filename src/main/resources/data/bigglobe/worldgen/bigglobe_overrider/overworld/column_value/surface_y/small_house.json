@@ -1,27 +1,30 @@
 {
 	"type": "column_value",
-	"script": [
-		"for (StructureStart start in structures:",
-			"if (start.structure ==. 'bigglobe:small_house':",
-				"StructurePiece piece = start.pieces.(0)",
-				"double distance = distanceToCircle(piece, 4.0L)",
-				"if (distance < 16.0L:",
-					"double mixLevel = smooth(distance :* 0.0625L)",
-					"world_traits.`bigglobe:automatic_surface_y`(start.minY) = mixLinear(piece.minY - 0.5L, world_traits.`bigglobe:automatic_surface_y`(start.minY), mixLevel)",
-					"world_traits.`bigglobe:automatic_snow_y`(start.minY) = mixLinear(piece.minY - 1.5L, world_traits.`bigglobe:automatic_snow_y`(start.minY),              mixLevel)",
-					"world_traits.`bigglobe:foliage_at_surface` -= float((distance - 1.0L) ^ 2)",
-				")",
-				"if (start.pieces.size > 1:",
-					"piece = start.pieces.(1)",
-					"distance = distanceToSquare(piece)",
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"if (start.structure ==. 'bigglobe:small_house':",
+					"StructurePiece piece = start.pieces.(0)",
+					"double distance = distanceToCircle(piece, 4.0L)",
 					"if (distance < 16.0L:",
-						"double mixLevel = smooth(distance :* 0.0625L)",
-						"world_traits.`bigglobe:automatic_surface_y`(start.minY) = mixLinear(piece.minY + 0.5L, world_traits.`bigglobe:automatic_surface_y`(start.minY), mixLevel)",
-						"world_traits.`bigglobe:automatic_snow_y`(start.minY) = mixLinear(piece.minY - 0.5L, world_traits.`bigglobe:automatic_snow_y`(start.minY), mixLevel)",
-						"world_traits.`bigglobe:foliage_at_surface` -= float((distance - 1.0L) ^ 2)",
+						"double mixLevel = smooth(distance * 0.0625L)",
+						"setSurfaceY(piece.minY - 0.5L, mixLevel, setSnow)",
+						"setSurfaceFoliage(piece.minY, mixLevel)",
+					")",
+					"if (start.pieces.size > 1:",
+						"piece = start.pieces.(1)",
+						"distance = distanceToSquare(piece)",
+						"if (distance < 16.0L:",
+							"double mixLevel = smooth(distance * 0.0625L)",
+							"setSurfaceY(piece.minY + 0.5L, mixLevel, setSnow)",
+							"setSurfaceFoliage(piece.minY, mixLevel)",
+						")",
 					")",
 				")",
-			")",
-		")"
-	]
+			")"
+		],
+		"includes": [
+			"bigglobe:include/surface_manipulation"
+		]
+	}
 }

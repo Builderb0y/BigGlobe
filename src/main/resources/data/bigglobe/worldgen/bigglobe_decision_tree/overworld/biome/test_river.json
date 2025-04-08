@@ -4,5 +4,5 @@
 		"script": "world_traits.`bigglobe:in_river`"
 	},
 	"if_true": "bigglobe:overworld/biome/river",
-	"if_false": "bigglobe:overworld/biome/test_beach"
+	"if_false": "bigglobe:overworld/biome/test_shallow_ocean"
 }

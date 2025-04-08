@@ -33,7 +33,7 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth(-0.375I, -0.625I, `bigglobe:overworld/surface_temperature`) *",
+							"unmixSmooth(-0.375I, -0.625I, world_traits.`bigglobe:temperature_at_surface`) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
@@ -46,7 +46,7 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth(0.0I, 0.5I, `bigglobe:overworld/height_adjusted_foliage`(y)) *",
+							"unmixSmooth(0.0I, 0.5I, world_traits.`bigglobe:foliage_at`(y)) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
@@ -85,7 +85,7 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth(0.0I, -0.5I, `bigglobe:overworld/height_adjusted_foliage`(y)) *",
+							"unmixSmooth(0.0I, -0.5I, world_traits.`bigglobe:foliage_at`(y)) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
@@ -98,8 +98,8 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth( 0.375I,  0.625I, `bigglobe:overworld/surface_temperature`) *",
-							"unmixSmooth(-0.625I, -0.375I, `bigglobe:overworld/surface_foliage`) *",
+							"unmixSmooth( 0.375I,  0.625I, world_traits.`bigglobe:temperature_at_surface`) *",
+							"unmixSmooth(-0.625I, -0.375I, world_traits.`bigglobe:foliage_at_surface`) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}
@@ -112,8 +112,8 @@
 					"restrictions": {
 						"type": "script",
 						"script": [
-							"unmixSmooth( 0.375I,  0.625I, `bigglobe:overworld/surface_temperature`) *",
-							"unmixSmooth(-0.375I, -0.625I, `bigglobe:overworld/surface_foliage`) *",
+							"unmixSmooth( 0.375I,  0.625I, world_traits.`bigglobe:temperature_at_surface`) *",
+							"unmixSmooth(-0.375I, -0.625I, world_traits.`bigglobe:foliage_at_surface`) *",
 							"unmixSmooth(double*(height := world_traits.`bigglobe:approximate_surface_y`) - 512.0L, height, y)"
 						]
 					}

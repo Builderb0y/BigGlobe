@@ -2,8 +2,7 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure.isIn('#bigglobe:small_decorations'):",
-			"double hillinessFactor = unmixSmooth(0.5L, 0.0L, world_traits.`bigglobe:hilliness`(start.midX, start.midZ))",
-			"return(random.nextBoolean(hillinessFactor))",
+			"if (world_traits.`bigglobe:hilliness`(start.midX, start.midZ) !<= 0.75I: return(false))",
 		")",
 		"return(true)"
 	]

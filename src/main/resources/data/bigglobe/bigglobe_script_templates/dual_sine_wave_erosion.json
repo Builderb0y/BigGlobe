@@ -1,10 +1,8 @@
 {
 	"script": [
 		"double*(",
-			"highY  = y",
 			"highDx = dx",
 			"highDz = dz",
-			"lowY   = y",
 			"lowDx  = dx",
 			"lowDz  = dz",
 		")",
@@ -49,7 +47,8 @@
 		")"
 	],
 	"inputs": [
-		{ "name": "y",             "type": "double", "default": "0.0L" },
+		{ "name": "lowY",          "type": "double", "default": "0.0L" },
+		{ "name": "highY",         "type": "double", "default": "0.0L" },
 		{ "name": "dx",            "type": "double" },
 		{ "name": "dz",            "type": "double" },
 		{ "name": "minWavelength", "type": "double" },

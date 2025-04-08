@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"exp_skyland_height_noise + skyland_top_plain + world_traits.`bigglobe:sea_level`"
+	],
+	"valid": {
+		"where": "is_floating",
+		"fallback": 0.0
+	}
+}

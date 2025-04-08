@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		";this one is overridable. raw/foliage should not be overridden.",
+		"`raw/foliage`"
+	]
+}

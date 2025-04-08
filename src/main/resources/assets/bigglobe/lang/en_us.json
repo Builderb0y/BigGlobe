@@ -288,6 +288,19 @@
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[1]": "More threads will result in faster terrain gen, but may reduce performance in other areas of the game.",
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[2]": "Less threads will result in slower terrain gen, but may improve performance in other areas of the game.",
 
+	"text.autoconfig.bigglobe.option.playerSpawning": "Player Spawning",
+	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Configures how initial player spawning works in Big Globe worlds.",
+	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "These config options have no effect outside of Big Globe worlds.",
+
+	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius": "Max Spawn Radius",
+	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[0]": "Maximum distance from the origin which players can spawn at.",
+	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[1]": "This is a square distance, not a circular distance.",
+
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints": "Per-player spawn points",
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[0]": "If true, every player will be given their own unique spawn point the first time they spawn in the world.",
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[1]": "If false, every player will spawn at the world's spawn point.",
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[2]": "This config option does not affect players who have set their spawn point manually with a bed, a respawn anchor, or the /spawnpoint command.",
+
 	"text.autoconfig.bigglobe.option.dataPackDebugging": "Data Pack Debugging",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[0]": "Options that are useful for data pack developers.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[1]": "Normal users should leave all of these disabled.",
@@ -354,16 +367,12 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "If false, Big Globe will skip air blocks when giving data to Voxy.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Enabling this option can fix some lighting errors with Voxy, at the cost of LOD generation speed.",
 
-	"text.autoconfig.bigglobe.option.playerSpawning": "Player Spawning",
-	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Configures how initial player spawning works in Big Globe worlds.",
-	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "These config options have no effect outside of Big Globe worlds.",
+	"text.autoconfig.bigglobe.option.c2meIntegration": "C2ME Integration",
+	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[0]": "Configures special behaviors when C2ME is installed.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[1]": "These options are ignored when C2ME is not installed.",
 
-	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius": "Max Spawn Radius",
-	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[0]": "Maximum distance from the origin which players can spawn at.",
-	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[1]": "This is a square distance, not a circular distance.",
-
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints": "Per-player spawn points",
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[0]": "If true, every player will be given their own unique spawn point the first time they spawn in the world.",
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[1]": "If false, every player will spawn at the world's spawn point.",
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[2]": "This config option does not affect players who have set their spawn point manually with a bed, a respawn anchor, or the /spawnpoint command."
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures": "Multi-Threaded Structures",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[0]": "If true, Big Globe will use multiple threads when generating structures.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[1]": "If false, Big Globe will use a single thread when generating structures.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[2]": "This config option can be disabled if it causes instability."
 }

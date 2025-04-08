@@ -39,26 +39,19 @@ to finish before release:
 	document scripted structure max_radius_in_chunks.
 	document scripted structure placement.
 	document terrainAdaptation.
-	computeNoTest not in ColumnEntryMemory when using valid with cache: false.
 
 structure rewrites:
 	hack StructureAccessor more.
 
 noise experiment:
-	need to make oceans deeper in shallow areas without being too deep in deep areas.
-	maybe remove river water?
-		maybe keep the block but don't use it?
-	merge sine_wave_erosion script templates.
-	add 3rd surface Y level for slope calculations.
-		exact breaks with desert cracks.
-			might not be so big of an issue if I can add sandstone as a subsurface block.
-		approximate breaks with rivers.
 
 changelog:
+	# This version changes everything. Do not use it with existing worlds.
 	* Completely new overworld.
-		* Now has erosion.
 	* Fixed being unable to craft gunpowder with sulfur.
 	* Fixed the end dimension not generating terrain more than about 46k blocks from the origin.
+	* Fixed pale netherrack not being in the creative menu (1.21.4).
+	* Fixed charred signs being arranged differently from other signs in the creative menu.
 
 alternate world presets:
 	paradise.

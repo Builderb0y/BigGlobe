@@ -26,13 +26,13 @@
 				"restrictions": [
 					{
 						"type": "threshold",
-						"property": "bigglobe:overworld/height_adjusted_foliage",
+						"property": "bigglobe:overworld/foliage",
 						"min": 0.0,
 						"max": 0.5
 					},
 					{
 						"type": "range",
-						"property": "bigglobe:overworld/height_adjusted_temperature",
+						"property": "bigglobe:overworld/temperature",
 						"min": -0.5,
 						"mid":  0.0,
 						"max":  0.5

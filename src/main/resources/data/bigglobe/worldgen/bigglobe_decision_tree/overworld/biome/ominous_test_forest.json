@@ -1,7 +1,7 @@
 {
 	"condition": {
 		"type": "script",
-		"script": "`bigglobe:overworld/surface_foliage` > 0.0I"
+		"script": "world_traits.`bigglobe:foliage_at_surface` > 0.0I"
 	},
 	"if_true": "bigglobe:overworld/biome/ominous_forest",
 	"if_false": "bigglobe:overworld/biome/ominous_test_wasteland"

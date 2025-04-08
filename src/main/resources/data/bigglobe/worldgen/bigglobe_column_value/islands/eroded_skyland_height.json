@@ -1,23 +1,51 @@
 {
 	"type": "script",
 	"params": {
-		"type": "double",
+		"type": {
+			"type": "class",
+			"name": "DualSineWaveErosionData",
+			"fields": [
+				{
+					"name": "high",
+					"type": {
+						"type": "class",
+						"name": "SineWaveErosionData",
+						"fields": [
+							{ "name": "y",  "type": "double" },
+							{ "name": "dx", "type": "double" },
+							{ "name": "dz", "type": "double" }
+						]
+					}
+				},
+				{
+					"name": "low",
+					"type": {
+						"type": "class",
+						"name": "SineWaveErosionData",
+						"fields": [
+							{ "name": "y",  "type": "double" },
+							{ "name": "dx", "type": "double" },
+							{ "name": "dz", "type": "double" }
+						]
+					}
+				}
+			]
+		},
 		"is_3d": false
 	},
 	"script": {
-		"template": "bigglobe:sine_wave_erosion",
+		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
 			"dx": "exp_skyland_height_noise * dx_skyland_height_noise",
 			"dz": "exp_skyland_height_noise * dz_skyland_height_noise",
 			"minWavelength": "4 << hints.lod",
+			"midWavelength": "8 << hints.lod",
 			"maxWavelength": "32.0L",
 			"seed": "worldSeed # 16xB305F6533FB64C54UL",
-			"dampening": "16.0L",
-			"amplitude": "16.0L"
+			"dampening": "2.0L"
 		}
 	},
 	"valid": {
-		"where": "is_floating",
-		"fallback": 0.0
+		"where": "is_floating"
 	}
 }

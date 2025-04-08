@@ -18,6 +18,7 @@ import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
+import builderb0y.bigglobe.compat.C2MECompat;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
@@ -62,6 +63,29 @@ public class BigGlobeConfig {
 
 	public int threads() {
 		return Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
+	}
+
+	@Tooltip(count = 2)
+	@UseName("Player Spawning")
+	@CollapsibleObject(startExpanded = true)
+	@DefaultIgnore
+	public final PlayerSpawning playerSpawning = new PlayerSpawning();
+
+	public static class PlayerSpawning {
+
+		@Tooltip(count = 2)
+		@UseName("Max Spawn Radius")
+		@DefaultIgnore
+		public double maxSpawnRadius = 10000.0D;
+
+		@Tooltip(count = 3)
+		@UseName("Per-Player Spawn Points")
+		@DefaultIgnore
+		public boolean perPlayerSpawnPoints = false;
+
+		public void validatePostLoad() {
+			this.maxSpawnRadius = Math.max(this.maxSpawnRadius, 0.0D);
+		}
 	}
 
 	@Tooltip(count = 2)
@@ -148,24 +172,20 @@ public class BigGlobeConfig {
 	}
 
 	@Tooltip(count = 2)
-	@UseName("Player Spawning")
+	@UseName("Voxy Integration")
 	@CollapsibleObject(startExpanded = true)
 	@DefaultIgnore
-	public final PlayerSpawning playerSpawning = new PlayerSpawning();
-	public static class PlayerSpawning {
+	public final C2MEIntegration c2meIntegration = new C2MEIntegration();
 
-		@Tooltip(count = 2)
-		@UseName("Max Spawn Radius")
-		@DefaultIgnore
-		public double maxSpawnRadius = 10000.0D;
+	public static class C2MEIntegration {
 
 		@Tooltip(count = 3)
-		@UseName("Per-Player Spawn Points")
+		@UseName("Multi-Threaded Structures")
 		@DefaultIgnore
-		public boolean perPlayerSpawnPoints = false;
+		public boolean multiThreadedStructures = false;
 
-		public void validatePostLoad() {
-			this.maxSpawnRadius = Math.max(this.maxSpawnRadius, 0.0D);
+		public boolean multiThreadedStructures() {
+			return C2MECompat.AVAILABLE && this.multiThreadedStructures;
 		}
 	}
 

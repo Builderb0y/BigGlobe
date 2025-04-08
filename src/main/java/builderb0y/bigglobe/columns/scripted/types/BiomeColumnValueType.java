@@ -24,7 +24,7 @@ public class BiomeColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
+		if (object == null) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		//create the entry early so that if it doesn't exist, the world will fail to load.
 		context.registry.registries.getRegistry(RegistryKeys.BIOME).getByName(string);

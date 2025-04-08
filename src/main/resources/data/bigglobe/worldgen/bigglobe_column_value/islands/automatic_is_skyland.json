@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": true
+	},
+	"script": [
+		"is_floating && y > world_traits.`bigglobe:sea_level` + 128"
+	],
+	"cache": false
+}

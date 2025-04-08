@@ -1,0 +1,44 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "script",
+		"min": -32.0,
+		"max":  32.0,
+		"script": [
+			"double result = base",
+			"if (positiveOffset > 0.0L: result += 4.0L)",
+			"if (negativeOffset > 0.0L: result -= 4.0L)",
+			"result"
+		],
+		"inputs": {
+			"base": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scale": 64, "amplitude": 16.0 },
+					{ "type": "smooth", "scale": 32, "amplitude":  8.0 },
+					{ "type": "smooth", "scale": 16, "amplitude":  4.0 }
+				]
+			},
+			"positiveOffset": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scale": 16, "amplitude": 8.0 },
+					{ "type": "smooth", "scale":  8, "amplitude": 4.0 },
+					{ "type": "smooth", "scale":  4, "amplitude": 2.0 }
+				]
+			},
+			"negativeOffset": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scale": 16, "amplitude": 8.0 },
+					{ "type": "smooth", "scale":  8, "amplitude": 4.0 },
+					{ "type": "smooth", "scale":  4, "amplitude": 2.0 }
+				]
+			}
+		}
+	}
+}

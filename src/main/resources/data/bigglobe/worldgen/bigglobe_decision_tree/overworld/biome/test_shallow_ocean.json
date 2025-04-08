@@ -4,5 +4,5 @@
 		"script": "world_traits.`bigglobe:approximate_surface_y` < world_traits.`bigglobe:sea_level`"
 	},
 	"if_true": "bigglobe:overworld/biome/shallow_ocean_test_glacier",
-	"if_false": "bigglobe:overworld/biome/test_river"
+	"if_false": "bigglobe:overworld/biome/test_beach"
 }

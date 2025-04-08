@@ -2,6 +2,8 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.util.stream.Stream;
 
+import com.mojang.datafixers.util.Unit;
+
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.codecs.Any;
@@ -42,7 +44,7 @@ public class ConstantColumnEntry implements ColumnEntry, SimpleDependencyView {
 	@Override
 	public void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
 		ColumnEntry.super.populateGetter(memory, context, getterMethod);
-		return_(this.params.createConstant(this.value, context.root())).emitBytecode(getterMethod);
+		return_(this.params.createConstant(this.value == Unit.INSTANCE ? null : this.value, context.root())).emitBytecode(getterMethod);
 		getterMethod.endCode();
 	}
 

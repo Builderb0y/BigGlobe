@@ -22,7 +22,7 @@
 		")",
 
 		";sticks",
-		"repeat (random.roundInt(`bigglobe:overworld/surface_foliage`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
+		"repeat (random.roundInt(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 16.0L):",
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
 			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",

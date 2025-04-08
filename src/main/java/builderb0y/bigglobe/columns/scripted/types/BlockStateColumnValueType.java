@@ -28,7 +28,7 @@ public class BlockStateColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
+		if (object == null) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		BlockProperties blockProperties = BlockStateCoder.decodeState(context.registry.registries.getRegistry(RegistryKeys.BLOCK), string);
 		Set<Property<?>> missing = blockProperties.missing();

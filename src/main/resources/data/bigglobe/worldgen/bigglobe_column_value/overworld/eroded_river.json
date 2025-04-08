@@ -36,7 +36,8 @@
 	"script": {
 		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
-			"y": "`raw/river` + river_termination",
+			"lowY": "`raw/river_snow`",
+			"highY": "`raw/river`",
 			"dx": "`raw/river/dx_macro` * `raw/river/macro` ^ 3 * 4096.0L",
 			"dz": "`raw/river/dz_macro` * `raw/river/macro` ^ 3 * 4096.0L",
 			"minWavelength": "4  << hints.lod",

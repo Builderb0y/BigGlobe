@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": "columnSeed(16xD4F534421325B3ADUL).nextBoolean(unmixSmooth(0.5I, 0.75I, world_traits.`bigglobe:temperature_at_surface`))"
+}

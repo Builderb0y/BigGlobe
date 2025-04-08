@@ -404,7 +404,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
 			entries.addBefore(Items.MAGMA_BLOCK, MOLTEN_ROCKS);
 			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK);
+			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK #if MC_VERSION >= MC_1_21_4 , PALE_NETHERRACK #endif);
 			entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
 			entries.addAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
 			entries.addAfter(Items.WARPED_STEM, CHARRED_LOG);
@@ -426,8 +426,7 @@ public class BigGlobeItems {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
 			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_SIGN, CHARRED_SIGN);
-			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_HANGING_SIGN);
+			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_SIGN, CHARRED_HANGING_SIGN);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.REDSTONE_ORE, ANCIENT_AUTOMATA, AUTOMATA);

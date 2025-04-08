@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"min(eroded_river.high.y, eroded_heightmap.high.y)"
+	]
+}
