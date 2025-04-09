@@ -117,7 +117,7 @@
 	"biome.bigglobe.deep_dark": "Тёмные глубины",
 	"biome.bigglobe.deep_ocean": "Глубокий океан",
 	"biome.bigglobe.end_barrens": "Окраины Энда",
-	"biome.bigglobe.end_mountain": "Горы Энда",
+	"biome.bigglobe.end_mountain": "Гора Энда",
 	"biome.bigglobe.end_plains": "Равнины Энда",
 	"biome.bigglobe.glacier": "Ледник",
 	"biome.bigglobe.hot_dense_forest": "Жаркое густолесье",
@@ -288,6 +288,19 @@
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[1]": "Большее количество потоков приведёт к ускорению генерации ландшафта, но может снизить производительность в других аспектах игры.",
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[2]": "Меньшее количество потоков приведёт к замедлению генерации ландшафта, но может повысить производительность в других аспектах игры.",
 
+	"text.autoconfig.bigglobe.option.playerSpawning": "Появление игрока",
+	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Настраивает порядок первоначального появления игроков в мирах «Большого Глобуса».",
+	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "Эти параметры конфигурации не действуют за пределами миров «Большого Глобуса».",
+
+	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius": "Максимальный радиус появления",
+	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[0]": "Максимальное расстояние от источника, на котором могут появляться игроки.",
+	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[1]": "Это квадратное расстояние, а не круговое.",
+
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints": "Точки возрождения для каждого игрока",
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[0]": "Если включено, каждый игрок получит свою собственную уникальную точку возрождения при первом появлении в этом мире.",
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[1]": "Если отключено, каждый игрок появится на точке возрождения мира.",
+	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[2]": "Этот параметр конфигурации не влияет на игроков, которые установили свою точку возрождения вручную с помощью кровати, якоря возрождения или команды /spawnpoint.",
+
 	"text.autoconfig.bigglobe.option.dataPackDebugging": "Вывод отладочной информации набора данных",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[0]": "Опции, полезные разработчикам наборов данных.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[1]": "Обычные пользователи должны оставить всё это отключенным.",
@@ -308,12 +321,12 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[2]": "Эта опция может быть полезна для отладки причин, по которым определённая структура нигде не появляется.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags": "Регистрировать пустые теги",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[0]": "Если включено, Big Globe отправит сообщение в игровую консоль и в файл журнала, когда будет загружен пустой тег.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[0]": "Если включено, «Большой Глобус» отправит сообщение в игровую консоль и в файл журнала, когда будет загружен пустой тег.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[2]": "Этот параметр может быть полезен для поиска тегов, в которые вы забыли ввести значения, и иногда может быть полезен для отладки тегов, на которые ссылаются до завершения загрузки, в результате чего тег не должен быть пустым, но он пуст.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns": "Регистрировать дополнительное появление мобов",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "Если включено, Big Globe отправит сообщение в игровую консоль и в файл журнала, когда будет подсчитано количество дополнительных появлений мобов для биома/группы появления.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "Если включено, «Большой Глобус» отправит сообщение в игровую консоль и в файл журнала, когда будет подсчитано количество дополнительных появлений мобов для биома/группы появления.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[2]": "Дополнительные появления мобов вычисляются лениво и по мере необходимости, поэтому не все появления будут напечатаны сразу после загрузки мира.",
 
@@ -354,16 +367,12 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "Если отключено, «Большой Глобус» будет пропускать воздушные блоки при передаче данных в «Вокси».",
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Включение этой опции может устранить некоторые ошибки при освещении в «Вокси» за счёт снижения скорости генерации чанков детализации.",
 
-	"text.autoconfig.bigglobe.option.playerSpawning": "Появление игрока",
-	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Настраивает порядок первоначального появления игроков в мирах «Большого Глобуса».",
-	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "Эти параметры конфигурации не действуют за пределами миров «Большого Глобуса».",
+	"text.autoconfig.bigglobe.option.c2meIntegration": "Интеграция с C2ME",
+	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[0]": "Настраивает особое поведение при установке C2ME.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[1]": "Эти параметры игнорируются, если C2ME не установлен.",
 
-	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius": "Максимальный радиус появления",
-	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[0]": "Максимальное расстояние от источника, на котором могут появляться игроки.",
-	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[1]": "Это квадратное расстояние, а не круговое.",
-
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints": "Точки возрождения для каждого игрока",
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[0]": "Если включено, каждый игрок получит свою собственную уникальную точку возрождения при первом появлении в этом мире.",
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[1]": "Если отключено, каждый игрок появится на точке возрождения мира.",
-	"text.autoconfig.bigglobe.option.playerSpawning.perPlayerSpawnPoints.@Tooltip[2]": "Этот параметр конфигурации не влияет на игроков, которые установили свою точку возрождения вручную с помощью кровати, якоря возрождения или команды /spawnpoint."
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures": "Многопоточные структуры",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[0]": "Если включено, «Большой Глобус» будет использовать несколько потоков при создании структур.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[1]": "Если отключено, «Большой Глобус» будет использовать один поток при создании структур.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[2]": "Этот параметр конфигурации можно отключить, если он вызывает нестабильность."
 }
