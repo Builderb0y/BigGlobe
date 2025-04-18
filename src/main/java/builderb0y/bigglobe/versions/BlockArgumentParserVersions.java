@@ -21,6 +21,22 @@ public class BlockArgumentParserVersions {
 		#endif
 	}
 
+	public static BlockResult block(RegistryWrapper<Block> blockRegistry, String string, boolean allowNBT) throws CommandSyntaxException {
+		return BlockArgumentParser.block(blockRegistry, string, allowNBT);
+	}
+
+	public static BlockResult block(RegistryWrapper<Block> blockRegistry, StringReader stringReader, boolean allowNBT) throws CommandSyntaxException {
+		return BlockArgumentParser.block(blockRegistry, stringReader, allowNBT);
+	}
+
+	public static Either<BlockResult, TagResult> blockOrTag(RegistryWrapper<Block> blockRegistry, String string, boolean allowNBT) throws CommandSyntaxException {
+		return BlockArgumentParser.blockOrTag(blockRegistry, string, allowNBT);
+	}
+
+	public static Either<BlockResult, TagResult> blockOrTag(RegistryWrapper<Block> blockRegistry, StringReader stringReader, boolean allowNBT) throws CommandSyntaxException {
+		return BlockArgumentParser.blockOrTag(blockRegistry, stringReader, allowNBT);
+	}
+
 	public static BlockResult block(String string, boolean allowNBT) throws CommandSyntaxException {
 		return BlockArgumentParser.block(blockRegistry(), string, allowNBT);
 	}

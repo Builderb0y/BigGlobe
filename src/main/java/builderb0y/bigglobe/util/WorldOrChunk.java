@@ -187,7 +187,7 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		public void setBlockState(BlockPos pos, BlockState state) {
-			this.chunk.setBlockState(pos, state, false);
+			this.chunk.setBlockState(pos, state, #if MC_VERSION >= MC_1_21_5 Block.NOTIFY_LISTENERS | Block.FORCE_STATE #else false #endif);
 			if (state.hasBlockEntity()) {
 				BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(pos, state);
 				if (blockEntity != null) this.chunk.setBlockEntity(blockEntity);

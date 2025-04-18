@@ -28,6 +28,10 @@ where I left off:
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
+	add dumpVars() function which prints out the line number where it's called,
+		along with every variable accessible from the scope where dumpVars() was called.
+	apparently there are some advancements which unlock upon entering a structure.
+		these do not work because my structures are delegated.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -44,6 +48,21 @@ structure rewrites:
 noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 	add slope threshold for abandoned cities to prevent them from spawning on steep mountainous areas.
+	add overgrown sand as transition block between warm biomes and hot biomes.
+	add "default world type" config option, allow for arbitrary default world types.
+	C2ME integration is misnamed in config file.
+		verify that integration still works correctly. I'm not sure what issues the misnaming might cause.
+	remove waterfalls.
+	apparently clify_snow, river_water_depth, and river_water_y still exist.
+	/bigglobe:locate with C2ME causes exception.
+		verify that Random object is NOT being used on command thread.
+	figure out why obelisks float in DH LODs.
+	frozen caves don't have localizations.
+		check other caves too.
+	add delegating structures to relevant vanilla structure tags.
+	forcibly disable cave culling for DH in big globe worlds again.
+	try to add support for sodium dynamic lights.
+	stop using NbtHelper.toBlockState() where reasonable.
 
 changelog:
 	# This is a BETA release! It is ONLY intended for testing the new overworld!

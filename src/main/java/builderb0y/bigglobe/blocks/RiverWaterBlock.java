@@ -11,6 +11,7 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
@@ -70,8 +71,8 @@ public class RiverWaterBlock extends FluidBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-		super.onEntityCollision(state, world, pos, entity);
+	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity #if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif) {
+		super.onEntityCollision(state, world, pos, entity #if MC_VERSION >= MC_1_21_5 , handler #endif);
 		if (this.isDangerous(world) && !(entity instanceof PlayerEntity player && player.getAbilities().flying) && entity.getBlockPos().equals(pos)) {
 			BlockPos.Mutable mutablePos = pos.mutableCopy();
 			while (world.getBlockState(mutablePos.setY(mutablePos.getY() + 1)).getBlock() == this);
@@ -167,7 +168,7 @@ public class RiverWaterBlock extends FluidBlock {
 	}
 
 	@Override
-	public ItemStack tryDrainFluid(#if MC_VERSION >= MC_1_20_2 @Nullable PlayerEntity player, #endif WorldAccess world, BlockPos pos, BlockState state) {
+	public ItemStack tryDrainFluid(#if MC_VERSION >= MC_1_21_5 @Nullable LivingEntity drainer, #elif MC_VERSION >= MC_1_20_2 @Nullable PlayerEntity player, #endif WorldAccess world, BlockPos pos, BlockState state) {
 		//don't set block to air.
 		return state.get(LEVEL) == 0 ? new ItemStack(this.fluid.getBucketItem()) : ItemStack.EMPTY;
 	}

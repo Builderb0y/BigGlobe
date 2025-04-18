@@ -7,8 +7,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
@@ -115,5 +117,49 @@ public class EntityVersions {
 				)
 			);
 		#endif
+	}
+
+	public static RegistryKey<World> getRespawnDimension(ServerPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_5
+			return player.getRespawn() != null ? player.getRespawn().dimension() : null;
+		#else
+			return player.getSpawnPointDimension();
+		#endif
+	}
+
+	public static BlockPos getRespawnPosition(ServerPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_5
+			return player.getRespawn() != null ? player.getRespawn().pos() : null;
+		#else
+			return player.getSpawnPointPosition();
+		#endif
+	}
+
+	public static boolean isRespawnForced(ServerPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_5
+			return player.getRespawn() != null && player.getRespawn().forced();
+		#else
+			return player.isSpawnForced();
+		#endif
+	}
+
+	public static float getRespawnAngle(ServerPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_5
+			return player.getRespawn() != null ? player.getRespawn().angle() : 0.0F;
+		#else
+			return player.getSpawnAngle();
+		#endif
+	}
+
+	public static double prevX(Entity entity) {
+		return entity.#if MC_VERSION >= MC_1_21_5 lastX #else prevX #endif;
+	}
+
+	public static double prevY(Entity entity) {
+		return entity.#if MC_VERSION >= MC_1_21_5 lastY #else prevY #endif;
+	}
+
+	public static double prevZ(Entity entity) {
+		return entity.#if MC_VERSION >= MC_1_21_5 lastZ #else prevZ #endif;
 	}
 }

@@ -45,6 +45,7 @@ import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Vectors;
+import builderb0y.bigglobe.versions.ChunkVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
@@ -378,11 +379,19 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							if (noise > 0.0D) {
 								for (BlocksConfig block : this.data.blocks) {
 									if (noise < block.threshold) {
-										context.chunk.setBlockState(pos, block.states.getRandomElement(Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z)), false);
+										ChunkVersions.setBlockState(
+											context.chunk,
+											pos,
+											block.states.getRandomElement(
+												Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z
+												)
+											),
+											Block.NOTIFY_LISTENERS
+										);
 										break placed;
 									}
 								}
-								context.chunk.setBlockState(pos, BlockStates.AIR, false);
+								ChunkVersions.setBlockState(context.chunk, pos, BlockStates.AIR, Block.NOTIFY_LISTENERS);
 							}
 						}
 					}
@@ -544,7 +553,14 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						double distanceSquared = relativePos.distanceSquared(nearest);
 						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
 						if (distanceSquared < thresholdSquared && context.chunk.getBlockState(mutablePos.set(x, y, z)).isAir()) {
-							context.chunk.setBlockState(mutablePos, data.states.getRandomElement(Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)), false);
+							ChunkVersions.setBlockState(
+								context.chunk,
+								mutablePos,
+								data.states.getRandomElement(
+									Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)
+								),
+								Block.NOTIFY_LISTENERS
+							);
 						}
 					}
 				}

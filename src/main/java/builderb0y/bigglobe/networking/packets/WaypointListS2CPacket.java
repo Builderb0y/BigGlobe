@@ -21,7 +21,6 @@ import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.hyperspace.*;
-import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
@@ -74,7 +73,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		ToIntFunction<RegistryKey<World>> computer = (RegistryKey<World> $) -> worlds.size();
 		int waypointCount = 0;
 		for (PlayerWaypointData data : manager.getAllWaypoints()) {
-			worlds.computeIfAbsent(data.destination().position().world(), computer);
+			worlds.computeIfAbsent(data.destination().pos().world(), computer);
 			waypointCount++;
 		}
 		buffer.writeVarInt(worlds.size());

@@ -5,6 +5,10 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import org.junit.jupiter.api.Test;
 
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.DataOps;
+import builderb0y.autocodec.data.ListData;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 //language=json
@@ -13,7 +17,7 @@ public class VariationsListTest {
 
 	@Test
 	public void testDefaulted() {
-		JsonElement input = JsonParser.parseString(
+		Data input = data(
 			"""
 			{
 				"defaults": { "a": 1 },
@@ -25,7 +29,7 @@ public class VariationsListTest {
 			}
 			"""
 		);
-		JsonElement expected = JsonParser.parseString(
+		Data expected = data(
 			"""
 			[
 				{ "a": 1, "b": 1 },
@@ -34,13 +38,13 @@ public class VariationsListTest {
 			]
 			"""
 		);
-		JsonElement actual = JsonOps.INSTANCE.createList(VariationsList.expand(input, JsonOps.INSTANCE));
+		Data actual = ListData.collect(VariationsList.expand(input));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testLayered() {
-		JsonElement input = JsonParser.parseString(
+		Data input = data(
 			"""
 			{
 				"variations": [
@@ -51,7 +55,7 @@ public class VariationsListTest {
 			}
 			"""
 		);
-		JsonElement expected = JsonParser.parseString(
+		Data expected = data(
 			"""
 			[
 				{ "a": 1, "b": 1, "c": 1 },
@@ -65,13 +69,13 @@ public class VariationsListTest {
 			]
 			"""
 		);
-		JsonElement actual = JsonOps.INSTANCE.createList(VariationsList.expand(input, JsonOps.INSTANCE));
+		Data actual = ListData.collect(VariationsList.expand(input));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testDeep() {
-		JsonElement input = JsonParser.parseString(
+		Data input = data(
 			"""
 			{
 				"defaults": { "a": { "b": { "c": 1 } } },
@@ -83,7 +87,7 @@ public class VariationsListTest {
 			}
 			"""
 		);
-		JsonElement expected = JsonParser.parseString(
+		Data expected = data(
 			"""
 			[
 				{ "a": { "b": { "c": 1, "d": 1 } } },
@@ -91,13 +95,13 @@ public class VariationsListTest {
 			]
 			"""
 		);
-		JsonElement actual = JsonOps.INSTANCE.createList(VariationsList.expand(input, JsonOps.INSTANCE));
+		Data actual = ListData.collect(VariationsList.expand(input));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testNotDeep() {
-		JsonElement input = JsonParser.parseString(
+		Data input = data(
 			"""
 			{
 				"defaults": { "a": { "b": { "c": 1 } } },
@@ -109,7 +113,7 @@ public class VariationsListTest {
 			}
 			"""
 		);
-		JsonElement expected = JsonParser.parseString(
+		Data expected = data(
 			"""
 			[
 				{ "a": { "b": { "d": 1 } } },
@@ -117,13 +121,13 @@ public class VariationsListTest {
 			]
 			"""
 		);
-		JsonElement actual = JsonOps.INSTANCE.createList(VariationsList.expand(input, JsonOps.INSTANCE));
+		Data actual = ListData.collect(VariationsList.expand(input));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testNested() {
-		JsonElement input = JsonParser.parseString(
+		Data input = data(
 			"""
 			{
 				"defaults": { "a": 1 },
@@ -146,7 +150,7 @@ public class VariationsListTest {
 			}
 			"""
 		);
-		JsonElement expected = JsonParser.parseString(
+		Data expected = data(
 			"""
 			[
 				{ "a": 1, "b": 1, "c": 1 },
@@ -156,7 +160,11 @@ public class VariationsListTest {
 			]
 			"""
 		);
-		JsonElement actual = JsonOps.INSTANCE.createList(VariationsList.expand(input, JsonOps.INSTANCE));
+		Data actual = ListData.collect(VariationsList.expand(input));
 		assertEquals(expected, actual);
+	}
+
+	public static Data data(String jsonText) {
+		return JsonOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, JsonParser.parseString(jsonText));
 	}
 }

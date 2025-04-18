@@ -10,6 +10,9 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.NumberData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -52,9 +55,9 @@ public record SymmetricOffset(
 
 		@Override
 		@OverrideOnly
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Symmetry> context) throws EncodeException {
-			if (context.object == null) return context.empty();
-			return context.createByte((byte)(context.object.ordinal()));
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Symmetry> context) throws EncodeException {
+			if (context.object == null) return EmptyData.INSTANCE;
+			return new NumberData((byte)(context.object.ordinal()));
 		}
 	};
 

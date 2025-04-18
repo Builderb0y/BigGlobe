@@ -17,6 +17,7 @@ import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseEncoder;
 import builderb0y.autocodec.annotations.UseImprinter;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.decoders.AutoDecoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
@@ -39,77 +40,82 @@ public class VariationsList<T> {
 		else throw AutoCodecUtil.rethrow(new DecodeException(DFUVersions.getMessageLazy(result)));
 	}
 
-	public transient Dynamic<?> source;
+	public transient Data source;
 	public transient List<T> elements;
 
-	public static <T_Encoded> T_Encoded merge(T_Encoded oldObject, T_Encoded newObject, DynamicOps<T_Encoded> ops, boolean deep) {
-		MapLike<T_Encoded> oldMap = ops.getMap(oldObject).result().orElse(null);
-		MapLike<T_Encoded> newMap = ops.getMap(newObject).result().orElse(null);
+	public static Data merge(Data oldObject, Data newObject, boolean deep) {
+		MapData oldMap = oldObject.tryAsMap();
+		MapData newMap = newObject.tryAsMap();
 		if (oldMap != null && newMap != null) {
-			Map<T_Encoded, T_Encoded> result = new HashMap<>();
-			oldMap.entries().forEach(pair -> result.put(pair.getFirst(), pair.getSecond()));
+			MapData result = new MapData(oldMap.size() + newMap.size());
+			result.value.putAll(oldMap.value);
 			if (deep) {
-				newMap.entries().forEach(pair -> result.merge(
-					pair.getFirst(),
-					pair.getSecond(),
-					(first, second) -> merge(first, second, ops, true)
-				));
+				for (Map.Entry<Data, Data> entry : newMap.value.entrySet()) {
+					result.value.merge(entry.getKey(), entry.getValue(), (first, second) -> merge(first, second, true));
+				}
 			}
 			else {
-				newMap.entries().forEach(pair -> result.put(pair.getFirst(), pair.getSecond()));
+				result.value.putAll(newMap.value);
 			}
-			return ops.createMap(result);
+			return result;
 		}
 		return newObject;
 	}
 
-	public static <T_Encoded> Stream<T_Encoded> flatten(Stream<T_Encoded> oldLayer, T_Encoded[] newLayer, DynamicOps<T_Encoded> ops, boolean deep) {
-		return oldLayer.flatMap((T_Encoded element1) -> {
-			return Arrays.stream(newLayer).map((T_Encoded element2) -> {
-				return merge(element1, element2, ops, deep);
+	public static Stream<Data> flatten(Stream<Data> oldLayer, Data[] newLayer, boolean deep) {
+		return oldLayer.flatMap((Data element1) -> {
+			return Arrays.stream(newLayer).map((Data element2) -> {
+				return merge(element1, element2, deep);
 			});
 		});
 	}
 
-	@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
-	public static <T_Encoded> Stream<T_Encoded> expand(T_Encoded root, DynamicOps<T_Encoded> ops) {
-		Stream<T_Encoded> variations = ops.get(root, "variations").flatMap(ops::getStream).result().orElse(null);
+	public static Stream<Data> expand(Data root) {
+		ListData variations = root.getMember("variations").tryAsList();
 		if (variations != null) {
-			boolean deep = ops.get(root, "deep").flatMap(ops::getBooleanValue).result().orElse(Boolean.FALSE);
-			T_Encoded defaults = ops.get(root, "defaults").result().orElse(null);
-			if (defaults != null) {
-				T_Encoded[] layers = (T_Encoded[])(
-					variations /* [ {}, {} ] */.flatMap(
-						(T_Encoded element /* {} */) -> expand(element, ops)
+			boolean deep = root.getMember("deep").getAsBooleanOr(false);
+			Data defaults = root.getMember("defaults");
+			if (!defaults.isEmpty()) {
+				Data[] layers = (
+					variations.value.stream() /* [ {}, {} ] */ .flatMap(
+						VariationsList::expand /* {} */
 					)
-					.toArray()
+					.toArray(Data.ARRAY_FACTORY)
 				);
-				return flatten(Stream.of(defaults), layers, ops, deep);
+				return flatten(Stream.of(defaults), layers, deep);
 			}
 			else {
-				T_Encoded[] layers = (T_Encoded[])(
-					variations /* [ [ {}, {} ], [ {}, {} ] ] */ .map(
-						(T_Encoded list /* [ {}, {} ] */) -> ops.createList(
-							unwrap(ops.getStream(list))
-							.flatMap((T_Encoded element /* {} */) -> expand(element, ops))
-						)
+				Data[] layers = (
+					variations.value.stream() /* [ [ {}, {} ], [ {}, {} ] ] */ .map(
+						(Data list /* [ {}, {} ] */) -> {
+							return ListData.collect(
+								forceStream(list)
+								.flatMap(VariationsList::expand /* {} */)
+							);
+						}
 					)
-					.toArray()
+					.toArray(Data.ARRAY_FACTORY)
 				);
-				Stream<T_Encoded> stream = unwrap(ops.getStream(layers[0]));
+				Stream<Data> stream = forceStream(layers[0]);
 				for (int index = 1, length = layers.length; index < length; index++) {
-					stream = flatten(stream, (T_Encoded[])(unwrap(ops.getStream(layers[index])).toArray()), ops, deep);
+					stream = flatten(stream, forceStream(layers[index]).toArray(Data.ARRAY_FACTORY), deep);
 				}
 				return stream;
 			}
 		}
 		else {
-			Stream<T_Encoded> stream = ops.getStream(root).result().orElse(null);
-			if (stream != null) {
-				return stream /* [ {}, {} ] */.flatMap((T_Encoded element /* {} */) -> expand(element, ops));
+			ListData list = root.tryAsList();
+			if (list != null) {
+				return list.value.stream() /* [ {}, {} ] */.flatMap(VariationsList::expand /* {} */);
 			}
 			return Stream.of(root);
 		}
+	}
+
+	public static Stream<Data> forceStream(Data data) {
+		ListData list = data.tryAsList();
+		if (list != null) return list.value.stream();
+		else throw AutoCodecUtil.rethrow(new DecodeException(() -> "Not a list: " + data));
 	}
 
 	public static class Imprinter<T> extends NamedImprinter<VariationsList<T>> {
@@ -128,8 +134,8 @@ public class VariationsList<T> {
 		@Override
 		public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, VariationsList<T>> context) throws ImprintException {
 			try {
-				context.object.source = new Dynamic<>(context.ops, context.input);
-				T_Encoded list = context.ops.createList(expand(context.input, context.ops));
+				context.object.source = context.data;
+				Data list = ListData.collect(expand(context.data));
 				context.object.elements = context.input(list).decodeWith(this.listEncoder);
 			}
 			catch (ImprintException exception) {
@@ -152,8 +158,8 @@ public class VariationsList<T> {
 		}
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, VariationsList<T>> context) throws EncodeException {
-			return context.object == null ? context.empty() : convert(context.object.source, context.ops);
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, VariationsList<T>> context) throws EncodeException {
+			return context.object == null ? EmptyData.INSTANCE : context.object.source;
 		}
 
 		public static <T_From, T_To> T_To convert(Dynamic<T_From> dynamic, DynamicOps<T_To> ops) {

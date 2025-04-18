@@ -12,6 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.MapData;
+import builderb0y.autocodec.data.StringData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -54,10 +58,8 @@ public class TypelessCoderRegistry<E> extends NamedCoder<E> {
 		if (context.isEmpty()) return null;
 		String prevKey = null;
 		AutoCoder<? extends E> coder = null;
-		Stream<Pair<T_Encoded, T_Encoded>> stream = context.logger().unwrapLazy(context.ops.getMapValues(context.input), false, DecodeException::new);
-		if (stream == null) throw context.notA("map");
-		for (Iterator<Pair<T_Encoded, T_Encoded>> iterator = stream.iterator(); iterator.hasNext();) {
-			String key = context.logger().unwrapLazy(context.ops.getStringValue(iterator.next().getFirst()), false, DecodeException::new);
+		for (Data keyData : context.forceAsMap().value.keySet()) {
+			String key = context.input("<key>", keyData).forceAsString().value;
 			AutoCoder<? extends E> next = this.decodeLookup.get(key);
 			if (next == null) {
 				if (this.commonFields.contains(key)) continue;
@@ -81,8 +83,8 @@ public class TypelessCoderRegistry<E> extends NamedCoder<E> {
 	@Override
 	@OverrideOnly
 	@SuppressWarnings("unchecked")
-	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, E> context) throws EncodeException {
-		if (context.object == null) return context.empty();
+	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, E> context) throws EncodeException {
+		if (context.object == null) return EmptyData.INSTANCE;
 		AutoCoder<? extends E> coder = this.encodeLookup.get(context.object.getClass());
 		if (coder == null) throw new EncodeException(() -> "Unhandled type: " + context.object.getClass());
 		return context.encodeWith((AutoCoder<E>)(coder));

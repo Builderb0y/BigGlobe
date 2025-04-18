@@ -8,8 +8,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.MiningToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.tag.TagKey;
@@ -25,7 +25,11 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
-public class PercussiveHammerItem extends MiningToolItem {
+#if MC_VERSION < MC_1_21_5
+	import net.minecraft.item.MiningToolItem;
+#endif
+
+public class PercussiveHammerItem extends #if MC_VERSION >= MC_1_21_5 Item #else MiningToolItem #endif {
 
 	public static final List<SoundPulse> pulses = new LinkedList<>();
 	static {
@@ -33,9 +37,19 @@ public class PercussiveHammerItem extends MiningToolItem {
 		ServerWorldEvents.UNLOAD.register((server, world) -> unload(world));
 	}
 
-	public PercussiveHammerItem(float attackDamage, float attackSpeed, ToolMaterial material, TagKey<Block> effectiveBlocks, Settings settings) {
-		super(#if MC_VERSION < MC_1_20_5 attackDamage, attackSpeed, #endif material, effectiveBlocks, #if MC_VERSION >= MC_1_21_2 attackDamage, attackSpeed, #endif settings);
-	}
+	#if MC_VERSION >= MC_1_21_5
+
+		public PercussiveHammerItem(Settings settings) {
+			super(settings);
+		}
+
+	#else
+
+		public PercussiveHammerItem(float attackDamage, float attackSpeed, ToolMaterial material, TagKey<Block> effectiveBlocks, Settings settings) {
+			super(#if MC_VERSION < MC_1_20_5 attackDamage, attackSpeed, #endif material, effectiveBlocks, #if MC_VERSION >= MC_1_21_2 attackDamage, attackSpeed, #endif settings);
+		}
+
+	#endif
 
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {

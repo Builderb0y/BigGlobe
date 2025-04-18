@@ -31,7 +31,7 @@ implements WaypointData {
 
 	@Override
 	public PackedWorldPos destinationPosition() {
-		return this.destination.position();
+		return this.destination.pos();
 	}
 
 	public SyncedWaypointData sync() {

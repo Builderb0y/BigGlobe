@@ -184,20 +184,33 @@ public class RespawnCommand {
 		}
 
 		public static @Nullable Text tryRespawnBed(ServerPlayerEntity player, boolean force) {
-			if (player.isSpawnForced()) return Text.translatable(PREFIX + "bed.spawn_not_set_by_bed");
+			if (EntityVersions.isRespawnForced(player)) return Text.translatable(PREFIX + "bed.spawn_not_set_by_bed");
 
-			BlockPos position = player.getSpawnPointPosition();
+			BlockPos position = EntityVersions.getRespawnPosition(player);
 			if (position == null) return Text.translatable(PREFIX + "position_not_set");
 
-			RegistryKey<World> dimension = player.getSpawnPointDimension();
+			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
 			if (dimension == null) return Text.translatable(PREFIX + "dimension_not_set");
 
 			ServerWorld world = player.getServer().getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "dimension_doesnt_exist");
 
-			float yaw = player.getSpawnAngle();
+			float yaw = EntityVersions.getRespawnAngle(player);
 			Vec3d actualPosition = (
-				#if MC_VERSION >= MC_1_21_0
+				#if MC_VERSION >= MC_1_21_5
+					ServerPlayerEntity.findRespawnPosition(
+						world,
+						new net.minecraft.server.network.ServerPlayerEntity.Respawn(
+							dimension,
+							position,
+							yaw,
+							false
+						),
+						false
+					)
+					.map(ServerPlayerEntity.RespawnPos::pos)
+					.orElse(null)
+				#elif MC_VERSION >= MC_1_21_0
 					ServerPlayerEntity.findRespawnPosition(
 						world,
 						position,
@@ -232,12 +245,12 @@ public class RespawnCommand {
 		}
 
 		public static @Nullable Text tryRespawnCommand(ServerPlayerEntity player, boolean force) {
-			if (!player.isSpawnForced()) return Text.translatable(PREFIX + "command.spawn_not_set_by_command");
+			if (!EntityVersions.isRespawnForced(player)) return Text.translatable(PREFIX + "command.spawn_not_set_by_command");
 
-			BlockPos position = player.getSpawnPointPosition();
+			BlockPos position = EntityVersions.getRespawnPosition(player);
 			if (position == null) return Text.translatable(PREFIX + "command.position_not_set");
 
-			RegistryKey<World> dimension = player.getSpawnPointDimension();
+			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
 			if (dimension == null) return Text.translatable(PREFIX + "command.dimension_not_set");
 
 			ServerWorld world = player.server.getWorld(dimension);
@@ -250,7 +263,7 @@ public class RespawnCommand {
 					BlockStateVersions.canSpawnInside(world.getBlockState(position.up()))
 				)
 			) {
-				float yaw = player.getSpawnAngle();
+				float yaw = EntityVersions.getRespawnAngle(player);
 				EntityVersions.teleport(
 					player,
 					world,

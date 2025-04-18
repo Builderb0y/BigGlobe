@@ -170,20 +170,41 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 		return this.world.getRandom();
 	}
 
-	@Override
-	public void playSound(@Nullable PlayerEntity player, BlockPos pos, SoundEvent sound, SoundCategory category, float volume, float pitch) {
-		this.world.playSound(player, pos, sound, category, volume, pitch);
-	}
+	#if MC_VERSION >= MC_1_21_5
 
-	@Override
-	public void addParticle(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
-		this.world.addParticle(parameters, x, y, z, velocityX, velocityY, velocityZ);
-	}
+		@Override
+		public void addParticleClient(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+			this.world.addParticleClient(parameters, x, y, z, velocityX, velocityY, velocityZ);
+		}
 
-	@Override
-	public void syncWorldEvent(@Nullable PlayerEntity player, int eventId, BlockPos pos, int data) {
-		this.world.syncWorldEvent(player, eventId, pos, data);
-	}
+		@Override
+		public void playSound(@Nullable Entity source, BlockPos pos, SoundEvent sound, SoundCategory category, float volume, float pitch) {
+			this.world.playSound(source, pos, sound, category, volume, pitch);
+		}
+
+		@Override
+		public void syncWorldEvent(@Nullable Entity source, int eventId, BlockPos pos, int data) {
+			this.world.syncWorldEvent(source, eventId, pos, data);
+		}
+
+	#else
+
+		@Override
+		public void playSound(@Nullable PlayerEntity player, BlockPos pos, SoundEvent sound, SoundCategory category, float volume, float pitch) {
+			this.world.playSound(player, pos, sound, category, volume, pitch);
+		}
+
+		@Override
+		public void addParticle(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+			this.world.addParticle(parameters, x, y, z, velocityX, velocityY, velocityZ);
+		}
+
+		@Override
+		public void syncWorldEvent(@Nullable PlayerEntity player, int eventId, BlockPos pos, int data) {
+			this.world.syncWorldEvent(player, eventId, pos, data);
+		}
+
+	#endif
 
 	@Override
 	public void emitGameEvent(#if MC_VERSION >= MC_1_20_5 RegistryEntry<GameEvent> #else GameEvent #endif event, Vec3d emitterPos, Emitter emitter) {

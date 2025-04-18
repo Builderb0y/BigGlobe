@@ -14,6 +14,10 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.PrimitiveCoders;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.ListData;
+import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -460,17 +464,17 @@ public interface IRandomList<E> extends List<E> {
 		@OverrideOnly
 		public <T_Encoded> @Nullable IRandomList<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
-			List<DecodeContext<T_Encoded>> list = context.tryAsList(false);
-			if (list != null) {
-				return switch (list.size()) {
+			if (context.isList()) {
+				int size = context.forceAsList().size();
+				return switch (size) {
 					case 0 -> EmptyRandomList.instance();
 					case 1 -> {
-						DecodeContext<T_Encoded> entry = list.get(0);
+						DecodeContext<T_Encoded> entry = context.getElement(0);
 						yield new SingletonRandomList<>(this.element(entry), this.weight(entry));
 					}
 					default -> {
-						RandomList<T> result = new RandomList<>(list.size());
-						for (DecodeContext<T_Encoded> entry : list) {
+						RandomList<T> result = new RandomList<>(size);
+						for (DecodeContext<T_Encoded> entry : context.listIterable()) {
 							result.add(this.element(entry), this.weight(entry));
 						}
 						yield result.optimize();
@@ -485,24 +489,25 @@ public interface IRandomList<E> extends List<E> {
 
 		@Override
 		@OverrideOnly
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, IRandomList<T>> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, IRandomList<T>> context) throws EncodeException {
 			IRandomList<T> list = context.object;
-			if (list == null) return context.empty();
-			if (list.isEmpty()) return context.emptyList();
-			return context.createList(
+			if (list == null) return EmptyData.INSTANCE;
+			if (list.isEmpty()) return new ListData();
+			return ListData.collect(
 				IntStream.range(0, list.size()).mapToObj((int index) -> {
-					T_Encoded encodedElement = context.object(list.get(index)).encodeWith(this.elementCoder);
-					T_Encoded encodedWeight  = context.object(list.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
+					Data encodedElement = context.object(list.get(index)).encodeWith(this.elementCoder);
+					Data encodedWeight  = context.object(list.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
 					if (this.elementName != null) {
-						return context.createStringMap(
-							Map.of(
-								this.elementName, encodedElement,
-								"weight", encodedWeight
-							)
-						);
+						MapData map = new MapData(4);
+						map.put(this.elementName, encodedElement);
+						map.put("weight", encodedWeight);
+						return map;
 					}
 					else {
-						return context.addToStringMap(encodedElement, "weight", encodedWeight);
+						MapData map = encodedElement.tryAsMap();
+						if (map == null) throw new EncodeException(() -> list.get(index) + " encoded into non-map: " + encodedElement);
+						map.put("weight", encodedWeight);
+						return map;
 					}
 				})
 			);

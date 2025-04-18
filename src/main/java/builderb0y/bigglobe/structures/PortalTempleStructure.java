@@ -211,14 +211,14 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		BlockState state = block.getDefaultState();
 		for (int index = 0, length = connections.length(); index < length; index++) {
 			state = switch (connections.charAt(index)) {
-				case 'n' -> state.with(WallBlock.NORTH_SHAPE, WallShape.LOW);
-				case 'e' -> state.with(WallBlock.EAST_SHAPE,  WallShape.LOW);
-				case 's' -> state.with(WallBlock.SOUTH_SHAPE, WallShape.LOW);
-				case 'w' -> state.with(WallBlock.WEST_SHAPE,  WallShape.LOW);
-				case 'N' -> state.with(WallBlock.NORTH_SHAPE, WallShape.TALL);
-				case 'E' -> state.with(WallBlock.EAST_SHAPE,  WallShape.TALL);
-				case 'S' -> state.with(WallBlock.SOUTH_SHAPE, WallShape.TALL);
-				case 'W' -> state.with(WallBlock.WEST_SHAPE,  WallShape.TALL);
+				case 'n' -> state.with(WallBlockVersions.NORTH_SHAPE, WallShape.LOW);
+				case 'e' -> state.with(WallBlockVersions. EAST_SHAPE, WallShape.LOW);
+				case 's' -> state.with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW);
+				case 'w' -> state.with(WallBlockVersions. WEST_SHAPE, WallShape.LOW);
+				case 'N' -> state.with(WallBlockVersions.NORTH_SHAPE, WallShape.TALL);
+				case 'E' -> state.with(WallBlockVersions. EAST_SHAPE, WallShape.TALL);
+				case 'S' -> state.with(WallBlockVersions.SOUTH_SHAPE, WallShape.TALL);
+				case 'W' -> state.with(WallBlockVersions. WEST_SHAPE, WallShape.TALL);
 				case 'u', 'U' -> state.with(WallBlock.UP, Boolean.TRUE);
 				default -> throw new IllegalArgumentException(String.valueOf(connections.charAt(index)));
 			};
@@ -242,18 +242,22 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		int size = listNBT.size();
 		if (size == 0) return Collections.emptyList();
 		List<T> list = new ArrayList<>(size);
-		for (int index = 0; index < size; index++) {
-			list.add(reader.apply(listNBT.getCompound(index)));
+		for (NbtElement element : listNBT) {
+			if (element instanceof NbtCompound compound) {
+				T toAdd = reader.apply(compound);
+				if (toAdd != null) list.add(toAdd);
+			}
+			else {
+				BigGlobeMod.LOGGER.warn("Portal temple failed to decode non-compound " + element + " from list " + listNBT);
+			}
 		}
 		return list;
 	}
 
 	public static <T> List<T> readListFromNBTCompound(NbtCompound compound, String key, Function<? super NbtCompound, ? extends T> reader) {
 		NbtElement nbt = compound.get(key);
-		if (nbt instanceof NbtList list) {
-			if (!list.isEmpty() && list.getHeldType() == NbtElement.COMPOUND_TYPE) {
-				return readListFromNBT(list, reader);
-			}
+		if (nbt instanceof NbtList list && !list.isEmpty()) {
+			return readListFromNBT(list, reader);
 		}
 		return Collections.emptyList();
 	}
@@ -326,14 +330,31 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			this(vector, state, null);
 		}
 
-		public PositionState(NbtCompound nbt) {
-			super(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-			#if MC_VERSION >= MC_1_21_2
-				this.state = NbtHelper.toBlockState(Registries.BLOCK, nbt);
-			#else
-				this.state = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt);
-			#endif
-			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
+		public PositionState(int x, int y, int z, BlockState state, NbtCompound blockEntityData) {
+			super(x, y, z);
+			this.state = state;
+			this.blockEntityData = blockEntityData;
+		}
+
+		public static PositionState decode(NbtCompound nbt) {
+			if (
+				nbt.get("x") instanceof AbstractNbtNumber x &&
+				nbt.get("y") instanceof AbstractNbtNumber y &&
+				nbt.get("z") instanceof AbstractNbtNumber z
+			) {
+				BlockState state = (
+					#if MC_VERSION >= MC_1_21_2
+						NbtHelper.toBlockState(Registries.BLOCK, nbt)
+					#else
+						NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt)
+					#endif
+				);
+				NbtCompound blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
+				return new PositionState(x.intValue(), y.intValue(), z.intValue(), state, blockEntityData);
+			}
+			else {
+				return null;
+			}
 		}
 
 		public NbtCompound writeToNBT() {
@@ -385,7 +406,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
-			this.variant = nbt.getByte("var");
+			this.variant = nbt.get("var") instanceof AbstractNbtNumber number ? number.byteValue() : ((byte)(0));
 		}
 
 		@Override
@@ -575,7 +596,10 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 				public NbtCompound pattern(String patternName, int color) {
 					NbtCompound nbt = new NbtCompound();
-					#if MC_VERSION >= MC_1_20_5
+					#if MC_VERSION >= MC_1_21_5
+						nbt.putString("pattern", patternName);
+						nbt.putString("color", DyeColor.byIndex(color).asString());
+					#elif MC_VERSION >= MC_1_20_5
 						nbt.putString("pattern", patternName);
 						nbt.putString("color", DyeColor.byId(color).asString());
 					#else
@@ -594,8 +618,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				this.boundingBox.getMinY(),
 				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1
 			);
-			this.crackedChance = nbt.getDouble("cracked_chance");
-			this.decorations = readListFromNBTCompound(nbt, "decorations", PositionState::new);
+			this.crackedChance = nbt.get("cracked_chance") instanceof AbstractNbtNumber number ? number.doubleValue() : 0.0D;
+			this.decorations = readListFromNBTCompound(nbt, "decorations", PositionState::decode);
 			this.entities = readListFromNBTCompound(nbt, "entities", Function.identity());
 		}
 
@@ -738,18 +762,20 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			//entities
 			for (Iterator<NbtCompound> iterator = this.entities.iterator(); iterator.hasNext();) {
 				NbtCompound nbt = iterator.next();
-				NbtList posNBT = nbt.getList("Pos", NbtElement.DOUBLE_TYPE);
-				if (posNBT.size() != 3) {
+				if (!(
+					nbt.get("Pos") instanceof NbtList posNBT &&
+					posNBT.size() == 3 &&
+					posNBT.get(0) instanceof AbstractNbtNumber x &&
+					posNBT.get(1) instanceof AbstractNbtNumber y &&
+					posNBT.get(2) instanceof AbstractNbtNumber z
+				)) {
 					BigGlobeMod.LOGGER.warn("Portal temple main building entity lacks position: " + nbt);
 					iterator.remove();
 					continue;
 				}
-				double x = posNBT.getDouble(0) + this.centerPos.getX();
-				double y = posNBT.getDouble(1) + this.centerPos.getY();
-				double z = posNBT.getDouble(2) + this.centerPos.getZ();
-				BlockPos pos = BlockPos.ofFloored(x, y, z);
+				BlockPos pos = BlockPos.ofFloored(x.doubleValue(), y.doubleValue(), z.doubleValue());
 				if (chunkBox.contains(pos)) {
-					nbt.put("Pos", makeEntityPos(x, y, z));
+					nbt.put("Pos", makeEntityPos(x.doubleValue(), y.doubleValue(), z.doubleValue()));
 					EntityType.getEntityFromNbt(nbt, world.toServerWorld() #if MC_VERSION >= MC_1_21_2 , SpawnReason.STRUCTURE #endif).ifPresent((Entity entity) -> {
 						if (entity instanceof MobEntity mob) {
 							mob.initialize(
@@ -1113,7 +1139,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public TablePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
-			this.decorationBlocks = readListFromNBTCompound(nbt, "decorations", PositionState::new);
+			this.decorationBlocks = readListFromNBTCompound(nbt, "decorations", PositionState::decode);
 		}
 
 		@Override

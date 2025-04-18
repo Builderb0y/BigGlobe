@@ -181,14 +181,14 @@ public class NbtScriptEnvironment {
 	public static NbtIntArray  nbtIntArray (int []  value) { return value == null ? null : new NbtIntArray (value); }
 	public static NbtLongArray nbtLongArray(long[]  value) { return value == null ? null : new NbtLongArray(value); }
 
-	public static boolean asBoolean(NbtElement element) { return element instanceof AbstractNbtNumber number && number.byteValue  () != 0; }
-	public static byte    asByte   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.byteValue  () :  0; }
-	public static short   asShort  (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.shortValue () :  0; }
-	public static int     asInt    (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.intValue   () :  0; }
-	public static long    asLong   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.longValue  () :  0; }
-	public static float   asFloat  (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.floatValue () :  0; }
-	public static double  asDouble (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.doubleValue() :  0; }
-	public static String  asString (NbtElement element) { return element != null ? element.asString() : null; }
+	public static boolean asBoolean(NbtElement element) { return element instanceof AbstractNbtNumber number && number.byteValue  () !=   0; }
+	public static byte    asByte   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.byteValue  () :    0; }
+	public static short   asShort  (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.shortValue () :    0; }
+	public static int     asInt    (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.intValue   () :    0; }
+	public static long    asLong   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.longValue  () :    0; }
+	public static float   asFloat  (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.floatValue () :    0; }
+	public static double  asDouble (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.doubleValue() :    0; }
+	public static String  asString (NbtElement element) { return element instanceof         NbtString string ?  string.value      () : null; }
 
 	public static NbtElement getMember(NbtElement element, String name) {
 		return element instanceof NbtCompound compound ? compound.get(name) : null;
@@ -198,7 +198,7 @@ public class NbtScriptEnvironment {
 		Objects.requireNonNull(name, "key is null.");
 		if (element instanceof NbtCompound compound) {
 			if (value != null) return compound.put(name, value);
-			else return ((NbtCompoundRemoveAndReturnAccess)(compound)).bigglobe_remove(name);
+			else return ((NbtCompoundRemoveAndReturnAccess)(Object)(compound)).bigglobe_remove(name);
 		}
 		else {
 			throw new IllegalArgumentException("Can't set member named " + name + " on " + element + " to " + value);
@@ -206,25 +206,58 @@ public class NbtScriptEnvironment {
 	}
 
 	public static NbtElement getElement(NbtElement element, int index) {
-		if (element instanceof AbstractNbtList<?> list) {
+		if (element instanceof AbstractNbtList list) {
 			if (index >= 0 && index < list.size()) {
-				return list.get(index);
+				#if MC_VERSION >= MC_1_21_5
+					return list.method_10534(index);
+				#else
+					return list.get(index);
+				#endif
 			}
 		}
 		return null;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static NbtElement setElement(NbtElement element, int index, NbtElement value) {
 		if (value == null) {
 			throw new NullPointerException("Can't set index " + index + " on " + element + " to a null value");
 		}
 		if (element instanceof AbstractNbtList list) {
-			return list.set(index, value);
+			#if MC_VERSION >= MC_1_21_5
+				//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+				if (list instanceof NbtByteArray byteArray) {
+					if (value instanceof AbstractNbtNumber newValue) {
+						byte[] raw = byteArray.getByteArray();
+						NbtByte oldValue = NbtByte.of(raw[index]);
+						raw[index] = newValue.byteValue();
+						return oldValue;
+					}
+				}
+				else if (list instanceof NbtIntArray intArray) {
+					if (value instanceof AbstractNbtNumber newValue) {
+						int[] raw = intArray.getIntArray();
+						NbtInt oldValue = NbtInt.of(raw[index]);
+						raw[index] = newValue.intValue();
+						return oldValue;
+					}
+				}
+				else if (list instanceof NbtLongArray longArray) {
+					if (value instanceof AbstractNbtNumber newValue) {
+						long[] raw = longArray.getLongArray();
+						NbtLong oldValue = NbtLong.of(raw[index]);
+						raw[index] = newValue.longValue();
+						return oldValue;
+					}
+				}
+				else if (list instanceof NbtList normalList) {
+					return normalList.set(index, value);
+				}
+			#else
+				//see how much easier everything was in old versions?
+				return list.set(index, value);
+			#endif
 		}
-		else {
-			throw new IllegalArgumentException("Can't set element at index " + index + " on " + element + " to " + value);
-		}
+		throw new IllegalArgumentException("Can't set element at index " + index + " on " + element + " to " + value);
 	}
 
 	public static FunctionHandler.Named array(MethodInfo method) {

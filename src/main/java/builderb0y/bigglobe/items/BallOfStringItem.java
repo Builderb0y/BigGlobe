@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.items;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -98,17 +100,21 @@ public class BallOfStringItem extends Item
 	}
 
 	@Override
-	#if MC_VERSION >= MC_1_20_5
-	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-		super.appendTooltip(stack, context, tooltip, type);
+	#if MC_VERSION >= MC_1_21_5
+		@Deprecated
+		@SuppressWarnings("deprecation")
+		public void appendTooltip(ItemStack stack, TooltipContext context, TooltipDisplayComponent displayComponent, Consumer<Text> tooltip, TooltipType type) {
+			super.appendTooltip(stack, context, displayComponent, tooltip, type);
+	#elif MC_VERSION >= MC_1_20_5
+		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+			super.appendTooltip(stack, context, tooltip, type);
 	#else
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-		super.appendTooltip(stack, world, tooltip, context);
+		public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+			super.appendTooltip(stack, world, tooltip, context);
 	#endif
-
 		int damage = ItemStackVersions.getDamage(stack);
 		int maxDamage = ItemStackVersions.getMaxDamage(stack);
-		tooltip.add(Text.translatable("tooltip." + BigGlobeMod.MODID + ".ball_of_string.remaining", maxDamage - damage, maxDamage));
+		tooltip.#if MC_VERSION >= MC_1_21_5 accept #else add #endif(Text.translatable("tooltip." + BigGlobeMod.MODID + ".ball_of_string.remaining", maxDamage - damage, maxDamage));
 	}
 
 	public static void addString(ItemStack stack, int string) {

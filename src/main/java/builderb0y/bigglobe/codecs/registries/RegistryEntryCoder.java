@@ -18,6 +18,9 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.StringData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -37,18 +40,18 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, RegistryEntr
 	@OverrideOnly
 	public <T_Encoded> @Nullable RegistryEntry<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		if (context.isString()) return this.registry(context).getByName(context.forceAsString());
+		if (context.isString()) return this.registry(context).getByName(context.forceAsString().value);
 		if (this.inlineCoder != null) return RegistryEntry.of(context.decodeWith(this.inlineCoder));
 		throw new DecodeException(() -> context.pathToStringBuilder().append(" is not a string, and inline definitions are not allowed.").toString());
 	}
 
 	@Override
 	@OverrideOnly
-	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RegistryEntry<T>> context) throws EncodeException {
+	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, RegistryEntry<T>> context) throws EncodeException {
 		RegistryEntry<T> entry = context.object;
-		if (entry == null) return context.empty();
+		if (entry == null) return EmptyData.INSTANCE;
 		RegistryKey<T> key = entry.getKey().orElse(null);
-		if (key != null) return context.createString(key.getValue().toString());
+		if (key != null) return new StringData(key.getValue().toString());
 		if (this.inlineCoder != null) return context.object(entry.value()).encodeWith(this.inlineCoder);
 		throw new EncodeException(() -> "Unregistered object and inline definitions are not allowed: " + entry);
 	}

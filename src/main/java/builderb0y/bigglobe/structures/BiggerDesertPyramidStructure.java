@@ -14,6 +14,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.block.enums.StairShape;
 import net.minecraft.block.enums.WallShape;
 import net.minecraft.loot.LootTables;
+import net.minecraft.nbt.AbstractNbtNumber;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
@@ -42,6 +43,7 @@ import builderb0y.bigglobe.structures.LabyrinthLayout.RoomPiece;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.DirectionVersions;
+import builderb0y.bigglobe.versions.WallBlockVersions;
 
 public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
@@ -105,7 +107,9 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 		public MainPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
-			((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[nbt.getByte("rot")]);
+			if (nbt.get("rot") instanceof AbstractNbtNumber number) {
+				((StructurePiece_DirectRotationSetter)(this)).bigglobe_setRotationDirect(Directions.ROTATIONS[number.byteValue()]);
+			}
 		}
 
 		@Override
@@ -223,10 +227,10 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			flipX.setBlockStateLine(16, 5, 18, 0, 0, -1, 2, smoothTopStairs(Direction.WEST));
 			flipX.setBlockState(16, 5, 16, smoothStairs(Direction.NORTH, BlockHalf.TOP, StairShape.INNER_LEFT));
 			flipX.setBlockStateLine(17, 5, 16, 1, 0, 0, 3, smoothTopStairs(Direction.NORTH));
-			flipX.setBlockState(16, 6, 18, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.NORTH_SHAPE, WallShape.LOW));
-			flipX.setBlockState(16, 6, 17, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.NORTH_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
-			flipX.setBlockState(16, 6, 16, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW));
-			flipX.setBlockStateLine(17, 6, 16, 1, 0, 0, 3, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			flipX.setBlockState(16, 6, 18, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.NORTH_SHAPE, WallShape.LOW));
+			flipX.setBlockState(16, 6, 17, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.NORTH_SHAPE, WallShape.LOW).with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			flipX.setBlockState(16, 6, 16, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW));
+			flipX.setBlockStateLine(17, 6, 16, 1, 0, 0, 3, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
 			//walkways
 			flipX.setBlockStateCuboid(2, 1, 16, 13, 5, 18, BlockStates.SANDSTONE);
 			flipX.setBlockStateCuboid(16, 1, 2, 18, 5, 13, BlockStates.SANDSTONE);
@@ -251,7 +255,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			flipX.setBlockStateLine(2, 5, 19, 1, 0, 0, 12, BlockStates.CUT_SANDSTONE);
 			flipX.stack(4, 0, 0, 3).setBlockStateCuboid(3, 1, 19, 5, 3, 19, BlockStates.AIR);
 			flipX.stack(4, 0, 0, 3).setBlockStateLine(3, 4, 19, 1, 0, 0, smoothTopStairs(Direction.WEST), BlockStates.AIR, smoothTopStairs(Direction.EAST));
-			root.setBlockStateLine(-13, 6, 19, 1, 0, 0, 27, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			root.setBlockStateLine(-13, 6, 19, 1, 0, 0, 27, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
 			//inside of front walkway
 			flipX.setBlockStateLine(2, 0, 15, 0, 1, 0, 5, BlockStates.CUT_SANDSTONE);
 			flipX.stack(4, 0, 0, 2).setBlockStateLine(6, 1, 15, 0, 1, 0, 4, BlockStates.CUT_SANDSTONE);
@@ -275,9 +279,9 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			flipX.stack(0, 0, -4, 4).setBlockStateLine(19, 4, 13, 0, 0, -1, smoothTopStairs(Direction.SOUTH), null, smoothTopStairs(Direction.NORTH));
 			flipX.setBlockState(18, 4, -2, smoothTopStairs(Direction.EAST));
 			flipX.setBlockStateLine(18, 5, -2, -1, 0, 0, 12, BlockStates.CUT_SANDSTONE);
-			flipX.setBlockStateLine(19, 6, 13, 0, 0, -1, 15, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.NORTH_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
-			flipX.setBlockState(19, 6, -2, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW));
-			flipX.setBlockStateLine(18, 6, -2, -1, 0, 0, 4, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			flipX.setBlockStateLine(19, 6, 13, 0, 0, -1, 15, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.NORTH_SHAPE, WallShape.LOW).with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			flipX.setBlockState(19, 6, -2, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW).with(WallBlockVersions.WEST_SHAPE, WallShape.LOW));
+			flipX.setBlockStateLine(18, 6, -2, -1, 0, 0, 4, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
 			//inside of side hallway
 			flipX.setBlockStateLine(7, 5, -1, 0, 0, 1, 3, BlockStates.CUT_SANDSTONE);
 			flipX.setBlockStateLine(7, 5, 2, 1, 0, 0, 9, BlockStates.CUT_SANDSTONE);
@@ -287,9 +291,9 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			flipXZ.stack(0, 0, -4, 3).setBlockStateLine(15, 4, 13, 0, 0, -1, smoothTopStairs(Direction.SOUTH), null, smoothTopStairs(Direction.NORTH));
 			flipXZ.stack(-4, 0, 0, 2).setBlockStateLine(14, 4, 2, -1, 0, 0, smoothTopStairs(Direction.EAST), null, smoothTopStairs(Direction.WEST));
 			flipXZ.setBlockState(7, 4, 1, smoothTopStairs(Direction.SOUTH));
-			flipXZ.setBlockStateLine(13, 6, -2, -1, 0, 0, 6, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
-			flipXZ.setBlockState(7, 6, -2, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW));
-			flipX.setBlockStateLine(7, 6, -1, 0, 0, 1, 3, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.NORTH_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			flipXZ.setBlockStateLine(13, 6, -2, -1, 0, 0, 6, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			flipXZ.setBlockState(7, 6, -2, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW));
+			flipX.setBlockStateLine(7, 6, -1, 0, 0, 1, 3, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.NORTH_SHAPE, WallShape.LOW).with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
 			//back interior
 			flipX.multiTranslate(
 				14, 1, -15,
@@ -318,7 +322,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 				root.rotate1x(BlockRotation.COUNTERCLOCKWISE_90)
 			)
 			.flip2X()
-			.setBlockStateLine(1, 17, 4, 1, 0, 0, 3, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
+			.setBlockStateLine(1, 17, 4, 1, 0, 0, 3, Blocks.SANDSTONE_WALL.getDefaultState().with(WallBlockVersions.EAST_SHAPE, WallShape.LOW).with(WallBlockVersions.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, Boolean.FALSE));
 			flipX.setBlockStateLine(1, 17, -4, 1, 0, 0, 3, BlockStates.AIR);
 			rot4.flip2X().setBlockStateCuboid(1, 18, 4, 3, 20, 4, BlockStates.AIR);
 			rot4.setBlockStateLine(-3, 22, 4, 1, 0, 0, 8, BlockStates.CUT_SANDSTONE);
@@ -510,7 +514,9 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 		public UndergroundRoomPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
-			this.chestSeed = nbt.getLong("chestSeed");
+			if (nbt.get("chestSeed") instanceof AbstractNbtNumber number) {
+				this.chestSeed = number.longValue();
+			}
 		}
 
 		@Override

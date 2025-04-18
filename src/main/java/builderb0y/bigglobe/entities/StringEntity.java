@@ -518,8 +518,8 @@ public class StringEntity extends Entity {
 	}
 
 	public static @Nullable UUID getUUID(NbtCompound compound, String key) {
-		long[] element = compound.getLongArray(key);
-		if (element.length == 2) {
+		long[] element = compound.getLongArray(key) #if MC_VERSION >= MC_1_21_5 .orElse(null) #endif;
+		if (element != null && element.length == 2) {
 			return new UUID(element[0], element[1]);
 		}
 		else {

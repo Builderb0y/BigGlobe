@@ -2,6 +2,7 @@ package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -13,6 +14,7 @@ import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
+import builderb0y.bigglobe.versions.ChunkVersions;
 
 public class ChunkCoordinator extends ScratchPosCoordinator {
 
@@ -83,7 +85,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	@Override
 	public void setBlockState(int x, int y, int z, BlockState state) {
 		if (state == null) return;
-		this.chunk.setBlockState(this.scratchPos.set(x, y, z), state, false);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
 	}
 
 	@Override
@@ -91,13 +93,13 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 		if (supplier == null) return;
 		BlockState state = supplier.get(this.scratchPos.set(x, y, z));
 		if (state == null) return;
-		this.chunk.setBlockState(this.scratchPos.set(x, y, z), state, false);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
 	}
 
 	@Override
 	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
 		if (state == null) return;
-		this.chunk.setBlockState(this.scratchPos.set(x, y, z), state, false);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityClass);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
@@ -105,7 +107,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	@Override
 	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		if (state == null) return;
-		this.chunk.setBlockState(this.scratchPos.set(x, y, z), state, false);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityType);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
@@ -115,7 +117,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 		BlockState oldState = this.chunk.getBlockState(this.scratchPos.set(x, y, z));
 		BlockState newState = mapper.apply(this.scratchPos, oldState);
 		if (newState != oldState && newState != null) {
-			this.chunk.setBlockState(this.scratchPos.set(x, y, z), newState, false);
+			ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), newState, Block.NOTIFY_LISTENERS);
 		}
 	}
 

@@ -131,11 +131,16 @@ public class SatinCompat {
 				HyperspaceSkybox.MODEL_VIEW_INVERSE.set(modelViewInverse);
 				Vec3d pos = context.camera().getPos();
 				HyperspaceSkybox.CAMERA_POSITION.set((float)(pos.x), (float)(pos.y), (float)(pos.z));
-				#if MC_VERSION >= MC_1_21_0
-					float tickDelta = context.tickCounter().getTickDelta(false);
-				#else
-					float tickDelta = context.tickDelta();
-				#endif
+
+				float tickDelta = (
+					#if MC_VERSION >= MC_1_21_5
+						context.tickCounter().getTickProgress(false)
+					#elif MC_VERSION >= MC_1_21_0
+						context.tickCounter().getTickDelta(false)
+					#else
+						context.tickDelta()
+					#endif
+				);
 				HyperspaceSkybox.TIME.set(time(tickDelta));
 				HyperspaceSkybox.SHADER.render(tickDelta);
 			});

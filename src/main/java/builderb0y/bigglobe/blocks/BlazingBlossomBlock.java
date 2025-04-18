@@ -45,8 +45,8 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-		super.onEntityCollision(state, world, pos, entity);
+	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity #if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif) {
+		super.onEntityCollision(state, world, pos, entity #if MC_VERSION >= MC_1_21_5 , handler #endif);
 		if (entity.getType().isFireImmune() || (entity instanceof PlayerEntity player && player.isCreative())) {
 			return;
 		}
@@ -70,11 +70,11 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 			motionZ = Permuter.nextUniformDouble(permuter);
 		}
 		while (BigGlobeMath.squareD(motionX, motionZ) > 1.0D);
-		world.addParticle(
+		world. #if MC_VERSION >= MC_1_21_5 addParticleClient #else addParticle #endif (
 			ParticleTypes.FLAME,
-			pos.getX() + 0.5D + offset.x,
-			pos.getY() + 0.76D + offset.y,
-			pos.getZ() + 0.5D + offset.z,
+			pos.getX() + 0.5D  + offset.x,
+			pos.getY() + 0.75D + offset.y,
+			pos.getZ() + 0.5D  + offset.z,
 			motionX * (1.0D / 256.0D),
 			permuter.nextDouble() * (1.0D / 64.0D),
 			motionZ * (1.0D / 256.0D)

@@ -74,7 +74,14 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		super(settings);
 	}
 
-	#if MC_VERSION >= MC_1_20_5
+	#if MC_VERSION >= MC_1_21_5
+
+		@Override
+		public int getColor(BlockState state, BlockView world, BlockPos pos) {
+			return 0; //doesn't create particles anyway.
+		}
+
+	#elif MC_VERSION >= MC_1_20_5
 
 		@Override
 		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType options) {

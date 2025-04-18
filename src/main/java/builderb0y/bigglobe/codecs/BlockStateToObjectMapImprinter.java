@@ -33,8 +33,8 @@ public class BlockStateToObjectMapImprinter<V, M extends Map<BlockState, V>> ext
 	@Override
 	public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, M> context) throws ImprintException {
 		try {
-			for (Map.Entry<String, DecodeContext<T_Encoded>> entry : context.forceAsStringMap().entrySet()) {
-				BlockResult keys = BlockArgumentParserVersions.block(entry.getKey(), false);
+			for (Map.Entry<ImprintContext<T_Encoded, M>, ImprintContext<T_Encoded, M>> entry : context.mapIterable()) {
+				BlockResult keys = BlockArgumentParserVersions.block(entry.getKey().forceAsString().value, false);
 				V value = entry.getValue().decodeWith(this.valueCoder);
 				keys
 				.blockState()

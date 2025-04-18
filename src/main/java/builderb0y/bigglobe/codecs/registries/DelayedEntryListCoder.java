@@ -13,6 +13,7 @@ import net.minecraft.registry.RegistryOps;
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -45,7 +46,7 @@ public class DelayedEntryListCoder<T> extends NamedCoder<DelayedEntryList<T>> {
 
 	@Override
 	@OverrideOnly
-	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, DelayedEntryList<T>> context) throws EncodeException {
+	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, DelayedEntryList<T>> context) throws EncodeException {
 		DelayedEntryList<T> list = context.object;
 		if (list == null) return null;
 		return context.object(list.delayedEntries).encodeWith(DelayedCoders.LIST_CODER);

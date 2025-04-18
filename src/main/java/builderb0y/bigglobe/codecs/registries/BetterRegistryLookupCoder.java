@@ -6,12 +6,13 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.registry.*;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 
 import net.minecraft.registry.entry.RegistryEntryOwner;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterDynamicRegistry;
@@ -53,7 +54,7 @@ public class BetterRegistryLookupCoder extends NamedCoder<BetterRegistry.Lookup>
 	}
 
 	@Override
-	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, BetterRegistry.Lookup> context) throws EncodeException {
-		return context.empty();
+	public <T_Encoded> Data encode(@NotNull EncodeContext<T_Encoded, BetterRegistry.Lookup> context) throws EncodeException {
+		return EmptyData.INSTANCE;
 	}
 }

@@ -38,7 +38,7 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 		try {
 			this.data = BigGlobeAutoCodec.AUTO_CODEC.decode(
 				this.dataCoder(),
-				nbt.getCompound("data"),
+				nbt.getCompound("data") #if MC_VERSION >= MC_1_21_5 .orElseThrow() #endif,
 				RegistryOps.of(
 					NbtOps.INSTANCE,
 					context.registryManager()

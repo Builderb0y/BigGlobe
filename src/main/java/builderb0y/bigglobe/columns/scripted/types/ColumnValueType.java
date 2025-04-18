@@ -10,6 +10,10 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.ListData;
+import builderb0y.autocodec.data.MapData;
+import builderb0y.autocodec.data.StringData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -39,23 +43,19 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 				return super.decode(context);
 			}
 			else {
-				T_Encoded map = context.createStringMap(Collections.singletonMap(this.keyName, context.input));
-				return super.decode(context.input(map));
+				return super.decode(context.input(MapData.singleton(this.keyName, context.data)));
 			}
 		}
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ColumnValueType> context) throws EncodeException {
-			T_Encoded encoded = super.encode(context);
-			Stream<Pair<T_Encoded, T_Encoded>> stream = context.ops.getMapValues(encoded).result().orElse(null);
-			if (stream != null) {
-				Map<T_Encoded, T_Encoded> map = stream.collect(Pair.toMap());
-				if (map.size() == 1) {
-					Map.Entry<T_Encoded, T_Encoded> entry = map.entrySet().iterator().next();
-					String stringKey = context.ops.getStringValue(entry.getKey()).result().orElse(null);
-					if (this.keyName.equals(stringKey)) {
-						return entry.getValue();
-					}
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, ColumnValueType> context) throws EncodeException {
+			Data encoded = super.encode(context);
+			MapData map = encoded.tryAsMap();
+			if (map != null && map.size() == 1) {
+				Map.Entry<Data, Data> entry = map.value.entrySet().iterator().next();
+				StringData key = entry.getKey().tryAsString();
+				if (key != null && this.keyName.equals(key.value)) {
+					return entry.getValue();
 				}
 			}
 			return encoded;

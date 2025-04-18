@@ -2,8 +2,6 @@ package builderb0y.bigglobe.hyperspace;
 
 import org.joml.Vector3dc;
 
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 
@@ -56,17 +54,5 @@ public record PackedPos(double x, double y, double z) {
 
 	public static PackedPos read(PacketByteBuf buffer) {
 		return new PackedPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
-	}
-
-	public NbtList toNbt() {
-		NbtList list = new NbtList();
-		list.add(NbtDouble.of(this.x));
-		list.add(NbtDouble.of(this.y));
-		list.add(NbtDouble.of(this.z));
-		return list;
-	}
-
-	public static PackedPos fromNbt(NbtList list) {
-		return new PackedPos(list.getDouble(0), list.getDouble(1), list.getDouble(2));
 	}
 }

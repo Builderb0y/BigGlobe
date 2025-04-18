@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.data.AbstractNumberData;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.NumberData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -23,16 +26,16 @@ public interface RandomSource extends CoderRegistryTyped<RandomSource> {
 	public static final CoderRegistry<RandomSource> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("random_source")) {
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, RandomSource> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, RandomSource> context) throws EncodeException {
 			if (context.object instanceof ConstantRandomSource constant) {
-				return context.createDouble(constant.value());
+				return new NumberData(constant.value());
 			}
 			return super.encode(context);
 		}
 
 		@Override
 		public @Nullable <T_Encoded> RandomSource decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-			Number number = context.tryAsNumber();
+			AbstractNumberData number = context.tryAsNumber();
 			if (number != null) {
 				return new ConstantRandomSource(number.doubleValue());
 			}

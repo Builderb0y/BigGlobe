@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.*;
 
+import com.mojang.serialization.DynamicOps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.poi.PointOfInterestTypes;
@@ -24,6 +26,10 @@ import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.DataOps;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.StringData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -63,10 +69,10 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	@Override
 	public <T_Encoded> @Nullable BlockState decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		String string = context.tryAsString();
+		StringData string = context.tryAsString();
 		if (string != null) try {
 			BetterRegistry<Block> blockRegistry = AbstractRegistryCoder.registry(RegistryKeys.BLOCK, context);
-			BlockProperties blockProperties = decodeState(blockRegistry, string);
+			BlockProperties blockProperties = decodeState(blockRegistry, string.value);
 			Set<Property<?>> missing = blockProperties.missing();
 			if (!missing.isEmpty()) {
 				context.logger().logErrorLazy(() -> "Missing properties: " + missing);
@@ -77,8 +83,12 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			throw new DecodeException(exception);
 		}
 		else {
+			DynamicOps<Data> dataOps = context.ops.compressMaps() ? DataOps.COMPRESSED : DataOps.UNCOMPRESSED;
+			if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
+				dataOps = registryOps.withDelegate(dataOps);
+			}
 			return context.logger().unwrapLazy(
-				BlockState.CODEC.parse(context.ops, context.input),
+				BlockState.CODEC.parse(dataOps, context.data),
 				true,
 				DecodeException::new
 			);
@@ -137,10 +147,10 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	}
 
 	@Override
-	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, BlockState> context) throws EncodeException {
+	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, BlockState> context) throws EncodeException {
 		BlockState state = context.object;
-		if (state == null) return context.empty();
-		return context.createString(encodeState(state));
+		if (state == null) return EmptyData.INSTANCE;
+		return new StringData(encodeState(state));
 	}
 
 	public static String encodeState(BlockState state) {

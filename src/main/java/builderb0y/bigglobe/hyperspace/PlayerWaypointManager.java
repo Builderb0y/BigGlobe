@@ -61,8 +61,12 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 		}
 	}
 
-	@Override
-	public NbtCompound writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup registryLookup #endif) {
-		throw new UnsupportedOperationException();
-	}
+	#if MC_VERSION < MC_1_21_5
+
+		@Override
+		public NbtCompound writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup registryLookup #endif) {
+			throw new UnsupportedOperationException();
+		}
+
+	#endif
 }

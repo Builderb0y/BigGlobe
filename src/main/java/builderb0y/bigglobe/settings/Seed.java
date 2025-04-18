@@ -16,8 +16,10 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.common.AbstractDecodeContext;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
+import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeContext.ArrayDecodePath;
 import builderb0y.autocodec.decoders.DecodeContext.ObjectDecodePath;
@@ -73,8 +75,8 @@ public class Seed {
 			if (this.modes == 0) throw new FactoryException("@SeedModes annotation specified no modes.");
 		}
 
-		public <T_Encoded> long recursiveDecodeSeed(DecodeContext<T_Encoded> context, String key, boolean last) throws DecodeException {
-			DecodeContext<T_Encoded> value = context.getMember(key);
+		public <T_Encoded> long recursiveDecodeSeed(AbstractDecodeContext<T_Encoded, ?, ?> context, String key, boolean last) throws Exception {
+			AbstractDecodeContext<T_Encoded, ?, ?> value = context.getMember(key);
 			if ((this.modes & AUTO) != 0 && value.isEmpty()) {
 				long seed;
 				if (context.parent != null) {
@@ -94,11 +96,11 @@ public class Seed {
 				}
 				return seed;
 			}
-			String string;
+			StringData string;
 			if ((this.modes & STRING) != 0 && (string = value.tryAsString()) != null) {
-				return Permuter.permute(0L, string);
+				return Permuter.permute(0L, string.value);
 			}
-			Number number;
+			AbstractNumberData number;
 			if ((this.modes & NUMBER) != 0 && (number = value.tryAsNumber()) != null) {
 				return number.longValue();
 			}
@@ -128,20 +130,28 @@ public class Seed {
 		@Override
 		public <T_Encoded> @Nullable Seed decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			String key = ((ObjectDecodePath)(context.path)).memberName();
-			return new Seed(
-				this.recursiveDecodeSeed(
-					Objects.requireNonNull(context.parent, "context.parent"),
-					key,
-					true
-				)
-			);
+			try {
+				return new Seed(
+					this.recursiveDecodeSeed(
+						Objects.requireNonNull(context.parent, "context.parent"),
+						key,
+						true
+					)
+				);
+			}
+			catch (DecodeException exception) {
+				throw exception;
+			}
+			catch (Exception exception) {
+				throw new DecodeException(exception);
+			}
 		}
 
-		@OverrideOnly
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Seed> context) throws EncodeException {
+		@OverrideOnly
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Seed> context) throws EncodeException {
 			Seed seed = context.object;
-			return seed == null ? context.empty() : context.createLong(seed.value);
+			return seed == null ? EmptyData.INSTANCE : new NumberData(seed.value);
 		}
 	}
 }

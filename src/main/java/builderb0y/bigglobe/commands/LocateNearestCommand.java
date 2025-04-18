@@ -10,6 +10,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
+import builderb0y.bigglobe.versions.TextVersions;
 
 public class LocateNearestCommand extends AsyncCommand {
 
@@ -55,8 +56,8 @@ public class LocateNearestCommand extends AsyncCommand {
 						)
 						.styled((Style style) ->
 							style
-							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("commands.bigglobe.locate.clickToTeleport")))
-							.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + iterator.floorX() + " ~ " + iterator.floorY()))
+							.withHoverEvent(TextVersions.showText(Text.translatable("commands.bigglobe.locate.clickToTeleport")))
+							.withClickEvent(TextVersions.suggestCommand("/tp @s " + iterator.floorX() + " ~ " + iterator.floorY()))
 						)
 					),
 					false

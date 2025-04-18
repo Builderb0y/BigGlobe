@@ -1,21 +1,17 @@
 package builderb0y.bigglobe.networking.packets;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.hyperspace.*;
-import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
@@ -78,7 +74,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			ServerWorld destinationWorld = player.getServer().getWorld(waypoint.destinationPosition().world());
 			if (destinationWorld != null) {
 				manager.entrance = null;
-				PackedWorldPos destinationPosition = waypoint.destination().position();
+				PackedWorldPos destinationPosition = waypoint.destination().pos();
 				ServerPlayerEntity newPlayer = EntityVersions.teleport(
 					player,
 					destinationWorld,
@@ -102,7 +98,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 		else {
 			ServerWorld hyperspace = player.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
 			if (hyperspace != null) {
-				manager.entrance = waypoint.destination().position();
+				manager.entrance = waypoint.destination().pos();
 				ServerPlayerEntity newPlayer = EntityVersions.teleport(
 					player,
 					hyperspace,

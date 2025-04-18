@@ -9,10 +9,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.hyperspace.PackedWorldPos;
+import builderb0y.bigglobe.hyperspace.PackedWorldPos.CoderHolder;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 
@@ -34,14 +39,28 @@ public class PlayerEntity_TrackWaypoints implements WaypointTracker {
 	@Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
 	private void bigglobe_saveHyperspaceEntrance(NbtCompound nbt, CallbackInfo callback) {
 		if (this.bigglobe_waypoints != null && this.bigglobe_waypoints.entrance != null) {
-			nbt.put("bigglobe_hyperspace_entrance", this.bigglobe_waypoints.entrance.toNbt());
+			nbt.put(
+				"bigglobe_hyperspace_entrance",
+				BigGlobeAutoCodec.AUTO_CODEC.encode(
+					PackedWorldPos.CoderHolder.CODER,
+					this.bigglobe_waypoints.entrance,
+					NbtOps.INSTANCE
+				)
+			);
 		}
 	}
 
 	@Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
 	private void bigglobe_loadHyperspaceEntrance(NbtCompound nbt, CallbackInfo callback) {
-		if (this.bigglobe_waypoints != null && nbt.get("bigglobe_hyperspace_entrance") instanceof NbtCompound compound) {
-			this.bigglobe_waypoints.entrance = PackedWorldPos.fromNbt(compound);
+		if (this.bigglobe_waypoints != null && nbt.get("bigglobe_hyperspace_entrance") instanceof NbtCompound compound) try {
+			this.bigglobe_waypoints.entrance = BigGlobeAutoCodec.AUTO_CODEC.decode(
+				PackedWorldPos.CoderHolder.CODER,
+				compound,
+				NbtOps.INSTANCE
+			);
+		}
+		catch (DecodeException exception) {
+			BigGlobeMod.LOGGER.warn("Failed to decode hyperspace entrance point for player " + this + ':', exception);
 		}
 	}
 }

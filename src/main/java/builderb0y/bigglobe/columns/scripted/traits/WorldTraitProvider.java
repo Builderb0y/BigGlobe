@@ -10,6 +10,9 @@ import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -59,19 +62,17 @@ public record WorldTraitProvider(ScriptUsage get, @VerifyNullable ScriptUsage se
 
 		@Override
 		@OverrideOnly
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, WorldTraitProvider> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, WorldTraitProvider> context) throws EncodeException {
 			WorldTraitProvider provider = context.object;
-			if (provider == null) return context.empty();
+			if (provider == null) return EmptyData.INSTANCE;
 			if (provider.set == null) {
 				return context.object(provider.get).encodeWith(this.scriptUsageCoder);
 			}
 			else {
-				return context.createStringMap(
-					Map.of(
-						"get", context.object(provider.get).encodeWith(this.scriptUsageCoder),
-						"set", context.object(provider.set).encodeWith(this.scriptUsageCoder)
-					)
-				);
+				MapData map = new MapData(4);
+				map.put("get", context.object(provider.get).encodeWith(this.scriptUsageCoder));
+				map.put("set", context.object(provider.set).encodeWith(this.scriptUsageCoder));
+				return map;
 			}
 		}
 	}

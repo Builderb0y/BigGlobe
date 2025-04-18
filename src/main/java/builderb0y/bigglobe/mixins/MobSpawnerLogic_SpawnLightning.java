@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
+import net.minecraft.nbt.AbstractNbtNumber;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -29,8 +30,8 @@ public abstract class MobSpawnerLogic_SpawnLightning {
 
 	@Inject(method = "readNbt", at = @At("HEAD"))
 	private void bigglobe_readLightning(World world, BlockPos pos, NbtCompound nbt, CallbackInfo callback) {
-		if (nbt.contains("bigglobe_SpawnLightning", NbtCompound.NUMBER_TYPE)) {
-			this.bigglobe_spawnLightning = nbt.getBoolean("bigglobe_SpawnLightning");
+		if (nbt.get("bigglobe_SpawnLightning") instanceof AbstractNbtNumber number) {
+			this.bigglobe_spawnLightning = number.byteValue() != 0;
 		}
 	}
 

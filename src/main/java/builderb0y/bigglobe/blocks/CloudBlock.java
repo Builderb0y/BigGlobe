@@ -74,7 +74,7 @@ public class CloudBlock extends Block {
 	}
 
 	@Override
-	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, #if MC_VERSION >= MC_1_21_5 double #else float #endif fallDistance) {
 		//don't apply fall damage.
 	}
 }

@@ -4,6 +4,8 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -14,8 +16,8 @@ public class SkipDistantHorizonsRestriction implements ColumnRestriction {
 
 	public static final SkipDistantHorizonsRestriction INSTANCE = new SkipDistantHorizonsRestriction();
 
-	public static <T_Encoded> T_Encoded code(EncodeContext<T_Encoded, SkipDistantHorizonsRestriction> context) {
-		return context.emptyMap();
+	public static <T_Encoded> Data code(EncodeContext<T_Encoded, SkipDistantHorizonsRestriction> context) {
+		return new MapData();
 	}
 
 	public static <T_Encoded> @Nullable SkipDistantHorizonsRestriction code(DecodeContext<T_Encoded> context) {

@@ -15,6 +15,7 @@ import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -45,7 +46,7 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 
 		@Override
 		@OverrideOnly
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ScriptUsage> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, ScriptUsage> context) throws EncodeException {
 			if (context.object instanceof SourceScriptUsage source && source.debug_name == null) {
 				return context.object(source.source).encodeWith(this.sourceCoder);
 			}

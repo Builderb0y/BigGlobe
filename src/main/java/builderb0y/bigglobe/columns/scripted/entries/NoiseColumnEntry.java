@@ -13,6 +13,10 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.BooleanData;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -187,13 +191,13 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		}
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NoiseColumnEntry> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, NoiseColumnEntry> context) throws EncodeException {
 			NoiseColumnEntry entry = context.object;
-			if (entry == null) return context.empty();
-			Map<String, T_Encoded> map = new HashMap<>(8);
+			if (entry == null) return EmptyData.INSTANCE;
+			MapData map = new MapData(8);
 			map.put("params", context.object(entry.params).encodeWith(this.params));
 			if (entry.valid != null) map.put("valid", context.object(entry.valid).encodeWith(this.valid));
-			if (!entry.cache) map.put("cache", context.createBoolean(false));
+			if (!entry.cache) map.put("cache", new BooleanData(false));
 			map.put(
 				"grid",
 				entry.params.is_3d()
@@ -201,7 +205,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 				: context.object(entry.grid2D).encodeWith(this.grid2D)
 			);
 			if (entry.seed != null) map.put("seed", context.object(entry.seed).encodeWith(this.seed));
-			return context.createStringMap(map);
+			return map;
 		}
 	}
 }

@@ -37,6 +37,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.collection.Pool;
+import net.minecraft.util.collection.Weighted;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
@@ -63,6 +64,9 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.RecordCoder;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.StringData;
+import builderb0y.autocodec.data.UnknownData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeContext.RootDecodePath;
 import builderb0y.autocodec.decoders.DecodeException;
@@ -126,6 +130,8 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.TracyWrapper;
 import builderb0y.bigglobe.versions.TracyWrapper.ZoneWrapper;
 import builderb0y.scripting.parsing.ScriptParsingException;
+
+import static builderb0y.bigglobe.versions.SpawnEntryVersions.*;
 
 #if MC_VERSION < MC_1_21_2
 import net.minecraft.world.gen.GenerationStep.Carver;
@@ -395,19 +401,18 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 			@Override
 			public <T_Encoded> @Nullable BigGlobeScriptedChunkGenerator decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				String dimension = context.getMember("reload_dimension").tryAsString();
+				StringData dimension = context.getMember("reload_dimension").tryAsString();
 				if (dimension != null) {
-					String preset = context.getMember("reload_preset").tryAsString();
-					if (preset == null) preset = "bigglobe";
-					JsonElement json = this.getDimension(preset, dimension);
-					T_Encoded encoded = JsonOps.INSTANCE.convertTo(context.ops, json);
-					return new DecodeContext<>(context.autoCodec, null, RootDecodePath.INSTANCE, encoded, context.ops).decodeWith(coder);
+					StringData preset = context.getMember("reload_preset").tryAsString();
+					String presetName = preset != null ? preset.value : "bigglobe";
+					JsonElement json = this.getDimension(presetName, dimension.value);
+					return new DecodeContext<>(context.autoCodec, null, RootDecodePath.INSTANCE, new UnknownData<>(JsonOps.INSTANCE, json), context.ops).decodeWith(coder);
 				}
 				return context.decodeWith(coder);
 			}
 
 			@Override
-			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, BigGlobeScriptedChunkGenerator> context) throws EncodeException {
+			public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, BigGlobeScriptedChunkGenerator> context) throws EncodeException {
 				return context.encodeWith(coder);
 			}
 
@@ -539,7 +544,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public Pool<SpawnEntry> getSpawnEntries(RegistryEntry<Biome> biome, SpawnGroup group) {
 		return this.extraSpawns.computeIfAbsent(new BiomeSpawnGroup(biome, group), (BiomeSpawnGroup data) -> {
 			Pool<SpawnEntry> base = data.biome.value().getSpawnSettings().getSpawnEntries(data.spawnGroup);
-			List<SpawnEntry> extra = (
+			#if MC_VERSION >= MC_1_21_5 List<Weighted<SpawnEntry>> #else List<SpawnEntry> #endif extra = (
 				this
 				.extraSpawnRegistry
 				.streamEntries()
@@ -557,7 +562,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					result = Pool.of(extra);
 				}
 				else {
-					ArrayList<SpawnEntry> combined = new ArrayList<>(base.getEntries().size() + extra.size());
+					#if MC_VERSION >= MC_1_21_5 List<Weighted<SpawnEntry>> #else List<SpawnEntry> #endif combined = new ArrayList<>(base.getEntries().size() + extra.size());
 					combined.addAll(base.getEntries());
 					combined.addAll(extra);
 					result = Pool.of(combined);
@@ -624,7 +629,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				Optional<SpawnEntry> optional = pool.getOrEmpty(chunkRandom);
 				if (!optional.isEmpty()) {
 					SpawnEntry spawnEntry = (SpawnEntry)optional.get();
-					int k = spawnEntry.minGroupSize + chunkRandom.nextInt(1 + spawnEntry.maxGroupSize - spawnEntry.minGroupSize);
+					int k = minCount(spawnEntry) + chunkRandom.nextInt(1 + maxCount(spawnEntry) - minCount(spawnEntry));
 					EntityData entityData = null;
 					int l = i + chunkRandom.nextInt(16);
 					int m = j + chunkRandom.nextInt(16);
@@ -635,21 +640,21 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						boolean bl = false;
 
 						for (int q = 0; !bl && q < 4; q++) {
-							BlockPos blockPos = SpawnHelper.getEntitySpawnPos((ServerWorldAccess)region, spawnEntry.type, l, m);
-							if (spawnEntry.type.isSummonable() && #if MC_VERSION >= MC_1_20_5 SpawnRestriction.isSpawnPosAllowed(spawnEntry.type, region, blockPos) #else SpawnHelper.canSpawn(SpawnRestriction.getLocation(spawnEntry.type), region, blockPos, spawnEntry.type) #endif) {
-								float f = spawnEntry.type.getWidth();
+							BlockPos blockPos = SpawnHelper.getEntitySpawnPos((ServerWorldAccess)region, type(spawnEntry), l, m);
+							if (type(spawnEntry).isSummonable() && #if MC_VERSION >= MC_1_20_5 SpawnRestriction.isSpawnPosAllowed(type(spawnEntry), region, blockPos) #else SpawnHelper.canSpawn(SpawnRestriction.getLocation(type(spawnEntry)), region, blockPos, type(spawnEntry)) #endif) {
+								float f = type(spawnEntry).getWidth();
 								double d = MathHelper.clamp((double)l, (double)i + (double)f, (double)i + 16.0 - (double)f);
 								double e = MathHelper.clamp((double)m, (double)j + (double)f, (double)j + 16.0 - (double)f);
-								if (!region.isSpaceEmpty(spawnEntry.type.#if MC_VERSION >= MC_1_20_5 getSpawnBox #else createSimpleBoundingBox #endif(d, (double)blockPos.getY(), e))
+								if (!region.isSpaceEmpty(type(spawnEntry).#if MC_VERSION >= MC_1_20_5 getSpawnBox #else createSimpleBoundingBox #endif(d, (double)blockPos.getY(), e))
 									|| !SpawnRestriction.canSpawn(
-										spawnEntry.type, region, SpawnReason.CHUNK_GENERATION, BlockPos.ofFloored(d, (double)blockPos.getY(), e), region.getRandom()
+										type(spawnEntry), region, SpawnReason.CHUNK_GENERATION, BlockPos.ofFloored(d, (double)blockPos.getY(), e), region.getRandom()
 									)) {
 									continue;
 								}
 
 								Entity entity;
 								try {
-									entity = spawnEntry.type.create(((ServerWorldAccess)region).toServerWorld() #if MC_VERSION >= MC_1_21_2 , SpawnReason.NATURAL #endif);
+									entity = type(spawnEntry).create(((ServerWorldAccess)region).toServerWorld() #if MC_VERSION >= MC_1_21_2 , SpawnReason.NATURAL #endif);
 								} catch (Exception var27) {
 									BigGlobeMod.LOGGER.warn("Failed to create mob", (Throwable)var27);
 									continue;

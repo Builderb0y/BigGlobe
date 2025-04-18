@@ -5,6 +5,8 @@ import java.io.IOException;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBufOutputStream;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.NbtElement;
@@ -13,14 +15,47 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
+
 #if MC_VERSION >= MC_1_20_4
-import net.minecraft.nbt.NbtSizeTracker;
-import net.minecraft.text.TextCodecs;
+	import net.minecraft.nbt.NbtSizeTracker;
+	import net.minecraft.text.TextCodecs;
 #elif MC_VERSION >= MC_1_20_2
-import net.minecraft.nbt.NbtTagSizeTracker;
+	import net.minecraft.nbt.NbtTagSizeTracker;
 #endif
 
 public class TextCoding {
+
+	#if MC_VERSION < MC_1_20_4
+
+		public static final AutoCoder<Text> CODER = new NamedCoder<>("TextCoding.CODER") {
+
+			@Override
+			@OverrideOnly
+			public <T_Encoded> @NotNull Data<T_Encoded> encode(@NotNull EncodeContext<T_Encoded, Text> context) throws EncodeException {
+				Text text = context.object;
+				if (text == null) return context.empty();
+				JsonElement json = Text.Serializer.toJsonTree(text);
+				T_Encoded payload = JsonOps.INSTANCE.convertTo(context.ops, json);
+				return context.createUnknown(payload);
+			}
+
+			@Override
+			@OverrideOnly
+			public <T_Encoded> @Nullable Text decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+				if (context.isEmpty()) return null;
+				JsonElement json = context.input.convertTo(JsonOps.INSTANCE);
+				return Text.Serializer.fromJson(json);
+			}
+		};
+
+	#endif
 
 	public static NbtElement toNbt(@Nullable Text text) {
 		if (text == null) return null;
@@ -29,14 +64,6 @@ public class TextCoding {
 		#else
 			JsonElement json = Text.Serializer.toJsonTree(text);
 			return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
-		#endif
-	}
-
-	public static void write(PacketByteBuf buffer, @Nullable Text text) {
-		#if MC_VERSION >= MC_1_20_2
-			buffer.writeNbt(toNbt(text));
-		#else
-			NbtIo2.write(buffer, toNbt(text));
 		#endif
 	}
 
@@ -57,6 +84,14 @@ public class TextCoding {
 			return fromNbt(buffer.readNbt(NbtTagSizeTracker.of(16384L)));
 		#else
 			return fromNbt(NbtIo2.read(buffer, 16384L));
+		#endif
+	}
+
+	public static void write(PacketByteBuf buffer, @Nullable Text text) {
+		#if MC_VERSION >= MC_1_20_2
+			buffer.writeNbt(toNbt(text));
+		#else
+			NbtIo2.write(buffer, toNbt(text));
 		#endif
 	}
 }

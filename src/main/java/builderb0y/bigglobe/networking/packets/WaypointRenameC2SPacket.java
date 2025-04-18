@@ -2,7 +2,6 @@ package builderb0y.bigglobe.networking.packets;
 
 import java.util.Objects;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.item.ItemStack;
@@ -48,9 +47,9 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 						if (
 							(
 								player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
-								player.getWorld().getRegistryKey() == waypoint.position().world()
+								player.getWorld().getRegistryKey() == waypoint.pos().world()
 							)
-							&& player.getEyePos().squaredDistanceTo(waypoint.position().x(), waypoint.position().y(), waypoint.position().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
+							&& player.getEyePos().squaredDistanceTo(waypoint.pos().x(), waypoint.pos().y(), waypoint.pos().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
 						) {
 							ItemStack heldItem = player.getStackInHand(data.hand);
 							if (heldItem.getItem() == Items.NAME_TAG) {

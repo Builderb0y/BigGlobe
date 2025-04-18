@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -23,8 +25,8 @@ public interface ColumnRestriction extends CoderRegistryTyped<ColumnRestriction>
 	public static final CoderRegistry<ColumnRestriction> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("column_restriction")) {
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ColumnRestriction> context) throws EncodeException {
-			return context.object == null || context.object == EMPTY ? context.empty() : super.encode(context);
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, ColumnRestriction> context) throws EncodeException {
+			return context.object == null || context.object == EMPTY ? EmptyData.INSTANCE : super.encode(context);
 		}
 
 		@Override

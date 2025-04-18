@@ -3,6 +3,7 @@ package builderb0y.bigglobe.features;
 import java.util.List;
 import java.util.Map;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -24,6 +25,7 @@ import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -128,34 +130,43 @@ public class SerializableBlockQueue extends BlockQueue {
 
 	@SuppressWarnings("unchecked")
 	public static SerializableBlockQueue read(NbtCompound nbt) {
-		int flags = nbt.getInt("flags");
-		int[] center = nbt.getIntArray("center");
-		int centerX = center[0];
-		int centerY = center[1];
-		int centerZ = center[2];
+		int flags = nbt.get("flags") instanceof AbstractNbtNumber number ? number.intValue() : Block.NOTIFY_ALL;
+		if (!(nbt.get("center") instanceof NbtIntArray center && center.size() == 3)) throw new IllegalArgumentException("Malformed center");
+		int centerX = center.getIntArray()[0];
+		int centerY = center.getIntArray()[1];
+		int centerZ = center.getIntArray()[2];
 		SerializableBlockQueue queue = new SerializableBlockQueue(centerX, centerY, centerZ, flags);
-		NbtList paletteNBT = nbt.getList("palette", NbtElement.COMPOUND_TYPE);
+		if (!(nbt.get("palette") instanceof NbtList paletteNBT)) throw new IllegalArgumentException("Malformed palette");
 		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteNBT.size());
-		RegistryWrapper<Block> registry = (
-			#if MC_VERSION >= MC_1_21_2
-				Registries.BLOCK
-			#else
-				Registries.BLOCK.getReadOnlyWrapper()
-			#endif
-		);
-		for (int index = 0, size = paletteNBT.size(); index < size; index++) {
-			palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
+		RegistryWrapper<Block> registry = BlockArgumentParserVersions.blockRegistry();
+		for (NbtElement element : paletteNBT) {
+			if (element instanceof NbtString string) try {
+				palette.add(BlockArgumentParserVersions.block(registry, string.value(), false).blockState());
+			}
+			catch (CommandSyntaxException exception) {
+				throw new IllegalArgumentException(exception);
+			}
+			else if (element instanceof NbtCompound compound) {
+				palette.add(NbtHelper.toBlockState(registry, compound));
+			}
 		}
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
 		readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
-		NbtList blockEntities = nbt.getList("blockEntities", NbtElement.COMPOUND_TYPE);
-		if (!blockEntities.isEmpty()) {
-			for (NbtCompound blockEntityNBT : (List<NbtCompound>)(Object)(blockEntities)) {
-				BlockPos pos = BlockEntity.posFromNbt(blockEntityNBT);
-				BlockState state = queue.queuedBlocks.get(pos.asLong());
-				if (state != null && state.hasBlockEntity()) {
-					BlockEntity blockEntity = BlockEntityVersions.createFromNbt(pos, state, blockEntityNBT);
-					if (blockEntity != null) queue.queueBlockEntity(pos, blockEntity);
+		if (nbt.get("blockEntities") instanceof NbtList blockEntities && !blockEntities.isEmpty()) {
+			for (NbtElement blockEntityElement : blockEntities) {
+				if (blockEntityElement instanceof NbtCompound blockEntityNBT) {
+					if (!(blockEntityNBT.get("x") instanceof AbstractNbtNumber x)) throw new IllegalArgumentException("Malformed x");
+					if (!(blockEntityNBT.get("x") instanceof AbstractNbtNumber y)) throw new IllegalArgumentException("Malformed y");
+					if (!(blockEntityNBT.get("x") instanceof AbstractNbtNumber z)) throw new IllegalArgumentException("Malformed z");
+					BlockPos pos = new BlockPos(x.intValue(), y.intValue(), z.intValue());
+					BlockState state = queue.queuedBlocks.get(pos.asLong());
+					if (state != null && state.hasBlockEntity()) {
+						BlockEntity blockEntity = BlockEntityVersions.createFromNbt(pos, state, blockEntityNBT);
+						if (blockEntity != null) queue.queueBlockEntity(pos, blockEntity);
+					}
+				}
+				else {
+					throw new IllegalArgumentException("Non-compound block entity");
 				}
 			}
 		}
@@ -163,15 +174,13 @@ public class SerializableBlockQueue extends BlockQueue {
 	}
 
 	public static void readBlocks(int centerX, int centerY, int centerZ, ObjectList<BlockState> palette, NbtCompound nbt, String key, LongPosStateConsumer adder) {
-		byte[] blocksNBT = nbt.getByteArray(key);
-		if ((blocksNBT.length & 3) != 0) {
-			throw new IllegalArgumentException(key + " NBT wrong length: " + blocksNBT.length);
-		}
+		if (!(nbt.get(key) instanceof NbtByteArray nbtByteArray && (nbtByteArray.size() & 3) == 0)) throw new IllegalArgumentException("Malformed " + key);
+		byte[] blocksNBT = nbtByteArray.getByteArray();
 		for (int index = 0, length = blocksNBT.length; index < length;) {
 			int x = centerX + blocksNBT[index++];
 			int y = centerY + blocksNBT[index++];
 			int z = centerZ + blocksNBT[index++];
-			BlockState state = palette.get(blocksNBT[index++]);
+			BlockState state = palette.get(Byte.toUnsignedInt(blocksNBT[index++]));
 			adder.accept(BlockPos.asLong(x, y, z), state);
 		}
 	}

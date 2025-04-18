@@ -16,9 +16,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.block.enums.StairShape;
 import net.minecraft.block.enums.WallShape;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.*;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -72,9 +70,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
-import builderb0y.bigglobe.versions.DirectionVersions;
-import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.bigglobe.versions.*;
 
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -187,7 +183,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public DungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
-			this.variant = nbt.getByte("var");
+			if (nbt.get("var") instanceof AbstractNbtNumber number) {
+				this.variant = number.byteValue();
+			}
 			NbtElement paletteNBT = nbt.get("palette");
 			if (paletteNBT != null) try {
 				this.palette = BigGlobeAutoCodec.AUTO_CODEC.decode(
@@ -269,7 +267,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			catch (DecodeException exception) {
 				BigGlobeMod.LOGGER.error("Exception reading dungeon room decorator from NBT: ", exception);
 			}
-			this.support = nbt.getBoolean("support");
+			if (nbt.get("support") instanceof AbstractNbtNumber number) {
+				this.support = number.byteValue() != 0;
+			}
 		}
 
 		@Override
@@ -314,11 +314,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			if (intersection == null) return;
 			BlockPos.Mutable pos = new BlockPos.Mutable();
 			CoordinateSupplier<BlockState> mainBlock = this.palette().mainSupplier();
-			//this code compiles. intellij lies.
 			for (pos.setY(this.y()); pos.getY() <= intersection.getMaxY(); pos.setY(pos.getY() + 1)) {
 				for (pos.setZ(intersection.getMinZ()); pos.getZ() <= intersection.getMaxZ(); pos.setZ(pos.getZ() + 1)) {
 					for (pos.setX(intersection.getMinX()); pos.getX() <= intersection.getMaxX(); pos.setX(pos.getX() + 1)) {
-						context.chunk.setBlockState(
+						ChunkVersions.setBlockState(
+							context.chunk,
 							pos,
 							pos.getX() == this.boundingBox.getMinX() ||
 							pos.getX() == this.boundingBox.getMaxX() ||
@@ -328,7 +328,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 							pos.getZ() == this.boundingBox.getMaxZ()
 							? mainBlock.get(pos)
 							: BlockStates.AIR,
-							false
+							Block.NOTIFY_LISTENERS
 						);
 					}
 				}
@@ -455,7 +455,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class ChestDungeonPiece extends DecorationDungeonPiece {
 
-		public final long seed;
+		public long seed;
 
 		public ChestDungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette, Direction facing, long seed) {
 			super(type, length, boundingBox, palette);
@@ -465,7 +465,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public ChestDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
-			this.seed = nbt.getLong("seed");
+			if (nbt.get("seed") instanceof AbstractNbtNumber number) {
+				this.seed = number.longValue();
+			}
 		}
 
 		@Override
@@ -509,8 +511,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public SpawnerDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
-			String id = nbt.getString("entityType");
-			if (id.isEmpty()) id = "minecraft:zombie";
+			String id = nbt.get("entityType") instanceof NbtString string ? string.value() : "minecraft:zombie";
 			this.spawnerType = RegistryVersions.getEntry(Registries.ENTITY_TYPE, RegistryKey.of(RegistryKeys.ENTITY_TYPE, IdentifierVersions.create(id)));
 		}
 
@@ -538,7 +539,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public HallDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
-			this.sidewaysness = nbt.getByte("side");
+			if (nbt.get("side") instanceof AbstractNbtNumber number) {
+				this.sidewaysness = number.byteValue();
+			}
 		}
 
 		@Override
@@ -661,10 +664,10 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public CoordinateSupplier<BlockState> wallSupplier(WallShape north, WallShape east, WallShape south, WallShape west, boolean up) {
 			return (
 				BlockStateSupplier.forBlocks(this.wall)
-				.with(WallBlock.NORTH_SHAPE, north)
-				.with(WallBlock.EAST_SHAPE,  east )
-				.with(WallBlock.SOUTH_SHAPE, south)
-				.with(WallBlock.WEST_SHAPE,  west )
+				.with(WallBlockVersions.NORTH_SHAPE, north)
+				.with(WallBlockVersions.EAST_SHAPE,  east )
+				.with(WallBlockVersions.SOUTH_SHAPE, south)
+				.with(WallBlockVersions.WEST_SHAPE,  west )
 			);
 		}
 

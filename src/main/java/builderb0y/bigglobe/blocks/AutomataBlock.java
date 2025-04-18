@@ -137,9 +137,15 @@ public class AutomataBlock extends Block {
 	}
 
 	@Override
-	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-		super.onStateReplaced(state, world, pos, newState, moved);
-		if (this.natural && !newState.isOf(this)) {
+	public void onStateReplaced(
+		BlockState state,
+		#if MC_VERSION >= MC_1_21_5 ServerWorld #else World #endif world,
+		BlockPos pos,
+		#if MC_VERSION < MC_1_21_5 BlockState newState, #endif
+		boolean moved
+	) {
+		super.onStateReplaced(state, world, pos, #if MC_VERSION < MC_1_21_5 newState, #endif moved);
+		if (this.natural) {
 			Long2LongOpenHashMap worldMap = BURNOUT_MAP.get(world);
 			if (worldMap != null) worldMap.remove(pos.asLong());
 		}

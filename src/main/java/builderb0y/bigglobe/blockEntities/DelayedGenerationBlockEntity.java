@@ -11,6 +11,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -66,9 +67,8 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.error("Error reading NBT data for delayed generation at " + this.pos, exception);
 		}
-		String oldState = nbt.getString("old_state");
-		if (!oldState.isEmpty()) try {
-			this.oldState = BlockArgumentParserVersions.block(oldState, false).blockState();
+		if (nbt.get("old_state") instanceof NbtString string && !string.value().isEmpty()) try {
+			this.oldState = BlockArgumentParserVersions.block(string.value(), false).blockState();
 		}
 		catch (CommandSyntaxException exception) {
 			BigGlobeMod.LOGGER.error("", exception);

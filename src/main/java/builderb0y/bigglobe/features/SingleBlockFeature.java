@@ -30,6 +30,8 @@ import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.EncoderDecoderCoder;
 import builderb0y.autocodec.coders.RecordCoder;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.decoders.ConstructImprintDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
@@ -46,6 +48,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.ChunkVersions;
 
 public class SingleBlockFeature extends Feature<Config> implements RawFeature<Config> {
 
@@ -163,15 +166,15 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		int flags = checkFluids(chunk, pos, states, replace);
 		if ((flags & CAN_PLACE) == 0) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
-			chunk.setBlockState(pos.up(offsetY), states[offsetY], false);
+			ChunkVersions.setBlockState(chunk, pos.up(offsetY), states[offsetY], Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 		}
 		if ((flags & REPLACE_BELOW) != 0) {
 			BlockPos down = pos.down();
-			chunk.setBlockState(down, chunk.getFluidState(down).getBlockState(), false);
+			ChunkVersions.setBlockState(chunk, down, chunk.getFluidState(down).getBlockState(), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 		}
 		if ((flags & REPLACE_ABOVE) != 0) {
 			BlockPos up = pos.up(states.length);
-			chunk.setBlockState(up, chunk.getFluidState(up).getBlockState(), false);
+			ChunkVersions.setBlockState(chunk, up, chunk.getFluidState(up).getBlockState(), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 		}
 		return true;
 	}
@@ -254,8 +257,8 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		}
 
 		@Override
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, Config> context) throws EncodeException {
-			if (context.object == null) return context.empty();
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Config> context) throws EncodeException {
+			if (context.object == null) return EmptyData.INSTANCE;
 			if (context.object.replace == null) {
 				return context.object(context.object.place).encodeWith(this.placeOnly);
 			}

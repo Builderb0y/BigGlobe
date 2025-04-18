@@ -26,6 +26,9 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.ListData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -38,6 +41,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.EmptyDependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.scripting.util.ArrayBuilder;
 
 public class ScriptFileResolver {
 
@@ -164,27 +168,19 @@ public class ScriptFileResolver {
 		@OverrideOnly
 		public <T_Encoded> @Nullable ResolvedIncludes decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
-			return new ResolvedIncludes(
-				context
-				.forceAsStream(true)
-				.map((DecodeContext<T_Encoded> elementContext) -> {
-					try {
-						return intern(resolve(elementContext.decodeWith(this.identifierCoder)));
-					}
-					catch (DecodeException exception) {
-						throw AutoCodecUtil.rethrow(exception);
-					}
-				})
-				.toArray(ResolvedInclude.ENTRY_ARRAY_FACTORY)
-			);
+			ArrayBuilder<RegistryEntry<ResolvedInclude>> builder = new ArrayBuilder<>();
+			for (DecodeContext<T_Encoded> elementContext : context.listIterable()) {
+				builder.accept(intern(resolve(elementContext.decodeWith(this.identifierCoder))));
+			}
+			return new ResolvedIncludes(builder.toArray(ResolvedInclude.ENTRY_ARRAY_FACTORY));
 		}
 
 		@Override
 		@OverrideOnly
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, ResolvedIncludes> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, ResolvedIncludes> context) throws EncodeException {
 			ResolvedIncludes includes = context.object;
-			if (includes == null) return context.empty();
-			return context.createList(
+			if (includes == null) return EmptyData.INSTANCE;
+			return ListData.collect(
 				Arrays
 				.stream(includes.includes)
 				.map(RegistryEntry<ResolvedInclude>::value)

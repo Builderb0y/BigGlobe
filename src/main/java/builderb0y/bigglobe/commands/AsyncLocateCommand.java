@@ -14,6 +14,7 @@ import net.minecraft.util.Formatting;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.commands.AsyncLocateCommand.Result;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.TextVersions;
 
 public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncCommand implements Comparator<T_Result> {
 
@@ -61,14 +62,12 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 				Style
 				.EMPTY
 				.withHoverEvent(
-					new HoverEvent(
-						HoverEvent.Action.SHOW_TEXT,
+					TextVersions.showText(
 						Text.translatable("commands." + BigGlobeMod.MODID + ".locate.clickToTeleport")
 					)
 				)
 				.withClickEvent(
-					new ClickEvent(
-						ClickEvent.Action.SUGGEST_COMMAND,
+					TextVersions.suggestCommand(
 						"/tp @s " + this.x + " ~ " + this.z
 					)
 				)

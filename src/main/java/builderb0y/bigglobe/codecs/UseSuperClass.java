@@ -11,13 +11,9 @@ import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.KeyDispatchCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
-import builderb0y.autocodec.decoders.AutoDecoder;
-import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoder;
-import builderb0y.autocodec.decoders.AutoDecoder.NamedDecoderFactory;
+import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.encoders.AutoEncoder;
-import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoderFactory;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
@@ -74,7 +70,7 @@ public @interface UseSuperClass {
 		@Override
 		@OverrideOnly
 		@SuppressWarnings("unchecked")
-		public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
 			return context.encodeWith((AutoCoder<T>)(this.delegate));
 		}
 

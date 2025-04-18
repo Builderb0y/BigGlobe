@@ -2,7 +2,7 @@ import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
 
 plugins() {
-	id('fabric-loom') version('1.8-SNAPSHOT')
+	id('fabric-loom') version('1.10-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -59,7 +59,7 @@ dependencies() {
 	testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.0-M1')
 	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.0-M1')
 
-	String AUTO_CODEC_VERSION = '5.0.1'
+	String AUTO_CODEC_VERSION = '6.0.0'
 	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION") {
 		transitive = false //don't include different version of DFU than what minecraft uses.
 	}
@@ -74,7 +74,7 @@ dependencies() {
 	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
 	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
 
-	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.5')
+	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.10')
 }
 
 compileJava() {
@@ -282,7 +282,8 @@ for (Version version in [
 	new Version(20, 6),
 	new Version(21, 1),
 	new Version(21, 3),
-	new Version(21, 4)
+	new Version(21, 4),
+	new Version(21, 5),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -305,6 +306,7 @@ MC_1_21_1=12101
 MC_1_21_2=12102
 MC_1_21_3=12103
 MC_1_21_4=12104
+MC_1_21_5=12105
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

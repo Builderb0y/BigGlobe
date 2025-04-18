@@ -50,6 +50,9 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.coders.*;
 import builderb0y.autocodec.coders.AutoCoder.CoderFactory;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.DataOps;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.decoders.*;
 import builderb0y.autocodec.encoders.*;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
@@ -236,14 +239,14 @@ public class BigGlobeAutoCodec {
 								@OverrideOnly
 								public <T_Encoded> @Nullable NbtElement decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 									if (context.isEmpty()) return null;
-									return context.ops.convertTo(NbtOps.INSTANCE, context.input);
+									return DataOps.UNCOMPRESSED.convertTo(NbtOps.INSTANCE, context.data);
 								}
 
 								@Override
 								@OverrideOnly
-								public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, NbtElement> context) throws EncodeException {
-									if (context.object == null) return context.empty();
-									return NbtOps.INSTANCE.convertTo(context.ops, context.object);
+								public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, NbtElement> context) throws EncodeException {
+									if (context.object == null) return EmptyData.INSTANCE;
+									return NbtOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, context.object);
 								}
 							});
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {

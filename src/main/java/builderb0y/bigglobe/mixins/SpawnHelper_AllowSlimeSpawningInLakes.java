@@ -17,6 +17,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.structures.BigGlobeStructureTags;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.SpawnEntryVersions;
 
 @Mixin(SpawnHelper.class)
 public class SpawnHelper_AllowSlimeSpawningInLakes {
@@ -44,7 +45,7 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 		CallbackInfoReturnable<Boolean> callback
 	) {
 		if (
-			spawnEntry.type == EntityType.SLIME
+			SpawnEntryVersions.type(spawnEntry) == EntityType.SLIME
 			&& world.isAir(pos)
 			&& world.getBlockState(pos.down()) == BlockStates.WATER
 			&& (
@@ -61,7 +62,7 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 				//also vanilla logic.
 				world.isSpaceEmpty(
 					EntityVersions.getBoundingBox(
-						spawnEntry.type,
+						SpawnEntryVersions.type(spawnEntry),
 						pos.getX() + 0.5,
 						pos.getY(),
 						pos.getZ() + 0.5

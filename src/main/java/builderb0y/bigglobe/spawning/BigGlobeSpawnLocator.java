@@ -55,7 +55,15 @@ public class BigGlobeSpawnLocator {
 				)
 			);
 			if (spawnPoint != null) {
-				player.setSpawnPoint(EntityVersions.getWorld(player).getRegistryKey(), spawnPoint.toBlockPos(), spawnPoint.yaw, true, false);
+				player.setSpawnPoint(
+					#if MC_VERSION >= MC_1_21_5 new net.minecraft.server.network.ServerPlayerEntity.Respawn( #endif
+						EntityVersions.getWorld(player).getRegistryKey(),
+						spawnPoint.toBlockPos(),
+						spawnPoint.yaw,
+						true
+					#if MC_VERSION >= MC_1_21_5 ) #endif,
+					false
+				);
 				player.refreshPositionAndAngles(spawnPoint.toBlockPos(), spawnPoint.yaw, 0.0F);
 			}
 		}

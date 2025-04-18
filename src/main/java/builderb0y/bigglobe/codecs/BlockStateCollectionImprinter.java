@@ -12,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.command.argument.BlockArgumentParser.TagResult;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -25,6 +27,7 @@ import net.minecraft.util.InvalidIdentifierException;
 
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
+import builderb0y.autocodec.data.StringData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.imprinters.AutoImprinter;
@@ -48,16 +51,16 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	@Override
 	public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
 		if (context.isEmpty()) return;
-		for (DecodeContext<T_Encoded> element : context.tryAsList(true)) {
+		for (ImprintContext<T_Encoded, Collection<BlockState>> element : context.listIterableOrSingleton()) {
 			if (element.isEmpty()) continue;
 			this.imprintEntry(new ImprintContext<>(element, context.object));
 		}
 	}
 
 	public <T_Encoded> void imprintEntry(ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
-		String string = context.tryAsString();
+		StringData string = context.tryAsString();
 		if (string != null) {
-			this.imprintAsString(context, string);
+			this.imprintAsString(context, string.value);
 		}
 		else {
 			this.imprintAsObject(context);
@@ -68,7 +71,7 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 		try {
 			BlockArgumentParserVersions
 			.blockOrTag(string, false)
-			.ifLeft(blockResult -> {
+			.ifLeft((BlockResult blockResult) -> {
 				if (blockResult.blockState().getProperties().size() == blockResult.properties().size()) {
 					context.object.add(blockResult.blockState());
 				}
@@ -79,7 +82,7 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 					this.filterAndAdd(context.object, blockResult.blockState().getBlock(), blockResult.properties());
 				}
 			})
-			.ifRight(tagResult -> {
+			.ifRight((TagResult tagResult) -> {
 				this.filterAndAdd(context.object, tagResult.tag(), tagResult.vagueProperties());
 			});
 		}
@@ -90,19 +93,19 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 
 	public <T_Encoded> void imprintAsObject(ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
 		try {
-			DecodeContext<T_Encoded> name = context.getMember(State.NAME);
+			ImprintContext<T_Encoded, Collection<BlockState>> name = context.getMember(State.NAME);
 			if (!name.isEmpty()) {
-				Identifier id = IdentifierVersions.create(name.forceAsString());
+				Identifier id = IdentifierVersions.create(name.forceAsString().value);
 				this.imprintAsObjectName(context, id);
 			}
 			else {
-				DecodeContext<T_Encoded> tag = context.getMember("Tag");
+				ImprintContext<T_Encoded, Collection<BlockState>> tag = context.getMember("Tag");
 				if (!tag.isEmpty()) {
-					Identifier id = IdentifierVersions.create(tag.forceAsString());
+					Identifier id = IdentifierVersions.create(tag.forceAsString().value);
 					this.imprintAsObjectTag(context, id);
 				}
 				else {
-					throw new ImprintException(() -> "Must specify " + State.NAME + " or Tag: " + context.input);
+					throw new ImprintException(() -> "Must specify " + State.NAME + " or Tag: " + context.data);
 				}
 			}
 		}
@@ -166,27 +169,28 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 		}
 	}
 
-	public <T_Encoded> Map<String, String> getObjectProperties(DecodeContext<T_Encoded> context) throws DecodeException {
-		DecodeContext<T_Encoded> propertiesContext = context.getMember(State.PROPERTIES);
+	public <T_Encoded> Map<String, String> getObjectProperties(ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
+		ImprintContext<T_Encoded, Collection<BlockState>> propertiesContext = context.getMember(State.PROPERTIES);
 		return (
 			propertiesContext.isEmpty()
 			? Collections.emptyMap()
 			: (
 				propertiesContext
-				.forceAsStringMap()
-				.entrySet()
+				.mapIterable()
 				.stream()
 				.collect(
 					Collectors.toMap(
-						Map.Entry::getKey,
-						entry -> {
-							try { return entry.getValue().forceAsString(); }
-							catch (DecodeException exception) { throw AutoCodecUtil.rethrow(exception); }
-						}
+						(Map.Entry<ImprintContext<T_Encoded, Collection<BlockState>>, ImprintContext<T_Encoded, Collection<BlockState>>> entry) -> toString(entry.getKey()),
+						(Map.Entry<ImprintContext<T_Encoded, Collection<BlockState>>, ImprintContext<T_Encoded, Collection<BlockState>>> entry) -> toString(entry.getValue())
 					)
 				)
 			)
 		);
+	}
+
+	public static String toString(ImprintContext<?, ?> context) {
+		try { return context.forceAsString().value; }
+		catch (DecodeException exception) { throw AutoCodecUtil.rethrow(exception); }
 	}
 
 	public Map<Property<?>, Comparable<?>> convertProperties(Block block, Map<String, String> from) {

@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -79,7 +80,19 @@ public class BigGlobeItems {
 		SHORT_GRASS              = registerPlacer(BigGlobeBlocks.SHORT_GRASS),
 		MUSHROOM_SPORES          = registerPlacer(BigGlobeBlocks.MUSHROOM_SPORES),
 		ROPE_ANCHOR              = registerPlacer(BigGlobeBlocks.ROPE_ANCHOR),
-		SPELUNKING_ROPE          = registerPlacer(BigGlobeBlocks.SPELUNKING_ROPE),
+		SPELUNKING_ROPE          = register(
+			"spelunking_rope",
+			new BlockItem(
+				BigGlobeBlocks.SPELUNKING_ROPE,
+				settings(BigGlobeBlocks.SPELUNKING_ROPE)
+				#if MC_VERSION >= MC_1_21_5
+				.component(
+					net.minecraft.component.DataComponentTypes.LORE,
+					lore("item.bigglobe.spelunking_rope.tooltip")
+				)
+				#endif
+			)
+		),
 		CRYSTALLINE_PRISMARINE   = registerPlacer(BigGlobeBlocks.CRYSTALLINE_PRISMARINE),
 		SLATED_PRISMARINE        = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
@@ -173,18 +186,32 @@ public class BigGlobeItems {
 	);
 	public static final PercussiveHammerItem PERCUSSIVE_HAMMER = register(
 		"percussive_hammer",
-		new PercussiveHammerItem(
-			2.0F,
-			-2.8F,
-			#if MC_VERSION >= MC_1_21_2
-				ToolMaterial.IRON
-			#else
-				ToolMaterials.IRON
-			#endif,
-			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
-			settings("percussive_hammer")
-			.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
-		)
+		#if MC_VERSION >= MC_1_21_5
+			new PercussiveHammerItem(
+				settings("percussive_hammer")
+				.tool(
+					ToolMaterial.IRON,
+					BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
+					2.0F,
+					-2.0F,
+					0.0F
+				)
+				.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
+			)
+		#else
+			new PercussiveHammerItem(
+				2.0F,
+				-2.8F,
+				#if MC_VERSION >= MC_1_21_2
+					ToolMaterial.IRON
+				#else
+					ToolMaterials.IRON
+				#endif,
+				BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
+				settings("percussive_hammer")
+				.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
+			)
+		#endif
 	);
 	public static final SlingshotItem SLINGSHOT = register(
 		"slingshot",
@@ -244,7 +271,15 @@ public class BigGlobeItems {
 		)
 	);
 
-	#if MC_VERSION >= MC_1_21_2
+	#if MC_VERSION >= MC_1_21_5
+
+		public static final Item
+			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new Item(settings("voidmetal_helmet"    ).armor(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.HELMET    ))),
+			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new Item(settings("voidmetal_chestplate").armor(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.CHESTPLATE))),
+			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new Item(settings("voidmetal_leggings"  ).armor(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.LEGGINGS  ))),
+			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new Item(settings("voidmetal_boots"     ).armor(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.BOOTS     )));
+
+	#elif MC_VERSION >= MC_1_21_2
 
 		public static final ArmorItem
 			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.HELMET,     settings("voidmetal_helmet"    ))),
@@ -271,6 +306,15 @@ public class BigGlobeItems {
 	#endif
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
+
+	#if MC_VERSION >= MC_1_21_5
+
+		public static net.minecraft.component.type.LoreComponent lore(String key) {
+			List<Text> list = Collections.singletonList(Text.translatable(key));
+			return new net.minecraft.component.type.LoreComponent(list, list);
+		}
+
+	#endif
 
 	public static RegistryKey<Item> key(String name) {
 		return RegistryKey.of(RegistryKeys.ITEM, BigGlobeMod.modID(name));

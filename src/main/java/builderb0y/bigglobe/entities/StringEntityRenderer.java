@@ -19,6 +19,7 @@ import net.minecraft.util.math.Vec3d;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 @Environment(EnvType.CLIENT)
 public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, StringEntityRenderer.State> {
@@ -181,9 +182,9 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 
 	public static @Nullable Vec3d getPos(Entity entity, float tickDelta) {
 		return entity == null ? null : new Vec3d(
-			Interpolator.mixLinear(entity.prevX, entity.getX(), tickDelta),
-			Interpolator.mixLinear(entity.prevY, entity.getY(), tickDelta),
-			Interpolator.mixLinear(entity.prevZ, entity.getZ(), tickDelta)
+			Interpolator.mixLinear(EntityVersions.prevX(entity), entity.getX(), tickDelta),
+			Interpolator.mixLinear(EntityVersions.prevY(entity), entity.getY(), tickDelta),
+			Interpolator.mixLinear(EntityVersions.prevZ(entity), entity.getZ(), tickDelta)
 		);
 	}
 

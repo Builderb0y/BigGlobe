@@ -7,6 +7,7 @@ import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.ActionResult;
@@ -55,8 +56,14 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-		if (state.get(HAS_ROPE) && newState != state) {
+	public void onStateReplaced(
+		BlockState state,
+		#if MC_VERSION >= MC_1_21_5 ServerWorld #else World #endif world,
+		BlockPos pos,
+		#if MC_VERSION < MC_1_21_5 BlockState newState, #endif
+		boolean moved
+	) {
+		if (state.get(HAS_ROPE)) {
 			Direction direction = state.get(FACING);
 			world.scheduleBlockTick(
 				new BlockPos(
@@ -68,7 +75,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 				SPELUNKING_ROPE.getFallDelay()
 			);
 		}
-		super.onStateReplaced(state, world, pos, newState, moved);
+		super.onStateReplaced(state, world, pos, #if MC_VERSION < MC_1_21_5 newState, #endif moved);
 	}
 
 	@Override

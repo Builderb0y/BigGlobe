@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -24,7 +26,7 @@ public class DecoderContextCoder extends NamedCoder<DecodeContext> {
 	}
 
 	@Override
-	public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, DecodeContext> context) throws EncodeException {
-		return context.empty();
+	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, DecodeContext> context) throws EncodeException {
+		return EmptyData.INSTANCE;
 	}
 }

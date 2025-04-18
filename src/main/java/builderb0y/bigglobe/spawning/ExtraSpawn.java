@@ -2,6 +2,7 @@ package builderb0y.bigglobe.spawning;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.collection.Weighted;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 
@@ -17,7 +18,17 @@ public record ExtraSpawn(
 	@VerifySorted(greaterThanOrEqual = "minCount") int maxCount
 ) {
 
-	public SpawnEntry toEntry() {
-		return new SpawnEntry(this.type.value(), this.weight, this.minCount, this.maxCount);
-	}
+	#if MC_VERSION >= MC_1_21_5
+
+		public Weighted<SpawnEntry> toEntry() {
+			return new Weighted<>(new SpawnEntry(this.type.value(), this.minCount, this.maxCount), this.weight);
+		}
+
+	#else
+
+		public SpawnEntry toEntry() {
+			return new SpawnEntry(this.type.value(), this.weight, this.minCount, this.maxCount);
+		}
+
+	#endif
 }

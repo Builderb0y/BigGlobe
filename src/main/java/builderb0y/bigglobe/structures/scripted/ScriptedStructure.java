@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.structures.scripted;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
@@ -25,7 +26,9 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.DefaultInt;
+import builderb0y.autocodec.annotations.ForceOrdinal;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.ScriptedLayer;
@@ -142,36 +145,57 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, nbt);
-			this.originalBoundingBox = WorldUtil.blockBoxFromIntArray(nbt.getIntArray("OBB"));
-			NbtElement transform = nbt.get("transform");
-			if (transform != null) try {
-				this.transformation = BigGlobeAutoCodec.AUTO_CODEC.decode(SymmetricOffset.CODER, transform, NbtOps.INSTANCE);
+			SerialData data;
+			try {
+				data = BigGlobeAutoCodec.AUTO_CODEC.decode(SerialData.CODER, nbt, NbtOps.INSTANCE);
 			}
 			catch (DecodeException exception) {
 				throw new RuntimeException(exception);
 			}
-			else {
-				this.transformation = SymmetricOffset.IDENTITY;
-			}
-			BlockRotation legacyRotation = Directions.ROTATIONS[nbt.getByte("rot")];
-			if (legacyRotation != BlockRotation.NONE) {
+			this.originalBoundingBox = data.OBB;
+			this.transformation = (
+				data.transform != null
+				? data.transform
+				: SymmetricOffset.IDENTITY
+			);
+			if (data.rot != null && data.rot != BlockRotation.NONE) {
 				this.transformation = this.transformation.rotateAround(
 					(this.originalBoundingBox.getMinX() + this.originalBoundingBox.getMaxX() + 1) >> 1,
 					(this.originalBoundingBox.getMinZ() + this.originalBoundingBox.getMaxZ() + 1) >> 1,
-					Symmetry.of(legacyRotation)
+					Symmetry.of(data.rot)
 				);
-				this.updateBoundingBox();
 			}
-			this.placement = StructurePlacementScriptEntry.of(nbt.getString("script"));
-			this.data = nbt.getCompound("data");
+			this.updateBoundingBox();
+			this.placement = StructurePlacementScriptEntry.of(data.script);
+			this.data = data.data;
 		}
 
 		@Override
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			nbt.putString("script", this.placement.id());
-			nbt.put("data", this.data);
-			nbt.put("transform", BigGlobeAutoCodec.AUTO_CODEC.encode(SymmetricOffset.CODER, this.transformation, NbtOps.INSTANCE));
-			nbt.put("OBB", WorldUtil.blockBoxToNbt(this.originalBoundingBox));
+			for (Map.Entry<String, NbtElement> entry : ((NbtCompound)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).entrySet()) {
+				nbt.put(entry.getKey(), entry.getValue());
+			}
+		}
+
+		public SerialData serialize() {
+			return new SerialData(
+				this.placement.id(),
+				this.transformation,
+				null,
+				this.originalBoundingBox,
+				this.data
+			);
+		}
+
+		public static record SerialData(
+			String script,
+			@VerifyNullable SymmetricOffset transform,
+			@VerifyNullable @ForceOrdinal(true) BlockRotation rot,
+			BlockBox OBB,
+			NbtCompound data
+		) {
+
+			public static final AutoCoder<SerialData> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(SerialData.class);
 		}
 
 		public Piece symmetrify(Symmetry symmetry) {

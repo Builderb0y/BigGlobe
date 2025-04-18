@@ -75,8 +75,7 @@
 					],
 					"functions": [
 						{
-							"function": "bigglobe:randomize_dye_color",
-							"show_in_tooltip": false
+							"function": "bigglobe:randomize_dye_color"
 						},
 						{
 							"function": "minecraft:set_damage",

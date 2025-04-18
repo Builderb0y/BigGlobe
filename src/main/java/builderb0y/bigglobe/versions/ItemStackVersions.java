@@ -4,9 +4,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
+import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.autocodec.util.DFUVersions;
 import builderb0y.bigglobe.items.DynamicMaxDamageItem;
 
 #if MC_VERSION >= MC_1_20_5
@@ -98,7 +102,18 @@ public class ItemStackVersions {
 	}
 
 	public static ItemStack fromNbt(NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_5
+			ItemStack stack = DFUVersions.getResult(
+				ItemStack.CODEC.parse(
+					BigGlobeMod
+					.getCurrentServer()
+					.getRegistryManager()
+					.getOps(NbtOps.INSTANCE),
+					nbt
+				)
+			);
+			return stack != null ? stack : ItemStack.EMPTY;
+		#elif MC_VERSION >= MC_1_20_5
 			return ItemStack.fromNbtOrEmpty(BigGlobeMod.getCurrentServer().getRegistryManager(), nbt);
 		#else
 			return ItemStack.fromNbt(nbt);
