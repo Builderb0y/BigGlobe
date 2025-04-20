@@ -175,17 +175,17 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		@Override
 		public <T_Encoded> @Nullable NoiseColumnEntry decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
-			AccessSchema params = context.getMember("params").decodeWith(this.params);
-			Valid valid = context.getMember("valid").decodeWith(this.valid);
-			boolean cache = context.getMember("cache").decodeWith(this.cache);
-			DecodeContext<T_Encoded> encodedSeed = context.getMember("seed");
+			AccessSchema params = context.forceGetMember("params").decodeWith(this.params);
+			Valid valid = context.forceGetMember("valid").decodeWith(this.valid);
+			boolean cache = context.forceGetMember("cache").decodeWith(this.cache);
+			DecodeContext<T_Encoded> encodedSeed = context.forceGetMember("seed");
 			Seed seed = encodedSeed.isEmpty() ? null : encodedSeed.decodeWith(this.seed);
 			if (params.is_3d()) {
-				Grid3D grid = context.getMember("grid").decodeWith(this.grid3D);
+				Grid3D grid = context.forceGetMember("grid").decodeWith(this.grid3D);
 				return new NoiseColumnEntry(params, valid, cache, null, grid, seed, context);
 			}
 			else {
-				Grid2D grid = context.getMember("grid").decodeWith(this.grid2D);
+				Grid2D grid = context.forceGetMember("grid").decodeWith(this.grid2D);
 				return new NoiseColumnEntry(params, valid, cache, grid, null, seed, context);
 			}
 		}

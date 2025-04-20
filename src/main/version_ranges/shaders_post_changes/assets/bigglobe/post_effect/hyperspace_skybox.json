@@ -5,23 +5,42 @@
 	"passes": [
 		{
 			"program": "bigglobe:hyperspace_skybox",
+			"fragment_shader": "bigglobe:hyperspace_skybox",
+			"vertex_shader": "minecraft:post/screenquad",
 			"inputs": [
 				{
 					"sampler_name": "Diffuse",
 					"target": "minecraft:main"
 				}
 			],
-			"output": "swap"
+			"output": "swap",
+			"uniforms": [
+				{ "name": "ProjMat",          "type": "matrix4x4" },
+				{ "name": "ProjMatInverse",   "type": "matrix4x4" },
+				{ "name": "ModelViewInverse", "type": "matrix4x4" },
+				{ "name": "OutSize",          "type": "vec2"      },
+				{ "name": "cameraPosition",   "type": "vec3"      },
+				{ "name": "time",             "type": "float"     }
+			]
 		},
 		{
 			"program": "minecraft:post/blit",
+			"fragment_shader": "minecraft:post/blit",
+			"vertex_shader": "minecraft:post/blit",
 			"inputs": [
 				{
 					"sampler_name": "In",
 					"target": "swap"
 				}
 			],
-			"output": "minecraft:main"
+			"output": "minecraft:main",
+			"uniforms": [
+				{
+					"name": "ColorModulate",
+					"type": "vec4",
+					"values": [ 1.0, 1.0, 1.0, 1.0 ]
+				}
+			]
 		}
 	]
 }

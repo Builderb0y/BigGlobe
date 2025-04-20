@@ -16,8 +16,8 @@ see the documentation for each subclass for more details.
 */
 public abstract class WaypointManager<D extends WaypointData> extends PersistentState {
 
-	public WaypointLookup<D> allWaypoints = new WaypointLookup<>();
-	public Map<@Nullable UUID, WaypointLookup<D>> byOwner = new HashMap<>(16);
+	public transient WaypointLookup<D> allWaypoints = new WaypointLookup<>();
+	public transient Map<@Nullable UUID, WaypointLookup<D>> byOwner = new HashMap<>(16);
 
 	public Collection<D> getAllWaypoints() {
 		return this.allWaypoints.values();

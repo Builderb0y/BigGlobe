@@ -33,6 +33,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.ScriptedLayer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
@@ -192,7 +193,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			@VerifyNullable SymmetricOffset transform,
 			@VerifyNullable @ForceOrdinal(true) BlockRotation rot,
 			BlockBox OBB,
-			NbtCompound data
+			@UseSuperClass(NbtElement.class) NbtCompound data
 		) {
 
 			public static final AutoCoder<SerialData> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(SerialData.class);

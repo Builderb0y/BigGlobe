@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.hyperspace;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -20,12 +22,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentStateType;
 import net.minecraft.world.World;
 
-import builderb0y.autocodec.annotations.MemberUsage;
-import builderb0y.autocodec.annotations.UseFixer;
-import builderb0y.autocodec.annotations.UseImprinter;
+import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
-import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.imprinters.AutoImprinter.NamedImprinter;
 import builderb0y.autocodec.imprinters.ImprintContext;
@@ -39,6 +38,7 @@ manages all the waypoints on a server,
 including all public waypoints, and all
 private waypoints created by every player.
 */
+@AddPseudoField(name = "waypoints", getter = "getAllWaypoints")
 @UseFixer(name = "INSTANCE", in = HyperspaceStorageVersions.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 @UseImprinter(name = "new", in = ServerWaypointManager.Imprinter.class, usage = MemberUsage.METHOD_IS_FACTORY)
 public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
@@ -72,9 +72,9 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 		@OverrideOnly
 		public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, ServerWaypointManager> context) throws ImprintException {
 			ServerWaypointManager manager = context.object;
-			manager.nextID = context.getMember("nextID").forceAsInt();
+			manager.nextID = context.forceGetMember("nextID").forceAsInt();
 			ImprintException rootException = null;
-			for (ImprintContext<T_Encoded, ServerWaypointManager> waypoint : context.getMember("waypoints").listIterable()) try {
+			for (ImprintContext<T_Encoded, ServerWaypointManager> waypoint : context.forceGetMember("waypoints").listIterable()) try {
 				manager.addWaypoint(waypoint.decodeWith(this.waypointCoder), false);
 			}
 			catch (DecodeException exception) {

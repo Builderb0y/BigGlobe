@@ -18,6 +18,8 @@ import net.minecraft.text.Text;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.DataOps;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -32,30 +34,41 @@ import builderb0y.autocodec.encoders.EncodeException;
 
 public class TextCoding {
 
-	#if MC_VERSION < MC_1_20_4
+	public static final AutoCoder<Text> CODER = new NamedCoder<>("TextCoding.CODER") {
 
-		public static final AutoCoder<Text> CODER = new NamedCoder<>("TextCoding.CODER") {
-
-			@Override
-			@OverrideOnly
-			public <T_Encoded> @NotNull Data<T_Encoded> encode(@NotNull EncodeContext<T_Encoded, Text> context) throws EncodeException {
-				Text text = context.object;
-				if (text == null) return context.empty();
+		@Override
+		@OverrideOnly
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Text> context) throws EncodeException {
+			Text text = context.object;
+			if (text == null) return EmptyData.INSTANCE;
+			#if MC_VERSION >= MC_1_20_4
+				return context.logger().unwrapLazy(
+					TextCodecs.CODEC.encodeStart(DataOps.UNCOMPRESSED, text),
+					true,
+					EncodeException::new
+				);
+			#else
 				JsonElement json = Text.Serializer.toJsonTree(text);
-				T_Encoded payload = JsonOps.INSTANCE.convertTo(context.ops, json);
-				return context.createUnknown(payload);
-			}
+				return new UnknownData(json, JsonOps.INSTANCE);
+			#endif
+		}
 
-			@Override
-			@OverrideOnly
-			public <T_Encoded> @Nullable Text decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				if (context.isEmpty()) return null;
-				JsonElement json = context.input.convertTo(JsonOps.INSTANCE);
+		@Override
+		@OverrideOnly
+		public <T_Encoded> @Nullable Text decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+			if (context.isEmpty()) return null;
+			#if MC_VERSION >= MC_1_20_4
+				return context.logger().unwrapLazy(
+					TextCodecs.CODEC.parse(DataOps.UNCOMPRESSED, context.data),
+					true,
+					DecodeException::new
+				);
+			#else
+				JsonElement json = context.data.convert(JsonOps.INSTANCE);
 				return Text.Serializer.fromJson(json);
-			}
-		};
-
-	#endif
+			#endif
+		}
+	};
 
 	public static NbtElement toNbt(@Nullable Text text) {
 		if (text == null) return null;

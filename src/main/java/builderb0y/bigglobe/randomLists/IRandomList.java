@@ -453,11 +453,11 @@ public interface IRandomList<E> extends List<E> {
 		}
 
 		public <T_Encoded> T element(DecodeContext<T_Encoded> context) throws DecodeException {
-			return (this.elementName != null && context.isMap() ? context.getMember(this.elementName) : context).decodeWith(this.elementCoder);
+			return (this.elementName != null && context.isMap() ? context.forceGetMember(this.elementName) : context).decodeWith(this.elementCoder);
 		}
 
 		public <T_Encoded> double weight(DecodeContext<T_Encoded> context) throws DecodeException {
-			return context.isMap() ? context.getMember("weight").decodeWith(this.weightCoder) : DEFAULT_WEIGHT;
+			return context.isMap() ? context.forceGetMember("weight").decodeWith(this.weightCoder) : DEFAULT_WEIGHT;
 		}
 
 		@Override
@@ -469,7 +469,7 @@ public interface IRandomList<E> extends List<E> {
 				return switch (size) {
 					case 0 -> EmptyRandomList.instance();
 					case 1 -> {
-						DecodeContext<T_Encoded> entry = context.getElement(0);
+						DecodeContext<T_Encoded> entry = context.forceGetElement(0);
 						yield new SingletonRandomList<>(this.element(entry), this.weight(entry));
 					}
 					default -> {

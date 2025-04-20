@@ -85,10 +85,10 @@ public class HyperspaceStorageVersions extends VersionedFixer<ServerWaypointMana
 	}
 
 	public <T_Encoded> void convertUUIDsToIDs(DataFixContext<T_Encoded> context) throws DataFixException {
-		ListData waypoints = context.getMember("waypoints").forceAsList();
+		ListData waypoints = context.forceGetMember("waypoints").forceAsList();
 		int size = waypoints.value.size();
 		for (int index = 0; index < size; index++) {
-			MapData waypoint = context.input(index, waypoints.get(index)).forceAsMap();
+			MapData waypoint = context.fork(index, waypoints.get(index)).forceAsMap();
 			waypoint.remove("uuid");
 			waypoint.putInt("id", index);
 		}

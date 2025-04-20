@@ -540,8 +540,8 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 				RandomList<T> result = context.object;
 				for (ImprintContext<T_Encoded, RandomList<T>> entry : context.listIterableMaybeSingleton(this.allowSingleton)) {
 					result.add(
-						(this.elementName != null ? entry.getMember(this.elementName) : entry).decodeWith(this.elementCoder),
-						entry.getMember("weight").decodeWith(WEIGHT_DECODER)
+						(this.elementName != null ? entry.forceGetMember(this.elementName) : entry).decodeWith(this.elementCoder),
+						entry.forceGetMember("weight").decodeWith(WEIGHT_DECODER)
 					);
 				}
 			}

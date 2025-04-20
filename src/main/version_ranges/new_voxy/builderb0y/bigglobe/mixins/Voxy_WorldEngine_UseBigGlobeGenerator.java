@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.mixins;
 
 import me.cortex.voxy.common.config.section.SectionStorage;
-import me.cortex.voxy.common.thread.ServiceThreadPool;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.commonImpl.VoxyInstance;
 import org.spongepowered.asm.mixin.Final;
@@ -21,10 +20,9 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator {
 
 	@Shadow @Final public SectionStorage storage;
 
-	@Inject(method = "<init>(Lme/cortex/voxy/common/config/section/SectionStorage;ILme/cortex/voxy/commonImpl/VoxyInstance;)V", at = @At("RETURN"))
+	@Inject(method = "<init>(Lme/cortex/voxy/common/config/section/SectionStorage;Lme/cortex/voxy/commonImpl/VoxyInstance;)V", at = @At("RETURN"))
 	private void bigglobe_startGenerator(
 		SectionStorage storage,
-		int cacheCount,
 		VoxyInstance instance,
 		CallbackInfo callback
 	) {

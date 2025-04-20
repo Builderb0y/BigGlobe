@@ -33,6 +33,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.commands.VoxyDebugCommand;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -255,7 +256,9 @@ public abstract class AbstractVoxyWorldGenerator {
 												if (previousColumnStateID == 0 && !wasAir) continue;
 												sectionPayload[index] = id;
 												if (wasAir) nonEmptyBlocks++;
-												nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
+												if (previousColumnStateID != 0) {
+													nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
+												}
 											}
 										}
 										else {
@@ -267,7 +270,9 @@ public abstract class AbstractVoxyWorldGenerator {
 												int skylight = Math.max(startSkyLight - diminishment * (segment.maxY - absoluteY), 0);
 												sectionPayload[index] = Mapper.composeMappingId((byte)((#if MC_VERSION <= MC_1_21_1 15 - #endif skylight) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
 												if (wasAir) nonEmptyBlocks++;
-												nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
+												if (previousColumnStateID != 0) {
+													nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
+												}
 											}
 										}
 									}
@@ -275,6 +280,7 @@ public abstract class AbstractVoxyWorldGenerator {
 							}
 						}
 						if (section != null) {
+							if (level == 0) nonEmptyChildren = nonEmptyBlocks != 0 ? (byte)(-1) : (byte)(0);
 							nonEmptyChildHandle.setVolatile(section, nonEmptyChildren);
 							nonEmptyBlockHandle.setVolatile(section, nonEmptyBlocks);
 							this.engine.markDirty(section);
@@ -295,6 +301,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		public final DistanceGraph[]
 			todo = new DistanceGraph[16],
 			done = new DistanceGraph[16];
+		public int indexGenerator;
 
 		public GenerationQueue() {
 			for (int lod = 0; lod < 16; lod++) {
@@ -343,10 +350,15 @@ public abstract class AbstractVoxyWorldGenerator {
 			if (player == null) return -1L;
 			int x = player.getBlockX() >> 5;
 			int z = player.getBlockZ() >> 5;
-			for (int lod = 0; lod < 16; lod++) {
+			int minLOD = 0;
+			for (int attempt = 0; attempt < 32; attempt++) {
+				int lod = Math.min(Integer.numberOfTrailingZeros(this.indexGenerator++) + minLOD, 15);
 				Query query = this.todo[lod].current(x >> lod, z >> lod, true);
 				if (query != null) {
 					return WorldEngine.getWorldSectionId(lod, query.closestX, 0, query.closestZ);
+				}
+				else if (lod == minLOD) {
+					minLOD++;
 				}
 			}
 			return -1;

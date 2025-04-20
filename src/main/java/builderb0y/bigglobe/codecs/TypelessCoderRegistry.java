@@ -59,7 +59,7 @@ public class TypelessCoderRegistry<E> extends NamedCoder<E> {
 		String prevKey = null;
 		AutoCoder<? extends E> coder = null;
 		for (Data keyData : context.forceAsMap().value.keySet()) {
-			String key = context.input("<key>", keyData).forceAsString().value;
+			String key = context.fork("<key>", keyData).forceAsString().value;
 			AutoCoder<? extends E> next = this.decodeLookup.get(key);
 			if (next == null) {
 				if (this.commonFields.contains(key)) continue;

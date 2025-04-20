@@ -76,7 +76,7 @@ public class Seed {
 		}
 
 		public <T_Encoded> long recursiveDecodeSeed(AbstractDecodeContext<T_Encoded, ?, ?> context, String key, boolean last) throws Exception {
-			AbstractDecodeContext<T_Encoded, ?, ?> value = context.getMember(key);
+			AbstractDecodeContext<T_Encoded, ?, ?> value = context.tryGetMember(key);
 			if ((this.modes & AUTO) != 0 && value.isEmpty()) {
 				long seed;
 				if (context.parent != null) {

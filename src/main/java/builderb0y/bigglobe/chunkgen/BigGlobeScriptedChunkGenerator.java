@@ -401,9 +401,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 			@Override
 			public <T_Encoded> @Nullable BigGlobeScriptedChunkGenerator decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				StringData dimension = context.getMember("reload_dimension").tryAsString();
+				StringData dimension = context.forceGetMember("reload_dimension").tryAsString();
 				if (dimension != null) {
-					StringData preset = context.getMember("reload_preset").tryAsString();
+					StringData preset = context.forceGetMember("reload_preset").tryAsString();
 					String presetName = preset != null ? preset.value : "bigglobe";
 					JsonElement json = this.getDimension(presetName, dimension.value);
 					return new DecodeContext<>(context.autoCodec, null, RootDecodePath.INSTANCE, new UnknownData<>(JsonOps.INSTANCE, json), context.ops).decodeWith(coder);

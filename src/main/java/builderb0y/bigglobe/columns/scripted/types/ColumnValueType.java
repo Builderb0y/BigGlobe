@@ -43,7 +43,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 				return super.decode(context);
 			}
 			else {
-				return super.decode(context.input(MapData.singleton(this.keyName, context.data)));
+				return super.decode(context.withData(MapData.singleton(this.keyName, context.data)));
 			}
 		}
 

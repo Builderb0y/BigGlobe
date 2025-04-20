@@ -93,13 +93,13 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 
 	public <T_Encoded> void imprintAsObject(ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
 		try {
-			ImprintContext<T_Encoded, Collection<BlockState>> name = context.getMember(State.NAME);
+			ImprintContext<T_Encoded, Collection<BlockState>> name = context.forceGetMember(State.NAME);
 			if (!name.isEmpty()) {
 				Identifier id = IdentifierVersions.create(name.forceAsString().value);
 				this.imprintAsObjectName(context, id);
 			}
 			else {
-				ImprintContext<T_Encoded, Collection<BlockState>> tag = context.getMember("Tag");
+				ImprintContext<T_Encoded, Collection<BlockState>> tag = context.forceGetMember("Tag");
 				if (!tag.isEmpty()) {
 					Identifier id = IdentifierVersions.create(tag.forceAsString().value);
 					this.imprintAsObjectTag(context, id);
@@ -170,7 +170,7 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> Map<String, String> getObjectProperties(ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
-		ImprintContext<T_Encoded, Collection<BlockState>> propertiesContext = context.getMember(State.PROPERTIES);
+		ImprintContext<T_Encoded, Collection<BlockState>> propertiesContext = context.forceGetMember(State.PROPERTIES);
 		return (
 			propertiesContext.isEmpty()
 			? Collections.emptyMap()

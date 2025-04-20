@@ -139,7 +139,7 @@ public class BigGlobeBlocks {
 				AbstractBlock
 				.Settings
 				.create()
-				.registryKey(key("stick"))
+				.registryKey(RegistryKey.of(RegistryKeys.BLOCK, BigGlobeMod.modID("stick")))
 				.mapColor(MapColor.BROWN)
 				.breakInstantly()
 				.noCollision()
@@ -151,7 +151,7 @@ public class BigGlobeBlocks {
 				AbstractBlock
 				.Settings
 				.create()
-				.registryKey(key("flint"))
+				.registryKey(RegistryKey.of(RegistryKeys.BLOCK, BigGlobeMod.modID("flint")))
 				.mapColor(MapColor.IRON_GRAY)
 				.breakInstantly()
 				.noCollision()

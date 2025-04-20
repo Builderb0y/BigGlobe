@@ -74,6 +74,7 @@ changelog:
 	* Fixed the end dimension not generating terrain more than about 46k blocks from the origin.
 	* Fixed pale netherrack not being in the creative menu (1.21.4).
 	* Fixed charred signs being arranged differently from other signs in the creative menu.
+	* Fixed a crash I fixed a while go, but better this time.
 
 alternate world presets:
 	paradise.

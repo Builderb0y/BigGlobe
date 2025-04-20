@@ -135,8 +135,10 @@ public class VariationsList<T> {
 		public <T_Encoded> void imprint(@NotNull ImprintContext<T_Encoded, VariationsList<T>> context) throws ImprintException {
 			try {
 				context.object.source = context.data;
-				Data list = ListData.collect(expand(context.data));
-				context.object.elements = context.input(list).decodeWith(this.listEncoder);
+				//deep copying has the side effect of uniquifying all the child data.
+				//without a deep copy, child data could belong to more than one parent.
+				Data list = ListData.collect(expand(context.data)).deepCopy();
+				context.object.elements = context.withData(list).decodeWith(this.listEncoder);
 			}
 			catch (ImprintException exception) {
 				throw exception;

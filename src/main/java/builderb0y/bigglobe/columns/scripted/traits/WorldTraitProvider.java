@@ -46,9 +46,9 @@ public record WorldTraitProvider(ScriptUsage get, @VerifyNullable ScriptUsage se
 		public <T_Encoded> @Nullable WorldTraitProvider decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
 			if (context.isMap()) {
-				DecodeContext<T_Encoded> getter = context.getMember("get");
+				DecodeContext<T_Encoded> getter = context.forceGetMember("get");
 				if (!getter.isEmpty()) {
-					DecodeContext<T_Encoded> setter = context.getMember("set");
+					DecodeContext<T_Encoded> setter = context.forceGetMember("set");
 					if (!setter.isEmpty()) {
 						return new WorldTraitProvider(getter.decodeWith(this.scriptUsageCoder), setter.decodeWith(this.scriptUsageCoder));
 					}

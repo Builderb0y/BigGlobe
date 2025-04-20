@@ -3,6 +3,7 @@ package builderb0y.bigglobe.codecs;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -34,7 +35,10 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -50,9 +54,8 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.coders.*;
 import builderb0y.autocodec.coders.AutoCoder.CoderFactory;
-import builderb0y.autocodec.data.Data;
-import builderb0y.autocodec.data.DataOps;
-import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.decoders.*;
 import builderb0y.autocodec.encoders.*;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
@@ -86,6 +89,7 @@ import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.DelayedEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 
@@ -233,7 +237,7 @@ public class BigGlobeAutoCodec {
 						@Override
 						public void setup() {
 							super.setup();
-							this.addRaw(NbtElement.class, new AutoCoder<>() {
+							this.addRaw(NbtElement.class, new NamedCoder<>("NbtElementCoder") {
 
 								@Override
 								@OverrideOnly
@@ -249,6 +253,7 @@ public class BigGlobeAutoCodec {
 									return NbtOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, context.object);
 								}
 							});
+							this.addRaw(UUID.class, UUIDCoder.INSTANCE);
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
 							}
@@ -277,6 +282,8 @@ public class BigGlobeAutoCodec {
 								this.addRaw(BlockSetType.class, autoCodec.wrapDFUCodec(BlockSetType.CODEC));
 								this.addRaw(WoodType.class, autoCodec.wrapDFUCodec(WoodType.CODEC));
 							#endif
+							this.addRaw(BlockBox.class, autoCodec.wrapDFUCodec(BlockBox.CODEC));
+							this.addRaw(Text.class, TextCoding.CODER);
 						}
 					};
 				}
