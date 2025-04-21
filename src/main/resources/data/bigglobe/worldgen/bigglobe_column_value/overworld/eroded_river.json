@@ -36,10 +36,10 @@
 	"script": {
 		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
-			"lowY": "`raw/river_snow`",
+			"lowY": "`raw/river`",
 			"highY": "`raw/river`",
-			"dx": "`raw/river/dx_macro` * `raw/river/macro` ^ 3 * 4096.0L",
-			"dz": "`raw/river/dz_macro` * `raw/river/macro` ^ 3 * 4096.0L",
+			"dx": "`raw/river/dx_macro` * `raw/river/macro` ^ 3 * 1024.0L",
+			"dz": "`raw/river/dz_macro` * `raw/river/macro` ^ 3 * 1024.0L",
 			"minWavelength": "4  << hints.lod",
 			"midWavelength": "24 << hints.lod",
 			"maxWavelength": "64",

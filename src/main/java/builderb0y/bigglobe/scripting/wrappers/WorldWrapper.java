@@ -163,6 +163,11 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	@Override
+	public Hints getHints() {
+		return this.params.hints();
+	}
+
+	@Override
 	public ScriptedColumn lookupColumn(int x, int z) {
 		BlockPos pos = this.unboundedPos(x, 0, z);
 		x = pos.getX();

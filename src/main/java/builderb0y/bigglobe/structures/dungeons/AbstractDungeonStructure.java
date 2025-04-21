@@ -511,7 +511,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public SpawnerDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
-			String id = nbt.get("entityType") instanceof NbtString string ? string.value() : "minecraft:zombie";
+			String id = nbt.get("entityType") instanceof NbtString string ? NbtVersions.stringValue(string) : "minecraft:zombie";
 			this.spawnerType = RegistryVersions.getEntry(Registries.ENTITY_TYPE, RegistryKey.of(RegistryKeys.ENTITY_TYPE, IdentifierVersions.create(id)));
 		}
 

@@ -127,16 +127,13 @@ public class DistantHorizonsCompat {
 							else {
 								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
 							}
-							//currently commented out because DH errors out when I do
-							//this and james isn't planning on fixing it for a while.
-							//DhApiConfig.INSTANCE.graphics().caveCullingEnabled().setValue(false);
+							BigGlobeMod.LOGGER.info("About to disable Distant Horizons's cave culling. If this throws an exception, blame distant horizons for it, not me.");
+							DhApiConfig.INSTANCE.graphics().caveCullingEnabled().setValue(false);
+							BigGlobeMod.LOGGER.info("Cave culling has been successfully disabled.");
 						}
 					}
 				}
 			});
-			//currently commented out because DH errors out when I do
-			//this and james isn't planning on fixing it for a while.
-			/*
 			DhApiEventRegister.on(DhApiLevelUnloadEvent.class, new DhApiLevelUnloadEvent() {
 
 				@Override
@@ -144,12 +141,11 @@ public class DistantHorizonsCompat {
 					IDhApiLevelWrapper levelWrapper = param.value.levelWrapper;
 					if (levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld) {
 						if (serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-							//DhApiConfig.INSTANCE.graphics().caveCullingEnabled().clearValue();
+							DhApiConfig.INSTANCE.graphics().caveCullingEnabled().clearValue();
 						}
 					}
 				}
 			});
-			*/
 		}
 	}
 }

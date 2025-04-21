@@ -79,22 +79,20 @@ public class StructureManager {
 		public StructureGenerationParams(
 			BigGlobeScriptedChunkGenerator generator,
 			ScriptedColumnLookup columns,
-			Hints hints,
 			ServerWorld world,
-			ChunkPos chunkPos,
-			boolean distantHorizons
+			ChunkPos chunkPos
 		) {
 			this(
 				generator,
 				columns,
-				hints,
+				columns.getHints(),
 				world.getChunkManager().getStructurePlacementCalculator(),
 				world.getRegistryManager(),
 				world.getChunkManager().getNoiseConfig(),
 				world.getStructureTemplateManager(),
 				world,
 				chunkPos,
-				distantHorizons
+				columns.getHints().isLod()
 			);
 		}
 
@@ -315,7 +313,7 @@ public class StructureManager {
 				for (LinkedArrayList.Node<SectionSortedStructurePieces> other = list.first; other != null; other = other.next) {
 					if (other == current) continue;
 					if (SectionSortedStructurePieces.intersects(current.element, other.element)) {
-						int priority = overriders.getCollisionPriority(params.columns, current.element.startWrapper, other.element.startWrapper, params.hints);
+						int priority = overriders.getCollisionPriority(params.columns, current.element.startWrapper, other.element.startWrapper);
 						if (priority < 0) {
 							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 								BigGlobeMod.LOGGER.info("Structure " + current.element + " did not spawn because it collided with a " + other.element + " and a collision overrider returned a negative priority.");
@@ -490,7 +488,7 @@ public class StructureManager {
 			new Params(params.generator, 0, 0, hints)
 		);
 		for (StructureOverrider.Entry overrider : params.generator.getOverriders().structures) {
-			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed, hints)) {
+			if (!overrider.script().override(lookup, wrapper, permuter, params.generator.columnSeed)) {
 				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
 					BigGlobeMod.LOGGER.info(
 						"Structure " +

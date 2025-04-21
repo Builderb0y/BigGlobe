@@ -10,7 +10,7 @@ import builderb0y.bigglobe.compat.voxy.AbstractVoxyWorldGenerator;
 @Mixin(NodeManager.class)
 public class Voxy_NodeManager_SuppressWarnings {
 
-	@WrapWithCondition(method = "makeLeafChildRequest", at = @At(value = "INVOKE", target = "Lme/cortex/voxy/common/Logger;warn([Ljava/lang/Object;)V"), remap = false)
+	@WrapWithCondition(method = "makeLeafChildRequest", at = @At(value = "INVOKE", target = "Lme/cortex/voxy/common/Logger;warn([Ljava/lang/Object;)V"), remap = false, require = 0)
 	private boolean bigglobe_suppressWarningsForGeneratingStorageBackend(Object[] loggerArgs) {
 		return AbstractVoxyWorldGenerator.RUNNING_COUNT.get() == 0;
 	}

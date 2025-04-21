@@ -36,8 +36,7 @@ public interface StructureOverrider extends ColumnScript {
 		ScriptedColumnLookup columns,
 		StructureStartWrapper start,
 		RandomGenerator random,
-		long seed,
-		Hints hints
+		long seed
 	);
 
 	@SuppressWarnings("deprecation")
@@ -90,6 +89,7 @@ public interface StructureOverrider extends ColumnScript {
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
+					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 					registry.setupExternalEnvironment(
 						environment
 						.addFieldGet(ScriptedStructure.Piece.class, "data")
@@ -104,10 +104,10 @@ public interface StructureOverrider extends ColumnScript {
 							.addArguments("II", loadRandom)
 							.buildMethod()
 						)
-						.addVariableLoad("hints", type(Hints.class))
+						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
 						.configure(ScriptedColumn.hintsEnvironment())
 						.addVariableRenamedInvoke(load("hints", type(Hints.class)), "distantHorizons", MethodInfo.getMethod(Hints.class, "isLod")),
-						new ExternalEnvironmentParams().withLookup(load("columns", type(ScriptedColumnLookup.class)))
+						new ExternalEnvironmentParams().withLookup(loadLookup)
 					);
 				})
 				.parse(new ScriptClassLoader(registry.loader))
@@ -115,11 +115,11 @@ public interface StructureOverrider extends ColumnScript {
 		}
 
 		@Override
-		public boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, long seed, Hints hints) {
+		public boolean override(ScriptedColumnLookup columns, StructureStartWrapper start, RandomGenerator random, long seed) {
 			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
-				return this.script.override(columns, start, random, seed, hints);
+				return this.script.override(columns, start, random, seed);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

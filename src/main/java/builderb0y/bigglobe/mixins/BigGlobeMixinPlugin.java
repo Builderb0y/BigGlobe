@@ -89,6 +89,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".VoxyIntegration",                                                        Boolean.TRUE);
+		defaults.put(mixinPackage + ".Voxy_NodeManager_SuppressWarnings",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                          Boolean.TRUE);
 		#if MC_VERSION >= MC_1_21_2
@@ -286,11 +287,13 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			}
 			case
 				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
-				"builderb0y.bigglobe.mixins.Voxy_NodeManager_SuppressWarnings",
 				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
 				"builderb0y.bigglobe.mixins.Voxy_RenderService_ShutdownHook"
 			-> {
 				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
+			}
+			case "builderb0y.bigglobe.mixins.Voxy_NodeManager_SuppressWarnings" -> {
+				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "voxy");
 			}
 			case "builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter" -> {
 				yield checkMod(mixinClassName, "voxy");

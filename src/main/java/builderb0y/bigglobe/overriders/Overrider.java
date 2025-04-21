@@ -95,11 +95,10 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 		public int getCollisionPriority(
 			ScriptedColumnLookup columns,
 			StructureStartWrapper currentStructure,
-			StructureStartWrapper otherStructure,
-			Hints hints
+			StructureStartWrapper otherStructure
 		) {
 			for (CollisionOverrider.Entry collision : this.collisions) {
-				int priority = collision.script().override(columns, currentStructure, otherStructure, hints);
+				int priority = collision.script().override(columns, currentStructure, otherStructure);
 				if (priority != 0) return priority;
 			}
 			return 0;

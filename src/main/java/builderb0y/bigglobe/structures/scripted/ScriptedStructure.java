@@ -39,6 +39,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -92,7 +93,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			)
 		);
 		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
-		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces, hints);
+		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces);
 		StructurePiecesCollector collector = new StructurePiecesCollector();
 		int minY = Integer.MAX_VALUE;
 		int maxY = Integer.MIN_VALUE;
@@ -173,7 +174,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		@Override
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			for (Map.Entry<String, NbtElement> entry : ((NbtCompound)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).entrySet()) {
+			for (Map.Entry<String, NbtElement> entry : ((NbtCompoundExtensions)(Object)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).bigglobe_getEntrySet()) {
 				nbt.put(entry.getKey(), entry.getValue());
 			}
 		}

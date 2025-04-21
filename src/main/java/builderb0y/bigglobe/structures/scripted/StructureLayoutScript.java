@@ -21,6 +21,7 @@ import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEn
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
 import builderb0y.bigglobe.util.CheckedList;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -34,13 +35,12 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public interface StructureLayoutScript extends Script {
 
 	public abstract void layout(
-		ScriptedColumnLookup lookup,
+		ScriptedColumnLookup columns,
 		int originX,
 		int originZ,
 		long worldSeed,
 		RandomGenerator random,
-		CheckedList<StructurePiece> pieces,
-		Hints hints
+		CheckedList<StructurePiece> pieces
 	);
 
 	@Deprecated
@@ -72,6 +72,7 @@ public interface StructureLayoutScript extends Script {
 				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
 				.configureEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
+					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 					registry.setupExternalEnvironment(
 						environment
 						.addVariableLoad("worldSeed", TypeInfos.LONG)
@@ -85,12 +86,12 @@ public interface StructureLayoutScript extends Script {
 						.addMethod(type(Piece.class), "rotateAndFlipRandomly", Handlers.builder(Piece.class, "rotateAndFlipRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
 						.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 						.addVariableLoad("pieces", type(CheckedList.class))
-						.addVariableLoad("hints", type(Hints.class))
+						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
 						.configure(ScriptedColumn.hintsEnvironment())
 						.addVariable("distantHorizons", Handlers.builder(StructureLayoutScript.class, "distantHorizons").addImplicitArgument(load("hints", type(Hints.class))).buildVariable()),
 
 						new ExternalEnvironmentParams()
-						.withLookup(load("lookup", type(ScriptedColumnLookup.class)))
+						.withLookup(loadLookup)
 						.withXZ(
 							load("originX", TypeInfos.INT),
 							load("originZ", TypeInfos.INT)
@@ -106,18 +107,17 @@ public interface StructureLayoutScript extends Script {
 
 		@Override
 		public void layout(
-			ScriptedColumnLookup lookup,
+			ScriptedColumnLookup columns,
 			int originX,
 			int originZ,
 			long worldSeed,
 			RandomGenerator random,
-			CheckedList<StructurePiece> pieces,
-			Hints hints
+			CheckedList<StructurePiece> pieces
 		) {
 			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
-				this.script.layout(lookup, originX, originZ, worldSeed, random, pieces, hints);
+				this.script.layout(columns, originX, originZ, worldSeed, random, pieces);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

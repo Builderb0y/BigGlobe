@@ -82,19 +82,9 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
 		return new StructureGenerationParams(
 			generator,
-			new ScriptedColumnLookup.Impl(
-				generator.columnEntryRegistry.columnFactory,
-				new Params(
-					generator,
-					0,
-					0,
-					hints
-				)
-			),
-			hints,
+			generator.newColumnLookup(world, hints),
 			world,
-			chunkPos,
-			distantHorizons
+			chunkPos
 		);
 	}
 }

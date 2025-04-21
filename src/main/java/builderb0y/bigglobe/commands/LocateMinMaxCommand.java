@@ -19,8 +19,6 @@ import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 
 public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 
-	public static final DynamicCommandExceptionType INVALID_COLUMN_VALUE = new DynamicCommandExceptionType(value -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate.noise.invalidColumnValue", value));
-
 	public final CompareMode compareMode;
 	public final BoundedPointIterator2D iterator;
 	public final ColumnToDoubleScript.Holder script;

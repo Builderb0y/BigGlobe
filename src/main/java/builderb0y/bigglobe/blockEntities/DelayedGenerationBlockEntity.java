@@ -21,6 +21,7 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
+import builderb0y.bigglobe.versions.NbtVersions;
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
 
@@ -67,8 +68,8 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.error("Error reading NBT data for delayed generation at " + this.pos, exception);
 		}
-		if (nbt.get("old_state") instanceof NbtString string && !string.value().isEmpty()) try {
-			this.oldState = BlockArgumentParserVersions.block(string.value(), false).blockState();
+		if (nbt.get("old_state") instanceof NbtString string && !NbtVersions.stringValue(string).isEmpty()) try {
+			this.oldState = BlockArgumentParserVersions.block(NbtVersions.stringValue(string), false).blockState();
 		}
 		catch (CommandSyntaxException exception) {
 			BigGlobeMod.LOGGER.error("", exception);

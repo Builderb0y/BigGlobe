@@ -5,13 +5,18 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.util.math.ColumnPos;
 
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.MethodInfo;
 
 public interface ScriptedColumnLookup {
 
 	public static final ScopeLocal<ScriptedColumnLookup> GLOBAL = new ScopeLocal<>();
-	public static final MethodInfo LOOKUP_COLUMN = MethodInfo.inCaller("lookupColumn");
+	public static final MethodInfo
+		LOOKUP_COLUMN = MethodInfo.inCaller("lookupColumn"),
+		HINTS = MethodInfo.inCaller("getHints");
+
+	public abstract Hints getHints();
 
 	public abstract ScriptedColumn lookupColumn(int x, int z);
 
@@ -24,6 +29,11 @@ public interface ScriptedColumnLookup {
 		public Impl(ScriptedColumn.Factory factory, ScriptedColumn.Params params) {
 			this.columnFactory = factory;
 			this.params = params;
+		}
+
+		@Override
+		public Hints getHints() {
+			return this.params.hints();
 		}
 
 		@Override

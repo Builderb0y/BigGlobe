@@ -25,10 +25,7 @@ import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
-import builderb0y.bigglobe.versions.BlockEntityVersions;
-import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.bigglobe.versions.*;
 
 import net.minecraft.registry.RegistryWrapper;
 
@@ -141,7 +138,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		RegistryWrapper<Block> registry = BlockArgumentParserVersions.blockRegistry();
 		for (NbtElement element : paletteNBT) {
 			if (element instanceof NbtString string) try {
-				palette.add(BlockArgumentParserVersions.block(registry, string.value(), false).blockState());
+				palette.add(BlockArgumentParserVersions.block(registry, NbtVersions.stringValue(string), false).blockState());
 			}
 			catch (CommandSyntaxException exception) {
 				throw new IllegalArgumentException(exception);

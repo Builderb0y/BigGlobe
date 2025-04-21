@@ -706,8 +706,22 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			return CompletableFuture.completedFuture(chunk);
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, HeightLimitViewVersions.getMinY(chunk), HeightLimitViewVersions.getMaxY(chunk), ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons), this.compiledWorldTraits);
+		Hints hints = ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons);
+		ScriptStructures structures = ScriptStructures.getStructures(
+			this,
+			this.newColumnLookup(chunk, hints),
+			structureAccessor,
+			chunk.getPos()
+		);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(
+			this.columnSeed,
+			0,
+			0,
+			HeightLimitViewVersions.getMinY(chunk),
+			HeightLimitViewVersions.getMaxY(chunk),
+			hints,
+			this.compiledWorldTraits
+		);
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();
@@ -849,7 +863,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						WorldUtil.chunkBox(chunk),
 						WorldUtil.chunkBox(chunk)
 					),
-					ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons)
+					hints
 				);
 				worldWrapper.overriders = new AutoOverride(
 					structures,
@@ -908,7 +922,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			),
 			ColumnUsage.FEATURES.maybeDhHints()
 		);
-		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.params.hints().isLod());
+		ScriptStructures structures = ScriptStructures.getStructures(
+			this,
+			worldWrapper,
+			structureAccessor,
+			chunk.getPos()
+		);
 		ScriptedColumn[] columns = this.chunkReuseColumns.get();
 		worldWrapper.overriders = new AutoOverride(
 			structures,
@@ -934,16 +953,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ScriptedColumnLookup columns) {
 		if (((StructureAccessor_WorldAccess)(structureAccessor)).bigglobe_getWorld() instanceof ServerWorldAccess serverWorldAccess) {
-			boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 			Hints hints = ColumnUsage.GENERIC.maybeDhHints();
 			FinalStructures structures = this.structureManager.getIntersectingStructures(
 				new StructureGenerationParams(
 					this,
 					this.newColumnLookup(serverWorldAccess, hints),
-					hints,
 					serverWorldAccess.toServerWorld(),
-					chunk.getPos(),
-					distantHorizons
+					chunk.getPos()
 				)
 			);
 			RawGenerationStructurePiece.Context context = null;
@@ -971,16 +987,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public void generateStructures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
 		BlockBox chunkBox = WorldUtil.chunkBox(chunk);
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
 		FinalStructures structures = this.structureManager.getIntersectingStructures(
 			new StructureGenerationParams(
 				this,
 				this.newColumnLookup(world, hints),
-				hints,
 				world.toServerWorld(),
-				chunk.getPos(),
-				distantHorizons
+				chunk.getPos()
 			)
 		);
 		Registry<Structure> structureRegistry = RegistryVersions.getRegistry(world.getRegistryManager(), RegistryKeys.STRUCTURE);
@@ -1088,16 +1101,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		StructureAccessor structureAccessor,
 		Chunk chunk
 	) {
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
 		FinalStructures intersecting = this.structureManager.getIntersectingStructures(
 			new StructureGenerationParams(
 				this,
 				this.newColumnLookup(chunk, hints),
-				hints,
 				world.toServerWorld(),
-				chunk.getPos(),
-				distantHorizons
+				chunk.getPos()
 			)
 		);
 		for (StructureStart start : intersecting) {
@@ -1136,24 +1146,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		int chunkX,
 		int chunkZ
 	) {
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
+		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
 		FinalStructures starts = this.structureManager.getStructureStarts(
 			new StructureGenerationParams(
 				this,
-				new ScriptedColumnLookup.Impl(
-					this.columnEntryRegistry.columnFactory,
-					new Params(
-						this,
-						0,
-						0,
-						hints
-					)
-				),
-				hints,
+				this.newColumnLookup(world, hints),
 				world,
-				new ChunkPos(chunkX, chunkZ),
-				distantHorizons
+				new ChunkPos(chunkX, chunkZ)
 			)
 		);
 		for (RegistryEntry<Structure> structure : structures) {

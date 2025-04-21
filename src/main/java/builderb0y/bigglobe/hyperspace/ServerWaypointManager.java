@@ -14,12 +14,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.PersistentStateType;
 import net.minecraft.world.World;
 
 import builderb0y.autocodec.annotations.*;
@@ -45,8 +45,8 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	#if MC_VERSION >= MC_1_21_5
 
-		public static final PersistentStateType<ServerWaypointManager>
-			TYPE = new PersistentStateType<>("bigglobe_hyperspace_waypoints", ServerWaypointManager::new, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ServerWaypointManager.class), null);
+		public static final net.minecraft.world.PersistentStateType<ServerWaypointManager>
+			TYPE = new net.minecraft.world.PersistentStateType<>("bigglobe_hyperspace_waypoints", ServerWaypointManager::new, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ServerWaypointManager.class), null);
 
 	#elif MC_VERSION >= MC_1_20_2
 
@@ -58,6 +58,25 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	public int nextID;
 
 	public ServerWaypointManager() {}
+
+	#if MC_VERSION < MC_1_21_5
+
+		public static ServerWaypointManager parse(NbtCompound compound) {
+			try {
+				return BigGlobeAutoCodec.AUTO_CODEC.decode(BigGlobeAutoCodec.AUTO_CODEC.createCoder(ServerWaypointManager.class), compound, NbtOps.INSTANCE);
+			}
+			catch (DecodeException exception) {
+				BigGlobeMod.LOGGER.error("Could not read waypoint data!", exception);
+				return new ServerWaypointManager();
+			}
+		}
+
+		@Override
+		public NbtCompound writeNbt(NbtCompound nbt) {
+			return (NbtCompound)(BigGlobeAutoCodec.AUTO_CODEC.encode(BigGlobeAutoCodec.AUTO_CODEC.createCoder(ServerWaypointManager.class), this, NbtOps.INSTANCE));
+		}
+
+	#endif
 
 	public static class Imprinter extends NamedImprinter<ServerWaypointManager> {
 
@@ -100,7 +119,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 		#elif MC_VERSION >= MC_1_20_2
 			return world.getPersistentStateManager().getOrCreate(ServerWaypointManager.TYPE, "bigglobe_hyperspace_waypoints");
 		#else
-			return world.getPersistentStateManager().getOrCreate(ServerWaypointManager::new, ServerWaypointManager::new, "bigglobe_hyperspace_waypoints");
+			return world.getPersistentStateManager().getOrCreate(ServerWaypointManager::parse, ServerWaypointManager::new, "bigglobe_hyperspace_waypoints");
 		#endif
 	}
 

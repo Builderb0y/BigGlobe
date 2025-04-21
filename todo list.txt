@@ -50,31 +50,32 @@ noise experiment:
 	add slope threshold for abandoned cities to prevent them from spawning on steep mountainous areas.
 	add overgrown sand as transition block between warm biomes and hot biomes.
 	add "default world type" config option, allow for arbitrary default world types.
-	C2ME integration is misnamed in config file.
-		verify that integration still works correctly. I'm not sure what issues the misnaming might cause.
-	remove waterfalls.
-	apparently clify_snow, river_water_depth, and river_water_y still exist.
-	/bigglobe:locate with C2ME causes exception.
-		verify that Random object is NOT being used on command thread.
-	figure out why obelisks float in DH LODs.
-	frozen caves don't have localizations.
-		check other caves too.
-	add delegating structures to relevant vanilla structure tags.
-	forcibly disable cave culling for DH in big globe worlds again.
 	try to add support for sodium dynamic lights.
 	stop using NbtHelper.toBlockState() where reasonable.
+	add soul blossom block to valley of souls.
+		texture similar to the blazing blossom.
+	move more column properties to Hints.
 
 changelog:
 	# This is a BETA release! It is ONLY intended for testing the new overworld!
 	# This version changes everything. Do not use it with existing worlds, and do not expect existing data packs to work flawlessly!
 
 	Changelog:
+	Compared to the previous beta:
+	* Ported to MC 1.21.5.
+	* Rivers are now wider.
+	* Removed waterfalls (lavafalls on volcanoes still exist).
+	* Forcibly disable cave culling when playing with distant horizons. Hopefully this means people will stop complaining about my skylands.
+	* Fixed obelisks floating in DH LOD chunks.
+	* Fixed `/bigglobe:locate nearest` command with C2ME.
+	* Fixed a crash I fixed a while go, but better this time.
+	* Fixed C2ME integration being misnamed in config file.
+	Compared to V4.11:
 	* Completely re-designed the overworld (shouldn't affect island worlds much, if at all).
 	* Fixed being unable to craft gunpowder with sulfur.
 	* Fixed the end dimension not generating terrain more than about 46k blocks from the origin.
 	* Fixed pale netherrack not being in the creative menu (1.21.4).
 	* Fixed charred signs being arranged differently from other signs in the creative menu.
-	* Fixed a crash I fixed a while go, but better this time.
 
 alternate world presets:
 	paradise.

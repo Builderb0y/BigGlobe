@@ -12,6 +12,8 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -27,8 +29,7 @@ public interface CollisionOverrider extends ColumnScript {
 	public abstract int override(
 		ScriptedColumnLookup columns,
 		StructureStartWrapper currentStart,
-		StructureStartWrapper otherStart,
-		Hints hints
+		StructureStartWrapper otherStart
 	);
 
 	public static record Entry(Holder script) implements Overrider {
@@ -59,14 +60,15 @@ public interface CollisionOverrider extends ColumnScript {
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
+					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 					registry.setupExternalEnvironment(
 						environment
 						.addFieldGet(ScriptedStructure.Piece.class, "data")
 						.addVariableLoad("currentStart", StructureStartWrapper.TYPE)
 						.addVariableLoad("otherStart", StructureStartWrapper.TYPE)
-						.addVariableLoad("hints", type(Hints.class))
+						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
 						.configure(ScriptedColumn.hintsEnvironment()),
-						new ExternalEnvironmentParams().withLookup(load("columns", type(ScriptedColumnLookup.class)))
+						new ExternalEnvironmentParams().withLookup(loadLookup)
 					);
 				})
 				.parse(new ScriptClassLoader(registry.loader))
@@ -77,13 +79,12 @@ public interface CollisionOverrider extends ColumnScript {
 		public int override(
 			ScriptedColumnLookup columns,
 			StructureStartWrapper currentStart,
-			StructureStartWrapper otherStart,
-			Hints hints
+			StructureStartWrapper otherStart
 		) {
 			NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 			int used = manager.used;
 			try {
-				return this.script.override(columns, currentStart, otherStart, hints);
+				return this.script.override(columns, currentStart, otherStart);
 			}
 			catch (Throwable throwable) {
 				this.onError(throwable);

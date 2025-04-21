@@ -172,7 +172,7 @@ public class BigGlobeConfig {
 	}
 
 	@Tooltip(count = 2)
-	@UseName("Voxy Integration")
+	@UseName("C2ME Integration")
 	@CollapsibleObject(startExpanded = true)
 	@DefaultIgnore
 	public final C2MEIntegration c2meIntegration = new C2MEIntegration();

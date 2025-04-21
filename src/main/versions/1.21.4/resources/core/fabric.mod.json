@@ -38,6 +38,8 @@
 	"suggests": {
 	},
 	"recommends": {
+		"cloth-config": "*",
+		"modmenu": "*",
 		"satin": "*"
 	},
 	"breaks": {

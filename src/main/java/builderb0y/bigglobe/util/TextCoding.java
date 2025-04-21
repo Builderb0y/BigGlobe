@@ -20,6 +20,7 @@ import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.DataOps;
 import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.UnknownData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
@@ -49,7 +50,7 @@ public class TextCoding {
 				);
 			#else
 				JsonElement json = Text.Serializer.toJsonTree(text);
-				return new UnknownData(json, JsonOps.INSTANCE);
+				return new UnknownData<>(JsonOps.INSTANCE, json);
 			#endif
 		}
 

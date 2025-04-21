@@ -15,22 +15,24 @@ import builderb0y.bigglobe.versions.TextVersions;
 public class LocateNearestCommand extends AsyncCommand {
 
 	public final ColumnToBooleanScript.Holder script;
+	public final GoldenSpiralIterator iterator;
 
 	public LocateNearestCommand(ServerCommandSource source, ColumnToBooleanScript.Holder script) {
 		super(source);
 		this.script = script;
+		this.iterator = new GoldenSpiralIterator(
+			source.getPosition().x,
+			source.getPosition().z,
+			4.0D,
+			source.getWorld().random.nextDouble() * (Math.PI * 2.0D)
+		);
 	}
 
 	@Override
 	public void run() {
 		ScriptedColumn column = this.newScriptedColumn();
 		for (
-			GoldenSpiralIterator iterator = new GoldenSpiralIterator(
-				this.source.getPosition().x,
-				this.source.getPosition().z,
-				4.0D,
-				this.source.getWorld().random.nextDouble() * (Math.PI * 2.0D)
-			);
+			GoldenSpiralIterator iterator = this.iterator;
 			iterator.radius < 1_000_000;
 			iterator.next()
 		) {

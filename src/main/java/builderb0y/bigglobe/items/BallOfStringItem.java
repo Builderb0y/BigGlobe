@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -103,7 +102,7 @@ public class BallOfStringItem extends Item
 	#if MC_VERSION >= MC_1_21_5
 		@Deprecated
 		@SuppressWarnings("deprecation")
-		public void appendTooltip(ItemStack stack, TooltipContext context, TooltipDisplayComponent displayComponent, Consumer<Text> tooltip, TooltipType type) {
+		public void appendTooltip(ItemStack stack, TooltipContext context, net.minecraft.component.type.TooltipDisplayComponent displayComponent, Consumer<Text> tooltip, TooltipType type) {
 			super.appendTooltip(stack, context, displayComponent, tooltip, type);
 	#elif MC_VERSION >= MC_1_20_5
 		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {

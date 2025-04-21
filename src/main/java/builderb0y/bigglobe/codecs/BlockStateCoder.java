@@ -13,10 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryOps;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.poi.PointOfInterestTypes;
@@ -24,7 +22,6 @@ import net.minecraft.world.poi.PointOfInterestTypes;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseVerifier;
-import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.DataOps;
@@ -38,8 +35,8 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.mixinInterfaces.AdjustableRegistryOps;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
@@ -84,8 +81,8 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 		else {
 			DynamicOps<Data> dataOps = context.ops.compressMaps() ? DataOps.COMPRESSED : DataOps.UNCOMPRESSED;
-			if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
-				dataOps = registryOps.withDelegate(dataOps);
+			if (context.ops instanceof AdjustableRegistryOps registryOps) {
+				dataOps = registryOps.bigglobe_changeType(dataOps);
 			}
 			return context.logger().unwrapLazy(
 				BlockState.CODEC.parse(dataOps, context.data),

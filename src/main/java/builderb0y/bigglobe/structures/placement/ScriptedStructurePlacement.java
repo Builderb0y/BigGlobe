@@ -25,6 +25,7 @@ import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.ExternalData;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
 import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -73,7 +74,6 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 		this.placement.getNearbyStartChunks(
 			builder,
 			lookup,
-			hints,
 			generator.columnSeed,
 			centerChunkX,
 			centerChunkZ,
@@ -106,7 +106,6 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 		public abstract void getNearbyStartChunks(
 			Stream.Builder<ChunkPos> builder,
 			ScriptedColumnLookup lookup,
-			Hints hints,
 			long worldSeed,
 			int centerChunkX,
 			int centerChunkZ,
@@ -132,18 +131,19 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 					.addEnvironment(WoodPaletteScriptEnvironment.BASE)
 					.configureEnvironment(MinecraftScriptEnvironment.create())
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 						registry.setupExternalEnvironment(
 							environment
 							.addVariableLoad("worldSeed", TypeInfos.LONG)
 							.addVariableLoad("centerChunkX", TypeInfos.INT)
 							.addVariableLoad("centerChunkZ", TypeInfos.INT)
 							.addVariableLoad("chunkRange", TypeInfos.INT)
-							.addVariableLoad("hints", type(Hints.class))
+							.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
 							.configure(ScriptedColumn.hintsEnvironment())
 							.addFunction("addStart", Handlers.builder(ScriptedStructurePlacement.class, "outputStart").addArguments(load("builder", type(Stream.Builder.class)), "II").buildFunction()),
 
 							new ExternalEnvironmentParams()
-							.withLookup(load("lookup", type(ScriptedColumnLookup.class)))
+							.withLookup(loadLookup)
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
@@ -157,7 +157,6 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 			public void getNearbyStartChunks(
 				Stream.Builder<ChunkPos> builder,
 				ScriptedColumnLookup lookup,
-				Hints hints,
 				long worldSeed,
 				int centerChunkX,
 				int centerChunkZ,
@@ -169,7 +168,6 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 					this.script.getNearbyStartChunks(
 						builder,
 						lookup,
-						hints,
 						worldSeed,
 						centerChunkX,
 						centerChunkZ,

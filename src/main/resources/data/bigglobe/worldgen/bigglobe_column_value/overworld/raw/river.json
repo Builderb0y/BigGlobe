@@ -5,17 +5,19 @@
 		"is_3d": false
 	},
 	"script": [
+		"double termination = `bigglobe:overworld/river_termination`",
+		"double microContribution = unmixSmooth(16.0L, 0.0L, termination)",
 		"double curve(double value:",
-			"1.0L - 1.0L / (value ^ 2 + 1.0L)",
+			"1.0L - microContribution / (value ^ 4 + 1.0L)",
 		")",
 		"double macro = `river/macro`",
-		"return(",
-			"(macro ^ 2 * 8.0L + 0.09375L)",
-			"* curve((macro + `river/micro_1`) * 64.0L)",
-			"* curve((macro + `river/micro_2`) * 64.0L)",
-			"* curve((macro + `river/micro_3`) * 64.0L)",
-			"* curve((macro + `river/micro_4`) * 64.0L)",
-			"* 64.0L - 4.0L + `bigglobe:overworld/river_termination`",
-		")"
+		"double result = macro ^ 4 * 1024.0L + 10.0L",
+		"if (microContribution > 0.0L:",
+			"result *= curve((macro + `river/micro_1`) * 64.0L)",
+			"result *= curve((macro + `river/micro_2`) * 32.0L)",
+			"result *= curve((macro + `river/micro_3`) * 32.0L)",
+			"result *= curve((macro + `river/micro_4`) * 16.0L)",
+		")",
+		"return(result + termination + `river/bottom_noise`)"
 	]
 }

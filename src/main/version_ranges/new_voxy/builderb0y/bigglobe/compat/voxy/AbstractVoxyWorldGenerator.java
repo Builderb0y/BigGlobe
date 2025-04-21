@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.common.world.WorldSection;
 import me.cortex.voxy.common.world.other.Mapper;
+import me.cortex.voxy.commonImpl.VoxyCommon;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -138,6 +139,12 @@ public abstract class AbstractVoxyWorldGenerator {
 					Thread.sleep(100L);
 				}
 				catch (InterruptedException ignored) {}
+
+				if (VoxyCommon.getInstance().getSavingService().getTaskCount() >= 1000) {
+					try { Thread.sleep(100L); }
+					catch (InterruptedException ignored) {}
+					continue; //do not generate next chunk.
+				}
 
 				if (!this.generateNextChunk()) try {
 					Thread.sleep(1000L);

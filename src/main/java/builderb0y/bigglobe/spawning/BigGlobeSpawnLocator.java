@@ -126,10 +126,8 @@ public class BigGlobeSpawnLocator {
 			new StructureGenerationParams(
 				generator,
 				generator.newColumnLookup(world, hints),
-				hints,
 				world,
-				new ChunkPos(blockX >> 4, blockZ >> 4),
-				false
+				new ChunkPos(blockX >> 4, blockZ >> 4)
 			)
 		);
 		for (StructureStart start : structures) {

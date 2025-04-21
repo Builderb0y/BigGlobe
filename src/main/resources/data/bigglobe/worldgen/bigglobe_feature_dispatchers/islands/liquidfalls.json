@@ -10,16 +10,6 @@
 				")",
 				"placeFeature(x, y, z, 'bigglobe:islands/lavafall')",
 			")",
-		")",
-		"else (",
-			"repeat (3:",
-				"int*(",
-					"x = minModifiableX | random.nextInt(16)",
-					"z = minModifiableZ | random.nextInt(16)",
-					"y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
-				")",
-				"placeFeature(x, y, z, 'bigglobe:overworld/waterfall')",
-			")",
 		")"
 	]
 }

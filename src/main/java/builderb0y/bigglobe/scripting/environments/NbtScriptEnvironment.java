@@ -5,7 +5,8 @@ import java.util.function.Consumer;
 
 import net.minecraft.nbt.*;
 
-import builderb0y.bigglobe.mixinInterfaces.NbtCompoundRemoveAndReturnAccess;
+import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
+import builderb0y.bigglobe.versions.NbtVersions;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -188,7 +189,7 @@ public class NbtScriptEnvironment {
 	public static long    asLong   (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.longValue  () :    0; }
 	public static float   asFloat  (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.floatValue () :    0; }
 	public static double  asDouble (NbtElement element) { return element instanceof AbstractNbtNumber number ?  number.doubleValue() :    0; }
-	public static String  asString (NbtElement element) { return element instanceof         NbtString string ?  string.value      () : null; }
+	public static String  asString (NbtElement element) { return element instanceof         NbtString string ?  NbtVersions.stringValue(string) : null; }
 
 	public static NbtElement getMember(NbtElement element, String name) {
 		return element instanceof NbtCompound compound ? compound.get(name) : null;
@@ -198,20 +199,21 @@ public class NbtScriptEnvironment {
 		Objects.requireNonNull(name, "key is null.");
 		if (element instanceof NbtCompound compound) {
 			if (value != null) return compound.put(name, value);
-			else return ((NbtCompoundRemoveAndReturnAccess)(Object)(compound)).bigglobe_remove(name);
+			else return ((NbtCompoundExtensions)(Object)(compound)).bigglobe_remove(name);
 		}
 		else {
 			throw new IllegalArgumentException("Can't set member named " + name + " on " + element + " to " + value);
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static NbtElement getElement(NbtElement element, int index) {
 		if (element instanceof AbstractNbtList list) {
 			if (index >= 0 && index < list.size()) {
 				#if MC_VERSION >= MC_1_21_5
 					return list.method_10534(index);
 				#else
-					return list.get(index);
+					return (NbtElement)(list.get(index));
 				#endif
 			}
 		}
