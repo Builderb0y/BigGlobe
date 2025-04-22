@@ -31,6 +31,7 @@ public class JsonDataLoader_BackwardsCompatibleRecipes {
 		if (
 			codec == Recipe.CODEC &&
 			id.getNamespace().equals(BigGlobeMod.MODID) &&
+			!id.getPath().startsWith("suspicious_stew_") && //already the correct format.
 			original instanceof JsonObject root &&
 			root.get("type") instanceof JsonPrimitive type &&
 			type.isString()

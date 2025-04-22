@@ -1,5 +1,9 @@
 package builderb0y.bigglobe.brewing;
 
+import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
@@ -12,7 +16,6 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 #if MC_VERSION >= MC_1_20_5
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
@@ -21,6 +24,13 @@ import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 public class BigGlobeBrewing {
 
 	static { BigGlobeMod.LOGGER.debug("Registering potions..."); }
+
+	public static final RegistryEntry<StatusEffect>
+		SOUL_SIPHON = registerEffect(
+			"soul_siphon",
+			new StatusEffect(StatusEffectCategory.HARMFUL, 0x00FFFF) {}
+			.addAttributeModifier(EntityAttributes.MAX_HEALTH, BigGlobeMod.modID("effect.soul_siphon"), -4.0D, Operation.ADD_VALUE)
+		);
 
 	public static final #if MC_VERSION >= MC_1_20_5 RegistryEntry<Potion> #else Potion #endif
 		WITHER        = register("wither",        new Potion("wither",        new StatusEffectInstance(StatusEffects.WITHER,  600, 0))),
@@ -47,6 +57,10 @@ public class BigGlobeBrewing {
 			BrewingRecipeRegistry.registerPotionRecipe(Potions.WATER, BigGlobeItems.CHORUS_SPORE, Potions.AWKWARD);
 			BigGlobeMod.LOGGER.debug("Done registering potion recipes.");
 		#endif
+	}
+
+	public static RegistryEntry<StatusEffect> registerEffect(String name, StatusEffect effect) {
+		return Registry.registerReference(Registries.STATUS_EFFECT, BigGlobeMod.modID(name), effect);
 	}
 
 	public static #if MC_VERSION >= MC_1_20_5 RegistryEntry<Potion> #else Potion #endif register(String name, Potion potion) {

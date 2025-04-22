@@ -30,8 +30,6 @@ where I left off:
 		possibly only an issue on dedicated servers.
 	add dumpVars() function which prints out the line number where it's called,
 		along with every variable accessible from the scope where dumpVars() was called.
-	apparently there are some advancements which unlock upon entering a structure.
-		these do not work because my structures are delegated.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -47,14 +45,9 @@ structure rewrites:
 
 noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
-	add slope threshold for abandoned cities to prevent them from spawning on steep mountainous areas.
-	add overgrown sand as transition block between warm biomes and hot biomes.
-	add "default world type" config option, allow for arbitrary default world types.
 	try to add support for sodium dynamic lights.
 	stop using NbtHelper.toBlockState() where reasonable.
-	add soul blossom block to valley of souls.
-		texture similar to the blazing blossom.
-	move more column properties to Hints.
+	test BCLib, might need to be on the incompatible list.
 
 changelog:
 	# This is a BETA release! It is ONLY intended for testing the new overworld!
@@ -63,9 +56,15 @@ changelog:
 	Changelog:
 	Compared to the previous beta:
 	* Ported to MC 1.21.5.
+	* Added a new "Soul Silverpetal" flower block.
+		* Found in the valley of souls.
+		* When made into suspicious stew, gives a new "soul siphon" status effect.
+			* This reduces your max health by 2 hearts per level.
 	* Rivers are now wider.
 	* Removed waterfalls (lavafalls on volcanoes still exist).
-	* Forcibly disable cave culling when playing with distant horizons. Hopefully this means people will stop complaining about my skylands.
+	* The boundary between warm and hot biomes now includes overgrown sand.
+	* Forcibly disabled cave culling when playing with distant horizons. Hopefully this means people will stop complaining about my skylands.
+	* Expanded "Make Big Globe the default world type" config option to allow mod pack makers to specify an arbitrary default world type.
 	* Fixed obelisks floating in DH LOD chunks.
 	* Fixed `/bigglobe:locate nearest` command with C2ME.
 	* Fixed a crash I fixed a while go, but better this time.

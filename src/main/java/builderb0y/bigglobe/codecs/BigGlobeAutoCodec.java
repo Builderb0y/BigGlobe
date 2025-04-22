@@ -27,6 +27,7 @@ import net.minecraft.loot.function.LootFunction;
 import net.minecraft.loot.function.LootFunctionTypes;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.particle.ParticleType;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -139,6 +140,7 @@ public class BigGlobeAutoCodec {
 	#if MC_VERSION >= MC_1_20_3
 	public static final RegistryCoders<StatusEffect>                          STATUS_EFFECT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StatusEffect                          .class), RegistryKeys.STATUS_EFFECT);
 	#endif
+	public static final RegistryCoders<ParticleType<?>>                       PARTICLE_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ParticleType     .class), RegistryKeys.PARTICLE_TYPE);
 	public static final RegistryCoders<DimensionType>                        DIMENSION_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DimensionType                         .class), RegistryKeys.DIMENSION_TYPE);
 	public static final RegistryCoders<ConfiguredCarver<?>>               CONFIGURED_CARVER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), RegistryKeys.CONFIGURED_CARVER);
 	public static final RegistryCoders<ConfiguredFeature<?, ?>>          CONFIGURED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), RegistryKeys.CONFIGURED_FEATURE);
@@ -173,6 +175,7 @@ public class BigGlobeAutoCodec {
 		#if MC_VERSION >= MC_1_20_3
 		STATUS_EFFECT_REGISTRY_CODERS,
 		#endif
+		PARTICLE_TYPE_REGISTRY_CODERS,
 		DIMENSION_TYPE_REGISTRY_CODERS,
 		CONFIGURED_CARVER_REGISTRY_CODERS,
 		CONFIGURED_FEATURE_REGISTRY_CODERS,

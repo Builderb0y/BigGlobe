@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.mixins;
 
-import me.cortex.voxy.common.config.section.SectionStorage;
+import me.cortex.voxy.client.core.rendering.VoxyRenderSystem;
+import me.cortex.voxy.common.thread.ServiceThreadPool;
 import me.cortex.voxy.common.world.WorldEngine;
-import me.cortex.voxy.commonImpl.VoxyInstance;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,27 +15,30 @@ import net.minecraft.client.MinecraftClient;
 import builderb0y.bigglobe.compat.voxy.AbstractVoxyWorldGenerator;
 import builderb0y.bigglobe.compat.voxy.GeneratingStorageBackend;
 
-@Mixin(value = WorldEngine.class, remap = false)
-public class Voxy_WorldEngine_UseBigGlobeGenerator {
+@Mixin(VoxyRenderSystem.class)
+public class VoxyRenderSystem_ManageGenerator {
 
-	@Shadow @Final public SectionStorage storage;
+	@Shadow @Final private WorldEngine worldIn;
 
-	@Inject(method = "<init>(Lme/cortex/voxy/common/config/section/SectionStorage;Lme/cortex/voxy/commonImpl/VoxyInstance;)V", at = @At("RETURN"))
-	private void bigglobe_startGenerator(
-		SectionStorage storage,
-		VoxyInstance instance,
-		CallbackInfo callback
-	) {
-		if (true && storage instanceof GeneratingStorageBackend generating) {
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void bigglobe_initGenerator(WorldEngine world, ServiceThreadPool threadPool, CallbackInfo callback) {
+		if (world.storage instanceof GeneratingStorageBackend generating) {
 			generating.generator = (
 				AbstractVoxyWorldGenerator.createGenerator(
 					MinecraftClient.getInstance().world,
-					(WorldEngine)(Object)(this)
+					world
 				)
 			);
 			if (generating.generator != null) {
 				generating.generator.start();
 			}
+		}
+	}
+
+	@Inject(method = "shutdown", at = @At("HEAD"), remap = false)
+	private void bigglobe_shutdownVoxyWorldgenThread(CallbackInfo callback) {
+		if (this.worldIn.storage instanceof GeneratingStorageBackend generating && generating.generator != null) {
+			generating.generator.stop();
 		}
 	}
 }

@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "world_trait_threshold",
+		"min": 0.5,
+		"max": 0.75,
+		"trait": "bigglobe:temperature_at_surface"
+	},
+	"if_true": "bigglobe:overworld/surface_state/hot",
+	"if_false": "bigglobe:overworld/surface_state/hot_barely"
+}

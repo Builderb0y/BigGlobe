@@ -361,6 +361,7 @@ public class BigGlobeBlocks {
 		new BlazingBlossomBlock(
 			StatusEffects.FIRE_RESISTANCE.getRegistryEntry(),
 			8,
+			BlazingBlossomBlock.particleEntry(ParticleTypes.FLAME),
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.TERRACOTTA_ORANGE)
@@ -368,7 +369,24 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.noCollision()
 			.sounds(BlockSoundGroup.GRASS)
-			.luminance(state -> 7)
+			.luminance((BlockState state) -> 7)
+			.pistonBehavior(PistonBehavior.DESTROY)
+		)
+	);
+	public static final BlazingBlossomBlock SOUL_SILVERPETAL = register(
+		"soul_silverpetal",
+		new BlazingBlossomBlock(
+			BigGlobeBrewing.SOUL_SIPHON,
+			8,
+			BlazingBlossomBlock.particleEntry(ParticleTypes.SOUL_FIRE_FLAME),
+			AbstractBlock.Settings
+			.create()
+			.mapColor(MapColor.DIAMOND_BLUE)
+			.breakInstantly()
+			.nonOpaque()
+			.noCollision()
+			.sounds(BlockSoundGroup.GRASS)
+			.luminance((BlockState state) -> 5)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -384,7 +402,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.noCollision()
 			.sounds(BlockSoundGroup.GRASS)
-			.luminance(state -> 11)
+			.luminance((BlockState state) -> 11)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -884,6 +902,7 @@ public class BigGlobeBlocks {
 			WART_WEED,
 			CHARRED_GRASS,
 			BLAZING_BLOSSOM,
+			SOUL_SILVERPETAL,
 			GLOWING_GOLDENROD,
 			POTTED_BLAZING_BLOSSOM,
 			POTTED_GLOWING_GOLDENROD,

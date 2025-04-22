@@ -41,6 +41,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.biome.GrassColors;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
@@ -210,7 +211,7 @@ public class BigGlobeBlocks {
 			.Settings
 			.copy(Blocks.PRISMARINE)
 			.registryKey(key("crystalline_prismarine"))
-			.luminance(state -> 4)
+			.luminance((BlockState state) -> 4)
 		)
 	);
 	public static final Block SLATED_PRISMARINE = register(
@@ -420,6 +421,7 @@ public class BigGlobeBlocks {
 		new BlazingBlossomBlock(
 			StatusEffects.FIRE_RESISTANCE,
 			8,
+			BlazingBlossomBlock.particleEntry(ParticleTypes.FLAME),
 			AbstractBlock
 			.Settings
 			.create()
@@ -429,7 +431,26 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.noCollision()
 			.sounds(BlockSoundGroup.GRASS)
-			.luminance(state -> 7)
+			.luminance((BlockState state) -> 7)
+			.pistonBehavior(PistonBehavior.DESTROY)
+		)
+	);
+	public static final BlazingBlossomBlock SOUL_SILVERPETAL = register(
+		"soul_silverpetal",
+		new BlazingBlossomBlock(
+			BigGlobeBrewing.SOUL_SIPHON,
+			8,
+			BlazingBlossomBlock.particleEntry(ParticleTypes.SOUL_FIRE_FLAME),
+			AbstractBlock
+			.Settings
+			.create()
+			.registryKey(key("soul_silverpetal"))
+			.mapColor(MapColor.DIAMOND_BLUE)
+			.breakInstantly()
+			.nonOpaque()
+			.noCollision()
+			.sounds(BlockSoundGroup.GRASS)
+			.luminance((BlockState state) -> 5)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -447,7 +468,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.noCollision()
 			.sounds(BlockSoundGroup.GRASS)
-			.luminance(state -> 11)
+			.luminance((BlockState state) -> 11)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -471,7 +492,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.ticksRandomly()
 			.strength(100.0F)
-			.luminance(state -> 15)
+			.luminance((BlockState state) -> 15)
 			.dropsNothing()
 			.pistonBehavior(PistonBehavior.DESTROY)
 			.replaceable()
@@ -485,7 +506,7 @@ public class BigGlobeBlocks {
 			.copy(Blocks.MAGMA_BLOCK)
 			.registryKey(key("soul_magma"))
 			.mapColor(MapColor.LAPIS_BLUE)
-			.allowsSpawning((state, world, pos, type) -> type.isFireImmune()) //not copied by copy().
+			.allowsSpawning((BlockState state, BlockView world, BlockPos pos, EntityType<?> type) -> type.isFireImmune()) //not copied by copy().
 		)
 	);
 	public static final SoulCauldronBlock SOUL_CAULDRON = register(
@@ -598,9 +619,9 @@ public class BigGlobeBlocks {
 			.ticksRandomly()
 			.sounds(BlockSoundGroup.GRASS)
 			.nonOpaque()
-			.allowsSpawning((state, world, pos, type) -> type == EntityType.OCELOT || type == EntityType.PARROT)
-			.suffocates((state, world, pos) -> false)
-			.blockVision((state, world, pos) -> false)
+			.allowsSpawning((BlockState state, BlockView world, BlockPos pos, EntityType<?> type) -> type == EntityType.OCELOT || type == EntityType.PARROT)
+			.suffocates((BlockState state, BlockView world, BlockPos pos) -> false)
+			.blockVision((BlockState state, BlockView world, BlockPos pos) -> false)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -1053,6 +1074,7 @@ public class BigGlobeBlocks {
 			WART_WEED,
 			CHARRED_GRASS,
 			BLAZING_BLOSSOM,
+			SOUL_SILVERPETAL,
 			GLOWING_GOLDENROD,
 			POTTED_BLAZING_BLOSSOM,
 			POTTED_GLOWING_GOLDENROD,

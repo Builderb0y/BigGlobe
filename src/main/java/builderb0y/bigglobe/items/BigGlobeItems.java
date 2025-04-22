@@ -106,6 +106,7 @@ public class BigGlobeItems {
 		WART_WEED                = registerPlacer(BigGlobeBlocks.WART_WEED),
 		CHARRED_GRASS            = registerPlacer(BigGlobeBlocks.CHARRED_GRASS),
 		BLAZING_BLOSSOM          = registerPlacer(BigGlobeBlocks.BLAZING_BLOSSOM),
+		SOUL_SILVERPETAL         = registerPlacer(BigGlobeBlocks.SOUL_SILVERPETAL),
 		GLOWING_GOLDENROD        = registerPlacer(BigGlobeBlocks.GLOWING_GOLDENROD),
 		CHARRED_PLANKS           = registerPlacer(BigGlobeBlocks.CHARRED_PLANKS),
 		CHARRED_SAPLING          = registerPlacer(BigGlobeBlocks.CHARRED_SAPLING),
@@ -458,7 +459,7 @@ public class BigGlobeItems {
 			entries.addBefore(#if MC_VERSION >= MC_1_20_3 Items.SHORT_GRASS #else Items.GRASS #endif, SHORT_GRASS);
 			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(#if MC_VERSION >= MC_1_21_4 Items.OPEN_EYEBLOSSOM #else Items.TORCHFLOWER #endif, BLAZING_BLOSSOM, GLOWING_GOLDENROD);
+			entries.addAfter(#if MC_VERSION >= MC_1_21_4 Items.OPEN_EYEBLOSSOM #else Items.TORCHFLOWER #endif, BLAZING_BLOSSOM, SOUL_SILVERPETAL, GLOWING_GOLDENROD);
 			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
 			entries.addAfter(Items.STONE, ROCK);
 			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);

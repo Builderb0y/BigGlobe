@@ -82,8 +82,6 @@
 		"StructureStart_ChildrenGetter",
 		"StructureStart_SaveBoundingBox",
 		"ThrownEntity_CollisionHook",
-		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
-		"Voxy_WorldEngine_UseBigGlobeGenerator",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"WorldGenProperties_LogLevelType",
 		"WorldPreset_DimensionsAccess",
@@ -95,6 +93,7 @@
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
+		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely",
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
@@ -103,7 +102,8 @@
 		"PostEffectProcessor_PassesAccess",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
 		"WorldRenderer_RenderHyperspaceSky",
-		"WorldRenderer_RenderWaypoints"
+		"WorldRenderer_RenderWaypoints",
+		"WorldType_ChangeTranslation"
 	],
 	"injectors": {
 		"defaultRequire": 1

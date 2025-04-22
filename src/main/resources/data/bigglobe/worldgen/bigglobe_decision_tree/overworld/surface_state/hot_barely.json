@@ -1,0 +1,9 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surfaceState": "bigglobe:overgrown_sand",
+			"subsurfaceState": "minecraft:sand"
+		}
+	}
+}

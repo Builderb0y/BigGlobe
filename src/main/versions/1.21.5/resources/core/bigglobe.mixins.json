@@ -86,8 +86,7 @@
 		"ThrownEntity_CollisionHook",
 		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
 		"Voxy_NodeManager_SuppressWarnings",
-		"Voxy_RenderService_ShutdownHook",
-		"Voxy_WorldEngine_UseBigGlobeGenerator",
+		"VoxyRenderSystem_ManageGenerator",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"WorldGenProperties_LogLevelType",
 		"WorldPreset_DimensionsAccess",
@@ -99,6 +98,7 @@
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
+		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely",
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
@@ -106,7 +106,8 @@
 		"MinecraftClient_SetWorldEvent",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
 		"WorldRenderer_RenderHyperspaceSky",
-		"WorldRenderer_RenderWaypoints"
+		"WorldRenderer_RenderWaypoints",
+		"WorldType_ChangeTranslation"
 	],
 	"injectors": {
 		"defaultRequire": 1

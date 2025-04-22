@@ -1,0 +1,21 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"category": "misc",
+	"group": "suspicious_stew",
+	"ingredients": [
+		"minecraft:bowl",
+		"minecraft:brown_mushroom",
+		"minecraft:red_mushroom",
+		"bigglobe:blazing_blossom"
+	],
+	"result": {
+		"components": {
+			"minecraft:suspicious_stew_effects": [{
+				"duration": 80,
+				"id": "minecraft:fire_resistance"
+			}]
+		},
+		"count": 1,
+		"id": "minecraft:suspicious_stew"
+	}
+}

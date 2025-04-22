@@ -3,17 +3,24 @@
 	"config": {
 		"randomize_chance": 0.0,
 		"randomize_radius": 8,
-		"entries": {
-			"weight": 1.0,
-			"radius": { "type": "uniform", "min": 8, "max": 16 },
-			"state": "minecraft:nether_wart",
-			"under": {
-				"place": "minecraft:soul_sand",
-				"replace": [
-					"minecraft:soul_sand",
-					"minecraft:soul_soil"
-				]
+		"entries": [
+			{
+				"weight": 1.0,
+				"radius": { "type": "uniform", "min": 8, "max": 16 },
+				"state": "minecraft:nether_wart",
+				"under": {
+					"place": "minecraft:soul_sand",
+					"replace": [
+						"minecraft:soul_sand",
+						"minecraft:soul_soil"
+					]
+				}
+			},
+			{
+				"weight": 1.0,
+				"radius": { "type": "uniform", "min": 6, "max": 12 },
+				"state": "bigglobe:soul_silverpetal"
 			}
-		}
+		]
 	}
 }

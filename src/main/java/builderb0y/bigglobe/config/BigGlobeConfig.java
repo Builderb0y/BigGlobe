@@ -37,9 +37,9 @@ public class BigGlobeConfig {
 	}
 
 	@Tooltip(count = 3)
-	@UseName("Make Big Globe the default world type")
+	@UseName("Default World Type")
 	@DefaultIgnore
-	public boolean makeBigGlobeDefaultWorldType = true;
+	public String defaultWorldType = "bigglobe:bigglobe";
 
 	@Tooltip(count = 3)
 	@UseName("Big Globe Trees In Big Globe Worlds")

@@ -36,6 +36,7 @@
 			")",
 		")",
 		"if (originY == 16x7FFF_FFFF: return())",
+		"if (highestY - originY > MAX_RADIUS * (4.0L * sqrt(2.0L)): return())",
 		"int*(",
 			"MAX_LAYERS = (highestY - originY) / 5 + 12",
 			"MAX_VOLUME = MAX_AREA * MAX_LAYERS",

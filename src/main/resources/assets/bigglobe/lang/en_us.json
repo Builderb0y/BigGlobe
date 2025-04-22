@@ -55,6 +55,7 @@
 	"block.bigglobe.soul_cauldron": "Soul Cauldron",
 	"block.bigglobe.soul_lava": "Soul Lava",
 	"block.bigglobe.soul_magma": "Soul Magma",
+	"block.bigglobe.soul_silverpetal": "Soul Silverpetal",
 	"block.bigglobe.spelunking_rope": "Spelunking Rope",
 	"block.bigglobe.stick": "Stick",
 	"block.bigglobe.stripped_charred_log": "Stripped Charred Log",
@@ -255,20 +256,23 @@
 	"entity.bigglobe.string": "String",
 	"entity.bigglobe.waypoint": "Waypoint",
 
+	"effect.bigglobe.soul_siphon": "Soul Siphon",
+
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
 	"subtitles.bigglobe.item.armor.equip_voidmetal": "Voidmetal equips",
 
 	"tooltip.bigglobe.ball_of_string.remaining": "%d/%d block(s) remaining",
+	"generator.unknown": "Unknown",
 
 	"hyperspace.invalid_destination_dimension": "This waypoint leads to a non-existent dimension.",
 	"hyperspace.invalid_destination": "This waypoint was destroyed after you entered hyperspace.",
 
 	"text.autoconfig.bigglobe.title": "Big Globe",
 
-	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType": "Make Big Globe the default world type",
-	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType.@Tooltip[0]": "If true, Big Globe will be the default world type.",
-	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType.@Tooltip[1]": "If false, vanilla will be the default world type.",
-	"text.autoconfig.bigglobe.option.makeBigGlobeDefaultWorldType.@Tooltip[2]": "This config option can be useful if you like to create lots of worlds, or you're making a modpack featuring Big Globe.",
+	"text.autoconfig.bigglobe.option.defaultWorldType": "Default World Type",
+	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[0]": "Controls the world type which is selected by default when creating a world.",
+	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[1]": "If the provided world type is malformed or unknown to the game, minecraft:normal will be used instead.",
+	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[2]": "This config option can be useful if you like to create lots of worlds of the same type, or you're making a modpack.",
 
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds": "Big Globe Trees In Big Globe Worlds",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[0]": "If true, saplings will grow into Big Globe trees in Big Globe worlds.",

@@ -39,8 +39,7 @@
 	},
 	"recommends": {
 		"cloth-config": "*",
-		"modmenu": "*",
-		"satin": "*"
+		"modmenu": "*"
 	},
 	"breaks": {
 		"wwoo": "*",

@@ -11,8 +11,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.ChunkPos;
@@ -28,6 +30,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
 import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
 
@@ -74,6 +77,25 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 				);
 			}
 		}
+	}
+
+	@ModifyArg(
+		method = {
+			"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/tag/TagKey;)Lnet/minecraft/structure/StructureStart;",
+			"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/entry/RegistryEntryList;)Lnet/minecraft/structure/StructureStart;"
+		},
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/gen/StructureAccessor;getStructureContaining(Lnet/minecraft/util/math/BlockPos;Ljava/util/function/Predicate;)Lnet/minecraft/structure/StructureStart;"
+		)
+	)
+	private Predicate<RegistryEntry<Structure>> bigglobe_handleDelegates(Predicate<RegistryEntry<Structure>> original) {
+		return (RegistryEntry<Structure> structure) -> {
+			while (structure.value() instanceof DelegatingStructure delegating) {
+				structure = delegating.delegate;
+			}
+			return original.test(structure);
+		};
 	}
 
 	@Unique

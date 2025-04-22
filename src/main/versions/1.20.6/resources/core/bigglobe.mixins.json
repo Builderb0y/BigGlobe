@@ -97,12 +97,14 @@
 		"ClientWorld_CustomTimeSpeed",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
+		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely",
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",
-		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds"
+		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
+		"WorldType_ChangeTranslation"
 	],
 	"injectors": {
 		"defaultRequire": 1
