@@ -23,6 +23,7 @@
 		"DataPacks_StoreResourceManager",
 		"Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",
 		"DhScriptedWorldGenerator_BackwardsCompatibility",
+		"DimensionOptions_CheckHeights",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",

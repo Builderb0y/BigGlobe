@@ -47,11 +47,13 @@ noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 	try to add support for sodium dynamic lights.
 	stop using NbtHelper.toBlockState() where reasonable.
-	test BCLib, might need to be on the incompatible list.
 
 changelog:
-	# This is a BETA release! It is ONLY intended for testing the new overworld!
-	# This version changes everything. Do not use it with existing worlds, and do not expect existing data packs to work flawlessly!
+	# This is a BETA release!
+	* It is ONLY intended for testing the new overworld!
+	* This version changes everything compared to V4.11.
+	* Do not use it with existing worlds, and do not expect existing data packs to work flawlessly!
+	* Releases for the remainder of the minor MC versions will be released once testing is complete.
 
 	Changelog:
 	Compared to the previous beta:
@@ -65,6 +67,7 @@ changelog:
 	* The boundary between warm and hot biomes now includes overgrown sand.
 	* Forcibly disabled cave culling when playing with distant horizons. Hopefully this means people will stop complaining about my skylands.
 	* Expanded "Make Big Globe the default world type" config option to allow mod pack makers to specify an arbitrary default world type.
+	* Added new config option to attempt to detect when other mods or data packs provide incorrect world heights for their chunk generators.
 	* Fixed obelisks floating in DH LOD chunks.
 	* Fixed `/bigglobe:locate nearest` command with C2ME.
 	* Fixed a crash I fixed a while go, but better this time.

@@ -42,6 +42,11 @@ public class BigGlobeConfig {
 	public String defaultWorldType = "bigglobe:bigglobe";
 
 	@Tooltip(count = 3)
+	@UseName("Sanity Check World Height")
+	@DefaultIgnore
+	public boolean checkWorldHeight = true;
+
+	@Tooltip(count = 3)
 	@UseName("Big Globe Trees In Big Globe Worlds")
 	@DefaultIgnore
 	public boolean bigGlobeTreesInBigGlobeWorlds = true;

@@ -77,7 +77,7 @@
 		},
 
 		"minecraft:the_end": {
-			"type": "bigglobe:nether",
+			"type": "bigglobe:end",
 			"generator": {
 				"type": "bigglobe:scripted",
 				"reload_dimension": "minecraft:the_end"

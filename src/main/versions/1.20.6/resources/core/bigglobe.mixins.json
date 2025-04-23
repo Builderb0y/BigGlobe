@@ -21,6 +21,7 @@
 		"ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently",
 		"DataPacks_StoreResourceManager",
 		"DhScriptedWorldGenerator_BackwardsCompatibility",
+		"DimensionOptions_CheckHeights",
 		"DispenserBlock_BehaviorsAccess",
 		"EndCityStructure_UnHardcodeMinimumY",
 		"EnderDragonFight_SpawnGatewaysAtPreferredLocation",

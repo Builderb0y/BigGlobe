@@ -274,6 +274,11 @@
 	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[1]": "If the provided world type is malformed or unknown to the game, minecraft:normal will be used instead.",
 	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[2]": "This config option can be useful if you like to create lots of worlds of the same type, or you're making a modpack.",
 
+	"text.autoconfig.bigglobe.option.checkWorldHeight": "Sanity Check World Height",
+	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[0]": "If true, Big Globe will sanity check that the height of each dimension matches that of the chunk generator assigned to that dimension.",
+	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[1]": "If false, Big Globe will assume that any discrepancies are intentional.",
+	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[2]": "This config option only applies to dimensions with scripted chunk generators because some vanilla dimensions fail this check. This check can be useful for finding broken data packs or mods that modify the world height in unsafe ways, and can even prevent world corruption.",
+
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds": "Big Globe Trees In Big Globe Worlds",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[0]": "If true, saplings will grow into Big Globe trees in Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[1]": "If false, saplings will grow into normal (vanilla) trees in Big Globe worlds.",
