@@ -257,6 +257,7 @@
 	"entity.bigglobe.waypoint": "Waypoint",
 
 	"effect.bigglobe.soul_siphon": "Soul Siphon",
+	"effect.bigglobe.soul_siphon.description": "Reduces your max health by 2 hearts per level",
 
 	"subtitles.bigglobe.entity.rock.throw": "Rock flies",
 	"subtitles.bigglobe.item.armor.equip_voidmetal": "Voidmetal equips",

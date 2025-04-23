@@ -45,7 +45,6 @@ structure rewrites:
 
 noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
-	try to add support for sodium dynamic lights.
 	stop using NbtHelper.toBlockState() where reasonable.
 
 changelog:
@@ -53,7 +52,7 @@ changelog:
 	* It is ONLY intended for testing the new overworld!
 	* This version changes everything compared to V4.11.
 	* Do not use it with existing worlds, and do not expect existing data packs to work flawlessly!
-	* Releases for the remainder of the minor MC versions will be released once testing is complete.
+	* The remainder of the minor MC versions will be released once testing is complete.
 
 	Changelog:
 	Compared to the previous beta:
@@ -87,11 +86,15 @@ alternate world presets:
 			prevent ancient cities from spawning in volcanoes.
 
 breaking changes I want to make:
-	expose IntBoundingBox and DoubleBoundingBox to scripts, with min, mid, and max properties.
+	expose IntVolume and DoubleVolume to scripts, with min, mid, and max properties.
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.
 		migrate equivalent getters from Structure/StructurePiece.
 		expose intersectionArea for scripted structure pieces specifically.
+		also expose (Int|Double)(Area|Range).
+			all of these should be iterable with for each loops.
+				for (int*(x, y, z) in volume: body)
+				for (int*(x, z) in volume.area(): body)
 
 4.0 stuff:
 	/waypoint
