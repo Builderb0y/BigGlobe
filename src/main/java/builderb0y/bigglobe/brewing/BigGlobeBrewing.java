@@ -29,7 +29,27 @@ public class BigGlobeBrewing {
 		SOUL_SIPHON = registerEffect(
 			"soul_siphon",
 			new StatusEffect(StatusEffectCategory.HARMFUL, 0x00FFFF) {}
-			.addAttributeModifier(EntityAttributes.MAX_HEALTH, BigGlobeMod.modID("effect.soul_siphon"), -4.0D, Operation.ADD_VALUE)
+			.addAttributeModifier(
+				#if MC_VERSION > MC_1_21_1
+					EntityAttributes.MAX_HEALTH,
+				#else
+					EntityAttributes.GENERIC_MAX_HEALTH,
+				#endif
+
+				#if MC_VERSION < MC_1_21_0
+					"0c5814dc-2112-41b0-9cd9-7966a2685f9d",
+				#else
+					BigGlobeMod.modID("effect.soul_siphon"),
+				#endif
+
+				-4.0D,
+
+				#if MC_VERSION >= MC_1_20_5
+					Operation.ADD_VALUE
+				#else
+					Operation.ADDITION
+				#endif
+			)
 		);
 
 	public static final #if MC_VERSION >= MC_1_20_5 RegistryEntry<Potion> #else Potion #endif

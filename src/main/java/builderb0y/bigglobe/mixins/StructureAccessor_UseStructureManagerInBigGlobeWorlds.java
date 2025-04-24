@@ -79,24 +79,48 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 		}
 	}
 
-	@ModifyArg(
-		method = {
-			"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/tag/TagKey;)Lnet/minecraft/structure/StructureStart;",
-			"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/entry/RegistryEntryList;)Lnet/minecraft/structure/StructureStart;"
-		},
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/gen/StructureAccessor;getStructureContaining(Lnet/minecraft/util/math/BlockPos;Ljava/util/function/Predicate;)Lnet/minecraft/structure/StructureStart;"
+	#if MC_VERSION >= MC_1_20_5
+
+		@ModifyArg(
+			method = {
+				"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/tag/TagKey;)Lnet/minecraft/structure/StructureStart;",
+				"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/entry/RegistryEntryList;)Lnet/minecraft/structure/StructureStart;"
+			},
+			at = @At(
+				value = "INVOKE",
+				target = "Lnet/minecraft/world/gen/StructureAccessor;getStructureContaining(Lnet/minecraft/util/math/BlockPos;Ljava/util/function/Predicate;)Lnet/minecraft/structure/StructureStart;"
+			)
 		)
-	)
-	private Predicate<RegistryEntry<Structure>> bigglobe_handleDelegates(Predicate<RegistryEntry<Structure>> original) {
-		return (RegistryEntry<Structure> structure) -> {
-			while (structure.value() instanceof DelegatingStructure delegating) {
-				structure = delegating.delegate;
-			}
-			return original.test(structure);
-		};
-	}
+		private Predicate<RegistryEntry<Structure>> bigglobe_handleDelegates(Predicate<RegistryEntry<Structure>> original) {
+			return (RegistryEntry<Structure> structure) -> {
+				while (structure.value() instanceof DelegatingStructure delegating) {
+					structure = delegating.delegate();
+				}
+				return original.test(structure);
+			};
+		}
+
+	#else
+
+		@ModifyArg(
+			method = {
+				"getStructureContaining(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/registry/tag/TagKey;)Lnet/minecraft/structure/StructureStart;"
+			},
+			at = @At(
+				value = "INVOKE",
+				target = "Lnet/minecraft/world/gen/StructureAccessor;getStructureStarts(Lnet/minecraft/util/math/ChunkPos;Ljava/util/function/Predicate;)Ljava/util/List;"
+			)
+		)
+		private Predicate<Structure> bigglobe_handleDelegates(Predicate<Structure> original) {
+			return (Structure structure) -> {
+				while (structure instanceof DelegatingStructure delegating) {
+					structure = delegating.delegate().value();
+				}
+				return original.test(structure);
+			};
+		}
+
+	#endif
 
 	@Unique
 	private StructureGenerationParams bigglobe_makeParams(ServerWorld world, BigGlobeScriptedChunkGenerator generator, ChunkPos chunkPos) {

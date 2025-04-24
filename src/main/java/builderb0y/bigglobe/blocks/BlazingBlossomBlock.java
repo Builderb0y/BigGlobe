@@ -10,7 +10,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
@@ -23,6 +22,12 @@ import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION >= MC_1_20_5
+	import net.minecraft.particle.SimpleParticleType;
+#else
+	import net.minecraft.particle.DefaultParticleType;
+#endif
 
 public class BlazingBlossomBlock extends NetherFlowerBlock {
 
@@ -49,14 +54,14 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 
 	#else
 
-		public BlazingBlossomBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, int effect_duration, SimpleParticleType particle, Settings settings) {
+		public BlazingBlossomBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, int effect_duration, RegistryEntry<ParticleType<?>> particle, Settings settings) {
 			super(suspicious_stew_effect, effect_duration, settings);
 			this.particle = particle;
 		}
 
 	#endif
 
-	public static RegistryEntry<ParticleType<?>> particleEntry(SimpleParticleType type) {
+	public static RegistryEntry<ParticleType<?>> particleEntry(#if MC_VERSION >= MC_1_20_5 SimpleParticleType #else DefaultParticleType #endif type) {
 		return RegistryVersions.getEntry(Registries.PARTICLE_TYPE, type);
 	}
 

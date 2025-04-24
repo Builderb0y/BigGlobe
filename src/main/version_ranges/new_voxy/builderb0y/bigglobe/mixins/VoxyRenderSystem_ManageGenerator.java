@@ -18,9 +18,9 @@ import builderb0y.bigglobe.compat.voxy.GeneratingStorageBackend;
 @Mixin(VoxyRenderSystem.class)
 public class VoxyRenderSystem_ManageGenerator {
 
-	@Shadow @Final private WorldEngine worldIn;
+	@Shadow(remap = false) @Final private WorldEngine worldIn;
 
-	@Inject(method = "<init>", at = @At("TAIL"))
+	@Inject(method = "<init>", at = @At("TAIL"), remap = false)
 	private void bigglobe_initGenerator(WorldEngine world, ServiceThreadPool threadPool, CallbackInfo callback) {
 		if (world.storage instanceof GeneratingStorageBackend generating) {
 			generating.generator = (

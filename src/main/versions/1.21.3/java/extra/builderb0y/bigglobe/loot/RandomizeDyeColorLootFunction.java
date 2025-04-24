@@ -19,16 +19,13 @@ public class RandomizeDyeColorLootFunction extends ConditionalLootFunction {
 
 	public static final LootFunctionType<RandomizeDyeColorLootFunction> SERIALIZER = new LootFunctionType<>(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RandomizeDyeColorLootFunction.class));
 
-	public final boolean show_in_tooltip;
-
-	public RandomizeDyeColorLootFunction(List<LootCondition> conditions, boolean show_in_tooltip) {
+	public RandomizeDyeColorLootFunction(List<LootCondition> conditions) {
 		super(conditions);
-		this.show_in_tooltip = show_in_tooltip;
 	}
 
 	@Override
 	public ItemStack process(ItemStack stack, LootContext context) {
-		stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(context.getRandom().nextInt() & 0xFFFFFF, this.show_in_tooltip));
+		stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(context.getRandom().nextInt() & 0xFFFFFF, false));
 		return stack;
 	}
 

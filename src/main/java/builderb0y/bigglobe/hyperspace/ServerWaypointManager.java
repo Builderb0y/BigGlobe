@@ -17,6 +17,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -51,7 +52,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	#elif MC_VERSION >= MC_1_20_2
 
 		public static final Type<ServerWaypointManager>
-			TYPE = new Type<>(ServerWaypointManager::new, ServerWaypointManager::new, null);
+			TYPE = new Type<>(ServerWaypointManager::new, ServerWaypointManager::parse, null);
 
 	#endif
 
@@ -61,7 +62,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	#if MC_VERSION < MC_1_21_5
 
-		public static ServerWaypointManager parse(NbtCompound compound) {
+		public static ServerWaypointManager parse(NbtCompound compound #if MC_VERSION >= MC_1_20_5 , WrapperLookup registries #endif) {
 			try {
 				return BigGlobeAutoCodec.AUTO_CODEC.decode(BigGlobeAutoCodec.AUTO_CODEC.createCoder(ServerWaypointManager.class), compound, NbtOps.INSTANCE);
 			}
@@ -72,7 +73,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 		}
 
 		@Override
-		public NbtCompound writeNbt(NbtCompound nbt) {
+		public NbtCompound writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , WrapperLookup registries #endif) {
 			return (NbtCompound)(BigGlobeAutoCodec.AUTO_CODEC.encode(BigGlobeAutoCodec.AUTO_CODEC.createCoder(ServerWaypointManager.class), this, NbtOps.INSTANCE));
 		}
 

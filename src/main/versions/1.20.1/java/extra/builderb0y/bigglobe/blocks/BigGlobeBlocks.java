@@ -27,6 +27,7 @@ import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
