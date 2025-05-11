@@ -88,6 +88,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 	public void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod) {
 		ConstantValue constantGrid = memory.getTyped(CONSTANT_GRID);
 		computeAllMethod.setCode(
+			context.root().registry.parserFlags(),
 			"""
 			grid.getBulkY(
 				seed(salt),
@@ -134,6 +135,7 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 	@Override
 	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
 		computeMethod.setCode(
+			context.root().registry.parserFlags(),
 			this.params.type() instanceof FloatColumnValueType
 			? "return(float(grid.getValue(column.seed # salt, column.x, y, column.z)))"
 			: "return(grid.getValue(column.seed # salt, column.x, y, column.z))",

@@ -36,14 +36,16 @@ public record PackedWorldPos(RegistryKey<World> world, @EncodeInline PackedPos p
 		public @NotNull <T_Encoded> DataFixContext<T_Encoded> fixData(@NotNull DataFixContext<T_Encoded> context) throws DataFixException {
 			MapData map = context.data.tryAsMap();
 			if (map != null) {
-				ListData pos = map.remove("pos").tryAsList();
+				ListData pos = map.get("pos").tryAsList();
 				if (pos != null && pos.size() == 3) {
+					map = map.without("pos");
 					AbstractNumberData x = pos.get(0).tryAsNumber();
 					AbstractNumberData y = pos.get(1).tryAsNumber();
 					AbstractNumberData z = pos.get(2).tryAsNumber();
 					if (x != null) map.put("x", x);
 					if (y != null) map.put("y", y);
 					if (z != null) map.put("z", z);
+					context = context.withData(map);
 				}
 			}
 			return context;

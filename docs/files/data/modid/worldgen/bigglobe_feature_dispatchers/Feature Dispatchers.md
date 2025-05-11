@@ -19,8 +19,6 @@ Feature Dispatchers are responsible for decorating chunks as they're being gener
 			* WoodPaletteScriptEnvironment (new in V4.11.0)
 			* ColumnEntryRegistry
 			* ColorScriptEnvironment
-			* ExternalImageScriptEnvironment
-			* ExternalDataScriptEnvironment
 
 			And the following variables:
 			* `minModifiableX/Y/Z`, `maxModifiableX/Y/Z` - the bounds of the chunk being generated. Note that these coords are inclusive, not exclusive.

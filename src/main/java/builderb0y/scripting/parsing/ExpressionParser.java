@@ -65,6 +65,10 @@ public class ExpressionParser {
 
 	public static void clinit() {}
 
+	public static final int
+		CLIENT = 1 << 0;
+
+	public final int flags;
 	public final ExpressionReader input;
 	public int currentLine;
 	public final ClassCompileContext clazz;
@@ -72,7 +76,8 @@ public class ExpressionParser {
 	public final RootScriptEnvironment environment;
 	public final List<DelayedMethod> delayedMethods;
 
-	public ExpressionParser(String input, ClassCompileContext clazz, MethodCompileContext method) {
+	public ExpressionParser(String input, ClassCompileContext clazz, MethodCompileContext method, int flags) {
+		this.flags = flags;
 		this.input = new ExpressionReader(input);
 		this.clazz = clazz;
 		this.method = method;
@@ -86,6 +91,7 @@ public class ExpressionParser {
 	see {@link UserMethodDefiner}.
 	*/
 	public ExpressionParser(ExpressionParser from) {
+		this.flags = from.flags;
 		this.input = from.input;
 		this.clazz = from.clazz;
 		this.method = from.method;
@@ -99,6 +105,7 @@ public class ExpressionParser {
 	see {@link TemplateScriptParser#parseEntireInput()}.
 	*/
 	public ExpressionParser(ExpressionParser from, String newInput) {
+		this.flags = from.flags;
 		this.input = new ExpressionReader(newInput);
 		this.clazz = from.clazz;
 		this.method = from.method;
@@ -135,16 +142,7 @@ public class ExpressionParser {
 	}
 
 	public Class<?> compile(ScriptClassLoader loader) throws Throwable {
-		if (CLASS_DUMP_DIRECTORY != null) try {
-			String baseName = this.clazz.info.getSimpleName();
-			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-src.txt"), this.input.input, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-			Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), this.clazz.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-			Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), this.clazz.toByteArray(), StandardOpenOption.CREATE_NEW);
-		}
-		catch (IOException exception) {
-			ScriptLogger.LOGGER.error("", exception);
-		}
-		return loader.defineClass(this.clazz);
+		return loader.defineClass(this.clazz, CLASS_DUMP_DIRECTORY, this.input.getSource());
 	}
 
 	public StringBuilder fatalError() {
@@ -651,7 +649,6 @@ public class ExpressionParser {
 						}
 					}
 					left = result;
-
 				}
 			}
 			else {

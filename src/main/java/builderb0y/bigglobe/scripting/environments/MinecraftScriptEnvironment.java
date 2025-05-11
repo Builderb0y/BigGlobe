@@ -20,6 +20,7 @@ import builderb0y.bigglobe.scripting.wrappers.*;
 import builderb0y.bigglobe.scripting.wrappers.entries.*;
 import builderb0y.bigglobe.scripting.wrappers.tags.*;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -49,6 +50,7 @@ public class MinecraftScriptEnvironment {
 		.addType("ConfiguredFeature",    ConfiguredFeatureEntry.TYPE)
 		.addType("ConfiguredFeatureTag", ConfiguredFeatureTag  .TYPE)
 		.addType("Tag", TagWrapper.TYPE)
+		.addFieldInvokes(TagWrapper.class, "size", "isEmpty")
 		.addFieldInvokeStatic(BlockWrapper.class, "id")
 		.addFieldInvoke(EntryWrapper.class, "id")
 		.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
@@ -171,6 +173,7 @@ public class MinecraftScriptEnvironment {
 						Set<String> properties = block.getStateManager().getProperties().stream().map(Property::getName).collect(Collectors.toSet());
 						List<ConstantValue> constantProperties = new ArrayList<>(16);
 						constantProperties.add(constantBlock);
+						constantProperties.add(constant(AbstractConstantFactory.flags(parser)));
 						record NonConstantProperty(String name, InsnTree value) {}
 						List<NonConstantProperty> nonConstantProperties = new ArrayList<>(8);
 						do {
@@ -242,10 +245,10 @@ public class MinecraftScriptEnvironment {
 	public static final MethodInfo BOOTSTRAP_CONSTANT_STATE = MethodInfo.getMethod(MinecraftScriptEnvironment.class, "bootstrapConstantState");
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static BlockState bootstrapConstantState(MethodHandles.Lookup caller, String name, Class<?> type, String id, Object... properties) {
+	public static BlockState bootstrapConstantState(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags, Object... properties) {
 		int length = properties.length;
 		if ((length & 1) != 0) throw new IllegalArgumentException("properties array length must be even.");
-		BlockState state = BlockStateWrapper.getDefaultState(id);
+		BlockState state = BlockStateWrapper.getDefaultState(id, flags);
 		StateManager<Block, BlockState> manager = state.getBlock().getStateManager();
 		for (int index = 0; index < length; index += 2) {
 			Property<?> property = manager.getProperty((String)(properties[index]));

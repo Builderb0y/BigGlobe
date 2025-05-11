@@ -9,6 +9,7 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,15 +24,12 @@ public class StructureTag extends TagWrapper<Structure, StructureEntry> {
 		super(list);
 	}
 
-	public static StructureTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... ids) {
-		return of(ids);
+	public static StructureTag of(MethodHandles.Lookup caller, String name, Class<?> type, int flags, String... ids) {
+		return of(flags, ids);
 	}
 
-	public static StructureTag of(String... ids) {
-		if (ids == null) return null;
-		DelayedEntryList<Structure> tag = DelayedEntryList.create(RegistryKeys.STRUCTURE, ids);
-		if (tag == null) return null;
-		return new StructureTag(tag);
+	public static StructureTag of(int flags, String... ids) {
+		return new StructureTag(DelayedEntryList.emptyOnClient(RegistryKeys.STRUCTURE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

@@ -2,11 +2,11 @@ package builderb0y.bigglobe.scripting.wrappers.entries;
 
 import java.lang.invoke.MethodHandles;
 
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.mixinInterfaces.BiomeDownfallAccessor;
 import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
 import builderb0y.scripting.bytecode.ConstantFactory;
@@ -21,13 +21,13 @@ public class BiomeEntry extends EntryWrapper<Biome, BiomeTag> {
 		super(entry);
 	}
 
-	public static BiomeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return of(id);
+	public static BiomeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return of(id, flags);
 	}
 
-	public static BiomeEntry of(String id) {
-		if (id == null) return null;
-		return new BiomeEntry(BigGlobeMod.getRegistry(RegistryKeys.BIOME).getByName(id));
+	public static BiomeEntry of(String id, int flags) {
+		RegistryEntry<Biome> entry = ConstantFactory.getEntry(RegistryKeys.BIOME, id, flags);
+		return entry != null ? new BiomeEntry(entry) : null;
 	}
 
 	public float temperature() {

@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultEmpty;
@@ -13,9 +16,11 @@ import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder.Inlinable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 
 @UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public abstract class Layer implements CoderRegistryTyped<Layer> {
+public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependencyView {
 
 	public static final CoderRegistry<Layer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
 	static {
@@ -41,6 +46,28 @@ public abstract class Layer implements CoderRegistryTyped<Layer> {
 		this.children = children;
 		this.before_children = before_children;
 		this.after_children = after_children;
+	}
+
+	public abstract void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder);
+
+	@Override
+	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+		Stream.Builder<RegistryEntry<? extends DependencyView>> builder = Stream.builder();
+
+		for (RegistryEntry<Layer> child : this.children) {
+			builder.accept(child);
+		}
+		if (this.valid != null) {
+			if (this.valid.where != null) this.valid.where.streamDirectDependencies().forEach(builder);
+			if (this.valid.min_y != null) this.valid.min_y.streamDirectDependencies().forEach(builder);
+			if (this.valid.max_y != null) this.valid.max_y.streamDirectDependencies().forEach(builder);
+		}
+		if (this.before_children != null) this.before_children.streamDirectDependencies().forEach(builder);
+		if (this. after_children != null) this. after_children.streamDirectDependencies().forEach(builder);
+
+		this.buildDependencyStream(builder);
+
+		return builder.build().distinct();
 	}
 
 	public abstract void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks);

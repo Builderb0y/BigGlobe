@@ -1,5 +1,9 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import org.objectweb.asm.Type;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -10,20 +14,20 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -48,6 +52,11 @@ public class ScriptedLayer extends Layer {
 	}
 
 	@Override
+	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+		this.script.streamDirectDependencies().forEach(builder);
+	}
+
+	@Override
 	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks) {
 		BlockSegmentList split = blocks.split(this.validMinY(column), this.validMaxY(column));
 		if (split != null) {
@@ -61,10 +70,18 @@ public class ScriptedLayer extends Layer {
 		public abstract void emitSegments(ScriptedColumn column, BlockSegmentList blocks);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<Impl> implements Impl {
+		public static class Holder extends ScriptHolder<Impl> implements Impl, SetBasedMutableDependencyView {
+
+			public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
 			public Holder(ScriptUsage usage) {
 				super(usage);
+				this.addAllDependencies(usage);
+			}
+
+			@Override
+			public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+				return this.dependencies;
 			}
 
 			@Override
@@ -99,7 +116,7 @@ public class ScriptedLayer extends Layer {
 				bridgeMethod.endCode();
 
 				LoadInsnTree loadColumn = load("column", registry.columnContext.columnType());
-				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod).configureEnvironment((MutableScriptEnvironment environment) -> {
+				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
 					environment
 					.addAll(MathScriptEnvironment.INSTANCE)
 					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
@@ -109,10 +126,13 @@ public class ScriptedLayer extends Layer {
 					.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
 					.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
 					.addAll(ColorScriptEnvironment.ENVIRONMENT)
-					.addAll(ExternalImage.ENVIRONMENT)
-					.addAll(ExternalData.ENVIRONMENT)
 					;
-					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadColumn));
+					registry.setupExternalEnvironment(
+						environment,
+						new ExternalEnvironmentParams()
+						.withColumn(loadColumn)
+						.trackDependencies(this)
+					);
 				});
 				parser.parseEntireInput().emitBytecode(actualMethod);
 				actualMethod.endCode();
@@ -126,7 +146,7 @@ public class ScriptedLayer extends Layer {
 				getDebugName.endCode();
 
 				try {
-					this.script = (ScriptedLayer.Impl)(new ScriptClassLoader(registry.loader).defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
+					this.script = (ScriptedLayer.Impl)(new ScriptClassLoader(registry.loader).defineClass(clazz, ExpressionParser.CLASS_DUMP_DIRECTORY, this.usage.getSource()).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 				}
 				catch (Throwable throwable) {
 					throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);

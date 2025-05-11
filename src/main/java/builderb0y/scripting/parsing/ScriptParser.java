@@ -14,7 +14,6 @@ import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.optimization.ClassOptimizer;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -32,9 +31,10 @@ public class ScriptParser<I> extends ExpressionParser {
 		String input,
 		@Nullable String debugName,
 		ClassCompileContext clazz,
-		MethodCompileContext method
+		MethodCompileContext method,
+		int flags
 	) {
-		super(input, clazz, method);
+		super(input, clazz, method, flags);
 		this.implementingClass  = implementingClass;
 		this.implementingMethod = implementingMethod;
 		this.debugName          = debugName;
@@ -59,7 +59,8 @@ public class ScriptParser<I> extends ExpressionParser {
 		Method implementingMethod,
 		String input,
 		@Nullable String debugName,
-		ClassCompileContext clazz
+		ClassCompileContext clazz,
+		int flags
 	) {
 		this(
 			implementingClass,
@@ -79,7 +80,8 @@ public class ScriptParser<I> extends ExpressionParser {
 				})
 				.map((Parameter parameter) -> new LazyVarInfo(parameter.getName(), type(parameter.getType())))
 				.toArray(LazyVarInfo.ARRAY_FACTORY)
-			)
+			),
+			flags
 		);
 	}
 
@@ -87,7 +89,8 @@ public class ScriptParser<I> extends ExpressionParser {
 		Class<I> implementingClass,
 		Method implementingMethod,
 		String input,
-		@Nullable String debugName
+		@Nullable String debugName,
+		int flags
 	) {
 		this(
 			implementingClass,
@@ -102,17 +105,18 @@ public class ScriptParser<I> extends ExpressionParser {
 				Script.class.isAssignableFrom(implementingClass)
 				? new TypeInfo[] { type(implementingClass) }
 				: new TypeInfo[] { type(implementingClass), type(Script.class) }
-			)
+			),
+			flags
 		);
 	}
 
-	public ScriptParser(Class<I> implementingClass, String input, String debugName) {
-		this(implementingClass, findImplementingMethod(implementingClass), input, debugName);
+	public ScriptParser(Class<I> implementingClass, String input, String debugName, int flags) {
+		this(implementingClass, findImplementingMethod(implementingClass), input, debugName, flags);
 	}
 
 	@TestOnly
 	public ScriptParser(Class<I> implementingClass, String input) {
-		this(implementingClass, input, null);
+		this(implementingClass, input, null, 0);
 	}
 
 	@Override

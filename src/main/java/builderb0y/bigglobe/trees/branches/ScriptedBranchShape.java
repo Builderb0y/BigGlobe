@@ -4,7 +4,6 @@ import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.CompileTiming;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -30,7 +29,7 @@ public interface ScriptedBranchShape extends Script {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(ScriptedBranchShape.class, this.usage)
+				new TemplateScriptParser<>(ScriptedBranchShape.class, this.usage, registry.parserFlags())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					environment.addVariableLoad("fraction", TypeInfos.DOUBLE);
@@ -41,11 +40,6 @@ public interface ScriptedBranchShape extends Script {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.parse(new ScriptClassLoader())
 			);
-		}
-
-		@Override
-		public CompileTiming compileTiming() {
-			return CompileTiming.INSTANT;
 		}
 
 		@Override

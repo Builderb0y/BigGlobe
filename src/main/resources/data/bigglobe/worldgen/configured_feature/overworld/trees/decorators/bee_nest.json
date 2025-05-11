@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"random.if (1.0 / 16.0:",
+			"random.if (1.0 / 64.0:",
 				"--originY",
 				"if (getBlockState(originX, originY, originZ).isAir():",
 					"int*(logX = originX, logZ = originZ)",

@@ -3,8 +3,10 @@ package builderb0y.scripting.parsing;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup.ClassOption;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,16 +93,43 @@ public class ScriptClassLoader extends ClassLoader {
 		}
 	}
 
-	public Class<?> defineClass(ClassCompileContext clazz) throws ClassNotFoundException {
-		this.recursiveAddClasses(clazz);
+	public Class<?> defineClass(ClassCompileContext clazz, Path dumpDirectory, String source) throws ClassNotFoundException {
+		this.recursiveAddClasses(clazz, dumpDirectory, source);
 		return this.loadClass(clazz.info.getClassName());
 	}
 
-	public void recursiveAddClasses(ClassCompileContext clazz) {
+	public void recursiveAddClasses(ClassCompileContext clazz, Path dumpDirectory, String source) {
 		ClassOptimizer.DEFAULT.optimize(clazz.node);
+
+		if (dumpDirectory != null) try {
+			String baseName = clazz.info.getSimpleClassName();
+			if (source != null) {
+				Files.writeString(
+					dumpDirectory.resolve(baseName + "-src.txt"),
+					source,
+					StandardCharsets.UTF_8,
+					StandardOpenOption.CREATE_NEW
+				);
+			}
+			Files.writeString(
+				dumpDirectory.resolve(baseName + "-asm.txt"),
+				clazz.dump(),
+				StandardCharsets.UTF_8,
+				StandardOpenOption.CREATE_NEW
+			);
+			Files.write(
+				dumpDirectory.resolve(baseName + ".class"),
+				clazz.toByteArray(),
+				StandardOpenOption.CREATE_NEW
+			);
+		}
+		catch (IOException exception) {
+			ScriptLogger.LOGGER.error("", exception);
+		}
+
 		this.loadable.put(clazz.info.getClassName(), clazz);
 		for (ClassCompileContext innerClass : clazz.innerClasses) {
-			this.recursiveAddClasses(innerClass);
+			this.recursiveAddClasses(innerClass, dumpDirectory, null);
 		}
 	}
 

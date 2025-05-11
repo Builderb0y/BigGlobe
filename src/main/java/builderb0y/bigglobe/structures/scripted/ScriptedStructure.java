@@ -168,7 +168,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				);
 			}
 			this.updateBoundingBox();
-			this.placement = StructurePlacementScriptEntry.of(data.script);
+			this.placement = StructurePlacementScriptEntry.of(data.script, 0);
 			this.data = data.data;
 		}
 

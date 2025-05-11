@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import net.minecraft.world.HeightLimitView;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
@@ -272,6 +273,10 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 
 		public Hints normalHints() {
 			return new Hints(false, this.defaultUndergroundMode(), 0, this);
+		}
+
+		public Hints builtinLodHints(int lod) {
+			return new Hints(true, UndergroundMode.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().lodRendering.undergroundMode), lod, this);
 		}
 
 		public Hints dhHints(int lod) {

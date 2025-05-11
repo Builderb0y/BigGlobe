@@ -16,7 +16,11 @@ this mixin fixes that bug.
 @Mixin(ServerPlayNetworkHandler.class)
 public class Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators {
 
-	@WrapOperation(method = "onPlayerMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;hasLandedInFluid()Z"))
+	#if MC_VERSION >= MC_1_21_0
+		@WrapOperation(method = "onPlayerMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;hasLandedInFluid()Z"))
+	#elif MC_VERSION >= MC_1_20_5
+		@WrapOperation(method = "onPlayerMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isInFluid()Z"))
+	#endif
 	private boolean bigglobe_checkSpectatorFirst(ServerPlayerEntity instance, Operation<Boolean> original) {
 		return instance.isSpectator() || original.call(instance);
 	}

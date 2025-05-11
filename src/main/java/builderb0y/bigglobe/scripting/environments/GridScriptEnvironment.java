@@ -3,13 +3,14 @@ package builderb0y.bigglobe.scripting.environments;
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.noise.*;
-import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.bigglobe.noise.source.ConstantGrid1D;
+import builderb0y.bigglobe.noise.source.ConstantGrid2D;
+import builderb0y.bigglobe.noise.source.ConstantGrid3D;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -37,6 +38,27 @@ public class GridScriptEnvironment {
 	public static final ConstantFactory GRID_1D = new ConstantFactory(GridScriptEnvironment.class, "getGrid1D", String.class, Grid1D.class);
 	public static final ConstantFactory GRID_2D = new ConstantFactory(GridScriptEnvironment.class, "getGrid2D", String.class, Grid2D.class);
 	public static final ConstantFactory GRID_3D = new ConstantFactory(GridScriptEnvironment.class, "getGrid3D", String.class, Grid3D.class);
+
+	public static final Grid EMPTY_GRID = new Grid() {
+
+		@Override
+		public double minValue() {
+			return 0.0D;
+		}
+
+		@Override
+		public double maxValue() {
+			return 0.0D;
+		}
+
+		@Override
+		public int getDimensions() {
+			return 0;
+		}
+	};
+	public static final Grid1D EMPTY_GRID_1D = new ConstantGrid1D(0.0D);
+	public static final Grid2D EMPTY_GRID_2D = new ConstantGrid2D(0.0D);
+	public static final Grid3D EMPTY_GRID_3D = new ConstantGrid3D(0.0D);
 
 	public static final MutableScriptEnvironment BASE = (
 		new MutableScriptEnvironment()
@@ -160,42 +182,40 @@ public class GridScriptEnvironment {
 		};
 	}
 
-	public static Grid1D getGrid1D(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getGrid1D(id);
+	public static Grid1D getGrid1D(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid1D(id, flags);
 	}
 
-	public static Grid1D getGrid1D(String id) {
-		return (Grid1D)(getGrid(id));
+	public static Grid1D getGrid1D(String id, int flags) {
+		Grid grid = getGrid(id, flags);
+		return grid == EMPTY_GRID ? EMPTY_GRID_1D : (Grid1D)(grid);
 	}
 
-	public static Grid2D getGrid2D(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getGrid2D(id);
+	public static Grid2D getGrid2D(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid2D(id, flags);
 	}
 
-	public static Grid2D getGrid2D(String id) {
-		return (Grid2D)(getGrid(id));
+	public static Grid2D getGrid2D(String id, int flags) {
+		Grid grid = getGrid(id, flags);
+		return grid == EMPTY_GRID ? EMPTY_GRID_2D : (Grid2D)(grid);
 	}
 
-	public static Grid3D getGrid3D(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getGrid3D(id);
+	public static Grid3D getGrid3D(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid3D(id, flags);
 	}
 
-	public static Grid3D getGrid3D(String id) {
-		return (Grid3D)(getGrid(id));
+	public static Grid3D getGrid3D(String id, int flags) {
+		Grid grid = getGrid(id, flags);
+		return grid == EMPTY_GRID ? EMPTY_GRID_3D : (Grid3D)(grid);
 	}
 
-	public static Grid getGrid(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getGrid(id);
+	public static Grid getGrid(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid(id, flags);
 	}
 
-	public static Grid getGrid(String id) {
-		if (id == null) return null;
-		return (
-			BigGlobeMod
-			.getRegistry(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY)
-			.getByName(id)
-			.value()
-		);
+	public static Grid getGrid(String id, int flags) {
+		RegistryEntry<Grid> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY, id, flags, EMPTY_GRID);
+		return entry != null ? entry.value() : null;
 	}
 
 	public static class NumberArrayGetterInsnTree implements InsnTree {

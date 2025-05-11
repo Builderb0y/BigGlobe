@@ -14,8 +14,6 @@
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry
 		* ColorScriptEnvironment
-		* ExternalImageScriptEnvironment
-		* ExternalDataScriptEnvironment
 
 		And the following additional variable:
 		* y - the Y level the ore is attempting to spawn at.
@@ -48,8 +46,6 @@ When `type` is set to `bigglobe:scripted_ore`, a script determines what blocks t
 * BaseColumnScriptEnvironment
 * ColumnEntryRegistry
 * ColorScriptEnvironment
-* ExternalImageScriptEnvironment
-* ExternalDataScriptEnvironment
 
 And the following additional variables:
 * `BlockState oldState` - the state being replaced.

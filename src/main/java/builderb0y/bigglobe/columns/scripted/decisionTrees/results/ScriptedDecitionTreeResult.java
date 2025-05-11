@@ -45,7 +45,7 @@ public class ScriptedDecitionTreeResult implements DecisionTreeResult, SetBasedM
 			context.root().getTypeContext(accessSchema.type()).type(),
 			loadY != null ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty()
 		);
-		context.setMethodCode(decisionTreeMethod, this.script, loadY != null, this, null);
+		context.setMethodCode(decisionTreeMethod, this.script, loadY != null, this, null, context.root().registry.parserFlags());
 		return invokeInstance(context.loadSelf(), decisionTreeMethod.info, loadY != null ? new InsnTree[] { loadY } : InsnTree.ARRAY_FACTORY.empty());
 	}
 }

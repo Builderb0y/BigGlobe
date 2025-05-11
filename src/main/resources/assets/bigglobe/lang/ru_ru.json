@@ -257,7 +257,7 @@
 	"entity.bigglobe.waypoint": "Путевая точка",
 
 	"effect.bigglobe.soul_siphon": "Истощение души",
-	"effect.bigglobe.soul_siphon.description": "§k-----§r",
+	"effect.bigglobe.soul_siphon.description": "Уменьшает максимальное здоровье на 2 сердца за уровень.",
 
 	"subtitles.bigglobe.entity.rock.throw": "Порода летит",
 	"subtitles.bigglobe.item.armor.equip_voidmetal": "Надета экипировка из пустотного металла",

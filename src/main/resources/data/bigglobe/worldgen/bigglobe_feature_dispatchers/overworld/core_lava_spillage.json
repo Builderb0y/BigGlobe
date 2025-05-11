@@ -1,0 +1,26 @@
+{
+	"type": "bigglobe:script",
+	"dispatcher": [
+		"for (",
+			"int z in range[minModifiableZ, maxModifiableZ],",
+			"int x in range[minModifiableX, maxModifiableX]",
+		":",
+			"int y = min(",
+				"random.nextInt(world_traits.`bigglobe:min_y`(x, z), world_traits.`bigglobe:core_max_y`(x, z)),",
+				"random.nextInt(world_traits.`bigglobe:lava_y`(x, z), world_traits.`bigglobe:core_max_y`(x, z))",
+			")",
+			"if (getBlockState(x, y, z).isIn('#bigglobe:molten_rocks'):",
+				"setBlockState(x, y, z,",
+					"getBlockState(x - 1, y, z).hasFullCubeOutline() &&",
+					"getBlockState(x + 1, y, z).hasFullCubeOutline() &&",
+					"getBlockState(x, y - 1, z).hasFullCubeOutline() &&",
+					"getBlockState(x, y + 1, z).hasFullCubeOutline() &&",
+					"getBlockState(x, y, z - 1).hasFullCubeOutline() &&",
+					"getBlockState(x, y, z + 1).hasFullCubeOutline()",
+					"? 'bigglobe:hidden_lava'",
+					": 'minecraft:lava[level=0]'",
+				")",
+			")",
+		")"
+	]
+}

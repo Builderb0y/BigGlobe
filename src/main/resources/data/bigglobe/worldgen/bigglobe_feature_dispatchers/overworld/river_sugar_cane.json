@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:script",
+	"dispatcher": [
+		"int*(",
+			"rng = random.nextInt()",
+			"x = minModifiableX | (rng & 15)",
+			"z = minModifiableZ | ((rng >>> 4) & 15)",
+		")",
+		"if (world_traits.`bigglobe:in_river`(x, z):",
+			"int y = world_traits.`bigglobe:sea_level`(x, z)",
+			"unless (placeBlockState(x, y, z, 'minecraft:lily_pad'):",
+				"placeFeature(x, y, z, 'bigglobe:overworld/sugar_cane_patch')",
+			")",
+		")"
+	]
+}

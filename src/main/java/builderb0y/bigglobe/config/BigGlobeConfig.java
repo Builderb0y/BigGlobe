@@ -7,19 +7,24 @@ import java.lang.annotation.Target;
 import java.util.function.Supplier;
 
 import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.BoundedDiscrete;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.EnumHandler;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.EnumHandler.EnumDisplayOption;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Excluded;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 
-import builderb0y.autocodec.annotations.Mirror;
-import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.annotations.VerifyNullable;
+import net.minecraft.util.math.MathHelper;
+
+import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
 import builderb0y.bigglobe.compat.C2MECompat;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
+import builderb0y.bigglobe.lods.LodSystem;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
 @Config(name = BigGlobeMod.MODID)
@@ -31,6 +36,7 @@ public class BigGlobeConfig {
 
 	public void validatePostLoad() {
 		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
+		this.lodRendering.validatePostLoad();
 		this.distantHorizonsIntegration.validatePostLoad();
 		this.voxyIntegration.validatePostLoad();
 		this.playerSpawning.validatePostLoad();
@@ -57,9 +63,10 @@ public class BigGlobeConfig {
 	public boolean hyperspaceEnabled = true;
 
 	@Tooltip(count = 3)
-	@UseName("Molten rocks turn into ores")
+	@VerifyFloatRange(min = 0.0D, max = 1.0D)
+	@UseName("Molten Rock Ore-ification Chance")
 	@DefaultIgnore
-	public boolean moltenRocksTurnIntoOres = true;
+	public float moltenRockOreificationChance = 1.0F;
 
 	@Tooltip(count = 3)
 	@UseName("Threads")
@@ -125,6 +132,63 @@ public class BigGlobeConfig {
 		@UseName("Log extra mob spawns")
 		@DefaultIgnore
 		public boolean logExtraMobSpawns = false;
+	}
+
+	@Tooltip(count = 2)
+	@UseName("LOD Rendering")
+	@CollapsibleObject(startExpanded = true)
+	@DefaultIgnore
+	public final LodRendering lodRendering = new LodRendering();
+
+	public static class LodRendering {
+
+		@Tooltip(count = 3)
+		@UseName("LOD Rendering Enabled")
+		@DefaultIgnore
+		public boolean enabled = true;
+
+		@Tooltip(count = 3)
+		@UseName("Maximum Quad Count")
+		@DefaultIgnore
+		@BoundedDiscrete(min = 1_000_000L, max = 32_000_000L)
+		@VerifyIntRange(min = 1_000_000L, max = 32_000_000L)
+		public int maxQuads = 16_000_000;
+
+		@Tooltip(count = 3)
+		@UseName("Quality")
+		@DefaultIgnore
+		public double quality = 3.0D;
+
+		@Tooltip(count = 3)
+		@UseName("Min View Distance")
+		@DefaultIgnore
+		public float minViewDistance = 0.5F;
+
+		@Tooltip(count = 3)
+		@UseName("Max View Distance")
+		@DefaultIgnore
+		public float maxViewDistance = 1024.0F;
+
+		@Tooltip(count = 5)
+		@UseName("Underground Mode")
+		@EnumHandler(option = EnumDisplayOption.BUTTON)
+		@DefaultIgnore
+		public UndergroundMode undergroundMode = UndergroundMode.FILL;
+
+		public void validatePostLoad() {
+			this.maxQuads = MathHelper.clamp(this.maxQuads, 1_000_000, 32_000_000);
+			this.quality = MathHelper.clamp(this.quality, 0.0D, 5.0D);
+			this.minViewDistance = Math.max(this.minViewDistance, 1.0F / 256.0F);
+			this.maxViewDistance = Math.max(this.maxViewDistance, this.minViewDistance + 1.0F / 256.0F);
+			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+				this.doReload();
+			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public void doReload() {
+			LodSystem.reload();
+		}
 	}
 
 	@Tooltip(count = 2)

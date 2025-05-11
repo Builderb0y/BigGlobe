@@ -11,6 +11,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtEnd;
 import net.minecraft.nbt.NbtOps;
@@ -27,18 +28,45 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.lods.LodSystem;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
 import builderb0y.bigglobe.versions.EntityVersions;
 
-public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<ClientGeneratorParams> {
+public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<SettingsSyncS2CPacketHandler.Receiving> {
 
 	public static final SettingsSyncS2CPacketHandler INSTANCE = new SettingsSyncS2CPacketHandler();
 
+	/**
+	note: some received scripts depend on biome information,
+	which is stored in the dynamic registries on the world object.
+	as such, compilation must be delayed until the world is set.
+	which means I can't call {@link #compile()} on the network thread.
+	*/
+	public static class Receiving {
+
+		public final ClientState.Syncing clientState;
+		public final NbtElement paramsNbt;
+
+		public Receiving(Syncing clientState, NbtElement paramsNbt) {
+			this.clientState = clientState;
+			this.paramsNbt = paramsNbt;
+		}
+
+		public ClientGeneratorParams compile() throws Exception {
+			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(this.clientState.lookup(), true), (ColumnEntryRegistry.Loading loading) -> {
+				this.clientState.parse();
+				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, this.paramsNbt, this.clientState.createOps(NbtOps.INSTANCE, false));
+				if (params != null) params.compile(loading);
+				return params;
+			});
+		}
+	}
+
 	@Override
 	@Environment(EnvType.CLIENT)
-	public @Nullable ClientGeneratorParams decode(PacketByteBuf buffer) {
+	public @Nullable Receiving decode(PacketByteBuf buffer) {
 		try {
 			GZIPInputStream stream = new GZIPInputStream(new ByteBufInputStream(buffer));
 			NbtElement syncingNbt = NbtIo2.read(stream);
@@ -47,13 +75,10 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 				if (paramsNbt == NbtEnd.INSTANCE) return null;
 				else throw new IllegalStateException("Received params NBT, but not syncing NBT?");
 			}
-			Syncing syncing = BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE);
-			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(syncing.lookup()), (ColumnEntryRegistry.Loading loading) -> {
-				syncing.parse();
-				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, paramsNbt, syncing.createOps(NbtOps.INSTANCE, false));
-				if (params != null) params.compile(loading);
-				return params;
-			});
+			return new Receiving(
+				BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE),
+				paramsNbt
+			);
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Exception decoding client generator params:", exception);
@@ -63,17 +88,27 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Client
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void process(ClientGeneratorParams data, PacketSender responseSender) {
+	public void process(Receiving receiving, PacketSender responseSender) {
+		ClientGeneratorParams data;
+		try {
+			data = receiving.compile();
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
 		ClientState.generatorParams = data;
 		//note for future self: columnEntryRegistry can be null if
 		//compiling was skipped because foliage colors were not present.
-		if (data != null && data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
-			DependencyDepthSorter.start(
-				data.compiledWorldTraits,
-				data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
-				"client"
-			);
+		if (data != null) {
+			if (data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
+				DependencyDepthSorter.start(
+					data.compiledWorldTraits,
+					data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
+					"client"
+				);
+			}
 		}
+		LodSystem.reload(MinecraftClient.getInstance().world, data);
 	}
 
 	public void send(ServerPlayerEntity player) {

@@ -18,20 +18,11 @@ void setSurfaceY(double*(y, fraction), int snowMode:
 	)
 )
 
-int*(
-	keepTerrain = 0
-	addTerrain  = 1
-)
-
-void setSnowY(double*(y, fraction), int terrainMode:
+void setSnowY(double*(y, fraction):
 	int iY = ceilInt(y)
 	double oldSnowY = world_traits.`bigglobe:automatic_snow_y`(iY)
 	double newSnowY = mixLinear(y, oldSnowY, fraction)
 	world_traits.`bigglobe:automatic_snow_y`(iY) = newSnowY
-	if (terrainMode == 1:
-		world_traits.`bigglobe:automatic_exact_surface_y`(iY) += newSnowY - oldSnowY
-		world_traits.`bigglobe:automatic_slope_surface_y`(iY) += newSnowY - oldSnowY
-	)
 )
 
 void setSurfaceFoliage(int y, double fraction:

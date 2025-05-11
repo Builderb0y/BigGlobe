@@ -13,5 +13,3 @@ The purpose of valid is to restrict where certain column values can be computed.
 * BaseColumnScriptEnvironment
 * ColumnEntryRegistry (x and z are hard-coded to the position of the column)
 * ColorScriptEnvironment
-* ExternalImageScriptEnvironment
-* ExternalDataScriptEnvironment

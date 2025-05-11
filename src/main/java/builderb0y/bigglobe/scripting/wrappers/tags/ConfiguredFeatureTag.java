@@ -9,6 +9,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,15 +24,12 @@ public class ConfiguredFeatureTag extends TagWrapper<ConfiguredFeature<?, ?>, Co
 		super(list);
 	}
 
-	public static ConfiguredFeatureTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... ids) {
-		return of(ids);
+	public static ConfiguredFeatureTag of(MethodHandles.Lookup caller, String name, Class<?> type, int flags, String... ids) {
+		return of(flags, ids);
 	}
 
-	public static ConfiguredFeatureTag of(String... ids) {
-		if (ids == null) return null;
-		DelayedEntryList<ConfiguredFeature<?, ?>> tag = DelayedEntryList.create(RegistryKeys.CONFIGURED_FEATURE, ids);
-		if (tag == null) return null;
-		return new ConfiguredFeatureTag(tag);
+	public static ConfiguredFeatureTag of(int flags, String... ids) {
+		return new ConfiguredFeatureTag(DelayedEntryList.emptyOnClient(RegistryKeys.CONFIGURED_FEATURE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

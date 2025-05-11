@@ -65,6 +65,7 @@
 		"RegistryOps_MakeAdjustable",
 		"SaplingBlock_GrowIntoBigGlobeTree",
 		"SaveLoading_UnloadColumnEntryRegistry",
+		"ServerChunkLoadingManager_InitStructureManager",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
@@ -82,6 +83,7 @@
 		"StructureStart_BoundingBoxSetter",
 		"StructureStart_ChildrenGetter",
 		"StructureStart_SaveBoundingBox",
+		"SugarCaneBlock_MakePlaceableOnGravel",
 		"ThrownEntity_CollisionHook",
 		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
 		"Voxy_WorldEngine_UseBigGlobeGenerator",
@@ -93,6 +95,7 @@
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [
+		"BackgroundRenderer_NoFogWithLods",
 		"BackgroundRenderer_SoulLavaFogColor",
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"ClientWorld_CustomTimeSpeed",
@@ -100,11 +103,14 @@
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely",
 		"DebugHud_MakeSearchable",
+		"DebugHud_ShowLodStatus",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
+		"FluidRenderer_DontHardCodeChunkSectionSizedAreas",
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
+		"WorldRenderer_ReloadHook",
 		"WorldType_ChangeTranslation"
 	],
 	"injectors": {

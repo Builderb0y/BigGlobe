@@ -23,10 +23,8 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.CompileTiming;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -199,7 +197,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			@Override
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
-					new TemplateScriptParser<>(TreeHeightScript.class, this.usage)
+					new TemplateScriptParser<>(TreeHeightScript.class, this.usage, registry.parserFlags())
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
 					.configureEnvironment(RandomScriptEnvironment.create(
 						load("random", type(RandomGenerator.class))
@@ -210,11 +208,6 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 					})
 					.parse(new ScriptClassLoader())
 				);
-			}
-
-			@Override
-			public CompileTiming compileTiming() {
-				return CompileTiming.INSTANT;
 			}
 
 			@Override

@@ -1,10 +1,12 @@
 package builderb0y.bigglobe.scripting.wrappers.entries;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.structure.Structure;
@@ -12,6 +14,7 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
 import builderb0y.bigglobe.scripting.wrappers.tags.StructureTag;
+import builderb0y.bigglobe.structures.NoopStructure;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
@@ -20,6 +23,18 @@ import builderb0y.scripting.bytecode.TypeInfo;
 public class StructureEntry extends EntryWrapper<Structure, StructureTag> {
 
 	public static final TypeInfo TYPE = TypeInfo.of(StructureEntry.class);
+	public static final NoopStructure CLIENT_NOOP_STRUCTURE = new NoopStructure(
+		new Structure.Config(
+			#if MC_VERSION >= MC_1_20_5
+				RegistryEntryList.empty(),
+			#else
+				RegistryEntryList.of(),
+			#endif
+			Collections.emptyMap(),
+			GenerationStep.Feature.RAW_GENERATION,
+			StructureTerrainAdaptation.NONE
+		)
+	);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public final BiomeTag validBiomes;
@@ -58,13 +73,13 @@ public class StructureEntry extends EntryWrapper<Structure, StructureTag> {
 		);
 	}
 
-	public static StructureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return of(id);
+	public static StructureEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return of(id, flags);
 	}
 
-	public static StructureEntry of(String id) {
-		if (id == null) return null;
-		return new StructureEntry(BigGlobeMod.getRegistry(RegistryKeys.STRUCTURE).getByName(id));
+	public static StructureEntry of(String id, int flags) {
+		RegistryEntry<Structure> entry = ConstantFactory.getEntryServerOnly(RegistryKeys.STRUCTURE, id, flags, CLIENT_NOOP_STRUCTURE);
+		return entry != null ? new StructureEntry(entry) : null;
 	}
 
 	public StructureTypeEntry type() {

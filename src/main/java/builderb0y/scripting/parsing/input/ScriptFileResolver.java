@@ -34,63 +34,22 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.EmptyDependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.util.FakeRegistry;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.util.ArrayBuilder;
 
 public class ScriptFileResolver {
 
 	public static final ThreadLocal<Map<Identifier, String>> OVERRIDES = new ThreadLocal<>();
-	public static final ReferenceQueue<RegistryEntry<ResolvedInclude>> QUEUE = new ReferenceQueue<>();
-	public static final ConcurrentHashMap<ResolvedInclude, WeakReference<RegistryEntry<ResolvedInclude>>> CACHE = new ConcurrentHashMap<>(32);
+	public static final FakeRegistry<ResolvedInclude> RESOLVED_INCLUDE_REGISTRY = new FakeRegistry<>(ResolvedInclude.REGISTRY_KEY);
 
 	public static RegistryEntry<ResolvedInclude> intern(ResolvedInclude include) {
-		class RegistryEntryImpl extends RegistryEntry.Reference<ResolvedInclude> {
-
-			public RegistryEntryImpl(ResolvedInclude include) {
-				super(
-					RegistryEntry.Reference.Type.STAND_ALONE,
-					ResolvedInclude.OWNER,
-					RegistryKey.of(
-						ResolvedInclude.REGISTRY_KEY,
-						include.id()
-					),
-					include
-				);
-			}
-		}
-		class Ref extends WeakReference<RegistryEntry<ResolvedInclude>> {
-
-			public final ResolvedInclude key;
-
-			public Ref(RegistryEntry<ResolvedInclude> entry) {
-				super(entry, QUEUE);
-				this.key = entry.value();
-			}
-		}
-		for (Reference<? extends RegistryEntry<ResolvedInclude>> reference; (reference = QUEUE.poll()) != null;) {
-			CACHE.remove(((Ref)(reference)).key);
-		}
-		MutableObject<RegistryEntry<ResolvedInclude>> result = new MutableObject<>();
-		CACHE.compute(include, (ResolvedInclude include_, WeakReference<RegistryEntry<ResolvedInclude>> ref) -> {
-			RegistryEntry<ResolvedInclude> entry;
-			if (ref != null) {
-				entry = ref.get();
-				if (entry != null) {
-					result.setValue(entry);
-					return ref;
-				}
-			}
-			entry = new RegistryEntryImpl(include_);
-			result.setValue(entry);
-			return new Ref(entry);
-		});
-		return result.getValue();
+		return RESOLVED_INCLUDE_REGISTRY.getOrCreate(include.id(), include);
 	}
 
 	public static ResolvedInclude resolve(Identifier identifier) {
@@ -128,7 +87,6 @@ public class ScriptFileResolver {
 
 	public static record ResolvedInclude(Identifier id, String source) implements EmptyDependencyView {
 
-		public static final RegistryEntryOwner<ResolvedInclude> OWNER = new RegistryEntryOwner<>() {};
 		public static final RegistryKey<Registry<ResolvedInclude>> REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.modID("include"));
 		public static final ObjectArrayFactory<RegistryEntry<ResolvedInclude>> ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
 

@@ -42,6 +42,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 	public Map<String, Boolean> initDefaults(String mixinPackage) {
 		Map<String, Boolean> defaults = new HashMap<>(64);
 		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                                                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".BackgroundRenderer_NoFogWithLODs",                                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".Biome_DontFreezeRiverWater",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                                     Boolean.TRUE);
@@ -54,6 +55,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely", Boolean.TRUE);
+		defaults.put(mixinPackage + ".DebugHud_ShowLodStatus",                                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_CreateWorldScreen_DontCrashOnFailure",                                                 Boolean.FALSE);
 		defaults.put(mixinPackage + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",                           Boolean.FALSE);
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                                                      Boolean.TRUE);
@@ -88,12 +90,14 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".SpawnHelper_MoreMobsInTallerWorlds",                                                       Boolean.FALSE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                                           Boolean.TRUE);
+		defaults.put(mixinPackage + ".SugarCaneBlock_MakePlaceableOnGravel",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".VoxyIntegration",                                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".Voxy_NodeManager_SuppressWarnings",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                                            Boolean.TRUE);
 		#if MC_VERSION >= MC_1_21_2
+		defaults.put(mixinPackage + ".WorldRenderer_ReloadHook",                                                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldRenderer_RenderHyperspaceSky",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldRenderer_RenderWaypoints",                                                            Boolean.TRUE);
 		#endif

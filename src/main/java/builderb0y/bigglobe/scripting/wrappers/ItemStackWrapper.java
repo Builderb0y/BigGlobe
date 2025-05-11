@@ -11,7 +11,6 @@ import net.minecraft.registry.Registries;
 import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
 import builderb0y.bigglobe.scripting.wrappers.tags.TagParser;
 import builderb0y.bigglobe.versions.ItemStackVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;

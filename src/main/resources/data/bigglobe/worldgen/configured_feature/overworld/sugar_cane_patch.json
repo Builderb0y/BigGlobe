@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"repeat (64:",
+				"int*(",
+					";approximate gaussian distribution.",
+					"rng = random.nextInt()",
+					"x = originX + bitCount(rng & 16xFFFF) - 8",
+					"z = originZ + bitCount(rng >>> 16) - 8",
+				")",
+				"placeFeature(x, originY, z, 'bigglobe:overworld/sugar_cane')",
+			")",
+			"true"
+		]
+	}
+}

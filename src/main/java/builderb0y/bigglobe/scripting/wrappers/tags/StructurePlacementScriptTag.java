@@ -9,6 +9,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,15 +24,12 @@ public class StructurePlacementScriptTag extends TagWrapper<CombinedStructureScr
 		super(list);
 	}
 
-	public static StructurePlacementScriptTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... ids) {
-		return of(ids);
+	public static StructurePlacementScriptTag of(MethodHandles.Lookup caller, String name, Class<?> type, int flags, String... ids) {
+		return of(flags, ids);
 	}
 
-	public static StructurePlacementScriptTag of(String... ids) {
-		if (ids == null) return null;
-		DelayedEntryList<CombinedStructureScripts> tag = DelayedEntryList.create(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, ids);
-		if (tag == null) return null;
-		return new StructurePlacementScriptTag(tag);
+	public static StructurePlacementScriptTag of(int flags, String... ids) {
+		return new StructurePlacementScriptTag(DelayedEntryList.emptyOnClient(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

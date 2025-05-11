@@ -13,8 +13,8 @@ import builderb0y.bigglobe.util.DelayedEntryList;
 public record ExtraSpawn(
 	DelayedEntryList<Biome> biomes,
 	RegistryEntry<EntityType<?>> type,
-	int weight,
-	@VerifyIntRange(min = 1) int minCount,
+	@VerifyIntRange(min = 0L) int weight,
+	@VerifyIntRange(min = 1L) int minCount,
 	@VerifySorted(greaterThanOrEqual = "minCount") int maxCount
 ) {
 

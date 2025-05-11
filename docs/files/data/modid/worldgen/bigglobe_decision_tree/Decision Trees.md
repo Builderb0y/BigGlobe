@@ -17,8 +17,6 @@ Option 1: the node provides a result. In this case, the file has only one proper
 				* BaseColumnScriptEnvironment
 				* ColumnEntryRegistry (x and z are hard-coded at the position of the column, y has a default value if the column value using this decision tree is 3D)
 				* ColorScriptEnvironment
-				* ExternalImageScriptEnvironment
-				* ExternalDataScriptEnvironment
 
 				If the column value referencing this decision tree is 3D and therefore has an implicit Y level, that Y level can be accessed via the `y` variable.
 
@@ -55,8 +53,6 @@ Option 2: the node checks a condition and delegates to a different decision tree
 				* BaseColumnScriptEnvironment
 				* ColumnEntryRegistry (x and z are hard-coded to the position of the column, y has a default value if the column value using this decision tree is 3D)
 				* ColorScriptEnvironment
-				* ExternalImageScriptEnvironment
-				* ExternalDataScriptEnvironment
 
 				If the column value referencing this decision tree is 3D and therefore has an implicit Y level, that Y level can be accessed via the `y` variable.
 		* `and` - evaluates to true if ALL wrapped conditions evaluate to true.

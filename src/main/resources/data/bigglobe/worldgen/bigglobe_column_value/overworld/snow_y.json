@@ -5,16 +5,9 @@
 		"is_3d": false
 	},
 	"script": [
-		"double curve(double*(heightmap, snowmap):",
-			"snowmap -= heightmap",
-			"snowmap = snowmap - fastExp(-snowmap) + 1.0L",
-			"return(snowmap * 0.5L + heightmap)",
-		")",
 		"double extra = world_traits.`bigglobe:temperature_at_surface` * -16.0L - 8.0L",
 		"double normalSnowmap = eroded_heightmap.low.y + extra",
-		"double riverSnowmap = eroded_river.low.y + extra",
-		";messy fix to prevent snow from spawning in rivers that border deserts and stuff.",
-		"normalSnowmap = curve(eroded_heightmap.high.y, normalSnowmap)",
+		"double riverSnowmap = mixSmooth(eroded_river.high.y, eroded_river.low.y + extra, normalSnowmap - eroded_heightmap.high.y)",
 		"double snowmap = min(normalSnowmap, max(eroded_river.high.y, riverSnowmap))",
 		"if (slope_surface_y - sea_level < 32.0L:",
 			"snowmap = mixSmooth(",

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import builderb0y.autocodec.annotations.MultiLine;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -21,12 +22,16 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
 	public static final GridTypeInfo GRID_3D_TYPE_INFO = new GridTypeInfo(Grid3D.class, Parser.class, 3);
 
-	public final transient Grid3D delegate;
+	public transient Grid3D delegate;
 
 	public ScriptedGrid3D(@MultiLine String script, Map<String, Grid3D> inputs, double min, double max) throws ScriptParsingException {
 		super(script, inputs, min, max);
-		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_3D_TYPE_INFO);
-		Parser parser = new Parser(script, processedInputs);
+	}
+
+	@Override
+	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_3D_TYPE_INFO);
+		Parser parser = new Parser(this.script, processedInputs, registry.parserFlags());
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
@@ -104,8 +109,8 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 			GET_BULK_Z = MethodInfo.getMethod(Grid3D.class, "getBulkZ"),
 			GET_BULK[] = { GET_BULK_X, GET_BULK_Y, GET_BULK_Z };
 
-		public Parser(@MultiLine String script, LinkedHashMap<String, Input> inputs) {
-			super(script, inputs, GRID_3D_TYPE_INFO);
+		public Parser(@MultiLine String script, LinkedHashMap<String, Input> inputs, int flags) {
+			super(script, inputs, GRID_3D_TYPE_INFO, flags);
 		}
 
 		@Override

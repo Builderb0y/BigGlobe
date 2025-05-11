@@ -23,12 +23,12 @@ import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
 import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;
 import builderb0y.bigglobe.scripting.wrappers.tags.TagParser;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -46,14 +46,21 @@ public class BlockStateWrapper {
 	public static final TagParser
 		TAG_PARSER = new TagParser("BlockTag", BlockTag.class, "BlockState", MethodInfo.inCaller("isIn"));
 
-	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id) throws CommandSyntaxException {
+	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) throws CommandSyntaxException {
 		if (id == null) return null;
 		#if MC_VERSION >= MC_1_20_3
 			if (id.equals("grass") || id.equals("minecraft:grass")) {
 				return Blocks.SHORT_GRASS.getDefaultState();
 			}
 		#endif
-		BlockResult result = BlockArgumentParserVersions.block(id, false);
+		BlockResult result;
+		try {
+			result = BlockArgumentParserVersions.block(id, false);
+		}
+		catch (CommandSyntaxException exception) {
+			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
+			else throw exception;
+		}
 		if (result.properties().size() != result.blockState().getProperties().size()) {
 			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
 			remaining.removeAll(result.properties().keySet());
@@ -64,30 +71,42 @@ public class BlockStateWrapper {
 		return result.blockState();
 	}
 
-	public static BlockState getState(String id) throws CommandSyntaxException {
+	public static BlockState getState(String id, int flags) throws CommandSyntaxException {
 		if (id == null) return null;
 		#if MC_VERSION >= MC_1_20_3
 			if (id.equals("grass") || id.equals("minecraft:grass")) {
 				return Blocks.SHORT_GRASS.getDefaultState();
 			}
 		#endif
-		//this method will be called only if the string is non-constant.
-		//for performance reasons, we will skip properties checking here.
-		return BlockArgumentParserVersions.block(id, false).blockState();
-	}
-
-	public static BlockState getDefaultState(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getDefaultState(id);
-	}
-
-	public static BlockState getDefaultState(String id) {
-		if (id == null) return null;
-		Identifier identifier = IdentifierVersions.create(id);
-		if (Registries.BLOCK.containsId(identifier)) {
-			return Registries.BLOCK.get(identifier).getDefaultState();
+		try {
+			//this method will be called only if the string is non-constant.
+			//for performance reasons, we will skip properties checking here.
+			return BlockArgumentParserVersions.block(id, false).blockState();
 		}
-		else {
-			throw new RuntimeException("Unknown block: " + id);
+		catch (CommandSyntaxException exception) {
+			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
+			else throw exception;
+		}
+	}
+
+	public static BlockState getDefaultState(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getDefaultState(id, flags);
+	}
+
+	public static BlockState getDefaultState(String id, int flags) {
+		if (id == null) return null;
+		try {
+			Identifier identifier = IdentifierVersions.create(id);
+			if (Registries.BLOCK.containsId(identifier)) {
+				return Registries.BLOCK.get(identifier).getDefaultState();
+			}
+			else {
+				throw new RuntimeException("Unknown block: " + id);
+			}
+		}
+		catch (RuntimeException exception) {
+			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
+			else throw exception;
 		}
 	}
 

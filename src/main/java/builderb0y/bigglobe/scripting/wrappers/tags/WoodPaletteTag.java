@@ -9,6 +9,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,15 +24,12 @@ public class WoodPaletteTag extends TagWrapper<WoodPalette, WoodPaletteEntry> {
 		super(list);
 	}
 
-	public static WoodPaletteTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... ids) {
-		return of(ids);
+	public static WoodPaletteTag of(MethodHandles.Lookup caller, String name, Class<?> type, int flags, String... ids) {
+		return of(flags, ids);
 	}
 
-	public static WoodPaletteTag of(String... ids) {
-		if (ids == null) return null;
-		DelayedEntryList<WoodPalette> tag = DelayedEntryList.create(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, ids);
-		if (tag == null) return null;
-		return new WoodPaletteTag(tag);
+	public static WoodPaletteTag of(int flags, String... ids) {
+		return new WoodPaletteTag(DelayedEntryList.emptyOnClient(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

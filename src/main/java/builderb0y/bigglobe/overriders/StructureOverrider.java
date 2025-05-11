@@ -79,7 +79,7 @@ public interface StructureOverrider extends ColumnScript {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			LoadInsnTree loadRandom = load("random", type(RandomGenerator.class));
 			this.script = (
-				new TemplateScriptParser<>(StructureOverrider.class, this.usage)
+				new TemplateScriptParser<>(StructureOverrider.class, this.usage, registry.parserFlags())
 				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(loadRandom))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.configureEnvironment(RandomScriptEnvironment.create(loadRandom))

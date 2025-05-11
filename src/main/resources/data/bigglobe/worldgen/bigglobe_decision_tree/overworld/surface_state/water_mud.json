@@ -1,9 +1,0 @@
-{
-	"result": {
-		"type": "constant",
-		"value": {
-			"surfaceState": "minecraft:water[level=0]",
-			"subsurfaceState": "minecraft:mud"
-		}
-	}
-}

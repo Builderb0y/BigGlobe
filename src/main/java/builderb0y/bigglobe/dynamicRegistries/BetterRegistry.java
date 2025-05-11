@@ -60,8 +60,16 @@ public interface BetterRegistry<T> {
 
 	public abstract Stream<RegistryEntryList<T>> streamTags();
 
-	public default RegistryEntry<T> getById(Identifier id) {
+	public default RegistryEntry<T> requireById(Identifier id) {
 		return this.requireEntry(RegistryKey.of(this.getKey(), id));
+	}
+
+	public default RegistryEntry<T> requireByName(String name) {
+		return this.requireById(IdentifierVersions.create(name));
+	}
+
+	public default RegistryEntry<T> getById(Identifier id) {
+		return this.getEntry(RegistryKey.of(this.getKey(), id));
 	}
 
 	public default RegistryEntry<T> getByName(String name) {

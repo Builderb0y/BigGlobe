@@ -20,6 +20,6 @@
 			}
 		]
 	},
-	"if_true": "bigglobe:overworld/surface_state/swamp_test_wet",
+	"if_true": "bigglobe:overworld/surface_state/mud",
 	"if_false": "bigglobe:overworld/surface_state/temperate_test_overgrown"
 }

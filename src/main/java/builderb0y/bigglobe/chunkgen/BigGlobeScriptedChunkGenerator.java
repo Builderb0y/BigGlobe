@@ -224,13 +224,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final transient Map<BiomeSpawnGroup, Pool<SpawnEntry>> extraSpawns;
 
 	public transient SortedOverriders actualOverriders;
-	public final SortedStructures sortedStructures;
 	public transient long columnSeed;
 	public transient boolean seedSet;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
 	public transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
-	public final transient StructureManager structureManager;
+	public transient StructureManager structureManager;
 
 	public BigGlobeScriptedChunkGenerator(
 		DecodeContext<?> decodeContext,
@@ -247,8 +246,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable EndOverrides end_overrides,
 		@VerifyNullable CreakingOverrides creaking_overrides,
 		@VerifyNullable Identifier world_traits,
-		BetterRegistry<ExtraSpawn> extraSpawnRegistry,
-		SortedStructures sortedStructures
+		BetterRegistry<ExtraSpawn> extraSpawnRegistry
 	)
 	throws VerifyException {
 		super(biome_source);
@@ -268,10 +266,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.creaking_overrides = creaking_overrides;
 		this.world_traits       = world_traits;
 		this.extraSpawnRegistry = extraSpawnRegistry;
-		this.sortedStructures   = sortedStructures;
 		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
 		this.rootDebugDisplay   = new DisplayEntry(this);
-		this.structureManager   = new StructureManager();
 		this.extraSpawns        = Collections.synchronizedMap(new HashMap<>(64));
 	}
 
@@ -294,10 +290,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.loadedWorldTraits   = from.loadedWorldTraits;
 		this.compiledWorldTraits = from.compiledWorldTraits;
 		this.extraSpawnRegistry  = from.extraSpawnRegistry;
-		this.sortedStructures    = from.sortedStructures;
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
 		this.rootDebugDisplay    = new DisplayEntry(this);
-		this.structureManager    = new StructureManager();
+		this.structureManager    = from.structureManager.copy();
 		this.extraSpawns         = from.extraSpawns;
 	}
 
@@ -373,6 +368,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.checkCyclicDependencies();
 	}
 
+	/** public API. */
+	public void setStructuresEnabled(boolean structuresEnabled) {
+		this.structureManager = structuresEnabled ? new ActiveStructureManager() : new InactiveStructureManager();
+	}
+
 	/** used by pseudo-field. */
 	public DecodeContext<?> decodeContext() {
 		return null;
@@ -388,6 +388,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		public void initializeIndexedFeaturesList() {
 			//no-op.
 		}
+
 	#endif
 
 	public static void init() {
@@ -450,29 +451,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		};
 	}
 
-	@Wrapper
-	public static class SortedStructures {
-
-		public final BetterRegistry<Structure> registry;
-		public final RegistryEntry<Structure>[] sortedStructures;
-
-		@SuppressWarnings("unchecked")
-		public SortedStructures(BetterRegistry<Structure> registry) {
-			this.registry = registry;
-			this.sortedStructures = (
-				registry
-				.streamEntries()
-				.sorted(
-					Comparator.comparing(
-						(RegistryEntry<Structure> entry) -> entry.value().getFeatureGenerationStep()
-					)
-					.thenComparing(UnregisteredObjectException::getID)
-				)
-				.toArray(RegistryEntry[]::new)
-			);
-		}
-	}
-
 	public ScriptedColumn newColumn(HeightLimitView world, int x, int z, Hints hints) {
 		return this.columnEntryRegistry.columnFactory.create(
 			new ScriptedColumn.Params(
@@ -511,6 +489,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		return super.createStructurePlacementCalculator(structureSetRegistry, noiseConfig, seed);
 	}
 
+	public void initStructureManager(boolean structuresEnabled) {
+		if (this.structureManager == null) {
+			this.setStructuresEnabled(structuresEnabled);
+		}
+	}
+
 	@Override
 	public #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif<? extends ChunkGenerator> getCodec() {
 		return CODEC;
@@ -538,7 +522,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	@Override
 	public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
-
+		//no-op.
 	}
 
 	public Pool<SpawnEntry> getSpawnEntries(RegistryEntry<Biome> biome, SpawnGroup group) {
@@ -550,7 +534,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				.streamEntries()
 				.map(RegistryEntry<ExtraSpawn>::value)
 				.filter((ExtraSpawn spawn) -> (
-					spawn.type().value().getSpawnGroup() == data.spawnGroup
+					spawn.weight() > 0
+					&& spawn.type().value().getSpawnGroup() == data.spawnGroup
 					&& spawn.biomes().contains(data.biome)
 				))
 				.map(ExtraSpawn::toEntry)
@@ -1057,12 +1042,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		#if MC_VERSION >= MC_1_21_4 , RegistryKey<World> dimension #endif
 	) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
 		FinalStructures starts = this.structureManager.getStructureStarts(
 			new StructureGenerationParams(
 				this,
-				this.newColumnLookup(chunk, hints),
-				hints,
+				this.newColumnLookup(chunk, ColumnUsage.GENERIC.maybeDhHints(distantHorizons)),
 				placementCalculator,
 				registryManager,
 				placementCalculator.getNoiseConfig(),

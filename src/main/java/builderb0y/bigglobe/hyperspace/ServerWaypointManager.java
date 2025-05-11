@@ -39,7 +39,7 @@ manages all the waypoints on a server,
 including all public waypoints, and all
 private waypoints created by every player.
 */
-@AddPseudoField(name = "waypoints", getter = "getAllWaypoints")
+@AddPseudoField("waypoints")
 @UseFixer(name = "INSTANCE", in = HyperspaceStorageVersions.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 @UseImprinter(name = "new", in = ServerWaypointManager.Imprinter.class, usage = MemberUsage.METHOD_IS_FACTORY)
 public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
@@ -59,6 +59,10 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	public int nextID;
 
 	public ServerWaypointManager() {}
+
+	public Collection<ServerWaypointData> waypoints() {
+		return this.getAllWaypoints();
+	}
 
 	#if MC_VERSION < MC_1_21_5
 

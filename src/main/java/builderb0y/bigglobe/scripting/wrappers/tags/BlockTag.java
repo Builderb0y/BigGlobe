@@ -9,6 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.scripting.wrappers.BlockWrapper;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,15 +24,12 @@ public class BlockTag extends TagWrapper<Block, Block> {
 		super(list);
 	}
 
-	public static BlockTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... ids) {
-		return of(ids);
+	public static BlockTag of(MethodHandles.Lookup caller, String name, Class<?> type, int flags, String... ids) {
+		return of(flags, ids);
 	}
 
-	public static BlockTag of(String... ids) {
-		if (ids == null) return null;
-		DelayedEntryList<Block> tag = DelayedEntryList.create(RegistryKeys.BLOCK, ids);
-		if (tag == null) return null;
-		return new BlockTag(tag);
+	public static BlockTag of(int flags, String... ids) {
+		return new BlockTag(DelayedEntryList.create(RegistryKeys.BLOCK, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

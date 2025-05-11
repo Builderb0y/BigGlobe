@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script_chance",
-		"script": "0.5L / (fastExp(3.0L - 6.0L * world_traits.`bigglobe:foliage_at_surface`) + 1.0L)"
-	},
-	"if_true": "bigglobe:overworld/surface_state/water_mud",
-	"if_false": "bigglobe:overworld/surface_state/mud"
-}

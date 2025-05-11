@@ -28,9 +28,7 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -191,7 +189,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			@Override
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
-					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage)
+					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage, registry.parserFlags())
 					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
 					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
@@ -223,8 +221,6 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.addEnvironment(ExternalImage.ENVIRONMENT)
-					.addEnvironment(ExternalData.ENVIRONMENT)
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}

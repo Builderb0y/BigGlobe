@@ -27,6 +27,7 @@ import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -38,11 +39,11 @@ import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
 import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBlocks {
 
@@ -732,6 +733,18 @@ public class BigGlobeBlocks {
 			.copy(QUARTZ_CLUSTER)
 			.sounds(BlockSoundGroup.SMALL_AMETHYST_BUD)
 			.pistonBehavior(PistonBehavior.DESTROY)
+		)
+	);
+	public static final Block PALE_NETHERRACK = register(
+		"pale_netherrack",
+		new Block(
+			AbstractBlock
+			.Settings
+			.create()
+			.mapColor(MapColor.LIGHT_GRAY)
+			.requiresTool()
+			.strength(0.4F)
+			.sounds(BlockSoundGroup.NETHERRACK)
 		)
 	);
 

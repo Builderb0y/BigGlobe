@@ -120,8 +120,6 @@ Column value overriders have the following json properties:
 	* ScriptedColumnBaseEnvironment
 	* ColumnEntryRegistry
 	* ColorScriptEnvironment
-	* ExternalImageScriptEnvironment
-	* ExternalDataScriptEnvironment
 	* StructureScriptEnvironment
 	* NbtScriptEnvironment (immutable)
 	* JavaUtilScriptEnvironment

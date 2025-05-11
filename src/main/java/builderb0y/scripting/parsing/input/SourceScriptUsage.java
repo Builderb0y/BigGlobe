@@ -1,7 +1,5 @@
 package builderb0y.scripting.parsing.input;
 
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.VerifyNullable;

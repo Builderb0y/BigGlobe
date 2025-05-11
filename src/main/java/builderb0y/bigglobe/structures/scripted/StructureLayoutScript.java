@@ -14,9 +14,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironm
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
 import builderb0y.bigglobe.util.CheckedList;
@@ -60,7 +58,7 @@ public interface StructureLayoutScript extends Script {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(StructureLayoutScript.class, this.usage)
+				new TemplateScriptParser<>(StructureLayoutScript.class, this.usage, registry.parserFlags())
 				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
@@ -99,8 +97,6 @@ public interface StructureLayoutScript extends Script {
 					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-				.addEnvironment(ExternalImage.ENVIRONMENT)
-				.addEnvironment(ExternalData.ENVIRONMENT)
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

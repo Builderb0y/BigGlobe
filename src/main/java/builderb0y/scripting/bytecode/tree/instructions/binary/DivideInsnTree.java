@@ -43,12 +43,14 @@ public class DivideInsnTree extends BinaryInsnTree {
 	}
 
 	public static int divideExact(ExpressionParser parser, int a, int b) throws ScriptParsingException {
+		if (b == 0) throw new ScriptParsingException("Division by literal zero", parser.input);
 		int div = a / b;
 		if (div * b == a) return div;
 		else throw new ScriptParsingException(a + " / " + b + " cannot be represented exactly as an int. Try doing " + a + ".0 / " + b + ".0 instead", parser.input);
 	}
 
 	public static long divideExact(ExpressionParser parser, long a, long b) throws ScriptParsingException {
+		if (b == 0L) throw new ScriptParsingException("Division by literal zero", parser.input);
 		long div = a / b;
 		if (div * b == a) return div;
 		else throw new ScriptParsingException(a + " / " + b + " cannot be represented exactly as a long. Try doing " + a + ".0 / " + b + ".0 instead", parser.input);

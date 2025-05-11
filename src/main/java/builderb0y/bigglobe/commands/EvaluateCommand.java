@@ -23,9 +23,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -101,7 +99,7 @@ public class EvaluateCommand {
 			@Override
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
-					new ScriptParser<>(CommandScript.class, this.usage.getSource(), null) {
+					new ScriptParser<>(CommandScript.class, this.usage.getSource(), null, 0) {
 
 						@Override
 						public InsnTree createReturn(InsnTree value) {
@@ -137,8 +135,6 @@ public class EvaluateCommand {
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.addEnvironment(ExternalImage.ENVIRONMENT)
-					.addEnvironment(ExternalData.ENVIRONMENT)
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}

@@ -47,7 +47,7 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 		@Override
 		@OverrideOnly
 		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, ScriptUsage> context) throws EncodeException {
-			if (context.object instanceof SourceScriptUsage source && source.debug_name == null) {
+			if (context.object instanceof SourceScriptUsage source && source.debug_name == null && source.includes == null) {
 				return context.object(source.source).encodeWith(this.sourceCoder);
 			}
 			return super.encode(context);
@@ -69,22 +69,11 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 
 	@Override
 	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		if (this.includes != null) {
-			if (this.getTemplate() != null) {
-				return Stream.concat(this.includes.streamDirectDependencies(), Stream.of(this.getTemplate()));
-			}
-			else {
-				return this.includes.streamDirectDependencies();
-			}
-		}
-		else {
-			if (this.getTemplate() != null) {
-				return Stream.of(this.getTemplate());
-			}
-			else {
-				return Stream.empty();
-			}
-		}
+		Stream.Builder<RegistryEntry<? extends DependencyView>> builder = Stream.builder();
+		if (this.includes != null) this.includes.streamDirectDependencies().forEach(builder);
+		if (this.getTemplate() != null) builder.accept(this.getTemplate());
+		if (this instanceof FileScriptUsage file) builder.accept(file.toEntry());
+		return builder.build();
 	}
 
 	public abstract String getRawSource();

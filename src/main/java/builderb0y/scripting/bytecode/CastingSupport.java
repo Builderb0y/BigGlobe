@@ -14,6 +14,7 @@ import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandlerData;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MultiCastHandler;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -44,32 +45,37 @@ public class CastingSupport {
 	public static final MethodInfo
 		BOOLEAN_VALUE_OF = MethodInfo.findMethod(Boolean.class, "valueOf", Boolean.class, boolean.class);
 	public static final AbstractConstantFactory
-		BYTE_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeByte"   ), MethodInfo.findMethod(Byte     .class, "valueOf", Byte     .class, byte   .class), TypeInfos.BYTE,    TypeInfos.BYTE_WRAPPER   ),
-		SHORT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeShort"  ), MethodInfo.findMethod(Short    .class, "valueOf", Short    .class, short  .class), TypeInfos.SHORT,   TypeInfos.SHORT_WRAPPER  ),
-		INT_CONSTANT_FACTORY     = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeInt"    ), MethodInfo.findMethod(Integer  .class, "valueOf", Integer  .class, int    .class), TypeInfos.INT,     TypeInfos.INT_WRAPPER    ),
-		LONG_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeLong"   ), MethodInfo.findMethod(Long     .class, "valueOf", Long     .class, long   .class), TypeInfos.LONG,    TypeInfos.LONG_WRAPPER   ),
-		FLOAT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeFloat"  ), MethodInfo.findMethod(Float    .class, "valueOf", Float    .class, float  .class), TypeInfos.FLOAT,   TypeInfos.FLOAT_WRAPPER  ),
-		DOUBLE_CONSTANT_FACTORY  = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeDouble" ), MethodInfo.findMethod(Double   .class, "valueOf", Double   .class, double .class), TypeInfos.DOUBLE,  TypeInfos.DOUBLE_WRAPPER ),
-		CHAR_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeChar"   ), MethodInfo.findMethod(Character.class, "valueOf", Character.class, char   .class), TypeInfos.CHAR,    TypeInfos.CHAR_WRAPPER   ),
+		BYTE_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeByte"   ), MethodInfo.findMethod(Byte     .class, "valueOf", Byte     .class, byte   .class), TypeInfos.BYTE,    TypeInfos.  BYTE_WRAPPER, false),
+		SHORT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeShort"  ), MethodInfo.findMethod(Short    .class, "valueOf", Short    .class, short  .class), TypeInfos.SHORT,   TypeInfos. SHORT_WRAPPER, false),
+		INT_CONSTANT_FACTORY     = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeInt"    ), MethodInfo.findMethod(Integer  .class, "valueOf", Integer  .class, int    .class), TypeInfos.INT,     TypeInfos.   INT_WRAPPER, false),
+		LONG_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeLong"   ), MethodInfo.findMethod(Long     .class, "valueOf", Long     .class, long   .class), TypeInfos.LONG,    TypeInfos.  LONG_WRAPPER, false),
+		FLOAT_CONSTANT_FACTORY   = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeFloat"  ), MethodInfo.findMethod(Float    .class, "valueOf", Float    .class, float  .class), TypeInfos.FLOAT,   TypeInfos. FLOAT_WRAPPER, false),
+		DOUBLE_CONSTANT_FACTORY  = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeDouble" ), MethodInfo.findMethod(Double   .class, "valueOf", Double   .class, double .class), TypeInfos.DOUBLE,  TypeInfos.DOUBLE_WRAPPER, false),
+		CHAR_CONSTANT_FACTORY    = new ConstantFactory(MethodInfo.getMethod(CastingSupport.class, "makeChar"   ), MethodInfo.findMethod(Character.class, "valueOf", Character.class, char   .class), TypeInfos.CHAR,    TypeInfos.  CHAR_WRAPPER, false),
 		BOOLEAN_CONSTANT_FACTORY = new AbstractConstantFactory(TypeInfos.BOOLEAN, TypeInfos.BOOLEAN_WRAPPER) {
 
 			@Override
-			public InsnTree createConstant(ConstantValue constant) {
+			public InsnTree createConstant(ConstantValue constant, int flags) {
 				return getStatic(constant.asBoolean() ? TRUE_FIELD : FALSE_FIELD);
 			}
 
 			@Override
-			public InsnTree createNonConstant(InsnTree tree) {
+			public InsnTree createNonConstant(InsnTree tree, int flags) {
 				return InsnTrees.invokeStatic(BOOLEAN_VALUE_OF, tree);
 			}
 		};
 
+	@Deprecated
 	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
+		class HelperParserHolder {
+			public static final ExpressionParser
+				PRIMITIVE_CAST_HELPER = new ExpressionParser("", null, null, 0);
+		}
 		if (value.getTypeInfo().equals(type)) {
 			return value;
 		}
 		//passing in a null parser is NOT recommended, but in this case it is safe.
-		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(null, value, type, false);
+		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(HelperParserHolder.PRIMITIVE_CAST_HELPER, value, type, false);
 		if (casted != null) return casted;
 		else throw new IllegalArgumentException("Can't primitively cast " + value.describe() + " to " + type);
 	}

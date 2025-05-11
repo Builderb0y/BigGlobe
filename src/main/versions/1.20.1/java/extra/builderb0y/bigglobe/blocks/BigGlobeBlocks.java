@@ -747,6 +747,18 @@ public class BigGlobeBlocks {
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
+	public static final Block PALE_NETHERRACK = register(
+		"pale_netherrack",
+		new Block(
+			AbstractBlock
+			.Settings
+			.create()
+			.mapColor(MapColor.LIGHT_GRAY)
+			.requiresTool()
+			.strength(0.4F)
+			.sounds(BlockSoundGroup.NETHERRACK)
+		)
+	);
 
 	//////////////////////////////// end ////////////////////////////////
 

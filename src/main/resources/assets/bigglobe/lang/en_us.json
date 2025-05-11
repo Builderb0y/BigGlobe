@@ -223,6 +223,8 @@
 	"bigglobe.hyperspace.disabled": "Hyperspace is disabled",
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Can't place waypoint here",
 
+	"bigglobe.lod.oom": "Big Globe ran out of memory for LOD geometry. The LOD quality has been decreased to %d to compensate for this.",
+
 	"gamerule.bigglobe:daylightCycleSpeed": "Daylight Cycle Speed",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Soul Lava converts to source",
 
@@ -285,20 +287,15 @@
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[1]": "If false, saplings will grow into normal (vanilla) trees in Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[2]": "This config option has no effect on trees that spawn during worldgen.",
 
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds": "Big Globe Trees In Other Worlds",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[0]": "If true, saplings will grow into Big Globe trees in non-Big Globe worlds.",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[1]": "If false, saplings will grow into normal (vanilla) trees in non-Big Globe worlds.",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[2]": "This config option has no effect on trees that spawn during worldgen.",
-
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled": "Hyperspace Enabled",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[0]": "If true, waypoints will be usable.",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[1]": "If false, waypoints cannot be used.",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[2]": "The hyperspace dimension is a fast travel mechanic which allows players to quickly visit places they've been to before. This config option is provided for players who don't like fast travel or prefer a different mod's teleportation mechanics.",
 
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres": "Molten rocks turn into ores",
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres.@Tooltip[0]": "If true, molten rocks will turn into ores when water is poured on them.",
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres.@Tooltip[1]": "If false, molten rocks will turn into stone when water is poured on them.",
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres.@Tooltip[2]": "Molten rock can be found in the core at the bottom of the world. It is very difficult to get to, and very rewarding for the resources it grants. Nevertheless, this config option exists for people who think this system is overpowered.",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance": "Molten Rock Ore-ification Chance",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance.@Tooltip[0]": "Global multiplier for how much ore you get from pouring water on molten rock.",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance.@Tooltip[1]": "If this is set to 0, you will only get stone from this process.",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance.@Tooltip[2]": "Molten rock can be found in the core at the bottom of the world. It is very difficult to get to, and very rewarding for the resources it grants. Nevertheless, this config option exists for people who think this system is overpowered.",
 
 	"text.autoconfig.bigglobe.option.threads": "Threads",
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[0]": "Number of threads to use for worldgen tasks (including worldgen for Distant Horizons and Voxy)",
@@ -346,6 +343,42 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "If true, Big Globe will log a message to the game console and log file when extra mob spawns are computed for a biome/spawn group.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "If false, Big Globe will not do that.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[2]": "Extra mob spawns are computed lazily and as-needed, so not all spawns will be printed immediately when the world is loaded.",
+
+	"text.autoconfig.bigglobe.option.lodRendering": "LOD Rendering",
+	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[0]": "Configures Big Globe's native LOD rendering functionality.",
+	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[1]": "LOD rendering lets you see farther without significant framerate drops.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.enabled": "Enabled",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[0]": "If true, Big Globe will generate and render a simplified model of the world that has a very far view distance, but lacks things like structures and features.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[1]": "If false, Big Globe will not do that.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[2]": "If you're on multiplayer, the server and the client must both have this option enabled for LOD rendering to work.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads": "Max Quads",
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[0]": "The number of quads Big Globe will allow itself to render.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[1]": "More quads will allow higher quality LOD rendering with less frequent lag spikes.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[2]": "Fewer quads will use less VRAM.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.quality": "Quality",
+	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[0]": "Factor controlling how far away LOD terrain can render before it gets replaced with a lower quality version of that terrain.",
+	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[1]": "Higher quality will use higher quality models for further distances.",
+	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[2]": "Lower quality will reduce time between lag spikes.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance": "Min View Distance",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Closest distance that LOD terrain will render at, as a fraction of your vanilla render distance.",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[1]": "Lower numbers will allow LOD terrain to render closer to the player.",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[2]": "Visual artifacts may occur if this number is too small. Must be greater than 0 and less than Max View Distance.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance": "Max View Distance",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[0]": "Furthest distance that LOD terrain will render at, as a fraction of your vanilla render distance.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[1]": "Higher numbers will allow LOD terrain to render further away from the player.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[2]": "Visual artifacts may occur if this number is too large. Must be greater than Min View Distance.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode": "Underground Mode",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[0]": "NONE - The underground and all blocks in it are completely skipped.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[1]": "FILL - The underground will be filled with stone, but no caves will generate.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[2]": "CARVE - Caves will generate, but underground structures and features will not.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[3]": "DECORATE - All underground stuff will generate normally.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate LOD terrain at.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Distant Horizons Integration",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating chunks for Distant Horizons.",

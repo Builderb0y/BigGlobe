@@ -7,6 +7,8 @@
 	"script": [
 		"LargeSkylandPlatformCell cell = platform_large",
 		"long seed = (worldSeed # 16xD001EF05F0E2DB23UL).newSeed(cell.cell_x, cell.cell_z)",
-		"seed.nextBoolean() ? null : ConfiguredFeatureTag('#bigglobe:overworld/skylands/trees').random(seed.newSeed())"
+		"if (seed.nextBoolean(): return(null))",
+		"ConfiguredFeatureTag tag = '#bigglobe:overworld/skylands/trees'",
+		"return(tag.isEmpty ? null : tag.random(seed.newSeed()))"
 	]
 }

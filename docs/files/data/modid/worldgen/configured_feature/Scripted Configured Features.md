@@ -21,8 +21,6 @@ Configured features are found in `/data/(modid)/worldgen/configured_feature` whe
 * StructureTemplateScriptEnvironment (with world)
 * ColumnEntryRegistry (x, y, and z default to originX, originY, and originZ)
 * ColorScriptEnvironment
-* ExternalImageScriptEnvironment
-* ExternalDataScriptEnvironment
 
 ## Additional variables
 

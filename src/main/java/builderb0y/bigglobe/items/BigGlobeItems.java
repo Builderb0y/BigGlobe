@@ -154,9 +154,7 @@ public class BigGlobeItems {
 		MEDIUM_QUARTZ_BUD        = registerPlacer(BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
 		LARGE_QUARTZ_BUD         = registerPlacer(BigGlobeBlocks.LARGE_QUARTZ_BUD),
 		QUARTZ_CLUSTER           = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER),
-		#if MC_VERSION >= MC_1_21_4
 		PALE_NETHERRACK          = registerPlacer(BigGlobeBlocks.PALE_NETHERRACK),
-		#endif
 		CHORUS_NYLIUM            = registerPlacer(BigGlobeBlocks.CHORUS_NYLIUM),
 		OVERGROWN_END_STONE      = registerPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
 		TALL_CHORUS_SPORES       = registerPlacer(BigGlobeBlocks.TALL_CHORUS_SPORES),
@@ -449,7 +447,7 @@ public class BigGlobeItems {
 			entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
 			entries.addBefore(Items.MAGMA_BLOCK, MOLTEN_ROCKS);
 			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK #if MC_VERSION >= MC_1_21_4 , PALE_NETHERRACK #endif);
+			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK, PALE_NETHERRACK);
 			entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
 			entries.addAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
 			entries.addAfter(Items.WARPED_STEM, CHARRED_LOG);

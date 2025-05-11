@@ -19,8 +19,8 @@ public class ScriptColumnEntryParser extends ExpressionParser {
 
 	public final ScriptUsage usage;
 
-	public ScriptColumnEntryParser(ScriptUsage usage, ClassCompileContext clazz, MethodCompileContext method) {
-		super(usage.getSource(), clazz, method);
+	public ScriptColumnEntryParser(ScriptUsage usage, ClassCompileContext clazz, MethodCompileContext method, int flags) {
+		super(usage.getSource(), clazz, method, flags);
 		this.usage = usage;
 	}
 

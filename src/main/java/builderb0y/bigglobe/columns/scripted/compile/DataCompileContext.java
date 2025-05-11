@@ -23,9 +23,7 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemor
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.WoodPaletteScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
@@ -114,10 +112,11 @@ public abstract class DataCompileContext {
 		ScriptUsage script,
 		boolean includeY,
 		MutableDependencyView dependencies,
-		@Nullable Identifier caller
+		@Nullable Identifier caller,
+		int parserFlags
 	)
 	throws ScriptParsingException {
-		new ScriptColumnEntryParser(script, this.mainClass, method)
+		new ScriptColumnEntryParser(script, this.mainClass, method, parserFlags)
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
 		.configureEnvironment(JavaUtilScriptEnvironment.noAllocateNoModify())
 		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
@@ -134,8 +133,6 @@ public abstract class DataCompileContext {
 			}
 		})
 		.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-		.addEnvironment(ExternalImage.ENVIRONMENT)
-		.addEnvironment(ExternalData.ENVIRONMENT)
 		.parseEntireInput()
 		.emitBytecode(method);
 		method.endCode();

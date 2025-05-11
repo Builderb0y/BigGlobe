@@ -2,7 +2,6 @@ package builderb0y.bigglobe.trees.trunks;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.CompileTiming;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -25,7 +24,7 @@ public interface TrunkThicknessScript extends Script {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(TrunkThicknessScript.class, this.usage)
+				new TemplateScriptParser<>(TrunkThicknessScript.class, this.usage, registry.parserFlags())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
@@ -36,11 +35,6 @@ public interface TrunkThicknessScript extends Script {
 				})
 				.parse(new ScriptClassLoader())
 			);
-		}
-
-		@Override
-		public CompileTiming compileTiming() {
-			return CompileTiming.INSTANT;
 		}
 
 		@Override

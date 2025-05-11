@@ -1,9 +1,12 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.stream.Stream;
+
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 @RecordLike({})
 public class NoopLayer extends Layer {
@@ -13,6 +16,11 @@ public class NoopLayer extends Layer {
 
 	public NoopLayer() {
 		super(null, EMPTY_CHILDREN, null, null);
+	}
+
+	@Override
+	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+		//no-op.
 	}
 
 	@Override

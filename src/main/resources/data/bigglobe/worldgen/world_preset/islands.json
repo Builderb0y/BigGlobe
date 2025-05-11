@@ -38,8 +38,8 @@
 						"inputs": {
 							"COLOR": [
 								"getDefaultGrassColor(",
-									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y) - 1.0L) + 1.0L),",
-									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y) + 1.0L) + 1.0L)",
+									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
+									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
 								")"
 							]
 						}
@@ -49,8 +49,8 @@
 						"inputs": {
 							"COLOR": [
 								"getDefaultFoliageColor(",
-									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y) - 1.0L) + 1.0L),",
-									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y) + 1.0L) + 1.0L)",
+									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
+									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
 								")"
 							]
 						}

@@ -22,6 +22,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
+import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -45,9 +46,11 @@ import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.AsyncConsumer;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.ScopeLocal;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -55,6 +58,7 @@ public class ColumnEntryRegistry {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
 
+	public final boolean client;
 	public final BetterRegistry.Lookup registries;
 	public final transient VoronoiManager voronoiManager;
 	public final transient TraitManager traitManager;
@@ -65,8 +69,9 @@ public class ColumnEntryRegistry {
 	public final transient ColumnCompileContext columnContext;
 	public final transient ScriptClassLoader loader;
 
-	public ColumnEntryRegistry(BetterRegistry.Lookup registries) throws ScriptParsingException {
-		this.registries = registries;
+	public ColumnEntryRegistry(BetterRegistry.Lookup registries, boolean client) throws ScriptParsingException {
+		this.client         = client;
+		this.registries     = registries;
 		this.columnContext  = new ColumnCompileContext(this);
 		this.voronoiManager = new VoronoiManager(this);
 		this.traitManager   = new TraitManager(this);
@@ -107,13 +112,7 @@ public class ColumnEntryRegistry {
 		this.columnContext.prepareForCompile();
 		try {
 			this.loader = new ScriptClassLoader();
-			if (CLASS_DUMP_DIRECTORY != null) try {
-				recursiveDumpClasses(this.columnContext.mainClass);
-			}
-			catch (IOException exception) {
-				ScriptLogger.LOGGER.error("", exception);
-			}
-			this.columnClass = this.loader.defineClass(this.columnContext.mainClass).asSubclass(ScriptedColumn.class);
+			this.columnClass = this.loader.defineClass(this.columnContext.mainClass, CLASS_DUMP_DIRECTORY, null).asSubclass(ScriptedColumn.class);
 			this.columnLookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
@@ -137,21 +136,20 @@ public class ColumnEntryRegistry {
 		this.traitManager.compile();
 	}
 
+	public int parserFlags() {
+		return this.client ? ExpressionParser.CLIENT : 0;
+	}
+
+	public int constantFlags() {
+		return this.client ? AbstractConstantFactory.CLIENT : 0;
+	}
+
 	public ColumnEntryMemory createColumnEntryMemory(RegistryEntry<ColumnEntry> entry) {
 		ColumnEntryMemory memory = new ColumnEntryMemory(entry);
 		AccessSchema accessSchema = entry.value().getAccessSchema();
 		memory.putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
 		memory.putTyped(ColumnEntryMemory.ACCESS_CONTEXT, this.columnContext.getAccessContext(accessSchema));
 		return memory;
-	}
-
-	public static void recursiveDumpClasses(ClassCompileContext context) throws IOException {
-		String baseName = context.info.getSimpleClassName();
-		Files.writeString(CLASS_DUMP_DIRECTORY.resolve(baseName + "-asm.txt"), context.dump(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-		Files.write(CLASS_DUMP_DIRECTORY.resolve(baseName + ".class"), context.toByteArray(), StandardOpenOption.CREATE_NEW);
-		for (ClassCompileContext innerClass : context.innerClasses) {
-			recursiveDumpClasses(innerClass);
-		}
 	}
 
 	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, @Nullable InsnTree loadY, MutableDependencyView dependencies, @Nullable Identifier caller) {
@@ -200,11 +198,13 @@ public class ColumnEntryRegistry {
 			ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> reset());
 		}
 
+		public boolean client;
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
 
-		public Loading(BetterRegistry.Lookup betterRegistryLookup) {
+		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client) {
+			this.client = client;
 			this.betterRegistryLookup = betterRegistryLookup;
 			this.compileables = new ArrayList<>(256);
 		}
@@ -220,7 +220,7 @@ public class ColumnEntryRegistry {
 				BigGlobeMod.currentRegistries = betterRegistryLookup;
 			}
 			if (LOADING == null) {
-				LOADING = new Loading(betterRegistryLookup);
+				LOADING = new Loading(betterRegistryLookup, false);
 			}
 		}
 
@@ -259,7 +259,7 @@ public class ColumnEntryRegistry {
 
 		public void compile() {
 			if (this.columnEntryRegistry == null) try {
-				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup);
+				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.client);
 			}
 			catch (ScriptParsingException exception) {
 				LOADING = null;
@@ -299,8 +299,8 @@ public class ColumnEntryRegistry {
 		/** called when the {@link ColumnEntryRegistry} is constructed. */
 		public abstract void compile(ColumnEntryRegistry registry) throws ScriptParsingException;
 
-		public default CompileTiming compileTiming() {
-			return CompileTiming.DELAYED_IF_NECESSARY;
+		public default void delay() {
+			Loading.get().delay(this);
 		}
 
 		/**
@@ -311,21 +311,27 @@ public class ColumnEntryRegistry {
 		public static <T_Encoded> void postConstruct(VerifyContext<T_Encoded, DelayedCompileable> context) throws VerifyException {
 			DelayedCompileable compileable = context.object;
 			if (compileable == null) return;
+			compileable.delay();
+		}
+	}
 
-			if (compileable.compileTiming() == CompileTiming.INSTANT) try {
-				compileable.compile(null);
+	public static interface SimpleDelayedCompileable extends DelayedCompileable {
+
+		public abstract void compile() throws ScriptParsingException;
+
+		@Override
+		public default void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			this.compile();
+		}
+
+		@Override
+		public default void delay() {
+			try {
+				this.compile();
 			}
 			catch (ScriptParsingException exception) {
 				throw new RuntimeException(exception);
 			}
-			else {
-				ColumnEntryRegistry.Loading.get().delay(compileable);
-			}
 		}
-	}
-
-	public static enum CompileTiming {
-		INSTANT,
-		DELAYED_IF_NECESSARY;
 	}
 }

@@ -16,7 +16,7 @@
 						"else (",
 							"double distance = distanceToSquare(piece)",
 							"double mixLevel = smooth(distance * 0.125L)",
-							"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) - 1.0L, mixLevel, keepTerrain)",
+							"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) - 1.0L, mixLevel)",
 						")",
 						"if (double*(distance := distanceToSquare(piece)) < 16.0L:",
 							"setSurfaceFoliage(piece.minY, smooth(distance * 0.0625L))",

@@ -13,7 +13,7 @@ import net.minecraft.util.Formatting;
 
 import builderb0y.bigglobe.mixinInterfaces.SearchableDebugHud;
 
-@Mixin(DebugHud.class)
+@Mixin(value = DebugHud.class, priority = 2000)
 public class DebugHud_MakeSearchable implements SearchableDebugHud {
 
 	private Pattern bigglobe_pattern;
@@ -32,7 +32,7 @@ public class DebugHud_MakeSearchable implements SearchableDebugHud {
 	private void bigglobe_searchLeftText(CallbackInfoReturnable<List<String>> callback) {
 		Pattern pattern = this.bigglobe_pattern;
 		if (pattern != null) {
-			callback.getReturnValue().replaceAll(text -> pattern.matcher(text).find() ? Formatting.GREEN + text : text);
+			callback.getReturnValue().replaceAll((String text) -> pattern.matcher(text).find() ? Formatting.GREEN + text : text);
 		}
 	}
 
@@ -40,7 +40,7 @@ public class DebugHud_MakeSearchable implements SearchableDebugHud {
 	private void bigglobe_searchRightText(CallbackInfoReturnable<List<String>> callback) {
 		Pattern pattern = this.bigglobe_pattern;
 		if (pattern != null) {
-			callback.getReturnValue().replaceAll(text -> pattern.matcher(text).find() ? Formatting.GREEN + text : text);
+			callback.getReturnValue().replaceAll((String text) -> pattern.matcher(text).find() ? Formatting.GREEN + text : text);
 		}
 	}
 }

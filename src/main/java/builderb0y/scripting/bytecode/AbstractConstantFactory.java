@@ -13,6 +13,16 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 public abstract class AbstractConstantFactory implements FunctionHandler {
 
+	public static final int
+		CLIENT   = 1 << 0,
+		NULLABLE = 1 << 1;
+
+	public static int flags(ExpressionParser parser) {
+		int flags = 0;
+		if ((parser.flags & ExpressionParser.CLIENT) != 0) flags |= CLIENT;
+		return flags;
+	}
+
 	public final TypeInfo inType, outType;
 
 	public AbstractConstantFactory(TypeInfo inType, TypeInfo outType) {
@@ -29,11 +39,11 @@ public abstract class AbstractConstantFactory implements FunctionHandler {
 	public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit) {
 		if (argument.getTypeInfo().equals(this.inType)) {
 			if (argument.getConstantValue().isConstant()) {
-				return new CastResult(this.createConstant(argument.getConstantValue()), true);
+				return new CastResult(this.createConstant(argument.getConstantValue(), flags(parser)), true);
 			}
 			else {
 				if (implicit) ScriptLogger.LOGGER.warn(ScriptParsingException.appendContext("Non-constant " + this.inType.getClassName() + " input for implicit cast to " + this.outType.getClassName() + ". This will be worse on performance. Use an explicit cast to suppress this warning.", parser.input));
-				return new CastResult(this.createNonConstant(argument), true);
+				return new CastResult(this.createNonConstant(argument, flags(parser)), true);
 			}
 		}
 		else if (argument.getTypeInfo().equals(this.outType)) {
@@ -44,7 +54,7 @@ public abstract class AbstractConstantFactory implements FunctionHandler {
 		}
 	}
 
-	public abstract InsnTree createConstant(ConstantValue constant);
+	public abstract InsnTree createConstant(ConstantValue constant, int flags);
 
-	public abstract InsnTree createNonConstant(InsnTree tree);
+	public abstract InsnTree createNonConstant(InsnTree tree, int flags);
 }

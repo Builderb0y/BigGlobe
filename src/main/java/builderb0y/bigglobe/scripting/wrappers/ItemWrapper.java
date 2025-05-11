@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -22,18 +22,24 @@ public class ItemWrapper {
 
 	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(ItemWrapper.class, "getItem", String.class, Item.class);
 
-	public static Item getItem(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getItem(id);
+	public static Item getItem(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getItem(id, flags);
 	}
 
-	public static Item getItem(String id) {
+	public static Item getItem(String id, int flags) {
 		if (id == null) return null;
-		Identifier identifier = IdentifierVersions.create(id);
-		if (Registries.ITEM.containsId(identifier)) {
-			return Registries.ITEM.get(identifier);
+		try {
+			Identifier identifier = IdentifierVersions.create(id);
+			if (Registries.ITEM.containsId(identifier)) {
+				return Registries.ITEM.get(identifier);
+			}
+			else {
+				throw new IllegalArgumentException("Unknown item: " + identifier);
+			}
 		}
-		else {
-			throw new IllegalArgumentException("Unknown item: " + identifier);
+		catch (RuntimeException exception) {
+			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
+			else throw exception;
 		}
 	}
 

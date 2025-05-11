@@ -95,7 +95,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	public static BlockProperties decodeState(BetterRegistry<Block> blockRegistry, String input) {
 		int openBracket = input.indexOf('[');
 		Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
-		Block block = blockRegistry.getById(blockID).value();
+		Block block = blockRegistry.requireById(blockID).value();
 		BlockState state = block.getDefaultState();
 		if (openBracket >= 0) {
 			if (block.getStateManager().getProperties().isEmpty()) {

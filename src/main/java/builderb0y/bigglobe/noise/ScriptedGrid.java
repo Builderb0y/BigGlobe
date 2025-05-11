@@ -13,6 +13,7 @@ import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.logging.TaskLogger;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -28,7 +29,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Impl implements Grid {
+public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Impl implements Grid, DelayedCompileable {
 
 	public static final TypeInfo NUMBER_ARRAY_TYPE = type(NumberArray.class);
 
@@ -170,7 +171,8 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			@MultiLine String script,
 			LinkedHashMap<String, Input> gridInputs,
 			GridTypeInfo gridTypeInfo,
-			ClassCompileContext clazz
+			ClassCompileContext clazz,
+			int flags
 		) {
 			super(
 				script,
@@ -180,7 +182,8 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 					"evaluate",
 					TypeInfos.DOUBLE,
 					params(gridTypeInfo, gridInputs)
-				)
+				),
+				flags
 			);
 			this.gridInputs = gridInputs;
 			this.gridTypeInfo = gridTypeInfo;
@@ -201,7 +204,7 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			return list.toArray(new LazyVarInfo[list.size()]);
 		}
 
-		public Parser(@MultiLine String script, LinkedHashMap<String, Input> gridInputs, GridTypeInfo gridTypeInfo) {
+		public Parser(@MultiLine String script, LinkedHashMap<String, Input> gridInputs, GridTypeInfo gridTypeInfo, int flags) {
 			this(
 				script,
 				gridInputs,
@@ -212,7 +215,8 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 					Type.getInternalName(gridTypeInfo.parserClass) + '$' + "Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 					TypeInfos.OBJECT,
 					new TypeInfo[] { TypeInfo.of(gridTypeInfo.gridClass), TypeInfo.of(Script.class) }
-				)
+				),
+				flags
 			);
 		}
 

@@ -3,8 +3,10 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -35,8 +37,8 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 		this.elementTypeName = elementTypeName;
 		this.tagType = isIn.getInvokeTypes()[1];
 		this.elementType = isIn.getInvokeTypes()[0];
-		this.bootstrapConstant = MethodInfo.findMethod(tagClass, "of", tagClass, MethodHandles.Lookup.class, String.class, Class.class, String[].class);
-		this.nonConstant = MethodInfo.findMethod(tagClass, "of", tagClass, String[].class);
+		this.bootstrapConstant = MethodInfo.findMethod(tagClass, "of", tagClass, MethodHandles.Lookup.class, String.class, Class.class, int.class, String[].class);
+		this.nonConstant = MethodInfo.findMethod(tagClass, "of", tagClass, int.class, String[].class);
 		this.isIn = isIn;
 	}
 
@@ -55,6 +57,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 				if (value.getConstantValue().isConstant()) {
 					return ldc(
 						this.bootstrapConstant,
+						constant(AbstractConstantFactory.flags(parser)),
 						value.getConstantValue()
 					);
 				}
@@ -64,6 +67,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 					}
 					return invokeStatic(
 						this.nonConstant,
+						ldc(AbstractConstantFactory.flags(parser)),
 						newArrayWithContents(parser, type(String[].class), value)
 					);
 				}
@@ -85,12 +89,17 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 						if (Arrays.stream(strings).map(InsnTree::getConstantValue).allMatch(ConstantValue::isConstantOrDynamic)) {
 							yield ldc(
 								this.bootstrapConstant,
-								Arrays.stream(strings).map(InsnTree::getConstantValue).toArray(ConstantValue[]::new)
+								Stream.concat(
+									Stream.of(constant(AbstractConstantFactory.flags(parser))),
+									Arrays.stream(strings).map(InsnTree::getConstantValue)
+								)
+								.toArray(ConstantValue[]::new)
 							);
 						}
 						else {
 							yield invokeStatic(
 								this.nonConstant,
+								ldc(AbstractConstantFactory.flags(parser)),
 								newArrayWithContents(parser, type(String[].class), strings)
 							);
 						}
@@ -125,12 +134,17 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 						if (Arrays.stream(strings).map(InsnTree::getConstantValue).allMatch(ConstantValue::isConstantOrDynamic)) {
 							tagArgument = ldc(
 								this.bootstrapConstant,
-								Arrays.stream(strings).map(InsnTree::getConstantValue).toArray(ConstantValue[]::new)
+								Stream.concat(
+									Stream.of(constant(AbstractConstantFactory.flags(parser))),
+									Arrays.stream(strings).map(InsnTree::getConstantValue)
+								)
+								.toArray(ConstantValue[]::new)
 							);
 						}
 						else {
 							tagArgument = invokeStatic(
 								this.nonConstant,
+								ldc(AbstractConstantFactory.flags(parser)),
 								newArrayWithContents(parser, type(String[].class), strings)
 							);
 						}

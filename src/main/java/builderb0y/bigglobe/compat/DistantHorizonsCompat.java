@@ -1,35 +1,25 @@
 package builderb0y.bigglobe.compat;
 
-import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiLevelUnloadEvent;
-import com.seibel.distanthorizons.core.api.external.methods.config.DhApiConfig;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 
 import com.seibel.distanthorizons.api.DhApi;
-import com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiDistantGeneratorMode;
 import com.seibel.distanthorizons.api.interfaces.block.IDhApiBiomeWrapper;
 import com.seibel.distanthorizons.api.interfaces.block.IDhApiBlockStateWrapper;
-import com.seibel.distanthorizons.api.interfaces.override.worldGenerator.IDhApiWorldGenerator;
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister;
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiLevelLoadEvent;
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam;
 import com.seibel.distanthorizons.api.objects.data.DhApiChunk;
 import com.seibel.distanthorizons.api.objects.data.DhApiTerrainDataPoint;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.*;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.compat.dhChunkGen.DhScriptedWorldGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
@@ -127,21 +117,6 @@ public class DistantHorizonsCompat {
 							else {
 								BigGlobeMod.LOGGER.info("Not using hyperspeed DH world generator, as it is disabled in Big Globe's config file.");
 							}
-							BigGlobeMod.LOGGER.info("About to disable Distant Horizons's cave culling. If this throws an exception, blame distant horizons for it, not me.");
-							DhApiConfig.INSTANCE.graphics().caveCullingEnabled().setValue(false);
-							BigGlobeMod.LOGGER.info("Cave culling has been successfully disabled.");
-						}
-					}
-				}
-			});
-			DhApiEventRegister.on(DhApiLevelUnloadEvent.class, new DhApiLevelUnloadEvent() {
-
-				@Override
-				public void onLevelUnload(DhApiEventParam<EventParam> param) {
-					IDhApiLevelWrapper levelWrapper = param.value.levelWrapper;
-					if (levelWrapper.getWrappedMcObject() instanceof ServerWorld serverWorld) {
-						if (serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-							DhApiConfig.INSTANCE.graphics().caveCullingEnabled().clearValue();
 						}
 					}
 				}

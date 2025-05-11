@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import builderb0y.autocodec.annotations.MultiLine;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -21,12 +22,16 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
 	public static final GridTypeInfo GRID_2D_TYPE_INFO = new GridTypeInfo(Grid2D.class, Parser.class, 2);
 
-	public final transient Grid2D delegate;
+	public transient Grid2D delegate;
 
 	public ScriptedGrid2D(@MultiLine String script, Map<String, Grid2D> inputs, double min, double max) throws ScriptParsingException {
 		super(script, inputs, min, max);
-		LinkedHashMap<String, Input> processedInputs = processInputs(inputs, GRID_2D_TYPE_INFO);
-		Parser parser = new Parser(script, processedInputs);
+	}
+
+	@Override
+	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_2D_TYPE_INFO);
+		Parser parser = new Parser(this.script, processedInputs, registry.parserFlags());
 		parser
 		.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
 		.addEnvironment(MathScriptEnvironment.INSTANCE)
@@ -86,8 +91,8 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 			GET_BULK_Y = MethodInfo.getMethod(Grid2D.class, "getBulkY"),
 			GET_BULK[] = { GET_BULK_X, GET_BULK_Y };
 
-		public Parser(@MultiLine String script, LinkedHashMap<String, Input> inputs) {
-			super(script, inputs, GRID_2D_TYPE_INFO);
+		public Parser(@MultiLine String script, LinkedHashMap<String, Input> inputs, int flags) {
+			super(script, inputs, GRID_2D_TYPE_INFO, flags);
 		}
 
 		@Override

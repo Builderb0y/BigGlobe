@@ -36,3 +36,11 @@ accessible method net/minecraft/entity/projectile/PersistentProjectileEntity set
 
 #used by chunk generator to spawn mobs during worldgen.
 accessible method net/minecraft/world/SpawnHelper getEntitySpawnPos (Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityType;II)Lnet/minecraft/util/math/BlockPos;
+
+#used for LOD rendering.
+accessible field net/minecraft/client/render/LightmapTextureManager texture Lnet/minecraft/client/texture/NativeImageBackedTexture;
+accessible method net/minecraft/client/render/WorldRenderer hasBlindnessOrDarkness (Lnet/minecraft/client/render/Camera;)Z
+accessible method net/minecraft/client/render/GameRenderer getFov (Lnet/minecraft/client/render/Camera;FZ)D
+accessible field net/minecraft/client/render/GameRenderer zoom F
+accessible field net/minecraft/client/render/GameRenderer zoomX F
+accessible field net/minecraft/client/render/GameRenderer zoomY F

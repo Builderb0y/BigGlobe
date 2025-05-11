@@ -14,6 +14,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
@@ -69,28 +70,40 @@ public class StructureTemplateScriptEnvironment {
 		};
 	}
 
-	public static StructureTemplate getTemplate(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getTemplate(id);
+	public static StructureTemplate getTemplate(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getTemplate(id, flags);
 	}
 
-	public static StructureTemplate getTemplate(String id) {
+	public static StructureTemplate getTemplate(String id, int flags) {
 		if (id == null) return null;
-		Identifier identifier = IdentifierVersions.create(id);
-		StructureTemplate template = BigGlobeMod.getCurrentServer().getStructureTemplateManager().getTemplate(identifier).orElse(null);
-		if (template != null) return template;
-		else throw new IllegalArgumentException("Template not found: " + identifier);
+		if ((flags & AbstractConstantFactory.CLIENT) != 0) {
+			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
+			else throw new IllegalArgumentException("Structure templates are not available on the client.");
+		}
+		else {
+			Identifier identifier = IdentifierVersions.create(id);
+			StructureTemplate template = BigGlobeMod.getCurrentServer().getStructureTemplateManager().getTemplate(identifier).orElse(null);
+			if (template != null) return template;
+			else throw new IllegalArgumentException("Template not found: " + identifier);
+		}
 	}
 
-	public static StructureProcessorList getProcessorList(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return getProcessorList(id);
+	public static StructureProcessorList getProcessorList(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getProcessorList(id, flags);
 	}
 
-	public static StructureProcessorList getProcessorList(String id) {
+	public static StructureProcessorList getProcessorList(String id, int flags) {
 		if (id == null) return null;
-		Identifier identifier = IdentifierVersions.create(id);
-		StructureProcessorList template = BigGlobeMod.getRegistry(RegistryKeys.PROCESSOR_LIST).getById(identifier).value();
-		if (template != null) return template;
-		else throw new IllegalArgumentException("Template not found: " + identifier);
+		if ((flags & AbstractConstantFactory.CLIENT) != 0) {
+			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
+			else throw new IllegalArgumentException("Processor lists are not available on the client.");
+		}
+		else {
+			Identifier identifier = IdentifierVersions.create(id);
+			StructureProcessorList template = BigGlobeMod.getRegistry(RegistryKeys.PROCESSOR_LIST).requireById(identifier).value();
+			if (template != null) return template;
+			else throw new IllegalArgumentException("Processor list not found: " + identifier);
+		}
 	}
 
 	public static String mirror(StructurePlacementData data) {

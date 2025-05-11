@@ -41,6 +41,6 @@ public class ConditionBasedDecisionTreeSettings extends DecisionTreeSettings {
 
 	@Override
 	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		return Stream.of(this.if_true, this.if_false);
+		return Stream.concat(Stream.of(this.if_true, this.if_false), this.condition.streamDirectDependencies());
 	}
 }

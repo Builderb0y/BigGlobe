@@ -40,10 +40,14 @@ public class GeneratingStorageBackend extends SectionStorage {
 		return this.delegate.getIdMappingsData();
 	}
 
-	@Override
-	public void iterateStoredSectionPositions(LongConsumer consumer) {
-		this.delegate.iterateStoredSectionPositions(consumer);
-	}
+	#if MC_VERSION >= MC_1_21_4
+
+		@Override
+		public void iterateStoredSectionPositions(LongConsumer consumer) {
+			this.delegate.iterateStoredSectionPositions(consumer);
+		}
+
+	#endif
 
 	@Override
 	public void flush() {

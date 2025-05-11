@@ -2,6 +2,7 @@ package builderb0y.bigglobe.scripting.wrappers.entries;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.random.RandomGenerator;
 
@@ -36,19 +37,20 @@ public class WoodPaletteEntry extends EntryWrapper<WoodPalette, WoodPaletteTag> 
 			getSeededBlock,
 			getSeededState;
 	}
+	public static final WoodPalette CLIENT_EMPTY = new WoodPalette(new EnumMap<>(WoodPaletteType.class), Collections.emptyMap());
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public WoodPaletteEntry(RegistryEntry<WoodPalette> entry) {
 		super(entry);
 	}
 
-	public static WoodPaletteEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return of(id);
+	public static WoodPaletteEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return of(id, flags);
 	}
 
-	public static WoodPaletteEntry of(String id) {
-		if (id == null) return null;
-		return new WoodPaletteEntry(BigGlobeMod.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getByName(id));
+	public static WoodPaletteEntry of(String id, int flags) {
+		RegistryEntry<WoodPalette> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY, id, flags, CLIENT_EMPTY);
+		return entry != null ? new WoodPaletteEntry(entry) : null;
 	}
 
 	public Map<String, ConfiguredFeatureEntry> features() {

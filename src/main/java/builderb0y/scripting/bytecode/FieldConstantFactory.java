@@ -7,6 +7,7 @@ import java.util.function.UnaryOperator;
 
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -41,12 +42,12 @@ public class FieldConstantFactory extends AbstractConstantFactory {
 
 	@Override
 	@SuppressWarnings("SuspiciousMethodCalls")
-	public InsnTree createConstant(ConstantValue constant) {
+	public InsnTree createConstant(ConstantValue constant, int flags) {
 		return this.lookup.get(constant.asJavaObject());
 	}
 
 	@Override
-	public InsnTree createNonConstant(InsnTree tree) {
+	public InsnTree createNonConstant(InsnTree tree, int flags) {
 		return this.nonConstantGetter.apply(tree);
 	}
 }

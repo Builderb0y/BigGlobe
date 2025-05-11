@@ -147,6 +147,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			boolean primitive = accessContext.exposedType().isPrimitive();
 			Class<?> arrayClass = primitive ? MappedRangeNumberArray.class : MappedRangeObjectArray.class;
 			context.constructor.appendCode(
+				context.root().registry.parserFlags(),
 				"valueField = Array.new(empty)",
 				(MutableScriptEnvironment environment) -> {
 					environment
@@ -240,6 +241,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			MethodCompileContext testMethod = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
 
 			computeTest.setCode(
+				context.root().registry.parserFlags(),
 				"return(test() ? compute() : fallback)",
 				(MutableScriptEnvironment environment) -> {
 					environment
@@ -258,6 +260,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 			MethodCompileContext testMethod = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
 
 			getterMethod.setCode(
+				context.root().registry.parserFlags(),
 				"return(test() ? compute() : fallback)",
 				(MutableScriptEnvironment environment) -> {
 					environment
@@ -287,6 +290,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		MethodCompileContext compute = memory.getTyped(this.hasValid() ? ColumnEntryMemory.COMPUTE_TEST : ColumnEntryMemory.COMPUTE_NO_TEST);
 		preComputeMethod.setCode(
+			context.root().registry.parserFlags(),
 			"""
 			int oldFlags = flagsField
 			int newFlags = oldFlags | flagsBitmask
@@ -311,6 +315,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		FieldCompileContext valueField = memory.getTyped(ColumnEntryMemory.FIELD);
 		MethodCompileContext compute = memory.getTyped(this.hasValid() ? COMPUTE_ALL_TEST : COMPUTE_ALL_NO_TEST);
 		preComputeMethod.setCode(
+			context.root().registry.parserFlags(),
 			"""
 			int oldFlags = flagsField
 			int newFlags = oldFlags | flagsBitmask
@@ -332,35 +337,40 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		MethodCompileContext computeAllTestMethod = memory.getTyped(COMPUTE_ALL_TEST);
 		MethodCompileContext computeAllNoTestMethod = memory.getTyped(COMPUTE_ALL_NO_TEST);
 		String computeSource = this.getComputeSource();
-		computeAllTestMethod.setCode(computeSource, (MutableScriptEnvironment environment) -> {
-			environment
-			.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
-			.addMethodInvokes(MappedRangeArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateBoth", "invalidate")
-			.addVariable("this", context.loadSelf())
-			.addVariable("column", context.loadColumn())
-			.addFunctionInvoke("actuallyCompute", context.loadSelf(), computeAllNoTestMethod.info)
-			;
-			if (this.valid != null) {
-				if (this.valid.where() != null) {
-					MethodCompileContext test = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
-					environment.addFunctionInvoke("test", context.loadSelf(), test.info);
-				}
-				if (this.valid.min_y() != null) {
-					MethodCompileContext minY = memory.getTyped(VALID_MIN_Y);
-					environment.addFunctionInvoke("minY", context.loadSelf(), minY.info);
-				}
-				if (this.valid.max_y() != null) {
-					MethodCompileContext maxY = memory.getTyped(VALID_MAX_Y);
-					environment.addFunctionInvoke("maxY", context.loadSelf(), maxY.info);
+		computeAllTestMethod.setCode(
+			context.root().registry.parserFlags(),
+			computeSource,
+			(MutableScriptEnvironment environment) -> {
+				environment
+				.addVariableRenamedGetField(context.loadSelf(), "valueField", valueField.info)
+				.addMethodInvokes(MappedRangeArray.class, "reallocateNone", "reallocateMin", "reallocateMax", "reallocateBoth", "invalidate")
+				.addVariable("this", context.loadSelf())
+				.addVariable("column", context.loadColumn())
+				.addFunctionInvoke("actuallyCompute", context.loadSelf(), computeAllNoTestMethod.info)
+				;
+				if (this.valid != null) {
+					if (this.valid.where() != null) {
+						MethodCompileContext test = memory.getTyped(ColumnEntryMemory.VALID_WHERE);
+						environment.addFunctionInvoke("test", context.loadSelf(), test.info);
+					}
+					if (this.valid.min_y() != null) {
+						MethodCompileContext minY = memory.getTyped(VALID_MIN_Y);
+						environment.addFunctionInvoke("minY", context.loadSelf(), minY.info);
+					}
+					if (this.valid.max_y() != null) {
+						MethodCompileContext maxY = memory.getTyped(VALID_MAX_Y);
+						environment.addFunctionInvoke("maxY", context.loadSelf(), maxY.info);
+					}
 				}
 			}
-		});
+		);
 		this.populateComputeAll(memory, context, computeAllNoTestMethod);
 	}
 
 	public void populateExtract(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext extractMethod) {
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		extractMethod.setCode(
+			context.root().registry.parserFlags(),
 			this.extractSource(),
 			(MutableScriptEnvironment environment) -> {
 				environment
@@ -612,6 +622,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 	public void populateComputeAll(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeAllMethod) {
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		computeAllMethod.setCode(
+			context.root().registry.parserFlags(),
 			"""
 			var array = valueField
 			int minY = array.minCached
@@ -673,6 +684,7 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 		AccessContext accessContext = memory.getTyped(ColumnEntryMemory.ACCESS_CONTEXT);
 		Integer flagsIndex = memory.getTyped(ColumnEntryMemory.FLAGS_INDEX);
 		setterMethod.setCode(
+			context.root().registry.parserFlags(),
 			"""
 			if (var*(mappedArray := valueField).valid:
 				var array = mappedArray.array
@@ -721,7 +733,14 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 
 	public void emitCompute2D(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		if (this.valid != null && this.valid.where() != null) {
-			context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
+			context.setMethodCode(
+				memory.getTyped(ColumnEntryMemory.VALID_WHERE),
+				this.valid.where(),
+				false,
+				this,
+				memory.getTyped(ColumnEntryMemory.ACCESSOR_ID),
+				context.root().registry.parserFlags()
+			);
 		}
 		this.populateCompute2D(memory, context, memory.getTyped(this.hasField() || this.hasValid() ? ColumnEntryMemory.COMPUTE_NO_TEST : ColumnEntryMemory.GETTER));
 	}
@@ -731,13 +750,34 @@ public abstract class AbstractColumnEntry implements ColumnEntry, SetBasedMutabl
 	public void emitCompute3D(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
 		if (this.hasValid()) {
 			if (this.valid.where() != null) {
-				context.setMethodCode(memory.getTyped(ColumnEntryMemory.VALID_WHERE), this.valid.where(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
+				context.setMethodCode(
+					memory.getTyped(ColumnEntryMemory.VALID_WHERE),
+					this.valid.where(),
+					false,
+					this,
+					memory.getTyped(ColumnEntryMemory.ACCESSOR_ID),
+					context.root().registry.parserFlags()
+				);
 			}
 			if (this.valid.min_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MIN_Y), this.valid.min_y(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
+				context.setMethodCode(
+					memory.getTyped(VALID_MIN_Y),
+					this.valid.min_y(),
+					false,
+					this,
+					memory.getTyped(ColumnEntryMemory.ACCESSOR_ID),
+					context.root().registry.parserFlags()
+				);
 			}
 			if (this.valid.max_y() != null) {
-				context.setMethodCode(memory.getTyped(VALID_MAX_Y), this.valid.max_y(), false, this, memory.getTyped(ColumnEntryMemory.ACCESSOR_ID));
+				context.setMethodCode(
+					memory.getTyped(VALID_MAX_Y),
+					this.valid.max_y(),
+					false,
+					this,
+					memory.getTyped(ColumnEntryMemory.ACCESSOR_ID),
+					context.root().registry.parserFlags()
+				);
 			}
 		}
 		this.populateCompute3D(memory, context, memory.getTyped(this.hasField() || this.hasValid() ? COMPUTE_ONE : ColumnEntryMemory.GETTER));

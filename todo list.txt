@@ -1,3 +1,7 @@
+reminders for myself:
+	renderdoc:
+		LD_PRELOAD=/home/builderb0y/renderdoc_1.38/lib/librenderdoc.so
+
 bugs:
 	geode spikes can still spawn outside of geodes.
 	after teleporting to a new world, some world-specific commands show suggestions from the old world.
@@ -19,8 +23,6 @@ testing:
 where I left off:
 	check if I can or should make delegating structures not spawn outside of big globe worlds.
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
-	blanket replace surface Y level with trait.
-	tall plateaus for hot wasteland.
 	foliage exclusion for villages on island skylands affects mainland below.
 	generic scripted ore?
 	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
@@ -30,6 +32,13 @@ where I left off:
 		possibly only an issue on dedicated servers.
 	add dumpVars() function which prints out the line number where it's called,
 		along with every variable accessible from the scope where dumpVars() was called.
+	fix bonemeal not making flowers in big globe worlds.
+	can't apply trims to voidmetal armor.
+	separate texture layers for overgrown sand,
+		so that it can adapt to biome tint.
+	sync Grid registry to clients?
+		could potentially be useful for LODs.
+	stop using NbtHelper.toBlockState() where reasonable.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -45,39 +54,47 @@ structure rewrites:
 
 noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
-	stop using NbtHelper.toBlockState() where reasonable.
+	remove skylands from rivers?
+
+high priority:
+	add new 1.21.5-exclusive blocks to world.
+
+LODs:
+	shader support.
 
 changelog:
-	# This is a BETA release!
-	* It is ONLY intended for testing the new overworld!
-	* This version changes everything compared to V4.11.
-	* Do not use it with existing worlds, and do not expect existing data packs to work flawlessly!
-	* The remainder of the minor MC versions will be released once testing is complete.
-
-	Changelog:
-	Compared to the previous beta:
-	* Ported to MC 1.21.5.
+	# Big changes compared to V4 for normal players:
+	* Completely new overworld design.
+		* Removed cliffs (mountains still exist, and they now have erosion).
+		* Removed waterfalls (lavafalls on volcanoes in islands worlds still exist).
+		* Not backwards-compatible with existing worlds.
+	* New LOD renderer.
+		* This lets you see farther without needing mods like Distant Horizons or Voxy.
+		* Works automatically in multiplayer as long as the server has the config option for them enabled.
+		* Does not render structures, features, or player-placed blocks.
+		* Only works in Big Globe worlds.
+		* Doesn't work with iris yet, though this is planned for the future.
+		* Distant Horizons and Voxy are still supported in case you prefer them, and my renderer can be disabled in the config file.
+		* Known issues:
+			* There are some seams between different levels of detail.
 	* Added a new "Soul Silverpetal" flower block.
 		* Found in the valley of souls.
 		* When made into suspicious stew, gives a new "soul siphon" status effect.
 			* This reduces your max health by 2 hearts per level.
-	* Rivers are now wider.
-	* Removed waterfalls (lavafalls on volcanoes still exist).
-	* The boundary between warm and hot biomes now includes overgrown sand.
-	* Forcibly disabled cave culling when playing with distant horizons. Hopefully this means people will stop complaining about my skylands.
-	* Expanded "Make Big Globe the default world type" config option to allow mod pack makers to specify an arbitrary default world type.
-	* Added new config option to attempt to detect when other mods or data packs provide incorrect world heights for their chunk generators.
-	* Fixed obelisks floating in DH LOD chunks.
-	* Fixed advancements not triggering when entering delegating structures.
-	* Fixed `/bigglobe:locate nearest` command with C2ME.
-	* Fixed a crash I fixed a while go, but better this time.
-	* Fixed C2ME integration being misnamed in config file.
-	Compared to V4.11:
-	* Completely re-designed the overworld (shouldn't affect island worlds much, if at all).
-	* Fixed being unable to craft gunpowder with sulfur.
-	* Fixed the end dimension not generating terrain more than about 46k blocks from the origin.
-	* Fixed pale netherrack not being in the creative menu (1.21.4).
-	* Fixed charred signs being arranged differently from other signs in the creative menu.
+	# Big changes compared to V4 for data pack developers:
+	* Many column values have been moved, removed, or renamed.
+	* External data and images have been removed.
+	# Small changes compared to the previous beta:
+	* Vanilla sugar cane can now be placed on gravel.
+		* Sugar cane now spawns in rivers.
+	* The core now has random lava pockets that occasionally spill out into the open areas.
+	* Water in swamp biomes has been re-designed.
+	* Reduced the number of beehives in forests.
+	* You can now set a multiplier for how likely molten rock is to turn into ores in the config file.
+	* Back-ported pale netherrack to older MC versions even though it isn't used for worldgen there.
+	* Fixed soul lava not setting the player on fire.
+	* Stopped forcibly disabling cave culling for Distant Horizons integration.
+	* Added french translations provided by GlinglinMerguez.
 
 alternate world presets:
 	paradise.

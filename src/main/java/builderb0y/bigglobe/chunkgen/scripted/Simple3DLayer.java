@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.stream.Stream;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.entry.RegistryEntry;
 
@@ -8,6 +10,7 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBlockStateScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 public class Simple3DLayer extends Layer {
 
@@ -25,6 +28,12 @@ public class Simple3DLayer extends Layer {
 		super(valid, children, before_children, after_children);
 		this.state = state;
 		this.condition = condition;
+	}
+
+	@Override
+	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+		this.state.streamDirectDependencies().forEach(builder);
+		this.condition.streamDirectDependencies().forEach(builder);
 	}
 
 	@Override

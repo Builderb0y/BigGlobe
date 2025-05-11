@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import net.minecraft.registry.entry.RegistryEntry;
@@ -44,7 +45,11 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 
 	@Override
 	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		return Stream.concat(super.streamDirectDependencies(), Stream.of(this.root));
+		Stream<RegistryEntry<? extends DependencyView>> result = Stream.concat(super.streamDirectDependencies(), Stream.of(this.root));
+		if (this.patches != null) {
+			result = Stream.of(result, this.patches.keySet().stream(), this.patches.values().stream()).flatMap(Function.identity());
+		}
+		return result;
 	}
 
 	@Override
@@ -56,7 +61,7 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 
 	@Override
 	public void populateCompute3D(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext computeMethod) throws ScriptParsingException {
-		return_(this.root.value().createInsnTree(this.root, this.params, context, patches, load("y", TypeInfos.INT))).emitBytecode(computeMethod);
+		return_(this.root.value().createInsnTree(this.root, this.params, context, this.patches, load("y", TypeInfos.INT))).emitBytecode(computeMethod);
 		computeMethod.endCode();
 		this.printIfEnabled(memory);
 	}

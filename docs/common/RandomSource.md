@@ -29,8 +29,6 @@ A random source consists of a `type`, and (usually) a `min` and `max`. `min` spe
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry
 		* ColorScriptEnvironment
-		* ExternalImageScriptEnvironment
-		* ExternalDataScriptEnvironment
 
 		And the following additional variables:
 		* `y` - the Y level of the thing using this random source; usually a structure or a feature.

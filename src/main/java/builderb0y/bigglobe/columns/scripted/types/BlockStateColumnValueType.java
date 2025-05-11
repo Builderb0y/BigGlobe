@@ -2,8 +2,6 @@ package builderb0y.bigglobe.columns.scripted.types;
 
 import java.util.Set;
 
-import com.mojang.datafixers.util.Unit;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.state.property.Property;

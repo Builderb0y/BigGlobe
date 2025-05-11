@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -69,6 +70,16 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	public boolean canBeReplacedWith(FluidState state, BlockView world, BlockPos pos, Fluid fluid, Direction direction) {
 		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(FluidTags.WATER);
 	}
+
+	#if MC_VERSION >= MC_1_21_5
+
+		@Override
+		public void onEntityCollision(World world, BlockPos pos, Entity entity, net.minecraft.entity.EntityCollisionHandler handler) {
+			handler.addEvent(net.minecraft.entity.CollisionEvent.LAVA_IGNITE);
+			handler.addPostCallback(net.minecraft.entity.CollisionEvent.LAVA_IGNITE, Entity::setOnFireFromLava);
+		}
+
+	#endif
 
 	@Override
 	public int getTickRate(WorldView world) {

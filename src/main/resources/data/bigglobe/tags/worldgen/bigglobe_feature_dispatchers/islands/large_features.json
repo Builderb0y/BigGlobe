@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:overworld/small_dungeons",
+		"bigglobe:overworld/swamp_water",
 
 		"bigglobe:islands/liquidfalls",
 		"bigglobe:islands/trees",

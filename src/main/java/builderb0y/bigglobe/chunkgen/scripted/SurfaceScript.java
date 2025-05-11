@@ -1,20 +1,25 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.objectweb.asm.Type;
+
+import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -41,22 +46,26 @@ public interface SurfaceScript extends Script {
 	);
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<SurfaceScript> implements SurfaceScript {
+	public static class Holder extends ScriptHolder<SurfaceScript> implements SurfaceScript, SetBasedMutableDependencyView {
+
+		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
 		public Holder(ScriptUsage usage) throws ScriptParsingException {
 			super(usage);
+			this.addAllDependencies(usage);
+		}
+
+		@Override
+		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+			return this.dependencies;
 		}
 
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-			this.script = createScript(this.usage, registry);
-		}
-
-		public static SurfaceScript createScript(ScriptUsage usage, ColumnEntryRegistry registry) throws ScriptParsingException {
 			ClassCompileContext clazz = new ClassCompileContext(
 				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 				ClassType.CLASS,
-				Type.getInternalName(SurfaceScript.class) + '$' + (usage.debug_name != null ? usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+				Type.getInternalName(SurfaceScript.class) + '$' + (this.usage.debug_name != null ? this.usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,
 				new TypeInfo[] { type(SurfaceScript.class) }
 			);
@@ -93,7 +102,7 @@ public interface SurfaceScript extends Script {
 			bridgeMethod.endCode();
 
 			LoadInsnTree loadMainColumn = load("mainColumn", registry.columnContext.columnType());
-			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).configureEnvironment((MutableScriptEnvironment environment) -> {
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
@@ -105,24 +114,27 @@ public interface SurfaceScript extends Script {
 				.addKeyword("dx", createDxDz(registry, false))
 				.addKeyword("dz", createDxDz(registry, true))
 				.addAll(ColorScriptEnvironment.ENVIRONMENT)
-				.addAll(ExternalImage.ENVIRONMENT)
-				.addAll(ExternalData.ENVIRONMENT)
 				;
-				registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withColumn(loadMainColumn));
+				registry.setupExternalEnvironment(
+					environment,
+					new ExternalEnvironmentParams()
+					.withColumn(loadMainColumn)
+					.trackDependencies(this)
+				);
 			});
 			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();
 
 			MethodCompileContext getSource = clazz.newMethod(ACC_PUBLIC, "getSource", TypeInfos.STRING);
-			return_(ldc(clazz.newConstant(usage.getSource(), TypeInfos.STRING))).emitBytecode(getSource);
+			return_(ldc(clazz.newConstant(this.usage.getSource(), TypeInfos.STRING))).emitBytecode(getSource);
 			getSource.endCode();
 
 			MethodCompileContext getDebugName = clazz.newMethod(ACC_PUBLIC, "getDebugName", TypeInfos.STRING);
-			return_(ldc(usage.debug_name, TypeInfos.STRING)).emitBytecode(getDebugName);
+			return_(ldc(this.usage.debug_name, TypeInfos.STRING)).emitBytecode(getDebugName);
 			getDebugName.endCode();
 
 			try {
-				return (SurfaceScript)(new ScriptClassLoader(registry.loader).defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
+				this.script = (SurfaceScript)(new ScriptClassLoader(registry.loader).defineClass(clazz, ExpressionParser.CLASS_DUMP_DIRECTORY, this.usage.getSource()).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 			}
 			catch (Throwable throwable) {
 				throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);

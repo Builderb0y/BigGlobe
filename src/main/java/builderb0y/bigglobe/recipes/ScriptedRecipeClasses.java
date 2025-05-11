@@ -10,7 +10,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.CompileTiming;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.SimpleDelayedCompileable;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.ItemScriptEnvironment;
@@ -47,16 +47,16 @@ public class ScriptedRecipeClasses {
 		public abstract boolean matches(CraftingGrid input);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript {
+		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript, SimpleDelayedCompileable {
 
 			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
 			@Override
-			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			public void compile() throws ScriptParsingException {
 				this.script = (
-					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage)
+					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage, 0)
 					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
@@ -66,11 +66,6 @@ public class ScriptedRecipeClasses {
 					)
 					.parse(new ScriptClassLoader())
 				);
-			}
-
-			@Override
-			public CompileTiming compileTiming() {
-				return CompileTiming.INSTANT;
 			}
 
 			@Override
@@ -91,16 +86,16 @@ public class ScriptedRecipeClasses {
 		public abstract ItemStack output(CraftingGrid input);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript {
+		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript, SimpleDelayedCompileable {
 
 			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
 			@Override
-			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			public void compile() throws ScriptParsingException {
 				this.script = (
-					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage)
+					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage, 0)
 					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
@@ -110,11 +105,6 @@ public class ScriptedRecipeClasses {
 					)
 					.parse(new ScriptClassLoader())
 				);
-			}
-
-			@Override
-			public CompileTiming compileTiming() {
-				return CompileTiming.INSTANT;
 			}
 
 			@Override
@@ -136,16 +126,16 @@ public class ScriptedRecipeClasses {
 		public abstract void remainder(CraftingGrid input, CraftingGrid output);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<CraftingRemainderScript> implements CraftingRemainderScript {
+		public static class Holder extends ScriptHolder<CraftingRemainderScript> implements CraftingRemainderScript, SimpleDelayedCompileable {
 
 			public Holder(ScriptUsage usage) {
 				super(usage);
 			}
 
 			@Override
-			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			public void compile() throws ScriptParsingException {
 				this.script = (
-					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage)
+					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage, 0)
 					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
@@ -157,11 +147,6 @@ public class ScriptedRecipeClasses {
 					)
 					.parse(new ScriptClassLoader())
 				);
-			}
-
-			@Override
-			public CompileTiming compileTiming() {
-				return CompileTiming.INSTANT;
 			}
 
 			@Override

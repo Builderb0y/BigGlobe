@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.util;
 
-import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collector;
@@ -20,7 +19,6 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.CompileTiming;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
@@ -31,7 +29,8 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 
 	public static final Comparator<RegistryEntry<?>> COMPARATOR = Comparator.comparing(UnregisteredObjectException::getID);
 
-	public final @NotNull BetterRegistry<T> resolver;
+	public final @Nullable BetterRegistry<T> resolver;
+	public final @NotNull RegistryKey<Registry<T>> registryKey;
 	public final @NotNull @SingletonArray List<DelayedEntry> delayedEntries;
 	public SortedEncodings sortedEncodings;
 
@@ -41,16 +40,34 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	public @Nullable Set<T> objectSet;
 	public @Nullable RegistryEntryList<T> tag;
 
+	public DelayedEntryList(RegistryKey<Registry<T>> key) {
+		this.resolver = null;
+		this.registryKey = key;
+		this.delayedEntries = Collections.emptyList();
+		this.sortedEncodings = new SortedEncodings(Collections.emptyList());
+		this.entryList = Collections.emptyList();
+		this.entrySet = Collections.emptySet();
+		this.objectList = Collections.emptyList();
+		this.objectSet = Collections.emptySet();
+		#if MC_VERSION >= MC_1_20_5
+			this.tag = RegistryEntryList.empty();
+		#else
+			this.tag = RegistryEntryList.of();
+		#endif
+	}
+
 	public DelayedEntryList(
 		@NotNull BetterRegistry<T> resolver,
 		@NotNull @SingletonArray List<DelayedEntry> delayedEntries
 	) {
-		this.delayedEntries = delayedEntries;
 		this.resolver = resolver;
+		this.registryKey = resolver.getKey();
+		this.delayedEntries = delayedEntries;
 	}
 
 	public DelayedEntryList(@NotNull BetterRegistry<T> resolver, @NotNull RegistryEntryList<T> list) {
 		this.resolver = resolver;
+		this.registryKey = resolver.getKey();
 		Optional<TagKey<T>> key = list.getTagKey();
 		if (key.isPresent()) {
 			this.delayedEntries = Collections.singletonList(
@@ -63,14 +80,22 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 		}
 	}
 
-	public static <T> DelayedEntryList<T> create(RegistryKey<Registry<T>> key, String... args) {
-		List<DelayedEntry> list = Arrays.stream(args).filter(Objects::nonNull).map(DelayedEntry::new).toList();
-		return list.isEmpty() ? null : new DelayedEntryList<>(BigGlobeMod.getRegistry(key), list);
+	public static <T> DelayedEntryList<T> empty(RegistryKey<Registry<T>> key) {
+		return new DelayedEntryList<>(key);
 	}
 
-	public static <T> DelayedEntryList<T> create(RegistryKey<Registry<T>> registryKey, String input) {
-		if (input == null) return null;
-		return new DelayedEntryList<>(BigGlobeMod.getRegistry(registryKey), Collections.singletonList(new DelayedEntry(input)));
+	public static <T> DelayedEntryList<T> emptyOnClient(RegistryKey<Registry<T>> key, boolean client, String... ids) {
+		return client ? empty(key) : create(key, false, ids);
+	}
+
+	public static <T> DelayedEntryList<T> create(RegistryKey<Registry<T>> key, boolean client, String... args) {
+		List<DelayedEntry> list = Arrays.stream(args).filter(Objects::nonNull).map(DelayedEntry::new).toList();
+		return list.isEmpty() ? empty(key) : new DelayedEntryList<>(BigGlobeMod.getSidedRegistry(key, client), list);
+	}
+
+	public static <T> DelayedEntryList<T> create(RegistryKey<Registry<T>> registryKey, boolean client, String input) {
+		if (input == null) return empty(registryKey);
+		return new DelayedEntryList<>(BigGlobeMod.getSidedRegistry(registryKey, client), Collections.singletonList(new DelayedEntry(input)));
 	}
 
 	public boolean isResolved() {
@@ -153,13 +178,14 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	}
 
 	public void resolve() {
+		if (this.resolver == null) throw new IllegalStateException("Can't resolve DelayedEntryList with no registry!");
 		this.entryList = (
 			this
 			.delayedEntries
 			.stream()
 			.flatMap((DelayedEntry element) -> {
 				if (element.isTag()) {
-					TagKey<T> key = TagKey.of(this.resolver.getKey(), element.id);
+					TagKey<T> key = TagKey.of(this.registryKey, element.id);
 					RegistryEntryList<T> resolution = this.resolver.requireTag(key);
 					if (resolution.size() == 0 && BigGlobeConfig.INSTANCE.get().dataPackDebugging.emptyTags) {
 						BigGlobeMod.LOGGER.warn("Empty tag: " + key);
@@ -167,7 +193,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 					return resolution.stream();
 				}
 				else {
-					return Stream.of(this.resolver.getById(element.id));
+					return Stream.of(this.resolver.requireById(element.id));
 				}
 			})
 			.collect(
@@ -219,7 +245,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	public boolean equals(Object obj) {
 		return this == obj || (
 			obj instanceof DelayedEntryList<?> that &&
-			((RegistryKey<?>)(this.resolver.getKey())) == ((RegistryKey<?>)(that.resolver.getKey())) &&
+			((RegistryKey<?>)(this.registryKey)) == ((RegistryKey<?>)(that.registryKey)) &&
 			this.getSortedEncodings().equals(that.getSortedEncodings())
 		);
 	}
@@ -233,7 +259,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	public String toString() {
 		List<DelayedEntry> entries = this.delayedEntries;
 		int size = entries.size();
-		StringBuilder builder = new StringBuilder((size + 1) << 6).append(this.resolver.getKey().getValue());
+		StringBuilder builder = new StringBuilder((size + 1) << 6).append(this.registryKey.getValue());
 		if (size == 0) return builder.append("[]").toString();
 		builder.append("[ ").append(entries.get(0).encoding);
 		for (int index = 1; index < size; index++) {

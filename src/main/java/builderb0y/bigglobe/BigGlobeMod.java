@@ -8,15 +8,21 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.Lifecycle;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -157,8 +163,38 @@ public class BigGlobeMod implements ModInitializer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> BetterRegistry<T> getRegistry(RegistryKey<? extends Registry<T>> key) {
+	public static <T> BetterRegistry<T> getRegistry(RegistryKey<? extends Registry<? extends T>> key) {
 		return getCurrentRegistries().getRegistry((RegistryKey<Registry<T>>)(key));
+	}
+
+	public static <T> BetterRegistry<T> getSidedRegistry(RegistryKey<? extends Registry<? extends T>> key, boolean client) {
+		return client ? getClientRegistry(key) : getRegistry(key);
+	}
+
+	public static <T> BetterRegistry<T> getClientRegistry(RegistryKey<? extends Registry<? extends T>> key) {
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			return getClientRegistry0(key);
+		}
+		else {
+			throw new IllegalStateException("Calling getClientRegistry() on dedicated server!");
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static <T> BetterRegistry<T> getClientRegistry0(RegistryKey<? extends Registry<? extends T>> key) {
+		ClientWorld world = MinecraftClient.getInstance().world;
+		if (world != null) {
+			Registry<T> registry = world.getRegistryManager().getOptional(key).orElse(null);
+			if (registry != null) {
+				return new BetterHardCodedRegistry<>(registry);
+			}
+			else {
+				throw new IllegalStateException("Client registry " + key.getValue() + " not available");
+			}
+		}
+		else {
+			throw new IllegalStateException("Client registries not available");
+		}
 	}
 
 	public static ResourceManager getResourceManager() {

@@ -2,12 +2,17 @@ package builderb0y.scripting.parsing.input;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.util.FakeRegistry;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 
 public class FileScriptUsage extends ScriptUsage {
+
+	public static final FakeRegistry<FileScriptUsage> REGISTRY = new FakeRegistry<>(BigGlobeMod.modID("file_script_usage"));
 
 	public final Identifier file;
 	public final transient String source;
@@ -26,5 +31,9 @@ public class FileScriptUsage extends ScriptUsage {
 	@Override
 	public @Nullable Identifier getFile() {
 		return this.file;
+	}
+
+	public RegistryEntry<FileScriptUsage> toEntry() {
+		return REGISTRY.getOrCreate(this.file, this);
 	}
 }

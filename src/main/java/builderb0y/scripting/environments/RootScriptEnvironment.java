@@ -65,8 +65,9 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				//is IntNbt, for example.
 				TypeInfo boxed = from.box();
 				if (boxed.extendsOrImplements(to)) {
-					return CastingSupport.primitiveCast(value, boxed);
-					//return invokeStatic(new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, boxed, "valueOf", boxed, from), value);
+					InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(parser, value, boxed, false);
+					if (casted != null) return casted;
+					else throw new ClassCastException("Can't primitively cast " + value.describe() + " to " + boxed);
 				}
 			}
 		}

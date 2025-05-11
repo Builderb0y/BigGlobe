@@ -17,8 +17,6 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry
 		* ColorScriptEnvironment
-		* ExternalImageScriptEnvironment
-		* ExternalDataScriptEnvironment
 
 		And a variable `y` which represents the Y level that the biome is being queried at.
 	* `all_possible_biomes` - a biome tag containing all the biomes that this script could potentially return. The `#` is implicit, and you only need to provide the namespace and path of the tag.
@@ -40,8 +38,6 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 		* BaseColumnScriptEnvironment
 		* ColumnEntryRegistry (x and z are hard-coded to the position currently being generated)
 		* ColorScriptEnvironment
-		* ExternalImageScriptEnvironment
-		* ExternalDataScriptEnvironment
 	* `children` - an array of layers. Defaults to an empty array if absent.
 	* `before_children` and `after_children` (optional) (added in V4.3.0) - scripts which can place additional blocks before and after the children place blocks. See the documentation on layers for more info.
 
@@ -70,8 +66,6 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 	* ColumnEntryRegistry (x and z are hard-coded at the current position being tested to see if it's a good spawn position or not)
 	* RandomScriptEnvironment (with random)
 	* ColorScriptEnvironment
-	* ExternalImageScriptEnvironment
-	* ExternalDataScriptEnvironment
 * `colors` (optional) - controls the colors of some blocks.
 	* `grass` (optional) - controls the color of grass, tallgrass, and related blocks.
 	* `foliage` (optional) - controls the colors of leaves (I think).
@@ -113,5 +107,3 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the position being tested)
 			* ColorScriptEnvironment
-			* ExternalImageScriptEnvironment
-			* ExternalDataScriptEnvironment

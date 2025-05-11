@@ -40,7 +40,7 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, RegistryEntr
 	@OverrideOnly
 	public <T_Encoded> @Nullable RegistryEntry<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		if (context.isString()) return this.registry(context).getByName(context.forceAsString().value);
+		if (context.isString()) return this.registry(context).requireByName(context.forceAsString().value);
 		if (this.inlineCoder != null) return RegistryEntry.of(context.decodeWith(this.inlineCoder));
 		throw new DecodeException(() -> context.pathToStringBuilder().append(" is not a string, and inline definitions are not allowed.").toString());
 	}

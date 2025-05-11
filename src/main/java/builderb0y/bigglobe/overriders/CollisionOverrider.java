@@ -50,7 +50,7 @@ public interface CollisionOverrider extends ColumnScript {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(CollisionOverrider.class, this.usage)
+				new TemplateScriptParser<>(CollisionOverrider.class, this.usage, registry.parserFlags())
 				.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
 				.addEnvironment(RandomScriptEnvironment.BASE)

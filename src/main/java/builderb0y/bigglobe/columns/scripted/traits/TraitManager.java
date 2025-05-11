@@ -21,7 +21,7 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -89,22 +89,26 @@ public class TraitManager {
 		this.traitRegistry.streamEntries().forEach((RegistryEntry<WorldTrait> entry) -> {
 			TraitInfo info = this.infos.get(entry);
 			if (entry.value().fallback() != null) {
-				info.getter.setCode(entry.value().fallback().getSource(), (MutableScriptEnvironment environment) -> {
-					environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.configure(MinecraftScriptEnvironment.create())
-					.configure(ScriptedColumn.baseEnvironment(load("column", this.columnEntryRegistry.columnContext.selfType())))
-					.addAll(ColorScriptEnvironment.ENVIRONMENT);
-					if (entry.value().schema().is_3d()) environment.addVariableLoad("y", TypeInfos.INT);
-					this.columnEntryRegistry.setupExternalEnvironment(
-						environment,
-						new ExternalEnvironmentParams()
-						.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
-						.withY(entry.value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-						.trackDependencies(info)
-					);
-				});
+				info.getter.setCode(
+					this.columnEntryRegistry.parserFlags(),
+					entry.value().fallback().getSource(),
+					(MutableScriptEnvironment environment) -> {
+						environment
+						.addAll(MathScriptEnvironment.INSTANCE)
+						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+						.configure(MinecraftScriptEnvironment.create())
+						.configure(ScriptedColumn.baseEnvironment(load("column", this.columnEntryRegistry.columnContext.selfType())))
+						.addAll(ColorScriptEnvironment.ENVIRONMENT);
+						if (entry.value().schema().is_3d()) environment.addVariableLoad("y", TypeInfos.INT);
+						this.columnEntryRegistry.setupExternalEnvironment(
+							environment,
+							new ExternalEnvironmentParams()
+							.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
+							.withY(entry.value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
+							.trackDependencies(info)
+						);
+					}
+				);
 			}
 			else {
 				throw_(
@@ -130,7 +134,7 @@ public class TraitManager {
 				this
 				.columnEntryRegistry
 				.loader
-				.defineClass(this.baseTraitsClass)
+				.defineClass(this.baseTraitsClass, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
 				.asSubclass(WorldTraits.class)
 				.getDeclaredConstructor((Class<?>[])(null))
 				.newInstance((Object[])(null))
@@ -169,22 +173,26 @@ public class TraitManager {
 				? new LazyVarInfo[] { column, y }
 				: new LazyVarInfo[] { column }
 			);
-			implGetter.setCode(entry.getValue().get().getSource(), (MutableScriptEnvironment environment) -> {
-				environment
-				.addAll(MathScriptEnvironment.INSTANCE)
-				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.configure(MinecraftScriptEnvironment.create())
-				.configure(ScriptedColumn.baseEnvironment(load(column)))
-				.addAll(ColorScriptEnvironment.ENVIRONMENT);
-				if (y != null) environment.addVariableLoad(y);
-				this.columnEntryRegistry.setupExternalEnvironment(
-					environment,
-					new ExternalEnvironmentParams()
-					.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
-					.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-					.trackDependencies(dependencies)
-				);
-			});
+			implGetter.setCode(
+				this.columnEntryRegistry.parserFlags(),
+				entry.getValue().get().getSource(),
+				(MutableScriptEnvironment environment) -> {
+					environment
+					.addAll(MathScriptEnvironment.INSTANCE)
+					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+					.configure(MinecraftScriptEnvironment.create())
+					.configure(ScriptedColumn.baseEnvironment(load(column)))
+					.addAll(ColorScriptEnvironment.ENVIRONMENT);
+					if (y != null) environment.addVariableLoad(y);
+					this.columnEntryRegistry.setupExternalEnvironment(
+						environment,
+						new ExternalEnvironmentParams()
+						.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
+						.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
+						.trackDependencies(dependencies)
+					);
+				}
+			);
 			if (entry.getValue().set() != null) {
 				LazyVarInfo value = new LazyVarInfo("value", info.getter.info.returnType);
 				MethodCompileContext implSetter = context.newMethod(
@@ -195,24 +203,28 @@ public class TraitManager {
 					? new LazyVarInfo[] { column, y, value }
 					: new LazyVarInfo[] { column, value }
 				);
-				implSetter.setCode(entry.getValue().set().getSource(), (MutableScriptEnvironment environment) -> {
-					environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.configure(MinecraftScriptEnvironment.create())
-					.configure(ScriptedColumn.baseEnvironment(load(column)))
-					.addAll(ColorScriptEnvironment.ENVIRONMENT)
-					.addVariableLoad(value);
-					if (y != null) environment.addVariableLoad(y);
-					this.columnEntryRegistry.setupExternalEnvironment(
-						environment,
-						new ExternalEnvironmentParams()
-						.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
-						.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-						.mutable()
-						.trackDependencies(dependencies)
-					);
-				});
+				implSetter.setCode(
+					this.columnEntryRegistry.parserFlags(),
+					entry.getValue().set().getSource(),
+					(MutableScriptEnvironment environment) -> {
+						environment
+						.addAll(MathScriptEnvironment.INSTANCE)
+						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+						.configure(MinecraftScriptEnvironment.create())
+						.configure(ScriptedColumn.baseEnvironment(load(column)))
+						.addAll(ColorScriptEnvironment.ENVIRONMENT)
+						.addVariableLoad(value);
+						if (y != null) environment.addVariableLoad(y);
+						this.columnEntryRegistry.setupExternalEnvironment(
+							environment,
+							new ExternalEnvironmentParams()
+							.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
+							.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
+							.mutable()
+							.trackDependencies(dependencies)
+						);
+					}
+				);
 			}
 		}
 		try {
@@ -220,7 +232,7 @@ public class TraitManager {
 				this
 				.columnEntryRegistry
 				.loader
-				.defineClass(context)
+				.defineClass(context, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
 				.asSubclass(WorldTraits.class)
 				.getDeclaredConstructor((Class<?>[])(null))
 				.newInstance((Object[])(null))

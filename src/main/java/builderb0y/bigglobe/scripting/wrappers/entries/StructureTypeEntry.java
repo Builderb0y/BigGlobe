@@ -6,7 +6,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.gen.structure.StructureType;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.tags.StructureTypeTag;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -20,13 +19,13 @@ public class StructureTypeEntry extends EntryWrapper<StructureType<?>, Structure
 		super(entry);
 	}
 
-	public static StructureTypeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
-		return of(id);
+	public static StructureTypeEntry of(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return of(id, flags);
 	}
 
-	public static StructureTypeEntry of(String id) {
-		if (id == null) return null;
-		return new StructureTypeEntry(BigGlobeMod.getRegistry(RegistryKeys.STRUCTURE_TYPE).getByName(id));
+	public static StructureTypeEntry of(String id, int flags) {
+		RegistryEntry<StructureType<?>> entry = ConstantFactory.getEntry(RegistryKeys.STRUCTURE_TYPE, id, flags);
+		return entry != null ? new StructureTypeEntry(entry) : null;
 	}
 
 	@Override

@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:overworld/cave_decorators",
-		"bigglobe:overworld/medium_foliage"
+		"bigglobe:overworld/medium_foliage",
+		"bigglobe:overworld/river_sugar_cane"
 	]
 }

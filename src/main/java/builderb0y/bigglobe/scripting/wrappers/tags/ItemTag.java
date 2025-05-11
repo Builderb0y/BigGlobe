@@ -9,6 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.scripting.wrappers.ItemWrapper;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -23,15 +24,12 @@ public class ItemTag extends TagWrapper<Item, Item> {
 		super(list);
 	}
 
-	public static ItemTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... ids) {
-		return of(ids);
+	public static ItemTag of(MethodHandles.Lookup caller, String name, Class<?> type, int flags, String... ids) {
+		return of(flags, ids);
 	}
 
-	public static ItemTag of(String... ids) {
-		if (ids == null) return null;
-		DelayedEntryList<Item> tag = DelayedEntryList.create(RegistryKeys.ITEM, ids);
-		if (tag == null) return null;
-		return new ItemTag(tag);
+	public static ItemTag of(int flags, String... ids) {
+		return new ItemTag(DelayedEntryList.create(RegistryKeys.ITEM, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

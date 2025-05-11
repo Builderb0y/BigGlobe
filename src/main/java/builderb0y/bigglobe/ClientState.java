@@ -16,12 +16,9 @@ import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.*;
 import net.minecraft.registry.RegistryOps.RegistryInfo;
 import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
-import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -34,12 +31,13 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder.Inlinable;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
@@ -49,13 +47,14 @@ import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
+import builderb0y.bigglobe.lods.LodGenerator;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
@@ -64,12 +63,13 @@ import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.input.FileScriptUsage;
 import builderb0y.scripting.parsing.input.ScriptFileResolver;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedInclude;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
@@ -122,6 +122,9 @@ public class ClientState {
 	}
 
 	public static void overrideColor(int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
+		//don't intercept for my own drawing code,
+		//since it contains intentionally incorrect coordinates.
+		if (LodGenerator.RENDERING_LODS.get()) return;
 		ClientGeneratorParams params = generatorParams;
 		if (params != null) {
 			if (colorResolver == BiomeColors.GRASS_COLOR) {
@@ -146,41 +149,58 @@ public class ClientState {
 
 		public static final AutoCoder<Syncing> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Syncing.class);
 
-		public Map<Identifier, NbtElement> templates, columnEntries, voronoiSettings, decisionTrees, worldTraits;
+		public boolean containsLayers;
 		public Map<Identifier, String> includes;
+		public Map<Identifier, NbtElement> templates, columnEntries, voronoiSettings, decisionTrees, worldTraits, layers;
 		public transient SimpleRegistry<ScriptTemplate> templateRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<ColumnEntry> columnEntryRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<VoronoiSettings> voronoiSettingsRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<DecisionTreeSettings> decisionTreeRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
 		public transient SimpleRegistry<WorldTrait> worldTraitRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
+		public transient SimpleRegistry<Layer> layerRegistry = new SimpleRegistry<>(BigGlobeDynamicRegistries.LAYER_REGISTRY_KEY, Lifecycle.experimental());
 
 		public Syncing(
+			boolean                     containsLayers,
 			Map<Identifier, String>     includes,
 			Map<Identifier, NbtElement> templates,
 			Map<Identifier, NbtElement> columnEntries,
 			Map<Identifier, NbtElement> voronoiSettings,
 			Map<Identifier, NbtElement> decisionTrees,
-			Map<Identifier, NbtElement> worldTraits
+			Map<Identifier, NbtElement> worldTraits,
+			Map<Identifier, NbtElement> layers
 		) {
+			this.containsLayers  = containsLayers;
 			this.includes        = includes;
 			this.templates       = templates;
 			this.columnEntries   = columnEntries;
 			this.voronoiSettings = voronoiSettings;
 			this.decisionTrees   = decisionTrees;
 			this.worldTraits     = worldTraits;
+			this.layers          = layers;
 		}
 
 		@Hidden
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
-			this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+			this(BigGlobeConfig.INSTANCE.get().lodRendering.enabled, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 			if (generator.colors != null) {
 				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 				if (generator.colors.grass  () != null) generator.colors.grass  ().streamDirectDependencies().forEach(collector);
 				if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
 				if (generator.colors.water  () != null) generator.colors.water  ().streamDirectDependencies().forEach(collector);
+				if (this.containsLayers) collector.accept(generator.layer);
+				generator
+				.columnEntryRegistry
+				.registries
+				.getRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY)
+				.streamEntries()
+				.filter((RegistryEntry<VoronoiSettings> entry) -> collector.contains(entry.value().owner()))
+				.forEach(collector);
 				for (RegistryEntry<? extends DependencyView> entry : collector) {
 					if (entry.value() instanceof ResolvedInclude include) {
 						this.includes.put(include.id(), include.source());
+					}
+					else if (entry.value() instanceof FileScriptUsage file) {
+						this.includes.put(file.file, file.getSource());
 					}
 					else if (entry.value() instanceof ScriptTemplate template) {
 						Registry.register(this.templateRegistry, UnregisteredObjectException.getID(entry), template);
@@ -196,6 +216,9 @@ public class ClientState {
 					}
 					else if (entry.value() instanceof WorldTrait trait) {
 						Registry.register(this.worldTraitRegistry, UnregisteredObjectException.getID(entry), trait);
+					}
+					else if (entry.value() instanceof Layer layer) {
+						Registry.register(this.layerRegistry, UnregisteredObjectException.getID(entry), layer);
 					}
 					else {
 						throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
@@ -216,6 +239,9 @@ public class ClientState {
 				}
 				for (Map.Entry<RegistryKey<WorldTrait>, WorldTrait> entry : this.worldTraitRegistry.getEntrySet()) {
 					this.worldTraits.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(WorldTrait.CODER, entry.getValue(), ops));
+				}
+				for (Map.Entry<RegistryKey<Layer>, Layer> entry : this.layerRegistry.getEntrySet()) {
+					this.layers.put(entry.getKey().getValue(), BigGlobeAutoCodec.AUTO_CODEC.encode(Layer.REGISTRY, entry.getValue(), ops));
 				}
 			}
 		}
@@ -239,11 +265,15 @@ public class ClientState {
 				for (Map.Entry<Identifier, NbtElement> entry : this.worldTraits.entrySet()) {
 					Registry.register(this.worldTraitRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(WorldTrait.CODER, entry.getValue(), ops));
 				}
+				for (Map.Entry<Identifier, NbtElement> entry : this.layers.entrySet()) {
+					Registry.register(this.layerRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(Layer.REGISTRY, entry.getValue(), ops));
+				}
 				this.templateRegistry.freeze();
 				this.columnEntryRegistry.freeze();
 				this.voronoiSettingsRegistry.freeze();
 				this.decisionTreeRegistry.freeze();
 				this.worldTraitRegistry.freeze();
+				this.layerRegistry.freeze();
 			}
 			finally {
 				ScriptFileResolver.OVERRIDES.set(null);
@@ -259,6 +289,7 @@ public class ClientState {
 			else if (wildcard == BigGlobeDynamicRegistries.      VORONOI_SETTINGS_REGISTRY_KEY) registry = this.voronoiSettingsRegistry;
 			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY) registry = this.   decisionTreeRegistry;
 			else if (wildcard == BigGlobeDynamicRegistries.           WORLD_TRAIT_REGISTRY_KEY) registry = this.     worldTraitRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.                 LAYER_REGISTRY_KEY) registry = this.          layerRegistry;
 			else registry = null;
 			return (SimpleRegistry<T_Element>)(registry);
 		}
@@ -271,12 +302,21 @@ public class ClientState {
 					@Override
 					public <T_Registry> Optional<RegistryInfo<T_Registry>> getRegistryInfo(RegistryKey<? extends Registry<? extends T_Registry>> key) {
 						SimpleRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
-						if (registry == null) return Optional.empty();
+						if (registry == null) {
+							if (BigGlobeMod.getClientRegistry(key) instanceof BetterHardCodedRegistry<T_Registry> better && better.registry instanceof SimpleRegistry<T_Registry> simple) {
+								registry = simple;
+							}
+							else {
+								return Optional.empty();
+							}
+						}
 						return Optional.of(
 							new RegistryInfo<>(
 								#if MC_VERSION >= MC_1_21_2
 									registry,
-									registry,
+									mutable
+									? registry.createMutableRegistryLookup()
+									: registry,
 								#else
 									registry.getEntryOwner(),
 									mutable
@@ -296,9 +336,9 @@ public class ClientState {
 
 				@Override
 				public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
-					SimpleRegistry<T> registry = Syncing.this.getRegistry(key);
+					Registry<T> registry = Syncing.this.getRegistry(key);
 					if (registry != null) return new BetterHardCodedRegistry<>(registry);
-					else throw new IllegalStateException("Missing registry: " + key);
+					else return BigGlobeMod.getClientRegistry(key);
 				}
 			};
 		}
@@ -315,9 +355,10 @@ public class ClientState {
 		public final ColorScript.@VerifyNullable Holder foliageColor;
 		public final ColorScript.@VerifyNullable Holder waterColor;
 		public final Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits;
+		public final @VerifyNullable @Inlinable RegistryEntry<Layer> layer;
 		public transient ColumnEntryRegistry columnEntryRegistry;
 		public transient WorldTraits compiledWorldTraits;
-		public final transient ThreadLocal<ScriptedColumn> columns;
+		public final transient ThreadLocal<ScriptedColumn> column;
 
 		public ClientGeneratorParams(
 			int minY,
@@ -327,17 +368,19 @@ public class ClientState {
 			ColorScript.@VerifyNullable Holder grassColor,
 			ColorScript.@VerifyNullable Holder foliageColor,
 			ColorScript.@VerifyNullable Holder waterColor,
-			Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits
+			Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits,
+			@VerifyNullable @Inlinable RegistryEntry<Layer> layer
 		) {
-			this.minY = minY;
-			this.maxY = maxY;
-			this.seaLevel = seaLevel;
-			this.columnSeed = columnSeed;
-			this.grassColor = grassColor;
+			this.minY         = minY;
+			this.maxY         = maxY;
+			this.seaLevel     = seaLevel;
+			this.columnSeed   = columnSeed;
+			this.grassColor   = grassColor;
 			this.foliageColor = foliageColor;
-			this.waterColor = waterColor;
-			this.worldTraits = worldTraits;
-			this.columns = ThreadLocal.withInitial(this::createColumn);
+			this.waterColor   = waterColor;
+			this.worldTraits  = worldTraits;
+			this.layer        = layer;
+			this.column       = ThreadLocal.withInitial(this::createColumn);
 		}
 
 		@Hidden //we want AutoCodec to target the other constructor.
@@ -357,7 +400,8 @@ public class ClientState {
 					}
 				}
 			}
-			this.columns = null;
+			this.layer = syncing.containsLayers ? generator.layer : null;
+			this.column = null;
 		}
 
 		public void compile(ColumnEntryRegistry.Loading loading) throws Exception {
@@ -375,7 +419,7 @@ public class ClientState {
 		}
 
 		public ScriptedColumn getColumn(int x, int z) {
-			ScriptedColumn column = this.columns.get();
+			ScriptedColumn column = this.column.get();
 			column.setParams(column.params.at(x, z));
 			return column;
 		}

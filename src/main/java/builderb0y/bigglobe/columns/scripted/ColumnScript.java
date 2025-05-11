@@ -28,9 +28,7 @@ import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.wrappers.ExternalData;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage;
-import builderb0y.bigglobe.scripting.wrappers.ExternalImage.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.scripting.bytecode.*;
@@ -149,9 +147,7 @@ public interface ColumnScript extends Script {
 				: MinecraftScriptEnvironment.create()
 			)
 			.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)))
-			.addAll(ColorScriptEnvironment.ENVIRONMENT)
-			.addAll(ExternalImage.ENVIRONMENT)
-			.addAll(ExternalData.ENVIRONMENT);
+			.addAll(ColorScriptEnvironment.ENVIRONMENT);
 			if (parameters.y != null) environment.addVariableLoad(parameters.y);
 			if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
 		}
@@ -196,7 +192,7 @@ public interface ColumnScript extends Script {
 			.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
-			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod).configureEnvironment((MutableScriptEnvironment environment) -> {
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
 				this.addExtraFunctionsToEnvironment(parameters, environment);
 				registry.setupExternalEnvironment(
 					environment,
@@ -219,7 +215,7 @@ public interface ColumnScript extends Script {
 			getDebugName.endCode();
 
 			try {
-				return type.cast(new ScriptClassLoader(registry.loader).defineClass(clazz).getDeclaredConstructors()[0].newInstance((Object[])(null)));
+				return type.cast(new ScriptClassLoader(registry.loader).defineClass(clazz, ExpressionParser.CLASS_DUMP_DIRECTORY, usage.getSource()).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 			}
 			catch (Throwable throwable) {
 				throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);
@@ -982,8 +978,16 @@ public interface ColumnScript extends Script {
 		@Wrapper
 		public static class Holder extends BaseHolder<ColumnYToBiomeScript> implements ColumnYToBiomeScript {
 
+			public boolean client;
+
 			public Holder(ScriptUsage usage) {
 				super(usage);
+			}
+
+			@Override
+			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+				super.compile(registry);
+				this.client = registry.client;
 			}
 
 			@Override
@@ -1005,7 +1009,7 @@ public interface ColumnScript extends Script {
 				finally {
 					manager.used = used;
 				}
-				return BiomeEntry.of("minecraft:plains");
+				return BiomeEntry.of("minecraft:plains", this.client ? AbstractConstantFactory.CLIENT : 0);
 			}
 		}
 	}

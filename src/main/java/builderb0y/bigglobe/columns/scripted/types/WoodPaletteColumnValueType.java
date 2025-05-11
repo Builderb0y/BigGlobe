@@ -1,11 +1,13 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
-import com.mojang.datafixers.util.Unit;
+import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
+import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
@@ -23,8 +25,13 @@ public class WoodPaletteColumnValueType extends AbstractColumnValueType {
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
 		if (object == null) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
-		context.registry.registries.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getByName(string);
-		return WoodPaletteEntry.CONSTANT_FACTORY.createConstant(constant(string));
+		RegistryEntry<WoodPalette> entry = ConstantFactory.getEntryServerOnly(
+			BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY,
+			string,
+			context.registry.constantFlags(),
+			WoodPaletteEntry.CLIENT_EMPTY
+		);
+		return WoodPaletteEntry.CONSTANT_FACTORY.createConstant(constant(string), context.registry.constantFlags());
 	}
 
 	@Override

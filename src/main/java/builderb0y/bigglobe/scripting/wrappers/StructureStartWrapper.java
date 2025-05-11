@@ -14,7 +14,6 @@ import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public record StructureStartWrapper(

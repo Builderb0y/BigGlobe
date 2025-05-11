@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:script",
+	"dispatcher": [
+		"repeat (random.roundInt(fastExp2(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 6.0I)):",
+			"int*(",
+				"x = minModifiableX | random.nextInt(16)",
+				"z = minModifiableZ | random.nextInt(16)",
+				"y = world_traits.`bigglobe:y_level_in_surface`(x, z)",
+			")",
+			"if (world_traits.`bigglobe:biome`(x, y, z).isIn('#bigglobe:swamps'):",
+				"placeFeature(x, y, z, 'bigglobe:overworld/swamp_water')",
+			")",
+		")"
+	]
+}
