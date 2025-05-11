@@ -223,7 +223,7 @@
 	"bigglobe.hyperspace.disabled": "Гиперпространство отключено",
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Здесь невозможно разместить путевую точку",
 
-	"bigglobe.lod.oom": "Big Globe не хватило памяти для создания чанков с уровнями детализации. Чтобы это компенсировать, качество детализации было снижено до %d.",
+	"bigglobe.lod.oom": "Big Globe не хватило памяти для создания упрощённых чанков. Чтобы это компенсировать, качество прорисовки было снижено до %d.",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Скорость дневного цикла",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Лава душ превращается в источник",
@@ -344,7 +344,7 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "Если отключено, Big Globe этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[2]": "Дополнительные появления мобов вычисляются лениво и по мере необходимости, поэтому не все появления будут напечатаны сразу после загрузки мира.",
 
-	"text.autoconfig.bigglobe.option.lodRendering": "Отображение упрощённой детализации",
+	"text.autoconfig.bigglobe.option.lodRendering": "Отображение упрощённого ландшафта",
 	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[0]": "Настраивает встроенную прорисовку упрощённых чанков в Big Globe.",
 	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[1]": "Эта функция позволяет вам видеть дальше ванильного расстояния прорисовки без существенного снижения частоты кадров.",
 
@@ -415,7 +415,7 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir": "Лёгкий воздух",
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[0]": "Если включено, Big Globe подскажет Voxy, каков уровень освещённости воздушных блоков.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "Если отключено, Big Globe будет пропускать воздушные блоки при передаче данных в Voxy.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Включение этой опции может устранить некоторые ошибки при освещении в Voxy за счёт снижения скорости генерации чанков детализации.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Включение этой опции может устранить некоторые ошибки при освещении в Voxy за счёт снижения скорости генерации упрощённых чанков.",
 
 	"text.autoconfig.bigglobe.option.c2meIntegration": "Интеграция с C2ME",
 	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[0]": "Настраивает особое поведение при установке C2ME.",
