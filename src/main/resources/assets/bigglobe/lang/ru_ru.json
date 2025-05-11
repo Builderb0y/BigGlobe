@@ -1,6 +1,6 @@
 {
-	"generator.bigglobe.bigglobe": "Большой Глобус",
-	"generator.bigglobe.islands": "Большой Глобус: Острова",
+	"generator.bigglobe.bigglobe": "Big Globe",
+	"generator.bigglobe.islands": "Big Globe: Острова",
 
 	"block.bigglobe.ashen_netherrack": "Пепельный незерак",
 	"block.bigglobe.ancient_automata": "Древние автоматоны",
@@ -217,11 +217,13 @@
 	"tag.item.bigglobe.slingshot_ammunition": "Боеприпасы для рогатки",
 	"tag.item.bigglobe.solid_aura_bottles": "Бутилированная аура (исключая всеобъемлющую ауру)",
 	"tag.item.c.feathers": "Перья",
-	"tag.item.c.ores.sulfur": "Сернистые руды",
+	"tag.item.c.ores.sulfur": "Сероносные руды",
 	"tag.item.c.sulfurs": "Сернистые предметы",
 
 	"bigglobe.hyperspace.disabled": "Гиперпространство отключено",
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Здесь невозможно разместить путевую точку",
+
+	"bigglobe.lod.oom": "Big Globe не хватило памяти для создания чанков с уровнями детализации. Чтобы это компенсировать, качество детализации было снижено до %d.",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Скорость дневного цикла",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Лава душ превращается в источник",
@@ -241,7 +243,7 @@
 	"commands.bigglobe.locate.max.fail": "Не удалось найти ни одной значение %s в пределах %d блоков от вас.",
 
 	"commands.bigglobe.respawn.new.no_good_location": "Не удалось найти хорошее место для появления в этом мире.",
-	"commands.bigglobe.respawn.new.not_supported_dimension": "/bigglobe:respawn new может использоваться только в тех измерениях «Большого Глобуса», которые её поддерживают. Измерение, в котором вы находитесь в данный момент, не поддерживает её.",
+	"commands.bigglobe.respawn.new.not_supported_dimension": "/bigglobe:respawn new может использоваться только в тех измерениях Big Globe, которые её поддерживают. Измерение, в котором вы находитесь в данный момент, не поддерживает её.",
 	"commands.bigglobe.respawn.command.spawn_not_set_by_command": "Ваша точка возрождения не была установлена командой.",
 	"commands.bigglobe.respawn.bed.spawn_not_set_by_bed": "Ваша точка возрождения не была установлена кроватью или якорем возрождения.",
 	"commands.bigglobe.respawn.bed.destroyed": "Ваша кровать или якорь возрождения были разрушены или доступ к ним затруднён.",
@@ -257,7 +259,7 @@
 	"entity.bigglobe.waypoint": "Путевая точка",
 
 	"effect.bigglobe.soul_siphon": "Истощение души",
-	"effect.bigglobe.soul_siphon.description": "§k-----§r",
+	"effect.bigglobe.soul_siphon.description": "Уменьшает максимальное здоровье на 2 сердца за уровень.",
 
 	"subtitles.bigglobe.entity.rock.throw": "Порода летит",
 	"subtitles.bigglobe.item.armor.equip_voidmetal": "Надета экипировка из пустотного металла",
@@ -268,46 +270,41 @@
 	"hyperspace.invalid_destination_dimension": "Эта путевая точка ведёт в несуществующее измерение.",
 	"hyperspace.invalid_destination": "Эта путевая точка была уничтожена после того, как вы вошли в гиперпространство.",
 
-	"text.autoconfig.bigglobe.title": "Большой Глобус",
+	"text.autoconfig.bigglobe.title": "Big Globe",
 
 	"text.autoconfig.bigglobe.option.defaultWorldType": "Тип мира по умолчанию",
 	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[0]": "Управляет выбором типом мира по умолчанию при его создании.",
 	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[1]": "Если указанный тип мира неверен или неизвестен игре, то будет использоваться minecraft:normal.",
-	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[2]": "Этот параметр конфигурации будет полезен, если вы хотите создавать множество миров или вы создаёте модпак с «Большим Глобусом».",
+	"text.autoconfig.bigglobe.option.defaultWorldType.@Tooltip[2]": "Этот параметр конфигурации будет полезен, если вы хотите создавать множество миров или вы создаёте модпак с Big Globe.",
 
 	"text.autoconfig.bigglobe.option.checkWorldHeight": "Проверка вменяемости мировой высоты",
-	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[0]": "Если включено, «Большой Глобус» будет проверять, соответствует ли высота каждого измерения высоте генератора чанков, назначенного этому измерению.",
-	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[1]": "Если отключено, «Большой Глобус» будет считать, что любые расхождения являются намеренными.",
+	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[0]": "Если включено, Big Globe будет проверять, соответствует ли высота каждого измерения высоте генератора чанков, назначенного этому измерению.",
+	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[1]": "Если отключено, Big Globe будет считать, что любые расхождения являются намеренными.",
 	"text.autoconfig.bigglobe.option.checkWorldHeight.@Tooltip[2]": "Этот параметр применим только к измерениям со скриптовыми генераторами чанков, потому что некоторые стандартные измерения не проходят эту проверку. Это может быть полезна для поиска сломанных наборов данных или модов, которые небезопасным образом изменяют высоту мира. Эта функция может даже предотвратить повреждение мира.",
 
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds": "Деревья «Большого Глобуса» в мирах «Большого Глобуса»",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[0]": "Если включено, саженцы вырастут в деревья «Большого Глобуса» в мирах из него.",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[1]": "Если отключено, саженцы вырастут в обычные (ванильные) деревья в мирах «Большого Глобуса».",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[2]": "Этот параметр конфигурации не влияет на деревья, появляющиеся во время генерации мира.",
-
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds": "Деревья «Большого Глобуса» в других мирах",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[0]": "Если включено, саженцы вырастут в деревья «Большого Глобуса» в мирах не из него.",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[1]": "Если отключено, саженцы вырастут в обычные (ванильные) деревья в мирах не из «Большого Глобуса».",
-	"text.autoconfig.bigglobe.option.bigGlobeTreesInOtherWorlds.@Tooltip[2]": "Этот параметр конфигурации не влияет на деревья, появляющиеся во время генерации мира.",
+	"text.autoconfig.bigglobe.option.bigGlobeTreesInBig GlobeWorlds": "Деревья Big Globe",
+	"text.autoconfig.bigglobe.option.bigGlobeTreesInBig GlobeWorlds.@Tooltip[0]": "Если включено, саженцы вырастут в деревья Big Globe в мирах из него.",
+	"text.autoconfig.bigglobe.option.bigGlobeTreesInBig GlobeWorlds.@Tooltip[1]": "Если отключено, саженцы вырастут в обычные (ванильные) деревья в мирах Big Globe.",
+	"text.autoconfig.bigglobe.option.bigGlobeTreesInBig GlobeWorlds.@Tooltip[2]": "Этот параметр конфигурации не влияет на деревья, появляющиеся во время генерации мира.",
 
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled": "Гиперпространство включено",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[0]": "Если включено, путевые точки будут доступны для использования.",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[1]": "Если отключено, путевые точки будет нельзя использовать.",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[2]": "Гиперпространственное измерение — это механика быстрого перемещения, позволяющая игрокам быстро посещать места, где они уже бывали. Этот параметр конфигурации предназначен для игроков, которые не любят быстрые перемещения или предпочитают механику телепортации из другого мода.",
 
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres": "Расплавленные горные породы превращаются в руды",
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres.@Tooltip[0]": "Если включено, расплавленные породы превратятся в руду, если вылить на них воду.",
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres.@Tooltip[1]": "Если отключено, расплавленные породы превратятся в камень, если вылить на них воду.",
-	"text.autoconfig.bigglobe.option.moltenRocksTurnIntoOres.@Tooltip[2]": "Расплавленную породу можно найти в недрах земли. До неё очень трудно добраться, но она очень полезна из-за ресурсов, которые она даёт. Тем не менее, этот вариант настройки существует для тех, кто считает, что эта система несбалансированна.",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance": "Расплавленные горные породы превращаются в руды",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance.@Tooltip[0]": "Глобальный множитель количества руды, которое вы получаете, заливая расплавленную породу водой.",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance.@Tooltip[1]": "Если равно 0, то в результате этого процесса вы получите только камень.",
+	"text.autoconfig.bigglobe.option.moltenRockOreificationChance.@Tooltip[2]": "Расплавленную породу можно найти в недрах земли. До неё очень трудно добраться, но она очень полезна из-за ресурсов, которые она даёт. Тем не менее, этот параметр конфигурации существует для тех, кто считает, что эта система несбалансированна.",
 
 	"text.autoconfig.bigglobe.option.threads": "Потоки",
-	"text.autoconfig.bigglobe.option.threads.@Tooltip[0]": "Количество потоков, используемых для задач генерации мира (включая генерацию мира для «Далёких Горизонтов» и «Вокси»)",
+	"text.autoconfig.bigglobe.option.threads.@Tooltip[0]": "Количество потоков, используемых для задач генерации мира (включая генерацию мира для Big Globe)",
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[1]": "Большее количество потоков приведёт к ускорению генерации ландшафта, но может снизить производительность в других аспектах игры.",
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[2]": "Меньшее количество потоков приведёт к замедлению генерации ландшафта, но может повысить производительность в других аспектах игры.",
 
 	"text.autoconfig.bigglobe.option.playerSpawning": "Появление игрока",
-	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Настраивает порядок первоначального появления игроков в мирах «Большого Глобуса».",
-	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "Эти параметры конфигурации не действуют за пределами миров «Большого Глобуса».",
+	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Настраивает порядок первоначального появления игроков в мирах Big Globe.",
+	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "Эти параметры конфигурации не действуют за пределами миров Big Globe.",
 
 	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius": "Максимальный радиус появления",
 	"text.autoconfig.bigglobe.option.playerSpawning.maxSpawnRadius.@Tooltip[0]": "Максимальное расстояние от источника, на котором могут появляться игроки.",
@@ -323,37 +320,73 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.@Tooltip[1]": "Обычные пользователи должны оставить всё это отключённым.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.dependencyGraphs": "Создание графиков зависимостей",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.dependencyGraphs.@Tooltip[0]": "Если включено, «Большой Глобус» сгенерирует графики, показывающие зависимости значений всех столбцов.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.dependencyGraphs.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.dependencyGraphs.@Tooltip[0]": "Если включено, Big Globe сгенерирует графики, показывающие зависимости значений всех столбцов.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.dependencyGraphs.@Tooltip[1]": "Если отключено, Big Globe этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.dependencyGraphs.@Tooltip[2]": "Сгенерированные графики иногда могут быть полезны для поиска неожиданных или случайных зависимостей.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees": "Печать деревьев принятия решений",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[0]": "Если включено, «Большой Глобус» распечатает все деревья решений в игровой консоли и в файле журнала, когда они будут загружены.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[0]": "Если включено, Big Globe распечатает все деревья решений в игровой консоли и в файле журнала, когда они будут загружены.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[1]": "Если отключено, Big Globe этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[2]": "За деревьями принятия решений может быть трудно уследить, поэтому наличие всего дерева в одном месте может быть полезно для понимания его структуры.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning": "Регистрировать попытки создания структур",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[0]": "Если включено, «Большой Глобус» отправит сообщение в игровую консоль и в файл журнала, когда структура попытается где-то появиться, и, если применимо, укажет причину, по которой это не удалось.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[0]": "Если включено, Big Globe отправит сообщение в игровую консоль и в файл журнала, когда структура попытается где-то появиться, и, если применимо, укажет причину, по которой это не удалось.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[1]": "Если отключено, Big Globe этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[2]": "Эта опция может быть полезна для отладки причин, по которым определённая структура нигде не появляется.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags": "Регистрировать пустые теги",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[0]": "Если включено, «Большой Глобус» отправит сообщение в игровую консоль и в файл журнала, когда будет загружен пустой тег.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[0]": "Если включено, Big Globe отправит сообщение в игровую консоль и в файл журнала, когда будет загружен пустой тег.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[1]": "Если отключено, Big Globe этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[2]": "Этот параметр может быть полезен для поиска тегов, в которые вы забыли ввести значения, и иногда может быть полезен для отладки тегов, на которые ссылаются до завершения загрузки, в результате чего тег не должен быть пустым, но он пуст.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns": "Регистрировать дополнительное появление мобов",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "Если включено, «Большой Глобус» отправит сообщение в игровую консоль и в файл журнала, когда будет подсчитано количество дополнительных появлений мобов для биома/группы появления.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "Если отключено, «Большой Глобус» этого не сделает.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "Если включено, Big Globe отправит сообщение в игровую консоль и в файл журнала, когда будет подсчитано количество дополнительных появлений мобов для биома/группы появления.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "Если отключено, Big Globe этого не сделает.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[2]": "Дополнительные появления мобов вычисляются лениво и по мере необходимости, поэтому не все появления будут напечатаны сразу после загрузки мира.",
 
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Интеграция «Далёких Горизонтов»",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Настраивает пропуск специальных действий при создании чанков для «Далёких Горизонтов».",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[1]": "Ни одно из этих действий не будет пропущено для обычных чанков. Эта категория не будет действовать, если «Далёкие Горизонты» не установлены.",
+	"text.autoconfig.bigglobe.option.lodRendering": "Отображение упрощённой детализации",
+	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[0]": "Настраивает встроенную прорисовку упрощённых чанков в Big Globe.",
+	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[1]": "Эта функция позволяет вам видеть дальше ванильного расстояния прорисовки без существенного снижения частоты кадров.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.enabled": "Включено",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[0]": "Если включено, будет генерировать и отображать упрощённую модель мира, которая имеет очень большую дальность прорисовки, но в которой отсутствуют такие элементы, как структуры и объекты.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[1]": "Если отключено, Big Globe не будет этого делать.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[2]": "Если вы в сетевой игре, то как на сервере, так и на клиенте должна быть включена эта функция, чтобы отображение упрощённых чанков работало.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads": "Максимум квадов",
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[0]": "Количество квадов, которое Big Globe позволит себе прорисовать.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[1]": "Большее количество квадов обеспечит более качественное отображение упрощённых чанков с меньшими задержками.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[2]": "Меньшее количество квадов будет использовать меньше видеопамяти.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.quality": "Качество",
+	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[0]": "Фактор, определяющий, на каком расстоянии может отображаться упрощённый ландшафт, прежде чем она будет заменена на менее детализированную версию себя.",
+	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[1]": "Более высокое качество позволит использовать более качественные модели на больших расстояниях.",
+	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[2]": "Более низкое качество сократит время между скачками задержки.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance": "Минимальная дальность прорисовки",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Самое близкое расстояние, на котором будет отображаться упрощённый ландшафт, равное доле от вашего ванильной дальности прорисовки.",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[1]": "Меньшие значения позволят упрощённому ландшафту отображаться ближе к игроку.",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[2]": "Если это значение слишком мало, могут возникнуть визуальные артефакты. Оно должно быть больше 0 и меньше максимальной дальности прорисовки.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance": "Максимальная дальность прорисовки",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[0]": "Самое дальнее расстояние, на котором будет отображаться упрощённый ландшафт, равное доле от вашего ванильной дальности прорисовки.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[1]": "Большие значения позволят упрощённому ландшафту отображаться дальше от игрока.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[2]": "Если это число слишком велико, могут возникнуть визуальные артефакты. Оно должно превышать минимальной дальности прорисовки.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode": "Подземный режим",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[0]": "NONE — Подземность и все блоки в нёй будут полностью пропущены",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[1]": "FILL — Подземность будет заполнена камнем, но никакие пещеры не будут генерироваться.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[2]": "CARVE — Пещеры будут генерироваться, но подземные структуры и объекты не будут.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[3]": "DECORATE — Всё подземное будет генерироваться в обычном режиме.",
+	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[4]": "Уменьшение этого значения может увеличить скорость, с которой Big Globe может генерировать ландшафт.",
+
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Интеграция с Distant Horizons",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Настраивает пропуск специальных действий при создании чанков для Distant Horizons.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[1]": "Ни одно из этих действий не будет пропущено для обычных чанков. Эта категория не будет действовать, если Big Globe не установлены.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration": "Гиперскоростная генерация",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[0]": "Если включено, «Большой Глобус» будет генерировать удаленный ландшафт непосредственно через API «Далёких Горизонтов», полностью пропуская чанки.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[1]": "Если отключено, «Большой Глобус» позволит «Далёким Горизонтам» работать поверх стандартного генератора чанков «Большого Глобуса».",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[0]": "Если включено, Big Globe будет генерировать удаленный ландшафт непосредственно через API Distant Horizons, полностью пропуская чанки.",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[1]": "Если отключено, Big Globe позволит Distant Horizons работать поверх стандартного генератора чанков Big Globe.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.hyperspeedGeneration.@Tooltip[2]": "Включение этого параметра конфигурации приведёт к пропуску структур и объектов. В частности, вы не увидите деревьев, если эта опция включена, пока не приблизитесь к ним.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode": "Подземный режим",
@@ -361,15 +394,15 @@
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[1]": "FILL — Подземность будет заполнена камнем, но никакие пещеры не будут генерироваться.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[2]": "CARVE — Пещеры будут генерироваться, но подземные структуры и объекты не будут.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[3]": "DECORATE — Всё подземное будет генерироваться в обычном режиме.",
-	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[4]": "Уменьшение этого значения может увеличить скорость, с которой «Большой Глобус» может генерировать чанки для «Далёких Горизонтов».",
+	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[4]": "Уменьшение этого значения может увеличить скорость, с которой Big Globe может генерировать чанки для Distant Horizons.",
 
-	"text.autoconfig.bigglobe.option.voxyIntegration": "Интеграция с «Вокси»",
-	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[0]": "Настраивает выполнение или пропуск специальных действий при создании чанков для «Вокси».",
-	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[1]": "Ни одно из этих действий не будет пропущено для обычных чанков. Эта категория не будет действовать, если «Вокси» не установлен.",
+	"text.autoconfig.bigglobe.option.voxyIntegration": "Интеграция с Voxy",
+	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[0]": "Настраивает выполнение или пропуск специальных действий при создании чанков для Voxy.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[1]": "Ни одно из этих действий не будет пропущено для обычных чанков. Эта категория не будет действовать, если Voxy не установлен.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread": "Использовать поток генерации мира",
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[0]": "Если включено, «Большой Глобус» будет постоянно генерировать ландшафт для «Вокси» в фоновом потоке.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[1]": "Если отключено, «Вокси» будет обрабатывать только посещённые вами чанки.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[0]": "Если включено, Big Globe будет постоянно генерировать ландшафт для Voxy в фоновом потоке.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[1]": "Если отключено, Voxy будет обрабатывать только посещённые вами чанки.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[2]": "Обратите внимание, что рельеф, созданный таким образом, может быть упрощённым представлением реального рельефа, и более мелкие детали могут быть добавлены только тогда, когда вы приблизитесь к ним.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode": "Подземный режим",
@@ -377,19 +410,19 @@
 	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[1]": "FILL — Подземность будет заполнена камнем, но никакие пещеры не будут генерироваться.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[2]": "CARVE — Пещеры будут генерироваться, но подземные структуры и объекты не будут.",
 	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[3]": "DECORATE — В настоящее время то же, что и 2, но, возможно, когда-нибудь подземные структуры и объекты тоже могут генерироваться..",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[4]": "Уменьшение этого значения может увеличить скорость, с которой «Большой Глобус» может генерировать чанки для «Вокси».",
+	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[4]": "Уменьшение этого значения может увеличить скорость, с которой Big Globe может генерировать чанки для Voxy.",
 
 	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir": "Лёгкий воздух",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[0]": "Если включено, «Большой Глобус» подскажет «Вокси», каков уровень освещённости воздушных блоков.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "Если отключено, «Большой Глобус» будет пропускать воздушные блоки при передаче данных в «Вокси».",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Включение этой опции может устранить некоторые ошибки при освещении в «Вокси» за счёт снижения скорости генерации чанков детализации.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[0]": "Если включено, Big Globe подскажет Voxy, каков уровень освещённости воздушных блоков.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "Если отключено, Big Globe будет пропускать воздушные блоки при передаче данных в Voxy.",
+	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Включение этой опции может устранить некоторые ошибки при освещении в Voxy за счёт снижения скорости генерации чанков детализации.",
 
 	"text.autoconfig.bigglobe.option.c2meIntegration": "Интеграция с C2ME",
 	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[0]": "Настраивает особое поведение при установке C2ME.",
 	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[1]": "Эти параметры игнорируются, если C2ME не установлен.",
 
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures": "Многопоточные структуры",
-	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[0]": "Если включено, «Большой Глобус» будет использовать несколько потоков при создании структур.",
-	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[1]": "Если отключено, «Большой Глобус» будет использовать один поток при создании структур.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[0]": "Если включено, Big Globe будет использовать несколько потоков при создании структур.",
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[1]": "Если отключено, Big Globe будет использовать один поток при создании структур.",
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[2]": "Этот параметр конфигурации можно отключить, если он вызывает нестабильность."
 }
