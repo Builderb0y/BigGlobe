@@ -27,12 +27,12 @@ public class VertexHeap extends GpuMemory {
 		bySize     = new TreeMapHelper<>(SliceKey.LENGTH_FIRST);
 
 	public VertexHeap(CompactVertexFormat format, long quadCount) {
-		super(quadCount * format.byteStride * 4L, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, format);
+		super(quadCount * format.byteStride * 4L, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING);
 		new Slice(this, new SliceKey(0L, this.capacity), false).addToTree();
 	}
 
 	@Override
-	public void populateInitialData(Object arg) {
+	public void populateInitialData() {
 		glBufferData(this.binder, this.capacity, GL_DYNAMIC_DRAW);
 	}
 

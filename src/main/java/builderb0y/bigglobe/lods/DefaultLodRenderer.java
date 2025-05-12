@@ -12,11 +12,11 @@ import org.joml.Matrix4f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.lods.LodPasses.Geometry;
 
@@ -27,7 +27,8 @@ public class DefaultLodRenderer implements LodRenderer {
 
 	public int program, fragmentStage, vertexStage;
 	public VertexHeap heap;
-	public int vao, elementBuffer;
+	public ElementBuffer elementBuffer;
+	public int vao;
 	public int modelOffset, modelViewProjectionMatrix, blockAtlas, lightmap;
 	public NativeMemory matrixStorage;
 	public CapturedGlState state;
@@ -38,45 +39,30 @@ public class DefaultLodRenderer implements LodRenderer {
 		if (this.vertexStage != 0) { glDeleteShader(this.vertexStage); this.vertexStage = 0; }
 		if (this.program != 0) { glDeleteProgram(this.program); this.program = 0; }
 		if (this.vao != 0) { glDeleteVertexArrays(this.vao); this.vao = 0; }
-		if (this.elementBuffer != 0) { glDeleteBuffers(this.elementBuffer); this.elementBuffer = 0; }
-		ResourceTracker.closeAll(Arrays.asList(this.heap, this.matrixStorage));
+		ResourceTracker.closeAll(Arrays.asList(this.heap, this.elementBuffer, this.matrixStorage));
 	}
 
 	public DefaultLodRenderer(int quadCount) {
+		if (quadCount < 0 || quadCount >= ((int)((1L << 32) / 4L))) {
+			throw new IllegalArgumentException("Quad count out of range: " + quadCount);
+		}
 		this.fragmentStage = glCreateShader(GL_FRAGMENT_SHADER);
 		this.vertexStage = glCreateShader(GL_VERTEX_SHADER);
 		this.program = glCreateProgram();
 		this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
-		this.elementBuffer = glGenBuffers();
+		this.elementBuffer = new ElementBuffer(quadCount);
 		this.vao = glGenVertexArrays();
-		this.setupElementBuffer(quadCount);
 		this.matrixStorage = new NativeMemory(16 * Float.BYTES);
 		this.state = new CapturedGlState();
-	}
 
-	public void setupElementBuffer(int quadCount) {
-		try (NativeMemory memory = new NativeMemory(quadCount * (Integer.BYTES * 6))) {
-			int vertexIndex = 0;
-			while (memory.used < memory.capacity) {
-				memory.appendInt(vertexIndex + 0);
-				memory.appendInt(vertexIndex + 1);
-				memory.appendInt(vertexIndex + 2);
-				memory.appendInt(vertexIndex + 2);
-				memory.appendInt(vertexIndex + 3);
-				memory.appendInt(vertexIndex + 0);
-				vertexIndex += 4;
-			}
-			assert memory.used == memory.capacity : "Created unexpected number of indices...";
-			int oldElementBuffer = glGetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.elementBuffer);
-			nglBufferData(GL_ELEMENT_ARRAY_BUFFER, memory.capacity, memory.address, GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oldElementBuffer);
+		try {
+			this.recompile();
 		}
-	}
+		catch (Throwable throwable) {
+			this.close();
+			throw AutoCodecUtil.rethrow(throwable);
+		}
 
-	@Override
-	public void setup() {
-		this.recompile();
 		int oldVao = glGetInteger(GL_VERTEX_ARRAY_BINDING);
 		glBindVertexArray(this.vao);
 		glBindBuffer(GL_ARRAY_BUFFER, this.heap.glID);
@@ -242,7 +228,7 @@ public class DefaultLodRenderer implements LodRenderer {
 			this.state.capture();
 
 			glBindVertexArray(this.vao);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.elementBuffer.glID);
 
 			Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
 			glBindFramebuffer(GL_FRAMEBUFFER, glID(framebuffer));

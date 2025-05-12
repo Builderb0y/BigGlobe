@@ -91,14 +91,14 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	public void process(Receiving receiving, PacketSender responseSender) {
 		ClientGeneratorParams data;
 		try {
-			data = receiving.compile();
+			//receiving can be null if the player is in a non-scripted dimension.
+			data = receiving != null ? receiving.compile() : null;
 		}
 		catch (Exception exception) {
-			throw new RuntimeException(exception);
+			BigGlobeMod.LOGGER.error("Failed to compile worldgen data from server!", exception);
+			data = null;
 		}
 		ClientState.generatorParams = data;
-		//note for future self: columnEntryRegistry can be null if
-		//compiling was skipped because foliage colors were not present.
 		if (data != null) {
 			if (data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
 				DependencyDepthSorter.start(

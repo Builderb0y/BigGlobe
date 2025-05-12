@@ -150,24 +150,29 @@ public class BigGlobeConfig {
 		@Tooltip(count = 3)
 		@UseName("Maximum Quad Count")
 		@DefaultIgnore
-		@BoundedDiscrete(min = 1_000_000L, max = 32_000_000L)
-		@VerifyIntRange(min = 1_000_000L, max = 32_000_000L)
-		public int maxQuads = 16_000_000;
+		@BoundedDiscrete(min = 1_000_000L, max = 100_000_000L)
+		@VerifyIntRange(min = 1_000_000L, max = 100_000_000L)
+		public int maxQuads = 20_000_000;
 
 		@Tooltip(count = 3)
 		@UseName("Quality")
 		@DefaultIgnore
-		public double quality = 3.0D;
+		public double quality = 4.0D;
 
 		@Tooltip(count = 3)
 		@UseName("Min View Distance")
 		@DefaultIgnore
-		public float minViewDistance = 0.5F;
+		public float minViewDistance = 0.25F;
 
 		@Tooltip(count = 3)
 		@UseName("Max View Distance")
 		@DefaultIgnore
 		public float maxViewDistance = 1024.0F;
+
+		@Tooltip(count = 3)
+		@UseName("Generation Buffer Distance")
+		@DefaultIgnore
+		public float generationBufferDistance = 1536.0F;
 
 		@Tooltip(count = 5)
 		@UseName("Underground Mode")
@@ -176,10 +181,11 @@ public class BigGlobeConfig {
 		public UndergroundMode undergroundMode = UndergroundMode.FILL;
 
 		public void validatePostLoad() {
-			this.maxQuads = MathHelper.clamp(this.maxQuads, 1_000_000, 32_000_000);
+			this.maxQuads = MathHelper.clamp(this.maxQuads, 1_000_000, 100_000_000);
 			this.quality = MathHelper.clamp(this.quality, 0.0D, 5.0D);
 			this.minViewDistance = Math.max(this.minViewDistance, 1.0F / 256.0F);
 			this.maxViewDistance = Math.max(this.maxViewDistance, this.minViewDistance + 1.0F / 256.0F);
+			this.generationBufferDistance = Math.max(this.generationBufferDistance, this.maxViewDistance);
 			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 				this.doReload();
 			}

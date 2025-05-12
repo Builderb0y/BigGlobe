@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.lods;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -24,12 +23,14 @@ public class LodFrustum {
 		x, y, z;
 	public float
 		nearClippingPlane,
-		farClippingPlane;
+		farClippingPlane,
+		generationBuffer;
 	public Matrix4f
-		modelViewMatrix = new Matrix4f(),
-		vanillaProjectionMatrix = new Matrix4f(),
-		lodProjectionMatrix = new Matrix4f(),
-		frustumMatrix = new Matrix4f();
+		modelViewMatrix          = new Matrix4f(),
+		vanillaProjectionMatrix  = new Matrix4f(),
+		inverseProjectionMatrix  = new Matrix4f(),
+		farProjectionMatrix      = new Matrix4f(),
+		frustumMatrix            = new Matrix4f();
 
 	public void setup(WorldRenderContext context) {
 		#if MC_VERSION >= MC_1_20_5
@@ -44,17 +45,8 @@ public class LodFrustum {
 		this.z = cameraPos.z;
 		this.vanillaProjectionMatrix.set(context.projectionMatrix());
 
-		/**
-		mostly a copy-paste of {@link GameRenderer#getBasicProjectionMatrix(float)},
-		but with a different near/far clipping plane.
-		*/
-		this.lodProjectionMatrix.identity();
 		GameRenderer renderer = context.gameRenderer();
-		Window window = MinecraftClient.getInstance().getWindow();
-		if (renderer.zoom != 1.0F) {
-			this.lodProjectionMatrix.translate(renderer.zoomX, -renderer.zoomY, 0.0F);
-			this.lodProjectionMatrix.scale(renderer.zoom, renderer.zoom, 1.0F);
-		}
+
 		#if MC_VERSION >= MC_1_21_5
 			float vanillaViewDistance = renderer.getViewDistanceBlocks();
 		#else
@@ -64,23 +56,36 @@ public class LodFrustum {
 		if (aboveDifference > 0.0F) {
 			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference);
 		}
-		this.lodProjectionMatrix.perspective(
-			#if MC_VERSION >= MC_1_21_5
-				renderer.getFov(context.camera(), context.tickCounter(). getTickProgress(false), true) * (float)(Math.PI / 180.0F),
-			#elif MC_VERSION >= MC_1_21_2
-				renderer.getFov(context.camera(), context.tickCounter(). getTickDelta(false), true) * (float)(Math.PI / 180.0F),
-			#elif MC_VERSION >= MC_1_21_1
-				(float)(renderer.getFov(context.camera(), context.tickCounter().getTickDelta(false), true) * (Math.PI / 180.0D)),
-			#else
-				(float)(renderer.getFov(context.camera(), context.tickDelta(), true) * (Math.PI / 180.0D)),
-			#endif
-			((float)(window.getFramebufferWidth())) / ((float)(window.getFramebufferHeight())),
+		#if MC_VERSION >= MC_1_21_5
+			float fov = renderer.getFov(context.camera(), context.tickCounter().getTickProgress(false), true) * (float)(Math.PI / 180.0F);
+		#elif MC_VERSION >= MC_1_21_2
+			float fov = renderer.getFov(context.camera(), context.tickCounter().getTickDelta(false), true) * (float)(Math.PI / 180.0F);
+		#elif MC_VERSION >= MC_1_21_1
+			float fov = (float)(renderer.getFov(context.camera(), context.tickCounter().getTickDelta(false), true) * (Math.PI / 180.0D));
+		#else
+			float fov = (float)(renderer.getFov(context.camera(), context.tickDelta(), true) * (Math.PI / 180.0D));
+		#endif
+
+		Window window = MinecraftClient.getInstance().getWindow();
+		float aspect = ((float)(window.getFramebufferWidth())) / ((float)(window.getFramebufferHeight()));
+
+		this.inverseProjectionMatrix.setPerspective(
+			fov,
+			aspect,
+			0.05F,
+			renderer.getFarPlaneDistance()
+		)
+		.invertPerspective();
+		this.farProjectionMatrix.setPerspective(
+			fov,
+			aspect,
 			this.nearClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance,
 			this.farClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance
 		);
-		context.projectionMatrix().set(this.lodProjectionMatrix);
-
-		this.lodProjectionMatrix.mul(this.modelViewMatrix, this.frustumMatrix);
+		this.generationBuffer = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.generationBufferDistance;
+		this.inverseProjectionMatrix.mul(context.projectionMatrix(), context.projectionMatrix());
+		this.farProjectionMatrix.mul(context.projectionMatrix(), context.projectionMatrix());
+		this.farProjectionMatrix.mul(this.modelViewMatrix, this.frustumMatrix);
 		this.jomlFrustum.set(this.frustumMatrix, false);
 	}
 

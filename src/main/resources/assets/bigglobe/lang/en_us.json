@@ -223,7 +223,7 @@
 	"bigglobe.hyperspace.disabled": "Hyperspace is disabled",
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Can't place waypoint here",
 
-	"bigglobe.lod.oom": "Big Globe ran out of memory for LOD geometry. The LOD quality has been decreased to %d to compensate for this.",
+	"bigglobe.lod.oom": "[Big Globe]: Exceeded the maximum LOD quad count in your config file. The LOD quality has been decreased to %d to compensate for this.",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Daylight Cycle Speed",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Soul Lava converts to source",
@@ -364,14 +364,19 @@
 	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[2]": "Lower quality will reduce time between lag spikes.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance": "Min View Distance",
-	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Closest distance that LOD terrain will render at, as a fraction of your vanilla render distance.",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Closest distance that LOD terrain will render at, as a multiplier of your vanilla render distance.",
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[1]": "Lower numbers will allow LOD terrain to render closer to the player.",
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[2]": "Visual artifacts may occur if this number is too small. Must be greater than 0 and less than Max View Distance.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance": "Max View Distance",
-	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[0]": "Furthest distance that LOD terrain will render at, as a fraction of your vanilla render distance.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[0]": "Furthest distance that LOD terrain will render at, as a multiplier of your vanilla render distance.",
 	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[1]": "Higher numbers will allow LOD terrain to render further away from the player.",
 	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[2]": "Visual artifacts may occur if this number is too large. Must be greater than Min View Distance.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance": "Generation Buffer Distance",
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[0]": "Distance where Big Globe will generate LOD terrain inside, as a multiplier of your vanilla render distance.",
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[1]": "Higher numbers can reduce flickering LODs when moving quickly, but will also place higher demands on VRAM usage.",
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[2]": "Must be greater than or equal to Max View Distance.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode": "Underground Mode",
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[0]": "NONE - The underground and all blocks in it are completely skipped.",

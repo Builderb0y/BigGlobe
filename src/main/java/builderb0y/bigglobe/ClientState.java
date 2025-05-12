@@ -182,11 +182,13 @@ public class ClientState {
 		@Hidden
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
 			this(BigGlobeConfig.INSTANCE.get().lodRendering.enabled, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
-			if (generator.colors != null) {
+			if (generator.colors != null || this.containsLayers) {
 				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
-				if (generator.colors.grass  () != null) generator.colors.grass  ().streamDirectDependencies().forEach(collector);
-				if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
-				if (generator.colors.water  () != null) generator.colors.water  ().streamDirectDependencies().forEach(collector);
+				if (generator.colors != null) {
+					if (generator.colors.grass()   != null) generator.colors.grass  ().streamDirectDependencies().forEach(collector);
+					if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
+					if (generator.colors.water()   != null) generator.colors.water  ().streamDirectDependencies().forEach(collector);
+				}
 				if (this.containsLayers) collector.accept(generator.layer);
 				generator
 				.columnEntryRegistry
@@ -405,7 +407,7 @@ public class ClientState {
 		}
 
 		public void compile(ColumnEntryRegistry.Loading loading) throws Exception {
-			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null) return;
+			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null && this.layer == null) return;
 			loading.compile();
 			this.columnEntryRegistry = loading.getRegistry();
 			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.worldTraits);

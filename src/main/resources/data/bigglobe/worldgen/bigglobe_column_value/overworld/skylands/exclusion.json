@@ -9,7 +9,7 @@
 			"unmixLinear(",
 				"`bigglobe:overworld/sea_level` - `bigglobe:overworld/hilliness` * 256.0L,",
 				"`bigglobe:overworld/sea_level`,",
-				"world_traits.`bigglobe:approximate_surface_y`",
+				"`bigglobe:overworld/raw/ocean_adjusted_heightmap`",
 			"),",
 			"0.0",
 		") ^ 2",

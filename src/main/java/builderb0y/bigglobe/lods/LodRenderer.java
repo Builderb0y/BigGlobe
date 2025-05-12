@@ -12,8 +12,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 @Environment(EnvType.CLIENT)
 public interface LodRenderer extends SafeCloseable {
 
-	public default void setup() {}
-
 	/**
 	called before the draw calls are issued.
 	override this method to capture the current

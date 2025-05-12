@@ -15,24 +15,20 @@ public abstract class GpuMemory implements SafeCloseable {
 	public final long capacity;
 	public int glID;
 
-	public GpuMemory(long capacity, int binder, int bindQuery, Object arg) {
+	public GpuMemory(long capacity, int binder, int bindQuery) {
 		this.thread = Thread.currentThread();
 		this.binder = binder;
 		this.bindQuery = bindQuery;
 		this.capacity = capacity;
-		this.glID = this.nAllocate(arg);
+		this.glID = this.nAllocate();
 	}
 
-	public GpuMemory(long capacity, int binder, int bindQuery) {
-		this(capacity, binder, bindQuery, null);
-	}
-
-	public int nAllocate(Object arg) {
+	public int nAllocate() {
 		int oldID = glGetInteger(this.bindQuery);
 		int id = glGenBuffers();
 		try {
 			glBindBuffer(this.binder, id);
-			this.populateInitialData(arg);
+			this.populateInitialData();
 		}
 		catch (Throwable throwable) {
 			glDeleteBuffers(id);
@@ -44,7 +40,7 @@ public abstract class GpuMemory implements SafeCloseable {
 		return id;
 	}
 
-	public abstract void populateInitialData(Object arg);
+	public abstract void populateInitialData();
 
 	public void checkThread() {
 		if (Thread.currentThread() != this.thread) {

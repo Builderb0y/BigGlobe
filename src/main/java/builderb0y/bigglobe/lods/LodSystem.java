@@ -62,18 +62,19 @@ public class LodSystem implements SafeCloseable {
 		this.world = world;
 		this.qualityLimit = BigGlobeConfig.INSTANCE.get().lodRendering.quality;
 		int quads = BigGlobeConfig.INSTANCE.get().lodRendering.maxQuads;
-		try (ResourceTracker tracker = new ResourceTracker()) {
-			this.renderer = tracker.track(new DefaultLodRenderer(quads));
-			this.generator = new LodGenerator(this, generator);
-			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
-			this.frustum = new LodFrustum();
-			this.renderer.setup();
-			tracker.untrackAll();
-		}
+		this.renderer = new DefaultLodRenderer(quads);
+		this.generator = new LodGenerator(this, generator);
+		this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
+		this.frustum = new LodFrustum();
 	}
 
 	public static void reload() {
-		reload(MinecraftClient.getInstance().world, ClientState.generatorParams);
+		MinecraftClient client = MinecraftClient.getInstance();
+		//forge loads the config file, which reloads LODs,
+		//all before the MinecraftClient instance has been created.
+		if (client != null) {
+			reload(client.world, ClientState.generatorParams);
+		}
 	}
 
 	public static void reload(ClientWorld world, ClientGeneratorParams params) {
@@ -254,7 +255,7 @@ public class LodSystem implements SafeCloseable {
 		}
 		else if (canSplit) {
 			if (idealQuality < this.currentQuality) {
-				if (tree.isInRange()) {
+				if (squareDistance < BigGlobeMath.squareD(this.frustum.generationBuffer)) {
 					this.generator.request(tree);
 				}
 				if (tree.level > LodQuadTree.MIN_LEVEL) {

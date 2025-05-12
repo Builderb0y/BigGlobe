@@ -39,6 +39,9 @@ where I left off:
 	sync Grid registry to clients?
 		could potentially be useful for LODs.
 	stop using NbtHelper.toBlockState() where reasonable.
+	middle clicking a waypoint no longer works.
+		this is because all this logic was moved to server-side,
+		and waypoint entities don't exist server-side.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -54,7 +57,6 @@ structure rewrites:
 
 noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
-	remove skylands from rivers?
 
 high priority:
 	add new 1.21.5-exclusive blocks to world.
@@ -63,38 +65,14 @@ LODs:
 	shader support.
 
 changelog:
-	# Big changes compared to V4 for normal players:
-	* Completely new overworld design.
-		* Removed cliffs (mountains still exist, and they now have erosion).
-		* Removed waterfalls (lavafalls on volcanoes in islands worlds still exist).
-		* Not backwards-compatible with existing worlds.
-	* New LOD renderer.
-		* This lets you see farther without needing mods like Distant Horizons or Voxy.
-		* Works automatically in multiplayer as long as the server has the config option for them enabled.
-		* Does not render structures, features, or player-placed blocks.
-		* Only works in Big Globe worlds.
-		* Doesn't work with iris yet, though this is planned for the future.
-		* Distant Horizons and Voxy are still supported in case you prefer them, and my renderer can be disabled in the config file.
-		* Known issues:
-			* There are some seams between different levels of detail.
-	* Added a new "Soul Silverpetal" flower block.
-		* Found in the valley of souls.
-		* When made into suspicious stew, gives a new "soul siphon" status effect.
-			* This reduces your max health by 2 hearts per level.
-	# Big changes compared to V4 for data pack developers:
-	* Many column values have been moved, removed, or renamed.
-	* External data and images have been removed.
-	# Small changes compared to the previous beta:
-	* Vanilla sugar cane can now be placed on gravel.
-		* Sugar cane now spawns in rivers.
-	* The core now has random lava pockets that occasionally spill out into the open areas.
-	* Water in swamp biomes has been re-designed.
-	* Reduced the number of beehives in forests.
-	* You can now set a multiplier for how likely molten rock is to turn into ores in the config file.
-	* Back-ported pale netherrack to older MC versions even though it isn't used for worldgen there.
-	* Fixed soul lava not setting the player on fire.
-	* Stopped forcibly disabling cave culling for Distant Horizons integration.
-	* Added french translations provided by GlinglinMerguez.
+	* Tweaked default config options for LODs in response to feedback.
+		* This will not retroactively apply to existing config files.
+	* Fixed LOD rendering in other dimensions besides the overworld.
+	* Fixed view bobbing with LODs.
+	* Partially fixed some flickering with LODs when moving too quickly.
+	* Fixed pale netherrack not having a texture or model in old MC versions.
+	* Prevented skylands from spawning in rivers.
+		* Glaciers still spawn in rivers sometimes.
 
 alternate world presets:
 	paradise.
@@ -102,6 +80,7 @@ alternate world presets:
 		features:
 		structures:
 			prevent ancient cities from spawning in volcanoes.
+			geodes too.
 
 breaking changes I want to make:
 	expose IntVolume and DoubleVolume to scripts, with min, mid, and max properties.
@@ -125,13 +104,6 @@ breaking changes I want to make:
 	need to redo scripted noise which uses column values.
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
-	cave-exposed trail ruins at -1324.62 105.88 1666.20
-		decide if I want to keep these, or make a cave exclusion rule for them.
-		surface-exposed one at 1255.57 212.21 -1583.85
-			another one at 2514.28 474.17 48.03
-			third one at 1665.50 449.97 17.77
-			decide if I want a surface_y overrider for them,
-			or a structure overrider which prevents them from spawning in hilly or river-y areas.
 	remove BoundInfo.
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
