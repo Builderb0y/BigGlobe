@@ -223,7 +223,7 @@
 	"bigglobe.hyperspace.disabled": "Гиперпространство отключено",
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Здесь невозможно разместить путевую точку",
 
-	"bigglobe.lod.oom": "Big Globe не хватило памяти для создания упрощённых чанков. Чтобы это компенсировать, качество прорисовки было снижено до %d.",
+	"bigglobe.lod.oom": "[Big Globe]: Превышено максимальное количество квадов для создания упрощённых чанков из вашего конфигурационного файла. Чтобы это компенсировать, качество прорисовки было снижено до %d.",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Скорость дневного цикла",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Лава душ превращается в источник",
@@ -364,14 +364,19 @@
 	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[2]": "Более низкое качество сократит время между скачками задержки.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance": "Минимальная дальность прорисовки",
-	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Самое близкое расстояние, на котором будет отображаться упрощённый ландшафт, равное доле от вашего ванильной дальности прорисовки.",
+	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Самое близкое расстояние, на котором будет отображаться упрощённый ландшафт, равное множителю от вашего ванильной дальности прорисовки.",
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[1]": "Меньшие значения позволят упрощённому ландшафту отображаться ближе к игроку.",
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[2]": "Если это значение слишком мало, могут возникнуть визуальные артефакты. Оно должно быть больше 0 и меньше максимальной дальности прорисовки.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance": "Максимальная дальность прорисовки",
-	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[0]": "Самое дальнее расстояние, на котором будет отображаться упрощённый ландшафт, равное доле от вашего ванильной дальности прорисовки.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[0]": "Самое дальнее расстояние, на котором будет отображаться упрощённый ландшафт, равное множителю от вашего ванильной дальности прорисовки.",
 	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[1]": "Большие значения позволят упрощённому ландшафту отображаться дальше от игрока.",
 	"text.autoconfig.bigglobe.option.lodRendering.maxViewDistance.@Tooltip[2]": "Если это число слишком велико, могут возникнуть визуальные артефакты. Оно должно превышать минимальной дальности прорисовки.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance": "Дальность буфера генерации",
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[0]": "Расстояние, на котором Big Globe будет генерировать упрощённый ландшафт, равное множителю от вашего ванильной дальности прорисовки.",
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[1]": "Установка больших значений может уменьшить мерцание упрощённого ландшафта при быстром перемещении, но также приведён к повышенному использованию видеопамяти.",
+	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[2]": "Должно быть больше или равно 'Максимальной дальности прорисовки'.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode": "Подземный режим",
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[0]": "NONE — Подземность и все блоки в нёй будут полностью пропущены",
