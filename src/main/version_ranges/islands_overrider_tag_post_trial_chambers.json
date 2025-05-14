@@ -39,6 +39,7 @@
 		"bigglobe:islands/structure/surface_skyland_exclusion",
 		"bigglobe:overworld/structure/trial_chambers",
 		"bigglobe:overworld/structure/underground",
+		"bigglobe:islands/structure/volcano_chamber_exclusion",
 		"bigglobe:overworld/structure/woodland_mansion",
 
 		"bigglobe:overworld/structure/spillover/bigger_desert_pyramid",

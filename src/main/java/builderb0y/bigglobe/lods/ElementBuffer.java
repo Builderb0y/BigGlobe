@@ -1,11 +1,20 @@
 package builderb0y.bigglobe.lods;
 
+import builderb0y.bigglobe.BigGlobeMod;
+
 import static org.lwjgl.opengl.GL15C.*;
 
 public class ElementBuffer extends GpuMemory {
 
-	public ElementBuffer(long quadCount) {
-		super(quadCount * (6L * Integer.BYTES), GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING);
+	public ElementBuffer() {
+		super(
+			(1L << LodQuadTree.MIN_LEVEL) * (1L << LodQuadTree.MIN_LEVEL) * //expected number of columns
+			16L * //expected quads per column
+			6L * //indices per quad
+			Integer.BYTES, //bytes per index
+			GL_ELEMENT_ARRAY_BUFFER,
+			GL_ELEMENT_ARRAY_BUFFER_BINDING)
+		;
 	}
 
 	@Override
@@ -23,6 +32,17 @@ public class ElementBuffer extends GpuMemory {
 			}
 			assert memory.used == memory.capacity : "Created unexpected number of indices...";
 			nglBufferData(GL_ELEMENT_ARRAY_BUFFER, memory.capacity, memory.address, GL_STATIC_DRAW);
+		}
+	}
+
+	public void ensureCapacity(int indexCount) {
+		long newCapacity = ((long)(indexCount)) * ((long)(Integer.BYTES));
+		if (this.capacity < newCapacity) {
+			newCapacity = Math.max(newCapacity, this.capacity << 1);
+			BigGlobeMod.LOGGER.info("Re-sizing LOD element buffer from " + this.capacity + " bytes to " + newCapacity + " bytes");
+			this.close();
+			this.capacity = newCapacity;
+			this.glID = this.nAllocate(false);
 		}
 	}
 }

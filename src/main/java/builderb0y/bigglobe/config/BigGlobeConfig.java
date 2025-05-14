@@ -28,6 +28,7 @@ import builderb0y.bigglobe.lods.LodSystem;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
 @Config(name = BigGlobeMod.MODID)
+@UseFixer(name = "INSTANCE", in = BigGlobeConfigFixer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public class BigGlobeConfig {
 
 	@Excluded
@@ -36,6 +37,7 @@ public class BigGlobeConfig {
 
 	public void validatePostLoad() {
 		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
+		this.moltenRockOreificationChance = MathHelper.clamp(this.moltenRockOreificationChance, 0.0F, 1.0F);
 		this.lodRendering.validatePostLoad();
 		this.distantHorizonsIntegration.validatePostLoad();
 		this.voxyIntegration.validatePostLoad();
@@ -63,7 +65,6 @@ public class BigGlobeConfig {
 	public boolean hyperspaceEnabled = true;
 
 	@Tooltip(count = 3)
-	@VerifyFloatRange(min = 0.0D, max = 1.0D)
 	@UseName("Molten Rock Ore-ification Chance")
 	@DefaultIgnore
 	public float moltenRockOreificationChance = 1.0F;
@@ -150,14 +151,14 @@ public class BigGlobeConfig {
 		@Tooltip(count = 3)
 		@UseName("Maximum Quad Count")
 		@DefaultIgnore
-		@BoundedDiscrete(min = 1_000_000L, max = 100_000_000L)
-		@VerifyIntRange(min = 1_000_000L, max = 100_000_000L)
+		@BoundedDiscrete(min = 10_000_000L, max = 100_000_000L)
+		@VerifyIntRange(min = 10_000_000L, max = 100_000_000L)
 		public int maxQuads = 20_000_000;
 
 		@Tooltip(count = 3)
 		@UseName("Quality")
 		@DefaultIgnore
-		public double quality = 4.0D;
+		public double quality = 2.0D;
 
 		@Tooltip(count = 3)
 		@UseName("Min View Distance")
@@ -181,8 +182,8 @@ public class BigGlobeConfig {
 		public UndergroundMode undergroundMode = UndergroundMode.FILL;
 
 		public void validatePostLoad() {
-			this.maxQuads = MathHelper.clamp(this.maxQuads, 1_000_000, 100_000_000);
-			this.quality = MathHelper.clamp(this.quality, 0.0D, 5.0D);
+			this.maxQuads = MathHelper.clamp(this.maxQuads, 10_000_000, 100_000_000);
+			this.quality = MathHelper.clamp(this.quality, 1.0D, 3.0D);
 			this.minViewDistance = Math.max(this.minViewDistance, 1.0F / 256.0F);
 			this.maxViewDistance = Math.max(this.maxViewDistance, this.minViewDistance + 1.0F / 256.0F);
 			this.generationBufferDistance = Math.max(this.generationBufferDistance, this.maxViewDistance);
@@ -275,4 +276,9 @@ public class BigGlobeConfig {
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface DefaultIgnore {}
+
+	@Excluded
+	@Tooltip(count = 1)
+	@UseName("Config Version")
+	public static final int CONFIG_VERSION = 1;
 }

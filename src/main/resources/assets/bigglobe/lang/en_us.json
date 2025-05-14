@@ -429,5 +429,8 @@
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures": "Multi-Threaded Structures",
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[0]": "If true, Big Globe will use multiple threads when generating structures.",
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[1]": "If false, Big Globe will use a single thread when generating structures.",
-	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[2]": "This config option can be disabled if it causes instability."
+	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[2]": "This config option can be disabled if it causes instability.",
+
+	"text.autoconfig.bigglobe.option.CONFIG_VERSION": "Config Version",
+	"text.autoconfig.bigglobe.option.CONFIG_VERSION.@Tooltip[0]": "Don't change this."
 }

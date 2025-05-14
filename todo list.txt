@@ -60,19 +60,23 @@ noise experiment:
 
 high priority:
 	add new 1.21.5-exclusive blocks to world.
+	make default world type config also apply to server.properties.
 
 LODs:
 	shader support.
 
 changelog:
 	* Tweaked default config options for LODs in response to feedback.
-		* This will not retroactively apply to existing config files.
+		* This will retroactively apply to existing config files.
 	* Fixed LOD rendering in other dimensions besides the overworld.
 	* Fixed view bobbing with LODs.
 	* Partially fixed some flickering with LODs when moving too quickly.
+	* Improved performance with LODs.
 	* Fixed pale netherrack not having a texture or model in old MC versions.
+	* Lakes now try harder to spawn.
 	* Prevented skylands from spawning in rivers.
 		* Glaciers still spawn in rivers sometimes.
+	* Prevented ancient cities and other underground structures from spawning in volcano magma chambers in island worlds.
 
 alternate world presets:
 	paradise.

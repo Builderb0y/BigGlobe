@@ -12,7 +12,7 @@ import net.minecraft.util.math.MathHelper;
 public class LodQuadTree implements SafeCloseable {
 
 	public static final int
-		MIN_LEVEL = 4,
+		MIN_LEVEL = 6,
 		MAX_LEVEL = Integer.numberOfTrailingZeros(MathHelper.smallestEncompassingPowerOfTwo(60_000_000));
 
 	public static final int

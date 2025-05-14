@@ -10,9 +10,9 @@ import static org.lwjgl.opengl.GL15C.*;
 @Environment(EnvType.CLIENT)
 public abstract class GpuMemory implements SafeCloseable {
 
-	public final Thread thread;
-	public final int binder, bindQuery;
-	public final long capacity;
+	public Thread thread;
+	public int binder, bindQuery;
+	public long capacity;
 	public int glID;
 
 	public GpuMemory(long capacity, int binder, int bindQuery) {
@@ -20,11 +20,11 @@ public abstract class GpuMemory implements SafeCloseable {
 		this.binder = binder;
 		this.bindQuery = bindQuery;
 		this.capacity = capacity;
-		this.glID = this.nAllocate();
+		this.glID = this.nAllocate(true);
 	}
 
-	public int nAllocate() {
-		int oldID = glGetInteger(this.bindQuery);
+	public int nAllocate(boolean restore) {
+		int oldID = restore ? glGetInteger(this.bindQuery) : 0;
 		int id = glGenBuffers();
 		try {
 			glBindBuffer(this.binder, id);
@@ -35,7 +35,7 @@ public abstract class GpuMemory implements SafeCloseable {
 			AutoCodecUtil.rethrow(throwable);
 		}
 		finally {
-			glBindBuffer(this.binder, oldID);
+			if (restore) glBindBuffer(this.binder, oldID);
 		}
 		return id;
 	}
@@ -69,6 +69,7 @@ public abstract class GpuMemory implements SafeCloseable {
 		int glID = this.glID;
 		if (glID != 0) {
 			this.glID = 0;
+			this.capacity = 0L;
 			glDeleteBuffers(glID);
 		}
 	}

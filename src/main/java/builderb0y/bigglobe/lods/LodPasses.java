@@ -29,25 +29,36 @@ implements SafeCloseable {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static record Geometry(VertexHeap.Slice slice, int vertexCount, int indexCount) implements SafeCloseable {
+	public static record Geometry(
+		CompactVertexFormat format,
+		VertexHeap.Slice slice,
+		int vertexCount,
+		int indexCount
+	)
+	implements SafeCloseable {
 
 		public static Geometry from(CompactVertexConsumer builder, VertexHeap heap) {
 			try (builder) {
-				#if MC_VERSION >= MC_1_21_0
-					if (builder.vertexCount != 0) builder.endVertex();
-				#endif
+				if ((builder.vertexCount & 3) != 0) {
+					throw new IllegalArgumentException("Incomplete quad!");
+				}
 				Slice slice = heap.allocate(builder.memory.address, builder.memory.used);
 				if (slice != null) {
 					return new Geometry(
+						builder.format,
 						slice,
 						builder.vertexCount,
-						builder.vertexCount * 6 / 4
+						builder.vertexCount / 4 * 6
 					);
 				}
 				else {
 					return null;
 				}
 			}
+		}
+
+		public int baseVertex() {
+			return Math.toIntExact(this.slice.key.position() / this.format.byteStride);
 		}
 
 		@Override
@@ -63,10 +74,10 @@ implements SafeCloseable {
 	)
 	implements SafeCloseable, VertexConsumerProvider {
 
-		public Builder(CompactVertexFormat format, int initialSize) {
+		public Builder(CompactVertexFormat format, int initialVertexCount) {
 			this(
-				new CompactVertexConsumer(initialSize, format),
-				new CompactVertexConsumer(initialSize, format)
+				new CompactVertexConsumer(initialVertexCount, format),
+				new CompactVertexConsumer(initialVertexCount, format)
 			);
 		}
 

@@ -53,7 +53,7 @@ public class BigGlobeConfigLoader {
 		if (Files.exists(CONFIG_FILE)) {
 			String text = Files.readString(CONFIG_FILE, StandardCharsets.UTF_8);
 			JsonElement json = JsonParser.parseString(text);
-			return AUTO_CODEC.decode(AUTO_CODEC.createDecoder(BigGlobeConfig.class), json, JsonOps.INSTANCE);
+			return AUTO_CODEC.decode(AUTO_CODEC.createCoder(BigGlobeConfig.class), json, JsonOps.INSTANCE);
 		}
 		else {
 			return new BigGlobeConfig();
@@ -73,7 +73,7 @@ public class BigGlobeConfigLoader {
 		if (Files.exists(CONFIG_FILE)) try {
 			oldText = Files.readString(CONFIG_FILE, StandardCharsets.UTF_8);
 			JsonElement json = JsonParser.parseString(oldText);
-			config = AUTO_CODEC.decode(AUTO_CODEC.createDecoder(BigGlobeConfig.class), json, JsonOps.INSTANCE);
+			config = AUTO_CODEC.decode(AUTO_CODEC.createCoder(BigGlobeConfig.class), json, JsonOps.INSTANCE);
 			config.validatePostLoad();
 		}
 		catch (Exception exceptionParsing) {
@@ -127,7 +127,7 @@ public class BigGlobeConfigLoader {
 			builder.append('{');
 			depth++;
 			for (Field field : object.getClass().getFields()) {
-				if (Modifier.isStatic(field.getModifiers())) continue;
+				if (Modifier.isStatic(field.getModifiers()) && !"CONFIG_VERSION".equals(field.getName())) continue;
 				String nextPath = path + '.' + field.getName();
 				builder.append('\n');
 				for (int index = 0; true; index++) {

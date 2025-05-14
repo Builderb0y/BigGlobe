@@ -18,9 +18,8 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.lods.LodPasses.Geometry;
 
-import static org.lwjgl.opengl.GL30C.*;
+import static org.lwjgl.opengl.GL32C.*;
 
 @Environment(EnvType.CLIENT)
 public class DefaultLodRenderer implements LodRenderer {
@@ -50,7 +49,7 @@ public class DefaultLodRenderer implements LodRenderer {
 		this.vertexStage = glCreateShader(GL_VERTEX_SHADER);
 		this.program = glCreateProgram();
 		this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
-		this.elementBuffer = new ElementBuffer(quadCount);
+		this.elementBuffer = new ElementBuffer();
 		this.vao = glGenVertexArrays();
 		this.matrixStorage = new NativeMemory(16 * Float.BYTES);
 		this.state = new CapturedGlState();
@@ -272,7 +271,7 @@ public class DefaultLodRenderer implements LodRenderer {
 
 	@Override
 	public VertexConsumerProvider beginMeshing() {
-		return new LodPasses.Builder(LodVertexFormat.FORMAT, LodGenerator.RENDER_AREA * 4 * 6);
+		return new LodPasses.Builder(LodVertexFormat.FORMAT, LodGenerator.RENDER_AREA /* expected columns */ * 6 /* expected quads per column */ * 4 /* vertices per quad */);
 	}
 
 	@Override
@@ -305,12 +304,19 @@ public class DefaultLodRenderer implements LodRenderer {
 	}
 
 	@Override
-	public void draw(SafeCloseable token, float modelOffsetX, float modelOffsetY, float modelOffsetZ, float scale) {
+	public void draw(
+		SafeCloseable token,
+		float modelOffsetX,
+		float modelOffsetY,
+		float modelOffsetZ,
+		float scale
+	) {
 		LodPasses passes = (LodPasses)(token);
-		Geometry geometry = passes.getGeometry(this.state.inTranslucentPass);
+		LodPasses.Geometry geometry = passes.getGeometry(this.state.inTranslucentPass);
 		if (geometry != null) {
 			glUniform4f(this.modelOffset, modelOffsetX, modelOffsetY, modelOffsetZ, scale);
-			nglDrawElements(GL_TRIANGLES, geometry.indexCount(), GL_UNSIGNED_INT, geometry.slice().key.position() * 6L / LodVertexFormat.FORMAT.byteStride);
+			this.elementBuffer.ensureCapacity(geometry.indexCount());
+			nglDrawElementsBaseVertex(GL_TRIANGLES, geometry.indexCount(), GL_UNSIGNED_INT, 0L, geometry.baseVertex());
 		}
 	}
 
@@ -321,7 +327,8 @@ public class DefaultLodRenderer implements LodRenderer {
 		long fragmentation = used == 0L ? 0L : 100L - reallyUsed * 100L / used;
 		long capacity = this.heap.capacity;
 		long percent = used * 100L / capacity;
-		lines.add("[BG] Vert heap: R: " + reallyUsed + ", U: " + used + ", C: " + capacity + ", F: " + fragmentation + "%, P: " + percent + '%');
+		long elements = this.elementBuffer.capacity;
+		lines.add("[BG] Vertices: U: " + reallyUsed + ", A: " + used + ", C: " + capacity + ", F: " + fragmentation + "%, P: " + percent + '%' + ", E: " + elements);
 	}
 
 	public static class CapturedGlState implements SafeCloseable {
