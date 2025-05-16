@@ -80,7 +80,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 
 	public abstract TypeContext createType(ColumnCompileContext context);
 
-	public abstract InsnTree createConstant(Object object, ColumnCompileContext context);
+	public abstract InsnTree createConstant(Data data, ColumnCompileContext context);
 
 	public default void setupInternalEnvironment(
 		MutableScriptEnvironment environment,

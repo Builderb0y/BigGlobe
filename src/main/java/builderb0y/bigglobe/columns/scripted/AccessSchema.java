@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns.scripted;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
@@ -31,8 +32,8 @@ public record AccessSchema(ColumnValueType type, boolean is_3d) {
 		}
 	}
 
-	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		return this.type.createConstant(object, context);
+	public InsnTree createConstant(Data data, ColumnCompileContext context) {
+		return this.type.createConstant(data, context);
 	}
 
 	public LazyVarInfo[] getterParameters() {

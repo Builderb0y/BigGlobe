@@ -8,9 +8,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
+import org.lwjgl.glfw.*;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.AbstractTexture;
@@ -18,6 +21,8 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.ClientState;
+import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 
 import static org.lwjgl.opengl.GL32C.*;
 
@@ -28,7 +33,7 @@ public class DefaultLodRenderer implements LodRenderer {
 	public VertexHeap heap;
 	public ElementBuffer elementBuffer;
 	public int vao;
-	public int modelOffset, modelViewProjectionMatrix, blockAtlas, lightmap;
+	public int modelOffset, modelViewProjectionMatrix, blockAtlas, lightmap, fogColor, fogParams;
 	public NativeMemory matrixStorage;
 	public CapturedGlState state;
 
@@ -45,41 +50,42 @@ public class DefaultLodRenderer implements LodRenderer {
 		if (quadCount < 0 || quadCount >= ((int)((1L << 32) / 4L))) {
 			throw new IllegalArgumentException("Quad count out of range: " + quadCount);
 		}
-		this.fragmentStage = glCreateShader(GL_FRAGMENT_SHADER);
-		this.vertexStage = glCreateShader(GL_VERTEX_SHADER);
-		this.program = glCreateProgram();
-		this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
-		this.elementBuffer = new ElementBuffer();
-		this.vao = glGenVertexArrays();
-		this.matrixStorage = new NativeMemory(16 * Float.BYTES);
-		this.state = new CapturedGlState();
-
 		try {
+			this.fragmentStage = glCreateShader(GL_FRAGMENT_SHADER);
+			this.vertexStage = glCreateShader(GL_VERTEX_SHADER);
+			this.program = glCreateProgram();
+			this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
+			this.elementBuffer = new ElementBuffer();
+			this.vao = glGenVertexArrays();
+			this.matrixStorage = new NativeMemory(16 * Float.BYTES);
+			this.state = new CapturedGlState();
+
 			this.recompile();
+
+			int oldVao = glGetInteger(GL_VERTEX_ARRAY_BINDING);
+			glBindVertexArray(this.vao);
+			glBindBuffer(GL_ARRAY_BUFFER, this.heap.glID);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
+			glEnableVertexAttribArray(4);
+			glVertexAttribIPointer(0, 2, GL_UNSIGNED_BYTE, 16, 0L); //horizontalPosition
+			glVertexAttribIPointer(1, 1, GL_SHORT, 16, 2L); //verticalPosition
+			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, true, 16, 4L); //color
+			glVertexAttribPointer(3, 2, GL_UNSIGNED_SHORT, false, 16, 8L); //texcoord
+			glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, true, 16, 12L); //lmcoord
+			//and 2 bytes of padding.
+			glBindVertexArray(oldVao);
+
+			GLException.check();
 		}
 		catch (Throwable throwable) {
 			this.close();
 			throw AutoCodecUtil.rethrow(throwable);
 		}
-
-		int oldVao = glGetInteger(GL_VERTEX_ARRAY_BINDING);
-		glBindVertexArray(this.vao);
-		glBindBuffer(GL_ARRAY_BUFFER, this.heap.glID);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glEnableVertexAttribArray(3);
-		glEnableVertexAttribArray(4);
-		glVertexAttribIPointer(0, 2, GL_UNSIGNED_BYTE, 16, 0L); //horizontalPosition
-		glVertexAttribIPointer(1, 1, GL_SHORT, 16, 2L); //verticalPosition
-		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, true, 16, 4L); //color
-		glVertexAttribPointer(3, 2, GL_UNSIGNED_SHORT, false, 16, 8L); //texcoord
-		glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, true, 16, 12L); //lmcoord
-		//and 2 bytes of padding.
-		glBindVertexArray(oldVao);
 	}
 
-	/** separate method to allow me to hotswap and call it with a debugger. */
 	public void recompile() {
 		glShaderSource(
 			this.fragmentStage,
@@ -89,10 +95,17 @@ public class DefaultLodRenderer implements LodRenderer {
 			
 			uniform sampler2D blockAtlas;
 			uniform sampler2D lightmap;
+			uniform vec3 fogColor;
+			uniform vec3 fogParams;
 			
-			in vec4 tint;
+			#define altitude fogParams.x
+			#define verticalMultiplier fogParams.y
+			#define globalMultiplier fogParams.z
+			
 			in vec2 texcoord;
 			in vec2 lmcoord;
+			in vec4 tint;
+			in vec3 pos;
 			
 			out vec4 color;
 			
@@ -104,6 +117,24 @@ public class DefaultLodRenderer implements LodRenderer {
 					tint
 				);
 				if (color.a < 0.1) discard;
+			
+				if (globalMultiplier < 0.0) {
+					float dist = length(pos);
+					float opticalDepth;
+					if (verticalMultiplier < 0.0) {
+						vec3 ray = pos / dist;
+						if (abs(ray.y) < 0.00001) {
+							opticalDepth = dist * exp(min(altitude * verticalMultiplier, 32.0));
+						}
+						else {
+							opticalDepth = ((exp(min(dist * ray.y * verticalMultiplier, 32.0)) - 1.0) * exp(min(altitude * verticalMultiplier, 32.0))) / (ray.y * verticalMultiplier);
+						}
+					}
+					else {
+						opticalDepth = dist;
+					}
+					color.rgb = mix(fogColor, color.rgb, exp2(opticalDepth * globalMultiplier));
+				}
 			}
 			"""
 		);
@@ -132,15 +163,17 @@ public class DefaultLodRenderer implements LodRenderer {
 			in vec2 texcoordData;
 			in vec2 lightData;
 			
-			out vec4 tint;
 			out vec2 texcoord;
 			out vec2 lmcoord;
+			out vec4 tint;
+			out vec3 pos;
 			
 			void main() {
 				vec3 modelPos;
 				modelPos.xz = vec2(horizontalPosition) * (float(1 << MIN_LOD) / 128.0) - 64.0 * (float(1 << MIN_LOD) / 128.0);
 				modelPos.y = float(verticalPosition) * (4096.0 / 32768.0);
-				gl_Position = modelViewProjectionMatrix * vec4(modelPos * modelOffset.w + modelOffset.xyz, 1.0);
+				pos = modelPos * modelOffset.w + modelOffset.xyz;
+				gl_Position = modelViewProjectionMatrix * vec4(pos, 1.0);
 				tint = colorData;
 				texcoord = texcoordData * (1.0 / 65536.0);
 				lmcoord = lightData;
@@ -173,6 +206,8 @@ public class DefaultLodRenderer implements LodRenderer {
 		this.blockAtlas = glGetUniformLocation(this.program, "blockAtlas");
 		this.lightmap = glGetUniformLocation(this.program, "lightmap");
 		this.modelOffset = glGetUniformLocation(this.program, "modelOffset");
+		this.fogColor = glGetUniformLocation(this.program, "fogColor");
+		this.fogParams = glGetUniformLocation(this.program, "fogParams");
 	}
 
 	public static int glID(Framebuffer framebuffer) {
@@ -217,7 +252,7 @@ public class DefaultLodRenderer implements LodRenderer {
 	}
 
 	@Override
-	public SafeCloseable bind(WorldRenderContext context, boolean translucent) {
+	public SafeCloseable bind(WorldRenderContext context, boolean translucent, Vector4f fog) {
 		if (translucent) {
 			this.state.inTranslucentPass = true;
 			glEnable(GL_BLEND);
@@ -265,6 +300,14 @@ public class DefaultLodRenderer implements LodRenderer {
 			)
 			.getToAddress(this.matrixStorage.address);
 			nglUniformMatrix4fv(this.modelViewProjectionMatrix, 1, false, this.matrixStorage.address);
+			glUniform3f(this.fogColor, fog.x, fog.y, fog.z);
+			ClientGeneratorParams params = ClientState.generatorParams;
+			if (params != null && params.seaLevel != null) {
+				glUniform3f(this.fogParams, (float)(context.camera().getPos().y - params.seaLevel.doubleValue()), -1.0F / 256.0F, -1.0F / 2048.0F);
+			}
+			else {
+				glUniform3f(this.fogParams, 0.0F, 0.0F, fog.w);
+			}
 		}
 		return this.state;
 	}

@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.columns.scripted;
 
-import com.mojang.datafixers.util.Unit;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.codecs.Any;
+import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -13,7 +11,7 @@ public record Valid(
 	@VerifyNullable ScriptUsage where,
 	@VerifyNullable ScriptUsage min_y,
 	@VerifyNullable ScriptUsage max_y,
-	@VerifyNullable @Any Object fallback
+	Data fallback
 ) {
 
 	public boolean isUseful(boolean _3D) {
@@ -25,6 +23,6 @@ public record Valid(
 	}
 
 	public InsnTree getFallback(ColumnValueType type, ColumnCompileContext context) {
-		return type.createConstant(this.fallback == Unit.INSTANCE ? null : this.fallback, context);
+		return type.createConstant(this.fallback, context);
 	}
 }

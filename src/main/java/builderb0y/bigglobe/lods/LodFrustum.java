@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
@@ -54,7 +55,7 @@ public class LodFrustum {
 		#endif
 		float aboveDifference = (float)(context.camera().getPos().y - HeightLimitViewVersions.getMaxY(context.world()));
 		if (aboveDifference > 0.0F) {
-			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference);
+			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.25F);
 		}
 		#if MC_VERSION >= MC_1_21_5
 			float fov = renderer.getFov(context.camera(), context.tickCounter().getTickProgress(false), true) * (float)(Math.PI / 180.0F);

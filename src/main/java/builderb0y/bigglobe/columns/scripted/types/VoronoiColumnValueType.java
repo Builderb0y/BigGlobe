@@ -9,6 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
+import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
@@ -50,8 +51,8 @@ public class VoronoiColumnValueType implements ColumnValueType {
 	}
 
 	@Override
-	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == null) return ldc(null, context.getTypeContext(this).type());
+	public InsnTree createConstant(Data data, ColumnCompileContext context) {
+		if (data.isEmpty()) return ldc(null, context.getTypeContext(this).type());
 		else throw new UnsupportedOperationException("Cannot create constant voronoi cell.");
 	}
 

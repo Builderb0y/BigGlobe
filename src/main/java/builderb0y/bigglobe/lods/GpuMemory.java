@@ -29,6 +29,7 @@ public abstract class GpuMemory implements SafeCloseable {
 		try {
 			glBindBuffer(this.binder, id);
 			this.populateInitialData();
+			GLException.check();
 		}
 		catch (Throwable throwable) {
 			glDeleteBuffers(id);

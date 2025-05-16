@@ -5,6 +5,7 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.*;
 
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -24,7 +25,11 @@ public interface LodRenderer extends SafeCloseable {
 	and restore the captured GL state when closed.
 	it will be closed on the same thread which calls bind().
 	*/
-	public abstract SafeCloseable bind(WorldRenderContext context, boolean translucent);
+	public abstract SafeCloseable bind(
+		WorldRenderContext context,
+		boolean translucent,
+		Vector4f fog
+	);
 
 	/**
 	called to draw a mesh. the provided token will be one which was
@@ -35,9 +40,9 @@ public interface LodRenderer extends SafeCloseable {
 	whether that implies calling {@link GL11C#glDrawArrays(int, int, int)},
 	{@link GL11C#glDrawElements}, or appending the request to an internal
 	buffer to be multi-drawn when the return value of
-	{@link #bind(WorldRenderContext, boolean)} is closed.
+	{@link #bind(WorldRenderContext, boolean, Vector4f)} is closed.
 
-	{@link #bind(WorldRenderContext, boolean)} will always be called before this method.
+	{@link #bind(WorldRenderContext, boolean, Vector4f)} will always be called before this method.
 	if this renderer uses a VAO, it should be bound in that method, not this one.
 	*/
 	public abstract void draw(

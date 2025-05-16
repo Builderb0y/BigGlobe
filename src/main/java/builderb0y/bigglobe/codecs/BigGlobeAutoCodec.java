@@ -268,6 +268,7 @@ public class BigGlobeAutoCodec {
 									(RegistryKey<World> key) -> key.getValue().toString()
 								)
 							);
+							this.addRaw(Data.class, DataCoder.INSTANCE);
 							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);

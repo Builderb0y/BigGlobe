@@ -7,6 +7,8 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.state.property.Property;
 
 import builderb0y.autocodec.annotations.RecordLike;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.StringData;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
@@ -25,13 +27,14 @@ public class BlockStateColumnValueType extends AbstractColumnValueType {
 	}
 
 	@Override
-	public InsnTree createConstant(Object object, ColumnCompileContext context) {
-		if (object == null) return ldc(null, this.getTypeInfo());
-		String string = (String)(object);
-		BlockProperties blockProperties = BlockStateCoder.decodeState(context.registry.registries.getRegistry(RegistryKeys.BLOCK), string);
+	public InsnTree createConstant(Data data, ColumnCompileContext context) {
+		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
+		StringData stringData = data.tryAsString();
+		if (stringData == null) throw new ClassCastException("Not a String: " + data);
+		BlockProperties blockProperties = BlockStateCoder.decodeState(context.registry.registries.getRegistry(RegistryKeys.BLOCK), stringData.value);
 		Set<Property<?>> missing = blockProperties.missing();
 		if (!missing.isEmpty()) {
-			BigGlobeMod.LOGGER.warn("Missing properties for " + string + ": " + missing);
+			BigGlobeMod.LOGGER.warn("Missing properties for " + stringData.value + ": " + missing);
 		}
 		return ldc(blockProperties.state(), type(BlockState.class));
 	}

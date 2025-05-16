@@ -1,28 +1,21 @@
 package builderb0y.bigglobe.columns.scripted;
 
-import java.io.IOException;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
-import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -42,12 +35,10 @@ import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.util.AsyncConsumer;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
-import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -77,38 +68,58 @@ public class ColumnEntryRegistry {
 		this.traitManager   = new TraitManager(this);
 
 		BetterRegistry<ColumnEntry> entries = registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
+		Map<RegistryEntry<ColumnEntry>, Exception> exceptions = new HashMap<>(0);
 
 		entries.streamEntries().forEach((RegistryEntry<ColumnEntry> entry) -> {
-			this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-				context.getMemories().put(
-					entry.value(),
-					this.createColumnEntryMemory(entry)
-				);
-			});
+			try {
+				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+					context.getMemories().put(
+						entry.value(),
+						this.createColumnEntryMemory(entry)
+					);
+				});
+			}
+			catch (Exception exception) {
+				exceptions.put(entry, exception);
+			}
 		});
+		checkExceptions(exceptions);
 
 		entries
 		.streamEntries()
 		.sorted(Comparator.comparing((RegistryEntry<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
 		.forEach((RegistryEntry<ColumnEntry> entry) -> {
-			this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-				entry.value().emitFieldGetterAndSetter(context.getMemories().get(entry.value()), context);
-			});
+			try {
+				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+					entry.value().emitFieldGetterAndSetter(context.getMemories().get(entry.value()), context);
+				});
+			}
+			catch (Exception exception) {
+				exceptions.put(entry, exception);
+			}
 		});
+		checkExceptions(exceptions);
 
 		entries
 		.streamEntries()
 		.sorted(Comparator.comparing((RegistryEntry<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
 		.forEach((RegistryEntry<ColumnEntry> entry) -> {
-			this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-				try {
-					entry.value().emitComputer(context.getMemories().get(entry.value()), context);
-				}
-				catch (ScriptParsingException exception) {
-					throw AutoCodecUtil.rethrow(exception);
-				}
-			});
+			try {
+				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+					try {
+						entry.value().emitComputer(context.getMemories().get(entry.value()), context);
+					}
+					catch (ScriptParsingException exception) {
+						throw AutoCodecUtil.rethrow(exception);
+					}
+				});
+			}
+			catch (Exception exception) {
+				exceptions.put(entry, exception);
+			}
 		});
+		checkExceptions(exceptions);
+
 		this.columnContext.prepareForCompile();
 		try {
 			this.loader = new ScriptClassLoader();
@@ -134,6 +145,16 @@ public class ColumnEntryRegistry {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
 		}
 		this.traitManager.compile();
+	}
+
+	public static void checkExceptions(Map<RegistryEntry<ColumnEntry>, Exception> exceptions) {
+		if (!exceptions.isEmpty()) {
+			RuntimeException exception = new RuntimeException("Exception compiling column entries; see below.");
+			for (Map.Entry<RegistryEntry<ColumnEntry>, Exception> entry : exceptions.entrySet()) {
+				exception.addSuppressed(new RuntimeException("Exception compiling " + entry.getKey().getKey().map(RegistryKey::getValue).map(Identifier::toString).orElse("<unknown>"), entry.getValue()));
+			}
+			throw exception;
+		}
 	}
 
 	public int parserFlags() {
