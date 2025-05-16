@@ -357,7 +357,7 @@ public interface ScriptEnvironment {
 	or null if this ScriptEnvironment does not know how to perform such a cast.
 	@param implicit if true, this ScriptEnvironment is required to perform the cast implicitly.
 	*/
-	public default @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+	public default @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
 		return null;
 	}
 
@@ -378,7 +378,7 @@ public interface ScriptEnvironment {
 		InsnTree[] result = arguments;
 		for (int index = 0; index < length; index++) {
 			InsnTree oldArg = arguments[index];
-			InsnTree newArg = oldArg.cast(parser, expectedTypes[index], mode);
+			InsnTree newArg = oldArg.cast(parser, expectedTypes[index], mode, false);
 			if (newArg == null) return null;
 			if (oldArg != newArg) {
 				if (result == arguments) result = result.clone();
@@ -393,7 +393,7 @@ public interface ScriptEnvironment {
 		InsnTree[] result = arguments;
 		for (int index = 0; index < length; index++) {
 			InsnTree oldArg = arguments[index];
-			InsnTree newArg = oldArg.cast(parser, expectedType, mode);
+			InsnTree newArg = oldArg.cast(parser, expectedType, mode, false);
 			if (newArg == null) return null;
 			if (oldArg != newArg) {
 				if (result == arguments) result = result.clone();
@@ -412,6 +412,6 @@ public interface ScriptEnvironment {
 			if (mode.nullable) return null;
 			throw new IllegalArgumentException("Wrong number of arguments for " + name + ": expected 1, got " + arguments.length);
 		}
-		return arguments[0].cast(parser, type, mode);
+		return arguments[0].cast(parser, type, mode, false);
 	}
 }

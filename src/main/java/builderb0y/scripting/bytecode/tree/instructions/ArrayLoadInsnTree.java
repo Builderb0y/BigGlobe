@@ -46,7 +46,7 @@ public class ArrayLoadInsnTree implements InsnTree {
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.type, CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.type, CastMode.IMPLICIT_THROW, false);
 			return new ArrayUpdaterInsnTree(order, true, this.array, this.index, cast);
 		}
 		else {

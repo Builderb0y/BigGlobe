@@ -108,7 +108,7 @@ public class ScriptedLayer extends Layer {
 					invokeInstance(
 						load("this", clazz.info),
 						actualMethod.info,
-						new DirectCastInsnTree(load("column", type(ScriptedColumn.class)), registry.columnContext.columnType()),
+						new DirectCastInsnTree(load("column", type(ScriptedColumn.class)), registry.columnContext.columnType(), false),
 						load("blocks", type(BlockSegmentList.class))
 					)
 				)

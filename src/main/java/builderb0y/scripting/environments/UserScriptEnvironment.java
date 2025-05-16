@@ -125,7 +125,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 						yield new CastResult(mode.makeInvoker(parser, receiver, getter), false);
 					}
 					case 1 -> {
-						InsnTree argument = arguments[0].cast(parser, field.type, CastMode.IMPLICIT_NULL);
+						InsnTree argument = arguments[0].cast(parser, field.type, CastMode.IMPLICIT_NULL, false);
 						if (argument == null) yield null;
 						yield new CastResult(mode.makeInvoker(parser, receiver, setter, argument), argument != arguments[0]);
 					}

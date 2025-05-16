@@ -25,7 +25,9 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class BlockWrapper {
 
 	public static final TypeInfo TYPE = type(Block.class);
-	public static final MethodInfo GET_DEFAULT_STATE = MethodInfo.getMethod(BlockWrapper.class, "getDefaultState");
+	public static final MethodInfo
+		GET_DEFAULT_STATE = MethodInfo.getMethod(BlockWrapper.class, "getDefaultState"),
+		GET_DEFAULT_STATE_NULLABLE = MethodInfo.getMethod(BlockWrapper.class, "getDefaultStateNullable");
 	public static final ConstantFactory CONSTANT_FACTORY = new ConstantFactory(BlockWrapper.class, "getBlock", String.class, Block.class);
 
 	public static Block getBlock(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
@@ -61,6 +63,10 @@ public class BlockWrapper {
 
 	public static boolean isIn(Block block, BlockTag tag) {
 		return tag.contains(block);
+	}
+
+	public static BlockState getDefaultStateNullable(Block block) {
+		return block == null ? null : block.getDefaultState();
 	}
 
 	public static BlockState getDefaultState(Block block) {

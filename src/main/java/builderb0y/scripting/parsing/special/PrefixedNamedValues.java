@@ -30,7 +30,7 @@ public record PrefixedNamedValues(@Nullable InsnTree prefix, NamedValue[] values
 			if (nameChecker != null) nameChecker.checkName(parser, firstName);
 			InsnTree value = parser.nextScript();
 			if (valueType != null) {
-				value = value.cast(parser, valueType, CastMode.IMPLICIT_THROW);
+				value = value.cast(parser, valueType, CastMode.IMPLICIT_THROW, false);
 			}
 			if (parser.input.hasOperatorAfterWhitespace(",")) {
 				namedValues = new ArrayList<>(8);
@@ -49,7 +49,7 @@ public record PrefixedNamedValues(@Nullable InsnTree prefix, NamedValue[] values
 			parser.input.setCursor(cursor);
 			prefix = parser.nextScript();
 			if (prefixType != null) {
-				prefix = prefix.cast(parser, prefixType, CastMode.IMPLICIT_THROW);
+				prefix = prefix.cast(parser, prefixType, CastMode.IMPLICIT_THROW, false);
 			}
 			if (parser.input.hasOperatorAfterWhitespace(",")) {
 				namedValues = new ArrayList<>(8);
@@ -69,7 +69,7 @@ public record PrefixedNamedValues(@Nullable InsnTree prefix, NamedValue[] values
 			parser.input.expectOperatorAfterWhitespace(":");
 			InsnTree value = parser.nextScript();
 			if (valueType != null) {
-				value = value.cast(parser, valueType, CastMode.IMPLICIT_THROW);
+				value = value.cast(parser, valueType, CastMode.IMPLICIT_THROW, false);
 			}
 			namedValues.add(new NamedValue(name, value));
 			if (parser.input.hasOperatorAfterWhitespace(",")) continue;

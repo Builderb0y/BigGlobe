@@ -43,12 +43,12 @@ public class IdentityEqualityConditionTree implements ConditionTree {
 				return ConstantConditionTree.of(equal);
 			}
 			else {
-				return new NullCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
+				return new NullCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, false), equal ? IFNULL : IFNONNULL);
 			}
 		}
 		else {
 			if (rightConstant.isConstant() && rightConstant.asJavaObject() == null) {
-				return new NullCompareConditionTree(left.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
+				return new NullCompareConditionTree(left.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, false), equal ? IFNULL : IFNONNULL);
 			}
 			else {
 				if (

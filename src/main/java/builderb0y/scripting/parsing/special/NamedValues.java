@@ -28,7 +28,7 @@ public record NamedValues(NamedValue[] values, boolean hasNewVariables) implemen
 				parser.input.expectOperatorAfterWhitespace(":");
 				InsnTree value = parser.nextScript();
 				if (valueType != null) {
-					value = value.cast(parser, valueType, CastMode.IMPLICIT_THROW);
+					value = value.cast(parser, valueType, CastMode.IMPLICIT_THROW, false);
 				}
 				namedValues.add(new NamedValue(name, value));
 				if (parser.input.hasOperatorAfterWhitespace(",")) continue;

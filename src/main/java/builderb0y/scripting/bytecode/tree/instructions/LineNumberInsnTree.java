@@ -55,8 +55,8 @@ public class LineNumberInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree cast = this.content.doCast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree cast = this.content.doCast(parser, type, mode, nullable);
 		if (cast == null) return null;
 		return new LineNumberInsnTree(cast, this.lineNumber);
 	}

@@ -388,9 +388,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 				}
 			}
 			boolean requiredCasting = false;
-			if (x != null && x != (x = x.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW))) requiredCasting = true;
-			if (y != null && y != (y = y.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW))) requiredCasting = true;
-			if (z != null && z != (z = z.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW))) requiredCasting = true;
+			if (x != null && x != (x = x.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false))) requiredCasting = true;
+			if (y != null && y != (y = y.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false))) requiredCasting = true;
+			if (z != null && z != (z = z.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false))) requiredCasting = true;
 
 			StringBuilder error = null;
 			if (this.loadColumn == null) error = appendIfMissing(error, name, x, "x");

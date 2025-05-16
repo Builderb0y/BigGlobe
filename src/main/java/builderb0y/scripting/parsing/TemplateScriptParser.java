@@ -65,7 +65,7 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 			});
 			parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
 			parser.environment.user().reserveVariable(input.name(), type);
-			InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW);
+			InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW, false);
 			parser.environment.user().assignVariable(input.name());
 			LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
 			InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);

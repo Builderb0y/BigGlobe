@@ -8,6 +8,11 @@
 			"for (int height = 0, height <= maxHeight && state.canPlaceAt(originX, originY + height, originZ), ++height:",
 				"setBlockState(originX, originY + height, originZ, state)",
 			")",
+			"if (BlockState*(flower := BlockState?('minecraft:cactus_flower')) != null:",
+				"random.if (0.25I:",
+					"placeBlockState(originX, originY + maxHeight + 1, originZ, flower)",
+				")",
+			")",
 			"return(true)"
 		]
 	}

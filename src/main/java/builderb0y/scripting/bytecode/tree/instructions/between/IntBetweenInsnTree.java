@@ -31,10 +31,10 @@ public class IntBetweenInsnTree extends BetweenInsnTree {
 		boolean maxInclusive
 	) {
 		return new IntBetweenInsnTree(
-			value.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW),
-			min.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW),
+			value.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false),
+			min.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false),
 			minInclusive,
-			max.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW),
+			max.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false),
 			maxInclusive
 		);
 	}

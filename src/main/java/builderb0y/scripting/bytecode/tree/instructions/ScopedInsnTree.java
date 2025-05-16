@@ -47,8 +47,8 @@ public class ScopedInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree cast = this.body.cast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree cast = this.body.cast(parser, type, mode, nullable);
 		if (cast == null) return null;
 		return new ScopedInsnTree(cast);
 	}

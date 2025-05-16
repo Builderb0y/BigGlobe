@@ -321,17 +321,17 @@ public abstract class DataCompileContext {
 
 	public static InsnTree fromObject(InsnTree value, TypeInfo type, String id) {
 		return switch (type.getSort()) {
-			case VOID -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to void.");
-			case BOOLEAN -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.BOOLEAN_WRAPPER), MethodInfo.getMethod(Boolean.class, "booleanValue"));
-			case BYTE -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.BYTE_WRAPPER), MethodInfo.getMethod(Byte.class, "byteValue"));
-			case CHAR -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.CHAR_WRAPPER), MethodInfo.getMethod(Character.class, "charValue"));
-			case SHORT -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.SHORT_WRAPPER), MethodInfo.getMethod(Short.class, "shortValue"));
-			case INT -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.INT_WRAPPER), MethodInfo.getMethod(Integer.class, "intValue"));
-			case LONG -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.LONG_WRAPPER), MethodInfo.getMethod(Long.class, "longValue"));
-			case FLOAT -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.FLOAT_WRAPPER), MethodInfo.getMethod(Float.class, "floatValue"));
-			case DOUBLE -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.DOUBLE_WRAPPER), MethodInfo.getMethod(Double.class, "doubleValue"));
-			case OBJECT -> new DirectCastInsnTree(value, type);
-			case ARRAY -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to array.");
+			case VOID    -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to void.");
+			case BOOLEAN -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.BOOLEAN_WRAPPER, false), MethodInfo.getMethod(Boolean  .class, "booleanValue"));
+			case BYTE    -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.   BYTE_WRAPPER, false), MethodInfo.getMethod(Byte     .class,    "byteValue"));
+			case CHAR    -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.   CHAR_WRAPPER, false), MethodInfo.getMethod(Character.class,    "charValue"));
+			case SHORT   -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.  SHORT_WRAPPER, false), MethodInfo.getMethod(Short    .class,   "shortValue"));
+			case INT     -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.    INT_WRAPPER, false), MethodInfo.getMethod(Integer  .class,     "intValue"));
+			case LONG    -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.   LONG_WRAPPER, false), MethodInfo.getMethod(Long     .class,    "longValue"));
+			case FLOAT   -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.  FLOAT_WRAPPER, false), MethodInfo.getMethod(Float    .class,   "floatValue"));
+			case DOUBLE  -> invokeInstance(new DirectCastInsnTree(value, TypeInfos. DOUBLE_WRAPPER, false), MethodInfo.getMethod(Double   .class,  "doubleValue"));
+			case OBJECT  -> new DirectCastInsnTree(value, type, false);
+			case ARRAY   -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to array.");
 		};
 	}
 }

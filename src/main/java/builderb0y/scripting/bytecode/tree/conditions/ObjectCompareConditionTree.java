@@ -37,19 +37,19 @@ public class ObjectCompareConditionTree implements ConditionTree {
 	}
 
 	public static ConditionTree lessThan(ExpressionParser parser, InsnTree left, InsnTree right) {
-		return new ObjectCompareConditionTree(invokeStatic(COMPARE_G, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)), IFLT);
+		return new ObjectCompareConditionTree(invokeStatic(COMPARE_G, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false)), IFLT);
 	}
 
 	public static ConditionTree greaterThan(ExpressionParser parser, InsnTree left, InsnTree right) {
-		return new ObjectCompareConditionTree(invokeStatic(COMPARE_L, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)), IFGT);
+		return new ObjectCompareConditionTree(invokeStatic(COMPARE_L, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false)), IFGT);
 	}
 
 	public static ConditionTree lessThanOrEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
-		return new ObjectCompareConditionTree(invokeStatic(COMPARE_G, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)), IFLE);
+		return new ObjectCompareConditionTree(invokeStatic(COMPARE_G, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false)), IFLE);
 	}
 
 	public static ConditionTree greaterThanOrEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
-		return new ObjectCompareConditionTree(invokeStatic(COMPARE_L, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)), IFGE);
+		return new ObjectCompareConditionTree(invokeStatic(COMPARE_L, left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false), right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false)), IFGE);
 	}
 
 	@Override
@@ -75,12 +75,12 @@ public class ObjectCompareConditionTree implements ConditionTree {
 				return ConstantConditionTree.of(equal);
 			}
 			else {
-				return new NullCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
+				return new NullCompareConditionTree(right.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, false), equal ? IFNULL : IFNONNULL);
 			}
 		}
 		else {
 			if (rightConstant.isConstant() && rightConstant.asJavaObject() == null) {
-				return new NullCompareConditionTree(left.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW), equal ? IFNULL : IFNONNULL);
+				return new NullCompareConditionTree(left.cast(parser, TypeInfos.OBJECT, CastMode.IMPLICIT_THROW, false), equal ? IFNULL : IFNONNULL);
 			}
 			else {
 				if (

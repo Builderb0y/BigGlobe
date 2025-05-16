@@ -47,7 +47,7 @@ public class StandAloneTraits2DGetterInsnTree implements InsnTree {
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (this.setter != null) {
 			if (op == UpdateOp.ASSIGN) {
-				InsnTree cast = rightValue.cast(parser, this.getter.returnType, CastMode.IMPLICIT_THROW);
+				InsnTree cast = rightValue.cast(parser, this.getter.returnType, CastMode.IMPLICIT_THROW, false);
 				return new StandAloneTraits2DSetterInsnTree(CombinedMode.of(order, true), this.column, cast, this.getter, this.setter);
 			}
 			else {

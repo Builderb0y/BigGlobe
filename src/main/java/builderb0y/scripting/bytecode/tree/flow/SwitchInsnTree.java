@@ -46,10 +46,10 @@ public class SwitchInsnTree implements InsnTree {
 		TypeInfo type = computeType(cases);
 		Int2ObjectSortedMap<InsnTree> runtimeCases = new Int2ObjectAVLTreeMap<>();
 		for (Int2ObjectMap.Entry<InsnTree> entry : cases.int2ObjectEntrySet()) {
-			runtimeCases.put(entry.getIntKey(), entry.getValue().cast(parser, type, CastMode.IMPLICIT_THROW));
+			runtimeCases.put(entry.getIntKey(), entry.getValue().cast(parser, type, CastMode.IMPLICIT_THROW, false));
 		}
 		if (cases.defaultReturnValue() != null) {
-			runtimeCases.defaultReturnValue(cases.defaultReturnValue().cast(parser, type, CastMode.IMPLICIT_THROW));
+			runtimeCases.defaultReturnValue(cases.defaultReturnValue().cast(parser, type, CastMode.IMPLICIT_THROW, false));
 		}
 		return new SwitchInsnTree(value, runtimeCases, type);
 	}
@@ -147,8 +147,8 @@ public class SwitchInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		return this.mapCases(branch -> branch.cast(parser, type, mode), type);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		return this.mapCases(branch -> branch.cast(parser, type, mode, nullable), type);
 	}
 
 	@Override

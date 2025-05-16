@@ -56,8 +56,8 @@ public class IfElseInsnTree implements InsnTree {
 				}
 				else {
 					type = TypeMerger.computeMostSpecificType(trueBody.getTypeInfo(), falseBody.getTypeInfo());
-					trueBody = trueBody.cast(parser, type, CastMode.IMPLICIT_THROW);
-					falseBody = falseBody.cast(parser, type, CastMode.IMPLICIT_THROW);
+					trueBody = trueBody.cast(parser, type, CastMode.IMPLICIT_THROW, false);
+					falseBody = falseBody.cast(parser, type, CastMode.IMPLICIT_THROW, false);
 				}
 			}
 			return new Operands(trueBody, falseBody, type);
@@ -103,10 +103,10 @@ public class IfElseInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree trueBody = this.trueBody.cast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree trueBody = this.trueBody.cast(parser, type, mode, nullable);
 		if (trueBody == null) return null;
-		InsnTree falseBody = this.falseBody.cast(parser, type, mode);
+		InsnTree falseBody = this.falseBody.cast(parser, type, mode, nullable);
 		if (falseBody == null) return null;
 		return new IfElseInsnTree(this.condition, trueBody, falseBody, type);
 	}

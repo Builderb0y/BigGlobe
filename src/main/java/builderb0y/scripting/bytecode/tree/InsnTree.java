@@ -41,7 +41,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		return ConstantValue.notConstant();
 	}
 
-	public default InsnTree cast(ExpressionParser parser, TypeInfo type, CastMode mode) {
+	public default InsnTree cast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
 		if (this.getTypeInfo().extendsOrImplements(type)) {
 			return mode.implicit ? this : new IdentityCastInsnTree(this, type);
 		}
@@ -54,11 +54,11 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		if (this.getTypeInfo().isGeneric || type.isGeneric) {
 			mode = mode.toExplicit();
 		}
-		return this.doCast(parser, type, mode);
+		return this.doCast(parser, type, mode, nullable);
 	}
 
-	public default InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree tree = parser.environment.cast(parser, this, type, mode.implicit);
+	public default InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree tree = parser.environment.cast(parser, this, type, mode.implicit, nullable);
 		return tree != null ? tree : mode.handleFailure(this.getTypeInfo(), type);
 	}
 
@@ -149,7 +149,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		}
 
 		public InsnTree createUpdater(ExpressionParser parser, TypeInfo leftType, InsnTree rightValue) throws ScriptParsingException {
-			return this.constructor.construct(parser, getFromStack(leftType), rightValue).cast(parser, leftType, CastMode.IMPLICIT_THROW);
+			return this.constructor.construct(parser, getFromStack(leftType), rightValue).cast(parser, leftType, CastMode.IMPLICIT_THROW, false);
 		}
 
 		@FunctionalInterface

@@ -31,10 +31,10 @@ public class FloatBetweenInsnTree extends BetweenInsnTree {
 		boolean maxInclusive
 	) {
 		return new FloatBetweenInsnTree(
-			value.cast(parser, TypeInfos.FLOAT, CastMode.IMPLICIT_THROW),
-			min.cast(parser, TypeInfos.FLOAT, CastMode.IMPLICIT_THROW),
+			value.cast(parser, TypeInfos.FLOAT, CastMode.IMPLICIT_THROW, false),
+			min.cast(parser, TypeInfos.FLOAT, CastMode.IMPLICIT_THROW, false),
 			minInclusive,
-			max.cast(parser, TypeInfos.FLOAT, CastMode.IMPLICIT_THROW),
+			max.cast(parser, TypeInfos.FLOAT, CastMode.IMPLICIT_THROW, false),
 			maxInclusive
 		);
 	}

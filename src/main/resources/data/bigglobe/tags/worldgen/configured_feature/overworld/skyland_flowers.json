@@ -1,6 +1,10 @@
 {
 	"replace": false,
 	"values": [
+		{
+			"id": "bigglobe:overworld/flowers/bushes",
+			"required": false
+		},
 		"bigglobe:overworld/skyland_flowers/flowers",
 		"bigglobe:overworld/skyland_flowers/mushrooms"
 	]

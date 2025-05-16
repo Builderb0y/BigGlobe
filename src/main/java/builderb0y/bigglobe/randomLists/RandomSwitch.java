@@ -133,6 +133,16 @@ public class RandomSwitch {
 			)
 			.emitBytecode(method);
 		}
+		ifThen(
+			switch (supportedType) {
+				case INT -> IntCompareZeroConditionTree.equalZero(load(totalWeight));
+				case LONG -> LongCompareConditionTree.equal(load(totalWeight), ldc(0L));
+				case FLOAT -> FloatCompareConditionTree.equal(load(totalWeight), ldc(0.0F));
+				case DOUBLE -> DoubleCompareConditionTree.equal(load(totalWeight), ldc(0.0D));
+			},
+			return_(ldc(-1))
+		)
+		.emitBytecode(method);
 		LazyVarInfo selector = method.scopes.addVariable("selector", supportedType.typeInfo);
 		store(
 			selector,

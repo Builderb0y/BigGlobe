@@ -21,9 +21,9 @@ public record IsBetweenSyntax(InsnTree value, InsnTree min, boolean minInclusive
 			default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
 		};
 		parser.environment.user().push();
-		InsnTree min = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW);
+		InsnTree min = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false);
 		parser.input.expectOperatorAfterWhitespace(",");
-		InsnTree max = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW);
+		InsnTree max = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false);
 		boolean maxInclusive = switch (parser.input.readAfterWhitespace()) {
 			case ']' -> true;
 			case ')' -> false;

@@ -26,7 +26,7 @@ public class WhileInsnTree implements InsnTree {
 	}
 
 	public static InsnTree createRepeat(ExpressionParser parser, LoopName loopName, InsnTree times, InsnTree body) {
-		times = times.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+		times = times.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false);
 		LazyVarInfo counter = new LazyVarInfo(parser.method.mangleName("counter"), TypeInfos.INT);
 		InsnTree init, loadLimit;
 		if (times.getConstantValue().isConstant()) {

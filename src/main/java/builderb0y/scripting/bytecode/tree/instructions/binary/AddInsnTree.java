@@ -35,8 +35,8 @@ public class AddInsnTree extends BinaryInsnTree {
 				default     -> throw new AssertionError(type);
 			};
 		}
-		left  = left .cast(parser, type, CastMode.IMPLICIT_THROW);
-		right = right.cast(parser, type, CastMode.IMPLICIT_THROW);
+		left  = left .cast(parser, type, CastMode.IMPLICIT_THROW, false);
+		right = right.cast(parser, type, CastMode.IMPLICIT_THROW, false);
 		return new AddInsnTree(left, right, type.getOpcode(IADD));
 	}
 }

@@ -83,7 +83,7 @@ public class UserClassDefiner {
 		fields.add(field);
 
 		if (this.parser.input.hasOperatorAfterWhitespace("=")) {
-			ConstantValue initializer = this.parser.nextSingleExpression().cast(this.parser, type, CastMode.IMPLICIT_THROW).getConstantValue();
+			ConstantValue initializer = this.parser.nextSingleExpression().cast(this.parser, type, CastMode.IMPLICIT_THROW, false).getConstantValue();
 			if (initializer.isConstant()) {
 				field.initializer = initializer;
 			}
@@ -254,7 +254,7 @@ public class UserClassDefiner {
 				return_(ldc(false))
 			)
 			.emitBytecode(equals);
-			store(that, load(object).cast(this.parser, this.innerClassType, CastMode.EXPLICIT_THROW)).emitBytecode(equals);
+			store(that, load(object).cast(this.parser, this.innerClassType, CastMode.EXPLICIT_THROW, false)).emitBytecode(equals);
 			for (FieldCompileContext field : fields) {
 				ifThen(
 					not(

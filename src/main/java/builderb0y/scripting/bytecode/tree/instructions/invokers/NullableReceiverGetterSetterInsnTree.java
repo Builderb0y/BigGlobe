@@ -20,7 +20,7 @@ public class NullableReceiverGetterSetterInsnTree extends NullableReceiverInvoke
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW, false);
 			return new NullableReceiverObjectUpdaterInsnTree(order, true, ObjectUpdaterEmitters.forGetterSetter(this.args[0], this.method, this.setter, cast));
 		}
 		else {

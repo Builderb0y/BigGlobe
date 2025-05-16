@@ -34,8 +34,8 @@ public record CompareSyntax(InsnTree left, InsnTree right, TypeInfo inputType, I
 		if (!inputType.isNumber() && !inputType.extendsOrImplements(TypeInfos.COMPARABLE)) {
 			throw new ScriptParsingException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo(), parser.input);
 		}
-		left = left.cast(parser, inputType, CastMode.IMPLICIT_THROW);
-		right = right.cast(parser, inputType, CastMode.IMPLICIT_THROW);
+		left = left.cast(parser, inputType, CastMode.IMPLICIT_THROW, false);
+		right = right.cast(parser, inputType, CastMode.IMPLICIT_THROW, false);
 		boolean expectIncomparable = inputType.isFloat() || inputType.isObject();
 		InsnTree greaterThan = null, lessThan = null, equalTo = null, incomparable = null;
 		while (parser.input.hasIdentifierAfterWhitespace("case")) {
@@ -91,10 +91,10 @@ public record CompareSyntax(InsnTree left, InsnTree right, TypeInfo inputType, I
 				? TypeMerger.computeMostSpecificType(greaterThan.getTypeInfo(), lessThan.getTypeInfo(), equalTo.getTypeInfo(), incomparable.getTypeInfo())
 				: TypeMerger.computeMostSpecificType(greaterThan.getTypeInfo(), lessThan.getTypeInfo(), equalTo.getTypeInfo())
 		);
-		greaterThan = greaterThan.cast(parser, outputType, CastMode.IMPLICIT_THROW);
-		lessThan = lessThan.cast(parser, outputType, CastMode.IMPLICIT_THROW);
-		equalTo = equalTo.cast(parser, outputType, CastMode.IMPLICIT_THROW);
-		if (expectIncomparable) incomparable = incomparable.cast(parser, outputType, CastMode.IMPLICIT_THROW);
+		greaterThan = greaterThan.cast(parser, outputType, CastMode.IMPLICIT_THROW, false);
+		lessThan = lessThan.cast(parser, outputType, CastMode.IMPLICIT_THROW, false);
+		equalTo = equalTo.cast(parser, outputType, CastMode.IMPLICIT_THROW, false);
+		if (expectIncomparable) incomparable = incomparable.cast(parser, outputType, CastMode.IMPLICIT_THROW, false);
 		return new CompareSyntax(left, right, inputType, greaterThan, lessThan, equalTo, incomparable, outputType);
 	}
 

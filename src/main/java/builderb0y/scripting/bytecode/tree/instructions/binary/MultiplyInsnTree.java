@@ -35,8 +35,8 @@ public class MultiplyInsnTree extends BinaryInsnTree {
 				default     -> throw new AssertionError(type);
 			};
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW);
-		right = right.cast(parser, type, CastMode.EXPLICIT_THROW);
+		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new MultiplyInsnTree(left, right, type.getOpcode(IMUL));
 	}
 }

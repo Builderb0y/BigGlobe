@@ -374,7 +374,7 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 
 		@Override
 		public InsnTree createReturn(InsnTree value) {
-			return return_(invokeStatic(CHECK_NAN, value.cast(this, TypeInfos.DOUBLE, CastMode.IMPLICIT_THROW)));
+			return return_(invokeStatic(CHECK_NAN, value.cast(this, TypeInfos.DOUBLE, CastMode.IMPLICIT_THROW, false)));
 		}
 
 		public static String coordName(int dimension) {

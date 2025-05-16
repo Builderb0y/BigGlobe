@@ -29,15 +29,20 @@
 
 		"bigglobe:overworld/structure/ancient_city",
 		"bigglobe:overworld/structure/desert_pyramid",
-		"bigglobe:overworld/structure/dungeon",
-		"bigglobe:overworld/structure/igloo",
-		"bigglobe:overworld/structure/mineshaft",
+		"bigglobe:islands/structure/dungeon_mineshaft",
+		"bigglobe:islands/structure/igloo",
 		"bigglobe:overworld/structure/ocean_monument",
 		"bigglobe:overworld/structure/ocean_ruin",
 		"bigglobe:overworld/structure/prismarine_geode",
 		"bigglobe:overworld/structure/small_decorations",
 		"bigglobe:overworld/structure/stronghold",
+		"bigglobe:islands/structure/surface_skyland_exclusion",
+		{
+			"id": "bigglobe:overworld/structure/trial_chambers",
+			"required": false
+		},
 		"bigglobe:overworld/structure/underground",
+		"bigglobe:islands/structure/volcano_chamber_exclusion",
 		"bigglobe:overworld/structure/woodland_mansion",
 
 		"bigglobe:overworld/structure/spillover/bigger_desert_pyramid",

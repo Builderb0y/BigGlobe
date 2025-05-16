@@ -34,7 +34,7 @@ public abstract class AbstractInstanceGetFieldInsnTree implements InsnTree {
 			throw new ScriptParsingException("Can't write to final field: " + this.field, parser.input);
 		}
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.field.type, CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.field.type, CastMode.IMPLICIT_THROW, false);
 			return this.constructUpdater(order, true, ObjectUpdaterEmitters.forField(this.object, this.field, cast));
 		}
 		else {

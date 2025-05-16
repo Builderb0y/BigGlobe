@@ -70,10 +70,10 @@ public class ElvisInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree value = this.value.cast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree value = this.value.cast(parser, type, mode, nullable);
 		if (value == null) return null;
-		InsnTree alternative = this.alternative.cast(parser, type, mode);
+		InsnTree alternative = this.alternative.cast(parser, type, mode, nullable);
 		if (alternative == null) return null;
 		return new ElvisInsnTree(value, alternative, type);
 	}

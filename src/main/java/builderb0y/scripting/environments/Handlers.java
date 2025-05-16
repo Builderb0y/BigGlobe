@@ -431,7 +431,7 @@ public class Handlers {
 		@Override
 		public @Nullable CastResult getFrom(ExpressionParser parser, InsnTree receiver, InsnTree[] providedArgs) {
 			InsnTree argument = providedArgs[this.requiredIndex];
-			InsnTree castArgument = argument.cast(parser, this.type, CastMode.IMPLICIT_NULL);
+			InsnTree castArgument = argument.cast(parser, this.type, CastMode.IMPLICIT_NULL, false);
 			if (castArgument == null) return null;
 			return new CastResult(castArgument, castArgument != argument);
 		}
@@ -525,7 +525,7 @@ public class Handlers {
 
 		@Override
 		public @Nullable CastResult getFrom(ExpressionParser parser, InsnTree receiver, InsnTree[] providedArgs) {
-			InsnTree castReceiver = receiver.cast(parser, this.type, CastMode.IMPLICIT_NULL);
+			InsnTree castReceiver = receiver.cast(parser, this.type, CastMode.IMPLICIT_NULL, false);
 			if (castReceiver == null) return null;
 			return new CastResult(castReceiver, castReceiver != receiver);
 		}

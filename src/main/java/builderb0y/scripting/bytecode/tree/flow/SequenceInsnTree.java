@@ -101,9 +101,9 @@ public class SequenceInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
 		InsnTree oldLast = this.statements[this.statements.length - 1];
-		InsnTree newLast = oldLast.cast(parser, type, mode);
+		InsnTree newLast = oldLast.cast(parser, type, mode, nullable);
 		if (newLast == null) return null;
 		if (newLast == oldLast) return this;
 		InsnTree[] newStatements = this.statements.clone();

@@ -143,18 +143,18 @@ public class BuiltinScriptEnvironment {
 			case "while" -> {
 				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 				ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
-				yield doWhile(parser, loopName, whileStatement.condition(), whileStatement.body());
+				yield doWhile(loopName, whileStatement.condition(), whileStatement.body());
 			}
 			case "until" -> {
 				LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 				ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
-				yield doWhile(parser, loopName, not(whileStatement.condition()), whileStatement.body());
+				yield doWhile(loopName, not(whileStatement.condition()), whileStatement.body());
 			}
 			default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
 		}))
 		.addKeyword("repeat", new KeywordHandler.Named("repeat (times: body)", (ExpressionParser parser, String name) -> {
 			LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
-			ScriptBodySyntax repeatStatement = ScriptBodySyntax.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+			ScriptBodySyntax repeatStatement = ScriptBodySyntax.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW, false));
 			return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
 		}))
 		.addKeyword("for", new KeywordHandler.Named("for (loop: body)", (ExpressionParser parser, String name) -> {
@@ -207,7 +207,8 @@ public class BuiltinScriptEnvironment {
 			return not(parser, instanceOf(receiver, type));
 		}))
 		.addMemberKeyword(null, "as", new MemberKeywordHandler.Named("value.as(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW);
+			boolean nullable = parser.input.hasOperatorAfterWhitespace("?");
+			return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW, nullable);
 		}))
 		.addMemberKeyword(TypeInfos.BYTE,   "isBetween", makeBetween())
 		.addMemberKeyword(TypeInfos.SHORT,  "isBetween", makeBetween())
@@ -380,7 +381,7 @@ public class BuiltinScriptEnvironment {
 				return new CastResult(
 					switch (arguments[0].getTypeInfo().getSort()) {
 						case VOID          -> throw new ScriptParsingException("Attempt to print void", parser.input);
-						case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW));
+						case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false));
 						case INT           -> invokeInstance(loadOut, PRINTLN_INT,     arguments);
 						case LONG          -> invokeInstance(loadOut, PRINTLN_LONG,    arguments);
 						case FLOAT         -> invokeInstance(loadOut, PRINTLN_FLOAT,   arguments);

@@ -42,7 +42,8 @@ public class BlockStateWrapper {
 		DEFAULT_CONSTANT_FACTORY = new ConstantFactory(BlockStateWrapper.class, "getDefaultState", String.class, BlockState.class);
 	public static final MethodInfo
 		GET_PROPERTY = MethodInfo.getMethod(BlockStateWrapper.class, "getProperty"),
-		WITH = MethodInfo.getMethod(BlockStateWrapper.class, "with");
+		WITH = MethodInfo.getMethod(BlockStateWrapper.class, "with"),
+		WITH_NULLABLE = MethodInfo.getMethod(BlockStateWrapper.class, "withNullable");
 	public static final TagParser
 		TAG_PARSER = new TagParser("BlockTag", BlockTag.class, "BlockState", MethodInfo.inCaller("isIn"));
 
@@ -159,6 +160,10 @@ public class BlockStateWrapper {
 			value = e.asString();
 		}
 		return (C)(value);
+	}
+
+	public static BlockState withNullable(BlockState state, String name, Comparable<?> value) {
+		return state == null ? null : with(state, name, value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

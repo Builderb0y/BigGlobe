@@ -40,7 +40,7 @@ public class GetStaticInsnTree implements InsnTree {
 			throw new ScriptParsingException("Can't modify final field: " + this.field, parser.input);
 		}
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.getTypeInfo(), CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.getTypeInfo(), CastMode.IMPLICIT_THROW, false);
 			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forField(this.field, cast));
 		}
 		else {

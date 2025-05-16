@@ -32,5 +32,5 @@ public abstract class CompareInsnTree implements InsnTree {
 	}
 
 	@Override
-	public abstract InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode);
+	public abstract InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable);
 }

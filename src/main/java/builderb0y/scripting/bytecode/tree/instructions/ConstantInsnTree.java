@@ -36,7 +36,7 @@ public class ConstantInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
 		if (this.value.isConstant() && this.value.asJavaObject() == null && type.isObject()) {
 			return ldc(null, type);
 		}
@@ -66,6 +66,6 @@ public class ConstantInsnTree implements InsnTree {
 				default      -> throw new AssertionError(type);
 			};
 		}
-		return InsnTree.super.doCast(parser, type, mode);
+		return InsnTree.super.doCast(parser, type, mode, nullable);
 	}
 }

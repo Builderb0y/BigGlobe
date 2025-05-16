@@ -60,10 +60,10 @@ public class ConditionToBooleanInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree ifTrue = this.ifTrue.cast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree ifTrue = this.ifTrue.cast(parser, type, mode, nullable);
 		if (ifTrue == null) return null;
-		InsnTree ifFalse = this.ifFalse.cast(parser, type, mode);
+		InsnTree ifFalse = this.ifFalse.cast(parser, type, mode, nullable);
 		if (ifFalse == null) return null;
 		return new ConditionToBooleanInsnTree(this.condition, ifTrue, ifFalse);
 	}

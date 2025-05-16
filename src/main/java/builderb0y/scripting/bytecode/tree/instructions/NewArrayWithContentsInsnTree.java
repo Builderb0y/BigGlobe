@@ -29,7 +29,7 @@ public class NewArrayWithContentsInsnTree implements InsnTree {
 		TypeInfo componentType = arrayType.componentType;
 		for (int index = 0, length = elements.length; index < length; index++) {
 			InsnTree old = elements[index];
-			InsnTree cast = old.cast(parser, componentType, CastMode.IMPLICIT_THROW);
+			InsnTree cast = old.cast(parser, componentType, CastMode.IMPLICIT_THROW, false);
 			if (old != cast) {
 				if (castElements == elements) castElements = castElements.clone();
 				castElements[index] = cast;

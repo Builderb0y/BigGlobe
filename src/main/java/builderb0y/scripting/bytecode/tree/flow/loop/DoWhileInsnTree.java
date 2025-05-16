@@ -6,7 +6,6 @@ import builderb0y.scripting.bytecode.ScopeContext.Scope;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 
 public class DoWhileInsnTree implements InsnTree {
@@ -15,13 +14,13 @@ public class DoWhileInsnTree implements InsnTree {
 	public ConditionTree condition;
 	public InsnTree body;
 
-	public DoWhileInsnTree(ExpressionParser parser, LoopName loopName, ConditionTree condition, InsnTree body) {
+	public DoWhileInsnTree(LoopName loopName, ConditionTree condition, InsnTree body) {
 		this.loopName = loopName;
 		this.condition = condition;
 		if (!body.canBeStatement()) {
 			throw new IllegalArgumentException("Body is not a statement");
 		}
-		this.body = body.cast(parser, TypeInfos.VOID, CastMode.EXPLICIT_THROW);
+		this.body = body.asStatement();
 	}
 
 	@Override

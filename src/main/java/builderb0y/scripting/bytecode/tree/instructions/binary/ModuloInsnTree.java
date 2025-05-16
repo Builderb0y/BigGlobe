@@ -39,8 +39,8 @@ public class ModuloInsnTree extends BinaryInsnTree {
 				default     -> throw new AssertionError(type);
 			};
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW);
-		right = right.cast(parser, type, CastMode.EXPLICIT_THROW);
+		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new ModuloInsnTree(left, right, type.getOpcode(IREM));
 	}
 

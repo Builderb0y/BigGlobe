@@ -44,8 +44,8 @@ public class SignedLeftShiftInsnTree extends BinaryInsnTree {
 				default     -> throw new AssertionError(type);
 			};
 		}
-		left = left.cast(parser, type, CastMode.IMPLICIT_THROW);
-		right = right.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+		left = left.cast(parser, type, CastMode.IMPLICIT_THROW, false);
+		right = right.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false);
 		return new SignedLeftShiftInsnTree(left, right, switch (type.getSort()) {
 			case INT -> ISHL;
 			case LONG -> LSHL;

@@ -104,7 +104,7 @@ public class EvaluateCommand {
 						@Override
 						public InsnTree createReturn(InsnTree value) {
 							if (value.getTypeInfo().isVoid()) return return_(seq(value, ldc(null, TypeInfos.OBJECT)));
-							else return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW));
+							else return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW, false));
 						}
 					}
 					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))

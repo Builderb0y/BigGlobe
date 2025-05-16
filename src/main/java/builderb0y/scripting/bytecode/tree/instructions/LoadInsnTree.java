@@ -27,7 +27,7 @@ public class LoadInsnTree implements InsnTree {
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.variable.type, CastMode.IMPLICIT_THROW, false);
 			return new VariableUpdaterInsnTree(order, true, VariableUpdaterEmitters.forLazyVariable(this.variable, cast));
 		}
 		if ((op == UpdateOp.ADD || op == UpdateOp.SUBTRACT) && this.getTypeInfo().getSort() == Sort.INT) {

@@ -94,10 +94,10 @@ public class MultiScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
 		List<ScriptEnvironment> environments = this.environments;
 		for (int index = 0, size = environments.size(); index < size; index++) {
-			InsnTree result = environments.get(index).cast(parser, value, to, implicit);
+			InsnTree result = environments.get(index).cast(parser, value, to, implicit, nullable);
 			if (result != null) return result;
 		}
 		return null;

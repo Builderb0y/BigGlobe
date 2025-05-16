@@ -50,7 +50,7 @@ public class StandAloneTraits3DGetterInsnTree implements InsnTree {
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (this.setter != null) {
 			if (op == UpdateOp.ASSIGN) {
-				InsnTree cast = rightValue.cast(parser, this.getter.returnType, CastMode.IMPLICIT_THROW);
+				InsnTree cast = rightValue.cast(parser, this.getter.returnType, CastMode.IMPLICIT_THROW, false);
 				return new StandAloneTraits3DSetterInsnTree(CombinedMode.of(order, true), this.column, this.y, cast, this.getter, this.setter);
 			}
 			else {

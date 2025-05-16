@@ -28,7 +28,7 @@ public class NullableListMapGetterInsnTree extends NullableInvokeInsnTree {
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW, false);
 			return new NullableListMapUpdaterInsnTree(order, true, this.args[0], this.args[1], cast, this.replacer);
 		}
 		else {

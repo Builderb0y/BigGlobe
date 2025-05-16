@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:flower",
 	"config": {
-		"seed": "bushes",
+		"seed": "berry_bushes",
 		"distance": 64,
 		"variation": 64,
 		"spawn_chance": 0.125,

@@ -88,7 +88,8 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 						load(self),
 						VoronoiDataBase.INFO.get_center_base
 					),
-					getCenterColumn.info.returnType
+					getCenterColumn.info.returnType,
+					false
 				)
 			)
 			.emitBytecode(getCenterColumn);

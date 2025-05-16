@@ -129,10 +129,10 @@ public class ForLoopSyntax {
 			};
 			parser.environment.user().push();
 			InsnTree lowerBound = parser.nextScript();
-			lowerBound = lowerBound.cast(parser, TypeInfos.widenToInt(lowerBound.getTypeInfo()), CastMode.IMPLICIT_THROW);
+			lowerBound = lowerBound.cast(parser, TypeInfos.widenToInt(lowerBound.getTypeInfo()), CastMode.IMPLICIT_THROW, false);
 			parser.input.expectOperatorAfterWhitespace(",");
 			InsnTree upperBound = parser.nextScript();
-			upperBound = upperBound.cast(parser, TypeInfos.widenToInt(upperBound.getTypeInfo()), CastMode.IMPLICIT_THROW);
+			upperBound = upperBound.cast(parser, TypeInfos.widenToInt(upperBound.getTypeInfo()), CastMode.IMPLICIT_THROW, false);
 			if (upperBound.getTypeInfo().getSort() != lowerBound.getTypeInfo().getSort()) {
 				throw new ScriptParsingException("Range bounds must have the same type", parser.input);
 			}
@@ -145,7 +145,7 @@ public class ForLoopSyntax {
 			InsnTree step;
 			if (parser.input.hasOperatorAfterWhitespace("%")) {
 				step = parser.nextExponent();
-				step = step.cast(parser, TypeInfos.widenToInt(step.getTypeInfo()), CastMode.IMPLICIT_THROW);
+				step = step.cast(parser, TypeInfos.widenToInt(step.getTypeInfo()), CastMode.IMPLICIT_THROW, false);
 				if (step.getTypeInfo().getSort() != lowerBound.getTypeInfo().getSort()) {
 					throw new ScriptParsingException("Step type must match bound types", parser.input);
 				}

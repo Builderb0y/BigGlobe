@@ -29,7 +29,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
 		TypeInfo from = value.getTypeInfo();
 		if (to.isObject()) {
 			if (from.isObject()) {
@@ -44,7 +44,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 					return wrapIdentityCast(value, to);
 				}
 				if (!implicit && (to.extendsOrImplements(from) || (to.type.isInterface && !from.isFinal))) {
-					return new DirectCastInsnTree(value, to);
+					return new DirectCastInsnTree(value, to, nullable);
 				}
 			}
 			else {
@@ -65,7 +65,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				//is IntNbt, for example.
 				TypeInfo boxed = from.box();
 				if (boxed.extendsOrImplements(to)) {
-					InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(parser, value, boxed, false);
+					InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(parser, value, boxed, false, nullable);
 					if (casted != null) return casted;
 					else throw new ClassCastException("Can't primitively cast " + value.describe() + " to " + boxed);
 				}
@@ -87,10 +87,10 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				case VOID, OBJECT, ARRAY -> null;
 			};
 			if (castTo != null && castTo.extendsOrImplements(from)) {
-				value = new DirectCastInsnTree(value, castTo);
+				value = new DirectCastInsnTree(value, castTo, nullable);
 			}
 		}
-		return super.cast(parser, value, to, implicit);
+		return super.cast(parser, value, to, implicit, nullable);
 	}
 
 	public UserScriptEnvironment user() {

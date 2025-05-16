@@ -158,7 +158,11 @@ public class MinecraftScriptEnvironment {
 
 	public static KeywordHandler.Named blockStateKeyword() {
 		return new KeywordHandler.Named("BlockState(block, property1: value1, property2: value2, ...)", (ExpressionParser parser, String name) -> {
-			if (parser.input.peekAfterWhitespace() != '(') return null;
+			boolean nullable = parser.input.hasOperatorAfterWhitespace("?");
+			if (parser.input.peekAfterWhitespace() != '(') {
+				if (nullable) throw new ScriptParsingException("'BlockState?' must be followed by parentheses for nullable cast. If a nullable cast was not intended, remove the question mark.", parser.input);
+				return null;
+			}
 			parser.beginCodeBlock();
 			InsnTree state = parser.nextScript();
 			if (parser.input.hasOperatorAfterWhitespace(",")) {
@@ -173,7 +177,7 @@ public class MinecraftScriptEnvironment {
 						Set<String> properties = block.getStateManager().getProperties().stream().map(Property::getName).collect(Collectors.toSet());
 						List<ConstantValue> constantProperties = new ArrayList<>(16);
 						constantProperties.add(constantBlock);
-						constantProperties.add(constant(AbstractConstantFactory.flags(parser)));
+						constantProperties.add(constant(AbstractConstantFactory.flags(parser, nullable)));
 						record NonConstantProperty(String name, InsnTree value) {}
 						List<NonConstantProperty> nonConstantProperties = new ArrayList<>(8);
 						do {
@@ -191,7 +195,7 @@ public class MinecraftScriptEnvironment {
 							}
 							else {
 								//BlockState('a', b: c)
-								nonConstantProperties.add(new NonConstantProperty(property, value.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW)));
+								nonConstantProperties.add(new NonConstantProperty(property, value.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false)));
 							}
 						}
 						while (parser.input.hasOperatorAfterWhitespace(","));
@@ -200,10 +204,10 @@ public class MinecraftScriptEnvironment {
 							state = ldc(BOOTSTRAP_CONSTANT_STATE, constantProperties.toArray(ConstantValue.ARRAY_FACTORY));
 						}
 						else {
-							state = BlockStateWrapper.DEFAULT_CONSTANT_FACTORY.create(parser, state, true).tree();
+							state = BlockStateWrapper.DEFAULT_CONSTANT_FACTORY.create(parser, state, true, nullable).tree();
 						}
 						for (NonConstantProperty nonConstantProperty : nonConstantProperties) {
-							state = invokeStatic(BlockStateWrapper.WITH, state, ldc(nonConstantProperty.name), nonConstantProperty.value);
+							state = invokeStatic(nullable ? BlockStateWrapper.WITH_NULLABLE : BlockStateWrapper.WITH, state, ldc(nonConstantProperty.name), nonConstantProperty.value);
 						}
 					}
 					else {
@@ -213,8 +217,8 @@ public class MinecraftScriptEnvironment {
 				else {
 					//BlockState(name, b: c)
 					state = invokeStatic(
-						BlockWrapper.GET_DEFAULT_STATE,
-						BlockWrapper.CONSTANT_FACTORY.create(parser, state, false).tree()
+						nullable ? BlockWrapper.GET_DEFAULT_STATE_NULLABLE : BlockWrapper.GET_DEFAULT_STATE,
+						BlockWrapper.CONSTANT_FACTORY.create(parser, state, false, nullable).tree()
 					);
 					Set<String> properties = new HashSet<>(8);
 					do {
@@ -223,15 +227,15 @@ public class MinecraftScriptEnvironment {
 							throw new ScriptParsingException("Duplicate property: " + property, parser.input);
 						}
 						parser.input.expectOperatorAfterWhitespace(":");
-						InsnTree value = parser.nextScript().cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW);
-						state = invokeStatic(BlockStateWrapper.WITH, state, ldc(property), value);
+						InsnTree value = parser.nextScript().cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_THROW, false);
+						state = invokeStatic(nullable ? BlockStateWrapper.WITH_NULLABLE : BlockStateWrapper.WITH, state, ldc(property), value);
 					}
 					while (parser.input.hasOperatorAfterWhitespace(","));
 				}
 			}
 			else {
 				//BlockState('a[b=c]')
-				state = BlockStateWrapper.CONSTANT_FACTORY.create(parser, state, false).tree();
+				state = BlockStateWrapper.CONSTANT_FACTORY.create(parser, state, false, nullable).tree();
 			}
 			parser.endCodeBlock();
 			return state;

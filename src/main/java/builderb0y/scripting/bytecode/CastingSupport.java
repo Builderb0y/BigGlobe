@@ -37,8 +37,8 @@ public class CastingSupport {
 		D2I = data(TypeInfos.DOUBLE, TypeInfos.INT,     false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorInt", int.class, double.class))),
 		D2L = data(TypeInfos.DOUBLE, TypeInfos.LONG,    false, invokeStatic(MethodInfo.findMethod(CastingSupport.class, "floorLong", long.class, double.class))),
 		D2F = data(TypeInfos.DOUBLE, TypeInfos.FLOAT,   false, opcode(Opcodes.D2F)),
-		F2Z = data(TypeInfos.FLOAT,  TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new F2ZInsnTree(value)),
-		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, (parser, value, to, implicit) -> new D2ZInsnTree(value));
+		F2Z = data(TypeInfos.FLOAT,  TypeInfos.BOOLEAN, false, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) -> new F2ZInsnTree(value)),
+		D2Z = data(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) -> new D2ZInsnTree(value));
 	public static final FieldInfo
 		TRUE_FIELD  = FieldInfo.getField(Boolean.class, "TRUE" ),
 		FALSE_FIELD = FieldInfo.getField(Boolean.class, "FALSE");
@@ -75,23 +75,23 @@ public class CastingSupport {
 			return value;
 		}
 		//passing in a null parser is NOT recommended, but in this case it is safe.
-		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(HelperParserHolder.PRIMITIVE_CAST_HELPER, value, type, false);
+		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(HelperParserHolder.PRIMITIVE_CAST_HELPER, value, type, false, false);
 		if (casted != null) return casted;
 		else throw new IllegalArgumentException("Can't primitively cast " + value.describe() + " to " + type);
 	}
 
 	public static CastHandler opcode(int opcode) {
-		return (parser, value, to, implicit) -> new OpcodeCastInsnTree(value, opcode, to);
+		return (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) -> new OpcodeCastInsnTree(value, opcode, to);
 	}
 
 	public static CastHandler invokeVirtual(MethodInfo method) {
 		if (method.isStatic()) throw new IllegalArgumentException("Static method: " + method);
-		return (parser, value, to, implicit) -> InsnTrees.invokeInstance(value, method);
+		return (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) -> InsnTrees.invokeInstance(value, method);
 	}
 
 	public static CastHandler invokeStatic(MethodInfo method) {
 		if (!method.isStatic()) throw new IllegalArgumentException("Non-static method: " + method);
-		return (parser, value, to, implicit) -> InsnTrees.invokeStatic(method, value);
+		return (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) -> InsnTrees.invokeStatic(method, value);
 	}
 
 	public static CastHandler invoke(Class<?> in, String name) {

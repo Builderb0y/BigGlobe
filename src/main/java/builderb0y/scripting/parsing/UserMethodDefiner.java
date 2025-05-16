@@ -262,7 +262,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 					z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
 					z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
 				)
-				.cast(this.parser, this.newMethod.returnType, CastMode.IMPLICIT_THROW)
+				.cast(this.parser, this.newMethod.returnType, CastMode.IMPLICIT_THROW, false)
 			);
 		}
 

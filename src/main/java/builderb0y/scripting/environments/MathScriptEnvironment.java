@@ -91,10 +91,7 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 			return new CastResult(
 				new ReduceInsnTree(
 					new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(type.isFloat() ? MathScriptEnvironment.class : Math.class), name, type, type, type),
-					Arrays.stream(arguments).map(argument -> {
-						return argument.cast(parser, type, CastMode.IMPLICIT_THROW);
-					})
-					.toArray(InsnTree[]::new)
+					ScriptEnvironment.castArgumentsSameType(parser, name, type, CastMode.IMPLICIT_THROW, arguments)
 				),
 				false
 			);

@@ -999,15 +999,15 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addCastOpcode(TypeInfo from, TypeInfo to, boolean implicit, int opcode) {
-		return this.addCast(from, to, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to_, boolean implicit_) -> new OpcodeCastInsnTree(value, opcode, to_));
+		return this.addCast(from, to, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to_, boolean implicit_, boolean nullable) -> new OpcodeCastInsnTree(value, opcode, to_));
 	}
 
 	public MutableScriptEnvironment addCastIdentity(TypeInfo from, TypeInfo to, boolean implicit) {
-		return this.addCast(from, to, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to_, boolean implicit_) -> new IdentityCastInsnTree(value, to_));
+		return this.addCast(from, to, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to_, boolean implicit_, boolean nullable) -> new IdentityCastInsnTree(value, to_));
 	}
 
 	public MutableScriptEnvironment addCastConstant(AbstractConstantFactory factory, boolean implicit) {
-		return this.addCast(factory.inType, factory.outType, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit_) -> factory.create(parser, value, implicit_).tree);
+		return this.addCast(factory.inType, factory.outType, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit_, boolean nullable) -> factory.create(parser, value, implicit_, nullable).tree);
 	}
 
 	//////////////////////////////// getters ////////////////////////////////
@@ -1187,11 +1187,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	@Override
-	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+	public @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
 		for (TypeInfo from : value.getTypeInfo().getAllAssignableTypes()) {
 			for (Map.Entry<TypeInfo, CastHandlerHolder> entry : this.casters.getOrDefault(from, Collections.emptyMap()).entrySet()) {
 				if ((!implicit || entry.getValue().implicit) && entry.getKey().extendsOrImplements(to)) {
-					return entry.getValue().cast(parser, value, to, implicit);
+					return entry.getValue().cast(parser, value, to, implicit, nullable);
 				}
 			}
 		}
@@ -1319,13 +1319,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@FunctionalInterface
 	public static interface CastHandler {
 
-		public abstract InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit);
+		public abstract InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable);
 
 		public static record Named(String name, CastHandler handler) implements CastHandler {
 
 			@Override
-			public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
-				return this.handler.cast(parser, value, to, implicit);
+			public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
+				return this.handler.cast(parser, value, to, implicit, nullable);
 			}
 
 			@Override
@@ -1378,8 +1378,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
-			return this.caster.cast(parser, value, to, implicit);
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
+			return this.caster.cast(parser, value, to, implicit, nullable);
 		}
 
 		@Override
@@ -1421,14 +1421,14 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
 			if (!value.getTypeInfo().equals(this.from)) {
 				throw new IllegalArgumentException(this + " attempting to cast value of type " + value.getTypeInfo());
 			}
 			if (!to.equals(this.to)) {
 				throw new IllegalArgumentException(this + " attempting to cast value to type " + to);
 			}
-			value = this.caster.cast(parser, value, to, implicit);
+			value = this.caster.cast(parser, value, to, implicit, nullable);
 			if (!value.getTypeInfo().equals(this.to)) {
 				throw new IllegalArgumentException(this + " cast value to incorrect type " + value.getTypeInfo());
 			}
@@ -1470,9 +1470,9 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) {
+		public InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
 			for (CastHandlerData caster : this.casters) {
-				value = caster.cast(parser, value, caster.to, implicit);
+				value = caster.cast(parser, value, caster.to, implicit, nullable);
 			}
 			return value;
 		}

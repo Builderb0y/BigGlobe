@@ -53,11 +53,11 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 	public CastHandler.Named makeCaster() {
 		return new CastHandler.Named(
 			"String -> " + this.tagTypeName,
-			(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit) -> {
+			(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) -> {
 				if (value.getConstantValue().isConstant()) {
 					return ldc(
 						this.bootstrapConstant,
-						constant(AbstractConstantFactory.flags(parser)),
+						constant(AbstractConstantFactory.flags(parser, nullable)),
 						value.getConstantValue()
 					);
 				}
@@ -67,7 +67,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 					}
 					return invokeStatic(
 						this.nonConstant,
-						ldc(AbstractConstantFactory.flags(parser)),
+						ldc(AbstractConstantFactory.flags(parser, nullable)),
 						newArrayWithContents(parser, type(String[].class), value)
 					);
 				}
@@ -79,18 +79,22 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 		return new KeywordHandler.Named(
 			this.tagTypeName + "(element1 [, element2, ...])",
 			(ExpressionParser parser, String name) -> {
-				if (parser.input.peekAfterWhitespace() != '(') return null;
+				boolean nullable = parser.input.hasOperatorAfterWhitespace("?");
+				if (parser.input.peekAfterWhitespace() != '(') {
+					if (nullable) throw new ScriptParsingException('\'' + name + "?' must be followed by parentheses for nullable cast. If a nullable cast was not intended, remove the question mark.", parser.input);
+					return null;
+				}
 				CommaSeparatedExpressions expressions = CommaSeparatedExpressions.parse(parser);
 				return switch (expressions.arguments().length) {
 					case 0 -> throw new ScriptParsingException("At least one element is required", parser.input);
-					case 1 -> expressions.maybeWrap(expressions.arguments()[0].cast(parser, this.tagType, CastMode.EXPLICIT_THROW));
+					case 1 -> expressions.maybeWrap(expressions.arguments()[0].cast(parser, this.tagType, CastMode.EXPLICIT_THROW, nullable));
 					default -> {
-						InsnTree[] strings = Arrays.stream(expressions.arguments()).map((InsnTree tree) -> tree.cast(parser, TypeInfos.STRING, CastMode.IMPLICIT_THROW)).toArray(InsnTree[]::new);
+						InsnTree[] strings = Arrays.stream(expressions.arguments()).map((InsnTree tree) -> tree.cast(parser, TypeInfos.STRING, CastMode.IMPLICIT_THROW, false)).toArray(InsnTree[]::new);
 						if (Arrays.stream(strings).map(InsnTree::getConstantValue).allMatch(ConstantValue::isConstantOrDynamic)) {
 							yield ldc(
 								this.bootstrapConstant,
 								Stream.concat(
-									Stream.of(constant(AbstractConstantFactory.flags(parser))),
+									Stream.of(constant(AbstractConstantFactory.flags(parser, nullable))),
 									Arrays.stream(strings).map(InsnTree::getConstantValue)
 								)
 								.toArray(ConstantValue[]::new)
@@ -99,7 +103,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 						else {
 							yield invokeStatic(
 								this.nonConstant,
-								ldc(AbstractConstantFactory.flags(parser)),
+								ldc(AbstractConstantFactory.flags(parser, nullable)),
 								newArrayWithContents(parser, type(String[].class), strings)
 							);
 						}
@@ -125,7 +129,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 				switch (arguments.length) {
 					case 0 -> throw new ScriptParsingException("At least one argument is required", parser.input);
 					case 1 -> {
-						tagArgument = arguments[0].cast(parser, this.tagType, CastMode.EXPLICIT_THROW);
+						tagArgument = arguments[0].cast(parser, this.tagType, CastMode.EXPLICIT_THROW, false);
 						needsCasting = tagArgument != arguments[0];
 					}
 					default -> {
@@ -135,7 +139,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 							tagArgument = ldc(
 								this.bootstrapConstant,
 								Stream.concat(
-									Stream.of(constant(AbstractConstantFactory.flags(parser))),
+									Stream.of(constant(AbstractConstantFactory.flags(parser, false))),
 									Arrays.stream(strings).map(InsnTree::getConstantValue)
 								)
 								.toArray(ConstantValue[]::new)
@@ -144,7 +148,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 						else {
 							tagArgument = invokeStatic(
 								this.nonConstant,
-								ldc(AbstractConstantFactory.flags(parser)),
+								ldc(AbstractConstantFactory.flags(parser, false)),
 								newArrayWithContents(parser, type(String[].class), strings)
 							);
 						}

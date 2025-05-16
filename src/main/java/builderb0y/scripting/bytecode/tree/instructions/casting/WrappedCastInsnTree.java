@@ -46,7 +46,7 @@ public class WrappedCastInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		return this.compileValue.cast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		return this.compileValue.cast(parser, type, mode, nullable);
 	}
 }

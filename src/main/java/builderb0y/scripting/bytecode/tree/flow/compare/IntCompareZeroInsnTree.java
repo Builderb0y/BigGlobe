@@ -71,12 +71,12 @@ public class IntCompareZeroInsnTree extends IntLikeCompareInsnTree {
 	}
 
 	@Override
-	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		InsnTree lessThan = this.lessThan.cast(parser, type, mode);
+	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+		InsnTree lessThan = this.lessThan.cast(parser, type, mode, nullable);
 		if (lessThan == null) return null;
-		InsnTree equalTo = this.equalTo.cast(parser, type, mode);
+		InsnTree equalTo = this.equalTo.cast(parser, type, mode, nullable);
 		if (equalTo == null) return null;
-		InsnTree greaterThan = this.greaterThan.cast(parser, type, mode);
+		InsnTree greaterThan = this.greaterThan.cast(parser, type, mode, nullable);
 		if (greaterThan == null) return null;
 		return new IntCompareZeroInsnTree(this.left, lessThan, equalTo, greaterThan, type);
 	}

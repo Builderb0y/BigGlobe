@@ -17,9 +17,10 @@ public abstract class AbstractConstantFactory implements FunctionHandler {
 		CLIENT   = 1 << 0,
 		NULLABLE = 1 << 1;
 
-	public static int flags(ExpressionParser parser) {
+	public static int flags(ExpressionParser parser, boolean nullable) {
 		int flags = 0;
 		if ((parser.flags & ExpressionParser.CLIENT) != 0) flags |= CLIENT;
+		if (nullable) flags |= NULLABLE;
 		return flags;
 	}
 
@@ -33,17 +34,17 @@ public abstract class AbstractConstantFactory implements FunctionHandler {
 	@Override
 	public @Nullable CastResult create(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		if (arguments.length != 1) return null;
-		return this.create(parser, arguments[0], false);
+		return this.create(parser, arguments[0], false, false);
 	}
 
-	public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit) {
+	public CastResult create(ExpressionParser parser, InsnTree argument, boolean implicit, boolean nullable) {
 		if (argument.getTypeInfo().equals(this.inType)) {
 			if (argument.getConstantValue().isConstant()) {
-				return new CastResult(this.createConstant(argument.getConstantValue(), flags(parser)), true);
+				return new CastResult(this.createConstant(argument.getConstantValue(), flags(parser, nullable)), true);
 			}
 			else {
 				if (implicit) ScriptLogger.LOGGER.warn(ScriptParsingException.appendContext("Non-constant " + this.inType.getClassName() + " input for implicit cast to " + this.outType.getClassName() + ". This will be worse on performance. Use an explicit cast to suppress this warning.", parser.input));
-				return new CastResult(this.createNonConstant(argument, flags(parser)), true);
+				return new CastResult(this.createNonConstant(argument, flags(parser, nullable)), true);
 			}
 		}
 		else if (argument.getTypeInfo().equals(this.outType)) {

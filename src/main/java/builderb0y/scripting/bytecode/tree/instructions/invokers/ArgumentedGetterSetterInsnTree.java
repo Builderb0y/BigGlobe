@@ -52,7 +52,7 @@ public class ArgumentedGetterSetterInsnTree extends NormalInvokeInsnTree {
 	@Override
 	public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
 		if (op == UpdateOp.ASSIGN) {
-			InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW);
+			InsnTree cast = rightValue.cast(parser, this.method.returnType, CastMode.IMPLICIT_THROW, false);
 			return new ArgumentedObjectUpdateInsnTree(order, true, ArgumentedObjectUpdateEmitters.forGetterSetter(this.args[0], this.argument, this.method, this.setter, cast));
 		}
 		else {

@@ -268,7 +268,7 @@ public class GridScriptEnvironment {
 		}
 
 		@Override
-		public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode) {
+		public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
 			if (type.isNumber() || type.getSort() == Sort.BOOLEAN) {
 				return new NumberArrayGetterInsnTree(this.loadArray, this.loadIndex, type);
 			}

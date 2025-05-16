@@ -309,10 +309,10 @@ public class RandomScriptEnvironment {
 	}
 
 	public static CastResult createSeed(ExpressionParser parser, InsnTree... arguments) {
-		InsnTree seed = arguments[0].cast(parser, TypeInfos.LONG, CastMode.IMPLICIT_THROW);
+		InsnTree seed = arguments[0].cast(parser, TypeInfos.LONG, CastMode.IMPLICIT_THROW, false);
 		boolean needCasting = seed != arguments[0];
 		for (int index = 1, length = arguments.length; index < length; index++) {
-			InsnTree next = arguments[index].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW);
+			InsnTree next = arguments[index].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false);
 			needCasting |= next != arguments[index];
 			seed = invokeStatic(PERMUTER_INFO.permuteI, seed, next);
 		}
@@ -416,7 +416,7 @@ public class RandomScriptEnvironment {
 				}
 				if (parser.endCodeBlock()) throw new ScriptParsingException("Can't declare variables *directly* inside a random switch.", parser.input);
 				TypeInfo weightType = TypeInfos.widenUntilSameInt(weights.stream().map(InsnTree::getTypeInfo));
-				weights.replaceAll((InsnTree tree) -> tree.cast(parser, weightType, CastMode.IMPLICIT_THROW));
+				weights.replaceAll((InsnTree tree) -> tree.cast(parser, weightType, CastMode.IMPLICIT_THROW, false));
 				if (cases.defaultReturnValue() == null && weights.stream().map(InsnTree::getConstantValue).anyMatch((ConstantValue value) -> value.isConstant() && value.asDouble() > 0.0D)) {
 					cases.defaultReturnValue(
 						throw_(

@@ -12,7 +12,7 @@ public class CompareConditionTree {
 	public static record Operands(InsnTree left, InsnTree right, TypeInfo type) {
 
 		public static Operands of(ExpressionParser parser, InsnTree left, InsnTree right, TypeInfo type) {
-			return new Operands(left.cast(parser, type, CastMode.IMPLICIT_THROW), right.cast(parser, type, CastMode.IMPLICIT_THROW), type);
+			return new Operands(left.cast(parser, type, CastMode.IMPLICIT_THROW, false), right.cast(parser, type, CastMode.IMPLICIT_THROW, false), type);
 		}
 	}
 
@@ -22,9 +22,9 @@ public class CompareConditionTree {
 		if (leftType.isNumber() && rightType.isNumber()) {
 			return Operands.of(parser, left, right, TypeInfos.widenUntilSameInt(leftType, rightType));
 		}
-		InsnTree leftComparable = left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_NULL);
+		InsnTree leftComparable = left.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_NULL, false);
 		if (leftComparable != null) {
-			InsnTree rightComparable = right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_NULL);
+			InsnTree rightComparable = right.cast(parser, TypeInfos.COMPARABLE, CastMode.IMPLICIT_NULL, false);
 			if (rightComparable != null) {
 				return new Operands(leftComparable, rightComparable, TypeInfos.COMPARABLE);
 			}

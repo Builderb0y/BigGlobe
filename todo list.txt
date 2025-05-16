@@ -59,24 +59,26 @@ noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 
 high priority:
-	add new 1.21.5-exclusive blocks to world.
+	add new 1.21.5-exclusive blocks to the world.
+		nullable casts for scripting.
+			document this.
+		wildflowers.
+			might need to adjust RandomSwitch to account for all weights being 0.
+	add new 1.21.5-exclusive entity variants to the world.
 	make default world type config also apply to server.properties.
 	config options for LOD fog.
+	make LOD fog account for rain strength.
 
 LODs:
 	shader support.
 
 changelog:
+	* 1.21.5: Added leaf litter, wildflowers, cactus flowers, bushes, firefly bushes, and dry grass.
 	* Fixed pale netherrack textures in old MC versions. Again.
 	* Improved error reporting when failing to compile column values.
 
 alternate world presets:
 	paradise.
-	islands:
-		features:
-		structures:
-			prevent ancient cities from spawning in volcanoes.
-			geodes too.
 
 breaking changes I want to make:
 	expose IntVolume and DoubleVolume to scripts, with min, mid, and max properties.

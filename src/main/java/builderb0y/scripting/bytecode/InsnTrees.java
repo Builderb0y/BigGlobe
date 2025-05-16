@@ -350,8 +350,8 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree xor(ExpressionParser parser, InsnTree left, InsnTree right) {
-		left  = left .cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
-		right = right.cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+		left  = left .cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
+		right = right.cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 		return bxor(parser, left, right);
 	}
 
@@ -411,8 +411,8 @@ public class InsnTrees implements ExtendedOpcodes {
 		return new WhileInsnTree(loopName, condition, body);
 	}
 
-	public static InsnTree doWhile(ExpressionParser parser, LoopName loopName, ConditionTree condition, InsnTree body) {
-		return new DoWhileInsnTree(parser, loopName, condition, body);
+	public static InsnTree doWhile(LoopName loopName, ConditionTree condition, InsnTree body) {
+		return new DoWhileInsnTree(loopName, condition, body);
 	}
 
 	public static InsnTree for_(LoopName loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {

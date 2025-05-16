@@ -69,8 +69,8 @@ public abstract class PowerInsnTree extends BinaryInsnTree {
 				case DDPOW -> ldc(   Math.pow(leftConstant.asDouble(), rightConstant.asDouble()));
 			};
 		}
-		left  = left .cast(parser, mode.leftType,  CastMode.EXPLICIT_THROW);
-		right = right.cast(parser, mode.rightType, CastMode.EXPLICIT_THROW);
+		left  = left .cast(parser, mode.leftType,  CastMode.EXPLICIT_THROW, false);
+		right = right.cast(parser, mode.rightType, CastMode.EXPLICIT_THROW, false);
 		if (rightConstant.isConstant()) {
 			return new VariableConstantPowerInsnTree(left, right, mode);
 		}

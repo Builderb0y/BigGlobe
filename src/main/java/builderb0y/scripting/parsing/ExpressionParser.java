@@ -395,32 +395,32 @@ public class ExpressionParser {
 				switch (operator) {
 					case "&&" -> {
 						this.input.onCharsRead(operator);
-						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 						left = and(this, left, this.nextCompare());
 					}
 					case "||" -> {
 						this.input.onCharsRead(operator);
-						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 						left = or(this, left, this.nextCompare());
 					}
 					case "##" -> {
 						this.input.onCharsRead(operator);
-						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 						left = xor(this, left, this.nextCompare());
 					}
 					case "!&&" -> {
 						this.input.onCharsRead(operator);
-						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 						left = not(this, and(this, left, this.nextCompare()));
 					}
 					case "!||" -> {
 						this.input.onCharsRead(operator);
-						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 						left = not(this, or(this, left, this.nextCompare()));
 					}
 					case "!##" -> {
 						this.input.onCharsRead(operator);
-						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW);
+						left = left.cast(this, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 						left = not(this, xor(this, left, this.nextCompare()));
 					}
 					default -> {
@@ -456,31 +456,31 @@ public class ExpressionParser {
 					case "!>="  -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum()))); }
 					case "!<="  -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum()))); }
 
-					case ".<"   -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".<="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".>"   -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".>="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".=="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        eq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".!="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        ne(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".===" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(identityEq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".!==" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(identityNe(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right) ); }
-					case ".!>"  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right))); }
-					case ".!<"  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right))); }
-					case ".!>=" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right))); }
-					case ".!<=" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW), right))); }
+					case ".<"   -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".<="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".>"   -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".>="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".=="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        eq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".!="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        ne(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".===" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(identityEq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".!==" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(identityNe(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right) ); }
+					case ".!>"  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right))); }
+					case ".!<"  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right))); }
+					case ".!>=" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right))); }
+					case ".!<=" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, true), right))); }
 
-					case "<."   -> { this.input.onCharsRead(operator); left = bool(        lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case "<=."  -> { this.input.onCharsRead(operator); left = bool(        le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case ">."   -> { this.input.onCharsRead(operator); left = bool(        gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case ">=."  -> { this.input.onCharsRead(operator); left = bool(        ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case "==."  -> { this.input.onCharsRead(operator); left = bool(        eq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case "!=."  -> { this.input.onCharsRead(operator); left = bool(        ne(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case "===." -> { this.input.onCharsRead(operator); left = bool(identityEq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case "!==." -> { this.input.onCharsRead(operator); left = bool(identityNe(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)) ); }
-					case "!>."  -> { this.input.onCharsRead(operator); left = bool(    not(gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)))); }
-					case "!<."  -> { this.input.onCharsRead(operator); left = bool(    not(lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)))); }
-					case "!>=." -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)))); }
-					case "!<=." -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW)))); }
+					case "<."   -> { this.input.onCharsRead(operator); left = bool(        lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case "<=."  -> { this.input.onCharsRead(operator); left = bool(        le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case ">."   -> { this.input.onCharsRead(operator); left = bool(        gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case ">=."  -> { this.input.onCharsRead(operator); left = bool(        ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case "==."  -> { this.input.onCharsRead(operator); left = bool(        eq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case "!=."  -> { this.input.onCharsRead(operator); left = bool(        ne(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case "===." -> { this.input.onCharsRead(operator); left = bool(identityEq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case "!==." -> { this.input.onCharsRead(operator); left = bool(identityNe(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)) ); }
+					case "!>."  -> { this.input.onCharsRead(operator); left = bool(    not(gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)))); }
+					case "!<."  -> { this.input.onCharsRead(operator); left = bool(    not(lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)))); }
+					case "!>=." -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)))); }
+					case "!<=." -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, true)))); }
 
 					default     -> { return left; }
 				}
@@ -997,10 +997,12 @@ public class ExpressionParser {
 					}
 					return MultiDeclarationSyntax.parse(this, type).sequence();
 				}
-				else if (this.input.peekAfterWhitespace() == '(') { //casting.
-					return ParenthesizedScript.parse(this).maybeWrapContents().cast(this, type, CastMode.EXPLICIT_THROW);
+				boolean nullableCast = this.input.hasOperatorAfterWhitespace("?");
+				if (this.input.peekAfterWhitespace() == '(') { //casting.
+					return ParenthesizedScript.parse(this).maybeWrapContents().cast(this, type, CastMode.EXPLICIT_THROW, nullableCast);
 				}
 				else { //not casting. (variable or method declaration or ldc class)
+					if (nullableCast) throw new ScriptParsingException('\'' + name + "?' must be followed by parentheses for nullable cast. If a nullable cast was not intended, remove the question mark.", this.input);
 					String varName = this.input.readIdentifierAfterWhitespace();
 					if (!varName.isEmpty()) { //variable or method declaration.
 						if (this.input.hasOperatorAfterWhitespace("=")) { //variable declaration.
@@ -1104,7 +1106,7 @@ public class ExpressionParser {
 		else {
 			InsnTree tree = this.nextSingleExpression();
 			if (cast) {
-				tree = tree.cast(this, variableType, CastMode.IMPLICIT_THROW);
+				tree = tree.cast(this, variableType, CastMode.IMPLICIT_THROW, false);
 			}
 			return tree;
 		}
@@ -1115,7 +1117,7 @@ public class ExpressionParser {
 	}
 
 	public InsnTree createReturn(InsnTree value) {
-		return return_(value.cast(this, this.getMainReturnType(), CastMode.IMPLICIT_THROW));
+		return return_(value.cast(this, this.getMainReturnType(), CastMode.IMPLICIT_THROW, false));
 	}
 
 	public String listCandidates(String identifier, String prefix, String suffix) {

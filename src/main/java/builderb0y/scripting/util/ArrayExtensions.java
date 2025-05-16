@@ -58,8 +58,8 @@ public class ArrayExtensions {
 	public static InsnTree computeEquals(ExpressionParser parser, InsnTree left, InsnTree right) {
 		TypeInfo leftType = left.getTypeInfo(), rightType = right.getTypeInfo();
 		TypeInfo commonType = TypeMerger.computeMostSpecificType(leftType, rightType);
-		left = left.cast(parser, commonType, CastMode.IMPLICIT_THROW);
-		right = right.cast(parser, commonType, CastMode.IMPLICIT_THROW);
+		left = left.cast(parser, commonType, CastMode.IMPLICIT_THROW, false);
+		right = right.cast(parser, commonType, CastMode.IMPLICIT_THROW, false);
 		return switch (commonType.getSort()) {
 			case VOID    -> throw new IllegalArgumentException("Equals on void");
 			case BYTE    -> bool(   IntCompareConditionTree.equal(left, right));
