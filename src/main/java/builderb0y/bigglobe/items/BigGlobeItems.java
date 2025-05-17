@@ -100,6 +100,11 @@ public class BigGlobeItems {
 		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings(BigGlobeBlocks.ROCK))),
 		ANCIENT_AUTOMATA         = registerPlacer(BigGlobeBlocks.ANCIENT_AUTOMATA),
 		AUTOMATA                 = registerPlacer(BigGlobeBlocks.AUTOMATA),
+		#if MC_VERSION >= MC_1_21_5
+		RED_WILDFLOWERS          = registerPlacer(BigGlobeBlocks.RED_WILDFLOWERS),
+		BLUEBONNETS              = registerPlacer(BigGlobeBlocks.BLUEBONNETS),
+		VIOLETS                  = registerPlacer(BigGlobeBlocks.VIOLETS),
+		#endif
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -458,6 +463,9 @@ public class BigGlobeItems {
 			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 			entries.addAfter(Items.DANDELION, ROSE);
 			entries.addAfter(#if MC_VERSION >= MC_1_21_4 Items.OPEN_EYEBLOSSOM #else Items.TORCHFLOWER #endif, BLAZING_BLOSSOM, SOUL_SILVERPETAL, GLOWING_GOLDENROD);
+			#if MC_VERSION >= MC_1_21_5
+			entries.addAfter(Items.WILDFLOWERS, RED_WILDFLOWERS, BLUEBONNETS, VIOLETS);
+			#endif
 			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
 			entries.addAfter(Items.STONE, ROCK);
 			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);

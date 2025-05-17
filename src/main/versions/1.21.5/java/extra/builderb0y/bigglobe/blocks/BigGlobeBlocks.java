@@ -325,6 +325,45 @@ public class BigGlobeBlocks {
 			false
 		)
 	);
+	public static final FlowerbedBlock RED_WILDFLOWERS = register(
+		"red_wildflowers",
+		new FlowerbedBlock(
+			AbstractBlock
+			.Settings
+			.create()
+			.registryKey(key("red_wildflowers"))
+			.mapColor(MapColor.DARK_GREEN)
+			.noCollision()
+			.sounds(BlockSoundGroup.FLOWERBED)
+			.pistonBehavior(PistonBehavior.DESTROY)
+		)
+	);
+	public static final FlowerbedBlock BLUEBONNETS = register(
+		"bluebonnets",
+		new FlowerbedBlock(
+			AbstractBlock
+			.Settings
+			.create()
+			.registryKey(key("bluebonnets"))
+			.mapColor(MapColor.DARK_GREEN)
+			.noCollision()
+			.sounds(BlockSoundGroup.FLOWERBED)
+			.pistonBehavior(PistonBehavior.DESTROY)
+		)
+	);
+	public static final FlowerbedBlock VIOLETS = register(
+		"violets",
+		new FlowerbedBlock(
+			AbstractBlock
+			.Settings
+			.create()
+			.registryKey(key("violets"))
+			.mapColor(MapColor.DARK_GREEN)
+			.noCollision()
+			.sounds(BlockSoundGroup.FLOWERBED)
+			.pistonBehavior(PistonBehavior.DESTROY)
+		)
+	);
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
 		"delayed_generation",
 		new DelayedGenerationBlock(
@@ -1071,6 +1110,9 @@ public class BigGlobeBlocks {
 			POTTED_ROSE,
 			SHORT_GRASS,
 			MUSHROOM_SPORES,
+			RED_WILDFLOWERS,
+			BLUEBONNETS,
+			VIOLETS,
 			WART_WEED,
 			CHARRED_GRASS,
 			BLAZING_BLOSSOM,
@@ -1104,6 +1146,18 @@ public class BigGlobeBlocks {
 				return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
 			},
 			RIVER_WATER
+		);
+		ColorProviderRegistry.BLOCK.register(
+			(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
+				if (tintIndex != 0) {
+					return world != null && pos != null ? BiomeColors.getGrassColor(world, pos) : GrassColors.getDefaultColor();
+				} else {
+					return -1;
+				}
+			},
+			RED_WILDFLOWERS,
+			BLUEBONNETS,
+			VIOLETS
 		);
 	}
 }

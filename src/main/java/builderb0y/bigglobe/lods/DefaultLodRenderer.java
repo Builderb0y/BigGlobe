@@ -34,7 +34,7 @@ public class DefaultLodRenderer implements LodRenderer {
 	public ElementBuffer elementBuffer;
 	public int vao;
 	public int modelOffset, modelViewProjectionMatrix, blockAtlas, lightmap, fogColor, fogParams;
-	public NativeMemory matrixStorage;
+	public MatrixStorageWorkaround matrixStorage;
 	public CapturedGlState state;
 
 	@Override
@@ -57,7 +57,7 @@ public class DefaultLodRenderer implements LodRenderer {
 			this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
 			this.elementBuffer = new ElementBuffer();
 			this.vao = glGenVertexArrays();
-			this.matrixStorage = new NativeMemory(16 * Float.BYTES);
+			this.matrixStorage = new MatrixStorageWorkaround();
 			this.state = new CapturedGlState();
 
 			this.recompile();
@@ -288,18 +288,19 @@ public class DefaultLodRenderer implements LodRenderer {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			context
-			.projectionMatrix()
-			.mul(
-				#if MC_VERSION >= MC_1_20_5
-					context.positionMatrix(),
-				#else
-					context.matrixStack().peek().getPositionMatrix(),
-				#endif
-				new Matrix4f()
-			)
-			.getToAddress(this.matrixStorage.address);
-			nglUniformMatrix4fv(this.modelViewProjectionMatrix, 1, false, this.matrixStorage.address);
+			this.matrixStorage.set(
+				context
+				.projectionMatrix()
+				.mul(
+					#if MC_VERSION >= MC_1_20_5
+						context.positionMatrix(),
+					#else
+						context.matrixStack().peek().getPositionMatrix(),
+					#endif
+					new Matrix4f()
+				)
+			);
+			nglUniformMatrix4fv(this.modelViewProjectionMatrix, 1, false, this.matrixStorage.address());
 			glUniform3f(this.fogColor, fog.x, fog.y, fog.z);
 			ClientGeneratorParams params = ClientState.generatorParams;
 			if (params != null && params.seaLevel != null) {

@@ -18,7 +18,8 @@ An identifier term is a term that starts with an identifier, and may match more 
 
 * `keyword ...`
 	* The keyword takes full control of the parser and only returns control to it after parsing everything it intended to parse. See the documentation for individual keywords for information on what they match.
-* `Type(expression)` explicitly casts expression to Type.
+* `Type(expression)` explicitly casts expression to Type, or throws an exception if such a conversion is not possible.
+* `Type?(expression)` explicitly casts expression to Type, but evaluates to null if such a conversion is not possible.
 * `Type name = expression` declares a new variable named name of type Type and initializes it to expression.
 * `Type name = new(arguments)` syntax sugar for `Type name = Type.new(arguments)`
 	* Extra member operations can be appended to the end. For example, `HashMap map = new().$put("a", 1).$put("b", 2)`.

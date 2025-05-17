@@ -1,0 +1,20 @@
+{
+	"multipart": [
+		{ "when": { "facing": "north"                           }, "apply": { "model": "bigglobe:block/bluebonnets_1", "y": 0   } },
+		{ "when": { "facing": "east"                            }, "apply": { "model": "bigglobe:block/bluebonnets_1", "y": 90  } },
+		{ "when": { "facing": "south"                           }, "apply": { "model": "bigglobe:block/bluebonnets_1", "y": 180 } },
+		{ "when": { "facing": "west"                            }, "apply": { "model": "bigglobe:block/bluebonnets_1", "y": 270 } },
+		{ "when": { "facing": "north", "flower_amount": "2|3|4" }, "apply": { "model": "bigglobe:block/bluebonnets_2", "y": 0   } },
+		{ "when": { "facing": "east",  "flower_amount": "2|3|4" }, "apply": { "model": "bigglobe:block/bluebonnets_2", "y": 90  } },
+		{ "when": { "facing": "south", "flower_amount": "2|3|4" }, "apply": { "model": "bigglobe:block/bluebonnets_2", "y": 180 } },
+		{ "when": { "facing": "west",  "flower_amount": "2|3|4" }, "apply": { "model": "bigglobe:block/bluebonnets_2", "y": 270 } },
+		{ "when": { "facing": "north", "flower_amount": "3|4"   }, "apply": { "model": "bigglobe:block/bluebonnets_3", "y": 0   } },
+		{ "when": { "facing": "east",  "flower_amount": "3|4"   }, "apply": { "model": "bigglobe:block/bluebonnets_3", "y": 90  } },
+		{ "when": { "facing": "south", "flower_amount": "3|4"   }, "apply": { "model": "bigglobe:block/bluebonnets_3", "y": 180 } },
+		{ "when": { "facing": "west",  "flower_amount": "3|4"   }, "apply": { "model": "bigglobe:block/bluebonnets_3", "y": 270 } },
+		{ "when": { "facing": "north", "flower_amount": "4"     }, "apply": { "model": "bigglobe:block/bluebonnets_4", "y": 0   } },
+		{ "when": { "facing": "east",  "flower_amount": "4"     }, "apply": { "model": "bigglobe:block/bluebonnets_4", "y": 90  } },
+		{ "when": { "facing": "south", "flower_amount": "4"     }, "apply": { "model": "bigglobe:block/bluebonnets_4", "y": 180 } },
+		{ "when": { "facing": "west",  "flower_amount": "4"     }, "apply": { "model": "bigglobe:block/bluebonnets_4", "y": 270 } }
+	]
+}

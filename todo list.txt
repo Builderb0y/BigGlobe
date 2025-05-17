@@ -59,23 +59,21 @@ noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 
 high priority:
-	add new 1.21.5-exclusive blocks to the world.
-		nullable casts for scripting.
-			document this.
-		wildflowers.
-			might need to adjust RandomSwitch to account for all weights being 0.
-	add new 1.21.5-exclusive entity variants to the world.
 	make default world type config also apply to server.properties.
 	config options for LOD fog.
 	make LOD fog account for rain strength.
+	see if tags are supported in ore "blocks" (replacements) section.
+		if not, they should be.
 
 LODs:
 	shader support.
 
 changelog:
 	* 1.21.5: Added leaf litter, wildflowers, cactus flowers, bushes, firefly bushes, and dry grass.
+		* Also 1.21.5: Added 3 new wildflower colors, in addition to the vanilla yellow/white ones.
 	* Fixed pale netherrack textures in old MC versions. Again.
 	* Improved error reporting when failing to compile column values.
+	* Possibly fixed LOD renderer causing crash on some hardware/OS/JVM combinations.
 
 alternate world presets:
 	paradise.

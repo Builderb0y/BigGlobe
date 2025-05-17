@@ -1,0 +1,70 @@
+{
+	"version": 2,
+	"root_layer": {
+		"name": "colored",
+		"width": 16,
+		"height": 16,
+		"children": [
+			{
+				"name": "wildflowers",
+				"width": 16,
+				"height": 16,
+				"children": [],
+				"sources": {
+					"tab": {
+						"type": "manual",
+						"image": {
+							"width": 16,
+							"height": 16,
+							"pixels": "H4sIAAAAAAAA/2NgoAzY1/37bx927bpdypOn9g0UGjYEALp/7Uu/frO32rXbTmbOXDB/hIcHze2r+fMXHM4wjMYfbgDDv8Cwts948RKMQXyjTZvtAy5cBGMs8pTaN9AAw/8E/Euq/0k1n2T3Uzl/UOpfUs0nWT96+Vj48ZO97Nx5diJTpmIrL4c7GGn+pRRQOz0PdoCRn6Vnz7G33bsPjBswyyOSzQeZkfPmrd28efOpUj6gmUd186nsX0rbZxjmDbH2H6XuITU8ae1/ets30PYTTG/DvH4ltT0x3PyPDqjtXwCMIFD8ABAAAA=="
+						}
+					}
+				},
+				"expanded": true
+			}
+		],
+		"sources": {
+			"tab": {
+				"type": "derived",
+				"code": [
+					"float4 color = wildflowers(UV);",
+					"\"blue",
+					"if (true) {",
+					"\tif (color.b > 0.5) {",
+					"\t\treturn color.rrga * float4(0.25, 0.25, 1.0, 1.0);",
+					"\t}",
+					"\telse {",
+					"\t\treturn color.ggra * float4(0.375, 0.5, 1.0, 1.0);",
+					"\t}",
+					"}",
+					"\"red",
+					"else if (false) {",
+					"\tif (color.b > 0.5) {",
+					"\t\tfloat sat = color.g * 1.0 - 0.75;",
+					"\t\treturn color.grra * float4(1.0, sat, sat, 1.0);",
+					"\t}",
+					"\telse {",
+					"\t\treturn color.rgga * float4(1.0, 2.0, 0.125, 1.0) - float4(0.0, 1.0, 0.0, 0.0);",
+					"\t}",
+					"}",
+					"\"purple",
+					"else {",
+					"\tif (color.b > 0.5) {",
+					"\t\treturn color.rrga * float4(0.75, 1.0, 1.0, 1.0) - float4(0.0, 0.5, 0.0, 0.0);",
+					"\t}",
+					"\telse {",
+					"\t\treturn color.ggra * float4(0.5, 0.25, 1.0, 1.0);",
+					"\t}",
+					"}"
+				]
+			}
+		},
+		"expanded": true
+	},
+	"showing_layer": "colored",
+	"selected_layer": "colored",
+	"wrap": false,
+	"animation": {
+		"frames": 1
+	}
+}

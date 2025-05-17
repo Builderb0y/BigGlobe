@@ -1,0 +1,10 @@
+{
+	"dimensions": 2,
+	"type": "sum",
+	"salt": "wildflowers_2",
+	"layers": [
+		{ "type": "smooth", "scale": 64, "amplitude": 0.5 },
+		{ "type": "smooth", "scale": 32, "amplitude": 0.25 },
+		{ "type": "smooth", "scale": 16, "amplitude": 0.125 }
+	]
+}
