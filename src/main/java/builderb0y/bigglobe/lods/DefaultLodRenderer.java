@@ -23,6 +23,9 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
+import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 import static org.lwjgl.opengl.GL32C.*;
 
@@ -251,8 +254,18 @@ public class DefaultLodRenderer implements LodRenderer {
 		#endif
 	}
 
+	public static float tickProgress(WorldRenderContext context) {
+		#if MC_VERSION >= MC_1_21_5
+			return context.tickCounter().getTickProgress(false);
+		#elif MC_VERSION >= MC_1_21_1
+			return context.tickCounter().getTickDelta(false);
+		#else
+			return context.tickDelta();
+		#endif
+	}
+
 	@Override
-	public SafeCloseable bind(WorldRenderContext context, boolean translucent, Vector4f fog) {
+	public SafeCloseable bind(WorldRenderContext context, FogParams fog, boolean translucent) {
 		if (translucent) {
 			this.state.inTranslucentPass = true;
 			glEnable(GL_BLEND);
@@ -301,13 +314,31 @@ public class DefaultLodRenderer implements LodRenderer {
 				)
 			);
 			nglUniformMatrix4fv(this.modelViewProjectionMatrix, 1, false, this.matrixStorage.address());
-			glUniform3f(this.fogColor, fog.x, fog.y, fog.z);
+			glUniform3f(this.fogColor, fog.red, fog.green, fog.blue);
+			float globalFogDensity = BigGlobeConfig.INSTANCE.get().lodRendering.fogDensity;
+			float fogHeightScale = BigGlobeConfig.INSTANCE.get().lodRendering.fogHeightScale;
 			ClientGeneratorParams params = ClientState.generatorParams;
-			if (params != null && params.seaLevel != null) {
-				glUniform3f(this.fogParams, (float)(context.camera().getPos().y - params.seaLevel.doubleValue()), -1.0F / 256.0F, -1.0F / 2048.0F);
+			if (params != null && params.seaLevel != null && fogHeightScale != 0.0F) {
+				double seaLevel = params.seaLevel.doubleValue();
+				double cameraY = context.camera().getPos().y;
+				double worldMaxY = HeightLimitViewVersions.getMaxY(context.world());
+				float tickProgress = tickProgress(context);
+				float rainStrength = context.world().getRainGradient(tickProgress);
+				float thunderStrength = context.world().getThunderGradient(tickProgress);
+				glUniform3f(
+					this.fogParams,
+					(float)(cameraY - seaLevel),
+					-fogHeightScale / ((float)(worldMaxY - seaLevel)),
+					Interpolator.mixSmoothUnchecked(
+						-1.0F,
+						Interpolator.mixSmoothUnchecked(-2.0F, -4.0F, thunderStrength),
+						rainStrength
+					)
+					* globalFogDensity / fog.farPlaneDistance
+				);
 			}
 			else {
-				glUniform3f(this.fogParams, 0.0F, 0.0F, fog.w);
+				glUniform3f(this.fogParams, 0.0F, 0.0F, -globalFogDensity / fog.farPlaneDistance);
 			}
 		}
 		return this.state;

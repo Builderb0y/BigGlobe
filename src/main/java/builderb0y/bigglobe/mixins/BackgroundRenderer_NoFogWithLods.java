@@ -23,8 +23,11 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 
 		@ModifyExpressionValue(method = "applyFog", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/BackgroundRenderer;fogEnabled:Z"))
 		private static boolean bigglobe_disableFogWhenRenderingLods(boolean fogEnabled, @Local(argsOnly = true) FogType type, @Local(argsOnly = true) Camera camera, @Local(argsOnly = true) Vector4f fogColor) {
-			if (type == FogType.FOG_TERRAIN && LodSystem.INSTANCE != null && !MinecraftClient.getInstance().worldRenderer.hasBlindnessOrDarkness(camera)) {
-				LodSystem.INSTANCE.fog.set(fogColor);
+			LodSystem system = LodSystem.INSTANCE;
+			if (type == FogType.FOG_TERRAIN && system != null && !MinecraftClient.getInstance().worldRenderer.hasBlindnessOrDarkness(camera)) {
+				system.fog.red   = fogColor.x;
+				system.fog.green = fogColor.y;
+				system.fog.blue  = fogColor.z;
 				return false;
 			}
 			return fogEnabled;
@@ -45,8 +48,11 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 			float tickDelta,
 			CallbackInfo callback
 		) {
-			if (fogType == FogType.FOG_TERRAIN && LodSystem.INSTANCE != null) {
-				LodSystem.INSTANCE.fog.set(red, green, blue, 1.0F);
+			LodSystem system = LodSystem.INSTANCE;
+			if (fogType == FogType.FOG_TERRAIN && system != null) {
+				system.fog.red   = red;
+				system.fog.green = green;
+				system.fog.blue  = blue;
 				BackgroundRenderer.clearFog();
 				callback.cancel();
 			}

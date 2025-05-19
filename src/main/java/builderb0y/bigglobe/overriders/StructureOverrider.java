@@ -88,6 +88,7 @@ public interface StructureOverrider extends ColumnScript {
 				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(loadRandom))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 					registry.setupExternalEnvironment(

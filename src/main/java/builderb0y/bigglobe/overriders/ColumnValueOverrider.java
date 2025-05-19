@@ -18,6 +18,7 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.WoodPaletteScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
@@ -134,7 +135,8 @@ public interface ColumnValueOverrider extends ColumnScript {
 			.configure(NbtScriptEnvironment.createImmutable())
 			.addFieldGet(ScriptedStructure.Piece.class, "data")
 			.addVariableLoad("structures", type(ScriptStructures.class))
-			.configure(JavaUtilScriptEnvironment.withoutRandom());
+			.configure(JavaUtilScriptEnvironment.withoutRandom())
+			.addAll(WoodPaletteScriptEnvironment.BASE);
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);

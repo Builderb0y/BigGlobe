@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "coal",
 		"blocks": {
-			"minecraft:stone":             "minecraft:coal_ore",
-			"minecraft:cobblestone":       "minecraft:coal_ore",
-			"minecraft:andesite":          "minecraft:coal_ore",
-			"minecraft:polished_andesite": "minecraft:coal_ore",
-			"minecraft:diorite":           "minecraft:coal_ore",
-			"minecraft:polished_diorite":  "minecraft:coal_ore",
-			"minecraft:granite":           "minecraft:coal_ore",
-			"minecraft:polished_granite":  "minecraft:coal_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_coal_ore",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_coal_ore"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:coal_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_coal_ore"
 		},
 		"chance": "1.0L",
 		"radius": {

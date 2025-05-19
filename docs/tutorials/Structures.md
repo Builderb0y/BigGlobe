@@ -62,6 +62,7 @@ Collision overriders have the following json properties:
 	* StructureScriptEnvironment
 	* NbtScriptEnvironment
 	* ColumnEntryRegistry
+	* WoodPaletteScriptEnvironment (new in V5.0.2)
 
 	And the following additional fields:
 	* ScriptStructurePiece.data
@@ -92,6 +93,7 @@ Structure overriders have the following json properties:
 	* StructureScriptEnvironment
 	* NbtScriptEnvironment
 	* ColumnEntryRegistry
+	* WoodPaletteScriptEnvironment (new in V5.0.2)
 
 	And the following additional variables:
 	* `start` - the current StructureStart being overridden.
@@ -123,6 +125,7 @@ Column value overriders have the following json properties:
 	* StructureScriptEnvironment
 	* NbtScriptEnvironment (immutable)
 	* JavaUtilScriptEnvironment
+	* WoodPaletteScriptEnvironment (new in V5.0.2)
 
 	And the following additional variable:
 	* `structures` - the List of structures intersecting the current chunk. Not all of them will have pieces intersecting the current column. Check for this and handle it sanely.

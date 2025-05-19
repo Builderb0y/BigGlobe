@@ -13,6 +13,11 @@ import net.minecraft.client.render.VertexConsumerProvider;
 @Environment(EnvType.CLIENT)
 public interface LodRenderer extends SafeCloseable {
 
+	public static class FogParams {
+
+		public float red, green, blue, farPlaneDistance;
+	}
+
 	/**
 	called before the draw calls are issued.
 	override this method to capture the current
@@ -27,8 +32,8 @@ public interface LodRenderer extends SafeCloseable {
 	*/
 	public abstract SafeCloseable bind(
 		WorldRenderContext context,
-		boolean translucent,
-		Vector4f fog
+		FogParams fog,
+		boolean translucent
 	);
 
 	/**
@@ -40,9 +45,9 @@ public interface LodRenderer extends SafeCloseable {
 	whether that implies calling {@link GL11C#glDrawArrays(int, int, int)},
 	{@link GL11C#glDrawElements}, or appending the request to an internal
 	buffer to be multi-drawn when the return value of
-	{@link #bind(WorldRenderContext, boolean, Vector4f)} is closed.
+	{@link #bind(WorldRenderContext, FogParams, boolean)} is closed.
 
-	{@link #bind(WorldRenderContext, boolean, Vector4f)} will always be called before this method.
+	{@link #bind(WorldRenderContext, FogParams, boolean)} will always be called before this method.
 	if this renderer uses a VAO, it should be bound in that method, not this one.
 	*/
 	public abstract void draw(

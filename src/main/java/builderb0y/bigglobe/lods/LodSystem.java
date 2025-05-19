@@ -53,7 +53,7 @@ public class LodSystem implements SafeCloseable {
 	public LodQuadTree tree;
 	public LodRenderer renderer;
 	public LodFrustum frustum;
-	public Vector4f fog;
+	public LodRenderer.FogParams fog;
 	public double currentQuality, qualityLimit;
 
 	@Override
@@ -70,7 +70,7 @@ public class LodSystem implements SafeCloseable {
 			this.generator = new LodGenerator(this, generator);
 			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
 			this.frustum = new LodFrustum();
-			this.fog = new Vector4f();
+			this.fog = new LodRenderer.FogParams();
 			GLException.check();
 		}
 		catch (Throwable throwable) {
@@ -186,7 +186,7 @@ public class LodSystem implements SafeCloseable {
 		if (this.tree.passes != null) {
 			profiler.push("Setup");
 			this.frustum.setup(context);
-			this.fog.w = -64.0F / this.frustum.farClippingPlane;
+			this.fog.farPlaneDistance = this.frustum.farClippingPlane;
 			profiler.swap("Request");
 			this.makeRequests(this.tree, true);
 			profiler.swap("Visibility");
@@ -195,7 +195,7 @@ public class LodSystem implements SafeCloseable {
 
 			//must ensure renderer is bound and unbound for both passes.
 			GLException failure = null;
-			try (var $ = this.renderer.bind(context, false, this.fog)) {
+			try (var $ = this.renderer.bind(context, this.fog, false)) {
 				GLException.check();
 				this.drawTree(context, this.tree);
 				GLException.check();
@@ -204,7 +204,7 @@ public class LodSystem implements SafeCloseable {
 				failure = exception;
 			}
 			profiler.swap("Translucent");
-			try (var $ = this.renderer.bind(context, true, this.fog)) {
+			try (var $ = this.renderer.bind(context, this.fog, true)) {
 				GLException.check();
 				if (failure == null) {
 					this.drawTree(context, this.tree);

@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "emerald",
 		"blocks": {
-			"minecraft:stone":             "minecraft:emerald_ore",
-			"minecraft:cobblestone":       "minecraft:emerald_ore",
-			"minecraft:andesite":          "minecraft:emerald_ore",
-			"minecraft:polished_andesite": "minecraft:emerald_ore",
-			"minecraft:diorite":           "minecraft:emerald_ore",
-			"minecraft:polished_diorite":  "minecraft:emerald_ore",
-			"minecraft:granite":           "minecraft:emerald_ore",
-			"minecraft:polished_granite":  "minecraft:emerald_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_emerald_ore",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_emerald_ore"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:emerald_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_emerald_ore"
 		},
 		"chance": "fastExp(`bigglobe:approximate_distance_below_surface` / -192.0L) * world_traits.`bigglobe:hilliness`",
 		"radius": {

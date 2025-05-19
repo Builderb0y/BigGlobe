@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "diamond",
 		"blocks": {
-			"minecraft:stone":             "minecraft:diamond_ore",
-			"minecraft:cobblestone":       "minecraft:diamond_ore",
-			"minecraft:andesite":          "minecraft:diamond_ore",
-			"minecraft:polished_andesite": "minecraft:diamond_ore",
-			"minecraft:diorite":           "minecraft:diamond_ore",
-			"minecraft:polished_diorite":  "minecraft:diamond_ore",
-			"minecraft:granite":           "minecraft:diamond_ore",
-			"minecraft:polished_granite":  "minecraft:diamond_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_diamond_ore",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_diamond_ore"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:diamond_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_diamond_ore"
 		},
 		"chance": [
 			"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",

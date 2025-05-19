@@ -381,6 +381,16 @@
 	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[1]": "Higher numbers can reduce flickering LODs when moving quickly, but will also place higher demands on VRAM usage.",
 	"text.autoconfig.bigglobe.option.lodRendering.generationBufferDistance.@Tooltip[2]": "Must be greater than or equal to Max View Distance.",
 
+	"text.autoconfig.bigglobe.option.lodRendering.fogDensity": "Fog Density",
+	"text.autoconfig.bigglobe.option.lodRendering.fogDensity.@Tooltip[0]": "Multiplier for the amount of fog on LODs. Note that normal terrain does not have fog when LOD rendering is enabled.",
+	"text.autoconfig.bigglobe.option.lodRendering.fogDensity.@Tooltip[1]": "Higher numbers mean more fog.",
+	"text.autoconfig.bigglobe.option.lodRendering.fogDensity.@Tooltip[2]": "Setting this to 0 will disable fog for LODs.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.fogHeightScale": "Fog Height Scale",
+	"text.autoconfig.bigglobe.option.lodRendering.fogHeightScale.@Tooltip[0]": "How much the fog density depends on Y level.",
+	"text.autoconfig.bigglobe.option.lodRendering.fogHeightScale.@Tooltip[1]": "Higher numbers mean more fog at lower Y levels and less fog at higher Y levels.",
+	"text.autoconfig.bigglobe.option.lodRendering.fogHeightScale.@Tooltip[2]": "Setting this to 0 will mean the fog density is uniform. In other words, the fog shape will be spherical.",
+
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode": "Underground Mode",
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[0]": "NONE - The underground and all blocks in it are completely skipped.",
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[1]": "FILL - The underground will be filled with stone, but no caves will generate.",

@@ -59,6 +59,7 @@ public interface CollisionOverrider extends ColumnScript {
 				.configureEnvironment(MinecraftScriptEnvironment.create())
 				.addEnvironment(StructureScriptEnvironment.INSTANCE)
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.addEnvironment(WoodPaletteScriptEnvironment.BASE)
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 					registry.setupExternalEnvironment(

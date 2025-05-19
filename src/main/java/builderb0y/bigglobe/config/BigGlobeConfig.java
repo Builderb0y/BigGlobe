@@ -154,6 +154,8 @@ public class BigGlobeConfig {
 		@BoundedDiscrete(min = 10_000_000L, max = 100_000_000L)
 		@VerifyIntRange(min = 10_000_000L, max = 100_000_000L)
 		public int maxQuads = 20_000_000;
+		@Excluded
+		public static transient int previousMaxQuads = 20_000_000;
 
 		@Tooltip(count = 3)
 		@UseName("Quality")
@@ -175,11 +177,23 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public float generationBufferDistance = 1536.0F;
 
+		@Tooltip(count = 3)
+		@UseName("Fog Density")
+		@DefaultIgnore
+		public float fogDensity = 64.0F;
+
+		@Tooltip(count = 3)
+		@UseName("Fog Height Scale")
+		@DefaultIgnore
+		public float fogHeightScale = 4.0F;
+
 		@Tooltip(count = 5)
 		@UseName("Underground Mode")
 		@EnumHandler(option = EnumDisplayOption.BUTTON)
 		@DefaultIgnore
 		public UndergroundMode undergroundMode = UndergroundMode.FILL;
+		@Excluded
+		public static transient UndergroundMode previousUndergroundMode = UndergroundMode.FILL;
 
 		public void validatePostLoad() {
 			this.maxQuads = MathHelper.clamp(this.maxQuads, 10_000_000, 100_000_000);
@@ -187,14 +201,26 @@ public class BigGlobeConfig {
 			this.minViewDistance = Math.max(this.minViewDistance, 1.0F / 256.0F);
 			this.maxViewDistance = Math.max(this.maxViewDistance, this.minViewDistance + 1.0F / 256.0F);
 			this.generationBufferDistance = Math.max(this.generationBufferDistance, this.maxViewDistance);
+			this.fogDensity = Math.max(this.fogDensity, 0.0F);
+			this.fogHeightScale = Math.max(this.fogHeightScale, 0.0F);
 			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-				this.doReload();
+				this.maybeReloadLODs();
 			}
 		}
 
 		@Environment(EnvType.CLIENT)
-		public void doReload() {
-			LodSystem.reload();
+		public void maybeReloadLODs() {
+			if (this.maxQuads != previousMaxQuads || this.undergroundMode != previousUndergroundMode) {
+				previousMaxQuads = this.maxQuads;
+				previousUndergroundMode = this.undergroundMode;
+				LodSystem.reload();
+			}
+			else {
+				LodSystem system = LodSystem.INSTANCE;
+				if (system != null) {
+					system.qualityLimit = this.quality;
+				}
+			}
 		}
 	}
 

@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "redstone",
 		"blocks": {
-			"minecraft:stone":             "minecraft:redstone_ore[lit=false]",
-			"minecraft:cobblestone":       "minecraft:redstone_ore[lit=false]",
-			"minecraft:andesite":          "minecraft:redstone_ore[lit=false]",
-			"minecraft:polished_andesite": "minecraft:redstone_ore[lit=false]",
-			"minecraft:diorite":           "minecraft:redstone_ore[lit=false]",
-			"minecraft:polished_diorite":  "minecraft:redstone_ore[lit=false]",
-			"minecraft:granite":           "minecraft:redstone_ore[lit=false]",
-			"minecraft:polished_granite":  "minecraft:redstone_ore[lit=false]",
-			"minecraft:deepslate":         "minecraft:deepslate_redstone_ore[lit=false]",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_redstone_ore[lit=false]"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:redstone_ore[lit=false]",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_redstone_ore[lit=false]"
 		},
 		"chance": [
 			"double depthLine  = unmixLinear(128.0L, 256.0L, `bigglobe:approximate_distance_below_surface`)",

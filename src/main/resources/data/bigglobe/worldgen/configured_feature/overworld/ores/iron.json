@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "iron",
 		"blocks": {
-			"minecraft:stone":             "minecraft:iron_ore",
-			"minecraft:cobblestone":       "minecraft:iron_ore",
-			"minecraft:andesite":          "minecraft:iron_ore",
-			"minecraft:polished_andesite": "minecraft:iron_ore",
-			"minecraft:diorite":           "minecraft:iron_ore",
-			"minecraft:polished_diorite":  "minecraft:iron_ore",
-			"minecraft:granite":           "minecraft:iron_ore",
-			"minecraft:polished_granite":  "minecraft:iron_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_iron_ore",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_iron_ore"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:iron_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_iron_ore"
 		},
 		"chance": {
 			"template": "bigglobe:ores/exponential",

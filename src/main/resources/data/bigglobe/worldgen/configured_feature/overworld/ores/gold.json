@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "gold",
 		"blocks": {
-			"minecraft:stone":             "minecraft:gold_ore",
-			"minecraft:cobblestone":       "minecraft:gold_ore",
-			"minecraft:andesite":          "minecraft:gold_ore",
-			"minecraft:polished_andesite": "minecraft:gold_ore",
-			"minecraft:diorite":           "minecraft:gold_ore",
-			"minecraft:polished_diorite":  "minecraft:gold_ore",
-			"minecraft:granite":           "minecraft:gold_ore",
-			"minecraft:polished_granite":  "minecraft:gold_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_gold_ore",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_gold_ore"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:gold_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_gold_ore"
 		},
 		"chance": [
 			"double depthLine  = unmixLinear(128.0L, 256.0L, `bigglobe:approximate_distance_below_surface`)",

@@ -3,16 +3,8 @@
 	"config": {
 		"seed": "lapis",
 		"blocks": {
-			"minecraft:stone":             "minecraft:lapis_ore",
-			"minecraft:cobblestone":       "minecraft:lapis_ore",
-			"minecraft:andesite":          "minecraft:lapis_ore",
-			"minecraft:polished_andesite": "minecraft:lapis_ore",
-			"minecraft:diorite":           "minecraft:lapis_ore",
-			"minecraft:polished_diorite":  "minecraft:lapis_ore",
-			"minecraft:granite":           "minecraft:lapis_ore",
-			"minecraft:polished_granite":  "minecraft:lapis_ore",
-			"minecraft:deepslate":         "minecraft:deepslate_lapis_ore",
-			"minecraft:cobbled_deepslate": "minecraft:deepslate_lapis_ore"
+			"#bigglobe:stone_ore_replaceables":     "minecraft:lapis_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_lapis_ore"
 		},
 		"chance": [
 			"if (world_traits.`bigglobe:exact_surface_y`.isBetween[y, world_traits.`bigglobe:sea_level`]:",

@@ -4,19 +4,21 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
-import net.minecraft.state.property.Property;
+import net.minecraft.registry.RegistryKeys;
 
 import builderb0y.autocodec.annotations.UseImplementation;
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.codecs.BlockStateCoder;
+import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
+import builderb0y.bigglobe.codecs.BlockStateCoder.TagProperties;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 
 @Wrapper
-public class BlockState2ObjectMap<V> {
+public class BlockState2ObjectMap<V> implements DelayedCompileable {
 
 	public final @UseImplementation(LinkedHashMap.class) Map<String, V> serializedStates;
 	public final transient Map<BlockState, V> runtimeStates;
@@ -26,30 +28,21 @@ public class BlockState2ObjectMap<V> {
 		this.runtimeStates = new HashMap<>();
 	}
 
-	public BlockState2ObjectMap(Map<String, V> serializedStates) throws CommandSyntaxException {
+	public BlockState2ObjectMap(Map<String, V> serializedStates) {
 		this.serializedStates = serializedStates;
 		this.runtimeStates = new HashMap<>(serializedStates.size());
-		for (Map.Entry<String, V> serializedEntry : serializedStates.entrySet()) {
-			this.addNonSerialized(serializedEntry.getKey(), serializedEntry.getValue());
-		}
 	}
 
-	public void addNonSerialized(String key, V value) throws CommandSyntaxException {
-		BlockResult blockResult = BlockArgumentParserVersions.block(key, false);
-		Block block = blockResult.blockState().getBlock();
-		nextState:
-		for (BlockState state : block.getStateManager().getStates()) {
-			for (Map.Entry<Property<?>, Comparable<?>> propertyEntry : blockResult.properties().entrySet()) {
-				if (state.get(propertyEntry.getKey()) != propertyEntry.getValue()) {
-					continue nextState;
-				}
-			}
-			this.runtimeStates.put(state, value);
+	@Override
+	public void compile(ColumnEntryRegistry registry) {
+		BetterRegistry<Block> blockRegistry = registry.registries.getRegistry(RegistryKeys.BLOCK);
+		for (Map.Entry<String, V> serializedEntry : this.serializedStates.entrySet()) {
+			BlockStateCoder.decodeBlockOrTag(blockRegistry, serializedEntry.getKey()).fold(
+				BlockProperties::allStates,
+				TagProperties::collectStates
+			)
+			.sequential()
+			.forEach((BlockState state) -> this.runtimeStates.put(state, serializedEntry.getValue()));
 		}
-	}
-
-	public void addSerialized(String key, V value) throws CommandSyntaxException {
-		this.serializedStates.put(key, value);
-		this.addNonSerialized(key, value);
 	}
 }

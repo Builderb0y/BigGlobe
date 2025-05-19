@@ -100,11 +100,9 @@ public class BigGlobeItems {
 		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings(BigGlobeBlocks.ROCK))),
 		ANCIENT_AUTOMATA         = registerPlacer(BigGlobeBlocks.ANCIENT_AUTOMATA),
 		AUTOMATA                 = registerPlacer(BigGlobeBlocks.AUTOMATA),
-		#if MC_VERSION >= MC_1_21_5
 		RED_WILDFLOWERS          = registerPlacer(BigGlobeBlocks.RED_WILDFLOWERS),
 		BLUEBONNETS              = registerPlacer(BigGlobeBlocks.BLUEBONNETS),
 		VIOLETS                  = registerPlacer(BigGlobeBlocks.VIOLETS),
-		#endif
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
