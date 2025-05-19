@@ -2,6 +2,6 @@
 	"parent": "minecraft:block/flowerbed_4",
 	"textures": {
 		"flowerbed": "bigglobe:block/violets",
-		"stem": "minecraft:block/wildflowers_stem"
+		"stem": "minecraft:block/pink_petals_stem"
 	}
 }

@@ -70,7 +70,7 @@
 				"else (",
 					"return(false)",
 				")",
-				"return(placeBlockState(originX, originY, originZ, newState))"
+				"return(newState != null && placeBlockState(originX, originY, originZ, newState))"
 			]
 		}
 	}

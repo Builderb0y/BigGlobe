@@ -334,7 +334,7 @@ public class BigGlobeBlocks {
 			.registryKey(key("red_wildflowers"))
 			.mapColor(MapColor.DARK_GREEN)
 			.noCollision()
-			.sounds(BlockSoundGroup.FLOWERBED)
+			.sounds(BlockSoundGroup.PINK_PETALS)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -347,7 +347,7 @@ public class BigGlobeBlocks {
 			.registryKey(key("bluebonnets"))
 			.mapColor(MapColor.DARK_GREEN)
 			.noCollision()
-			.sounds(BlockSoundGroup.FLOWERBED)
+			.sounds(BlockSoundGroup.PINK_PETALS)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);
@@ -360,7 +360,7 @@ public class BigGlobeBlocks {
 			.registryKey(key("violets"))
 			.mapColor(MapColor.DARK_GREEN)
 			.noCollision()
-			.sounds(BlockSoundGroup.FLOWERBED)
+			.sounds(BlockSoundGroup.PINK_PETALS)
 			.pistonBehavior(PistonBehavior.DESTROY)
 		)
 	);

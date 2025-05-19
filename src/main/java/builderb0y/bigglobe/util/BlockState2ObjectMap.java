@@ -37,7 +37,7 @@ public class BlockState2ObjectMap<V> implements DelayedCompileable {
 	public void compile(ColumnEntryRegistry registry) {
 		BetterRegistry<Block> blockRegistry = registry.registries.getRegistry(RegistryKeys.BLOCK);
 		for (Map.Entry<String, V> serializedEntry : this.serializedStates.entrySet()) {
-			BlockStateCoder.decodeBlockOrTag(blockRegistry, serializedEntry.getKey()).fold(
+			BlockStateCoder.decodeBlockOrTag(blockRegistry, serializedEntry.getKey()).map(
 				BlockProperties::allStates,
 				TagProperties::collectStates
 			)

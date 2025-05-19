@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 import java.util.*;
 import java.util.stream.Stream;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DynamicOps;
-import dev.yumi.commons.Either;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
