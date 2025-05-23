@@ -6,6 +6,11 @@ public class GLException extends RuntimeException {
 
 	public final int code;
 
+	public GLException(String message) {
+		super(message);
+		this.code = -1;
+	}
+
 	public GLException(int code) {
 		super(switch (code) {
 			case GL_INVALID_ENUM      -> "GL_INVALID_ENUM";

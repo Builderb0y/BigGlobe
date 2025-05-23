@@ -12,6 +12,7 @@ minecraft does it this way instead, so that's what I'll do too.
 */
 public class MatrixStorageWorkaround implements SafeCloseable {
 
+	public Matrix4f scratch = new Matrix4f();
 	public FloatBuffer buffer = MemoryUtil.memAllocFloat(16);
 
 	public void set(Matrix4f matrix) {

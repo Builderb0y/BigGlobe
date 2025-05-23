@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.lods;
 
-import java.util.Arrays;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +23,7 @@ implements SafeCloseable {
 
 	@Override
 	public void close() {
-		ResourceTracker.closeAll(Arrays.asList(this.opaque, this.translucent));
+		ResourceTracker.closeAll(this.opaque, this.translucent);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -97,7 +95,7 @@ implements SafeCloseable {
 
 		@Override
 		public void close() {
-			ResourceTracker.closeAll(Arrays.asList(this.opaque, this.translucent));
+			ResourceTracker.closeAll(this.opaque, this.translucent);
 		}
 	}
 }

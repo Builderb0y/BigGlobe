@@ -1,7 +1,11 @@
 package builderb0y.bigglobe.lods;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.client.render.VertexConsumer;
 
+@Environment(EnvType.CLIENT)
 public abstract class VersionedVertexConsumer
 #if MC_VERSION >= MC_1_21_0
 	implements VertexConsumer, SafeCloseable

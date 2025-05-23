@@ -59,24 +59,13 @@ noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 
 high priority:
+	LOD rendering causes all create blocks to become fog-colored.
 
 LODs:
 	shader support.
 
 changelog:
-	# For normal players:
-	* 1.21.5: Added leaf litter, wildflowers, cactus flowers, bushes, firefly bushes, and dry grass.
-		* Added 3 new wildflower colors, in addition to the vanilla yellow/white ones.
-	* Fixed pale netherrack textures in old MC versions. Again.
-	* LOD rendering now has fog.
-		* Density parameters are configurable.
-	* Possibly fixed LOD renderer causing crash on some hardware/OS/JVM combinations.
-	# For data pack developers:
-	* Ores (and possibly other things that map blocks to other blocks) can now use tags for the block to map from.
-	* Fixed being unable to use wood palettes in overriders.
-	* Added nullable casting syntax: `Type?(expression)` casts expression to Type, or evaluates to null if the expression cannot be cast.
-	* Improved error reporting when failing to compile column values.
-	* Possibly fixed issue with syncing booleans to the client for constant column values/decision trees/etc...
+	* Increased LOD rendering speed by about 20%-ish (results may vary).
 
 alternate world presets:
 	paradise.

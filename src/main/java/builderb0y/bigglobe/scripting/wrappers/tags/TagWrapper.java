@@ -69,6 +69,7 @@ public abstract class TagWrapper<T_Raw, T_Entry> implements Iterable<T_Entry> {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || (
+			obj != null &&
 			this.getClass() == obj.getClass() &&
 			this.list.equals(((TagWrapper<?, ?>)(obj)).list)
 		);

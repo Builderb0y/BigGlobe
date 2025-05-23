@@ -59,9 +59,15 @@ public abstract class GpuMemory implements SafeCloseable {
 		this.checkThread();
 		int id = this.ensureOpen();
 		int old = glGetInteger(this.bindQuery);
+		GLException.check();
 		if (old == id) return SafeCloseable.NOOP;
 		glBindBuffer(this.binder, id);
-		return () -> glBindBuffer(this.binder, old);
+		GLException.check();
+		return () -> {
+			GLException.check();
+			glBindBuffer(this.binder, old);
+			GLException.check();
+		};
 	}
 
 	@Override

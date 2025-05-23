@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.lods;
 
-import java.util.Arrays;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -136,7 +134,7 @@ public class LodQuadTree implements SafeCloseable {
 	}
 
 	public void free() {
-		ResourceTracker.closeAll(Arrays.asList(this.x0z0, this.x0z1, this.x1z0, this.x1z1, this.passes));
+		ResourceTracker.closeAll(this.x0z0, this.x0z1, this.x1z0, this.x1z1, this.passes);
 		this.x0z0 = this.x0z1 = this.x1z0 = this.x1z1 = null;
 		this.passes = null;
 	}

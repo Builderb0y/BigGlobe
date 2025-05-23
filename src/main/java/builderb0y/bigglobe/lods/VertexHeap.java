@@ -119,7 +119,9 @@ public class VertexHeap extends GpuMemory {
 						}
 					}
 					finally {
-						glUnmapBuffer(this.binder);
+						if (!glUnmapBuffer(this.binder)) {
+							throw new GLException("Failed to unmap buffer");
+						}
 					}
 					else {
 						BigGlobeMod.LOGGER.warn("Failed to map vertex heap for de-fragmenting!");

@@ -1,12 +1,11 @@
 package builderb0y.bigglobe.lods;
 
-import java.util.Arrays;
-
+import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import org.joml.Vector4f;
+import org.lwjgl.opengl.*;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -58,7 +57,7 @@ public class LodSystem implements SafeCloseable {
 
 	@Override
 	public void close() {
-		ResourceTracker.closeAll(Arrays.asList(this.generator, this.tree, this.renderer));
+		ResourceTracker.closeAll(this.generator, this.tree, this.renderer);
 	}
 
 	public LodSystem(ClientWorld world, ClientGeneratorParams generator) {
@@ -66,7 +65,7 @@ public class LodSystem implements SafeCloseable {
 			this.world = world;
 			this.qualityLimit = BigGlobeConfig.INSTANCE.get().lodRendering.quality;
 			int quads = BigGlobeConfig.INSTANCE.get().lodRendering.maxQuads;
-			this.renderer = new DefaultLodRenderer(quads);
+			this.renderer = GL.getCapabilities().GL_ARB_shader_draw_parameters ? new SidedCombinedLodRenderer(quads) : new SidedLodRenderer(quads);
 			this.generator = new LodGenerator(this, generator);
 			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
 			this.frustum = new LodFrustum();
@@ -156,12 +155,16 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public void render(WorldRenderContext context) {
+		GLException failure = null;
+
 		#if MC_VERSION >= MC_1_21_2
 			Profiler profiler = net.minecraft.util.profiler.Profilers.get();
 		#else
 			Profiler profiler = context.profiler();
 		#endif
+
 		profiler.push("BG LODs");
+
 		if (this.generator.hasSupply()) {
 			profiler.push("Process Supply");
 			try {
@@ -176,63 +179,64 @@ public class LodSystem implements SafeCloseable {
 				this.oom();
 			}
 			catch (GLException exception) {
-				BigGlobeMod.LOGGER.error("Exception uploading LOD mesh:", exception);
+				failure = exception;
 			}
 			profiler.pop();
 		}
 		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
 			this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
 		}
-		if (this.tree.passes != null) {
-			profiler.push("Setup");
-			this.frustum.setup(context);
-			this.fog.farPlaneDistance = this.frustum.farClippingPlane;
-			profiler.swap("Request");
-			this.makeRequests(this.tree, true);
-			profiler.swap("Visibility");
-			this.computeVisibility(this.tree, null);
-			profiler.swap("Opaque");
 
-			//must ensure renderer is bound and unbound for both passes.
-			GLException failure = null;
-			try (var $ = this.renderer.bind(context, this.fog, false)) {
-				GLException.check();
-				this.drawTree(context, this.tree);
-				GLException.check();
-			}
-			catch (GLException exception) {
-				failure = exception;
-			}
-			profiler.swap("Translucent");
-			try (var $ = this.renderer.bind(context, this.fog, true)) {
-				GLException.check();
-				if (failure == null) {
+		if (failure == null) {
+			if (this.tree.passes != null) {
+				profiler.push("Setup");
+				this.frustum.setup(context);
+				this.fog.farPlaneDistance = this.frustum.farClippingPlane;
+				profiler.swap("Request");
+				this.makeRequests(this.tree, true);
+				profiler.swap("Visibility");
+				this.computeVisibility(this.tree, null);
+				profiler.swap("Opaque");
+
+				//must ensure either both passes are bound and unbound, or neither are.
+				try (var $ = this.renderer.bind(context, this.fog, false)) {
+					GLException.check();
 					this.drawTree(context, this.tree);
 					GLException.check();
 				}
-			}
-			catch (GLException exception) {
-				if (failure == null) failure = exception;
-				else failure.addSuppressed(exception);
-			}
-			profiler.swap("Restore");
-			this.frustum.restore(context);
-			profiler.pop();
-
-			if (failure != null) {
-				BigGlobeMod.LOGGER.error("LOD rendering encountered an unexpected exception and will now stop. Press F3+A to restart it.", failure);
+				catch (GLException exception) {
+					failure = exception;
+				}
+				profiler.swap("Translucent");
+				try (var $ = this.renderer.bind(context, this.fog, true)) {
+					GLException.check();
+					if (failure == null) {
+						this.drawTree(context, this.tree);
+						GLException.check();
+					}
+				}
+				catch (GLException exception) {
+					if (failure == null) failure = exception;
+					else failure.addSuppressed(exception);
+				}
+				profiler.swap("Restore");
+				this.frustum.restore(context);
 				profiler.pop();
-				this.close();
-				INSTANCE = null;
-				return;
+			}
+			else if (!this.tree.isQueued()) {
+				this.generator.request(this.tree);
+				this.tree.split();
+				this.generator.start();
 			}
 		}
-		else if (!this.tree.isQueued()) {
-			this.generator.request(this.tree);
-			this.tree.split();
-			this.generator.start();
-		}
+
 		profiler.pop();
+
+		if (failure != null) {
+			BigGlobeMod.LOGGER.error("LOD rendering encountered an unexpected exception and will now stop. Press F3+A to restart it.", failure);
+			this.close();
+			INSTANCE = null;
+		}
 	}
 
 	public static final int NONE = 0, SOME = 1, ALL = 2;

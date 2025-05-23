@@ -38,6 +38,7 @@ public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || (
+			obj != null &&
 			this.getClass() == obj.getClass() &&
 			this.entry == ((EntryWrapper<?, ?>)(obj)).entry
 		);

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.lods;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.fabricmc.api.EnvType;
@@ -25,6 +26,10 @@ public class ResourceTracker implements SafeCloseable {
 	@Override
 	public void close() {
 		closeAll(this.resources);
+	}
+
+	public static void closeAll(AutoCloseable... closeables) {
+		closeAll(Arrays.asList(closeables));
 	}
 
 	public static void closeAll(Iterable<? extends AutoCloseable> closeables) {
