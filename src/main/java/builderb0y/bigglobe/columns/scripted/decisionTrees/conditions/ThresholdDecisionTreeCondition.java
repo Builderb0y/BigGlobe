@@ -57,7 +57,7 @@ public class ThresholdDecisionTreeCondition extends AbstractThresholdDecisionTre
 		}
 		return this.finishCondition(
 			invokeInstance(
-				context.loadSelf(),
+				context.loadColumn(),
 				getter.info,
 				requiresY
 				? new InsnTree[] { loadY }

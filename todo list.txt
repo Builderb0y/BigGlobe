@@ -60,6 +60,8 @@ noise experiment:
 
 high priority:
 	LOD rendering causes all create blocks to become fog-colored.
+		only create fabric? apparently non-issue with sinytra connector.
+	make LOD renderer compatible with immersive portals.
 
 LODs:
 	shader support.

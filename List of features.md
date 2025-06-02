@@ -172,6 +172,11 @@ In addition to all the vanilla structures, the following structures also spawn i
 	* Turns into a random ore when cooled with water.
 		* Ores are weighted based on which are likely to spawn at that location.
 	* Can't be collected, even with silk touch, but can be moved by pistons.
+* Ancient Automata (New in V4.11.0): Decorational block on obelisks.
+	* Has some interesting interactions with redstone.
+* Automata (New in V4.11.0): Player-crafted re-creation of the ancient automata.
+	* Slightly different rules for interacting with redstone than ancient automata block.
+* Red Wildflowers, Bluebonnets, Violets (New in V5.0.2): Basically re-colored vanilla Wildflower blocks.
 
 ## Nether
 

@@ -1286,6 +1286,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			this(generator, "", "");
 		}
 
+		@Override
+		public String toString() {
+			return "DisplayEntry: { name: " + this.name + ", id: " + this.id + ", expectedValueType: " + this.expectedValueType + " }";
+		}
+
 		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {
 			try {
 				Object value;
@@ -1294,6 +1299,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				}
 				else {
 					value = holder.getColumnValue(this.id, y);
+					//don't recurse into voronoi.center_column.
+					if (value instanceof ScriptedColumn) {
+						return;
+					}
 					results.accept(this.name, value);
 				}
 				if (value != null) {
