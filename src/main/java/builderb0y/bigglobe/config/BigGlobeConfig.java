@@ -178,6 +178,7 @@ public class BigGlobeConfig {
 			SIDED_SEPARATE,
 			SIDED_COMBINED;
 
+			@Environment(EnvType.CLIENT)
 			public LodRenderer createRenderer(LodRendering config) {
 				int quads = config.maxQuads;
 				return switch (this) {
@@ -197,6 +198,7 @@ public class BigGlobeConfig {
 		@Excluded
 		public static transient RendererBackend previousRendererBackend = RendererBackend.AUTO;
 
+		@Environment(EnvType.CLIENT)
 		public LodRenderer createRendererBackend() {
 			return this.rendererBackend.createRenderer(this);
 		}

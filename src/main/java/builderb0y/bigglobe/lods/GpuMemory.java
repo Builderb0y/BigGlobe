@@ -24,10 +24,14 @@ public abstract class GpuMemory implements SafeCloseable {
 	}
 
 	public int nAllocate(boolean restore) {
+		GLException.check();
 		int oldID = restore ? glGetInteger(this.bindQuery) : 0;
+		GLException.check();
 		int id = glGenBuffers();
 		try {
+			GLException.check();
 			glBindBuffer(this.binder, id);
+			GLException.check();
 			this.populateInitialData();
 			GLException.check();
 		}

@@ -54,6 +54,8 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public LodSystem(ClientWorld world, ClientGeneratorParams generator) {
+		String message = GLException.checkMessage();
+		if (message != null) BigGlobeMod.LOGGER.warn("A GL exception occurred just before LOD system initialization: " + message);
 		try {
 			this.world = world;
 			this.qualityLimit = BigGlobeConfig.INSTANCE.get().lodRendering.quality;
