@@ -3,15 +3,20 @@ package builderb0y.bigglobe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtElement;
@@ -21,7 +26,10 @@ import net.minecraft.registry.RegistryOps.RegistryInfo;
 import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.ColorResolver;
 
 import builderb0y.autocodec.annotations.Hidden;
@@ -55,6 +63,7 @@ import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
 import builderb0y.bigglobe.lods.LodGenerator;
 import builderb0y.bigglobe.math.Interpolator;
+import builderb0y.bigglobe.mixinInterfaces.DimensionalBlockView;
 import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
@@ -88,10 +97,12 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ClientState {
 
-	public static ClientGeneratorParams generatorParams;
-	/** used by {@link ClientWorld_CustomTimeSpeed}. */
-	public static double timeSpeed = 1.0D;
-	public static boolean dangerousRapids;
+	public static final Map<RegistryKey<World>, ClientState> INSTANCES = new HashMap<>();
+	public static final ReentrantReadWriteLock INSTANCE_LOCK = new ReentrantReadWriteLock();
+
+	public ClientGeneratorParams generatorParams;
+	public double timeSpeed = 1.0D;
+	public boolean dangerousRapids;
 
 	static {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -99,14 +110,84 @@ public class ClientState {
 		}
 	}
 
+	public static @Nullable ClientState get(RegistryKey<World> key) {
+		INSTANCE_LOCK.readLock().lock();
+		try {
+			return INSTANCES.get(key);
+		}
+		finally {
+			INSTANCE_LOCK.readLock().unlock();
+		}
+	}
+
+	public static @Nullable ClientState get(BlockView world) {
+		return world != null ? get(((DimensionalBlockView)(world)).bigglobe_getDimension()) : null;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static @Nullable ClientState get() {
+		return get(MinecraftClient.getInstance().world);
+	}
+
+	public static @NotNull ClientState getOrCreate(RegistryKey<World> key) {
+		INSTANCE_LOCK.readLock().lock();
+		try {
+			return INSTANCES.computeIfAbsent(key, key_ -> new ClientState());
+		}
+		finally {
+			INSTANCE_LOCK.readLock().unlock();
+		}
+	}
+
+	public static @NotNull ClientState getOrCreate(@NotNull World world) {
+		return getOrCreate(world.getRegistryKey());
+	}
+
+	public static void reset() {
+		INSTANCE_LOCK.writeLock().lock();
+		try {
+			INSTANCES.clear();
+		}
+		finally {
+			INSTANCE_LOCK.writeLock().unlock();
+		}
+	}
+
+	public static void retain(Set<RegistryKey<World>> worlds) {
+		INSTANCE_LOCK.writeLock().lock();
+		try {
+			INSTANCES.keySet().retainAll(worlds);
+			for (RegistryKey<World> world : worlds) {
+				INSTANCES.putIfAbsent(world, new ClientState());
+			}
+		}
+		finally {
+			INSTANCE_LOCK.writeLock().unlock();
+		}
+	}
+
+	public static void forEach(Consumer<ClientState> action) {
+		INSTANCE_LOCK.readLock().lock();
+		try {
+			INSTANCES.values().forEach(action);
+		}
+		finally {
+			INSTANCE_LOCK.readLock().unlock();
+		}
+	}
+
 	/** called by the server to sync overworld settings to the client. */
-	public static void sync(ServerPlayerEntity player) {
+	public static void sync(ServerWorld world, ServerPlayerEntity player) {
 		BigGlobeNetwork.LOGGER.debug("Syncing ClientState to " + player);
-		SettingsSyncS2CPacketHandler.INSTANCE.send(player);
+		SettingsSyncS2CPacketHandler.INSTANCE.send(world, player);
 		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 		DangerousRapidsPacket.INSTANCE.send(player);
+		syncWaypoints(world, player);
+	}
+
+	public static void syncWaypoints(ServerWorld world, ServerPlayerEntity player) {
 		if (PlayerWaypointManager.get(player) instanceof ServerPlayerWaypointManager manager) {
-			manager.updateOnWorldChange();
+			manager.updateOnWorldChange(world);
 		}
 	}
 
@@ -115,17 +196,20 @@ public class ClientState {
 		ClientWorldEvents.WORLD_CHANGED.register((ClientWorld oldWorld, ClientWorld newWorld) -> {
 			if (newWorld == null) {
 				BigGlobeMod.LOGGER.info("Resetting ClientState on disconnect.");
-				generatorParams = null;
-				timeSpeed = 1.0D;
+				reset();
 			}
 		});
 	}
 
-	public static void overrideColor(int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
+	public static void overrideColor(BlockView world, int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
 		//don't intercept for my own drawing code,
 		//since it contains intentionally incorrect coordinates.
 		if (LodGenerator.RENDERING_LODS.get()) return;
-		ClientGeneratorParams params = generatorParams;
+		RegistryKey<World> dimension = ((DimensionalBlockView)(world)).bigglobe_getDimension();
+		if (dimension == null) return;
+		ClientState state = get(dimension);
+		if (state == null) return;
+		ClientGeneratorParams params = state.generatorParams;
 		if (params != null) {
 			if (colorResolver == BiomeColors.GRASS_COLOR) {
 				if (params.grassColor != null) {
@@ -181,7 +265,7 @@ public class ClientState {
 
 		@Hidden
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
-			this(BigGlobeConfig.INSTANCE.get().lodRendering.enabled, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+			this(BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 			if (generator.colors != null || this.containsLayers) {
 				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 				if (generator.colors != null) {

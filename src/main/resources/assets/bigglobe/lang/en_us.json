@@ -352,9 +352,19 @@
 	"text.autoconfig.bigglobe.option.lodRendering.@Tooltip[1]": "LOD rendering lets you see farther without significant framerate drops.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.enabled": "Enabled",
-	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[0]": "If true, Big Globe will generate and render a simplified model of the world that has a very far view distance, but lacks things like structures and features.",
-	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[1]": "If false, Big Globe will not do that.",
-	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[2]": "If you're on multiplayer, the server and the client must both have this option enabled for LOD rendering to work.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[0]": "ON: Big Globe will generate and render a simplified model of the world that has a very far view distance, but lacks things like structures and features.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[1]": "OFF: Big Globe will not do that.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[2]": "AUTO: Big Globe will only do that when neither Distant Horizons nor Voxy are installed.",
+	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[3]": "If you're on multiplayer, the server and the client must both have this option enabled for LOD rendering to work.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend": "Renderer Backend",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[0]": "This config option controls what openGL tricks Big Globe uses to render LODs.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[1]": "It is recommended to set this to AUTO to allow Big Globe to pick the best backend for your hardware and drivers.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[2]": "This option exists for people who have compatibility issues with Big Globe's default selection.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[3]": "SIMPLE_SEPARATE: uses one glDrawElements() call for each LOD node.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[4]": "SIDED_SEPARATE: groups faces by normal vector, and for each LOD node, issues a glMultiDrawElements() call for all faces which are facing towards the player.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[5]": "SIDED_COMBINED: groups faces by normal vector, and at the end of rendering, issues a single glMultiDrawElements() call for all visible geometry.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[6]": "AUTO: uses SIDED_COMBINED if GL_ARB_shader_draw_parameters is available, and SIDED_SEPARATE otherwise.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.maxQuads": "Max Quads",
 	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[0]": "The number of quads Big Globe will allow itself to render.",

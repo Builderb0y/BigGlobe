@@ -3,11 +3,11 @@ package builderb0y.bigglobe.hyperspace;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.networking.packets.WaypointAddS2CPacket;
 import builderb0y.bigglobe.networking.packets.WaypointListS2CPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRemoveS2CPacket;
-import builderb0y.bigglobe.versions.EntityVersions;
 
 /**
 manages waypoints that are visible to a ServerPlayerEntity.
@@ -24,8 +24,8 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 		return (ServerPlayerEntity)(this.player);
 	}
 
-	public void updateOnWorldChange() {
-		ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(this.serverPlayer()));
+	public void updateOnWorldChange(ServerWorld world) {
+		ServerWaypointManager manager = ServerWaypointManager.get(world);
 		if (manager != null) {
 			this.clear();
 			manager.getVisibleWaypoints(this.serverPlayer()).forEach((ServerWaypointData waypoint) -> this.addWaypoint(waypoint.toClientData(this.entrance != null ? this.entrance.pos() : null), false));

@@ -26,6 +26,8 @@ import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -33,6 +35,8 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.LightType;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.ColorResolver;
 import net.minecraft.world.chunk.light.LightingProvider;
 
@@ -52,6 +56,7 @@ import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.DirectionVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @Environment(EnvType.CLIENT)
 public class LodGenerator implements SafeCloseable {
@@ -150,7 +155,6 @@ public class LodGenerator implements SafeCloseable {
 	}
 
 	public void runLoop() {
-		int failures = 0;
 		while (true) try {
 			if (!this.running) {
 				BigGlobeMod.LOGGER.info("Big Globe LOD generator thread shutting down.");
@@ -171,19 +175,11 @@ public class LodGenerator implements SafeCloseable {
 					this.currentSupply.add(new LodSupply(request, false));
 				}
 			}
-
-			failures = 0;
 		}
 		catch (Throwable throwable) {
 			BigGlobeMod.LOGGER.error("Exception in Big Globe LOD generator thread:", throwable);
-			if (++failures >= 3) {
-				BigGlobeMod.LOGGER.error("Failed 3 times. Assuming state is corrupt or something and shutting down.");
-				break;
-			}
-			else try {
-				Thread.sleep(5000L);
-			}
-			catch (InterruptedException ignored) {}
+			this.running = false;
+			break;
 		}
 	}
 
@@ -202,7 +198,8 @@ public class LodGenerator implements SafeCloseable {
 			}
 			catch (Throwable throwable) {
 				this.currentSupply.add(new LodSupply(request, false));
-				throw AutoCodecUtil.rethrow(throwable);
+				BigGlobeMod.LOGGER.error("Exception generating LOD meshes:", throwable);
+				this.running = false;
 			}
 			finally {
 				RENDERING_LODS.set(oldRenderingLods);
@@ -487,6 +484,7 @@ public class LodGenerator implements SafeCloseable {
 		public final int minX, minZ, lod;
 		public final ScriptedColumn[] columns;
 		public final BlockPos.Mutable colorGetter;
+		public RegistryEntry<Biome> plainsBiome;
 		public LightingProvider lightingProvider;
 
 		public ColumnBlockView(
@@ -531,22 +529,26 @@ public class LodGenerator implements SafeCloseable {
 		@Override
 		public int getColor(BlockPos pos, ColorResolver colorResolver) {
 			int y = pos.getY() << (this.lod - LodQuadTree.MIN_LEVEL);
+			ScriptedColumn column = this.getColumn(pos);
 			if (colorResolver == BiomeColors.GRASS_COLOR) {
 				if (this.generator.grassColor != null) {
-					return this.generator.grassColor.getColor(this.getColumn(pos), y);
+					return this.generator.grassColor.getColor(column, y);
 				}
 			}
 			else if (colorResolver == BiomeColors.FOLIAGE_COLOR) {
 				if (this.generator.foliageColor != null) {
-					return this.generator.foliageColor.getColor(this.getColumn(pos), y);
+					return this.generator.foliageColor.getColor(column, y);
 				}
 			}
 			else if (colorResolver == BiomeColors.WATER_COLOR) {
 				if (this.generator.waterColor != null) {
-					return this.generator.waterColor.getColor(this.getColumn(pos), y);
+					return this.generator.waterColor.getColor(column, y);
 				}
 			}
-			return colorResolver.getColor(this.getBiomeFabric(pos).value(), this.getColumn(pos).x(), this.getColumn(pos).z());
+			if (this.plainsBiome == null) {
+				this.plainsBiome = RegistryVersions.getEntry(this.delegate.getRegistryManager(), BiomeKeys.PLAINS);
+			}
+			return colorResolver.getColor(this.plainsBiome.value(), column.x(), column.z());
 		}
 
 		@Override

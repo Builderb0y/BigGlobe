@@ -89,7 +89,11 @@ public class SidedVertexConsumer extends VersionedVertexConsumer {
 
 	@Override
 	public void handleColor(int red, int green, int blue, int alpha) {
-		this.handleColor(ColorHelper.getArgb(alpha, red, green, blue));
+		#if MC_VERSION >= MC_1_21_2
+			this.handleColor(ColorHelper.getArgb(alpha, red, green, blue));
+		#else
+			this.handleColor(ColorHelper.Argb.getArgb(alpha, red, green, blue));
+		#endif
 	}
 
 	@Override

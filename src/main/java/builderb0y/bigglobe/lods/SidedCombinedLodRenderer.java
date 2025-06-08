@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -93,7 +94,11 @@ public class SidedCombinedLodRenderer extends AbstractLodRenderer {
 					);
 					GLException.check();
 				}
-				GLException.check();
+				GLException.check(); //handles exceptions from this.transformationBuffer.bind().close().
+				if (this.state.inTranslucentPass) {
+					this.depthBuffer.copyTo(glID(MinecraftClient.getInstance().getFramebuffer()));
+					GLException.check();
+				}
 				this.multiDrawStarts.clear();
 				this.multiDrawSizes.clear();
 				this.zeros.clear();

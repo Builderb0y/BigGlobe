@@ -64,7 +64,8 @@ public class RiverWaterBlock extends FluidBlock {
 			return serverWorld.getGameRules().getBoolean(BigGlobeGameRules.DANGEROUS_RAPIDS);
 		}
 		else {
-			return ClientState.dangerousRapids;
+			ClientState state = ClientState.get(world);
+			return state != null && state.dangerousRapids;
 		}
 	}
 
@@ -94,7 +95,8 @@ public class RiverWaterBlock extends FluidBlock {
 	@Environment(EnvType.CLIENT)
 	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		super.randomDisplayTick(state, world, pos, random);
-		if (world.isClient && ClientState.dangerousRapids) {
+		ClientState clientState;
+		if (world.isClient && (clientState = ClientState.get(world)) != null && clientState.dangerousRapids) {
 			if (random.nextInt(64) == 0) {
 				world.playSound(MinecraftClient.getInstance().player, pos, SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
 			}

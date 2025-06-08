@@ -37,11 +37,17 @@ public abstract class ClientWorld_CustomTimeSpeed extends World {
 		private void bigglobe_tickTime(ClientWorld instance, long timeOfDay, Operation<Void> original)
 	#endif
 	{
-		this.bigglobe_customTime += ClientState.timeSpeed;
-		int elapsedTicks = (int)(this.bigglobe_customTime);
-		if (elapsedTicks > 0) {
-			this.bigglobe_customTime -= elapsedTicks;
-			original.call(instance, timeOfDay + elapsedTicks - 1L);
+		ClientState state = ClientState.get(this.getRegistryKey());
+		if (state != null) {
+			this.bigglobe_customTime += state.timeSpeed;
+			int elapsedTicks = (int)(this.bigglobe_customTime);
+			if (elapsedTicks > 0) {
+				this.bigglobe_customTime -= elapsedTicks;
+				original.call(instance, timeOfDay + elapsedTicks - 1L);
+			}
+		}
+		else {
+			original.call(instance, timeOfDay);
 		}
 	}
 }

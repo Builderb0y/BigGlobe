@@ -16,6 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.HyperspaceRendering.VisibleWaypointData;
@@ -37,7 +38,16 @@ import static builderb0y.bigglobe.hyperspace.HyperspaceRendering.*;
 @Environment(EnvType.CLIENT)
 public class SatinCompat {
 
-	public static final boolean ENABLED = FabricLoader.getInstance().isModLoaded("satin");
+	public static final boolean ENABLED;
+
+	static {
+		boolean enabled = InstalledMods.SATIN;
+		if (enabled && InstalledMods.IMMERSIVE_PORTALS) {
+			BigGlobeMod.LOGGER.warn("Fancy waypoint renderer disabled because it conflicts with Immersive Portals.");
+			enabled = false;
+		}
+		ENABLED = enabled;
+	}
 
 	public static void init() {
 		#if MC_VERSION < MC_1_21_2
@@ -46,9 +56,6 @@ public class SatinCompat {
 			}
 			catch (LinkageError error) {
 				BigGlobeMod.LOGGER.error("Failed to setup satin integration. Waypoints and hyperspace will look boring.", error);
-			}
-			else {
-				BigGlobeMod.LOGGER.info("Satin is not installed. Waypoints and hyperspace will look boring.");
 			}
 		#endif
 	}

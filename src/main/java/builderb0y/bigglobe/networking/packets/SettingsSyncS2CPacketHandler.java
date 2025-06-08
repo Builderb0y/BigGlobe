@@ -12,16 +12,21 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtEnd;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
-import builderb0y.bigglobe.ClientState.Syncing;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -29,6 +34,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
@@ -46,10 +52,12 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	*/
 	public static class Receiving {
 
+		/** contains registry data needed by paramsNbt. */
 		public final ClientState.Syncing clientState;
+		/** contains usage of registry data. */
 		public final NbtElement paramsNbt;
 
-		public Receiving(Syncing clientState, NbtElement paramsNbt) {
+		public Receiving(ClientState.Syncing clientState, NbtElement paramsNbt) {
 			this.clientState = clientState;
 			this.paramsNbt = paramsNbt;
 		}
@@ -76,7 +84,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 				else throw new IllegalStateException("Received params NBT, but not syncing NBT?");
 			}
 			return new Receiving(
-				BigGlobeAutoCodec.AUTO_CODEC.decode(Syncing.CODER, syncingNbt, NbtOps.INSTANCE),
+				BigGlobeAutoCodec.AUTO_CODEC.decode(ClientState.Syncing.CODER, syncingNbt, NbtOps.INSTANCE),
 				paramsNbt
 			);
 		}
@@ -89,32 +97,36 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void process(Receiving receiving, PacketSender responseSender) {
-		ClientGeneratorParams data;
-		try {
-			//receiving can be null if the player is in a non-scripted dimension.
-			data = receiving != null ? receiving.compile() : null;
-		}
-		catch (Exception exception) {
-			BigGlobeMod.LOGGER.error("Failed to compile worldgen data from server!", exception);
-			data = null;
-		}
-		ClientState.generatorParams = data;
-		if (data != null) {
-			if (data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
-				DependencyDepthSorter.start(
-					data.compiledWorldTraits,
-					data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
-					"client"
-				);
+		ClientWorld world = MinecraftClient.getInstance().world;
+		if (world != null) {
+			ClientGeneratorParams data;
+			try {
+				//receiving can be null if the player is in a non-scripted dimension.
+				data = receiving != null ? receiving.compile() : null;
 			}
+			catch (Exception exception) {
+				BigGlobeMod.LOGGER.error("Failed to compile worldgen data from server!", exception);
+				data = null;
+			}
+			ClientState state = ClientState.getOrCreate(world);
+			state.generatorParams = data;
+			if (data != null) {
+				if (data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
+					DependencyDepthSorter.start(
+						data.compiledWorldTraits,
+						data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
+						"client"
+					);
+				}
+			}
+			LodSystem.reload((LodSystemHolder)(MinecraftClient.getInstance().worldRenderer), world, data);
 		}
-		LodSystem.reload(MinecraftClient.getInstance().world, data);
 	}
 
-	public void send(ServerPlayerEntity player) {
+	public void send(ServerWorld world, ServerPlayerEntity player) {
 		ClientState.Syncing syncing;
 		ClientGeneratorParams params;
-		if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			syncing = new ClientState.Syncing(generator);
 			params = new ClientGeneratorParams(generator, syncing);
 		}

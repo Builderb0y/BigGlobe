@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.lods;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -21,26 +20,20 @@ import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.lods.LodGenerator.LodSupply;
+import builderb0y.bigglobe.lods.LodRenderer.FogParams;
 import builderb0y.bigglobe.lods.LodRenderer.MeshUploader;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.FastMath;
-import builderb0y.bigglobe.util.ClientWorldEvents;
+import builderb0y.bigglobe.math.FastMath.Log;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 
 @Environment(EnvType.CLIENT)
 public class LodSystem implements SafeCloseable {
 
-	public static LodSystem INSTANCE;
-
 	static {
 		WorldRenderEvents.AFTER_SETUP.register((WorldRenderContext context) -> {
-			if (INSTANCE != null && !context.worldRenderer().hasBlindnessOrDarkness(context.camera())) {
-				INSTANCE.render(context);
-			}
-		});
-		ClientWorldEvents.WORLD_CHANGED.register((ClientWorld oldWorld, ClientWorld newWorld) -> {
-			if (INSTANCE != null) {
-				INSTANCE.close();
-				INSTANCE = null;
+			LodSystem system = ((LodSystemHolder)(context.worldRenderer())).bigglobe_getLodSystem();
+			if (system != null && !context.worldRenderer().hasBlindnessOrDarkness(context.camera())) {
+				system.render(context);
 			}
 		});
 	}
@@ -52,7 +45,7 @@ public class LodSystem implements SafeCloseable {
 	public LodQuadTree tree;
 	public LodRenderer renderer;
 	public LodFrustum frustum;
-	public LodRenderer.FogParams fog;
+	public FogParams fog;
 	public double currentQuality, qualityLimit;
 
 	@Override
@@ -64,13 +57,13 @@ public class LodSystem implements SafeCloseable {
 		try {
 			this.world = world;
 			this.qualityLimit = BigGlobeConfig.INSTANCE.get().lodRendering.quality;
-			int quads = BigGlobeConfig.INSTANCE.get().lodRendering.maxQuads;
-			this.renderer = GL.getCapabilities().GL_ARB_shader_draw_parameters ? new SidedCombinedLodRenderer(quads) : new SidedLodRenderer(quads);
+			this.renderer = BigGlobeConfig.INSTANCE.get().lodRendering.createRendererBackend();
 			this.generator = new LodGenerator(this, generator);
 			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
 			this.frustum = new LodFrustum();
-			this.fog = new LodRenderer.FogParams();
+			this.fog = new FogParams();
 			GLException.check();
+			this.generator.start();
 		}
 		catch (Throwable throwable) {
 			this.close();
@@ -78,23 +71,20 @@ public class LodSystem implements SafeCloseable {
 		}
 	}
 
-	public static void reload() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		//forge loads the config file, which reloads LODs,
-		//all before the MinecraftClient instance has been created.
-		if (client != null) {
-			reload(client.world, ClientState.generatorParams);
-		}
+	public static void reload(LodSystemHolder holder, ClientWorld world) {
+		ClientState state = ClientState.get(world);
+		reload(holder, world, state != null ? state.generatorParams : null);
 	}
 
-	public static void reload(ClientWorld world, ClientGeneratorParams params) {
-		if (INSTANCE != null) {
-			INSTANCE.close();
-			INSTANCE = null;
+	public static void reload(LodSystemHolder holder, ClientWorld world, ClientGeneratorParams params) {
+		LodSystem system = holder.bigglobe_getLodSystem();
+		if (system != null) {
+			system.close();
+			holder.bigglobe_setLodSystem(null);
 		}
-		if (world != null && params != null && params.layer != null && BigGlobeConfig.INSTANCE.get().lodRendering.enabled) {
+		if (world != null && params != null && params.layer != null && BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled()) {
 			try {
-				INSTANCE = new LodSystem(world, params);
+				holder.bigglobe_setLodSystem(new LodSystem(world, params));
 			}
 			catch (Exception exception) {
 				BigGlobeMod.LOGGER.error("Failed to setup LOD renderer:", exception);
@@ -155,6 +145,13 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public void render(WorldRenderContext context) {
+		if (!this.generator.running) {
+			BigGlobeMod.LOGGER.error("LOD system shutting down due to exception in mesh generator thread. Press F3+A to restart it.");
+			this.close();
+			((LodSystemHolder)(context.worldRenderer())).bigglobe_setLodSystem(null);
+			return;
+		}
+
 		GLException failure = null;
 
 		#if MC_VERSION >= MC_1_21_2
@@ -226,7 +223,6 @@ public class LodSystem implements SafeCloseable {
 			else if (!this.tree.isQueued()) {
 				this.generator.request(this.tree);
 				this.tree.split();
-				this.generator.start();
 			}
 		}
 
@@ -235,7 +231,7 @@ public class LodSystem implements SafeCloseable {
 		if (failure != null) {
 			BigGlobeMod.LOGGER.error("LOD rendering encountered an unexpected exception and will now stop. Press F3+A to restart it.", failure);
 			this.close();
-			INSTANCE = null;
+			((LodSystemHolder)(context.worldRenderer())).bigglobe_setLodSystem(null);
 		}
 	}
 
@@ -328,6 +324,6 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public double computeIdealQuality(double squareDistance, LodQuadTree tree) {
-		return FastMath.Log.fastLog2(squareDistance) * 0.5D - tree.level;
+		return Log.fastLog2(squareDistance) * 0.5D - tree.level;
 	}
 }

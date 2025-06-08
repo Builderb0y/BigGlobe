@@ -69,7 +69,7 @@ public class DistantHorizonsCompat {
 	}
 
 	public static void init() {
-		if (FabricLoader.getInstance().isModLoaded("distanthorizons")) try {
+		if (InstalledMods.DISTANT_HORIZONS) try {
 			DHCode.init();
 		}
 		catch (LinkageError error) {

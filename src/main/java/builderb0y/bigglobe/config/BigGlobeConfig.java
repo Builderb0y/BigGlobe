@@ -16,15 +16,18 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import org.lwjgl.opengl.*;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
-import builderb0y.bigglobe.compat.C2MECompat;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
-import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.compat.InstalledMods;
+import builderb0y.bigglobe.lods.*;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
 @Config(name = BigGlobeMod.MODID)
@@ -143,10 +146,60 @@ public class BigGlobeConfig {
 
 	public static class LodRendering {
 
-		@Tooltip(count = 3)
-		@UseName("LOD Rendering Enabled")
+		public static enum EnabledMode {
+			AUTO,
+			ON,
+			OFF;
+
+			public boolean isEnabled() {
+				return switch (this) {
+					case AUTO -> !InstalledMods.DISTANT_HORIZONS && !InstalledMods.VOXY;
+					case ON   -> true;
+					case OFF  -> false;
+				};
+			}
+		}
+
+		@Tooltip(count = 4)
+		@UseName("Enabled")
+		@EnumHandler(option = EnumDisplayOption.BUTTON)
 		@DefaultIgnore
-		public boolean enabled = true;
+		public EnabledMode enabled = EnabledMode.AUTO;
+		@Excluded
+		public static transient boolean previousEnabled = EnabledMode.AUTO.isEnabled();
+
+		public boolean renderingEnabled() {
+			return this.enabled.isEnabled();
+		}
+
+		public static enum RendererBackend {
+			AUTO,
+			SIMPLE_SEPARATE,
+			SIDED_SEPARATE,
+			SIDED_COMBINED;
+
+			public LodRenderer createRenderer(LodRendering config) {
+				int quads = config.maxQuads;
+				return switch (this) {
+					case AUTO -> GL.getCapabilities().GL_ARB_shader_draw_parameters ? new SidedCombinedLodRenderer(quads) : new SidedSeparateLodRenderer(quads);
+					case SIMPLE_SEPARATE -> new SimpleLodRenderer(quads);
+					case SIDED_SEPARATE -> new SidedSeparateLodRenderer(quads);
+					case SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
+				};
+			}
+		}
+
+		@Tooltip(count = 7)
+		@UseName("Renderer Backend")
+		@EnumHandler(option = EnumDisplayOption.BUTTON)
+		@DefaultIgnore
+		public RendererBackend rendererBackend = RendererBackend.AUTO;
+		@Excluded
+		public static transient RendererBackend previousRendererBackend = RendererBackend.AUTO;
+
+		public LodRenderer createRendererBackend() {
+			return this.rendererBackend.createRenderer(this);
+		}
 
 		@Tooltip(count = 3)
 		@UseName("Maximum Quad Count")
@@ -210,13 +263,22 @@ public class BigGlobeConfig {
 
 		@Environment(EnvType.CLIENT)
 		public void maybeReloadLODs() {
-			if (this.maxQuads != previousMaxQuads || this.undergroundMode != previousUndergroundMode) {
-				previousMaxQuads = this.maxQuads;
+			MinecraftClient client = MinecraftClient.getInstance();
+			LodSystemHolder holder = client != null ? (LodSystemHolder)(client.worldRenderer) : null;
+			if (
+				this.renderingEnabled() != previousEnabled         ||
+				this.rendererBackend    != previousRendererBackend ||
+				this.maxQuads           != previousMaxQuads        ||
+				this.undergroundMode    != previousUndergroundMode
+			) {
+				previousEnabled         = this.renderingEnabled();
+				previousRendererBackend = this.rendererBackend;
+				previousMaxQuads        = this.maxQuads;
 				previousUndergroundMode = this.undergroundMode;
-				LodSystem.reload();
+				if (holder != null) LodSystem.reload(holder, client.world);
 			}
-			else {
-				LodSystem system = LodSystem.INSTANCE;
+			else if (holder != null) {
+				LodSystem system = holder.bigglobe_getLodSystem();
 				if (system != null) {
 					system.qualityLimit = this.quality;
 				}
@@ -287,7 +349,7 @@ public class BigGlobeConfig {
 		public boolean multiThreadedStructures = false;
 
 		public boolean multiThreadedStructures() {
-			return C2MECompat.AVAILABLE && this.multiThreadedStructures;
+			return InstalledMods.C2ME && this.multiThreadedStructures;
 		}
 	}
 

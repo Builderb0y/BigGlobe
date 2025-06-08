@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -11,7 +12,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import static org.lwjgl.opengl.GL32C.*;
 
 @Environment(EnvType.CLIENT)
-public class DefaultLodRenderer extends AbstractLodRenderer {
+public class SimpleLodRenderer extends AbstractLodRenderer {
 
 	public DefaultCapturedState state = new DefaultCapturedState();
 	public SeparateLodShader shader;
@@ -21,7 +22,7 @@ public class DefaultLodRenderer extends AbstractLodRenderer {
 		ResourceTracker.closeAll(super::close, this.shader);
 	}
 
-	public DefaultLodRenderer(int quadCount) {
+	public SimpleLodRenderer(int quadCount) {
 		super(quadCount);
 		try {
 			this.shader = new SeparateLodShader();
@@ -52,7 +53,13 @@ public class DefaultLodRenderer extends AbstractLodRenderer {
 
 			this.setupUniforms(context, this.shader, fog);
 		}
-		return this.state;
+		return () -> {
+			if (this.state.inTranslucentPass) {
+				this.depthBuffer.copyTo(glID(MinecraftClient.getInstance().getFramebuffer()));
+				GLException.check();
+				this.state.restore();
+			}
+		};
 	}
 
 	@Override
@@ -68,7 +75,7 @@ public class DefaultLodRenderer extends AbstractLodRenderer {
 			@Override
 			public SafeCloseable upload(VertexConsumerProvider provider) {
 				LodPasses.Builder builder = (LodPasses.Builder)(provider);
-				return builder.build(DefaultLodRenderer.this.heap);
+				return builder.build(SimpleLodRenderer.this.heap);
 			}
 
 			@Override

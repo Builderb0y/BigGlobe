@@ -25,7 +25,7 @@ public class TimeSpeedS2CPacketHandler implements S2CPlayPacketHandler<Double> {
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void process(Double data, PacketSender responseSender) {
-		ClientState.timeSpeed = data;
+		ClientState.forEach((ClientState state) -> state.timeSpeed = data);
 	}
 
 	public void send(ServerPlayerEntity player) {

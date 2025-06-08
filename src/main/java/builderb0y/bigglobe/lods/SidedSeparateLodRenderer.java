@@ -4,16 +4,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.bigglobe.lods.DefaultLodRenderer.DefaultCapturedState;
+import builderb0y.bigglobe.lods.SimpleLodRenderer.DefaultCapturedState;
 import builderb0y.bigglobe.lods.LodPasses.Geometry;
 
 import static org.lwjgl.opengl.GL32C.*;
 
 @Environment(EnvType.CLIENT)
-public class SidedLodRenderer extends AbstractLodRenderer {
+public class SidedSeparateLodRenderer extends AbstractLodRenderer {
 
 	public DefaultCapturedState state = new DefaultCapturedState();
 	public SeparateLodShader shader;
@@ -31,7 +32,7 @@ public class SidedLodRenderer extends AbstractLodRenderer {
 		);
 	}
 
-	public SidedLodRenderer(int quadCount) {
+	public SidedSeparateLodRenderer(int quadCount) {
 		super(quadCount);
 		try {
 			this.shader = new SeparateLodShader();
@@ -65,7 +66,13 @@ public class SidedLodRenderer extends AbstractLodRenderer {
 
 			this.setupUniforms(context, this.shader, fog);
 		}
-		return this.state;
+		return () -> {
+			if (this.state.inTranslucentPass) {
+				this.depthBuffer.copyTo(glID(MinecraftClient.getInstance().getFramebuffer()));
+				GLException.check();
+				this.state.restore();
+			}
+		};
 	}
 
 	@Override
@@ -81,7 +88,7 @@ public class SidedLodRenderer extends AbstractLodRenderer {
 			@Override
 			public SafeCloseable upload(VertexConsumerProvider provider) {
 				SidedLodPasses.Builder builder = (SidedLodPasses.Builder)(provider);
-				return builder.build(SidedLodRenderer.this.heap);
+				return builder.build(SidedSeparateLodRenderer.this.heap);
 			}
 
 			@Override

@@ -42,6 +42,10 @@ where I left off:
 	middle clicking a waypoint no longer works.
 		this is because all this logic was moved to server-side,
 		and waypoint entities don't exist server-side.
+	non-voronoi caves that resemble the surface.
+	fix medium_foliage feature dispatcher using biome to determine which feature to place.
+		should use column values instead.
+	try to do perlin noise again.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -59,15 +63,18 @@ noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 
 high priority:
-	LOD rendering causes all create blocks to become fog-colored.
-		only create fabric? apparently non-issue with sinytra connector.
-	make LOD renderer compatible with immersive portals.
 
 LODs:
 	shader support.
 
 changelog:
 	* Increased LOD rendering speed by about 20%-ish (results may vary).
+	* Fixed log spam and out-of-memory conditions when LOD mesh builder encounters an exception.
+	* LOD renderer is now compatible with Immersive Portals.
+	* Fancy waypoint renderer now disables itself when Immersive Portals is installed.
+		* Non-fancy waypoint renderer remains active.
+		* I might look into getting this to work better some other time.
+	* Fixed create blocks showing up as fog-colored when LOD rendering is active.
 
 alternate world presets:
 	paradise.

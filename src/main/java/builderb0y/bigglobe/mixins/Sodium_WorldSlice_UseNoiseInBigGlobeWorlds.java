@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.color.world.BiomeColors;
+import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.ClientState;
 
@@ -22,6 +23,7 @@ public class Sodium_WorldSlice_UseNoiseInBigGlobeWorlds {
 	@Inject(method = "getColor(Lme/jellysquid/mods/sodium/client/world/biome/BiomeColorSource;III)I", at = @At("HEAD"), cancellable = true, remap = false)
 	private void bigglobe_useNoiseInBigGlobeWorlds(BiomeColorSource source, int x, int y, int z, CallbackInfoReturnable<Integer> callback) {
 		ClientState.overrideColor(
+			(BlockView)(this),
 			x, y, z,
 			switch (source) {
 				case GRASS   -> BiomeColors.  GRASS_COLOR;

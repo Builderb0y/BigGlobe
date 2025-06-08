@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -81,7 +82,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			BlockProperties blockProperties = decodeState(blockRegistry, string.value);
 			Set<Property<?>> missing = blockProperties.missing();
 			if (!missing.isEmpty()) {
-				context.logger().logErrorLazy(() -> "Missing properties: " + missing);
+				context.logger().logErrorLazy(() -> "Block " + Registries.BLOCK.getId(blockProperties.block) + " is missing properties: " + missing);
 			}
 			return blockProperties.state();
 		}

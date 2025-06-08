@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
@@ -25,7 +26,7 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void process(Boolean data, PacketSender responseSender) {
-		ClientState.dangerousRapids = data;
+		ClientState.forEach((ClientState state) -> state.dangerousRapids = data);
 	}
 
 	public void send(ServerPlayerEntity player) {

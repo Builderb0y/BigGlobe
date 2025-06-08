@@ -26,6 +26,8 @@ public class GLException extends RuntimeException {
 
 	public static void check() {
 		int error = glGetError();
-		if (error != GL_NO_ERROR) throw new GLException(error);
+		if (error != GL_NO_ERROR) {
+			throw new GLException(error);
+		}
 	}
 }

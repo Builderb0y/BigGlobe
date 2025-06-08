@@ -6,7 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -29,12 +28,13 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 	public VertexHeap heap;
 	public ElementBuffer elementBuffer;
 	public int vao;
+	public ScratchDepthBuffer depthBuffer;
 	public MatrixStorageWorkaround matrixStorage;
 
 	@Override
 	public void close() {
 		if (this.vao != 0) { glDeleteVertexArrays(this.vao); this.vao = 0; }
-		ResourceTracker.closeAll(this.heap, this.elementBuffer, this.matrixStorage);
+		ResourceTracker.closeAll(this.heap, this.elementBuffer, this.depthBuffer, this.matrixStorage);
 	}
 
 	public AbstractLodRenderer(int quadCount) {
@@ -46,6 +46,7 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 			this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
 			this.elementBuffer = new ElementBuffer();
 			this.vao = glGenVertexArrays();
+			this.depthBuffer = new ScratchDepthBuffer();
 			this.matrixStorage = new MatrixStorageWorkaround();
 
 			this.setupVao();
@@ -129,7 +130,9 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 
 	public void setupOpaqueState(CapturedGlState state) {
 		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
-		state.setFramebuffer(glID(framebuffer));
+		int framebufferID = glID(framebuffer);
+		state.setFramebuffer(framebufferID);
+		this.depthBuffer.copyFrom(framebufferID, framebuffer.textureWidth, framebuffer.textureHeight);
 		state.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
 		state.setCullFace(true);
 		state.setCullFaceMode(GL_BACK);
@@ -156,8 +159,14 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 		glUniform3f(shader.fogColor, fog.red, fog.green, fog.blue);
 		float globalFogDensity = BigGlobeConfig.INSTANCE.get().lodRendering.fogDensity;
 		float fogHeightScale = BigGlobeConfig.INSTANCE.get().lodRendering.fogHeightScale;
-		ClientGeneratorParams params = ClientState.generatorParams;
-		if (params != null && params.seaLevel != null && fogHeightScale != 0.0F) {
+		ClientState state;
+		ClientGeneratorParams params;
+		if (
+			(state = ClientState.get(context.world())) != null &&
+			(params = state.generatorParams) != null &&
+			params.seaLevel != null &&
+			fogHeightScale != 0.0F
+		) {
 			double seaLevel = params.seaLevel.doubleValue();
 			double cameraY = context.camera().getPos().y;
 			double worldMaxY = HeightLimitViewVersions.getMaxY(context.world());
@@ -428,7 +437,6 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 		@Override
 		public void close() {
 			if (this.inTranslucentPass) {
-				glClear(GL_DEPTH_BUFFER_BIT);
 				GLException.check();
 				this.restore();
 			}

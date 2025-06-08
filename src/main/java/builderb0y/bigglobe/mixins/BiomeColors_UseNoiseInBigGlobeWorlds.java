@@ -20,6 +20,6 @@ public class BiomeColors_UseNoiseInBigGlobeWorlds {
 
 	@Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_overrideColor(BlockRenderView world, BlockPos pos, ColorResolver resolver, CallbackInfoReturnable<Integer> callback) {
-		ClientState.overrideColor(pos.getX(), pos.getY(), pos.getZ(), resolver, callback);
+		ClientState.overrideColor(world, pos.getX(), pos.getY(), pos.getZ(), resolver, callback);
 	}
 }

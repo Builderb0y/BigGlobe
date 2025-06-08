@@ -7,17 +7,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 
 @Mixin(DebugHud.class)
 public class DebugHud_ShowLodStatus {
 
 	@Inject(method = "getRightText", at = @At("RETURN"))
 	private void bigglobe_showLodStatus(CallbackInfoReturnable<List<String>> callback) {
-		LodSystem system = LodSystem.INSTANCE;
+		LodSystem system = ((LodSystemHolder)(MinecraftClient.getInstance().worldRenderer)).bigglobe_getLodSystem();
 		if (system != null) {
 			int meshedNodes = LodSystem.countMeshes(system.tree);
 			int renderingNodes = LodSystem.countRenderingNodes(system.tree);
@@ -25,7 +27,9 @@ public class DebugHud_ShowLodStatus {
 			double currentQuality = system.currentQuality;
 			double qualityLimit = system.qualityLimit;
 			double qualityConfig = BigGlobeConfig.INSTANCE.get().lodRendering.quality;
-			callback.getReturnValue().add("[BG] LOD nodes: R: " + renderingNodes + ", M: " + meshedNodes + ", T: " + totalNodes + ", Q: " + currentQuality + "/" + qualityLimit + "/" + qualityConfig);
+			String rendererName = system.renderer.getClass().getSimpleName();
+			if (rendererName.endsWith("LodRenderer")) rendererName = rendererName.substring(0, rendererName.length() - "LodRenderer".length());
+			callback.getReturnValue().add("[BG] LOD Renderer: " + rendererName + ", Nodes: R: " + renderingNodes + ", M: " + meshedNodes + ", T: " + totalNodes + ", Q: " + currentQuality + "/" + qualityLimit + "/" + qualityConfig);
 			system.renderer.appendTextToF3Menu(callback.getReturnValue());
 		}
 	}
