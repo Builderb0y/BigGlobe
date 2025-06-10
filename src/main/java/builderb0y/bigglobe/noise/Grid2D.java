@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.perlin.PerlinGrid2D;
 import builderb0y.bigglobe.noise.processing.*;
 import builderb0y.bigglobe.noise.resample.*;
 import builderb0y.bigglobe.noise.resample.derivatives.*;
@@ -37,6 +38,7 @@ public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),                                    SmoothGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("smoother"),                                SmootherGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),                                      CubicGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("perlin"),                                    PerlinGrid2D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),                                    WorleyGrid2D.class);
 

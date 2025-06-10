@@ -43,9 +43,9 @@ where I left off:
 		this is because all this logic was moved to server-side,
 		and waypoint entities don't exist server-side.
 	non-voronoi caves that resemble the surface.
-	fix medium_foliage feature dispatcher using biome to determine which feature to place.
-		should use column values instead.
 	try to do perlin noise again.
+	make water puddle feature place mud around it.
+	make powdered snow spawn in frozen caves.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -67,14 +67,27 @@ high priority:
 LODs:
 	shader support.
 
+json classes:
+	core goals:
+		* allow json to define classes that can be used anywhere that column values can be used.
+		* json-defined classes may have:
+			* fields, populated by the constructor.
+			* properties, computed lazily like column values.
+				* can be cached or uncached, also like column values.
+			* methods, which can be called to do whatever.
+		* class schemas would be in their own registry.
+			* types that reference themselves (either directly or indirectly) would be allowed in this system.
+		* user-defined classes may extend other user-defined classes and override their methods.
+	extra goals:
+		* static methods.
+		* the ability for data packs to add additional methods and properties to existing json-defined classes.
+			* but not fields, since this would change the constructor, which scripts may rely on.
+		* json-defined interfaces, interface inheritance, and classes implementing multiple interfaces.
+	non-goals:
+		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
+			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
+
 changelog:
-	* Increased LOD rendering speed by about 20%-ish (results may vary).
-	* Fixed log spam and out-of-memory conditions when LOD mesh builder encounters an exception.
-	* LOD renderer is now compatible with Immersive Portals.
-	* Fancy waypoint renderer now disables itself when Immersive Portals is installed.
-		* Non-fancy waypoint renderer remains active.
-		* I might look into getting this to work better some other time.
-	* Fixed create blocks showing up as fog-colored when LOD rendering is active.
 
 alternate world presets:
 	paradise.

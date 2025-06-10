@@ -2,6 +2,9 @@ package builderb0y.bigglobe.noise;
 
 import org.junit.jupiter.api.Test;
 
+import builderb0y.bigglobe.noise.perlin.PerlinGrid1D;
+import builderb0y.bigglobe.noise.perlin.PerlinGrid2D;
+import builderb0y.bigglobe.noise.perlin.PerlinGrid3D;
 import builderb0y.bigglobe.noise.resample.*;
 import builderb0y.bigglobe.noise.resample.derivatives.*;
 import builderb0y.bigglobe.noise.source.WhiteNoiseGrid1D;
@@ -14,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ResampleGridTest {
 
 	public static final long
-		GRID_SEED = Permuter.stafford(12345L),
+		GRID_SEED  = Permuter.stafford(12345L),
 		WORLD_SEED = Permuter.stafford(54321L);
 	public static final int
 		GRID_SCALE_X = 16,
@@ -63,9 +66,21 @@ public class ResampleGridTest {
 			gridScratch,
 			derivativeScratch
 		);
+		test1D(
+			new PerlinGrid1D(new Seed(GRID_SEED), GRID_SCALE_X, 1.0D, 1.0D),
+			gridScratch
+		);
 	}
 
-	public void test1D(Grid1D grid, Grid1D derivative, NumberArray gridScratch, NumberArray derivativeScratch) {
+	@Deprecated
+	public static void test1D(Grid1D grid, NumberArray gridScratch) {
+		grid.getBulkX(WORLD_SEED, START_X, gridScratch);
+		for (int index = 0; index < ARRAY_SIZE; index++) {
+			assertEquals(gridScratch.getD(index), grid.getValue(WORLD_SEED, index + START_X), VALUE_EPSILON);
+		}
+	}
+
+	public static void test1D(Grid1D grid, Grid1D derivative, NumberArray gridScratch, NumberArray derivativeScratch) {
 		grid.getBulkX(WORLD_SEED, START_X, gridScratch);
 		derivative.getBulkX(WORLD_SEED, START_X, derivativeScratch);
 		for (int index = 0; index < ARRAY_SIZE; index++) {
@@ -114,9 +129,26 @@ public class ResampleGridTest {
 			gridScratch,
 			derivativeScratch
 		);
+		test2D(
+			new PerlinGrid2D(new Seed(GRID_SEED), GRID_SCALE_X, GRID_SCALE_Y, 1.0D, 1.0D),
+			gridScratch
+		);
 	}
 
-	public void test2D(Grid2D grid, Grid2D derivativeX, Grid2D derivativeY, NumberArray gridScratch, NumberArray derivativeScratch) {
+	@Deprecated
+	public static void test2D(Grid2D grid, NumberArray gridScratch) {
+		grid.getBulkX(WORLD_SEED, START_X, START_Y, gridScratch);
+		for (int index = 0; index < ARRAY_SIZE; index++) {
+			assertEquals(gridScratch.getD(index), grid.getValue(WORLD_SEED, index + START_X, START_Y), VALUE_EPSILON);
+		}
+
+		grid.getBulkY(WORLD_SEED, START_X, START_Y, gridScratch);
+		for (int index = 0; index < ARRAY_SIZE; index++) {
+			assertEquals(gridScratch.getD(index), grid.getValue(WORLD_SEED, START_X, index + START_Y), VALUE_EPSILON);
+		}
+	}
+
+	public static void test2D(Grid2D grid, Grid2D derivativeX, Grid2D derivativeY, NumberArray gridScratch, NumberArray derivativeScratch) {
 		grid.getBulkX(WORLD_SEED, START_X, START_Y, gridScratch);
 		derivativeX.getBulkX(WORLD_SEED, START_X, START_Y, derivativeScratch);
 		for (int index = 0; index < ARRAY_SIZE; index++) {
@@ -190,9 +222,30 @@ public class ResampleGridTest {
 			gridScratch,
 			derivativeScratch
 		);
+		test3D(
+			new PerlinGrid3D(new Seed(GRID_SEED), GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z, 1.0D, 1.0D),
+			gridScratch
+		);
 	}
 
-	public void test3D(Grid3D grid, Grid3D derivativeX, Grid3D derivativeY, Grid3D derivativeZ, NumberArray gridScratch, NumberArray derivativeScratch) {
+	public static void test3D(Grid3D grid, NumberArray gridScratch) {
+		grid.getBulkX(WORLD_SEED, START_X, START_Y, START_Z, gridScratch);
+		for (int index = 0; index < ARRAY_SIZE; index++) {
+			assertEquals(gridScratch.getD(index), grid.getValue(WORLD_SEED, index + START_X, START_Y, START_Z), VALUE_EPSILON);
+		}
+
+		grid.getBulkY(WORLD_SEED, START_X, START_Y, START_Z, gridScratch);
+		for (int index = 0; index < ARRAY_SIZE; index++) {
+			assertEquals(gridScratch.getD(index), grid.getValue(WORLD_SEED, START_X, index + START_Y, START_Z), VALUE_EPSILON);
+		}
+
+		grid.getBulkZ(WORLD_SEED, START_X, START_Y, START_Z, gridScratch);
+		for (int index = 0; index < ARRAY_SIZE; index++) {
+			assertEquals(gridScratch.getD(index), grid.getValue(WORLD_SEED, START_X, START_Y, index + START_Z), VALUE_EPSILON);
+		}
+	}
+
+	public static void test3D(Grid3D grid, Grid3D derivativeX, Grid3D derivativeY, Grid3D derivativeZ, NumberArray gridScratch, NumberArray derivativeScratch) {
 		grid.getBulkX(WORLD_SEED, START_X, START_Y, START_Z, gridScratch);
 		derivativeX.getBulkX(WORLD_SEED, START_X, START_Y, START_Z, derivativeScratch);
 		for (int index = 0; index < ARRAY_SIZE; index++) {

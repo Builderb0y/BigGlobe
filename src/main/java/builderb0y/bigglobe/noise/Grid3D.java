@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.perlin.PerlinGrid3D;
 import builderb0y.bigglobe.noise.processing.*;
 import builderb0y.bigglobe.noise.resample.*;
 import builderb0y.bigglobe.noise.resample.derivatives.*;
@@ -40,6 +41,7 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"),                                    SmoothGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("smoother"),                                SmootherGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"),                                      CubicGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("perlin"),                                    PerlinGrid3D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("worley"),                                    WorleyGrid3D.class);
 
