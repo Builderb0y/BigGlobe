@@ -23,6 +23,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
+import builderb0y.bigglobe.columns.scripted.classes.ClassHierarchy;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
@@ -51,6 +52,7 @@ public class ColumnEntryRegistry {
 
 	public final boolean client;
 	public final BetterRegistry.Lookup registries;
+	public final transient ClassHierarchy classHierarchy;
 	public final transient VoronoiManager voronoiManager;
 	public final transient TraitManager traitManager;
 
@@ -64,6 +66,7 @@ public class ColumnEntryRegistry {
 		this.client         = client;
 		this.registries     = registries;
 		this.columnContext  = new ColumnCompileContext(this);
+		this.classHierarchy = new ClassHierarchy(this);
 		this.voronoiManager = new VoronoiManager(this);
 		this.traitManager   = new TraitManager(this);
 

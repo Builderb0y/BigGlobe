@@ -260,7 +260,7 @@ public class FastPow {
 		ClassCompileContext clazz = new ClassCompileContext(
 			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 			ClassType.CLASS,
-			Type.getInternalName(FastPowOperator.class) + '$' + counter++,
+			Type.getInternalName(FastPowOperator.class) + "$Generated_" + counter++,
 			TypeInfo.of(FastPowOperator.class),
 			TypeInfo.ARRAY_FACTORY.empty()
 		);

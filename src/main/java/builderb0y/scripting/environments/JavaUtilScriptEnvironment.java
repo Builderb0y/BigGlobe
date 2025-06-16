@@ -18,6 +18,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler.Named;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
@@ -84,7 +85,7 @@ public class JavaUtilScriptEnvironment {
 		.addType("HashSet", HashSet.class)
 		.addType("LinkedHashSet", LinkedHashSet.class)
 		.addType("ConstantSet", ConstantSet.class)
-		.addQualifiedFunction(type(ConstantSet.class), "new", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+		.addQualifiedFunction(type(ConstantSet.class), "new", new FunctionHandler.Named("ConstantSet.new(values)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			int elementCount = arguments.length;
 			ConstantValue[] constants = new ConstantValue[elementCount];
 			for (int index = 0; index < elementCount; index++) {
@@ -93,13 +94,13 @@ public class JavaUtilScriptEnvironment {
 				}
 			}
 			return new CastResult(ldc(CONSTANT_SET, inflate(constants)), false);
-		})
+		}))
 		.addType("List", List.class)
 		.addMethodMultiInvokes(List.class, "addAll", "get", "indexOf", "lastIndexOf", "listIterator", "subList")
 		.addType("LinkedList", LinkedList.class)
 		.addType("ArrayList", ArrayList.class)
 		.addType("ConstantList", ArrayWrapper.class)
-		.addQualifiedFunction(type(ArrayWrapper.class), "new", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+		.addQualifiedFunction(type(ArrayWrapper.class), "new", new FunctionHandler.Named("ConstantList.new(values)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			int argumentCount = arguments.length;
 			ConstantValue[] constants = new ConstantValue[argumentCount];
 			for (int index = 0; index < argumentCount; index++) {
@@ -108,7 +109,7 @@ public class JavaUtilScriptEnvironment {
 				}
 			}
 			return new CastResult(ldc(CONSTANT_LIST, inflate(constants)), false);
-		})
+		}))
 		.addType("Queue", Queue.class)
 		.addMethodInvokes(Queue.class, "element", "peek")
 		.addType("Deque", Deque.class)

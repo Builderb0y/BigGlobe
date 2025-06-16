@@ -35,15 +35,16 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		IS_INSTANCE = (Method method) -> !Modifier.isStatic(method.getModifiers()),
 		NO_ARGS     = (Method method) -> method.getParameterCount() == 0;
 
-	public Map<String,              VariableHandler.Named > variables      = new HashMap<>(16);
-	public Map<NamedType,              FieldHandler.Named > fields         = new HashMap<>(16);
-	public Map<String,         List<FunctionHandler.Named>> functions      = new HashMap<>(16);
-	public Map<NamedType,      List<  MethodHandler.Named>> methods        = new HashMap<>(16);
-	public Map<String,                     TypeInfo       > types          = new HashMap<>( 8);
-	public Map<String,               KeywordHandler.Named > keywords       = new HashMap<>( 8);
-	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords = new HashMap<>( 8);
+	public Map<String,              VariableHandler.Named > variables          = new HashMap<>(16);
+	public Map<NamedType,              FieldHandler.Named > fields             = new HashMap<>(16);
+	public Map<String,         List<FunctionHandler.Named>> functions          = new HashMap<>(64);
+	public Map<NamedType,      List<  MethodHandler.Named>> methods            = new HashMap<>(64);
+	public Map<NamedType,      List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
+	public Map<String,                     TypeInfo       > types              = new HashMap<>(16);
+	public Map<String,               KeywordHandler.Named > keywords           = new HashMap<>(16);
+	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords     = new HashMap<>(16);
 	//         from           to
-	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters        = new HashMap<>(16);
+	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters            = new HashMap<>(64);
 
 	public static IdentifierDescriptor prefix(String type, String name, String descriptor, Object value) {
 		return new IdentifierDescriptor(
@@ -123,9 +124,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllFunctions(MutableScriptEnvironment that) {
 		if (!that.functions.isEmpty()) {
 			for (Map.Entry<String, List<FunctionHandler.Named>> entry : that.functions.entrySet()) {
-				List<FunctionHandler.Named> handlers = this.functions.get(entry.getKey());
-				if (handlers != null) handlers.addAll(entry.getValue());
-				else this.functions.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+				this.functions.compute(entry.getKey(), (String key, List<FunctionHandler.Named> list) -> {
+					if (list != null) list.addAll(entry.getValue());
+					else list = new ArrayList<>(entry.getValue());
+					return list;
+				});
 			}
 		}
 		return this;
@@ -134,9 +137,24 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllMethods(MutableScriptEnvironment that) {
 		if (!that.methods.isEmpty()) {
 			for (Map.Entry<NamedType, List<MethodHandler.Named>> entry : that.methods.entrySet()) {
-				List<MethodHandler.Named> handlers = this.methods.get(entry.getKey());
-				if (handlers != null) handlers.addAll(entry.getValue());
-				else this.methods.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+				this.methods.compute(entry.getKey(), (NamedType key, List<MethodHandler.Named> list) -> {
+					if (list != null) list.addAll(entry.getValue());
+					else list = new ArrayList<>(entry.getValue());
+					return list;
+				});
+			}
+		}
+		return this;
+	}
+
+	public MutableScriptEnvironment addAllQualifiedFunctions(MutableScriptEnvironment that) {
+		if (!that.qualifiedFunctions.isEmpty()) {
+			for (Map.Entry<NamedType, List<FunctionHandler.Named>> entry : that.qualifiedFunctions.entrySet()) {
+				this.qualifiedFunctions.compute(entry.getKey(), (NamedType key, List<FunctionHandler.Named> list) -> {
+					if (list != null) list.addAll(entry.getValue());
+					else list = new ArrayList<>(entry.getValue());
+					return list;
+				});
 			}
 		}
 		return this;
@@ -167,9 +185,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
 		if (!that.memberKeywords.isEmpty()) {
 			for (Map.Entry<NamedType, List<MemberKeywordHandler.Named>> entry : that.memberKeywords.entrySet()) {
-				List<MemberKeywordHandler.Named> handlers = this.memberKeywords.get(entry.getKey());
-				if (handlers != null) handlers.addAll(entry.getValue());
-				else this.memberKeywords.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+				this.memberKeywords.compute(entry.getKey(), (NamedType key, List<MemberKeywordHandler.Named> list) -> {
+					if (list != null) list.addAll(entry.getValue());
+					else list = new ArrayList<>(entry.getValue());
+					return list;
+				});
 			}
 		}
 		return this;
@@ -198,14 +218,15 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAll(MutableScriptEnvironment that) {
 		return (
 			this
-			.addAllVariables     (that)
-			.addAllFields        (that)
-			.addAllFunctions     (that)
-			.addAllMethods       (that)
-			.addAllTypes         (that)
-			.addAllKeywords      (that)
-			.addAllMemberKeywords(that)
-			.addAllCasters       (that)
+			.addAllVariables         (that)
+			.addAllFields            (that)
+			.addAllFunctions         (that)
+			.addAllMethods           (that)
+			.addAllQualifiedFunctions(that)
+			.addAllTypes             (that)
+			.addAllKeywords          (that)
+			.addAllMemberKeywords    (that)
+			.addAllCasters           (that)
 		);
 	}
 
@@ -809,14 +830,9 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// qualified functions ////////////////////////////////
 
-	public MutableScriptEnvironment addQualifiedFunction(TypeInfo owner, String name, FunctionHandler functionHandler) {
-		return this.addMethod(TypeInfos.CLASS, name, new MethodHandler.Named("qualifiedFunction on " + owner + ": " + functionHandler, (ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
-			ConstantValue constant = receiver.getConstantValue();
-			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
-				return functionHandler.create(parser, name1, arguments);
-			}
-			return null;
-		}));
+	public MutableScriptEnvironment addQualifiedFunction(TypeInfo owner, String name, FunctionHandler.Named functionHandler) {
+		this.qualifiedFunctions.computeIfAbsent(new NamedType(owner, name), (NamedType $) -> new ArrayList<>()).add(functionHandler);
+		return this;
 	}
 
 	//////////////// invokeStatic ////////////////
@@ -1107,8 +1123,36 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return accumulator.result();
 	}
 
+	public InsnTree tryGetQualifiedFunction(ExpressionParser parser, TypeInfo owner, String name, InsnTree... arguments) throws ScriptParsingException {
+		List<FunctionHandler.Named> list = this.qualifiedFunctions.get(new NamedType(owner, name));
+		if (list != null) {
+			List<InsnTreeSource> results = new ArrayList<>(8);
+			boolean exact = false;
+			for (int index = 0, size = list.size(); index < size; index++) {
+				FunctionHandler.Named handler = list.get(index);
+				CastResult result = handler.create(parser, name, arguments);
+				if (result != null) {
+					if (!exact && !result.requiredCasting) {
+						results.clear();
+						exact = true;
+					}
+					if (exact ? !result.requiredCasting : true) {
+						results.add(new InsnTreeSource(result.tree, handler));
+					}
+				}
+			}
+			return InsnTreeSource.get(parser, arguments, results);
+		}
+		return null;
+	}
+
 	@Override
 	public @Nullable InsnTree getMethod(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) throws ScriptParsingException {
+		ConstantValue constant = receiver.getConstantValue();
+		if (constant.isConstant() && constant.asJavaObject() instanceof TypeInfo type) {
+			InsnTree result = this.tryGetQualifiedFunction(parser, type, name, arguments);
+			if (result != null) return result;
+		}
 		class Accumulator {
 
 			public final NamedType query = new NamedType();

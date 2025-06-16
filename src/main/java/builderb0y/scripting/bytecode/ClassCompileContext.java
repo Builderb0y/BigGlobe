@@ -33,6 +33,19 @@ public class ClassCompileContext {
 	public List<Object> constants = new ArrayList<>();
 
 	public ClassCompileContext(int access, TypeInfo info) {
+		String name = info.getInternalName();
+		int has = 0;
+		for (int index = 0, length = name.length(); index < length; index++) {
+			switch (name.charAt(index)) {
+				case '/' -> has |= 1;
+				case '_' -> has |= 2;
+				case '$' -> has |= 4;
+				case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> has |= 8;
+			}
+		}
+		if (has != 15) {
+			throw new IllegalStateException("For security reasons, your class name must contain a slash, an underscore, a dollar sign, and a number. (was '" + name + "')");
+		}
 		this.node = new ClassNode();
 		this.info = info;
 		this.definedClasses = new HashMap<>(2);

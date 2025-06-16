@@ -1006,25 +1006,25 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 							pivot
 						);
 					}
-					catch (NullPointerException exception) {
-						//I don't know why DH seems to have issues with this when it's a vanilla bug,
-						//but I'm tired of having my console spammed with errors.
-						if (!DistantHorizonsCompat.isOnDistantHorizonThread()) {
-							throw exception;
-						}
-						//else silently ignore.
+					catch (Exception exception) {
+						BigGlobeMod.LOGGER.error("Exception placing structure piece " + piece + ':', exception);
 					}
 				}
 			}
-			start.getStructure().postPlace(
-				world,
-				structureAccessor,
-				this,
-				new MojangPermuter(structureSeed),
-				chunkBox,
-				chunk.getPos(),
-				((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
-			);
+			try {
+				start.getStructure().postPlace(
+					world,
+					structureAccessor,
+					this,
+					new MojangPermuter(structureSeed),
+					chunkBox,
+					chunk.getPos(),
+					((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
+				);
+			}
+			catch (Exception exception) {
+				BigGlobeMod.LOGGER.error("Exception post-placing structure start " + start + ':', exception);
+			}
 		}
 	}
 

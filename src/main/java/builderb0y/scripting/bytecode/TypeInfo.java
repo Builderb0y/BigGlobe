@@ -60,7 +60,7 @@ public class TypeInfo {
 		this.isFinal = isFinal;
 	}
 
-	@Contract("!null -> !null")
+	@Contract("null -> null; !null -> !null")
 	public static TypeInfo of(@Nullable Class<?> clazz) {
 		return clazz == null ? null : CACHE.get(clazz);
 	}

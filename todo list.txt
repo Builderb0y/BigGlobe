@@ -46,15 +46,23 @@ where I left off:
 	try to do perlin noise again.
 	make water puddle feature place mud around it.
 	make powdered snow spawn in frozen caves.
+	fix light levels in lit block segments not decreasing with depth.
+	remove column_value/nether/bubble/lava_decorator_soul.
+		seems to be unused.
+		same with lava_decorator_normal.
+	remove configured_feature/nether/soul_magma_on_lava, soul_lava_pocket_magma, magma_on_lava.
+	soul lava underground pocket apparently floats sometimes?
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	document extra spawn system.
-	document overriders.
-	document scripted structure max_radius_in_chunks.
-	document scripted structure placement.
 	document terrainAdaptation.
+	derivative perlin grids.
+		documentation for derivative perlin grids.
+	test perlin grids in-game to make sure they deliver reasonable results.
+	verify that artificial trees cannot replace blocks they're not supposed to.
+		might be specific to spruce?
 
 structure rewrites:
 	hack StructureAccessor more.
@@ -79,15 +87,16 @@ json classes:
 			* types that reference themselves (either directly or indirectly) would be allowed in this system.
 		* user-defined classes may extend other user-defined classes and override their methods.
 	extra goals:
-		* static methods.
-		* the ability for data packs to add additional methods and properties to existing json-defined classes.
-			* but not fields, since this would change the constructor, which scripts may rely on.
 		* json-defined interfaces, interface inheritance, and classes implementing multiple interfaces.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
+	need to fix:
+		re-enable commented out code in ClassHierarchy constructor.
 
 changelog:
+	# For data pack developers:
+	* Added perlin grids.
 
 alternate world presets:
 	paradise.

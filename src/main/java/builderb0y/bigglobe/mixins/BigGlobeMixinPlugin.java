@@ -57,6 +57,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely", Boolean.TRUE);
 		defaults.put(mixinPackage + ".DebugHud_ShowLodStatus",                                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_CreateWorldScreen_DontCrashOnFailure",                                                 Boolean.FALSE);
+		defaults.put(mixinPackage + ".Dev_NbtCompound_SanityCheckValues",                                                        Boolean.FALSE);
 		defaults.put(mixinPackage + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",                           Boolean.FALSE);
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                                        Boolean.TRUE);

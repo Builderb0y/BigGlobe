@@ -351,6 +351,7 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 	@Override
 	public boolean equals(Object object) {
 		return this == object || (
+			object != null &&
 			this.getClass() == object.getClass() &&
 			this.cell.center.cellX == ((VoronoiDataBase)(object)).cell.center.cellX &&
 			this.cell.center.cellZ == ((VoronoiDataBase)(object)).cell.center.cellZ

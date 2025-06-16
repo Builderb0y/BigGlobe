@@ -21,6 +21,7 @@
 		"ChunkSection_CountsAccess",
 		"ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently",
 		"DataPacks_StoreResourceManager",
+		"Dev_NbtCompound_SanityCheckValues",
 		"Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",
 		"DhScriptedWorldGenerator_BackwardsCompatibility",
 		"DimensionOptions_CheckHeights",
