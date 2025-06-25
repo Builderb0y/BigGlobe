@@ -44,13 +44,6 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		public static final Codec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MegaTreeStructure.class).codec();
 	#endif
 
-	public static record FoliageRange(double min, double max) {
-
-		public double get(double foliage) {
-			return Interpolator.mixLinear(this.min, this.max, foliage);
-		}
-	}
-
 	public static record Data(
 		ColumnRandomYToDoubleScript.Holder size,
 		ColumnRandomYToDoubleScript.Holder trunk_radius,
@@ -116,12 +109,14 @@ public class MegaTreeStructure extends BigGlobeStructure {
 					);
 					megaTreeContext.addFirstBranch();
 					megaTreeContext.generate();
-					collector.addPiece(new MegaTreePiece(
-						BigGlobeStructures.MEGA_TREE_PIECE_TYPE,
-						this,
-						palette.entry,
-						megaTreeContext.ballCollector
-					));
+					collector.addPiece(
+						new MegaTreePiece(
+							BigGlobeStructures.MEGA_TREE_PIECE_TYPE,
+							this,
+							palette.entry,
+							megaTreeContext.ballCollector
+						)
+					);
 				}
 			)
 		);

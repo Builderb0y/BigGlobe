@@ -609,11 +609,7 @@ public class LodGenerator implements SafeCloseable {
 					int z = pos.getZ() + SINGLE_PADDING;
 					if (z < 0 || z > GENERATION_WIDTH) yield 15;
 					Segment<BlockState> segment = this.lists[z * GENERATION_WIDTH + x].getOverlappingSegment(pos.getY());
-					//& 15 is probably completely unnecessary,
-					//because while the light level does start out at -1,
-					//it also gets overwritten later.
-					//nevertheless, I don't want to risk ever dealing with this in the future.
-					yield segment instanceof LitSegment lit ? lit.lightLevel & 15 : 15;
+					yield segment instanceof LitSegment lit ? lit.getLightLevel(pos.getY(), this.lod - LodQuadTree.MIN_LEVEL) : 15;
 				}
 			};
 		}

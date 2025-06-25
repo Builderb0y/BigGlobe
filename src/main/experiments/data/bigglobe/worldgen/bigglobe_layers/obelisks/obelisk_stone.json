@@ -1,0 +1,9 @@
+{
+	"type": "simple_3d",
+	"state": "'minecraft:stone'",
+	"condition": "`bigglobe:obelisks/obelisk_voronoi`.cracked_sdf(y) < 0.0I",
+	"valid": {
+		"min_y": "`bigglobe:obelisks/obelisk_voronoi`.min_y",
+		"max_y": "`bigglobe:obelisks/obelisk_voronoi`.max_y"
+	}
+}

@@ -10,21 +10,7 @@
 			"type": "minecraft:fixed",
 			"biome": "minecraft:plains"
 		},
-		"layer": {
-			"type": "bigglobe:root",
-			"state": "'minecraft:air'",
-			"children": [
-				{
-					"type": "simple_2d",
-					"state": [
-						"`bigglobe:voronoi_subdivision/continent_final` ? 'minecraft:white_wool' : 'minecraft:black_wool'"
-					],
-					"valid": {
-						"max_y": "0I"
-					}
-				}
-			]
-		},
+		"layer": "bigglobe:voronoi_subdivision/root",
 		"feature_dispatcher": {
 			"rock_replacers": [],
 			"raw": "bigglobe:noop",

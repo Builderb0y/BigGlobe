@@ -1,0 +1,23 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:stone'",
+	"valid": {
+		"max_y": "int(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/mountain_thickness`) + 1"
+	},
+	"after_children": [
+		"int maxStone = int(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/mountain_thickness`)",
+		"unless (getBlockState(maxStone).isAir():",
+			"int depth = int(`bigglobe:paradise/warp_radius` * 8.0L - `bigglobe:paradise/spiral` * 0.125L + columnSeed(16x0FAC920156B86F94UL).nextDouble(-2.0L, 2.0L) - 4.0L)",
+			"if (depth > 0:",
+				"int minStone = getBottomOfSegment(maxStone)",
+				"setBlockState(maxStone, 'minecraft:grass_block[snowy=false]')",
+				"if (depth > 1:",
+					"setBlockStates(max(maxStone - depth, minStone), maxStone, 'minecraft:dirt')",
+				")",
+			")",
+		")"
+	],
+	"children": [
+		"bigglobe:paradise/lower_carving"
+	]
+}

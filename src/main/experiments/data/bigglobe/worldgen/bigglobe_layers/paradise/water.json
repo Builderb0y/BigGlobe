@@ -1,0 +1,7 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:water[level=0]'",
+	"valid": {
+		"max_y": "-256"
+	}
+}

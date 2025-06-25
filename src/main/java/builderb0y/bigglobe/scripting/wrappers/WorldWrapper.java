@@ -108,6 +108,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public final BlockPos.Mutable pos;
 	public Vector3d doublePos;
 	public final RandomGenerator random;
+	public long featureSalt = 0xB5ECAC279BD1E7FBL;
 	public final ScriptedColumn.Factory columnFactory;
 	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
 	public final ScriptedColumn.Params params;
@@ -369,7 +370,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
-			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
+			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ this.featureSalt, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
 			return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 		}
 		return false;

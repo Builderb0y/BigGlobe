@@ -1,0 +1,16 @@
+{
+	"type": "simple_2d",
+	"state": [
+		"double noise = `bigglobe:scale/scaled`",
+		"noise += columnSeed(16xB0BE0C9EB0653590UL).nextDouble(-0.5, 0.5)",
+		"return(",
+			"noise >= 1.0 ? 'minecraft:white_wool' :",
+			"noise >= 0.0 ? 'minecraft:light_gray_wool' :",
+			"noise >= -1.0 ? 'minecraft:gray_wool' :",
+			"'minecraft:black_wool'",
+		")"
+	],
+	"valid": {
+		"max_y": "int(`bigglobe:scale/scaled` * 64.0L + 128.5L)"
+	}
+}

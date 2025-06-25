@@ -41,7 +41,6 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder.Inlinable;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -441,7 +440,7 @@ public class ClientState {
 		public final ColorScript.@VerifyNullable Holder foliageColor;
 		public final ColorScript.@VerifyNullable Holder waterColor;
 		public final Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits;
-		public final @VerifyNullable @Inlinable RegistryEntry<Layer> layer;
+		public final @VerifyNullable RegistryEntry<Layer> layer;
 		public transient ColumnEntryRegistry columnEntryRegistry;
 		public transient WorldTraits compiledWorldTraits;
 		public final transient ThreadLocal<ScriptedColumn> column;
@@ -455,7 +454,7 @@ public class ClientState {
 			ColorScript.@VerifyNullable Holder foliageColor,
 			ColorScript.@VerifyNullable Holder waterColor,
 			Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits,
-			@VerifyNullable @Inlinable RegistryEntry<Layer> layer
+			@VerifyNullable RegistryEntry<Layer> layer
 		) {
 			this.minY         = minY;
 			this.maxY         = maxY;

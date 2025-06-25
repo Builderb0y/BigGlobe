@@ -1,0 +1,12 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:air'",
+	"valid": {
+		"where": "isNotNaN(`bigglobe:paradise/bubble_thickness`)",
+		"min_y": "int(`bigglobe:paradise/mountain_center` - 256.0L - `bigglobe:paradise/bubble_thickness`)",
+		"max_y": "int(`bigglobe:paradise/mountain_center` - 256.0L + `bigglobe:paradise/bubble_thickness`) + 1"
+	},
+	"children": [
+		"bigglobe:paradise/water"
+	]
+}

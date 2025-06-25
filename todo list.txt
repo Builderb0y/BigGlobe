@@ -32,8 +32,6 @@ where I left off:
 		possibly only an issue on dedicated servers.
 	add dumpVars() function which prints out the line number where it's called,
 		along with every variable accessible from the scope where dumpVars() was called.
-	fix bonemeal not making flowers in big globe worlds.
-	can't apply trims to voidmetal armor.
 	separate texture layers for overgrown sand,
 		so that it can adapt to biome tint.
 	sync Grid registry to clients?
@@ -43,26 +41,15 @@ where I left off:
 		this is because all this logic was moved to server-side,
 		and waypoint entities don't exist server-side.
 	non-voronoi caves that resemble the surface.
-	try to do perlin noise again.
-	make water puddle feature place mud around it.
-	make powdered snow spawn in frozen caves.
-	fix light levels in lit block segments not decreasing with depth.
-	remove column_value/nether/bubble/lava_decorator_soul.
-		seems to be unused.
-		same with lava_decorator_normal.
-	remove configured_feature/nether/soul_magma_on_lava, soul_lava_pocket_magma, magma_on_lava.
-	soul lava underground pocket apparently floats sometimes?
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	document extra spawn system.
 	document terrainAdaptation.
+	document structures in general.
 	derivative perlin grids.
 		documentation for derivative perlin grids.
-	test perlin grids in-game to make sure they deliver reasonable results.
-	verify that artificial trees cannot replace blocks they're not supposed to.
-		might be specific to spruce?
 
 structure rewrites:
 	hack StructureAccessor more.
@@ -92,11 +79,24 @@ json classes:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
 	need to fix:
-		re-enable commented out code in ClassHierarchy constructor.
+		re-enable commented out code in ClassHierarchy and ColumnEntryRegistry constructors.
 
 changelog:
+	# For normal users:
+	* Fixed bamboo spawning in lakes.
+	* Powder snow now spawns in frozen caves.
+	* Voidmetal armor can now have trims applied to it.
+	* Fixed bonemeal not producing flowers in big globe worlds.
+	* Abandoned cities now contain copper bulbs, in addition to redstone lamps.
+	* The small puddles of water that spawn in swamps now place mud around and below themselves.
+	# For data pack users:
+	* Fixed world traits failing to apply on world creation.
 	# For data pack developers:
-	* Added perlin grids.
+	* Added perlin grids (derivative perlin grids are not yet implemented, but are planned).
+	* Added rotation and mirror fields for StructurePiece instances.
+	* Mega trees can now be moved by structure overriders.
+	* Inline layer definitions are back to being unsupported again.
+		* This is because inline definitions do not have an ID associated with them, but LOD rendering syncs them to the client as a registry, which requires an ID.
 
 alternate world presets:
 	paradise.

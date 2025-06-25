@@ -12,13 +12,14 @@ import net.minecraft.resource.LifecycledResourceManager;
 import net.minecraft.server.SaveLoading.DataPacks;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.BigGlobeMod.DelegatingResourceManager;
 
 @Mixin(DataPacks.class)
 public class DataPacks_StoreResourceManager {
 
 	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lcom/mojang/datafixers/util/Pair;of(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/datafixers/util/Pair;", remap = false))
 	private void bigglobe_storeResourceManager(CallbackInfoReturnable<Pair<DataConfiguration, LifecycledResourceManager>> callback, @Local LifecycledResourceManager manager) {
-		if (BigGlobeMod.currentResourceManager == null) {
+		if (!(BigGlobeMod.currentResourceManager instanceof DelegatingResourceManager)) {
 			BigGlobeMod.currentResourceManager = manager;
 		}
 	}

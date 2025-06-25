@@ -10,48 +10,7 @@
 			"type": "minecraft:fixed",
 			"biome": "minecraft:plains"
 		},
-		"layer": {
-			"type": "bigglobe:root",
-			"state": "'minecraft:air'",
-			"children": [
-				{
-					"type": "simple_2d",
-					"state": "'minecraft:stone'",
-					"valid": {
-						"max_y": "`bigglobe:obelisks/obelisk_voronoi`.min_y"
-					}
-				},
-				{
-					"type": "simple_3d",
-					"state": "'minecraft:stone'",
-					"condition": "`bigglobe:obelisks/obelisk_voronoi`.cracked_sdf(y) < 0.0I",
-					"valid": {
-						"min_y": "`bigglobe:obelisks/obelisk_voronoi`.min_y",
-						"max_y": "`bigglobe:obelisks/obelisk_voronoi`.max_y"
-					}
-				},
-				{
-					"type": "simple_3d",
-					"state": "'minecraft:glowstone'",
-					"condition": "`bigglobe:obelisks/obelisk_voronoi`.sdf(y) < -0.375I",
-					"valid": {
-						"min_y": "`bigglobe:obelisks/obelisk_voronoi`.min_y",
-						"max_y": "`bigglobe:obelisks/obelisk_voronoi`.max_y"
-					}
-				}
-			],
-			"after_children": [
-				"int startY = -64",
-				"for (int endY = startY, (endY := getTopOfSegment(startY)) < 320, startY = endY:",
-					"if (getBlockState(startY) ==. 'minecraft:stone' && getBlockState(endY) ==. 'minecraft:air':",
-						"if (int*(depth := int(4.0I - 4.0I * `bigglobe:obelisks/terrain_bias`(endY))) > 0:",
-							"setBlockStates(max(startY, endY - depth), endY, 'minecraft:dirt')",
-							"setBlockState(endY - 1, 'minecraft:grass_block[snowy=false]')",
-						")",
-					")",
-				")"
-			]
-		},
+		"layer": "bigglobe:obelisks/root",
 		"feature_dispatcher": {
 			"rock_replacers": [],
 			"raw": "bigglobe:noop",

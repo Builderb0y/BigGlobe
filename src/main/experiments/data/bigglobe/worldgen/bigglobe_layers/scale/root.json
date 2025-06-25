@@ -1,0 +1,7 @@
+{
+	"type": "bigglobe:root",
+	"state": "'minecraft:air'",
+	"children": [
+		"bigglobe:scale/wool"
+	]
+}

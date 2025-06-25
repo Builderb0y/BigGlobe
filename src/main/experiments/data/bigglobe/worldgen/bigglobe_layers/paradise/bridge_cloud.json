@@ -1,0 +1,13 @@
+{
+	"type": "simple_3d",
+	"state": "'bigglobe:cloud'",
+	"condition": "`bigglobe:paradise/upper_bridge_cloud_sdf` > 0.0I",
+	"valid": {
+		"where": [
+			"if (hints.usage ==. 'heightmap': return(false))",
+			"`bigglobe:paradise/warp_radius` > `bigglobe:paradise/bridge_cloud_min_radius`"
+		],
+		"min_y": " ceilInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/bridge_cloud_center_offset` - `bigglobe:paradise/bridge_cloud_thickness`)",
+		"max_y": "floorInt(`bigglobe:paradise/mountain_center` + `bigglobe:paradise/bridge_cloud_center_offset` + `bigglobe:paradise/bridge_cloud_thickness`)"
+	}
+}

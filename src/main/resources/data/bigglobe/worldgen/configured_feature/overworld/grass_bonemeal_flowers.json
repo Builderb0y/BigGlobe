@@ -1,0 +1,29 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.5,
+		"randomize_radius": 4,
+		"entries": {
+			"defaults": { "radius": 4 },
+			"variations": [
+				{ "weight": 50.0, "state": "minecraft:sunflower[half=lower]" },
+				{ "weight": 50.0, "state": "minecraft:dandelion"             },
+				{ "weight": 20.0, "state": "minecraft:azure_bluet"           },
+				{ "weight": 20.0, "state": "minecraft:oxeye_daisy"           },
+				{ "weight": 20.0, "state": "minecraft:lily_of_the_valley"    },
+				{ "weight": 10.0, "state": "minecraft:poppy"                 },
+				{ "weight": 10.0, "state": "minecraft:red_tulip"             },
+				{ "weight": 10.0, "state": "minecraft:orange_tulip"          },
+				{ "weight": 10.0, "state": "minecraft:white_tulip"           },
+				{ "weight": 10.0, "state": "minecraft:pink_tulip"            },
+				{ "weight": 10.0, "state": "minecraft:lilac[half=lower]"     },
+				{ "weight": 10.0, "state": "minecraft:peony[half=lower]"     },
+				{ "weight": 10.0, "state": "minecraft:rose_bush[half=lower]" },
+				{ "weight":  5.0, "state": "minecraft:blue_orchid"           },
+				{ "weight":  5.0, "state": "minecraft:cornflower"            },
+				{ "weight":  5.0, "state": "minecraft:allium"                },
+				{ "weight":  1.0, "state": "bigglobe:rose"                   }
+			]
+		}
+	}
+}

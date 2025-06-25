@@ -10,31 +10,7 @@
 			"type": "minecraft:fixed",
 			"biome": "minecraft:the_void"
 		},
-		"layer": {
-			"type": "bigglobe:root",
-			"state": "'minecraft:air'",
-			"children": [
-				{
-					"type": "simple_3d",
-					"state": "'minecraft:stone'",
-					"condition": "`bigglobe:arches/base_noise` < 0.0I",
-					"valid": {
-						"min_y": "-64",
-						"max_y": "192"
-					}
-				}
-			],
-			"after_children": [
-				"int startY = -64",
-				"for (int endY = startY, (endY := getTopOfSegment(startY)) < 320, startY = endY:",
-					"if (getBlockState(startY) ==. 'minecraft:stone' && getBlockState(endY) ==. 'minecraft:air':",
-						"int depth = (columnSeed # 16xDB86B775C01E1EF9UL).nextInt(3, 7)",
-						"setBlockStates(max(startY, endY - depth), endY, 'minecraft:dirt')",
-						"setBlockState(endY - 1, 'minecraft:grass_block[snowy=false]')",
-					")",
-				")"
-			]
-		},
+		"layer": "bigglobe:arches/root",
 		"feature_dispatcher": {
 			"rock_replacers": [],
 			"raw": "bigglobe:noop",

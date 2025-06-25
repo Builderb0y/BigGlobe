@@ -36,6 +36,7 @@
 		"FallingBlockEntity_DestroyOnLandingAccess",
 		"FlowableFluid_DontFlowInRivers",
 		"FungusBlock_GrowIntoBigGlobeTree",
+		"GrassBlock_UseCustomFeatureInBigGlobeWorlds",
 		"Heightmap_StorageAccess",
 		"HuskEntity_AllowSpawningUndergroundInBigGlobeWorlds",
 		"IglooGeneratorPiece_DontMoveInBigGlobeWorlds",

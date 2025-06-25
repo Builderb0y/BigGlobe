@@ -56,6 +56,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
@@ -83,7 +84,6 @@ import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
-import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder.Inlinable;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
@@ -172,7 +172,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable Integer sea_level
 	) {}
 	public final Height height;
-	public final @Inlinable RegistryEntry<Layer> layer;
+	public final RegistryEntry<Layer> layer;
 	public final FeatureDispatchers feature_dispatcher;
 	public final DelayedEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
@@ -182,6 +182,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		ColorScript.@VerifyNullable Holder water
 	) {}
 	public final @VerifyNullable ColorOverrides colors;
+	public final @VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> grass_bonemeal_feature;
 	public static record NetherOverrides(
 		boolean place_portal_at_high_y_level
 	) {}
@@ -242,6 +243,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		DelayedEntryList<Overrider> overriders,
 		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
 		@VerifyNullable ColorOverrides colors,
+		@VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
 		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
 		@VerifyNullable CreakingOverrides creaking_overrides,
@@ -253,47 +255,49 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
 		}
-		this.reload_preset      = reload_preset;
-		this.reload_dimension   = reload_dimension;
-		this.height             = height;
-		this.layer              = layer;
-		this.feature_dispatcher = feature_dispatcher;
-		this.overriders         = overriders;
-		this.spawn_point        = spawn_point;
-		this.colors             = colors;
-		this.nether_overrides   = nether_overrides;
-		this.end_overrides      = end_overrides;
-		this.creaking_overrides = creaking_overrides;
-		this.world_traits       = world_traits;
-		this.extraSpawnRegistry = extraSpawnRegistry;
-		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
-		this.rootDebugDisplay   = new DisplayEntry(this);
-		this.extraSpawns        = Collections.synchronizedMap(new HashMap<>(64));
+		this.reload_preset          = reload_preset;
+		this.reload_dimension       = reload_dimension;
+		this.height                 = height;
+		this.layer                  = layer;
+		this.feature_dispatcher     = feature_dispatcher;
+		this.overriders             = overriders;
+		this.spawn_point            = spawn_point;
+		this.colors                 = colors;
+		this.grass_bonemeal_feature = grass_bonemeal_feature;
+		this.nether_overrides       = nether_overrides;
+		this.end_overrides          = end_overrides;
+		this.creaking_overrides     = creaking_overrides;
+		this.world_traits           = world_traits;
+		this.extraSpawnRegistry     = extraSpawnRegistry;
+		this.loadedWorldTraits      = TraitLoader.load(world_traits, decodeContext);
+		this.rootDebugDisplay       = new DisplayEntry(this);
+		this.extraSpawns            = Collections.synchronizedMap(new HashMap<>(64));
 	}
 
 	@Hidden //copy constructor.
 	public BigGlobeScriptedChunkGenerator(BigGlobeScriptedChunkGenerator from) {
 		super(copyBiomeSource(from.biomeSource));
-		this.reload_preset       = from.reload_preset;
-		this.reload_dimension    = from.reload_dimension;
-		this.columnEntryRegistry = from.columnEntryRegistry;
-		this.height              = from.height;
-		this.layer               = from.layer;
-		this.feature_dispatcher  = from.feature_dispatcher;
-		this.overriders          = from.overriders;
-		this.spawn_point         = from.spawn_point;
-		this.colors              = from.colors;
-		this.nether_overrides    = from.nether_overrides;
-		this.end_overrides       = from.end_overrides;
-		this.creaking_overrides  = from.creaking_overrides;
-		this.world_traits        = from.world_traits;
-		this.loadedWorldTraits   = from.loadedWorldTraits;
-		this.compiledWorldTraits = from.compiledWorldTraits;
-		this.extraSpawnRegistry  = from.extraSpawnRegistry;
+		this.reload_preset          = from.reload_preset;
+		this.reload_dimension       = from.reload_dimension;
+		this.columnEntryRegistry    = from.columnEntryRegistry;
+		this.height                 = from.height;
+		this.layer                  = from.layer;
+		this.feature_dispatcher     = from.feature_dispatcher;
+		this.overriders             = from.overriders;
+		this.spawn_point            = from.spawn_point;
+		this.colors                 = from.colors;
+		this.grass_bonemeal_feature = from.grass_bonemeal_feature;
+		this.nether_overrides       = from.nether_overrides;
+		this.end_overrides          = from.end_overrides;
+		this.creaking_overrides     = from.creaking_overrides;
+		this.world_traits           = from.world_traits;
+		this.loadedWorldTraits      = from.loadedWorldTraits;
+		this.compiledWorldTraits    = from.compiledWorldTraits;
+		this.extraSpawnRegistry     = from.extraSpawnRegistry;
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
-		this.rootDebugDisplay    = new DisplayEntry(this);
-		this.structureManager    = from.structureManager.copy();
-		this.extraSpawns         = from.extraSpawns;
+		this.rootDebugDisplay       = new DisplayEntry(this);
+		this.structureManager       = from.structureManager.copy();
+		this.extraSpawns            = from.extraSpawns;
 	}
 
 	@Override

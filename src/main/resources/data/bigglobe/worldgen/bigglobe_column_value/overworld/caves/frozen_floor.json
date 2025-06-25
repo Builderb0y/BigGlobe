@@ -1,5 +1,5 @@
 {
-	"type": "constant",
+	"type": "script",
 	"params": {
 		"type": {
 			"type": "class",
@@ -11,8 +11,9 @@
 		},
 		"is_3d": false
 	},
-	"value": {
-		"top": "minecraft:snow_block",
-		"under": "minecraft:snow_block"
-	}
+	"script": [
+		"surface_depth_noise > 3.0I",
+		"? CaveFloorStates.new('minecraft:powder_snow', 'minecraft:powder_snow')",
+		": CaveFloorStates.new('minecraft:snow_block', 'minecraft:snow_block')"
+	]
 }

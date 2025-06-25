@@ -1,0 +1,13 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "perlin",
+		"scale": 32,
+		"max_slope": 16.0,
+		"max_offset": 0.0
+	}
+}

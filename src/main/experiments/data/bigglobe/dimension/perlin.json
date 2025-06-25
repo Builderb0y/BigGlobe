@@ -1,0 +1,21 @@
+{
+	"type": "minecraft:overworld",
+	"generator": {
+		"type": "bigglobe:scripted",
+		"height": {
+			"min_y": -64,
+			"max_y": 320
+		},
+		"biome_source": {
+			"type": "minecraft:fixed",
+			"biome": "minecraft:plains"
+		},
+		"layer": "bigglobe:perlin/root",
+		"feature_dispatcher": {
+			"rock_replacers": [],
+			"raw": "bigglobe:noop",
+			"normal": "bigglobe:noop"
+		},
+		"overriders": "#bigglobe:empty"
+	}
+}

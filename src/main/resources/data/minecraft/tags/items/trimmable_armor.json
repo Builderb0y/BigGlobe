@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:voidmetal_helmet",
+		"bigglobe:voidmetal_chestplate",
+		"bigglobe:voidmetal_leggings",
+		"bigglobe:voidmetal_boots"
+	]
+}

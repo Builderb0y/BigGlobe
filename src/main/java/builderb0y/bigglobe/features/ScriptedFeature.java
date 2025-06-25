@@ -140,6 +140,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				coordination,
 				ColumnUsage.FEATURES.maybeDhHints()
 			);
+			wrapper.featureSalt = permuter.nextLong();
 			if (
 				context.getConfig().script.generate(
 					wrapper,

@@ -19,14 +19,14 @@ public interface DimensionalBlockView {
 		@Override
 		public @Nullable Field computeValue(Class<?> type) {
 			Field found = null;
-			while (type != null) {
-				for (Field field : type.getDeclaredFields()) {
+			for (Class<?> search = type; search != null; search = search.getSuperclass()) {
+				for (Field field : search.getDeclaredFields()) {
 					if (!Modifier.isStatic(field.getModifiers()) && World.class.isAssignableFrom(field.getType())) {
 						if (found == null) {
 							found = field;
 						}
 						else {
-							BigGlobeMod.LOGGER.warn("Found multiple World delegates on " + type);
+							BigGlobeMod.LOGGER.warn("Found multiple World delegates on " + search);
 							return null;
 						}
 					}
@@ -40,7 +40,6 @@ public interface DimensionalBlockView {
 						BigGlobeMod.LOGGER.warn("Could not access " + found);
 					}
 				}
-				type = type.getSuperclass();
 			}
 			BigGlobeMod.LOGGER.warn("Unable to find field of type World on " + type);
 			return null;

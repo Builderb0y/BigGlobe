@@ -27,7 +27,7 @@ public class StructureScriptEnvironment {
 		.addType("StructurePlacementScript", type(StructurePlacementScriptEntry.class))
 
 		.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "structure", "pieces")
-		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
+		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "rotation", "mirror", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
 		.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, long.class)
 		.addFieldInvokes(StructureEntry.class, "type", "generationStep", "validBiomes", "terrainAdaptation")

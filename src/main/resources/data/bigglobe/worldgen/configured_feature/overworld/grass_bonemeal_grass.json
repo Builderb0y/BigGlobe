@@ -1,0 +1,15 @@
+{
+	"type": "bigglobe:nether_flower",
+	"config": {
+		"randomize_chance": 0.5,
+		"randomize_radius": 8,
+		"entries": {
+			"defaults": { "radius": 8 },
+			"variations": [
+				{ "weight": 100.0, "state": "bigglobe:short_grass" },
+				{ "weight":  50.0, "state": "minecraft:short_grass" },
+				{ "weight":  25.0, "state": "minecraft:tall_grass[half=lower]" }
+			]
+		}
+	}
+}

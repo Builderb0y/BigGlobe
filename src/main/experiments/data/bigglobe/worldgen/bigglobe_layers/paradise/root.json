@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:root",
+	"state": "'minecraft:air'",
+	"children": [
+		"bigglobe:paradise/filler",
+		"bigglobe:paradise/ring_cloud",
+		"bigglobe:paradise/bridge_cloud"
+	]
+}

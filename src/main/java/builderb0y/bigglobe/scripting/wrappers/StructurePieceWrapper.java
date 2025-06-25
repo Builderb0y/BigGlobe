@@ -5,6 +5,7 @@ import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.pool.StructurePool.Projection;
 
+import builderb0y.bigglobe.util.Directions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public class StructurePieceWrapper {
@@ -23,6 +24,14 @@ public class StructurePieceWrapper {
 	public static int sizeX(StructurePiece piece) { return piece.getBoundingBox().getMaxX() - piece.getBoundingBox().getMinX() + 1; }
 	public static int sizeY(StructurePiece piece) { return piece.getBoundingBox().getMaxY() - piece.getBoundingBox().getMinY() + 1; }
 	public static int sizeZ(StructurePiece piece) { return piece.getBoundingBox().getMaxZ() - piece.getBoundingBox().getMinZ() + 1; }
+
+	public static int rotation(StructurePiece piece) {
+		return Directions.reverseScriptRotation(piece.getRotation());
+	}
+
+	public static String mirror(StructurePiece piece) {
+		return Directions.reverseScriptMirror(piece.getMirror());
+	}
 
 	public static StructurePieceType type(StructurePiece piece) {
 		return piece.getType();

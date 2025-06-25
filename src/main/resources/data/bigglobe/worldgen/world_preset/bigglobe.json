@@ -63,7 +63,8 @@
 							]
 						}
 					}
-				}
+				},
+				"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
 			}
 		},
 

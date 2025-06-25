@@ -12,7 +12,6 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder.Inlinable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -33,7 +32,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 	}
 
 	public final @VerifyNullable Valid valid;
-	public final @Inlinable RegistryEntry<Layer> @DefaultEmpty [] children;
+	public final RegistryEntry<Layer> @DefaultEmpty [] children;
 	public final SurfaceScript.@VerifyNullable Holder before_children, after_children;
 
 	public Layer(

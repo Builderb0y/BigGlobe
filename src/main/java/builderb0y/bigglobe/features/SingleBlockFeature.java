@@ -143,15 +143,15 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		int flags = checkFluids(world, pos, states, replace);
 		if ((flags & CAN_PLACE) == 0) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
-			world.setBlockState(pos.up(offsetY), states[offsetY], Block.NOTIFY_ALL);
+			world.setBlockState(pos.up(offsetY), states[offsetY], Block.NOTIFY_ALL | Block.FORCE_STATE);
 		}
 		if ((flags & REPLACE_BELOW) != 0) {
 			BlockPos down = pos.down();
-			world.setBlockState(down, world.getFluidState(down).getBlockState(), Block.NOTIFY_ALL);
+			world.setBlockState(down, world.getFluidState(down).getBlockState(), Block.NOTIFY_ALL | Block.FORCE_STATE);
 		}
 		if ((flags & REPLACE_ABOVE) != 0) {
 			BlockPos up = pos.up(states.length);
-			world.setBlockState(up, world.getFluidState(up).getBlockState(), Block.NOTIFY_ALL);
+			world.setBlockState(up, world.getFluidState(up).getBlockState(), Block.NOTIFY_ALL | Block.FORCE_STATE);
 		}
 		return true;
 	}

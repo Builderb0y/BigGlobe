@@ -1,0 +1,9 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"placeFeature(originX, originY, originZ, 'bigglobe:overworld/grass_bonemeal_grass')",
+			"placeFeature(originX, originY, originZ, 'bigglobe:overworld/grass_bonemeal_flowers')"
+		]
+	}
+}

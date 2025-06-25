@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -46,23 +47,44 @@ import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
 public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 
-	public static record Data(
-		RegistryEntry<Structure> structure,
-		@Hidden MegaTreeStructure actualStructure,
-		RegistryEntry<WoodPalette> wood,
-		double originX,
-		double originY,
-		double originZ,
-		float[] balls
-	) {
-		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+	public static class Data {
 
-		public Data(RegistryEntry<Structure> structure, RegistryEntry<WoodPalette> wood, double originX, double originY, double originZ, float[] offsetsAndRadii) {
-			this(structure, ((MegaTreeStructure)(structure.value())), wood, originX, originY, originZ, offsetsAndRadii);
+		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
+		public RegistryEntry<Structure> structure;
+		@Hidden
+		public MegaTreeStructure actualStructure;
+		public RegistryEntry<WoodPalette> wood;
+		public double originX;
+		public double originY;
+		public double originZ;
+		public float[] balls;
+
+		@Hidden
+		public Data(
+			RegistryEntry<Structure> structure,
+			MegaTreeStructure actualStructure,
+			RegistryEntry<WoodPalette> wood,
+			double originX,
+			double originY,
+			double originZ,
+			float[] balls
+		) {
+			this.structure = structure;
+			this.actualStructure = actualStructure;
+			this.wood = wood;
+			this.originX = originX;
+			this.originY = originY;
+			this.originZ = originZ;
+			this.balls = balls;
 		}
 
-		public Data(MegaTreeStructure actualStructure, RegistryEntry<WoodPalette> wood, double originX, double originY, double originZ, float[] offsetsAndRadii) {
-			this(getActualEntry(actualStructure), actualStructure, wood, originX, originY, originZ, offsetsAndRadii);
+		public Data(RegistryEntry<Structure> structure, RegistryEntry<WoodPalette> wood, double originX, double originY, double originZ, float[] balls) {
+			this(structure, ((MegaTreeStructure)(structure.value())), wood, originX, originY, originZ, balls);
+		}
+
+		@Hidden
+		public Data(MegaTreeStructure actualStructure, RegistryEntry<WoodPalette> wood, double originX, double originY, double originZ, float[] balls) {
+			this(getActualEntry(actualStructure), actualStructure, wood, originX, originY, originZ, balls);
 		}
 
 		public int countBalls() {
@@ -94,6 +116,14 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 				structure
 			);
 		}
+	}
+
+	@Override
+	public void translate(int x, int y, int z) {
+		super.translate(x, y, z);
+		this.data.originX += x;
+		this.data.originY += y;
+		this.data.originZ += z;
 	}
 
 	public MegaTreePiece(

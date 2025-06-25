@@ -1,0 +1,17 @@
+{
+	"type": "bigglobe:root",
+	"state": "'minecraft:air'",
+	"children": [
+		"bigglobe:arches/stone"
+	],
+	"after_children": [
+		"int startY = -64",
+		"for (int endY = startY, (endY := getTopOfSegment(startY)) < 320, startY = endY:",
+			"if (getBlockState(startY) ==. 'minecraft:stone' && getBlockState(endY) ==. 'minecraft:air':",
+				"int depth = (columnSeed # 16xDB86B775C01E1EF9UL).nextInt(3, 7)",
+				"setBlockStates(max(startY, endY - depth), endY, 'minecraft:dirt')",
+				"setBlockState(endY - 1, 'minecraft:grass_block[snowy=false]')",
+			")",
+		")"
+	]
+}

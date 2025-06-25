@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EmptyBlockView;
 
 public class BlockSegmentList extends SegmentList<BlockState> {
@@ -98,6 +99,10 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 
 		public LitSegment(int minY, int maxY, BlockState value) {
 			super(minY, maxY, value);
+		}
+
+		public int getLightLevel(int y, int lod) {
+			return MathHelper.clamp(this.lightLevel - ((this.maxY - y) << lod) * this.value.getOpacity(), 0, 15);
 		}
 
 		public int minY() {

@@ -52,7 +52,7 @@ public class ColumnEntryRegistry {
 
 	public final boolean client;
 	public final BetterRegistry.Lookup registries;
-	public final transient ClassHierarchy classHierarchy;
+	//public final transient ClassHierarchy classHierarchy;
 	public final transient VoronoiManager voronoiManager;
 	public final transient TraitManager traitManager;
 
@@ -66,7 +66,7 @@ public class ColumnEntryRegistry {
 		this.client         = client;
 		this.registries     = registries;
 		this.columnContext  = new ColumnCompileContext(this);
-		this.classHierarchy = new ClassHierarchy(this);
+		//this.classHierarchy = new ClassHierarchy(this);
 		this.voronoiManager = new VoronoiManager(this);
 		this.traitManager   = new TraitManager(this);
 

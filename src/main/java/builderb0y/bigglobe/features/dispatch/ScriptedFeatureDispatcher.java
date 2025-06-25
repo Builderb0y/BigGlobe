@@ -106,7 +106,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 				this.script.generate(world, random);
 			}
 			catch (Throwable throwable) {
-				BigGlobeMod.LOGGER.error("Exception generating features in area " + world.coordination.mutableArea(), throwable);
+				this.onError(throwable);
 			}
 			finally {
 				manager.used = used;

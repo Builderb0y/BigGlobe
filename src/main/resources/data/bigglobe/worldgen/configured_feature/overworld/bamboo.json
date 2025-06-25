@@ -5,7 +5,7 @@
 			"debug_name": "ConfiguredFeatureOverworldBamboo",
 			"source": [
 				"BlockState state = BlockState('minecraft:bamboo', stage: 0, age: int(random.nextBoolean()), leaves: 'none')",
-				"unless (state.canPlaceAt(originX, originY, originZ): return(false))",
+				"if (getBlockState(originX, originY, originZ).hasFluid() || !state.canPlaceAt(originX, originY, originZ): return(false))",
 				"int maxHeight = random.nextInt(4, 17)",
 				"int height = 0",
 				"while (height < maxHeight && getBlockState(originX, originY + height, originZ).isReplaceable():",
