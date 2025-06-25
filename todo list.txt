@@ -25,7 +25,6 @@ where I left off:
 	some way to allow scripts to fill a full 3D range of values, rather than one Y level at a time.
 	foliage exclusion for villages on island skylands affects mainland below.
 	generic scripted ore?
-	write docs page on RandomScriptEnvironment and StatelessRandomScriptEnvironment.
 	add STRUCTURE column usage.
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
