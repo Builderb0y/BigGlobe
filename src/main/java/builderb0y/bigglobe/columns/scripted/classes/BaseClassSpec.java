@@ -16,6 +16,7 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
@@ -117,11 +118,11 @@ public abstract class BaseClassSpec extends TypeSpec {
 					superSpec.createTypeInfo(hierarchy, cyclicDetector);
 				}
 				superClass = superSpec.getTypeInfo();
-				this.overrideTracker = new OverrideTracker(hierarchy.entryOf(this), superSpec.getOverrideTracker());
+				this.overrideTracker = new OverrideTracker(hierarchy, hierarchy.entryOf(this), superSpec.getOverrideTracker());
 			}
 			else {
 				superClass = this.defaultSuperClass();
-				this.overrideTracker = new OverrideTracker(hierarchy.entryOf(this));
+				this.overrideTracker = new OverrideTracker(hierarchy, hierarchy.entryOf(this));
 				this.addReservedMembers();
 			}
 			this.typeInfo = TypeInfo.makeClass(
@@ -154,7 +155,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 			BigGlobeMod.LOGGER.warn("Custom class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " is marked as abstract, but has no abstract methods. This may be a mistake.");
 		}
 		else if (!this.isAbstract && isAbstract) {
-			throw new CustomClassFormatException("Custom class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " contains or inherits abstract methods, but is not marked as abstract itself!");
+			throw new CustomClassFormatException("Custom class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " is not marked as abstract, but contains or inherits abstract members: " + this.overrideTracker.getAbstractMembers().map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(", ", "[", "]")));
 		}
 	}
 

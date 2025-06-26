@@ -13,7 +13,7 @@ import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class OverrideMethodSpec extends MethodSpec {
+public class OverrideMethodSpec extends BaseMethodSpec {
 
 	public final RegistryEntry<ElementSpec> override;
 	public final ScriptUsage code;
@@ -28,7 +28,7 @@ public class OverrideMethodSpec extends MethodSpec {
 
 	@Override
 	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
-		return ((MethodSpec)(this.override.value())).getDependencies();
+		return ((BaseMethodSpec)(this.override.value())).getDependencies();
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class OverrideMethodSpec extends MethodSpec {
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
-		if (!(this.override.value() instanceof MethodSpec)) {
+		if (!(this.override.value() instanceof BaseMethodSpec)) {
 			throw new CustomClassFormatException("Override method " + this.override.value().name() + " overrides non-method " + UnregisteredObjectException.getID(this.override));
 		}
 	}
@@ -55,12 +55,12 @@ public class OverrideMethodSpec extends MethodSpec {
 
 	@Override
 	public RegistryEntry<ElementSpec> getReturnType() {
-		return ((MethodSpec)(this.override.value())).getReturnType();
+		return ((BaseMethodSpec)(this.override.value())).getReturnType();
 	}
 
 	@Override
 	public ParameterSpec[] getParameters() {
-		return ((MethodSpec)(this.override.value())).getParameters();
+		return ((BaseMethodSpec)(this.override.value())).getParameters();
 	}
 
 	@Override

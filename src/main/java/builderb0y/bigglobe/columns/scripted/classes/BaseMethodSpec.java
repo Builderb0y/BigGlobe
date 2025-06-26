@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.util.HashStrategies;
+import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
@@ -30,16 +31,16 @@ import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public abstract class MethodSpec extends MemberSpec implements SetBasedMutableDependencyView {
+public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutableDependencyView {
 
-	public static final Strategy<MethodSpec>
+	public static final Strategy<BaseMethodSpec>
 		DESC_STRATEGY = HashStrategies.allOf(
-		NAME_STRATEGY,
-		HashStrategies.map(
-			HashStrategies.orderedArrayStrategy(ParameterSpec.TYPE_STRATEGY),
-			MethodSpec::getParameters
-		)
-	);
+			NAME_STRATEGY,
+			HashStrategies.map(
+				HashStrategies.orderedArrayStrategy(ParameterSpec.TYPE_STRATEGY),
+				BaseMethodSpec::getParameters
+			)
+		);
 
 	public transient MethodSpecDesc desc;
 
@@ -58,6 +59,7 @@ public abstract class MethodSpec extends MemberSpec implements SetBasedMutableDe
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
+		super.verify(hierarchy, owner);
 		Set<String> parameters = new ObjectOpenHashSet<>(this.getParameters().length);
 		for (ParameterSpec parameter : this.getParameters()) {
 			parameter.verify();
@@ -72,14 +74,14 @@ public abstract class MethodSpec extends MemberSpec implements SetBasedMutableDe
 		owner.setCompileContext(
 			this,
 			owner.classCompileContext.newMethod(
-				ACC_PUBLIC,
+				this.flags(),
 				this.name(),
 				asType(this.getReturnType()).getTypeInfo(),
 				Arrays
 				.stream(this.getParameters())
 				.map((ParameterSpec parameter) -> new LazyVarInfo(
 					parameter.name,
-					((TypeSpec)(parameter.type.value())).getTypeInfo()
+					asType(parameter.type).getTypeInfo()
 				))
 				.toArray(LazyVarInfo.ARRAY_FACTORY)
 			)
@@ -87,39 +89,7 @@ public abstract class MethodSpec extends MemberSpec implements SetBasedMutableDe
 	}
 
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz, ScriptUsage code) throws ScriptParsingException {
-		MethodCompileContext methodContext = clazz.getCompileContext(this);
-		new ScriptColumnEntryParser(code, methodContext.clazz, methodContext, hierarchy.registry.parserFlags())
-		.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.configureEnvironment(MinecraftScriptEnvironment.create())
-		.addEnvironment(SymmetryScriptEnvironment.INSTANCE)
-		.configureEnvironment(NbtScriptEnvironment.createMutable())
-		.addEnvironment(WoodPaletteScriptEnvironment.BASE)
-		.addEnvironment(RandomScriptEnvironment.BASE)
-		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-		.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-		.configureEnvironment(
-			hierarchy.registry.externalEnvironmentSetterUpper(
-				new ExternalEnvironmentParams()
-				.withColumn(
-					new DirectCastInsnTree(
-						getField(
-							load("this", clazz.classCompileContext.info),
-							clazz.baseColumnField()
-						),
-						hierarchy.registry.columnContext.columnType(),
-						false
-					)
-				)
-				.trackDependencies(this)
-			)
-		)
-		.configureEnvironment((MutableScriptEnvironment environment) -> {
-			hierarchy.setupEnvironment(environment, clazz.classCompileContext);
-		})
-		.parseEntireInput()
-		.emitBytecode(methodContext);
-		methodContext.endCode();
+		compile(hierarchy, clazz, clazz.getCompileContext(this), code, this);
 	}
 
 	@Override
@@ -129,6 +99,7 @@ public abstract class MethodSpec extends MemberSpec implements SetBasedMutableDe
 
 	public static class ParameterSpec implements Named {
 
+		public static final ObjectArrayFactory<ParameterSpec> ARRAY_FACTORY = new ObjectArrayFactory<>(ParameterSpec.class);
 		public static final Strategy<ParameterSpec>
 			TYPE_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), (ParameterSpec parameter) -> parameter.type),
 			FULL_STRATEGY = HashStrategies.allOf(NAME_STRATEGY, TYPE_STRATEGY);

@@ -11,15 +11,17 @@ public abstract class ElementSpec implements Named, CoderRegistryTyped<ElementSp
 
 	public static final CoderRegistry<ElementSpec> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("custom_classes"));
 	static {
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_BUILTIN     ),    BuiltinTypeSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_NORMAL      ),          ClassSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_VORONOI     ),   VoronoiClassSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.FIELD_NORMAL      ),          FieldSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CONSTRUCTOR_NORMAL),    ConstructorSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_NORMAL     ), InstanceMethodSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_OVERRIDE   ), OverrideMethodSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_ABSTRACT   ), AbstractMethodSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_STATIC     ),   StaticMethodSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_BUILTIN     ),      BuiltinTypeSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_NORMAL      ),            ClassSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_VORONOI     ),     VoronoiClassSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.FIELD_NORMAL      ),            FieldSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CONSTRUCTOR_NORMAL),      ConstructorSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_NORMAL     ),     NormalMethodSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_OVERRIDE   ),   OverrideMethodSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_ABSTRACT   ),   AbstractMethodSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.PROPERTY_NORMAL   ),   NormalPropertySpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.PROPERTY_OVERRIDE ), OverridePropertySpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.PROPERTY_ABSTRACT ), AbstractPropertySpec.class);
 	}
 
 	public static TypeSpec asType(RegistryEntry<ElementSpec> entry) {

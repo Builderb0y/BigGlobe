@@ -10,7 +10,7 @@ import builderb0y.autocodec.annotations.DefaultString;
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.classes.MethodSpec.MethodSpecDesc;
+import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -33,7 +33,7 @@ public class ConstructorSpec extends MemberSpec {
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
 		ConstructorContext context = new ConstructorContext();
 		context.resolvedParameters = this.values.stream().map((String name) -> {
-			for (RegistryEntry<ElementSpec> entry = hierarchy.entryOf(owner); entry != null && entry.value() instanceof ClassSpec clazz; entry = clazz.parent) {
+			for (RegistryEntry<ElementSpec> entry = hierarchy.entryOf(owner); entry != null && entry.value() instanceof BaseClassSpec clazz; entry = clazz.parent) {
 				for (ElementSpec element : clazz.members.objectList()) {
 					if (element instanceof FieldSpec field && field.name().equals(name)) {
 						return new ValueSpec(name, entry, field.type);

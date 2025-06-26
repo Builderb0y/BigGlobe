@@ -29,13 +29,13 @@ public class FieldSpec extends MemberSpec {
 
 	@Override
 	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addField(this);
+		tracker.addNormalField(this);
 	}
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
 		if (asType(this.type).getTypeInfo().isVoid()) {
-			throw new CustomClassFormatException("Void-typed field: " );
+			throw new CustomClassFormatException("Void-typed field: " + this);
 		}
 	}
 

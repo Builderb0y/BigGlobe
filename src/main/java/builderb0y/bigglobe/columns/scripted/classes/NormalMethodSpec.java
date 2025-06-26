@@ -13,18 +13,18 @@ import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
-import static org.objectweb.asm.Opcodes.*;
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class StaticMethodSpec extends MethodSpec {
+public class NormalMethodSpec extends BaseMethodSpec {
 
 	public final @IdentifierName String name;
 	public final RegistryEntry<ElementSpec> return_type;
 	public final ParameterSpec[] parameters;
 	public final ScriptUsage code;
-	public transient final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
-	public StaticMethodSpec(
-		@IdentifierName String name,
+	public NormalMethodSpec(
+		String name,
 		RegistryEntry<ElementSpec> return_type,
 		ParameterSpec[] parameters,
 		ScriptUsage code
@@ -42,18 +42,21 @@ public class StaticMethodSpec extends MethodSpec {
 
 	@Override
 	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addStaticMethod(this);
+		tracker.addInstanceMethod(this);
 	}
 
 	@Override
 	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, ClassCompileContext caller) {
 		MethodCompileContext methodContext = owner.getCompileContext(this);
-		environment.addQualifiedFunctionInvokeStatic(methodContext.info);
+		environment.addMethodInvoke(methodContext.info);
+		if (caller.info.extendsOrImplements(methodContext.clazz.info)) {
+			environment.addFunctionInvoke(load("this", caller.info), methodContext.info);
+		}
 	}
 
 	@Override
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
-		this.compile(hierarchy, owner, this.code);
+	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz) throws ScriptParsingException {
+		this.compile(hierarchy, clazz, this.code);
 	}
 
 	@Override
@@ -68,7 +71,7 @@ public class StaticMethodSpec extends MethodSpec {
 
 	@Override
 	public int flags() {
-		return ACC_PUBLIC | ACC_STATIC;
+		return ACC_PUBLIC;
 	}
 
 	@Override

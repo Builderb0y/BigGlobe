@@ -66,8 +66,9 @@ json classes:
 		* allow json to define classes that can be used anywhere that column values can be used.
 		* json-defined classes may have:
 			* fields, populated by the constructor.
-			* properties, computed lazily like column values.
-				* can be cached or uncached, also like column values.
+			* properties, half way between fields and methods.
+				* no parentheses required for accessing.
+				* usage secretly goes through getter and optional setter methods.
 			* methods, which can be called to do whatever.
 		* class schemas would be in their own registry.
 			* types that reference themselves (either directly or indirectly) would be allowed in this system.
@@ -88,6 +89,7 @@ changelog:
 	* Fixed bonemeal not producing flowers in big globe worlds.
 	* Abandoned cities now contain copper bulbs, in addition to redstone lamps.
 	* The small puddles of water that spawn in swamps now place mud around and below themselves.
+	* Fixed obelisks rarely getting cut off at chunk boundaries.
 	# For data pack users:
 	* Fixed world traits failing to apply on world creation.
 	# For data pack developers:

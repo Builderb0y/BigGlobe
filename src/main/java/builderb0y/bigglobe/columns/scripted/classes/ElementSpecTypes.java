@@ -11,5 +11,7 @@ public class ElementSpecTypes {
 		METHOD_NORMAL      = "method/normal",
 		METHOD_OVERRIDE    = "method/override",
 		METHOD_ABSTRACT    = "method/abstract",
-		METHOD_STATIC      = "method/static";
+		PROPERTY_NORMAL    = "property/normal",
+		PROPERTY_OVERRIDE  = "property/override",
+		PROPERTY_ABSTRACT  = "property/abstract";
 }

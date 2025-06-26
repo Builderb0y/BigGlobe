@@ -13,12 +13,12 @@ import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class AbstractMethodSpec extends MethodSpec {
+public class AbstractMethodSpec extends BaseMethodSpec {
 
 	public final @IdentifierName String name;
 	public final RegistryEntry<ElementSpec> return_type;
 	public final ParameterSpec[] parameters;
-	public transient final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public AbstractMethodSpec(
 		@IdentifierName String name,

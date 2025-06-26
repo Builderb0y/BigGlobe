@@ -20,6 +20,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.ReflectionData;
@@ -334,6 +335,12 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			this.addVariableInvoke(receiver, in, name);
 		}
 		return this;
+	}
+
+	//////////////// getter setter ////////////////
+
+	public MutableScriptEnvironment addVariableGetterSetter(InsnTree receiver, String name, MethodInfo getter, MethodInfo setter) {
+		return this.addVariable(name, new GetterSetterInsnTree(receiver, getter, setter));
 	}
 
 	//////////////// invokeStatic ////////////////
