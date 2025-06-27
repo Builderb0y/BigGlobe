@@ -69,4 +69,7 @@ public abstract class MemberSpec extends ElementSpec {
 	}
 
 	public abstract void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, ClassCompileContext caller);
+
+	@Override
+	public abstract String toString();
 }

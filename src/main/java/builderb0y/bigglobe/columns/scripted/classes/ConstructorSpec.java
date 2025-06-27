@@ -11,11 +11,14 @@ import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
+import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedField;
+import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedProperty;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -31,16 +34,25 @@ public class ConstructorSpec extends MemberSpec {
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
+		if (owner.isAbstract) {
+			throw new CustomClassFormatException("Can't add constructor " + hierarchy.entryOf(this) + " to abstract class " + hierarchy.entryOf(owner));
+		}
 		ConstructorContext context = new ConstructorContext();
 		context.resolvedParameters = this.values.stream().map((String name) -> {
-			for (RegistryEntry<ElementSpec> entry = hierarchy.entryOf(owner); entry != null && entry.value() instanceof BaseClassSpec clazz; entry = clazz.parent) {
-				for (ElementSpec element : clazz.members.objectList()) {
-					if (element instanceof FieldSpec field && field.name().equals(name)) {
-						return new ValueSpec(name, entry, field.type);
-					}
+			TrackedField field = owner.overrideTracker.fields.get(name);
+			if (field != null) {
+				return new ValueSpec(name, field.declaration(), ((FieldSpec)(field.declaration().value())).field_type, false);
+			}
+			TrackedProperty property = owner.overrideTracker.properties.get(name);
+			if (property != null) {
+				if (((BasePropertySpec)(property.declaration().value())).isSettable()) {
+					return new ValueSpec(name, property.declaration(), ((BasePropertySpec)(property.declaration().value())).getPropertyType(), true);
+				}
+				else {
+					throw AutoCodecUtil.rethrow(new CustomClassFormatException("Can't assign to property " + UnregisteredObjectException.getID(property.declaration()) + " in constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this))));
 				}
 			}
-			throw AutoCodecUtil.rethrow(new CustomClassFormatException("Could not find field named " + name + " in class " + UnregisteredObjectException.getID(hierarchy.entryOf(owner))));
+			throw AutoCodecUtil.rethrow(new CustomClassFormatException("Could not find field named " + name + " in class " + UnregisteredObjectException.getID(hierarchy.entryOf(owner)) + " for constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this))));
 		})
 		.toArray(ValueSpec[]::new);
 		context.descriptor = new MethodSpecDesc(this.name, Arrays.stream(context.resolvedParameters).map(ValueSpec::typeInfo).toList());
@@ -77,17 +89,33 @@ public class ConstructorSpec extends MemberSpec {
 		)
 		.emitBytecode(context.methodCompileContext);
 		for (ValueSpec parameter : context.resolvedParameters) {
-			putField(
-				load(result),
-				new FieldInfo(
-					ACC_PUBLIC,
-					parameter.ownerTypeInfo(),
-					parameter.name,
-					parameter.typeInfo()
-				),
-				load(new LazyVarInfo(parameter.name, parameter.typeInfo()))
-			)
-			.emitBytecode(context.methodCompileContext);
+			if (parameter.useSetter) {
+				invokeInstance(
+					load(result),
+					new MethodInfo(
+						ACC_PUBLIC,
+						parameter.ownerTypeInfo(),
+						parameter.name,
+						TypeInfos.VOID,
+						parameter.typeInfo()
+					),
+					load(parameter.name, parameter.typeInfo())
+				)
+				.emitBytecode(context.methodCompileContext);
+			}
+			else {
+				putField(
+					load(result),
+					new FieldInfo(
+						ACC_PUBLIC,
+						parameter.ownerTypeInfo(),
+						parameter.name,
+						parameter.typeInfo()
+					),
+					load(parameter.name, parameter.typeInfo())
+				)
+				.emitBytecode(context.methodCompileContext);
+			}
 		}
 		return_(load(result)).emitBytecode(context.methodCompileContext);
 	}
@@ -108,6 +136,11 @@ public class ConstructorSpec extends MemberSpec {
 		return this.name;
 	}
 
+	@Override
+	public String toString() {
+		return "constructor " + this.name + this.values;
+	}
+
 	public static class ConstructorContext {
 
 		public MethodCompileContext methodCompileContext;
@@ -119,11 +152,13 @@ public class ConstructorSpec extends MemberSpec {
 
 		public final @IdentifierName String name;
 		public final RegistryEntry<ElementSpec> owner, type;
+		public final boolean useSetter;
 
-		public ValueSpec(String name, RegistryEntry<ElementSpec> owner, RegistryEntry<ElementSpec> type) {
+		public ValueSpec(String name, RegistryEntry<ElementSpec> owner, RegistryEntry<ElementSpec> type, boolean useSetter) {
 			this.name = name;
 			this.owner = owner;
 			this.type = type;
+			this.useSetter = useSetter;
 		}
 
 		public TypeInfo typeInfo() {

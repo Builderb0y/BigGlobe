@@ -16,7 +16,6 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;

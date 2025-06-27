@@ -48,10 +48,18 @@ public class AbstractPropertySpec extends BasePropertySpec {
 
 	@Override
 	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, ClassCompileContext caller) {
-		MethodCompileContext methodContext = owner.getCompileContext(this);
-		environment.addFieldInvoke(methodContext.info);
-		if (caller.info.extendsOrImplements(methodContext.clazz.info)) {
-			environment.addVariableInvoke(load("this", caller.info), methodContext.info);
+		PropertyCompileContext propertyContext = owner.getCompileContext(this);
+		if (this.settable) {
+			environment.addFieldGetterSetter(propertyContext.get.clazz.info, this.name, propertyContext.get.info, propertyContext.set.info);
+			if (caller.info.extendsOrImplements(propertyContext.get.clazz.info)) {
+				environment.addVariableGetterSetter(load("this", caller.info), this.name, propertyContext.get.info, propertyContext.set.info);
+			}
+		}
+		else {
+			environment.addFieldInvoke(propertyContext.get.info);
+			if (caller.info.extendsOrImplements(propertyContext.get.clazz.info)) {
+				environment.addVariableInvoke(load("this", caller.info), propertyContext.get.info);
+			}
 		}
 	}
 

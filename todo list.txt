@@ -49,6 +49,7 @@ to finish before release:
 	document structures in general.
 	derivative perlin grids.
 		documentation for derivative perlin grids.
+	happy ghast block thingy in the valley of souls.
 
 structure rewrites:
 	hack StructureAccessor more.

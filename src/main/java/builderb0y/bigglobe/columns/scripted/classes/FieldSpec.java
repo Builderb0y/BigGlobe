@@ -16,15 +16,15 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class FieldSpec extends MemberSpec {
 
 	public static final Hash.Strategy<FieldSpec>
-		TYPE_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), (FieldSpec field) -> field.type),
+		TYPE_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), (FieldSpec field) -> field.field_type),
 		FULL_STRATEGY = HashStrategies.allOf(NAME_STRATEGY, TYPE_STRATEGY);
 
 	public final @IdentifierName String name;
-	public final RegistryEntry<ElementSpec> type;
+	public final RegistryEntry<ElementSpec> field_type;
 
-	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> type) {
+	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> field_type) {
 		this.name = name;
-		this.type = type;
+		this.field_type = field_type;
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class FieldSpec extends MemberSpec {
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
-		if (asType(this.type).getTypeInfo().isVoid()) {
+		if (asType(this.field_type).getTypeInfo().isVoid()) {
 			throw new CustomClassFormatException("Void-typed field: " + this);
 		}
 	}
@@ -47,7 +47,7 @@ public class FieldSpec extends MemberSpec {
 			owner.classCompileContext.newField(
 				ACC_PUBLIC,
 				this.name,
-				((TypeSpec)(this.type.value())).getTypeInfo()
+				((TypeSpec)(this.field_type.value())).getTypeInfo()
 			)
 		);
 	}
@@ -70,6 +70,6 @@ public class FieldSpec extends MemberSpec {
 
 	@Override
 	public String toString() {
-		return "FieldSpec " + this.name + " [" + UnregisteredObjectException.getID(this.type) + ']';
+		return "FieldSpec " + this.name + " [" + UnregisteredObjectException.getID(this.field_type) + ']';
 	}
 }
