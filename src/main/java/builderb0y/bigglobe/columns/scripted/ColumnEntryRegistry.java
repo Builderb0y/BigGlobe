@@ -23,7 +23,6 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
-import builderb0y.bigglobe.columns.scripted.classes.ClassHierarchy;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
@@ -133,12 +132,12 @@ public class ColumnEntryRegistry {
 					this.columnLookup,
 					"create",
 					MethodType.methodType(ScriptedColumn.Factory.class),
-					MethodType.methodType(ScriptedColumn.class, ScriptedColumn.PARAMETER_CLASSES),
+					MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
 						this.columnLookup.findConstructor(
 						this.columnClass,
-						MethodType.methodType(void.class, ScriptedColumn.PARAMETER_CLASSES)
+						MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
 					),
-					MethodType.methodType(this.columnClass, ScriptedColumn.PARAMETER_CLASSES)
+					MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
 				)
 				.getTarget()
 				.invokeExact()

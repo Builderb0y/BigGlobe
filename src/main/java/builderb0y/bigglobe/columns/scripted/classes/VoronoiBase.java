@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
@@ -8,6 +9,8 @@ import builderb0y.bigglobe.settings.VoronoiDiagram2D.SeedPoint;
 import builderb0y.bigglobe.util.Derivative2D;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.InfoHolder;
 
 public class VoronoiBase {
@@ -23,7 +26,8 @@ public class VoronoiBase {
 	public static class Info extends InfoHolder {
 
 		public FieldInfo
-			column;
+			column,
+			$cell;
 		public MethodInfo
 			cell_x,
 			cell_z,
@@ -42,7 +46,46 @@ public class VoronoiBase {
 			unsalted_seed,
 			salted_seed,
 			center_column;
+
+		public void setupInternalEnvironment(MutableScriptEnvironment environment, InsnTree loadVoronoi) {
+			environment
+			.addVariableInvoke(loadVoronoi, this.cell_x                    )
+			.addVariableInvoke(loadVoronoi, this.cell_z                    )
+			.addVariableInvoke(loadVoronoi, this.center_x                  )
+			.addVariableInvoke(loadVoronoi, this.center_z                  )
+			.addVariableInvoke(loadVoronoi, this.soft_distance_squared     )
+			.addVariableInvoke(loadVoronoi, this.dx_soft_distance_squared  )
+			.addVariableInvoke(loadVoronoi, this.dz_soft_distance_squared  )
+			.addVariableInvoke(loadVoronoi, this.soft_distance             )
+			.addVariableInvoke(loadVoronoi, this.dx_soft_distance          )
+			.addVariableInvoke(loadVoronoi, this.dz_soft_distance          )
+			.addVariableInvoke(loadVoronoi, this.hard_distance_squared     )
+			.addVariableInvoke(loadVoronoi, this.hard_distance             )
+			.addVariableInvoke(loadVoronoi, this.euclidean_distance_squared)
+			.addVariableInvoke(loadVoronoi, this.euclidean_distance        )
+			;
+		}
+
+		public void setupExternalEnvironment(MutableScriptEnvironment environment) {
+			environment
+			.addFieldInvoke("cell_x",                     this.cell_x                    )
+			.addFieldInvoke("cell_z",                     this.cell_z                    )
+			.addFieldInvoke("center_x",                   this.center_x                  )
+			.addFieldInvoke("center_z",                   this.center_z                  )
+			.addFieldInvoke("soft_distance_squared",      this.soft_distance_squared     )
+			.addFieldInvoke("dx_soft_distance_squared",   this.dx_soft_distance_squared  )
+			.addFieldInvoke("dz_soft_distance_squared",   this.dz_soft_distance_squared  )
+			.addFieldInvoke("soft_distance",              this.soft_distance             )
+			.addFieldInvoke("dx_soft_distance",           this.dx_soft_distance          )
+			.addFieldInvoke("dz_soft_distance",           this.dz_soft_distance          )
+			.addFieldInvoke("hard_distance_squared",      this.hard_distance_squared     )
+			.addFieldInvoke("hard_distance",              this.hard_distance             )
+			.addFieldInvoke("euclidean_distance_squared", this.euclidean_distance_squared)
+			.addFieldInvoke("euclidean_distance",         this.euclidean_distance        )
+			;
+		}
 	}
+	public static final ConstructorInfo CONSTRUCTOR_INFO = new ConstructorInfo(VoronoiBase.class);
 
 	public final VoronoiDiagram2D.Cell $cell;
 	public ScriptedColumn column, center_column;
@@ -181,5 +224,11 @@ public class VoronoiBase {
 			this.center_column = this.column.blankCopy();
 			this.center_column.setParamsUnchecked(this.center_column.params.at(this.center_x(), this.center_z()));
 		}
+	}
+
+	@FunctionalInterface
+	public static interface Factory {
+
+		public abstract VoronoiBase create(ScriptedColumn column, VoronoiDiagram2D.Cell cell);
 	}
 }

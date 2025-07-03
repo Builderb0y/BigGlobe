@@ -9,12 +9,10 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class MappedRangeNumberArray extends MappedRangeArray {
 
-	public static final TypeInfo
-		TYPE      = type(MappedRangeNumberArray.class);
-	public static final FieldInfo
-		ARRAY     =  FieldInfo.inCaller("array");
-	public static final MethodInfo
-		CONSTRUCT = MethodInfo.getConstructor(MappedRangeNumberArray.class);
+	public static final   TypeInfo TYPE          = type(MappedRangeNumberArray.class);
+	public static final  FieldInfo ARRAY         = FieldInfo.inCaller("array");
+	public static final MethodInfo CONSTRUCTOR   = MethodInfo.getConstructor(MappedRangeNumberArray.class);
+	public static final MethodInfo CACHED_PREFIX = MethodInfo.inCaller("cachedPrefix");
 
 	public NumberArray array;
 
@@ -40,5 +38,9 @@ public class MappedRangeNumberArray extends MappedRangeArray {
 			};
 		}
 		return requiredLength > 0;
+	}
+
+	public NumberArray cachedPrefix() {
+		return this.array.prefix(this.cachedRange());
 	}
 }

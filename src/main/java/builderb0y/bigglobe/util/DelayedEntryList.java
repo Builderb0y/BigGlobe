@@ -98,6 +98,11 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 		return new DelayedEntryList<>(BigGlobeMod.getSidedRegistry(registryKey, client), Collections.singletonList(new DelayedEntry(input)));
 	}
 
+	public static <T> DelayedEntryList<T> create(BetterRegistry<T> registry, String input) {
+		if (input == null) return empty(registry.getKey());
+		return new DelayedEntryList<>(registry, Collections.singletonList(new DelayedEntry(input)));
+	}
+
 	public boolean isResolved() {
 		return this.entryList != null;
 	}

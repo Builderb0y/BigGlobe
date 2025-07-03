@@ -316,7 +316,8 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		*/
 		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ, offsetY;
 		public boolean mutable;
-		public MutableDependencyView dependencies;
+		public @Nullable MutableDependencyView dependencies;
+		public @Nullable Identifier caller;
 
 		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) { this.loadColumn = loadColumn; return this; }
 		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
@@ -326,6 +327,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		public ExternalEnvironmentParams mutable   (boolean  mutable   ) { this.mutable    = mutable   ; return this; }
 		public ExternalEnvironmentParams mutable   (                   ) { this.mutable    = true      ; return this; }
 		public ExternalEnvironmentParams trackDependencies(MutableDependencyView dependencies) { this.dependencies = dependencies; return this; }
+		public ExternalEnvironmentParams withCaller(Identifier caller  ) { this.caller     = caller    ; return this; }
 
 		public boolean requiresNoArguments(boolean is3D) {
 			return (!is3D || this.loadY != null) && (this.loadColumn != null || (this.loadX != null && this.loadZ != null));

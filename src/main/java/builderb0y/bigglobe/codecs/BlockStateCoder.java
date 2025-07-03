@@ -46,6 +46,7 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.mixinInterfaces.AdjustableRegistryOps;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
@@ -82,7 +83,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			BlockProperties blockProperties = decodeState(blockRegistry, string.value);
 			Set<Property<?>> missing = blockProperties.missing();
 			if (!missing.isEmpty()) {
-				context.logger().logErrorLazy(() -> "Block " + Registries.BLOCK.getId(blockProperties.block) + " is missing properties: " + missing);
+				context.logger().logErrorLazy(() -> "Block " + UnregisteredObjectException.getID(blockProperties.state.getRegistryEntry()) + " is missing properties: " + missing);
 			}
 			return blockProperties.state();
 		}

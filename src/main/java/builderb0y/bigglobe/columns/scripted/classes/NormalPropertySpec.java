@@ -3,11 +3,13 @@ package builderb0y.bigglobe.columns.scripted.classes;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -31,18 +33,18 @@ public class NormalPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, ClassCompileContext caller) {
+	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
 		PropertyCompileContext propertyContext = owner.getCompileContext(this);
 		if (this.set != null) {
 			environment.addFieldGetterSetter(propertyContext.get.clazz.info, this.name, propertyContext.get.info, propertyContext.set.info);
-			if (caller.info.extendsOrImplements(propertyContext.get.clazz.info)) {
-				environment.addVariableGetterSetter(load("this", caller.info), this.name, propertyContext.get.info, propertyContext.set.info);
+			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
+				environment.addVariableGetterSetter(loadCustomClass, this.name, propertyContext.get.info, propertyContext.set.info);
 			}
 		}
 		else {
 			environment.addFieldInvoke(propertyContext.get.info);
-			if (caller.info.extendsOrImplements(propertyContext.get.clazz.info)) {
-				environment.addVariableInvoke(load("this", caller.info), propertyContext.get.info);
+			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
+				environment.addVariableInvoke(loadCustomClass, propertyContext.get.info);
 			}
 		}
 	}

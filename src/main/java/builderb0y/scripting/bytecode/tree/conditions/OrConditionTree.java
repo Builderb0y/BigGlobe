@@ -27,9 +27,15 @@ public class OrConditionTree implements ConditionTree {
 			}
 		}
 		else {
-			//don't short-circuit if the right condition is constant.
-			//left still needs to be evaluated either way.
-			return new OrConditionTree(left, right);
+			if (right instanceof ConstantConditionTree rightConstant && !rightConstant.value) {
+				//variable || false is safe to simplify.
+				return left;
+			}
+			else {
+				//don't short-circuit if the right condition is constant true.
+				//left still needs to be evaluated either way.
+				return new OrConditionTree(left, right);
+			}
 		}
 	}
 

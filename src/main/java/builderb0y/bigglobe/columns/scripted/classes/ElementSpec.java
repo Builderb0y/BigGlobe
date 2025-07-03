@@ -2,11 +2,14 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
+@UseCoder(name = "REGISTRY", in = ElementSpec.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class ElementSpec implements Named, CoderRegistryTyped<ElementSpec> {
 
 	public static final CoderRegistry<ElementSpec> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("custom_classes"));

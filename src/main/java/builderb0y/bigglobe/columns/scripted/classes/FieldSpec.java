@@ -1,13 +1,17 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import it.unimi.dsi.fastutil.Hash;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
+import builderb0y.autocodec.annotations.UseName;
+import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.FieldCompileContext;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
@@ -21,10 +25,12 @@ public class FieldSpec extends MemberSpec {
 
 	public final @IdentifierName String name;
 	public final RegistryEntry<ElementSpec> field_type;
+	public final @VerifyNullable @UseName("default") Data defaultValue;
 
-	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> field_type) {
+	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> field_type, @VerifyNullable Data defaultValue) {
 		this.name = name;
 		this.field_type = field_type;
+		this.defaultValue = defaultValue;
 	}
 
 	@Override
@@ -53,11 +59,11 @@ public class FieldSpec extends MemberSpec {
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, ClassCompileContext caller) {
+	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
 		FieldCompileContext fieldCompileContext = owner.getCompileContext(this);
 		environment.addFieldGet(fieldCompileContext.info);
-		if (caller.info.extendsOrImplements(fieldCompileContext.clazz.info)) {
-			environment.addVariableGetField(load("this", caller.info), fieldCompileContext.info);
+		if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(fieldCompileContext.clazz.info)) {
+			environment.addVariableGetField(loadCustomClass, fieldCompileContext.info);
 		}
 	}
 

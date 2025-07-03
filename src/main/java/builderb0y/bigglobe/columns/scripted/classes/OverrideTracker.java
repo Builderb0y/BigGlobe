@@ -2,14 +2,12 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
-import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.columns.scripted.classes.ConstructorSpec.ConstructorContext;
 import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -171,8 +169,13 @@ public class OverrideTracker {
 		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(constructor);
 		ConstructorContext context = ((BaseClassSpec)(this.owner.value())).getCompileContext(constructor);
 		TrackedMethod existing = this.methods.get(context.descriptor);
-		if (existing != null && existing.owner == this.owner) {
-			throw new CustomClassFormatException("Constructor " + getID(entry) + " in class " + getID(this.owner) + " conflicts with " + getID(existing.declaration));
+		if (existing != null) {
+			if (existing.type == TrackedMethod.Type.RESERVED) {
+				throw new CustomClassFormatException("Constructor " + context.descriptor + " is reserved.");
+			}
+			else if (existing.owner == this.owner) {
+				throw new CustomClassFormatException("Constructor " + getID(entry) + " in class " + getID(this.owner) + " conflicts with " + getID(existing.declaration));
+			}
 		}
 		this.methods.put(context.descriptor, new TrackedMethod(this.owner, entry, TrackedMethod.Type.CONSTRUCTOR));
 	}

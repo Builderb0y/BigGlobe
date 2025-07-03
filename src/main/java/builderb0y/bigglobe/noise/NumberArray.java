@@ -10,6 +10,7 @@ import java.util.Objects;
 import org.intellij.lang.annotations.MagicConstant;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.util.InfoHolder;
 
@@ -80,6 +81,15 @@ public class NumberArray implements AutoCloseable {
 
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
+
+		public FieldInfo
+			EMPTY_BYTE,
+			EMPTY_SHORT,
+			EMPTY_INT,
+			EMPTY_LONG,
+			EMPTY_FLOAT,
+			EMPTY_DOUBLE,
+			EMPTY_BOOLEAN;
 
 		public MethodInfo
 			allocateBytesHeap,

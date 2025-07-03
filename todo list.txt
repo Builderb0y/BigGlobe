@@ -50,6 +50,8 @@ to finish before release:
 	derivative perlin grids.
 		documentation for derivative perlin grids.
 	happy ghast block thingy in the valley of souls.
+	ensure new versions of voxy work correctly.
+	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
 
 structure rewrites:
 	hack StructureAccessor more.
@@ -67,6 +69,9 @@ json classes:
 		* allow json to define classes that can be used anywhere that column values can be used.
 		* json-defined classes may have:
 			* fields, populated by the constructor.
+				* default values for fields may be provided as well.
+			* constructors, to populate fields.
+				* code may be provided to initialize other fields based on the specified parameters.
 			* properties, half way between fields and methods.
 				* no parentheses required for accessing.
 				* usage secretly goes through getter and optional setter methods.
@@ -112,7 +117,7 @@ breaking changes I want to make:
 		also expose (Int|Double)(Area|Range).
 			all of these should be iterable with for each loops.
 				for (int*(x, y, z) in volume: body)
-				for (int*(x, z) in volume.area(): body)
+				for (int*(x, z) in volume.xz: body)
 
 4.0 stuff:
 	/waypoint

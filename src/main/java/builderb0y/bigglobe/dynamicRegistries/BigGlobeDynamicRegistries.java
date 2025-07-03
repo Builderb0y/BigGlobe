@@ -14,6 +14,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
+import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
@@ -26,6 +27,7 @@ import builderb0y.scripting.parsing.input.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
 
+	public static final RegistryKey<Registry<ElementSpec>>                            ELEMENT_SPEC_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_custom_classes"));
 	public static final RegistryKey<Registry<ScriptTemplate>>                      SCRIPT_TEMPLATE_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_script_templates"));
 	public static final RegistryKey<Registry<Grid>>                                  GRID_TEMPLATE_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("bigglobe_noise_sources"));
 	public static final RegistryKey<Registry<ColumnEntry>>                            COLUMN_ENTRY_REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.mcID("worldgen/bigglobe_column_value"));

@@ -45,14 +45,13 @@ public class ColumnCompileContext extends DataCompileContext {
 			new TypeInfo[0]
 		);
 		{
-			LazyVarInfo self;
 			this.constructor = this.mainClass.newMethod(
 				ACC_PUBLIC,
 				"<init>",
 				TypeInfos.VOID,
-				ScriptedColumn.PARAMETER_VAR_INFOS
+				ScriptedColumn.CONSTRUCTOR_INFO.parameterVarInfos
 			);
-			self = new LazyVarInfo("this", this.mainClass.info);
+			LazyVarInfo self = new LazyVarInfo("this", this.mainClass.info);
 			invokeInstance(
 				load(self),
 				new MethodInfo(
@@ -60,9 +59,9 @@ public class ColumnCompileContext extends DataCompileContext {
 					type(ScriptedColumn.class),
 					"<init>",
 					TypeInfos.VOID,
-					ScriptedColumn.PARAMETER_TYPE_INFOS
+					ScriptedColumn.CONSTRUCTOR_INFO.parameterTypeInfos
 				),
-				ScriptedColumn.LOADERS
+				ScriptedColumn.CONSTRUCTOR_INFO.loaders
 			)
 			.emitBytecode(this.constructor);
 		}
@@ -72,13 +71,13 @@ public class ColumnCompileContext extends DataCompileContext {
 			lookup.endCode();
 		}
 		{
-			InsnTree loadSelf = load("this", this.mainClass.info);
 			MethodCompileContext blankCopy = this.mainClass.newMethod(ACC_PUBLIC, "blankCopy", type(ScriptedColumn.class));
+			InsnTree loadSelf = load("this", this.mainClass.info);
 			return_(
 				newInstance(
 					this.constructor.info,
 					Arrays
-					.stream(ScriptedColumn.CONSTRUCTOR_PARAMETERS)
+					.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
 					.map(Parameter::getName)
 					.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
 					.map((FieldInfo field) -> getField(loadSelf, field))

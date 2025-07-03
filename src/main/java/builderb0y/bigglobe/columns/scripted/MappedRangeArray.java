@@ -20,7 +20,9 @@ public abstract class MappedRangeArray {
 			reallocateNone,
 			reallocateMin,
 			reallocateMax,
-			reallocateBoth;
+			reallocateBoth,
+			cachedRange,
+			accessibleRange;
 	}
 
 	public int minCached, maxCached, minAccessible, maxAccessible;
@@ -67,4 +69,12 @@ public abstract class MappedRangeArray {
 	code should proceed with filling the array with values.
 	*/
 	public abstract boolean reallocate(int requiredLength);
+
+	public int cachedRange() {
+		return this.maxCached - this.minCached;
+	}
+
+	public int accessibleRange() {
+		return this.maxAccessible - this.minAccessible;
+	}
 }

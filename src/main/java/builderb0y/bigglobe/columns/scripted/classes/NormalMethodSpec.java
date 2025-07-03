@@ -3,11 +3,13 @@ package builderb0y.bigglobe.columns.scripted.classes;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -46,11 +48,11 @@ public class NormalMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, ClassCompileContext caller) {
+	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
 		MethodCompileContext methodContext = owner.getCompileContext(this);
 		environment.addMethodInvoke(methodContext.info);
-		if (caller.info.extendsOrImplements(methodContext.clazz.info)) {
-			environment.addFunctionInvoke(load("this", caller.info), methodContext.info);
+		if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(methodContext.clazz.info)) {
+			environment.addFunctionInvoke(loadCustomClass, methodContext.info);
 		}
 	}
 

@@ -220,6 +220,7 @@ public class JavaUtilScriptEnvironment {
 	/**
 	mostly a copy-paste of {@link Collections#shuffle(List, Random)},
 	but adapted to work with a {@link RandomGenerator} instead of a {@link Random}.
+	an overload in Collections which uses a RandomGenerator was added in java 21.
 	*/
 	public static <T> void shuffle(List<T> list, RandomGenerator random) {
 		int size = list.size();

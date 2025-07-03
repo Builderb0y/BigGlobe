@@ -8,8 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
-import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.autocodec.data.Data;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -18,9 +19,9 @@ public abstract class TypeSpec extends ElementSpec {
 
 	public static final Path DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpCustomClasses", "bigglobe_custom_classes");
 
-	public CompileState compileState = CompileState.FRESH;
+	public CompileStep compileState = CompileStep.FRESH;
 
-	public boolean canProgressTo(CompileState state) {
+	public boolean canProgressTo(CompileStep state) {
 		if (this.compileState.ordinal() < state.ordinal() - 1) {
 			throw new IllegalStateException("Skipped a step!");
 		}
@@ -36,15 +37,19 @@ public abstract class TypeSpec extends ElementSpec {
 		}
 	}
 
-	public void doProgressTo(CompileState state, ClassHierarchy hierarchy) throws Exception {
+	public void doProgressTo(CompileStep state, ClassHierarchy hierarchy) throws Exception {
 		if (this.canProgressTo(state)) {
 			state.action.execute(this, hierarchy);
 		}
 	}
 
+	public abstract InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn);
+
 	public abstract TypeInfo getTypeInfo();
 
 	public abstract boolean isFinal();
+
+	public abstract boolean isAbstract();
 
 	public abstract @Nullable OverrideTracker getOverrideTracker();
 
@@ -60,11 +65,11 @@ public abstract class TypeSpec extends ElementSpec {
 
 	public void link(ScriptClassLoader loader) {}
 
-	public void setupEnvironment(MutableScriptEnvironment environment, ClassCompileContext caller) {
+	public void setupEnvironment(MutableScriptEnvironment environment, @Nullable InsnTree loadCustomClass) {
 		environment.addType(this.name(), this.getTypeInfo());
 	}
 
-	public static enum CompileState {
+	public static enum CompileStep {
 		FRESH("doing nothing", null),
 		CREATE_TYPE_INFO("creating type info", (TypeSpec type, ClassHierarchy hierarchy) -> type.createTypeInfo(hierarchy, new LinkedHashSet<>())),
 		VERIFY("verifying", TypeSpec::verify),
@@ -72,14 +77,14 @@ public abstract class TypeSpec extends ElementSpec {
 		CREATE_MEMBERS("creating members", TypeSpec::createMembers),
 		COMPILE_MEMBERS("compiling members", TypeSpec::compileMembers);
 
-		public static final CompileState[]
+		public static final CompileStep[]
 			VALUES = values(),
 			EXCEPT_FRESH = Arrays.copyOfRange(VALUES, 1, VALUES.length);
 
 		public final String description;
 		public final CompileAction action;
 
-		CompileState(String description, CompileAction action) {
+		CompileStep(String description, CompileAction action) {
 			this.description = description;
 			this.action = action;
 		}
