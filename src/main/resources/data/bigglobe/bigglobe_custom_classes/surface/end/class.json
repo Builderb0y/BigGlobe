@@ -1,0 +1,6 @@
+{
+	"element_type": "class/normal",
+	"name": "EndSurface",
+	"extends": "bigglobe:surface/multi/class",
+	"members": "#bigglobe:surface/end_members"
+}

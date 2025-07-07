@@ -95,14 +95,14 @@ public class SidedCombinedLodRenderer extends AbstractLodRenderer {
 					GLException.check();
 				}
 				GLException.check(); //handles exceptions from this.transformationBuffer.bind().close().
-				if (this.state.inTranslucentPass) {
-					this.depthBuffer.copyTo(glID(MinecraftClient.getInstance().getFramebuffer()));
-					GLException.check();
-				}
 				this.multiDrawStarts.clear();
 				this.multiDrawSizes.clear();
 				this.zeros.clear();
 				this.drawCount = 0;
+			}
+			if (this.state.inTranslucentPass) {
+				this.depthBuffer.copyTo(glID(MinecraftClient.getInstance().getFramebuffer()));
+				GLException.check();
 			}
 			this.state.close();
 		};

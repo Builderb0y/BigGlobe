@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cave_systems/base_easy/method_noise",
+		"bigglobe:cave_systems/base_easy/property_base_depth",
+		"bigglobe:cave_systems/base_easy/property_dungeon_feature"
+	]
+}

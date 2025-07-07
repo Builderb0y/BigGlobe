@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"name": "layers",
+	"field_type": "list",
+	"default": "ArrayList.new(4)"
+}

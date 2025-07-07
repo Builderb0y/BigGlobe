@@ -1,0 +1,6 @@
+{
+	"element_type": "class/normal",
+	"name": "HardCaveSystem",
+	"extends": "bigglobe:cave_systems/base/class",
+	"members": "#bigglobe:cave_systems/hard_members"
+}

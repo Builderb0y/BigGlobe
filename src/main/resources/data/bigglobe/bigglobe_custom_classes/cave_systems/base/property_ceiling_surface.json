@@ -1,0 +1,6 @@
+{
+	"element_type": "property/abstract",
+	"name": "ceilingSurface",
+	"property_type": "bigglobe:surface/multi/class",
+	"settable": false
+}

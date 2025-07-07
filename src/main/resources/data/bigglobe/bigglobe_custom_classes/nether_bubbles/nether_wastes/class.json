@@ -1,0 +1,6 @@
+{
+	"element_type": "class/voronoi",
+	"name": "NetherWastesNetherBubble",
+	"extends": "bigglobe:nether_bubbles/base/class",
+	"members": "#bigglobe:nether_bubbles/nether_wastes_members"
+}

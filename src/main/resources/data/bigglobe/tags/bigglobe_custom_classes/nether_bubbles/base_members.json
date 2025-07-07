@@ -1,0 +1,12 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether_bubbles/base/method_noise",
+		"bigglobe:nether_bubbles/base/property_biome",
+		"bigglobe:nether_bubbles/base/property_decorator",
+		"bigglobe:nether_bubbles/base/property_filler",
+		"bigglobe:nether_bubbles/base/property_lava_fluid",
+		"bigglobe:nether_bubbles/base/property_lava_level",
+		"bigglobe:nether_bubbles/base/property_surface"
+	]
+}

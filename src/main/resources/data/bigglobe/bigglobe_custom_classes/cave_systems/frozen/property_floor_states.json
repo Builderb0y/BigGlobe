@@ -1,0 +1,11 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:cave_systems/base/property_floor_surface",
+	"get": [
+		"SurfaceStates.new().$add(",
+			"`bigglobe:overworld/caves/surface_depth_noise > 3.0I",
+			"? 'minecraft:powder_snow'",
+			": 'minecraft:snow_block'",
+		")"
+	]
+}

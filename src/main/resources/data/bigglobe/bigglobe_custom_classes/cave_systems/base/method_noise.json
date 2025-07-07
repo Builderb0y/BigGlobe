@@ -1,0 +1,8 @@
+{
+	"element_type": "method/abstract",
+	"name": "noise",
+	"return_type": "float",
+	"parameters": [
+		{ "name": "y", "type": "int" }
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:surface/base/field_state",
+		"bigglobe:surface/base/field_depth",
+		"bigglobe:surface/base/constructor_state",
+		"bigglobe:surface/base/constructor_state_depth"
+	]
+}

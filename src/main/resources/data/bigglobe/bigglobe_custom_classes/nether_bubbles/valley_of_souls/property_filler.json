@@ -1,0 +1,5 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:nether_bubbles/base/property_filler",
+	"get": "'minecraft:soul_soil'"
+}

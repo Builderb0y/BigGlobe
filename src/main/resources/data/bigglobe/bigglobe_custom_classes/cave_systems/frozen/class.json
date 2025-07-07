@@ -1,0 +1,6 @@
+{
+	"element_type": "class/normal",
+	"name": "FrozenCaveSystem",
+	"extends": "bigglobe:cave_systems/base_medium/class",
+	"members": "#bigglobe:cave_systems/frozen_members"
+}

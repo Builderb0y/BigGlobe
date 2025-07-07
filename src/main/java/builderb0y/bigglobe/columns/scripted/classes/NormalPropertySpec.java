@@ -20,14 +20,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class NormalPropertySpec extends BasePropertySpec {
 
 	public final @IdentifierName String name;
-	public final RegistryEntry<ElementSpec> type;
+	public final RegistryEntry<ElementSpec> property_type;
 	public final ScriptUsage get;
 	public final @VerifyNullable ScriptUsage set;
 	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
-	public NormalPropertySpec(@IdentifierName String name, RegistryEntry<ElementSpec> type, ScriptUsage get, @VerifyNullable ScriptUsage set) {
+	public NormalPropertySpec(@IdentifierName String name, RegistryEntry<ElementSpec> property_type, ScriptUsage get, @VerifyNullable ScriptUsage set) {
 		this.name = name;
-		this.type = type;
+		this.property_type = property_type;
 		this.get  = get;
 		this.set  = set;
 	}
@@ -68,7 +68,7 @@ public class NormalPropertySpec extends BasePropertySpec {
 
 	@Override
 	public RegistryEntry<ElementSpec> getPropertyType() {
-		return this.type;
+		return this.property_type;
 	}
 
 	@Override

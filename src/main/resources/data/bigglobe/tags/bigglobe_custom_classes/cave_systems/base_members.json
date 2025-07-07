@@ -1,0 +1,16 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cave_systems/base/method_noise",
+		"bigglobe:cave_systems/base/property_base_depth",
+		"bigglobe:cave_systems/base/property_biome",
+		"bigglobe:cave_systems/base/property_carver_block_state",
+		"bigglobe:cave_systems/base/property_floor_surface",
+		"bigglobe:cave_systems/base/property_ceiling_surface",
+		"bigglobe:cave_systems/base/property_default_surface_depth",
+		"bigglobe:cave_systems/base/property_decorator",
+		"bigglobe:cave_systems/base/property_dungeon_feature",
+		"bigglobe:cave_systems/base/property_min_y",
+		"bigglobe:cave_systems/base/property_max_y"
+	]
+}

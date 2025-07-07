@@ -1,0 +1,6 @@
+{
+	"element_type": "class/voronoi",
+	"name": "WarpedForestNetherBubble",
+	"extends": "bigglobe:nether_bubbles/base/class",
+	"members": "#bigglobe:nether_bubbles/warped_forest_members"
+}

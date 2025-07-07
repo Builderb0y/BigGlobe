@@ -1,0 +1,6 @@
+{
+	"element_type": "class/normal",
+	"name": "DrippingCaveSystem",
+	"extends": "bigglobe:cave_systems/base_hard/class",
+	"members": "#bigglobe:cave_systems/dripping_members"
+}

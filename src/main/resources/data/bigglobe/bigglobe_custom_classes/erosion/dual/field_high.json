@@ -1,0 +1,5 @@
+{
+	"element_type": "field/normal",
+	"name": "high",
+	"field_type": "bigglobe:erosion/single/class"
+}

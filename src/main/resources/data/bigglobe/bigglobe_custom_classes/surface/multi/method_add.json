@@ -1,0 +1,11 @@
+{
+	"element_type": "method/normal",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "state", "element_type": "block_state" },
+		{ "name": "depth", "element_type": "int" }
+	],
+	"code": [
+		"if (depth > 0: layers.add(SurfaceState.new(state, depth)))"
+	]
+}

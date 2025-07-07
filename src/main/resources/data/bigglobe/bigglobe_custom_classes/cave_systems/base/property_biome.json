@@ -1,0 +1,6 @@
+{
+	"element_type": "property/abstract",
+	"name": "biome",
+	"property_type": "biome",
+	"settable": false
+}

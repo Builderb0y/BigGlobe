@@ -13,8 +13,8 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -39,10 +39,8 @@ public class ClassSpec extends BaseClassSpec {
 			TypeInfos.VOID,
 			ObjectBase.CONSTRUCTOR_INFO.parameterVarInfos
 		);
-		LoadInsnTree loadSelf = load("this", this.getTypeInfo());
-		LoadInsnTree loadColumn = load("column", ScriptedColumn.INFO.type);
 		invokeInstance(
-			loadSelf,
+			load("this", this.getTypeInfo()),
 			new MethodInfo(
 				ACC_PUBLIC,
 				this.parent != null
@@ -55,9 +53,14 @@ public class ClassSpec extends BaseClassSpec {
 			ObjectBase.CONSTRUCTOR_INFO.loaders
 		)
 		.emitBytecode(this.primaryConstructor);
-		this.applyDefaultFields(hierarchy, loadSelf, loadColumn);
+	}
+
+	@Override
+	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {
+		this.applyDefaultFields(hierarchy, load("this", this.getTypeInfo()), load("column", ScriptedColumn.INFO.type));
 		this.primaryConstructor.node.visitInsn(RETURN);
 		this.primaryConstructor.endCode();
+		super.compileMembers(hierarchy);
 	}
 
 	@Override

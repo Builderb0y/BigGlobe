@@ -1,0 +1,5 @@
+{
+	"element_type": "property_override",
+	"override": "bigglobe:cave_systems/base/property_ceiling_surface",
+	"get": "SurfaceStates.new().$add('minecraft:dripstone_block', defaultSurfaceDepth)"
+}

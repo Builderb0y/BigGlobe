@@ -1,0 +1,11 @@
+{
+	"element_type": "property/normal",
+	"name": "defaultSurfaceDepth",
+	"property_type": "int",
+	"get": [
+		"float noise = `bigglobe:overworld/caves/surface_depth_noise",
+		"if (noise > 1.0I: return(floorInt(columnSeed(16x6AAAFC2862FCBC27UL).nextFloat() * (noise - 1.0I) + 1.0I)))",
+		"if (noise > 0.0I: return(1))",
+		"return(0)"
+	]
+}

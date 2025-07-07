@@ -1,0 +1,9 @@
+{
+	"element_type": "property/normal",
+	"get": [
+		"long seed = (worldSeed # 16x0C107756D1BD01DBUL).newSeed(cell_x, cell_z)",
+		"if (seed.nextBoolean(): return(null))",
+		"ConfiguredFeatureTag tag = '#bigglobe:overworld/skylands/trees'",
+		"return(tag.isEmpty ? null : tag.random(seed.newSeed()))"
+	]
+}

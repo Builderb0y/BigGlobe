@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:skyland_types/cracked_plains_large/property_bounds",
+		"bigglobe:skyland_types/common/property_plains_surface",
+		"bigglobe:skyland_types/common/property_plains_surface"
+	]
+}

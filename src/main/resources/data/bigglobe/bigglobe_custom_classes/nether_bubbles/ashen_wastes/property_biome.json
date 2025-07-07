@@ -1,0 +1,5 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:nether_bubbles/base/property_biome",
+	"get": "'bigglobe:ashen_wastes'"
+}

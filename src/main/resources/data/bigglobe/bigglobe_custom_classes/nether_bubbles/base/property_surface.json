@@ -1,0 +1,5 @@
+{
+	"element_type": "property/abstract",
+	"name": "surface",
+	"property_type": "bigglobe:surface/multi/class"
+}

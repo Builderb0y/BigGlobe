@@ -1,0 +1,13 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:skyland_types/base/property_surface",
+	"get": [
+		"SurfaceStates states = new()",
+		"if (computeBoundsAndDepth():",
+			"states",
+			".$add('minecraft:dirt', _surfaceDepth)",
+			".add(`bigglobe:overworld/skylands/top_block_state`, 1)",
+		")",
+		"return(states)"
+	]
+}

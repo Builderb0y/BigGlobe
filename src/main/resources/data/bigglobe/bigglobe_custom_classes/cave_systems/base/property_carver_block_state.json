@@ -1,0 +1,8 @@
+{
+	"element_type": "property/normal",
+	"name": "carverBlockState",
+	"property_type": "block_state",
+	"get": [
+		"'minecraft:air'"
+	]
+}

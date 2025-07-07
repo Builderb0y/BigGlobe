@@ -1,0 +1,6 @@
+{
+	"element_type": "class/normal",
+	"name": "GenericCaveSystem",
+	"extends": "bigglobe:cave_systems/base_medium/class",
+	"members": "#bigglobe:cave_systems/generic_members"
+}

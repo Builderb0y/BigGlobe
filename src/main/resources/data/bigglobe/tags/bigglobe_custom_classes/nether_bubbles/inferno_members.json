@@ -1,0 +1,11 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether_bubbles/inferno/method_noise",
+		"bigglobe:nether_bubbles/inferno/property_biome",
+		"bigglobe:nether_bubbles/inferno/property_decorator",
+		"bigglobe:nether_bubbles/inferno/property_filler",
+		"bigglobe:nether_bubbles/inferno/property_lava_level",
+		"bigglobe:nether_bubbles/inferno/property_surface"
+	]
+}

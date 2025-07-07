@@ -1,0 +1,6 @@
+{
+	"element_type": "class/voronoi",
+	"name": "PaleGardenNetherBubble",
+	"extends": "bigglobe:nether_bubbles/base/class",
+	"members": "#bigglobe:nether_bubbles/pale_garden_members"
+}

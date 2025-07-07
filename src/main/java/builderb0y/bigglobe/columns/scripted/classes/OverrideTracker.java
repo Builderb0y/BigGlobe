@@ -145,6 +145,9 @@ public class OverrideTracker {
 		else if (existingProperty.owner == this.owner) {
 			throw new CustomClassFormatException("Multiple properties named " + property.name() + " in class " + getID(this.owner) + ": [" + getID(entry) + ", " + getID(existingProperty.declaration) + ']');
 		}
+		else if (property.override != existingProperty.declaration) {
+			throw new CustomClassFormatException("Property " + getID(entry) + " overrides property " + getID(property.override) + " but that property is already overridden by " + getID(existingProperty.declaration) + " in class " + getID(existingProperty.owner));
+		}
 
 		this.properties.put(property.name(), new TrackedProperty(this.owner, entry, TrackedProperty.Type.NORMAL, property.isSettable()));
 	}
@@ -242,13 +245,16 @@ public class OverrideTracker {
 		MethodSpecDesc desc = method.getDescriptor();
 		TrackedMethod existingMethod = this.methods.get(desc);
 		if (existingMethod == null) {
-			throw new CustomClassFormatException("Override method " + getID(entry) + " overrides method " + getID(method.override) + " but that method is not inherited by class " + getID(this.owner));
+			throw new CustomClassFormatException("Method " + getID(entry) + " overrides " + getID(method.override) + " but that method is not inherited by class " + getID(this.owner));
 		}
 		else if (existingMethod.type == TrackedMethod.Type.RESERVED) {
 			throw new CustomClassFormatException("Method " + desc + " is reserved.");
 		}
 		else if (existingMethod.owner == this.owner) {
 			throw new CustomClassFormatException("Multiple methods named " + desc.name() + " in class " + getID(this.owner) + " with parameters " + desc.parameters() + ": [" + getID(entry) + ", " + getID(existingMethod.declaration) + ']');
+		}
+		else if (method.override != existingMethod.declaration) {
+			throw new CustomClassFormatException("Method " + getID(entry) + " overrides " + getID(method.override) + " but that method is already overridden by " + getID(existingMethod.declaration) + " in class " + getID(existingMethod.owner));
 		}
 		this.checkPropertyConflicts(method);
 		this.methods.put(desc, new TrackedMethod(this.owner, entry, TrackedMethod.Type.NORMAL));

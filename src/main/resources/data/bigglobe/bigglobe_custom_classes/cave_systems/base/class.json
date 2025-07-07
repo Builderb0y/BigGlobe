@@ -1,0 +1,5 @@
+{
+	"element_type": "class/normal",
+	"name": "CaveSystem",
+	"members": "#bigglobe:cave_systems/base_members"
+}

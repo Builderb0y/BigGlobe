@@ -24,7 +24,6 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
-import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -34,8 +33,6 @@ import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-
-import static builderb0y.scripting.bytecode.InsnTrees.load;
 
 public class ColumnEntryRegistry {
 

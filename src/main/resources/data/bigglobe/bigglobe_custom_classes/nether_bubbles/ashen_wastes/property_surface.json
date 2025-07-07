@@ -1,0 +1,5 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:nether_bubbles/base/property_surface",
+	"get": "SurfaceStates.new().$add('bigglobe:ashen_netherrack', 1)"
+}

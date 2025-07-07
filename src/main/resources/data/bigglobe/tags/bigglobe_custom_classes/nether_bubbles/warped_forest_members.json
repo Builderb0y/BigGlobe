@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether_bubbles/warped_forest/property_biome",
+		"bigglobe:nether_bubbles/warped_forest/property_decorator",
+		"bigglobe:nether_bubbles/warped_forest/property_surface"
+	]
+}

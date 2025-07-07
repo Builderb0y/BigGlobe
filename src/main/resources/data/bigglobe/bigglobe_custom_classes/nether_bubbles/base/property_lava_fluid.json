@@ -1,0 +1,6 @@
+{
+	"element_type": "property/normal",
+	"name": "lavaFluid",
+	"property_type": "block_state",
+	"get": "'minecraft:lava[level=0]'"
+}

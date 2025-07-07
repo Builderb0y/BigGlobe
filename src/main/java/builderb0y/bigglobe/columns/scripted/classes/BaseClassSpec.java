@@ -1,7 +1,9 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -22,6 +24,9 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.classes.BasePropertySpec.PropertyCompileContext;
 import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedField;
 import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedProperty;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
@@ -47,6 +52,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 	public transient TypeInfo typeInfo;
 	public transient ClassCompileContext classCompileContext;
 	public transient MethodCompileContext primaryConstructor;
+	public transient MutableDependencyView primaryConstructorDependencies;
 	public transient Map<MemberSpec, Object> memberCompileContexts;
 	public transient OverrideTracker overrideTracker;
 
@@ -61,6 +67,8 @@ public abstract class BaseClassSpec extends TypeSpec {
 		this.parent = parent;
 		this.members = members;
 		this.memberCompileContexts = new Reference2ReferenceOpenHashMap<>();
+		Set<RegistryEntry<? extends DependencyView>> primaryConstructorDependencies = new HashSet<>();
+		this.primaryConstructorDependencies = (SetBasedMutableDependencyView)(() -> primaryConstructorDependencies);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,14 +80,23 @@ public abstract class BaseClassSpec extends TypeSpec {
 		this.memberCompileContexts.put(spec, value);
 	}
 
-	public void applyDefaultFields(ClassHierarchy hierarchy, LoadInsnTree loadSelf, LoadInsnTree loadColumn) {
+	public void applyDefaultFields(ClassHierarchy hierarchy, LoadInsnTree loadSelf, LoadInsnTree loadColumn) throws ScriptParsingException {
 		for (TrackedField trackedField : this.overrideTracker.fields.values()) {
 			FieldSpec fieldSpec = (FieldSpec)(trackedField.declaration().value());
 			if (fieldSpec.defaultValue != null) {
 				putField(
 					loadSelf,
 					this.<FieldCompileContext>getCompileContext(fieldSpec).info,
-					asType(fieldSpec.field_type).parseConstant(hierarchy, fieldSpec.defaultValue, loadColumn)
+					scoped(
+						hierarchy.registry.parseCode(
+							this.primaryConstructor,
+							fieldSpec.defaultValue,
+							loadColumn,
+							null,
+							loadSelf,
+							this.primaryConstructorDependencies
+						)
+					)
 				)
 				.emitBytecode(this.primaryConstructor);
 			}

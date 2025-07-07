@@ -1,0 +1,6 @@
+{
+	"element_type": "property/normal",
+	"name": "minY",
+	"property_type": "double",
+	"get": "max(world_traits.`bigglobe:approximate_surface_y` - baseDepth, world_traits.`bigglobe:deep_dark_max_y`)"
+}

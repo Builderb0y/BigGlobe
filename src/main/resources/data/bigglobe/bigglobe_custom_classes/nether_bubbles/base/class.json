@@ -1,0 +1,5 @@
+{
+	"element_type": "class/voronoi",
+	"name": "NetherBubble",
+	"members": "#bigglobe:nether_bubbles/base_members"
+}

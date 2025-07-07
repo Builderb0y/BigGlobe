@@ -1,0 +1,6 @@
+{
+	"element_type": "class/voronoi",
+	"name": "SpiralMountainSkylandType",
+	"extends": "bigglobe:skyland_types/base/class",
+	"members": "#bigglobe:skyland_types/spiral_mountain_members"
+}

@@ -60,6 +60,7 @@ noise experiment:
 	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
 
 high priority:
+	new end fractal: abs(x) & abs(y) & abs(z) == 0 for range(-128, 128).
 
 LODs:
 	shader support.
@@ -85,10 +86,14 @@ json classes:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
 	need to fix:
-		re-enable commented out code in ClassHierarchy and ColumnEntryRegistry constructors.
+		merge stuff.
+		find some way to have overriders modify column values through a custom class.
+			this will be necessary for anything that overrides caves or nether bubbles.
+		merge ClassHierarchy into ColumnEntryRegistry?
 
 changelog:
 	# For normal users:
+	* Fixed LODs rendering in front of terrain in dimensions which don't have translucent blocks as part of worldgen (nether and end).
 	* Fixed bamboo spawning in lakes.
 	* Powder snow now spawns in frozen caves.
 	* Voidmetal armor can now have trims applied to it.

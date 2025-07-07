@@ -164,7 +164,6 @@ public class BuiltinTypeSpec extends TypeSpec {
 		LONG(TypeInfos.LONG),
 		FLOAT(TypeInfos.FLOAT),
 		DOUBLE(TypeInfos.DOUBLE),
-		CHAR(TypeInfos.CHAR),
 		BOOLEAN(TypeInfos.BOOLEAN),
 		VOID(TypeInfos.VOID),
 
@@ -211,6 +210,8 @@ public class BuiltinTypeSpec extends TypeSpec {
 		WOOD_PALETTE_TAG(WoodPaletteTag.TYPE),
 		TAG(TagWrapper.TYPE),
 		;
+
+		public static final BuiltinJavaType[] VALUES = values();
 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
 		public final TypeInfo typeInfo;

@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cave_systems/dripping_flooded/property_carver_block_state",
+		"bigglobe:cave_systems/dripping_flooded/property_dungeon_feature"
+	]
+}

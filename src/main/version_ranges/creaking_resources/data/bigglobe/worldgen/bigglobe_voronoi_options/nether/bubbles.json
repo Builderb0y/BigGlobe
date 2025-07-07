@@ -1,0 +1,12 @@
+{
+	"replace": false,
+	"values": [
+		{ "class": "bigglobe:nether_bubble/crimson_forest/class",  "weight": 1.0  },
+		{ "class": "bigglobe:nether_bubble/ashen_wastes/class",    "weight": 0.75 },
+		{ "class": "bigglobe:nether_bubble/pale_garden/class",     "weight": 0.75 },
+		{ "class": "bigglobe:nether_bubble/valley_of_souls/class", "weight": 0.75 },
+		{ "class": "bigglobe:nether_bubble/nether_wastes/class",   "weight": 0.5  },
+		{ "class": "bigglobe:nether_bubble/inferno/class",         "weight": 0.5  },
+		{ "class": "bigglobe:nether_bubble/warped_forest/class",   "weight": 0.25 }
+	]
+}

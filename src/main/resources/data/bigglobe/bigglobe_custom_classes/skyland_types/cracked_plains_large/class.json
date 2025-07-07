@@ -1,0 +1,6 @@
+{
+	"element_type": "class/voronoi",
+	"name": "LargeCrackedPlainsSkylandType",
+	"extends": "bigglobe:skyland_types/base/class",
+	"members": "#bigglobe:skyland_types/cracked_plains_large_members"
+}

@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"name": "depth",
+	"field_type": "int",
+	"default": "1"
+}

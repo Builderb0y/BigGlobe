@@ -1,0 +1,5 @@
+{
+	"element_type": "method/override",
+	"override": "bigglobe:nether_bubbles/base/class",
+	"code": "`bigglobe:nether/bubble/noise_nether_wastes`(y)"
+}

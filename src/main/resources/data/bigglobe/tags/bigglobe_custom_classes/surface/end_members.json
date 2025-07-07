@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:surface/end/field_biome",
+		"bigglobe:surface/end/constructor_biome"
+	]
+}

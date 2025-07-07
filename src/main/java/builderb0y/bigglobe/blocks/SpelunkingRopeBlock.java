@@ -261,7 +261,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 			do {
 				if (world.isOutOfHeightLimit(mutablePos)) break;
 				BlockState toReplace = chunk.getBlockState(mutablePos);
-				if (!BlockStateVersions.isReplaceable(toReplace)) break;
+				if (!(BlockStateVersions.isReplaceable(toReplace) && toReplace.getFluidState().isEmpty())) break;
 				world.setBlockState(mutablePos, toPlace, Block.NOTIFY_ALL);
 				stack.decrement(1);
 				placedAny = true;
@@ -281,7 +281,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		while (true) {
 			if (world.isOutOfHeightLimit(mutablePos)) break;
 			BlockState toReplace = chunk.getBlockState(mutablePos);
-			if (!BlockStateVersions.isReplaceable(toReplace)) break;
+			if (!(BlockStateVersions.isReplaceable(toReplace) && toReplace.getFluidState().isEmpty())) break;
 			world.setBlockState(mutablePos, toPlace, Block.NOTIFY_ALL);
 			placedAny = true;
 			mutablePos.setY(mutablePos.getY() - 1);
@@ -291,12 +291,14 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	public boolean placeRopesSimulate(World world, BlockPos.Mutable mutablePos, BlockState toPlace) {
 		Chunk chunk = world.getChunk(mutablePos);
-		while (chunk.getBlockState(mutablePos) == toPlace) {
+		BlockState prevState;
+		while ((prevState = chunk.getBlockState(mutablePos)) == toPlace) {
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 		return (
 			!world.isOutOfHeightLimit(mutablePos) &&
-			BlockStateVersions.isReplaceable(world.getBlockState(mutablePos))
+			BlockStateVersions.isReplaceable(prevState) &&
+			prevState.getFluidState().isEmpty()
 		);
 	}
 

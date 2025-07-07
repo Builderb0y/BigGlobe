@@ -1,0 +1,26 @@
+{
+	"type": "script",
+	"params": {
+		"type": "block_state",
+		"is_3d": false
+	},
+	"script": [
+		"if (`bigglobe:overworld/skyland`.tree_feature != null:",
+			"float rng = columnSeed(16x19C161E8256D0D12UL).nextFloat()",
+			"if (rng < 0.25I:",
+				"if (rng < 0.0625I:",
+					"'minecraft:podzol[snowy=false]'",
+				")",
+				"else (",
+					"'bigglobe:overgrown_podzol[snowy=false]'",
+				")",
+			")",
+			"else (",
+				"'minecraft:grass_block[snowy=false]'",
+			")",
+		")",
+		"else (",
+			"'minecraft:grass_block[snowy=false]'",
+		")"
+	]
+}

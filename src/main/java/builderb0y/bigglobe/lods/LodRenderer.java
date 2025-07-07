@@ -5,7 +5,6 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.*;
 
 import net.minecraft.client.render.VertexConsumerProvider;

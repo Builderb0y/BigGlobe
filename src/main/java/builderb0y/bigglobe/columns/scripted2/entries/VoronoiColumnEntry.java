@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.invoke.*;
 import java.lang.reflect.Modifier;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -11,8 +12,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleMaps;
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleRBTreeMap;
 
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.Resource;
@@ -24,18 +24,16 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
+import builderb0y.bigglobe.columns.scripted.classes.TypeSpec;
+import builderb0y.bigglobe.columns.scripted.classes.VoronoiBase;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
 import builderb0y.bigglobe.columns.scripted2.Valid;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
-import builderb0y.bigglobe.columns.scripted.classes.TypeSpec;
-import builderb0y.bigglobe.columns.scripted.classes.VoronoiBase;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -208,27 +206,14 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 		throw new UnsupportedOperationException();
 	}
 
-	@UseVerifier(name = "verify", in = VoronoiOptions.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	public static record VoronoiOptions(
-		Operation operation,
-		VoronoiOptions @VerifyNullable [] values,
-		@UseName("class") @VerifyNullable RegistryEntry<ElementSpec> clazz,
-		@DefaultDouble(1.0D) double weight
-	) {
+	public static record VoronoiOptions(@DefaultBoolean(false) boolean replace, VoronoiOption @DefaultEmpty [] values) {
 
 		public static final AutoCoder<VoronoiOptions> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(VoronoiOptions.class);
 
-		public static <T_Encoded> void verify(VerifyContext<T_Encoded, VoronoiOptions> context) throws VerifyException {
-			VoronoiOptions tag = context.object;
-			if (tag == null) return;
-
-			if ((tag.values != null) == (tag.clazz != null)) {
-				throw new VerifyException(() -> "Must specify values or class, but not both.");
-			}
-		}
-
 		public static <T> Object2DoubleMap<RegistryEntry<ElementSpec>> load(DynamicOps<T> ops, Identifier tagID) throws DecodeException {
-			Object2DoubleMap<RegistryEntry<ElementSpec>> result = new Object2DoubleOpenHashMap<>();
+			Object2DoubleMap<RegistryEntry<ElementSpec>> result = new Object2DoubleRBTreeMap<>(
+				Comparator.comparing(UnregisteredObjectException::getID)
+			);
 			for (Resource resource : BigGlobeMod.getResourceManager().getAllResources(IdentifierVersions.create(tagID.getNamespace(), "worldgen/bigglobe_voronoi_options/" + tagID.getPath() + ".json"))) {
 				try (BufferedReader reader = resource.getReader()) {
 					BigGlobeAutoCodec.AUTO_CODEC.decode(CODER, JsonOps.INSTANCE.convertTo(ops, JsonParser.parseReader(reader)), ops).addTo(result);
@@ -241,34 +226,33 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 		}
 
 		public void addTo(Object2DoubleMap<RegistryEntry<ElementSpec>> classes) {
-			Object2DoubleMap<RegistryEntry<ElementSpec>> self;
-			if (this.values != null) {
-				self = new Object2DoubleOpenHashMap<>();
-				for (VoronoiOptions value : this.values) {
-					value.addTo(self);
-				}
+			if (this.replace) classes.clear();
+			for (VoronoiOption value : this.values) {
+				value.addTo(classes);
 			}
-			else {
-				self = Object2DoubleMaps.singleton(this.clazz, this.weight);
-			}
+		}
+	}
+
+	public static record VoronoiOption(
+		@DefaultString("add") Operation operation,
+		@UseName("class") RegistryEntry<ElementSpec> clazz,
+		@DefaultDouble(1.0D) double weight
+	) {
+
+		public void addTo(Object2DoubleMap<RegistryEntry<ElementSpec>> classes) {
 			switch (this.operation) {
 				case ADD -> {
-					classes.putAll(self);
+					classes.put(this.clazz, this.weight);
 				}
 				case REMOVE -> {
-					classes.keySet().removeAll(self.keySet());
-				}
-				case REPLACE -> {
-					classes.clear();
-					classes.putAll(self);
+					classes.removeDouble(this.clazz);
 				}
 			}
 		}
 
 		public enum Operation implements StringIdentifiable {
 			ADD,
-			REMOVE,
-			REPLACE;
+			REMOVE;
 
 			public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
 

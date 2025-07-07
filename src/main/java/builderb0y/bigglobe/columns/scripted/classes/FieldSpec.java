@@ -7,13 +7,13 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -25,9 +25,9 @@ public class FieldSpec extends MemberSpec {
 
 	public final @IdentifierName String name;
 	public final RegistryEntry<ElementSpec> field_type;
-	public final @VerifyNullable @UseName("default") Data defaultValue;
+	public final @VerifyNullable @UseName("default") ScriptUsage defaultValue;
 
-	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> field_type, @VerifyNullable Data defaultValue) {
+	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> field_type, @VerifyNullable ScriptUsage defaultValue) {
 		this.name = name;
 		this.field_type = field_type;
 		this.defaultValue = defaultValue;

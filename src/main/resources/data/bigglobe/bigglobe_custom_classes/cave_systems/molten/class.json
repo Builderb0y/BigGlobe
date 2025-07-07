@@ -1,0 +1,6 @@
+{
+	"element_type": "class/normal",
+	"name": "MoltenCaveSystem",
+	"extends": "bigglobe:cave_systems/base_hard/class",
+	"members": "#bigglobe:cave_systems/molten_members"
+}

@@ -1,0 +1,14 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:cave_systems/base/property_floor_surface",
+	"get": [
+		"SurfaceStates surface = new()",
+		"int depth = defaultSurfaceDepth",
+		"if (depth > 0:",
+			"surface",
+			".$add('minecraft:basalt[axis=y]', depth)",
+			".$add('minecraft:blackstone', 1)",
+		")",
+		"return(surface)"
+	]
+}
