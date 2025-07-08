@@ -5,7 +5,6 @@ import java.util.random.RandomGenerator;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import net.minecraft.block.piston.PistonBehavior;
@@ -28,7 +27,6 @@ import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.networking.packets.UseWaypointPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRemoveC2SPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRenameC2SPacket;
@@ -85,16 +83,11 @@ public class WaypointEntity extends Entity {
 	public WaypointEntity(EntityType<?> type, World world) {
 		super(type, world);
 		if (world.isClient) {
-			this.orbits = new Orbit[32];
+			this.orbits = new Orbit[16];
 			Permuter permuter = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
-			double circularHue = permuter.nextDouble();
-			double linearHue = permuter.nextDouble();
-			for (int index = 0; index < 32; index++) {
-				this.orbits[index] = (
-					(index & 1) == 0
-					? new CircularOrbit(permuter, circularHue)
-					: new   LinearOrbit(permuter,   linearHue)
-				);
+			float circularHue = permuter.nextFloat();
+			for (int index = 0; index < this.orbits.length; index++) {
+				this.orbits[index] = new Orbit(permuter, circularHue);
 			}
 		}
 	}
@@ -233,64 +226,17 @@ public class WaypointEntity extends Entity {
 		//not savable.
 	}
 
-	public static abstract class Orbit {
+	public static class Orbit {
 
-		public int color;
-
-		public Orbit(RandomGenerator random, double hue) {
-			Vector3d color = CloudColor.smoothHue(hue);
-			double saturation = random.nextDouble();
-			double brightness = random.nextDouble() * 0.25D + 0.75D;
-			color.x = Interpolator.mixLinear(color.x, 1.0D, saturation) * brightness;
-			color.y = Interpolator.mixLinear(color.y, 1.0D, saturation) * brightness;
-			color.z = Interpolator.mixLinear(color.z, 1.0D, saturation) * brightness;
-			this.color = CloudColor.packARGB(color);
-		}
-
-		public abstract void tick();
-
-		public abstract Vector3f getPosition(Vector3f out, int history);
-	}
-
-	public static class LinearOrbit extends Orbit {
-
-		public float x, y, z;
-		public float currentAltitude, speed;
-
-		public LinearOrbit(RandomGenerator random, double hue) {
-			super(random, hue);
-			float radius = random.nextFloat() + 0.5F;
-			Vector3f scratch = new Vector3f();
-			Vectors.setOnSphere(scratch, random, radius);
-			this.x = scratch.x;
-			this.y = scratch.y;
-			this.z = scratch.z;
-
-			this.currentAltitude = random.nextFloat((float)(BigGlobeMath.TAU));
-			this.speed = 0.0625F / BigGlobeMath.squareF(radius);
-		}
-
-		@Override
-		public void tick() {
-			this.currentAltitude = BigGlobeMath.modulus_BP(this.currentAltitude + this.speed, (float)(BigGlobeMath.TAU));
-		}
-
-		@Override
-		public Vector3f getPosition(Vector3f out, int history) {
-			float angle = this.currentAltitude - history * this.speed * 0.5F;
-			float sin = (float)(Math.sin(angle));
-			return out.set(this.x * sin, this.y * sin, this.z * sin);
-		}
-	}
-
-	public static class CircularOrbit extends Orbit {
-
+		public float r, g, b;
 		public float x1, y1, z1, x2, y2, z2;
-		public float currentAngle, speed;
+		public float currentAngle, radius, speed;
 
-		public CircularOrbit(RandomGenerator random, double hue) {
-			super(random, hue);
-			Vector3f scratch = new Vector3f();
+		public Orbit(RandomGenerator random, float baseHue) {
+			Vector3f scratch = new Vector3f(CloudColor.smoothHue(baseHue + random.nextFloat(0.25F)));
+			this.r = scratch.x;
+			this.g = scratch.y;
+			this.b = scratch.z;
 
 			Vectors.setOnSphere(scratch, random, 1.0F);
 			this.x1 = scratch.x;
@@ -312,32 +258,28 @@ public class WaypointEntity extends Entity {
 			this.y2 = scratch.y;
 			this.z2 = scratch.z;
 
-			float radius = random.nextFloat() + 0.5F;
-			this.x1 *= radius;
-			this.y1 *= radius;
-			this.z1 *= radius;
-			this.x2 *= radius;
-			this.y2 *= radius;
-			this.z2 *= radius;
-
+			this.radius = random.nextFloat() + 0.5F;
 			this.currentAngle = random.nextFloat((float)(BigGlobeMath.TAU));
-			this.speed = 0.0625F / BigGlobeMath.squareF(radius);
+			this.speed = 0.25F / BigGlobeMath.squareF(this.radius);
 		}
 
-		@Override
 		public void tick() {
 			this.currentAngle = BigGlobeMath.modulus_BP(this.currentAngle + this.speed, (float)(BigGlobeMath.TAU));
 		}
 
-		@Override
-		public Vector3f getPosition(Vector3f out, int history) {
-			float angle = this.currentAngle - history * this.speed * 0.5F;
+		public void getPositionAndVelocity(Vector3f pos, Vector3f velocity, int history) {
+			float angle = this.currentAngle - history * 0.125F;
 			float sin = (float)(Math.sin(angle));
 			float cos = (float)(Math.cos(angle));
-			return out.set(
-				this.x1 * cos + this.x2 * sin,
-				this.y1 * cos + this.y2 * sin,
-				this.z1 * cos + this.z2 * sin
+			pos.set(
+				(this.x1 * cos + this.x2 * sin) * this.radius,
+				(this.y1 * cos + this.y2 * sin) * this.radius,
+				(this.z1 * cos + this.z2 * sin) * this.radius
+			);
+			velocity.set(
+				this.x1 * sin - this.x2 * cos,
+				this.y1 * sin - this.y2 * cos,
+				this.z1 * sin - this.z2 * cos
 			);
 		}
 	}

@@ -85,6 +85,7 @@ An element is the common type that includes custom classes and their various mem
 * When `element_type` is `property/normal`, the following additional properties are available:
 	* `name` - the name that will be exposed to scripts to get or set this property. If the script is used by a class which contains or inherits this method, it will be exposed as a variable in addition to a field.
 	* `property_type` - a reference to another ElementSpec describing the type of data contained by this property. The referenced ElementSpec must be of type `class/...`.
+	* `is_3d` - true if this property depends on Y level, false otherwise. Defaults to false. When true, this property will be exposed as a method to scripts instead of a field, but it will still be assignable. So you can do `object.property(y) = 42`.
 	* `get` - a script which returns the value of this property.
 	* `set` (optional) - a script which takes the new value to be assigned to this property, and assigns it. This script returns nothing.
 		* The new value to be assigned to this property is exposed to the script as a variable named `value`.
@@ -99,3 +100,4 @@ An element is the common type that includes custom classes and their various mem
 	* `name` - the name that will be exposed to scripts to get or set this property. If the script is used by a class which contains or inherits this method, it will be exposed as a variable in addition to a field.
 	* `property_type` - a reference to another ElementSpec describing the type of data contained by this property. The referenced ElementSpec must be of type `class/...`.
 	* `settable` - true if this property should have an abstract setter in addition to an abstract getter, false otherwise.
+	* `is_3d` - true if this property depends on Y level, false otherwise. Defaults to false. When true, this property will be exposed as a method to scripts instead of a field, but it will still be assignable. So you can do `object.property(y) = 42`.

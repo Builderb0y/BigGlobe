@@ -94,6 +94,7 @@ json classes:
 changelog:
 	# For normal users:
 	* Fixed LODs rendering in front of terrain in dimensions which don't have translucent blocks as part of worldgen (nether and end).
+	* Waypoint renderer is now more glowy.
 	* Fixed bamboo spawning in lakes.
 	* Powder snow now spawns in frozen caves.
 	* Voidmetal armor can now have trims applied to it.
