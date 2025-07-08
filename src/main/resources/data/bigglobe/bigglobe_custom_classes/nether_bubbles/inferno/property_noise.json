@@ -1,0 +1,6 @@
+{
+	"element_type": "property/override",
+	"override": "bigglobe:nether_bubbles/base/class",
+	"get": "`bigglobe:nether/bubble/noise_inferno`(y)",
+	"set": "`bigglobe:nether/bubble/noise_inferno`(y) = value"
+}

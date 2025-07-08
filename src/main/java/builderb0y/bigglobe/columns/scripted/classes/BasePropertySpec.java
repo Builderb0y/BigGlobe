@@ -9,6 +9,7 @@ import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.TypeInfos;
 
 public abstract class BasePropertySpec extends MemberSpec implements SetBasedMutableDependencyView {
@@ -23,22 +24,26 @@ public abstract class BasePropertySpec extends MemberSpec implements SetBasedMut
 
 	public abstract boolean isSettable();
 
+	public abstract boolean is3D();
+
 	@Override
 	public void create(ClassHierarchy hierarchy, BaseClassSpec owner) {
+		ArrayBuilder<LazyVarInfo> builder = new ArrayBuilder<>(2);
 		owner.setCompileContext(
 			this,
 			new PropertyCompileContext(
 				owner.classCompileContext.newMethod(
 					this.flags(),
 					this.name(),
-					asType(this.getPropertyType()).getTypeInfo()
+					asType(this.getPropertyType()).getTypeInfo(),
+					builder.appendIfNotNull(this.is3D() ? new LazyVarInfo("y", TypeInfos.INT) : null).toArray(LazyVarInfo.ARRAY_FACTORY)
 				),
 				this.isSettable()
 				? owner.classCompileContext.newMethod(
 					this.flags(),
 					this.name(),
 					TypeInfos.VOID,
-					new LazyVarInfo("value", asType(this.getPropertyType()).getTypeInfo())
+					builder.append(new LazyVarInfo("value", asType(this.getPropertyType()).getTypeInfo())).toArray(LazyVarInfo.ARRAY_FACTORY)
 				)
 				: null
 			)

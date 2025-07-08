@@ -151,7 +151,8 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 				load("column", ScriptedColumn.INFO.type),
 				null,
 				load(result),
-				this
+				this,
+				MemberSpec.NO_EXTRAS //other FieldSpec's can add themselves to the environment automatically.
 			)
 			.emitBytecode(context.methodCompileContext);
 		}

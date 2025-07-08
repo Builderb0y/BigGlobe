@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
+import org.jetbrains.annotations.Nullable;
+
 public class ArrayBuilder<T> extends ArrayList<T> implements Consumer<T> {
 
 	public ArrayBuilder() {}
@@ -14,8 +16,13 @@ public class ArrayBuilder<T> extends ArrayList<T> implements Consumer<T> {
 	}
 
 	@Override
-	public void accept(T t) {
-		this.add(t);
+	public void accept(T element) {
+		this.add(element);
+	}
+
+	public ArrayBuilder<T> appendIfNotNull(@Nullable T element) {
+		if (element != null) this.add(element);
+		return this;
 	}
 
 	@SafeVarargs

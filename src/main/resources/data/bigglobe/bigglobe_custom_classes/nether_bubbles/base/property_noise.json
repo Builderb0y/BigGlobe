@@ -1,0 +1,8 @@
+{
+	"element_type": "property/normal",
+	"name": "noise",
+	"property_type": "float",
+	"is_3d": true,
+	"get": "`bigglobe:nether/bubble/noise_forest`(y)",
+	"set": "`bigglobe:nether/bubble/noise_forest`(y) = value"
+}

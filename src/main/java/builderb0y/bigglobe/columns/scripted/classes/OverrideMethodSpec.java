@@ -52,7 +52,11 @@ public class OverrideMethodSpec extends BaseMethodSpec {
 
 	@Override
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz) throws ScriptParsingException {
-		this.compile(hierarchy, clazz, this.code);
+		this.compile(hierarchy, clazz, this.code, (MutableScriptEnvironment environment) -> {
+			for (ParameterSpec parameter : this.getParameters()) {
+				environment.addVariableLoad(parameter.name, parameter.typeInfo());
+			}
+		});
 	}
 
 	@Override

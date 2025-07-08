@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
+import java.util.function.Consumer;
+
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
@@ -23,12 +25,16 @@ public abstract class MemberSpec extends ElementSpec {
 
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {}
 
+	public static final Consumer<MutableScriptEnvironment> NO_EXTRAS = (MutableScriptEnvironment environment) -> {};
+
 	public static void compile(
 		ClassHierarchy hierarchy,
 		BaseClassSpec owner,
 		MethodCompileContext methodContext,
 		ScriptUsage code,
-		MutableDependencyView dependencies
+		InsnTree loadY,
+		MutableDependencyView dependencies,
+		Consumer<MutableScriptEnvironment> extra
 	)
 	throws ScriptParsingException {
 		hierarchy.registry.setMethodCode(
@@ -42,9 +48,10 @@ public abstract class MemberSpec extends ElementSpec {
 				hierarchy.registry.columnCompileContext.columnTypeInfo(),
 				false
 			),
-			null,
+			loadY,
 			load("this", owner.getTypeInfo()),
-			dependencies
+			dependencies,
+			extra
 		);
 	}
 

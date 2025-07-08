@@ -1,5 +1,0 @@
-{
-	"element_type": "method/override",
-	"override": "bigglobe:cave_systems/base/method_noise",
-	"code": "`bigglobe:overworld/caves/easy_noise`(y)"
-}

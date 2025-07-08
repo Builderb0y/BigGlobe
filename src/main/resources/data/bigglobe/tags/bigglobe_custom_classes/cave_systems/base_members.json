@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:cave_systems/base/method_noise",
+		"bigglobe:cave_systems/base/property_noise",
 		"bigglobe:cave_systems/base/property_base_depth",
 		"bigglobe:cave_systems/base/property_biome",
 		"bigglobe:cave_systems/base/property_carver_block_state",

@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:cave_systems/base_medium/method_noise",
+		"bigglobe:cave_systems/base_medium/property_noise",
 		"bigglobe:cave_systems/base_medium/property_base_depth"
 	]
 }

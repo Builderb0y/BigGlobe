@@ -3,6 +3,7 @@ package builderb0y.bigglobe.columns.scripted.classes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.Hash.Strategy;
@@ -17,6 +18,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBased
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
@@ -78,8 +80,8 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 		);
 	}
 
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz, ScriptUsage code) throws ScriptParsingException {
-		compile(hierarchy, clazz, clazz.getCompileContext(this), code, this);
+	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz, ScriptUsage code, Consumer<MutableScriptEnvironment> extra) throws ScriptParsingException {
+		compile(hierarchy, clazz, clazz.getCompileContext(this), code, null, this, extra);
 	}
 
 	@Override

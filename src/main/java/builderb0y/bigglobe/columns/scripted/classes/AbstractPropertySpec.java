@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -19,17 +20,29 @@ public class AbstractPropertySpec extends BasePropertySpec {
 	public final @IdentifierName String name;
 	public final RegistryEntry<ElementSpec> property_type;
 	public final boolean settable;
+	public final @DefaultBoolean(false) boolean is_3d;
 	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
-	public AbstractPropertySpec(@IdentifierName String name, RegistryEntry<ElementSpec> property_type, boolean settable) {
+	public AbstractPropertySpec(
+		@IdentifierName String name,
+		RegistryEntry<ElementSpec> property_type,
+		boolean settable,
+		boolean is3d
+	) {
 		this.name = name;
 		this.property_type = property_type;
 		this.settable = settable;
+		this.is_3d = is3d;
 	}
 
 	@Override
 	public boolean isSettable() {
 		return this.settable;
+	}
+
+	@Override
+	public boolean is3D() {
+		return this.is_3d;
 	}
 
 	@Override

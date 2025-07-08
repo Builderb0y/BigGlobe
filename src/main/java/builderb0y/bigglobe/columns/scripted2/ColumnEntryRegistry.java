@@ -151,7 +151,8 @@ public class ColumnEntryRegistry {
 		InsnTree loadColumn,
 		@Nullable InsnTree loadY,
 		@Nullable InsnTree loadCustomClass,
-		MutableDependencyView dependencies
+		MutableDependencyView dependencies,
+		Consumer<MutableScriptEnvironment> extra
 	)
 	throws ScriptParsingException {
 		return (
@@ -170,10 +171,12 @@ public class ColumnEntryRegistry {
 					new ExternalEnvironmentParams()
 					.withColumn(loadColumn)
 					.withY(loadY)
+					.mutable()
 					.trackDependencies(dependencies),
 					loadCustomClass
 				)
 			)
+			.configureEnvironment(extra)
 			.parseEntireInput()
 		);
 	}
@@ -184,10 +187,11 @@ public class ColumnEntryRegistry {
 		InsnTree loadColumn,
 		@Nullable InsnTree loadY,
 		@Nullable InsnTree loadCustomClass,
-		MutableDependencyView dependencies
+		MutableDependencyView dependencies,
+		Consumer<MutableScriptEnvironment> extra
 	)
 	throws ScriptParsingException {
-		this.parseCode(method, code, loadColumn, loadY, loadCustomClass, dependencies).emitBytecode(method);
+		this.parseCode(method, code, loadColumn, loadY, loadCustomClass, dependencies, extra).emitBytecode(method);
 		method.endCode();
 	}
 }

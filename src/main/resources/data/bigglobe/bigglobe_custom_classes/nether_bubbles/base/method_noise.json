@@ -1,9 +1,0 @@
-{
-	"element_type": "method/normal",
-	"name": "noise",
-	"return_type": "float",
-	"parameters": [
-		{ "name": "y", "type": "int" }
-	],
-	"code": "`bigglobe:nether/bubble/noise_forest`(y)"
-}

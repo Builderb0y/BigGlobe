@@ -13,8 +13,9 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
+import builderb0y.scripting.util.TypeInfos;
 
-import static org.objectweb.asm.Opcodes.*;
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class OverridePropertySpec extends BasePropertySpec {
 
@@ -50,13 +51,24 @@ public class OverridePropertySpec extends BasePropertySpec {
 	@Override
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
 		PropertyCompileContext propertyContext = owner.getCompileContext(this);
-		compile(hierarchy, owner, propertyContext.get, this.get, this);
-		if (this.set != null) compile(hierarchy, owner, propertyContext.set, this.set, this);
+		InsnTree loadY = this.is3D() ? load("y", TypeInfos.INT) : null;
+		compile(hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
+			if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
+		});
+		if (this.set != null) compile(hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
+			if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
+			environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
+		});
 	}
 
 	@Override
 	public boolean isSettable() {
 		return this.set != null;
+	}
+
+	@Override
+	public boolean is3D() {
+		return ((BasePropertySpec)(this.override.value())).is3D();
 	}
 
 	@Override

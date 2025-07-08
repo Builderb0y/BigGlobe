@@ -14,6 +14,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
+import builderb0y.bigglobe.columns.scripted.classes.MemberSpec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted2.*;
@@ -438,7 +439,8 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 			loadColumn,
 			null,
 			null,
-			this
+			this,
+			MemberSpec.NO_EXTRAS
 		);
 		return invokeInstance(loadColumn, method.info);
 	}

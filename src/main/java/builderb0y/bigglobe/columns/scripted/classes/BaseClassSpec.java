@@ -94,7 +94,8 @@ public abstract class BaseClassSpec extends TypeSpec {
 							loadColumn,
 							null,
 							loadSelf,
-							this.primaryConstructorDependencies
+							this.primaryConstructorDependencies,
+							MemberSpec.NO_EXTRAS
 						)
 					)
 				)

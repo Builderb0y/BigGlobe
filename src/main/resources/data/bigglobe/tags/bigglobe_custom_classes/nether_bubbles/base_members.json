@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:nether_bubbles/base/method_noise",
+		"bigglobe:nether_bubbles/base/property_noise",
 		"bigglobe:nether_bubbles/base/property_biome",
 		"bigglobe:nether_bubbles/base/property_decorator",
 		"bigglobe:nether_bubbles/base/property_filler",
