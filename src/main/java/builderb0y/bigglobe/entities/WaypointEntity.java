@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.entities;
 
+import java.util.Arrays;
 import java.util.random.RandomGenerator;
 
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
@@ -232,6 +233,39 @@ public class WaypointEntity extends Entity {
 		public float x1, y1, z1, x2, y2, z2;
 		public float currentAngle, radius, speed;
 
+		public static Orbit copy(Orbit from, @Nullable Orbit to) {
+			if (to == null) to = new Orbit();
+			to.r = from.r;
+			to.g = from.g;
+			to.b = from.b;
+			to.x1 = from.x1;
+			to.y1 = from.y1;
+			to.z1 = from.z1;
+			to.x2 = from.x2;
+			to.y2 = from.y2;
+			to.z2 = from.z2;
+			to.currentAngle = from.currentAngle;
+			to.radius = from.radius;
+			to.speed = from.speed;
+			return to;
+		}
+
+		public static Orbit[] copy(Orbit[] from, Orbit @Nullable [] to) {
+			int length = from.length;
+			if (to == null) {
+				to = new Orbit[length];
+			}
+			else if (to.length != length) {
+				to = Arrays.copyOf(to, length);
+			}
+			for (int index = 0; index < length; index++) {
+				to[index] = copy(from[index], to[index]);
+			}
+			return to;
+		}
+
+		public Orbit() {}
+
 		public Orbit(RandomGenerator random, float baseHue) {
 			Vector3f scratch = new Vector3f(CloudColor.smoothHue(baseHue + random.nextFloat(0.25F)));
 			this.r = scratch.x;
@@ -267,8 +301,8 @@ public class WaypointEntity extends Entity {
 			this.currentAngle = BigGlobeMath.modulus_BP(this.currentAngle + this.speed, (float)(BigGlobeMath.TAU));
 		}
 
-		public void getPositionAndVelocity(Vector3f pos, Vector3f velocity, int history) {
-			float angle = this.currentAngle - history * 0.125F;
+		public void getPositionAndVelocity(Vector3f pos, Vector3f velocity, float history, float partialTicks) {
+			float angle = this.currentAngle + partialTicks * this.speed - history * 2.0F;
 			float sin = (float)(Math.sin(angle));
 			float cos = (float)(Math.cos(angle));
 			pos.set(

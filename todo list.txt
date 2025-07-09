@@ -44,42 +44,22 @@ where I left off:
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
+	happy ghast block thingy in the valley of souls.
+	ensure new versions of voxy work correctly.
+	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
+
+high priority:
 	document extra spawn system.
 	document terrainAdaptation.
 	document structures in general.
 	derivative perlin grids.
 		documentation for derivative perlin grids.
-	happy ghast block thingy in the valley of souls.
-	ensure new versions of voxy work correctly.
-	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
-
-structure rewrites:
-	hack StructureAccessor more.
-
-noise experiment:
-	snow can occasionally spawn in hot biomes if an erosion groove is carved deeply enough.
-
-high priority:
 	new end fractal: abs(x) & abs(y) & abs(z) == 0 for range(-128, 128).
 
 LODs:
 	shader support.
 
 json classes:
-	core goals:
-		* allow json to define classes that can be used anywhere that column values can be used.
-		* json-defined classes may have:
-			* fields, populated by the constructor.
-				* default values for fields may be provided as well.
-			* constructors, to populate fields.
-				* code may be provided to initialize other fields based on the specified parameters.
-			* properties, half way between fields and methods.
-				* no parentheses required for accessing.
-				* usage secretly goes through getter and optional setter methods.
-			* methods, which can be called to do whatever.
-		* class schemas would be in their own registry.
-			* types that reference themselves (either directly or indirectly) would be allowed in this system.
-		* user-defined classes may extend other user-defined classes and override their methods.
 	extra goals:
 		* json-defined interfaces, interface inheritance, and classes implementing multiple interfaces.
 	non-goals:
@@ -87,9 +67,6 @@ json classes:
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
 	need to fix:
 		merge stuff.
-		find some way to have overriders modify column values through a custom class.
-			this will be necessary for anything that overrides caves or nether bubbles.
-		merge ClassHierarchy into ColumnEntryRegistry?
 
 changelog:
 	# For normal users:

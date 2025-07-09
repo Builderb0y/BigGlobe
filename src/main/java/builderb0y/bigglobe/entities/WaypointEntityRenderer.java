@@ -52,7 +52,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 		Vec3d camera = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
 		Vector3f cameraToPos = new Vector3f(
 			(float)(state.x - camera.x),
-			(float)(state.y - camera.y),
+			(float)(state.y - camera.y + 1.0D),
 			(float)(state.z - camera.z)
 		);
 		Vector3f
@@ -68,22 +68,22 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 		int maxOrbits = BigGlobeMath.roundI(state.health / WaypointEntity.MAX_HEALTH * state.orbits.length);
 		for (int orbitIndex = 0; orbitIndex < maxOrbits; orbitIndex++) {
 			Orbit orbit = state.orbits[orbitIndex];
-			for (int history = 0; history <= 16; history++) {
+			for (int history = 0; history <= 32; history++) {
 				if (history != 0) {
 					prevPosition.set(position);
 					prevTangent.set(tangent);
 					prevSide.set(side);
 					prevSize = size;
 				}
-				orbit.getPositionAndVelocity(position, tangent, history);
+				float historyF = history * 0.03125F;
+				orbit.getPositionAndVelocity(position, tangent, historyF * historyF, state.partialTicks);
 				position.add(cameraToPos).cross(tangent, side).normalize();
-				size = history * 0.0625F;
-				size = ((float)(Math.sqrt(size))) * BigGlobeMath.squareF(1.0F - size) * 0.25F;
+				size = ((float)(Math.sqrt(historyF))) * BigGlobeMath.squareF(1.0F - historyF) * 0.25F;
 				if (history != 0) {
 					buffer
 					.vertex(
 						prevPosition.x,
-						prevPosition.y + 1.0F,
+						prevPosition.y,
 						prevPosition.z
 					)
 					.color(
@@ -97,7 +97,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						prevPosition.x + prevSide.x * prevSize,
-						prevPosition.y + prevSide.x * prevSize + 1.0F,
+						prevPosition.y + prevSide.y * prevSize,
 						prevPosition.z + prevSide.z * prevSize
 					)
 					.color(
@@ -111,7 +111,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						position.x + side.x * size,
-						position.y + side.x * size + 1.0F,
+						position.y + side.y * size,
 						position.z + side.z * size
 					)
 					.color(
@@ -125,7 +125,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						position.x,
-						position.y + 1.0F,
+						position.y,
 						position.z
 					)
 					.color(
@@ -142,7 +142,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						prevPosition.x - prevSide.x * prevSize,
-						prevPosition.y - prevSide.x * prevSize + 1.0F,
+						prevPosition.y - prevSide.y * prevSize,
 						prevPosition.z - prevSide.z * prevSize
 					)
 					.color(
@@ -156,7 +156,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						prevPosition.x,
-						prevPosition.y + 1.0F,
+						prevPosition.y,
 						prevPosition.z
 					)
 					.color(
@@ -170,7 +170,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						position.x,
-						position.y + 1.0F,
+						position.y,
 						position.z
 					)
 					.color(
@@ -184,7 +184,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 					buffer
 					.vertex(
 						position.x - side.x * size,
-						position.y - side.x * size + 1.0F,
+						position.y - side.y * size,
 						position.z - side.z * size
 					)
 					.color(
@@ -233,14 +233,14 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 
 	@Override
 	public void updateState(WaypointEntity entity, WaypointEntityRenderer.State state, float partialTicks) {
-		state.age    = entity.age;
 		state.health = entity.health;
-		state.orbits = entity.orbits;
+		state.partialTicks = partialTicks;
+		state.orbits = Orbit.copy(entity.orbits, state.orbits);
 	}
 
 	public static class State extends BigGlobeEntityRenderer.State {
 
-		public float age, health;
+		public float health, partialTicks;
 		public WaypointEntity.Orbit[] orbits;
 	}
 }
