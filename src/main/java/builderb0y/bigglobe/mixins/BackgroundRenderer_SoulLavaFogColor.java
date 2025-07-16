@@ -11,25 +11,34 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
 
-import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
+import builderb0y.bigglobe.rendering.SoulLavaFogHandler;
 
 @Environment(EnvType.CLIENT)
-@Mixin(BackgroundRenderer.class)
+#if MC_VERSION >= MC_1_21_6
+	@Mixin(net.minecraft.client.render.fog.LavaFogModifier.class)
+#else
+	@Mixin(net.minecraft.client.render.BackgroundRenderer.class)
+#endif
 public class BackgroundRenderer_SoulLavaFogColor {
 
-	#if MC_VERSION >= MC_1_21_2
+	#if MC_VERSION >= MC_1_21_6
+
+		@ModifyReturnValue(method = "getFogColor", at = @At("RETURN"))
+		private int bigglobe_useBlueFogColorInSoulLava(int original) {
+			if (SoulLavaFogHandler.inSoulLava) {
+				return (original & 0xFF00FF00) | (Integer.rotateLeft(original, 16) & 0x00FF00FF);
+			}
+			return original;
+		}
+
+	#elif MC_VERSION >= MC_1_21_2
 
 		@ModifyReturnValue(method = "getFogColor", at = @At("TAIL"))
-		private static Vector4f bigglobe_useCorrectColorForSoulLava(
-			Vector4f color,
-			@Local(argsOnly = true) Camera camera,
-			@Local(argsOnly = true) ClientWorld world
-		) {
-			if (world.getFluidState(camera.getBlockPos()).isIn(BigGlobeFluidTags.SOUL_LAVA)) {
+		private static Vector4f bigglobe_useBlueFogColorInSoulLava(Vector4f color) {
+			if (SoulLavaFogHandler.inSoulLava) {
 				float tmp = color.x;
 				color.x = color.z;
 				color.z = tmp;
@@ -43,8 +52,8 @@ public class BackgroundRenderer_SoulLavaFogColor {
 		@Shadow private static float blue;
 
 		@Inject(method = "render", at = @At(value = "INVOKE", target = "net/minecraft/client/render/BackgroundRenderer.getFogModifier(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/BackgroundRenderer$StatusEffectFogModifier;"))
-		private static void bigglobe_useCorrectColorForSoulLava(Camera camera, float tickDelta, ClientWorld world, int viewDistance, float skyDarkness, CallbackInfo callback) {
-			if (world.getFluidState(camera.getBlockPos()).isIn(BigGlobeFluidTags.SOUL_LAVA)) {
+		private static void bigglobe_useBlueFogColorInSoulLava(Camera camera, float tickDelta, ClientWorld world, int viewDistance, float skyDarkness, CallbackInfo callback) {
+			if (SoulLavaFogHandler.inSoulLava) {
 				float tmp = red;
 				red = blue;
 				blue = tmp;

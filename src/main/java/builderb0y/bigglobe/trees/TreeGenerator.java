@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.trees;
 
-import java.util.Map;
-
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -22,6 +20,7 @@ import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ThickBranchConfig;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
@@ -33,7 +32,7 @@ public class TreeGenerator {
 	public final BlockQueueStructureWorldAccess worldQueue;
 	public final Permuter random;
 	public final WoodPalette palette;
-	public final Map<BlockState, BlockState> groundReplacements;
+	public final BlockState2ObjectMap<BlockState> groundReplacements;
 	public final TrunkConfig trunk;
 	public final @Nullable BranchesConfig branches;
 	public final DecoratorConfig decorators;
@@ -45,7 +44,7 @@ public class TreeGenerator {
 		BlockQueue queue,
 		Permuter random,
 		WoodPalette palette,
-		Map<BlockState, BlockState> groundReplacements,
+		BlockState2ObjectMap<BlockState> groundReplacements,
 		TrunkConfig trunk,
 		@Nullable BranchesConfig branches,
 		DecoratorConfig decorators,
@@ -108,7 +107,7 @@ public class TreeGenerator {
 	}
 
 	public boolean generateTrunkLayer(int y) throws NotEnoughSpaceException {
-		Map<BlockState, BlockState> groundReplacements = this.groundReplacements;
+		BlockState2ObjectMap<BlockState> groundReplacements = this.groundReplacements;
 		double
 			radius  = this.trunk.currentRadius,
 			radius2 = squareD(radius),
@@ -152,7 +151,7 @@ public class TreeGenerator {
 						boolean logAboveToo = this.worldQueue.getBlockState(mutablePos) == this.palette.logState(this.random, Axis.Y);
 						mutablePos.setY(y);
 						if (logAboveToo) {
-							BlockState replacement = groundReplacements.get(existingState);
+							BlockState replacement = groundReplacements.runtimeStates.get(existingState);
 							if (replacement != null) {
 								if (replacement != existingState) {
 									this.worldQueue.queue.queueReplacement(mutablePos, existingState, replacement);
@@ -270,7 +269,7 @@ public class TreeGenerator {
 			mutablePos.setY(oldY - 1);
 			existingState = this.worldQueue.getWorldState(mutablePos);
 			mutablePos.setY(oldY);
-			return this.groundReplacements.containsKey(existingState);
+			return this.groundReplacements.runtimeStates.containsKey(existingState);
 		}
 		else {
 			return false;

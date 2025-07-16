@@ -29,7 +29,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.commands.VoxyDebugCommand;
 import builderb0y.bigglobe.compat.voxy.QueueingStorageBackend.GenerationQueue;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter;
@@ -43,9 +42,6 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 public abstract class AbstractVoxyWorldGenerator {
 
 	public static final int WORLD_SIZE_IN_CHUNKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
-
-	/** can be set by {@link VoxyDebugCommand}. */
-	public static @Nullable Factory override;
 
 	public final WorldEngine engine;
 	public final BigGlobeScriptedChunkGenerator generator;
@@ -74,16 +70,6 @@ public abstract class AbstractVoxyWorldGenerator {
 		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
 	}
 
-	public static void reloadWith(Factory factory, IGetVoxelCore coreGetter) {
-		AbstractVoxyWorldGenerator.override = factory;
-		try {
-			coreGetter.reloadVoxelCore();
-		}
-		finally {
-			AbstractVoxyWorldGenerator.override = null;
-		}
-	}
-
 	public static interface Factory {
 
 		public abstract AbstractVoxyWorldGenerator create(
@@ -102,9 +88,7 @@ public abstract class AbstractVoxyWorldGenerator {
 			(serverWorld = server.getWorld(newWorld.getRegistryKey())) != null &&
 			serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
 		) {
-			Factory factory = override;
-			if (factory != null) return factory.create(engine, serverWorld, generator);
-			else return new VoxyWorldGenerator(engine, serverWorld, generator);
+			return new VoxyWorldGenerator(engine, serverWorld, generator);
 		}
 		else {
 			return null;

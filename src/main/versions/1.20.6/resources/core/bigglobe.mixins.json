@@ -89,9 +89,6 @@
 		"Structure_ImplementSizedStructure",
 		"SugarCaneBlock_MakePlaceableOnGravel",
 		"ThrownEntity_CollisionHook",
-		"Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
-		"Voxy_WorldEngine_UseBigGlobeGenerator",
-		"Voxy_WorldSection_DataGetter",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"WorldGenProperties_LogLevelType",
 		"WorldPreset_DimensionsAccess",
@@ -102,6 +99,7 @@
 		"BackgroundRenderer_NoFogWithLods",
 		"BackgroundRenderer_SoulLavaFogColor",
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
+		"Camera_HandleSoulLavaSubmersion",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"ClientWorld_CustomTimeSpeed",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
@@ -115,6 +113,8 @@
 		"MinecraftClient_SetWorldEvent",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
 		"WorldRenderer_HoldLodSystem",
+		"WorldRenderer_RenderHyperspaceSky",
+		"WorldRenderer_RenderWaypoints",
 		"WorldType_ChangeTranslation"
 	],
 	"injectors": {

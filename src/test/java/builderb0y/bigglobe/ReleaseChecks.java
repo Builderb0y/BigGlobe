@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.lods.VertexHeap;
+import builderb0y.bigglobe.rendering.lods.VertexHeap;
 import builderb0y.bigglobe.util.Async;
 
 import static org.junit.jupiter.api.Assertions.*;

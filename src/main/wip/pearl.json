@@ -1,0 +1,98 @@
+{
+	"version": 2,
+	"root_layer": {
+		"name": "tint",
+		"width": 16,
+		"height": 16,
+		"children": [
+			{
+				"name": "New image",
+				"width": 16,
+				"height": 16,
+				"children": [
+					{
+						"name": "blur",
+						"width": 16,
+						"height": 16,
+						"children": [
+							{
+								"name": "noise",
+								"width": 16,
+								"height": 16,
+								"children": [],
+								"sources": {
+									"tab": {
+										"type": "derived",
+										"code": [
+											"return float4(...float3(rng(...UV, 11).nextPositiveFloat()), 1.0);"
+										]
+									}
+								},
+								"expanded": false
+							}
+						],
+						"sources": {
+							"tab": {
+								"type": "convolve",
+								"shape": "SEPARABLE",
+								"weight_type": "GAUSSIAN",
+								"radius": 2
+							}
+						},
+						"expanded": true
+					}
+				],
+				"sources": {
+					"tab": {
+						"type": "derived",
+						"code": [
+							"float2 uv2 = uv * 2.0 - 1.0;",
+							"uv2 = uv2 * 1.125;",
+							"float r = length(uv2);",
+							"if (r < 1.0) {",
+							"\tfloat brightness = mix(blur(UV).x, 1.0, r ^ 2 * 0.875);",
+							"\tfloat z = sqrt(1.0 - dot(uv2, uv2));",
+							"\tfloat3 normal = float3(...uv2, z);",
+							"\tfloat3 ray = float3(0.0, 0.0, -1.0);",
+							"\tray = ray - 2.0 * normal * dot(ray, normal);",
+							"\tfloat3 light = normalize(float3(-1.0, 1.0, 1.0));",
+							"\tfloat specular = max(dot(ray, light), 0.0) ^ 2;",
+							"\tbrightness = mix(brightness, 1.0, specular);",
+							"\treturn float4(brightness, brightness, brightness, 1.0);",
+							"}",
+							"else {",
+							"\treturn float4(0.0);",
+							"}"
+						]
+					}
+				},
+				"expanded": true
+			}
+		],
+		"sources": {
+			"tab": {
+				"type": "cliff",
+				"split_rgb": true,
+				"dual": false,
+				"linear": false,
+				"rgb_coefficient": 1.0,
+				"red_coefficient": 0.75,
+				"green_coefficient": 0.875,
+				"blue_coefficient": 1.0,
+				"alpha_coefficient": 1.0,
+				"rgb_mid": 0.5,
+				"red_mid": 0.5,
+				"green_mid": 0.5,
+				"blue_mid": 0.5,
+				"alpha_mid": 0.5
+			}
+		},
+		"expanded": true
+	},
+	"showing_layer": "tint",
+	"selected_layer": "tint",
+	"wrap": false,
+	"animation": {
+		"frames": 1
+	}
+}

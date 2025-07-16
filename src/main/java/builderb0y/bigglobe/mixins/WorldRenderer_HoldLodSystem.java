@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 
-import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 
 @Mixin(WorldRenderer.class)

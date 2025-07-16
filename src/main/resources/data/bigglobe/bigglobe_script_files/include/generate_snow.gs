@@ -8,7 +8,7 @@ void generateSnow(int snowBottom, double snowY:
 		)
 	)
 	if (snowTop >= snowBottom:
-		setBlockStates(snowBottom, snowTop, 'minecraft:snow[layers=8]')
+		setBlockStates(snowBottom, snowTop, 'minecraft:snow_block')
 		int remaining = int((snowY - floor(snowY)) * 8.0L)
 		if (snowBottom == snowTop && remaining == 0: remaining = 1)
 		if (remaining != 0:

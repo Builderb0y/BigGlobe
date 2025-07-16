@@ -1,0 +1,30 @@
+{
+	"raw_placement": [
+		"int*(",
+			"rawScale = data.scale.asInt()",
+			"iterMinX = max(minX, chunkMinX)",
+			"iterMinY = max(minY, chunkMinY)",
+			"iterMinZ = max(minZ, chunkMinZ)",
+			"iterMaxX = min(maxX, chunkMaxX)",
+			"iterMaxY = min(maxY, chunkMaxY)",
+			"iterMaxZ = min(maxZ, chunkMaxZ)",
+		")",
+		"BlockState state = data.state.asString().as(BlockState)",
+		"for positionLoop (",
+			"int y in range[iterMinY, iterMaxY],",
+			"int z in range[iterMinZ, iterMaxZ],",
+			"int x in range[iterMinX, iterMaxX]",
+		":",
+			"int*(",
+				"absX = abs(x - midX),",
+				"absY = abs(y - midY),",
+				"absZ = abs(z - midZ),",
+				"radius = highestOneBit(max(absX, absY, absZ))",
+			")",
+			"if ((absX & absY & absZ == 0) && ((radius + ~absX) & (radius + ~absY) & (radius + ~absZ) == 0):",
+				"setBlockState(x, y, z, state)",
+			")",
+		")"
+	],
+	"placement": "noop"
+}

@@ -2,6 +2,7 @@ package builderb0y.bigglobe.versions;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 
 public class BlockStateVersions {
@@ -27,6 +28,14 @@ public class BlockStateVersions {
 			return state.getOpacity();
 		#else
 			return state.getOpacity(world, pos);
+		#endif
+	}
+
+	public static VoxelShape getCullingShape(BlockState state, BlockView world, BlockPos pos) {
+		#if MC_VERSION >= MC_1_21_2
+			return state.getCullingShape();
+		#else
+			return state.getCullingShape(world, pos);
 		#endif
 	}
 }

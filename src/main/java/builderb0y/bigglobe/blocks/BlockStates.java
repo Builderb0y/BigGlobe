@@ -1,16 +1,12 @@
 package builderb0y.bigglobe.blocks;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Property;
 
-import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
+import builderb0y.bigglobe.codecs.BlockStateCoder;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 
 /** frequently used BlockState's. */
 public class BlockStates {
@@ -48,17 +44,6 @@ public class BlockStates {
 	other methods besides static class initializers.
 	*/
 	public static BlockState of(String name) {
-		try {
-			BlockResult result = BlockArgumentParserVersions.block(name, false);
-			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
-			remaining.removeAll(result.properties().keySet());
-			if (!remaining.isEmpty()) {
-				throw new IllegalArgumentException("Missing properties for state " + name + ": " + remaining);
-			}
-			return result.blockState();
-		}
-		catch (CommandSyntaxException e) {
-			throw new IllegalArgumentException("Invalid block specifier: " + name, e);
-		}
+		return BlockStateCoder.decodeState(new BetterHardCodedRegistry<>(Registries.BLOCK), name).state();
 	}
 }

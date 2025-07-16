@@ -20,8 +20,6 @@ the tree is traversed in a clever way to find the closest
 "empty" leaf to any given target position quickly.
 once an empty leaf is found, it gets marked as "full" so
 that the chunk it represents won't be generated again.
-
-this class has been unused ever since I added {@link GeneratingStorageBackend}.
 */
 public class DistanceGraph {
 

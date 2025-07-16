@@ -11,7 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 
 @Mixin(DebugHud.class)

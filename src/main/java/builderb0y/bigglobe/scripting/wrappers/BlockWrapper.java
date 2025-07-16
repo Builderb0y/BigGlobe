@@ -7,16 +7,15 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.registry.RegistryKeys;
 
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;
-import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.ConstantFactory;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -36,19 +35,12 @@ public class BlockWrapper {
 
 	public static Block getBlock(String id, int flags) {
 		if (id == null) return null;
-		#if MC_VERSION >= MC_1_20_3
-			if (id.equals("grass") || id.equals("minecraft:grass")) {
-				return Blocks.SHORT_GRASS;
-			}
-		#endif
 		try {
-			Identifier identifier = IdentifierVersions.create(id);
-			if (Registries.BLOCK.containsId(identifier)) {
-				return Registries.BLOCK.get(identifier);
+			Block block = BlockStateCoder.blockOnly(BlockStateCoder.findBlockRegistry(), id);
+			if (!BlockStateCoder.isEnabled(block)) {
+				throw new RuntimeException("Disabled block: " + id);
 			}
-			else {
-				throw new IllegalArgumentException("Unknown block: " + identifier);
-			}
+			return block;
 		}
 		catch (RuntimeException exception) {
 			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;

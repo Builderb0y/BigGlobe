@@ -42,6 +42,7 @@ import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
 import builderb0y.bigglobe.trees.decoration.BlockDecorator;
 import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -137,7 +138,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 
 	public static record Config(
 		RegistryEntry<WoodPalette> palette,
-		Map<BlockState, BlockState> ground_replacements,
+		BlockState2ObjectMap<BlockState> ground_replacements,
 		TreeHeightScript.Holder height,
 		TrunkFactory trunk,
 		Branches branches,

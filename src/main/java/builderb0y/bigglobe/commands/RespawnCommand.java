@@ -92,7 +92,7 @@ public class RespawnCommand {
 			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
 				if (tryRespawnBed(player, force) == null) return null;
 				if (tryRespawnCommand(player, force) == null) return null;
-				return doRespawnWorld(player, player.server.getOverworld(), force);
+				return doRespawnWorld(player, player.getServer().getOverworld(), force);
 			}
 		},
 
@@ -253,7 +253,7 @@ public class RespawnCommand {
 			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
 			if (dimension == null) return Text.translatable(PREFIX + "command.dimension_not_set");
 
-			ServerWorld world = player.server.getWorld(dimension);
+			ServerWorld world = player.getServer().getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.getValue().toString());
 
 			if (

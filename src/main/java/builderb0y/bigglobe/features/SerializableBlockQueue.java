@@ -1,34 +1,52 @@
 package builderb0y.bigglobe.features;
 
-import java.util.List;
 import java.util.Map;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.*;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.*;
+import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.codecs.BlockStateCoder;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.*;
 
 import net.minecraft.registry.RegistryWrapper;
 
+@UseCoder(name = "CODER", in = SerializableBlockQueue.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public class SerializableBlockQueue extends BlockQueue {
 
 	/**
@@ -40,6 +58,25 @@ public class SerializableBlockQueue extends BlockQueue {
 	for the delayed generation block to unload and reload.
 	*/
 	public static final boolean DEBUG_ALWAYS_SERIALIZE = false;
+
+	public static final AutoCoder<SerializableBlockQueue> CODER = new NamedCoder<>(ReifiedType.from(SerializableBlockQueue.class)) {
+
+		@Override
+		@OverrideOnly
+		public <T_Encoded> @Nullable SerializableBlockQueue decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+			if (context.data.isEmpty()) return null;
+			MapData map = context.data.tryAsMap();
+			if (map == null) throw context.notA("map");
+			return read(map);
+		}
+
+		@Override
+		@OverrideOnly
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, SerializableBlockQueue> context) throws EncodeException {
+			SerializableBlockQueue queue = context.object;
+			return queue == null ? EmptyData.INSTANCE : queue.toData();
+		}
+	};
 
 	public @NotNull Long2ObjectLinkedOpenHashMap<BlockState> queuedReplacements = new Long2ObjectLinkedOpenHashMap<>(64);
 
@@ -92,7 +129,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		WorldUtil.setBlockState(world, pos, BlockStates.DELAYED_GENERATION, this.flags);
 		DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(world, pos, DelayedGenerationBlockEntity.class);
 		if (blockEntity != null) {
-			blockEntity.blockQueue = DEBUG_ALWAYS_SERIALIZE ? read(this.toNBT()) : this;
+			blockEntity.blockQueue = DEBUG_ALWAYS_SERIALIZE ? read(this.toData()) : this;
 			blockEntity.oldState = oldState;
 			blockEntity.oldBlockData = oldBlockData;
 		}
@@ -125,40 +162,42 @@ public class SerializableBlockQueue extends BlockQueue {
 		return BlockStateVersions.isReplaceable(state) || state.isIn(BigGlobeBlockTags.PLANTS);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static SerializableBlockQueue read(NbtCompound nbt) {
-		int flags = nbt.get("flags") instanceof AbstractNbtNumber number ? number.intValue() : Block.NOTIFY_ALL;
-		if (!(nbt.get("center") instanceof NbtIntArray center && center.size() == 3)) throw new IllegalArgumentException("Malformed center");
-		int centerX = center.getIntArray()[0];
-		int centerY = center.getIntArray()[1];
-		int centerZ = center.getIntArray()[2];
+	public static SerializableBlockQueue read(MapData data) {
+		int flags = data.get("flags").getAsIntOr(Block.NOTIFY_ALL);
+		IntListData center = data.get("center").tryAsIntList();
+		if (center == null || center.size() != 3) throw new IllegalArgumentException("Malformed center");
+		int centerX = center.getInt(0);
+		int centerY = center.getInt(1);
+		int centerZ = center.getInt(2);
 		SerializableBlockQueue queue = new SerializableBlockQueue(centerX, centerY, centerZ, flags);
-		if (!(nbt.get("palette") instanceof NbtList paletteNBT)) throw new IllegalArgumentException("Malformed palette");
-		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteNBT.size());
-		RegistryWrapper<Block> registry = BlockArgumentParserVersions.blockRegistry();
-		for (NbtElement element : paletteNBT) {
-			if (element instanceof NbtString string) try {
-				palette.add(BlockArgumentParserVersions.block(registry, NbtVersions.stringValue(string), false).blockState());
+		ListData paletteData = data.get("palette").tryAsList();
+		if (paletteData == null) throw new IllegalArgumentException("Malformed palette");
+		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteData.size());
+		BetterRegistry<Block> blockRegistry = BigGlobeMod.getRegistry(RegistryKeys.BLOCK);
+		for (Data element : paletteData) {
+			StringData string = element.tryAsString();
+			if (string != null) {
+				palette.add(BlockStateCoder.decodeState(blockRegistry, string.value).state());
 			}
-			catch (CommandSyntaxException exception) {
-				throw new IllegalArgumentException(exception);
-			}
-			else if (element instanceof NbtCompound compound) {
-				palette.add(NbtHelper.toBlockState(registry, compound));
+			else {
+				throw new IllegalArgumentException("Block state is not encoded as a string: " + element);
 			}
 		}
-		readBlocks(centerX, centerY, centerZ, palette, nbt, "blocks", queue::queueBlock);
-		readBlocks(centerX, centerY, centerZ, palette, nbt, "replacements", queue.queuedReplacements::put);
-		if (nbt.get("blockEntities") instanceof NbtList blockEntities && !blockEntities.isEmpty()) {
-			for (NbtElement blockEntityElement : blockEntities) {
-				if (blockEntityElement instanceof NbtCompound blockEntityNBT) {
-					if (!(blockEntityNBT.get("x") instanceof AbstractNbtNumber x)) throw new IllegalArgumentException("Malformed x");
-					if (!(blockEntityNBT.get("x") instanceof AbstractNbtNumber y)) throw new IllegalArgumentException("Malformed y");
-					if (!(blockEntityNBT.get("x") instanceof AbstractNbtNumber z)) throw new IllegalArgumentException("Malformed z");
+		readBlocks(centerX, centerY, centerZ, palette, data, "blocks", queue::queueBlock);
+		readBlocks(centerX, centerY, centerZ, palette, data, "replacements", queue.queuedReplacements::put);
+		ListData blockEntities = data.get("blockEntities").tryAsList();
+		if (blockEntities != null && !blockEntities.isEmpty()) {
+			for (Data blockEntityElement : blockEntities) {
+				MapData blockEntityData = blockEntityElement.tryAsMap();
+				if (blockEntityData != null) {
+					AbstractNumberData x, y, z;
+					if ((x = blockEntityData.get("x").tryAsNumber()) == null) throw new IllegalArgumentException("Malformed x");
+					if ((y = blockEntityData.get("y").tryAsNumber()) == null) throw new IllegalArgumentException("Malformed y");
+					if ((z = blockEntityData.get("z").tryAsNumber()) == null) throw new IllegalArgumentException("Malformed z");
 					BlockPos pos = new BlockPos(x.intValue(), y.intValue(), z.intValue());
 					BlockState state = queue.queuedBlocks.get(pos.asLong());
 					if (state != null && state.hasBlockEntity()) {
-						BlockEntity blockEntity = BlockEntityVersions.createFromNbt(pos, state, blockEntityNBT);
+						BlockEntity blockEntity = BlockEntityVersions.createFromNbt(pos, state, (NbtCompound)(blockEntityData.convert(NbtOps.INSTANCE)));
 						if (blockEntity != null) queue.queueBlockEntity(pos, blockEntity);
 					}
 				}
@@ -170,14 +209,14 @@ public class SerializableBlockQueue extends BlockQueue {
 		return queue;
 	}
 
-	public static void readBlocks(int centerX, int centerY, int centerZ, ObjectList<BlockState> palette, NbtCompound nbt, String key, LongPosStateConsumer adder) {
-		if (!(nbt.get(key) instanceof NbtByteArray nbtByteArray && (nbtByteArray.size() & 3) == 0)) throw new IllegalArgumentException("Malformed " + key);
-		byte[] blocksNBT = nbtByteArray.getByteArray();
-		for (int index = 0, length = blocksNBT.length; index < length;) {
-			int x = centerX + blocksNBT[index++];
-			int y = centerY + blocksNBT[index++];
-			int z = centerZ + blocksNBT[index++];
-			BlockState state = palette.get(Byte.toUnsignedInt(blocksNBT[index++]));
+	public static void readBlocks(int centerX, int centerY, int centerZ, ObjectList<BlockState> palette, MapData data, String key, LongPosStateConsumer adder) {
+		ByteListData byteArray = data.get(key).tryAsByteList();
+		if (byteArray == null || (byteArray.size() & 3) != 0) throw new IllegalArgumentException("Malformed " + key);
+		for (int index = 0, length = byteArray.size(); index < length;) {
+			int x = centerX + byteArray.getByte(index++);
+			int y = centerY + byteArray.getByte(index++);
+			int z = centerZ + byteArray.getByte(index++);
+			BlockState state = palette.get(Byte.toUnsignedInt(byteArray.getByte(index++)));
 			adder.accept(BlockPos.asLong(x, y, z), state);
 		}
 	}
@@ -188,37 +227,37 @@ public class SerializableBlockQueue extends BlockQueue {
 		public abstract void accept(long pos, BlockState state);
 	}
 
-	public NbtCompound toNBT() {
-		NbtCompound nbt = new NbtCompound();
-		nbt.putIntArray("center", new int[] { this.centerX, this.centerY, this.centerZ });
-		nbt.putInt("flags", this.flags);
+	public MapData toData() {
+		MapData data = new MapData();
+		data.putIntList("center", this.centerX, this.centerY, this.centerZ);
+		data.putInt("flags", this.flags);
 		Object2ByteMap<BlockState> palette = new Object2ByteOpenHashMap<>(16);
-		NbtList paletteNBT = new NbtList();
-		this.addToPalette(palette, paletteNBT, this.queuedBlocks);
-		this.addToPalette(palette, paletteNBT, this.queuedReplacements);
-		nbt.put("palette", paletteNBT);
-		nbt.put("blocks", this.writeBlocks(palette, this.queuedBlocks));
-		nbt.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
+		ListData paletteData = new ListData();
+		this.addToPalette(palette, paletteData, this.queuedBlocks);
+		this.addToPalette(palette, paletteData, this.queuedReplacements);
+		data.put("palette", paletteData);
+		data.put("blocks", this.writeBlocks(palette, this.queuedBlocks));
+		data.put("replacements", this.writeBlocks(palette, this.queuedReplacements));
 		if (!this.queuedBlockEntities.isEmpty()) {
-			NbtList blockEntities = new NbtList();
+			ListData blockEntities = new ListData();
 			for (BlockEntity blockEntity : this.queuedBlockEntities.values()) {
-				blockEntities.add(BlockEntityVersions.writeToNbt(blockEntity));
+				blockEntities.value.add(new UnknownData<>(NbtOps.INSTANCE, BlockEntityVersions.writeToNbt(blockEntity)));
 			}
-			nbt.put("blockEntities", blockEntities);
+			data.put("blockEntities", blockEntities);
 		}
-		return nbt;
+		return data;
 	}
 
-	public void addToPalette(Object2ByteMap<BlockState> palette, NbtList paletteNBT, Long2ObjectMap<BlockState> blocks) {
+	public void addToPalette(Object2ByteMap<BlockState> palette, ListData paletteData, Long2ObjectMap<BlockState> blocks) {
 		for (BlockState state : blocks.values()) {
 			if (!palette.containsKey(state)) {
 				palette.put(state, BigGlobeMath.toUnsignedByteExact(palette.size()));
-				paletteNBT.add(NbtHelper.fromBlockState(state));
+				paletteData.value.add(new StringData(BlockArgumentParser.stringifyBlockState(state)));
 			}
 		}
 	}
 
-	public NbtByteArray writeBlocks(Object2ByteMap<BlockState> palette, Long2ObjectMap<BlockState> blocks) {
+	public ByteListData writeBlocks(Object2ByteMap<BlockState> palette, Long2ObjectMap<BlockState> blocks) {
 		ByteArrayList blocksNBT = new ByteArrayList(blocks.size() << 2);
 		for (ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = Long2ObjectMaps.fastIterator(blocks); iterator.hasNext();) {
 			Long2ObjectMap.Entry<BlockState> entry = iterator.next();
@@ -232,7 +271,7 @@ public class SerializableBlockQueue extends BlockQueue {
 			blocksNBT.add(id);
 		}
 		assert blocksNBT.size() == blocksNBT.elements().length;
-		return new NbtByteArray(blocksNBT.elements());
+		return new ByteListData(blocksNBT);
 	}
 
 	@Override

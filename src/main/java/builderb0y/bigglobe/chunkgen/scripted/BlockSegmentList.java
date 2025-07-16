@@ -7,6 +7,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EmptyBlockView;
 
+import builderb0y.bigglobe.versions.BlockStateVersions;
+
 public class BlockSegmentList extends SegmentList<BlockState> {
 
 	public BlockSegmentList(int minY, int maxY) {
@@ -89,7 +91,7 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		for (int index = this.size(); --index >= 0;) {
 			LitSegment segment = this.getLit(index);
 			segment.lightLevel = lightLevel;
-			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - segment.value.getOpacity(#if MC_VERSION < MC_1_21_2 EmptyBlockView.INSTANCE, BlockPos.ORIGIN #endif) * (segment.maxY() - segment.minY()), 0));
+			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - BlockStateVersions.getOpacity(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY() - segment.minY()), 0));
 		}
 	}
 
@@ -102,7 +104,7 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		}
 
 		public int getLightLevel(int y, int lod) {
-			return MathHelper.clamp(this.lightLevel - ((this.maxY - y) << lod) * this.value.getOpacity(), 0, 15);
+			return MathHelper.clamp(this.lightLevel - ((this.maxY - y) << lod) * BlockStateVersions.getOpacity(this.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN), 0, 15);
 		}
 
 		public int minY() {

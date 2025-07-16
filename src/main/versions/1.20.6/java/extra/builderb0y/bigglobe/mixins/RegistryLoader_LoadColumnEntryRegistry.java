@@ -5,13 +5,13 @@ import java.util.Map;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.registry.*;
 import net.minecraft.registry.DynamicRegistryManager.Immutable;
-import net.minecraft.registry.RegistryLoader.RegistryLoadable;
 import net.minecraft.registry.RegistryOps.RegistryInfo;
 import net.minecraft.registry.RegistryOps.RegistryInfoGetter;
 
@@ -32,7 +32,7 @@ public class RegistryLoader_LoadColumnEntryRegistry {
 		locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private static void bigglobe_beginLoading(
-		RegistryLoadable loadable,
+		@Coerce Object loadable, //package-private until MC 1.21.0.
 		DynamicRegistryManager baseRegistryManager,
 		List<RegistryLoader.Entry<?>> entries,
 		CallbackInfoReturnable<Immutable> callback,

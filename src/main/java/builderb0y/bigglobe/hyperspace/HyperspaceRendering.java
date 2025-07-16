@@ -9,11 +9,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Vec3d;
 
-import builderb0y.bigglobe.compat.satin.SatinCompat;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.RenderVersions;
 
 @Environment(EnvType.CLIENT)
 public class HyperspaceRendering {
@@ -24,43 +23,28 @@ public class HyperspaceRendering {
 		modelViewInverse  = new Matrix4f(),
 		projection        = new Matrix4f(),
 		projectionInverse = new Matrix4f();
+	public static float time, partialTicks;
 
-	public static final TreeSet<VisibleWaypointData> visibleWaypoints = (
-		#if MC_VERSION >= MC_1_21_2
-			new TreeSet<>()
-		#else
-			SatinCompat.ENABLED ? new TreeSet() : null
-		#endif
-	);
+	public static final TreeSet<VisibleWaypointData> visibleWaypoints = new TreeSet<>();
 
 	static {
-		if (visibleWaypoints != null) {
-			WorldRenderEvents.START.register((WorldRenderContext context) -> beginFrame(
-				context.camera().getPos(),
-				#if MC_VERSION >= MC_1_20_5
-					context.positionMatrix(),
-				#else
-					context.matrixStack().peek().getPositionMatrix(),
-				#endif
-				context.projectionMatrix()
-			));
-			WorldRenderEvents.END.register((WorldRenderContext context) -> endFrame());
+		WorldRenderEvents.START.register(HyperspaceRendering::beginFrame);
+		WorldRenderEvents.END.register((WorldRenderContext context) -> endFrame());
+	}
+
+	public static void markWaypointVisible(double x, double y, double z, int age, float health) {
+		visibleWaypoints.add(new VisibleWaypointData(x, y, z, age, health));
+		if (visibleWaypoints.size() > 16) {
+			visibleWaypoints.pollLast();
 		}
 	}
 
-	public static void markWaypointVisible(double x, double y, double z, float age, float health) {
-		if (visibleWaypoints != null) {
-			visibleWaypoints.add(new VisibleWaypointData(x, y, z, age, health));
-			if (visibleWaypoints.size() > 16) {
-				visibleWaypoints.pollLast();
-			}
-		}
-	}
-
-	public static void beginFrame(Vec3d cameraPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
-		cameraPosition = cameraPos;
-		modelView.set(modelViewMatrix).invert(modelViewInverse);
-		projection.set(projectionMatrix).invert(projectionInverse);
+	public static void beginFrame(WorldRenderContext context) {
+		cameraPosition = context.camera().getPos();
+		modelView.set(RenderVersions.modelViewMatrix(context)).invert(modelViewInverse);
+		projection.set(context.projectionMatrix()).invert(projectionInverse);
+		time = computeTime(context);
+		partialTicks = RenderVersions.partialTicks(context);
 	}
 
 	public static void endFrame() {
@@ -68,7 +52,7 @@ public class HyperspaceRendering {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static record VisibleWaypointData(double x, double y, double z, float age, float health) implements Comparable<VisibleWaypointData> {
+	public static record VisibleWaypointData(double x, double y, double z, int age, float health) implements Comparable<VisibleWaypointData> {
 
 		public double squareDistanceToCamera() {
 			return BigGlobeMath.squareD(
@@ -84,18 +68,18 @@ public class HyperspaceRendering {
 		}
 	}
 
-	public static float time(float tickDelta) {
+	public static float computeTime(WorldRenderContext context) {
 		return (
 			(
 				(
 					(float)(
 						BigGlobeMath.modulus_BP(
-							MinecraftClient.getInstance().world.getTime(),
+							context.world().getTime(),
 							24000L
 						)
 					)
 				)
-				+ tickDelta
+				+ RenderVersions.partialTicks(context)
 			)
 			/ 20.0F
 		);

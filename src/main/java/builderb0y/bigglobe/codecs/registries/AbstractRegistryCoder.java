@@ -6,6 +6,8 @@ import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.common.AbstractDecodeContext;
+import builderb0y.autocodec.common.DynamicOpsContext;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
@@ -28,7 +30,7 @@ public abstract class AbstractRegistryCoder<T_Object, T_Result> extends NamedCod
 		return registry(this.key, context);
 	}
 
-	public static <T_Encoded, T_Object> BetterRegistry<T_Object> registry(@NotNull RegistryKey<Registry<T_Object>> key, @NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+	public static <T_Encoded, T_Object> BetterRegistry<T_Object> registry(@NotNull RegistryKey<Registry<T_Object>> key, @NotNull DynamicOpsContext<T_Encoded> context) throws DecodeException {
 		/* if (BigGlobeDynamicRegistries.KEYS.contains(key) && ColumnEntryRegistry.Loading.LOADING != null && ColumnEntryRegistry.Loading.OVERRIDE.getCurrent() == null) {
 			return ColumnEntryRegistry.Loading.LOADING.betterRegistryLookup.getRegistry(key);
 		}

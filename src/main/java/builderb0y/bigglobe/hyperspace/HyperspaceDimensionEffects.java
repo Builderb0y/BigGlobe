@@ -15,7 +15,11 @@ import builderb0y.bigglobe.BigGlobeMod;
 public class HyperspaceDimensionEffects extends DimensionEffects {
 
 	public HyperspaceDimensionEffects() {
-		super(Float.NaN, false, DimensionEffects.SkyType.NONE, true, false);
+		#if MC_VERSION >= MC_1_21_6
+			super(SkyType.NONE, true, false);
+		#else
+			super(Float.NaN, false, DimensionEffects.SkyType.NONE, true, false);
+		#endif
 	}
 
 	public static void init() {

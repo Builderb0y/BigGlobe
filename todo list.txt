@@ -44,8 +44,6 @@ where I left off:
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
-	happy ghast block thingy in the valley of souls.
-	ensure new versions of voxy work correctly.
 	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
 
 high priority:
@@ -54,7 +52,7 @@ high priority:
 	document structures in general.
 	derivative perlin grids.
 		documentation for derivative perlin grids.
-	new end fractal: abs(x) & abs(y) & abs(z) == 0 for range(-128, 128).
+	fix voxy mixins not being optional.
 
 LODs:
 	shader support.
@@ -68,17 +66,26 @@ json classes:
 	need to fix:
 		merge stuff.
 
+1.21.7:
+	mention that satin is no longer recommended on modrinth.
+
 changelog:
 	# For normal users:
+	* Updated to MC 1.21.6 and 1.21.7.
 	* Fixed LODs rendering in front of terrain in dimensions which don't have translucent blocks as part of worldgen (nether and end).
 	* Waypoint renderer is now more glowy.
-	* Fixed bamboo spawning in lakes.
+	* Added another end fractal structure.
+	* Fixed bamboo spawning in lakes and rivers.
 	* Powder snow now spawns in frozen caves.
 	* Voidmetal armor can now have trims applied to it.
 	* Fixed bonemeal not producing flowers in big globe worlds.
 	* Abandoned cities now contain copper bulbs, in addition to redstone lamps.
 	* The small puddles of water that spawn in swamps now place mud around and below themselves.
 	* Fixed obelisks rarely getting cut off at chunk boundaries.
+	* Satin is no longer required for waypoint or hyperspace effects in old MC versions.
+	* Temporarily disabled worldgen integration for Voxy 0.2.x, as integration with Voxy 0.2.x was always bad and broken and made Voxy very unhappy.
+		* Worldgen integration will be re-added if/when Voxy gets an API for this.
+		* Worldgen integration still works fine with Voxy 0.1.5 in MC 1.20.4.
 	# For data pack users:
 	* Fixed world traits failing to apply on world creation.
 	# For data pack developers:

@@ -42,6 +42,7 @@ import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 
@@ -135,7 +136,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	public static record Config(
 		@DefaultBoolean(false) boolean delay_generation,
 		RegistryEntry<WoodPalette> palette,
-		Map<BlockState, BlockState> ground_replacements,
+		BlockState2ObjectMap<BlockState> ground_replacements,
 		ColumnRandomYToDoubleScript.Holder height,
 		TrunkFactory trunk,
 		@VerifyNullable Branches branches,

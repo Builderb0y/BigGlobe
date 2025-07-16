@@ -7,7 +7,6 @@ public class InstalledMods {
 	public static final boolean
 		C2ME              = FabricLoader.getInstance().isModLoaded("c2me"),
 		DISTANT_HORIZONS  = FabricLoader.getInstance().isModLoaded("distanthorizons"),
-		SATIN             = FabricLoader.getInstance().isModLoaded("satin"),
 		VOXY              = FabricLoader.getInstance().isModLoaded("voxy");
 	//if setup fails for either of these two mods,
 	//we will pretend they are not installed for

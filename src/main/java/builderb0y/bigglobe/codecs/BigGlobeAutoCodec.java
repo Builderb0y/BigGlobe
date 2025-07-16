@@ -302,7 +302,6 @@ public class BigGlobeAutoCodec {
 				public void setup() {
 					super.setup();
 					this.addFactoryBefore(CollectionImprinter.Factory.INSTANCE, BlockStateCollectionImprinter.Factory.INSTANCE);
-					this.addFactoryBefore(MapImprinter.Factory.INSTANCE, BlockStateToObjectMapImprinter.Factory.INSTANCE);
 				}
 			};
 		}

@@ -2,13 +2,18 @@ package builderb0y.bigglobe.entities;
 
 import java.util.*;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.LongStream;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -47,11 +52,24 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockCollisionSpliterator;
 import net.minecraft.world.World;
 
+import builderb0y.autocodec.annotations.VerifyIntRange;
+import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.LongListData;
+import builderb0y.autocodec.decoders.DecodeContext;
+import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.encoders.EncodeContext;
+import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.versions.DataHelper;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class StringEntity extends Entity {
@@ -494,44 +512,59 @@ public class StringEntity extends Entity {
 		return false;
 	}
 
-	@Override
-	public void readNbt(NbtCompound nbt) {
-		super.readNbt(nbt);
-		UUID prev = getUUID(nbt, "prev");
-		if (prev != null) this.prevEntity.uuid = prev;
-		UUID next = getUUID(nbt, "next");
-		if (next != null) this.nextEntity.uuid = next;
-	}
+	public static final Codec<UUID> UUID = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(
+		new NamedCoder<>("UUID (as a long array)") {
 
-	@Override
-	public NbtCompound writeNbt(NbtCompound nbt) {
-		nbt = super.writeNbt(nbt);
-		putUUID(nbt, "prev", this.prevEntity.uuid);
-		putUUID(nbt, "next", this.nextEntity.uuid);
-		return nbt;
-	}
+			@Override
+			@OverrideOnly
+			public <T_Encoded> @Nullable UUID decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+				if (context.isEmpty()) return null;
+				LongListData list = context.forceAsLongList();
+				if (list.size() != 2) throw new DecodeException(() -> "Expected UUID to be 2 longs, but it was " + list.size() + " longs");
+				return new UUID(list.getLong(0), list.getLong(1));
+			}
 
-	public static void putUUID(NbtCompound compound, String key, UUID uuid) {
-		if (uuid != null) {
-			compound.putLongArray(key, new long[] { uuid.getMostSignificantBits(), uuid.getLeastSignificantBits() });
+			@Override
+			@OverrideOnly
+			public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, UUID> context) throws EncodeException {
+				UUID uuid = context.object;
+				if (uuid == null) return EmptyData.INSTANCE;
+				return LongListData.wrap(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
+			}
 		}
-	}
+	);
 
-	public static @Nullable UUID getUUID(NbtCompound compound, String key) {
-		long[] element = compound.getLongArray(key) #if MC_VERSION >= MC_1_21_5 .orElse(null) #endif;
-		if (element != null && element.length == 2) {
-			return new UUID(element[0], element[1]);
+	public static final DataHelper<StringEntity> DATA_HELPER = (
+		new DataHelper<>(StringEntity.class)
+		.begin("prev").codec(UUID).pathAccessor("prevEntity.uuid", false).add()
+		.begin("next").codec(UUID).pathAccessor("nextEntity.uuid", false).add()
+	);
+
+	#if MC_VERSION >= MC_1_21_6
+
+		@Override
+		public void readCustomData(net.minecraft.storage.ReadView data) {
+			DATA_HELPER.read(this, data);
 		}
-		else {
-			return null;
+
+		@Override
+		public void writeCustomData(net.minecraft.storage.WriteView data) {
+			DATA_HELPER.write(this, data);
 		}
-	}
 
-	@Override
-	public void readCustomDataFromNbt(NbtCompound nbt) {}
+	#else
 
-	@Override
-	public void writeCustomDataToNbt(NbtCompound nbt) {}
+		@Override
+		public void readCustomDataFromNbt(NbtCompound data) {
+			DATA_HELPER.read(this, data);
+		}
+
+		@Override
+		public void writeCustomDataToNbt(NbtCompound data) {
+			DATA_HELPER.write(this, data);
+		}
+
+	#endif
 
 	public @Nullable Entity getPrevEntity() {
 		return this.prevEntity.entity;

@@ -23,10 +23,39 @@ public class MinecraftClient_SetWorldEvent {
 		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, world);
 	}
 
-	@Inject(method = { "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V" #if MC_VERSION >= MC_1_20_2 , "enterReconfiguration" #endif }, at = @At("HEAD"))
-	private void bigglobe_unloadOnDisconnect(Screen screen, CallbackInfo callback) {
-		if (this.world != null) {
-			ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
+	#if MC_VERSION >= MC_1_21_6
+
+		@Inject(method = "disconnect", at = @At("HEAD"))
+		private void bigglobe_unloadOnDisconnect(Screen screen, boolean transferring, CallbackInfo callback) {
+			if (this.world != null) {
+				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
+			}
 		}
-	}
+
+		@Inject(method = "enterReconfiguration", at = @At("HEAD"))
+		private void bigglobe_unloadOnReconfiguration(Screen screen, CallbackInfo callback) {
+			if (this.world != null) {
+				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
+			}
+		}
+
+	#elif MC_VERSION >= MC_1_20_2
+
+		@Inject(method = { "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", "enterReconfiguration" }, at = @At("HEAD"))
+		private void bigglobe_unloadOnDisconnect(Screen screen, CallbackInfo callback) {
+			if (this.world != null) {
+				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
+			}
+		}
+
+	#else
+
+		@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
+		private void bigglobe_unloadOnDisconnect(Screen screen, CallbackInfo callback) {
+			if (this.world != null) {
+				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
+			}
+		}
+
+	#endif
 }

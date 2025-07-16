@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
@@ -82,7 +83,9 @@ public class ItemStackVersions {
 	}
 
 	public static NbtCompound toNbt(ItemStack stack) {
-		#if MC_VERSION >= MC_1_21_2
+		#if MC_VERSION >= MC_1_21_6
+			return (NbtCompound)(ItemStack.CODEC.encodeStart(RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager()), stack).getOrThrow());
+		#elif MC_VERSION >= MC_1_21_2
 			return (NbtCompound)(stack.toNbt(BigGlobeMod.getCurrentServer().getRegistryManager()));
 		#elif MC_VERSION >= MC_1_20_5
 			return (NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager()));
@@ -92,7 +95,9 @@ public class ItemStackVersions {
 	}
 
 	public static void toNbt(ItemStack stack, NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_21_2
+		#if MC_VERSION >= MC_1_21_6
+			nbt.copyFromCodec(ItemStack.MAP_CODEC, RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager()), stack);
+		#elif MC_VERSION >= MC_1_21_2
 			nbt.copyFrom((NbtCompound)(stack.toNbt(BigGlobeMod.getCurrentServer().getRegistryManager())));
 		#elif MC_VERSION >= MC_1_20_5
 			nbt.copyFrom((NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager())));

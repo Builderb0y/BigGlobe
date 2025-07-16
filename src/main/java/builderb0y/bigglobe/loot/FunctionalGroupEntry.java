@@ -95,7 +95,8 @@ public class FunctionalGroupEntry extends LootPoolEntry {
 		super.validate(reporter);
 		LootFunction[] functions = this.functions;
 		for (int index = 0, length = functions.length; index < length; index++) {
-			functions[index].validate(reporter.makeChild(".functions[" + index + ']'));
+			final int index_ = index; //lambdas -_-
+			functions[index].validate(reporter.makeChild(#if MC_VERSION >= MC_1_21_6 () -> #endif ".functions[" + index_ + ']'));
 		}
 	}
 

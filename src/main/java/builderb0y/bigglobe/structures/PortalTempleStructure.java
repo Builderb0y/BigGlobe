@@ -776,7 +776,14 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				BlockPos pos = BlockPos.ofFloored(x.doubleValue(), y.doubleValue(), z.doubleValue());
 				if (chunkBox.contains(pos)) {
 					nbt.put("Pos", makeEntityPos(x.doubleValue(), y.doubleValue(), z.doubleValue()));
-					EntityType.getEntityFromNbt(nbt, world.toServerWorld() #if MC_VERSION >= MC_1_21_2 , SpawnReason.STRUCTURE #endif).ifPresent((Entity entity) -> {
+					#if MC_VERSION >= MC_1_21_6
+						EntityType.getEntityFromData(BlockEntityVersions.readView(nbt), world.toServerWorld(), SpawnReason.STRUCTURE)
+					#elif MC_VERSION >= MC_1_21_2
+						EntityType.getEntityFromNbt(nbt, world.toServerWorld(), SpawnReason.STRUCTURE)
+					#else
+						EntityType.getEntityFromNbt(nbt, world.toServerWorld())
+					#endif
+					.ifPresent((Entity entity) -> {
 						if (entity instanceof MobEntity mob) {
 							mob.initialize(
 								world,

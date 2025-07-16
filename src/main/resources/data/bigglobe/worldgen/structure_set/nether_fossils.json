@@ -1,0 +1,11 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 0,
+		"separation": 1,
+		"spacing": 2
+	},
+	"structures": [
+		{ "structure": "bigglobe:vanilla/nether_fossil", "weight": 1 }
+	]
+}

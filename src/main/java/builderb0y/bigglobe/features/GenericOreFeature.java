@@ -63,7 +63,7 @@ public class GenericOreFeature extends Feature<GenericOreFeature.Config> {
 		int maxZ = BigGlobeMath.floorI(centerZ + radius);
 
 		StructureWorldAccess world = context.getWorld();
-		Map<BlockState, BlockState> states = context.getConfig().states.runtimeStates;
+		BlockState2ObjectMap<BlockState> states = context.getConfig().states;
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		for (pos.setZ(minZ); pos.getZ() <= maxZ; pos.setZ(pos.getZ() + 1)) {
 			double offsetZ2 = BigGlobeMath.squareD(pos.getZ() - centerZ);
@@ -75,7 +75,7 @@ public class GenericOreFeature extends Feature<GenericOreFeature.Config> {
 					if (!(offsetXYZ2 < radius2)) continue;
 					double chance = BigGlobeMath.squareD(1.0D - offsetXYZ2 * reciprocalRadius2);
 					if (Permuter.nextChancedBoolean(permuter, chance)) {
-						BlockState replacement = states.get(world.getBlockState(pos));
+						BlockState replacement = states.runtimeStates.get(world.getBlockState(pos));
 						if (replacement != null) world.setBlockState(pos, replacement, Block.NOTIFY_ALL);
 					}
 				}

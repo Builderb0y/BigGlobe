@@ -1,0 +1,9 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{ "item": "bigglobe:violets" }
+	],
+	"result": {
+		"item": "minecraft:purple_dye"
+	}
+}

@@ -74,19 +74,6 @@ public class BigGlobeCommands {
 		BigGlobeMod.LOGGER.debug("Registering client commands to dispatcher...");
 		DisplayColumnsClientCommand.register(dispatcher);
 		SearchF3ClientCommand.register(dispatcher);
-		if (
-			FabricLoader.getInstance().isModLoaded("voxy") &&
-			BigGlobeMixinPlugin.INSTANCE.isEnabledInConfig(
-				"builderb0y.bigglobe.mixins.VoxyIntegration"
-			)
-		) {
-			try {
-				VoxyDebugCommand.register(dispatcher, registryAccess);
-			}
-			catch (LinkageError error) {
-				BigGlobeMod.LOGGER.warn("/bigglobe:voxyDebug unavailable: ", error);
-			}
-		}
 		BigGlobeMod.LOGGER.debug("Done registering client commands to dispatcher.");
 	}
 }

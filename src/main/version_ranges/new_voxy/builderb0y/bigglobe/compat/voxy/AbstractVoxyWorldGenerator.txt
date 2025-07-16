@@ -1,0 +1,346 @@
+package builderb0y.bigglobe.compat.voxy;
+
+import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import me.cortex.voxy.common.world.WorldEngine;
+import me.cortex.voxy.common.world.WorldSection;
+import me.cortex.voxy.common.world.other.Mapper;
+import me.cortex.voxy.commonImpl.VoxyCommon;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EmptyBlockView;
+import net.minecraft.world.biome.BiomeKeys;
+
+import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
+import builderb0y.bigglobe.compat.voxy.DistanceGraph.Query;
+import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.util.AsyncRunner;
+import builderb0y.bigglobe.util.BigGlobeThreadPool;
+import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
+
+@Environment(EnvType.CLIENT)
+public abstract class AbstractVoxyWorldGenerator {
+
+	public static final AtomicInteger RUNNING_COUNT = new AtomicInteger();
+
+	public final WorldEngine engine;
+	public final BigGlobeScriptedChunkGenerator generator;
+	public final GenerationQueue generationQueue;
+	public final Thread thread;
+	public volatile boolean running;
+	public final ScriptedColumn[] columns;
+	public final int plainsBiomeId;
+
+	public AbstractVoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator) {
+		this.engine = engine;
+		this.generator = generator;
+		ScriptedColumn.Factory factory = generator.columnEntryRegistry.columnFactory;
+		Params params = new Params(generator, 0, 0, ColumnUsage.RAW_GENERATION.voxyHints(0));
+		this.generationQueue = new GenerationQueue();
+		this.thread = new Thread(this::runLoop, "Big Globe Voxy worldgen thread");
+		this.columns = new ScriptedColumn[1024];
+		for (int index = 0; index < 1024; index++) {
+			this.columns[index] = factory.create(params);
+		}
+		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
+	}
+
+	public static @Nullable AbstractVoxyWorldGenerator createGenerator(ClientWorld newWorld, WorldEngine engine) {
+		MinecraftServer server;
+		ServerWorld serverWorld;
+		if (
+			BigGlobeConfig.INSTANCE.get().voxyIntegration.useWorldgenThread &&
+			(server = MinecraftClient.getInstance().getServer()) != null &&
+			(serverWorld = server.getWorld(newWorld.getRegistryKey())) != null &&
+			serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
+		) {
+			return new VoxyWorldGenerator(engine, serverWorld, generator);
+		}
+		else {
+			return null;
+		}
+	}
+
+	public void start() {
+		this.running = true;
+		this.thread.start();
+	}
+
+	public void stop() {
+		this.running = false;
+		try {
+			this.thread.join();
+		}
+		catch (InterruptedException exception) {
+			BigGlobeMod.LOGGER.error("Unexpected interrupt while stopping " + this.thread.getName() + ": ", exception);
+		}
+	}
+
+	public void runLoop() {
+		RUNNING_COUNT.incrementAndGet();
+		try {
+			BigGlobeMod.LOGGER.info("Big Globe voxy generation thread started.");
+			int failures = 0;
+			while (true) try {
+				if (!this.running) {
+					BigGlobeMod.LOGGER.info("Big Globe Voxy worldgen thread shutting down due to voxy core shutting down.");
+					break;
+				}
+
+				if (BigGlobeThreadPool.isBusy()) try {
+					Thread.sleep(100L);
+				}
+				catch (InterruptedException ignored) {}
+
+				if (!VoxyCommon.getInstance().savingServiceRateLimiter.getAsBoolean()) {
+					try { Thread.sleep(100L); }
+					catch (InterruptedException ignored) {}
+					continue; //do not generate next chunk.
+				}
+
+				if (!this.generateNextChunk()) try {
+					Thread.sleep(1000L);
+				}
+				catch (InterruptedException ignored) {}
+
+				failures = 0;
+			}
+			catch (Exception exception) {
+				BigGlobeMod.LOGGER.error("Exception on Big Globe Voxy thread: ", exception);
+				if (++failures >= 3) {
+					BigGlobeMod.LOGGER.error("Failed 3 times. Assuming state is corrupt or something and shutting down.");
+					break;
+				}
+				else try {
+					Thread.sleep(5000L);
+				}
+				catch (InterruptedException ignored) {}
+			}
+		}
+		finally {
+			RUNNING_COUNT.decrementAndGet();
+		}
+	}
+
+	public void queueChunk(long key) {
+		this.generationQueue.queueChunk(key);
+	}
+
+	public boolean generateNextChunk() {
+		long next = this.generationQueue.nextChunk();
+		if (next == -1L) return false;
+		this.generateChunkRecursive(next);
+		return true;
+	}
+
+	public void generateChunkRecursive(long key) {
+		int x   = WorldEngine.getX(key);
+		int z   = WorldEngine.getZ(key);
+		int lod = WorldEngine.getLevel(key);
+		this.createChunk(x, z, lod);
+		this.generationQueue.finishChunk(key);
+	}
+
+	public abstract void createChunk(int levelX, int levelZ, int level);
+
+	public static final VarHandle nonEmptyChildHandle, nonEmptyBlockHandle;
+	static {
+		try {
+			Field field;
+
+			field = WorldSection.class.getDeclaredField("NON_EMPTY_CHILD_HANDLE");
+			field.setAccessible(true);
+			nonEmptyChildHandle = (VarHandle)(field.get(null));
+
+			field = WorldSection.class.getDeclaredField("NON_EMPTY_BLOCK_HANDLE");
+			field.setAccessible(true);
+			nonEmptyBlockHandle = (VarHandle)(field.get(null));
+		}
+		catch (Exception exception) {
+			throw AutoCodecUtil.rethrow(exception);
+		}
+	}
+
+	public void convertSection(int levelX, int levelZ, int level, BlockSegmentList[] lists) {
+		int minY = this.generator.height.min_y();
+		int maxY = this.generator.height.max_y();
+		#if MC_VERSION > MC_1_21_1
+			final boolean lightAir = true;
+		#else
+			boolean lightAir = BigGlobeConfig.INSTANCE.get().voxyIntegration.lightAir;
+		#endif
+		try (AsyncRunner async = new AsyncRunner(BigGlobeThreadPool.lodExecutor())) {
+			for (int sectionBottomY = minY & -(1 << (level + 5)); sectionBottomY < maxY; sectionBottomY += 1 << (level + 5)) {
+				final int sectionBottomY_ = sectionBottomY;
+				async.submit(() -> {
+					int levelY = sectionBottomY_ >> (level + 5);
+					WorldSection section = lightAir ? this.engine.acquire(level, levelX, levelY, levelZ) : null;
+					try {
+						long[] sectionPayload = lightAir ? section._unsafeGetRawDataArray() : null;
+						if (lightAir) {
+							Arrays.fill(sectionPayload, 0L);
+						}
+						BlockState previousColumnState = null;
+						int previousColumnStateID = -1;
+						int nonEmptyBlocks = 0;
+						byte nonEmptyChildren = 0;
+						for (int relativeZ = 0; relativeZ < 32; relativeZ++) {
+							for (int relativeX = 0; relativeX < 32; relativeX++) {
+								int packedXZ = (relativeZ << 5) | relativeX;
+								BlockSegmentList list = lists[packedXZ];
+								int segmentIndex = list.getSegmentIndex(sectionBottomY_, false);
+								while (segmentIndex < list.size()) {
+									LitSegment segment = list.getLit(segmentIndex++);
+									if (segment.minY > (sectionBottomY_ | ((1 << (level + 5)) - 1))) break;
+									if (lightAir || !segment.value.isAir()) {
+										if (section == null) {
+											section = this.engine.acquire(level, levelX, levelY, levelZ);
+											sectionPayload = section._unsafeGetRawDataArray();
+											Arrays.fill(sectionPayload, 0L);
+										}
+										int minRelativeY = Math.max((segment.minY - sectionBottomY_) >> level, 0);
+										int maxRelativeY = Math.min((segment.maxY - sectionBottomY_) >> level, 31);
+										if (segment.value != previousColumnState) {
+											previousColumnState = segment.value;
+											previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
+										}
+										byte startSkyLight = segment.lightLevel;
+										int diminishment = BlockStateVersions.getOpacity(previousColumnState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+										int blockLightLevel = previousColumnState.getLuminance() << 4;
+										if (startSkyLight == 0 || diminishment == 0) {
+											long id = Mapper.composeMappingId((byte)((#if MC_VERSION <= MC_1_21_1 15 - #endif startSkyLight) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+											for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
+												int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
+												boolean wasAir = Mapper.isAir(sectionPayload[index]);
+												if (previousColumnStateID == 0 && !wasAir) continue;
+												sectionPayload[index] = id;
+												if (wasAir) nonEmptyBlocks++;
+												if (previousColumnStateID != 0) {
+													nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
+												}
+											}
+										}
+										else {
+											for (int relativeY = minRelativeY; relativeY <= maxRelativeY; relativeY++) {
+												int index = WorldSection.getIndex(relativeX, relativeY, relativeZ);
+												boolean wasAir = Mapper.isAir(sectionPayload[index]);
+												if (previousColumnStateID == 0 && !wasAir) continue;
+												int absoluteY = ((relativeY + 1) << level) - 1 + sectionBottomY_;
+												int skylight = Math.max(startSkyLight - diminishment * (segment.maxY - absoluteY), 0);
+												sectionPayload[index] = Mapper.composeMappingId((byte)((#if MC_VERSION <= MC_1_21_1 15 - #endif skylight) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);
+												if (wasAir) nonEmptyBlocks++;
+												if (previousColumnStateID != 0) {
+													nonEmptyChildren |= 1 << WorldSection.getChildIndex(relativeX >> 4, relativeY >> 4, relativeZ >> 4);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						if (section != null) {
+							if (level == 0) nonEmptyChildren = nonEmptyBlocks != 0 ? (byte)(-1) : (byte)(0);
+							nonEmptyChildHandle.setVolatile(section, nonEmptyChildren);
+							nonEmptyBlockHandle.setVolatile(section, nonEmptyBlocks);
+							this.engine.markDirty(section);
+						}
+					}
+					finally {
+						if (section != null) section.release();
+					}
+				});
+			}
+		}
+	}
+
+	public static class GenerationQueue {
+
+		public static final int WORLD_SIZE_IN_LODS = DistanceGraph.WORLD_SIZE_IN_BLOCKS >> 5;
+
+		public final DistanceGraph[]
+			todo = new DistanceGraph[16],
+			done = new DistanceGraph[16];
+		public int indexGenerator;
+
+		public GenerationQueue() {
+			for (int lod = 0; lod < 16; lod++) {
+				this.todo[lod] = new DistanceGraph(
+					-WORLD_SIZE_IN_LODS >> lod,
+					-WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					false
+				);
+				this.done[lod] = new DistanceGraph(
+					-WORLD_SIZE_IN_LODS >> lod,
+					-WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					+WORLD_SIZE_IN_LODS >> lod,
+					false
+				);
+			}
+		}
+
+		public void queueChunk(long key) {
+			//System.out.println("Queueing " + WorldEngine.pprintPos(key));
+			int x   = WorldEngine.getX(key);
+			int z   = WorldEngine.getZ(key);
+			int lod = WorldEngine.getLevel(key);
+			synchronized (this) {
+				if (!this.done[lod].get(x, z)) {
+					this.todo[lod].set(x, z, true);
+				}
+			}
+		}
+
+		public void finishChunk(long key) {
+			//System.out.println("Finished " + WorldEngine.pprintPos(key));
+			int lod = WorldEngine.getLevel(key);
+			int x = WorldEngine.getX(key);
+			int z = WorldEngine.getZ(key);
+			synchronized (this) {
+				this.todo[lod].set(x, z, false);
+				this.done[lod].set(x, z, true);
+			}
+		}
+
+		public synchronized long nextChunk() {
+			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			if (player == null) return -1L;
+			int x = player.getBlockX() >> 5;
+			int z = player.getBlockZ() >> 5;
+			int minLOD = 0;
+			for (int attempt = 0; attempt < 32; attempt++) {
+				int lod = Math.min(Integer.numberOfTrailingZeros(this.indexGenerator++) + minLOD, 15);
+				Query query = this.todo[lod].current(x >> lod, z >> lod, true);
+				if (query != null) {
+					return WorldEngine.getWorldSectionId(lod, query.closestX, 0, query.closestZ);
+				}
+				else if (lod == minLOD) {
+					minLOD++;
+				}
+			}
+			return -1L;
+		}
+	}
+}

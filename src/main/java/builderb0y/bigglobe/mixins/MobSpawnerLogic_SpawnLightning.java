@@ -28,17 +28,33 @@ public abstract class MobSpawnerLogic_SpawnLightning {
 	@Unique
 	public boolean bigglobe_spawnLightning;
 
-	@Inject(method = "readNbt", at = @At("HEAD"))
-	private void bigglobe_readLightning(World world, BlockPos pos, NbtCompound nbt, CallbackInfo callback) {
-		if (nbt.get("bigglobe_SpawnLightning") instanceof AbstractNbtNumber number) {
-			this.bigglobe_spawnLightning = number.byteValue() != 0;
-		}
-	}
+	#if MC_VERSION >= MC_1_21_6
 
-	@Inject(method = "writeNbt", at = @At("HEAD"))
-	private void bigglobe_writeLightning(NbtCompound nbt, CallbackInfoReturnable<NbtCompound> callback) {
-		nbt.putBoolean("bigglobe_SpawnLightning", this.bigglobe_spawnLightning);
-	}
+		@Inject(method = "readData", at = @At("HEAD"))
+		private void bigglobe_readLightning(World world, BlockPos pos, net.minecraft.storage.ReadView view, CallbackInfo callback) {
+			this.bigglobe_spawnLightning = view.getBoolean("bigglobe_SpawnLightning", this.bigglobe_spawnLightning);
+		}
+
+		@Inject(method = "writeData", at = @At("HEAD"))
+		private void bigglobe_writeLightning(net.minecraft.storage.WriteView view, CallbackInfo callback) {
+			view.putBoolean("bigglobe_SpawnLightning", this.bigglobe_spawnLightning);
+		}
+
+	#else
+
+		@Inject(method = "readNbt", at = @At("HEAD"))
+		private void bigglobe_readLightning(World world, BlockPos pos, NbtCompound nbt, CallbackInfo callback) {
+			if (nbt.get("bigglobe_SpawnLightning") instanceof AbstractNbtNumber number) {
+				this.bigglobe_spawnLightning = number.byteValue() != 0;
+			}
+		}
+
+		@Inject(method = "writeNbt", at = @At("HEAD"))
+		private void bigglobe_writeLightning(NbtCompound nbt, CallbackInfoReturnable<NbtCompound> callback) {
+			nbt.putBoolean("bigglobe_SpawnLightning", this.bigglobe_spawnLightning);
+		}
+
+	#endif
 
 	@Inject(method = "serverTick", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
 	private void bigglobe_spawnLightning(ServerWorld world, BlockPos pos, CallbackInfo callback, boolean spawned) {

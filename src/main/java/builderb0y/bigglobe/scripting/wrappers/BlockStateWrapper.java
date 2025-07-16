@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashSet;
 import java.util.Set;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -9,9 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
@@ -19,16 +17,18 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
 
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BlockStateCoder;
+import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
 import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
+import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;
 import builderb0y.bigglobe.scripting.wrappers.tags.TagParser;
+import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.ConstantFactory;
-import builderb0y.bigglobe.scripting.ScriptLogger;
-import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
-import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -47,44 +47,37 @@ public class BlockStateWrapper {
 	public static final TagParser
 		TAG_PARSER = new TagParser("BlockTag", BlockTag.class, "BlockState", MethodInfo.inCaller("isIn"));
 
-	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) throws CommandSyntaxException {
+	public static BlockState getState(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
 		if (id == null) return null;
-		#if MC_VERSION >= MC_1_20_3
-			if (id.equals("grass") || id.equals("minecraft:grass")) {
-				return Blocks.SHORT_GRASS.getDefaultState();
-			}
-		#endif
-		BlockResult result;
+		BlockProperties block;
 		try {
-			result = BlockArgumentParserVersions.block(id, false);
+			block = BlockStateCoder.decodeState(BlockStateCoder.findBlockRegistry(), id);
+			if (!block.enabled()) {
+				throw new RuntimeException("Disabled block: " + id);
+			}
 		}
-		catch (CommandSyntaxException exception) {
+		catch (Exception exception) {
 			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
 			else throw exception;
 		}
-		if (result.properties().size() != result.blockState().getProperties().size()) {
-			Set<Property<?>> remaining = new HashSet<>(result.blockState().getProperties());
-			remaining.removeAll(result.properties().keySet());
-			if (!remaining.isEmpty()) {
-				ScriptLogger.LOGGER.warn("Missing properties for state " + id + ": " + remaining);
-			}
+		Set<Property<?>> missing = block.missing();
+		if (!missing.isEmpty()) {
+			ScriptLogger.LOGGER.warn("Missing properties for state " + id + ": " + missing);
 		}
-		return result.blockState();
+		return block.state();
 	}
 
-	public static BlockState getState(String id, int flags) throws CommandSyntaxException {
+	public static BlockState getState(String id, int flags) {
 		if (id == null) return null;
-		#if MC_VERSION >= MC_1_20_3
-			if (id.equals("grass") || id.equals("minecraft:grass")) {
-				return Blocks.SHORT_GRASS.getDefaultState();
-			}
-		#endif
+		//this is the non-constant code path, so we will skip logging of missing properties here.
 		try {
-			//this method will be called only if the string is non-constant.
-			//for performance reasons, we will skip properties checking here.
-			return BlockArgumentParserVersions.block(id, false).blockState();
+			BlockProperties block = BlockStateCoder.decodeState(BlockStateCoder.findBlockRegistry(), id);
+			if (!block.enabled()) {
+				throw new RuntimeException("Disabled block: " + id);
+			}
+			return block.state();
 		}
-		catch (CommandSyntaxException exception) {
+		catch (Exception exception) {
 			if ((flags & AbstractConstantFactory.NULLABLE) != 0) return null;
 			else throw exception;
 		}

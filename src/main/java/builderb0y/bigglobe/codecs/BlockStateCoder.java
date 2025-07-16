@@ -10,20 +10,26 @@ import java.util.stream.Stream;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DynamicOps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
@@ -43,11 +49,14 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.mixinInterfaces.AdjustableRegistryOps;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
@@ -103,48 +112,114 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
+	public static Block blockOnly(BetterRegistry<Block> blockRegistry, String input) {
+		return switch (input) {
+			#if MC_VERSION >= MC_1_20_3
+				case "grass", "minecraft:grass" -> Blocks.SHORT_GRASS;
+			#else
+				case "short_grass", "minecraft:short_grass" -> Blocks.GRASS;
+			#endif
+			default -> blockRegistry.requireByName(input).value();
+		};
+	}
+
 	public static BlockProperties decodeState(BetterRegistry<Block> blockRegistry, String input) {
-		if (input.charAt(0) == '#') throw new IllegalArgumentException("Tags not allowed here");
-		int openBracket = input.indexOf('[');
-		Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
-		Block block = blockRegistry.requireById(blockID).value();
-		BlockState state = block.getDefaultState();
-		if (openBracket >= 0) {
-			if (block.getStateManager().getProperties().isEmpty()) {
-				throw new IllegalArgumentException("Block " + blockID + " has no properties, but input string specified an opening '[' anyway.");
-			}
-			int closeBracket = input.indexOf(']');
-			if (closeBracket != input.length() - 1) {
-				throw new IllegalArgumentException("Closing ']' must be the last character in the input string: " + input);
-			}
-			String[] split = input.substring(openBracket + 1, closeBracket).split(",");
-			Map<Property<?>, Comparable<?>> properties = new Object2ObjectOpenHashMap<>(split.length);
-			for (String pair : split) {
-				int equals = pair.indexOf('=');
-				if (equals < 0) {
-					throw new IllegalArgumentException("Expected '=' somewhere in " + pair);
+		return switch (input) {
+			#if MC_VERSION >= MC_1_20_3
+				case "grass", "minecraft:grass" -> new BlockProperties(Blocks.SHORT_GRASS.getDefaultState());
+			#else
+				case "short_grass", "minecraft:short_grass" -> new BlockProperties(Blocks.GRASS.getDefaultState());
+			#endif
+			default -> {
+				if (input.charAt(0) == '#') throw new IllegalArgumentException("Tags not allowed here");
+				int openBracket = input.indexOf('[');
+				Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
+				Block block = blockRegistry.requireById(blockID).value();
+				BlockState state = block.getDefaultState();
+				if (openBracket >= 0) {
+					if (block.getStateManager().getProperties().isEmpty()) {
+						throw new IllegalArgumentException("Block " + blockID + " has no properties, but input string specified an opening '[' anyway.");
+					}
+					int closeBracket = input.indexOf(']');
+					if (closeBracket != input.length() - 1) {
+						throw new IllegalArgumentException("Closing ']' must be the last character in the input string: " + input);
+					}
+					String[] split = input.substring(openBracket + 1, closeBracket).split(",");
+					Map<Property<?>, Comparable<?>> properties = new Object2ObjectOpenHashMap<>(split.length);
+					for (String pair : split) {
+						int equals = pair.indexOf('=');
+						if (equals < 0) {
+							throw new IllegalArgumentException("Expected '=' somewhere in " + pair);
+						}
+						String propertyName = pair.substring(0, equals);
+						Property property = block.getStateManager().getProperty(propertyName);
+						if (property == null) {
+							throw new IllegalArgumentException("Block " + blockID + " has no such property named " + propertyName + " for input " + input);
+						}
+						String valueString = pair.substring(equals + 1);
+						Comparable value = (Comparable)(property.parse(valueString).orElse(null));
+						if (value == null) {
+							throw new IllegalArgumentException("Value " + valueString + " is not applicable for property " + propertyName + " for input " + input);
+						}
+						state = state.with(property, value);
+						properties.put(property, value);
+					}
+					yield new BlockProperties(blockID, block, state, properties);
 				}
-				String propertyName = pair.substring(0, equals);
-				Property property = block.getStateManager().getProperty(propertyName);
-				if (property == null) {
-					throw new IllegalArgumentException("Block " + blockID + " has no such property named " + propertyName + " for input " + input);
+				else {
+					yield new BlockProperties(blockID, block, state, Collections.emptyMap());
 				}
-				String valueString = pair.substring(equals + 1);
-				Comparable value = (Comparable)(property.parse(valueString).orElse(null));
-				if (value == null) {
-					throw new IllegalArgumentException("Value " + valueString + " is not applicable for property " + propertyName + " for input " + input);
-				}
-				state = state.with(property, value);
-				properties.put(property, value);
 			}
-			return new BlockProperties(blockID, block, state, properties);
+		};
+	}
+
+	public static BetterRegistry<Block> findBlockRegistry() {
+		MinecraftServer server = BigGlobeMod.currentServer;
+		if (server != null) {
+			return new BetterHardCodedRegistry<>(RegistryVersions.getRegistry(server.getRegistryManager(), RegistryKeys.BLOCK));
+		}
+		else if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			return findBlockRegistryClient();
 		}
 		else {
-			return new BlockProperties(blockID, block, state, Collections.emptyMap());
+			return new BetterHardCodedRegistry<>(Registries.BLOCK);
 		}
 	}
 
-	public static record BlockProperties(Identifier id, Block block, BlockState state, Map<Property<?>, Comparable<?>> properties) {
+	@Environment(EnvType.CLIENT)
+	public static BetterRegistry<Block> findBlockRegistryClient() {
+		ClientWorld world = MinecraftClient.getInstance().world;
+		return new BetterHardCodedRegistry<>(world != null ? RegistryVersions.getRegistry(world.getRegistryManager(), RegistryKeys.BLOCK) : Registries.BLOCK);
+	}
+
+	public static boolean isEnabled(Block block) {
+		MinecraftServer server = BigGlobeMod.currentServer;
+		if (server != null) {
+			return block.isEnabled(server.getSaveProperties().getEnabledFeatures());
+		}
+		else if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			return isEnabledClient(block);
+		}
+		else {
+			return true;
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static boolean isEnabledClient(Block block) {
+		ClientWorld world = MinecraftClient.getInstance().world;
+		return world == null || block.isEnabled(world.getEnabledFeatures());
+	}
+
+	public static record BlockProperties(Identifier id, Block block, BlockState state, Map<Property<?>, Comparable<?>> properties, boolean enabled) {
+
+		public BlockProperties(Identifier id, Block block, BlockState state, Map<Property<?>, Comparable<?>> properties) {
+			this(id, block, state, properties, isEnabled(block));
+		}
+
+		public BlockProperties(BlockState state) {
+			this(UnregisteredObjectException.getID(state.getRegistryEntry()), state.getBlock(), state, state.getEntries(), isEnabled(state.getBlock()));
+		}
 
 		public Set<Property<?>> missing() {
 			Collection<Property<?>> properties = this.block.getStateManager().getProperties();

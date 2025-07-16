@@ -78,9 +78,13 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 	@SuppressWarnings("deprecation")
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity #if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif) {
 		super.onEntityCollision(state, world, pos, entity #if MC_VERSION >= MC_1_21_5 , handler #endif);
-		if (this.isEntityTouchingFluid(state, pos, entity)) {
+		#if MC_VERSION >= MC_1_21_6
 			entity.setOnFireFromLava();
-		}
+		#else
+			if (this.isEntityTouchingFluid(state, pos, entity)) {
+				entity.setOnFireFromLava();
+			}
+		#endif
 	}
 
 	@Override

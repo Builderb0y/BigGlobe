@@ -17,7 +17,13 @@ public record MinecraftVersion(int major, int minor, int bugfix) implements Comp
 		MinecraftVersion version;
 		try {
 			version = of(
-				SharedConstants.getGameVersion().getName(),
+				SharedConstants
+				.getGameVersion()
+				#if MC_VERSION >= MC_1_21_6
+					.name(),
+				#else
+					.getName(),
+				#endif
 				AbstractConstantFactory.NULLABLE
 			);
 		}

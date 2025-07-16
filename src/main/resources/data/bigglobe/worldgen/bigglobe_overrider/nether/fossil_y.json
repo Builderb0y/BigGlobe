@@ -1,0 +1,9 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type ==. 'minecraft:nether_fossil':",
+			"start.move(1)",
+		")",
+		"return(true)"
+	]
+}

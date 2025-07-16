@@ -6,12 +6,11 @@ import net.fabricmc.api.Environment;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
-import builderb0y.bigglobe.compat.satin.SatinCompat;
 import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.hyperspace.HyperspaceDimensionEffects;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
 import builderb0y.bigglobe.scripting.ClientPrintSink;
@@ -31,7 +30,6 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeCommands.initClient();
 		BigGlobeParticles.initClient();
 		HyperspaceDimensionEffects.init();
-		SatinCompat.init();
 		LodSystem.init();
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		BigGlobeMod.LOGGER.info("Done initializing client.");

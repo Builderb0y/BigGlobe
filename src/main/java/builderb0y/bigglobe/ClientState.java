@@ -60,10 +60,9 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegis
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
-import builderb0y.bigglobe.lods.LodGenerator;
+import builderb0y.bigglobe.rendering.lods.LodGenerator;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.mixinInterfaces.DimensionalBlockView;
-import builderb0y.bigglobe.mixins.ClientWorld_CustomTimeSpeed;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;

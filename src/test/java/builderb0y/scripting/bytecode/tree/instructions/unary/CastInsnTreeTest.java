@@ -97,7 +97,7 @@ public class CastInsnTreeTest {
 		return new ClassCompileContext(
 			ACC_PUBLIC,
 			ClassType.CLASS,
-			"test",
+			"test/Test$Generated_0",
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);

@@ -2,7 +2,7 @@ package builderb0y.bigglobe.mixinInterfaces;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.bigglobe.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 public interface LodSystemHolder {
 

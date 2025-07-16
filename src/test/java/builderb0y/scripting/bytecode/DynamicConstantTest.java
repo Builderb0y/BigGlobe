@@ -25,7 +25,7 @@ public class DynamicConstantTest {
 		ClassCompileContext clazz = new ClassCompileContext(
 			ACC_PUBLIC,
 			ClassType.CLASS,
-			superClass.getInternalName() + "$Impl$" + implNumber,
+			superClass.getInternalName() + "$Impl_" + implNumber,
 			superClass,
 			TypeInfo.ARRAY_FACTORY.empty()
 		);

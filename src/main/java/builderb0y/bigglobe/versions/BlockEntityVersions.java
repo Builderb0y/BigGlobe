@@ -3,14 +3,25 @@ package builderb0y.bigglobe.versions;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 
 import builderb0y.bigglobe.BigGlobeMod;
 
 public class BlockEntityVersions {
 
+	#if MC_VERSION >= MC_1_21_6
+
+		public static net.minecraft.storage.ReadView readView(NbtCompound nbt) {
+			return net.minecraft.storage.NbtReadView.create(net.minecraft.util.ErrorReporter.EMPTY, BigGlobeMod.getCurrentServer().getRegistryManager(), nbt);
+		}
+
+	#endif
+
 	public static void readFromNbt(BlockEntity blockEntity, NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_6
+			blockEntity.read(readView(nbt));
+		#elif MC_VERSION >= MC_1_20_5
 			blockEntity.read(nbt, BigGlobeMod.getCurrentServer().getRegistryManager());
 		#else
 			blockEntity.readNbt(nbt);

@@ -57,7 +57,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely", Boolean.TRUE);
 		defaults.put(mixinPackage + ".DebugHud_ShowLodStatus",                                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_CreateWorldScreen_DontCrashOnFailure",                                                 Boolean.FALSE);
-		defaults.put(mixinPackage + ".Dev_NbtCompound_SanityCheckValues",                                                        Boolean.FALSE);
+		defaults.put(mixinPackage + ".Dev_NbtCompound_SanityCheckValues",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",                           Boolean.FALSE);
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                                        Boolean.TRUE);
@@ -94,8 +94,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".SugarCaneBlock_MakePlaceableOnGravel",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                                               Boolean.TRUE);
-		defaults.put(mixinPackage + ".VoxyIntegration",                                                                          Boolean.TRUE);
-		defaults.put(mixinPackage + ".Voxy_NodeManager_SuppressWarnings",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                                            Boolean.TRUE);
 		#if MC_VERSION >= MC_1_21_2
@@ -291,15 +289,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			}
 			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
 				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");
-			}
-			case
-				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseMemoryStorageBackendForDebugging",
-				"builderb0y.bigglobe.mixins.VoxyRenderSystem_ManageGenerator"
-			-> {
-				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
-			}
-			case "builderb0y.bigglobe.mixins.Voxy_NodeManager_SuppressWarnings" -> {
-				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "voxy");
 			}
 			case "builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter" -> {
 				yield checkMod(mixinClassName, "voxy");

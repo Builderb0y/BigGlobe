@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:delegating",
+	"delegate": "minecraft:nether_fossil",
+	"biomes": "#bigglobe:has_structure/vanilla/nether_fossil"
+}

@@ -6,12 +6,12 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 
@@ -30,7 +30,7 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 	}
 
 	public void send(ServerPlayerEntity player) {
-		boolean dangerousRapids = player.server.getGameRules().get(BigGlobeGameRules.DANGEROUS_RAPIDS).get();
+		boolean dangerousRapids = EntityVersions.getServerWorld(player).getGameRules().get(BigGlobeGameRules.DANGEROUS_RAPIDS).get();
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeBoolean(dangerousRapids);
 		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);

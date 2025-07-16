@@ -2,13 +2,11 @@ package builderb0y.bigglobe.blockEntities;
 
 import java.util.Objects;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtString;
@@ -19,8 +17,8 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.features.SerializableBlockQueue;
-import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
+import builderb0y.bigglobe.versions.DataHelper;
 import builderb0y.bigglobe.versions.NbtVersions;
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
@@ -59,31 +57,40 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		}
 	}
 
-	@Override
-	public void readNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
-		super.readNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
-		if (nbt.get("queue") instanceof NbtCompound queue) try {
-			this.blockQueue = SerializableBlockQueue.read(queue);
-		}
-		catch (RuntimeException exception) {
-			BigGlobeMod.LOGGER.error("Error reading NBT data for delayed generation at " + this.pos, exception);
-		}
-		if (nbt.get("old_state") instanceof NbtString string && !NbtVersions.stringValue(string).isEmpty()) try {
-			this.oldState = BlockArgumentParserVersions.block(NbtVersions.stringValue(string), false).blockState();
-		}
-		catch (CommandSyntaxException exception) {
-			BigGlobeMod.LOGGER.error("", exception);
-		}
-		if (nbt.get("old_data") instanceof NbtCompound compound) {
-			this.oldBlockData = compound;
-		}
-	}
+	public static final DataHelper<DelayedGenerationBlockEntity> DATA_HELPER = (
+		new DataHelper<>(DelayedGenerationBlockEntity.class)
+		.begin("queue").fieldAccessor("blockQueue", true).add()
+		.begin("old_state").fieldAccessor("oldState", true).add()
+		.begin("oldBlockData").fieldAccessor("oldBlockData", false).codec(NbtCompound.CODEC).add()
+	);
 
-	@Override
-	public void writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
-		super.writeNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
-		if (this.blockQueue != null) nbt.put("queue", this.blockQueue.toNBT());
-		if (this.oldState != null) nbt.putString("old_state", BlockArgumentParser.stringifyBlockState(this.oldState));
-		if (this.oldBlockData != null) nbt.put("old_data", this.oldBlockData);
-	}
+	#if MC_VERSION >= MC_1_21_6
+
+		@Override
+		public void readData(net.minecraft.storage.ReadView view) {
+			super.readData(view);
+			DATA_HELPER.read(this, view);
+		}
+
+		@Override
+		public void writeData(net.minecraft.storage.WriteView view) {
+			super.writeData(view);
+			DATA_HELPER.write(this, view);
+		}
+
+	#else
+
+		@Override
+		public void readNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
+			super.readNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
+			DATA_HELPER.read(this, nbt);
+		}
+
+		@Override
+		public void writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup wrapperLookup #endif) {
+			super.writeNbt(nbt #if MC_VERSION >= MC_1_20_5 , wrapperLookup #endif);
+			DATA_HELPER.write(this, nbt);
+		}
+
+	#endif
 }

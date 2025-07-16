@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
+		"bigglobe:nether/fossil_y",
 		"bigglobe:nether/geode_no_floating",
 		"bigglobe:nether/pillar_collision",
 		"bigglobe:nether/pillar_noise",

@@ -6,6 +6,7 @@ import java.util.random.RandomGenerator;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import net.minecraft.block.piston.PistonBehavior;
@@ -88,7 +89,7 @@ public class WaypointEntity extends Entity {
 			Permuter permuter = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
 			float circularHue = permuter.nextFloat();
 			for (int index = 0; index < this.orbits.length; index++) {
-				this.orbits[index] = new Orbit(permuter, circularHue);
+				this.orbits[index] = new Orbit(permuter, circularHue, ((float)(index)) / ((float)(this.orbits.length)) + 0.5F);
 			}
 		}
 	}
@@ -217,15 +218,31 @@ public class WaypointEntity extends Entity {
 		//not synced.
 	}
 
-	@Override
-	public void writeCustomDataToNbt(NbtCompound nbt) {
-		//not savable.
-	}
+	#if MC_VERSION >= MC_1_21_6
 
-	@Override
-	public void readCustomDataFromNbt(NbtCompound nbt) {
-		//not savable.
-	}
+		@Override
+		public void readCustomData(net.minecraft.storage.ReadView view) {
+			//not savable.
+		}
+
+		@Override
+		public void writeCustomData(net.minecraft.storage.WriteView view) {
+			//not savable.
+		}
+
+	#else
+
+		@Override
+		public void writeCustomDataToNbt(NbtCompound nbt) {
+			//not savable.
+		}
+
+		@Override
+		public void readCustomDataFromNbt(NbtCompound nbt) {
+			//not savable.
+		}
+
+	#endif
 
 	public static class Orbit {
 
@@ -266,12 +283,13 @@ public class WaypointEntity extends Entity {
 
 		public Orbit() {}
 
-		public Orbit(RandomGenerator random, float baseHue) {
-			Vector3f scratch = new Vector3f(CloudColor.smoothHue(baseHue + random.nextFloat(0.25F)));
-			this.r = scratch.x;
-			this.g = scratch.y;
-			this.b = scratch.z;
+		public Orbit(RandomGenerator random, float baseHue, float radius) {
+			Vector3d color = CloudColor.smoothHue(baseHue + random.nextFloat(0.25F));
+			this.r = (float)(color.x);
+			this.g = (float)(color.y);
+			this.b = (float)(color.z);
 
+			Vector3f scratch = new Vector3f();
 			Vectors.setOnSphere(scratch, random, 1.0F);
 			this.x1 = scratch.x;
 			this.y1 = scratch.y;
@@ -292,7 +310,7 @@ public class WaypointEntity extends Entity {
 			this.y2 = scratch.y;
 			this.z2 = scratch.z;
 
-			this.radius = random.nextFloat() + 0.5F;
+			this.radius = radius;
 			this.currentAngle = random.nextFloat((float)(BigGlobeMath.TAU));
 			this.speed = 0.25F / BigGlobeMath.squareF(this.radius);
 		}

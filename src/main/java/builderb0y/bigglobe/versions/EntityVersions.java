@@ -29,7 +29,11 @@ public class EntityVersions {
 	}
 
 	public static ServerWorld getServerWorld(ServerPlayerEntity player) {
-		return player.getServerWorld();
+		#if MC_VERSION >= MC_1_21_6
+			return player.getWorld();
+		#else
+			return player.getServerWorld();
+		#endif
 	}
 
 	public static boolean isOnGround(Entity entity) {

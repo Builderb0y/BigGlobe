@@ -1,8 +1,6 @@
 package builderb0y.bigglobe.compat;
 
 import dev.lambdaurora.lambdynlights.api.DynamicLightsInitializer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 
 import net.minecraft.entity.Entity;
 
@@ -44,12 +42,12 @@ public class LambDynamicLightsCompat implements DynamicLightsInitializer {
 					public static final Type TYPE = Type.registerSimple(BigGlobeMod.modID("waypoint"), INSTANCE);
 
 					@Override
-					public @NotNull Type type() {
+					public Type type() {
 						return TYPE;
 					}
 
 					@Override
-					public @Range(from = 0L, to = 15L) int getLuminance(@NotNull dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager manager, @NotNull Entity entity) {
+					public int getLuminance(dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager manager, Entity entity) {
 						return entity instanceof WaypointEntity waypoint ? ((int)(waypoint.health * (15.0F / WaypointEntity.MAX_HEALTH))) : 0;
 					}
 				}
