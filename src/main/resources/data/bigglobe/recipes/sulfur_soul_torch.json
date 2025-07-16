@@ -6,7 +6,7 @@
 		"c"
 	],
 	"key": {
-		"a": { "item": "bigglobe:sulfur" },
+		"a": { "tag": "c:sulfurs" },
 		"b": { "item": "minecraft:stick" },
 		"c": { "tag": "minecraft:soul_fire_base_blocks" }
 	},

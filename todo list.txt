@@ -66,34 +66,7 @@ json classes:
 	need to fix:
 		merge stuff.
 
-1.21.7:
-	mention that satin is no longer recommended on modrinth.
-
 changelog:
-	# For normal users:
-	* Updated to MC 1.21.6 and 1.21.7.
-	* Fixed LODs rendering in front of terrain in dimensions which don't have translucent blocks as part of worldgen (nether and end).
-	* Waypoint renderer is now more glowy.
-	* Added another end fractal structure.
-	* Fixed bamboo spawning in lakes and rivers.
-	* Powder snow now spawns in frozen caves.
-	* Voidmetal armor can now have trims applied to it.
-	* Fixed bonemeal not producing flowers in big globe worlds.
-	* Abandoned cities now contain copper bulbs, in addition to redstone lamps.
-	* The small puddles of water that spawn in swamps now place mud around and below themselves.
-	* Fixed obelisks rarely getting cut off at chunk boundaries.
-	* Satin is no longer required for waypoint or hyperspace effects in old MC versions.
-	* Temporarily disabled worldgen integration for Voxy 0.2.x, as integration with Voxy 0.2.x was always bad and broken and made Voxy very unhappy.
-		* Worldgen integration will be re-added if/when Voxy gets an API for this.
-		* Worldgen integration still works fine with Voxy 0.1.5 in MC 1.20.4.
-	# For data pack users:
-	* Fixed world traits failing to apply on world creation.
-	# For data pack developers:
-	* Added perlin grids (derivative perlin grids are not yet implemented, but are planned).
-	* Added rotation and mirror fields for StructurePiece instances.
-	* Mega trees can now be moved by structure overriders.
-	* Inline layer definitions are back to being unsupported again.
-		* This is because inline definitions do not have an ID associated with them, but LOD rendering syncs them to the client as a registry, which requires an ID.
 
 alternate world presets:
 	paradise.

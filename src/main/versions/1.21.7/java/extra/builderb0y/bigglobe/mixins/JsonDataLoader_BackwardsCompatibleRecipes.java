@@ -26,8 +26,7 @@ public class JsonDataLoader_BackwardsCompatibleRecipes {
 		method = "load(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/resource/ResourceFinder;Lcom/mojang/serialization/DynamicOps;Lcom/mojang/serialization/Codec;Ljava/util/Map;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/util/StrictJsonParser;parse(Ljava/io/Reader;)Lcom/google/gson/JsonElement;",
-			remap = false
+			target = "Lnet/minecraft/util/StrictJsonParser;parse(Ljava/io/Reader;)Lcom/google/gson/JsonElement;"
 		)
 	)
 	private static JsonElement bigglobe_portRecipes(
