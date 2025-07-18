@@ -21,6 +21,7 @@ import net.minecraft.util.StringIdentifiable;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.autocodec.data.UnknownData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -34,6 +35,7 @@ import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
 import builderb0y.bigglobe.columns.scripted2.Valid;
+import builderb0y.bigglobe.mixinInterfaces.AdjustableRegistryOps;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -216,7 +218,12 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 			);
 			for (Resource resource : BigGlobeMod.getResourceManager().getAllResources(IdentifierVersions.create(tagID.getNamespace(), "worldgen/bigglobe_voronoi_options/" + tagID.getPath() + ".json"))) {
 				try (BufferedReader reader = resource.getReader()) {
-					BigGlobeAutoCodec.AUTO_CODEC.decode(CODER, JsonOps.INSTANCE.convertTo(ops, JsonParser.parseReader(reader)), ops).addTo(result);
+					BigGlobeAutoCodec.AUTO_CODEC.decode(
+						CODER,
+						JsonParser.parseReader(reader),
+						((AdjustableRegistryOps)(ops)).bigglobe_changeType(JsonOps.INSTANCE)
+					)
+					.addTo(result);
 				}
 				catch (IOException exception) {
 					throw new DecodeException(exception);

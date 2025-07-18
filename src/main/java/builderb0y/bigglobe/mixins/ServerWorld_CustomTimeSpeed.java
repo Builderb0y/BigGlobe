@@ -29,8 +29,6 @@ public abstract class ServerWorld_CustomTimeSpeed extends World {
 		#endif
 	}
 
-	@Shadow public abstract void setTimeOfDay(long timeOfDay);
-
 	#if MC_VERSION >= MC_1_21_2
 		@Shadow public abstract GameRules getGameRules();
 	#endif

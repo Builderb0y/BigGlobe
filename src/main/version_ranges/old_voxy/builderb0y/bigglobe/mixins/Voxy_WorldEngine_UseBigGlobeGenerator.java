@@ -11,10 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.MinecraftClient;
 
 import builderb0y.bigglobe.compat.voxy.AbstractVoxyWorldGenerator;
-import builderb0y.bigglobe.mixinInterfaces.VoxyGeneratorHolder;
 
 @Mixin(value = WorldEngine.class, remap = false)
-public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolder {
+public class Voxy_WorldEngine_UseBigGlobeGenerator {
 
 	@Unique
 	public AbstractVoxyWorldGenerator bigglobe_generator;
@@ -43,10 +42,5 @@ public class Voxy_WorldEngine_UseBigGlobeGenerator implements VoxyGeneratorHolde
 		if (generator != null) {
 			generator.stop();
 		}
-	}
-
-	@Override
-	public AbstractVoxyWorldGenerator bigglobe_getVoxyGenerator() {
-		return this.bigglobe_generator;
 	}
 }

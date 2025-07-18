@@ -17,7 +17,6 @@
 		"ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",
 		"ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",
 		"ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",
-		"ChunkSection_CountsAccess",
 		"ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently",
 		"DataPacks_StoreResourceManager",
 		"Dev_NbtCompound_SanityCheckValues",

@@ -18,7 +18,6 @@
 		"ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",
 		"ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",
 		"ChunkRegion_UseCreateFlag",
-		"ChunkSection_CountsAccess",
 		"ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently",
 		"CreakingHeartBlock_MakeWorkInTheNether",
 		"DataPacks_StoreResourceManager",

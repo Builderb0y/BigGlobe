@@ -30,10 +30,23 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 	public static BigGlobeMixinPlugin INSTANCE;
 
 	public Map<String, Boolean> defaults, settings;
+	public Set<String> unconfigurable;
 
 	@Override
 	public void onLoad(String mixinPackage) {
 		this.defaults = this.initDefaults(mixinPackage);
+		this.unconfigurable = this.initUnconfigurable(mixinPackage);
+		for (String mixin : this.unconfigurable) {
+			if (this.defaults.containsKey(mixin)) {
+				String message = "Mixin " + mixin + " is both configurable and unconfigurable";
+				if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+					throw new RuntimeException(message);
+				}
+				else {
+					LOGGER.warn(message);
+				}
+			}
+		}
 		this.settings = this.convertProperties(this.loadProperties());
 		this.checkChanged();
 		INSTANCE = this;
@@ -42,28 +55,37 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 	public Map<String, Boolean> initDefaults(String mixinPackage) {
 		Map<String, Boolean> defaults = new HashMap<>(64);
 		defaults.put(mixinPackage + ".AzaleaBlock_GrowIntoBigGlobeTree",                                                         Boolean.TRUE);
-		defaults.put(mixinPackage + ".BackgroundRenderer_NoFogWithLODs",                                                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".BackgroundRenderer_NoFogWithLods",                                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".Biome_DontFreezeRiverWater",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma",                                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".Camera_HandleSoulLavaSubmersion",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                                                    Boolean.FALSE);
 		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones",                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones",                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones",                                 Boolean.TRUE);
+		defaults.put(mixinPackage + ".ClientWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".CreakingHeartBlock_MakeWorkInTheNether",                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely", Boolean.TRUE);
 		defaults.put(mixinPackage + ".DebugHud_ShowLodStatus",                                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_CreateWorldScreen_DontCrashOnFailure",                                                 Boolean.FALSE);
 		defaults.put(mixinPackage + ".Dev_NbtCompound_SanityCheckValues",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",                           Boolean.FALSE);
+		defaults.put(mixinPackage + ".DimensionOptions_CheckHeights",                                                            Boolean.FALSE);
 		defaults.put(mixinPackage + ".EndCityStructure_UnHardcodeMinimumY",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",                               Boolean.TRUE);
+		defaults.put(mixinPackage + ".EnderPearlEntity_ReduceFallDamageWithVoidmetalArmor",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",                                  Boolean.TRUE);
+		defaults.put(mixinPackage + ".EndPortalBlock_SpawnAtPreferredLocationInTheEnd",                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".Entity_SpawnAtPreferredLocationInTheEnd",                                                  Boolean.TRUE);
+		defaults.put(mixinPackage + ".EyeblossomBlock_MakeWorkInTheNether",                                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".FlowableFluid_DontFlowInRivers",                                                           Boolean.TRUE);
+		defaults.put(mixinPackage + ".FluidRenderer_DontHardCodeChunkSectionSizedAreas",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".FungusBlock_GrowIntoBigGlobeTree",                                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".GrassBlock_UseCustomFeatureInBigGlobeWorlds",                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".HuskEntity_AllowSpawningUndergroundInBigGlobeWorlds",                                      Boolean.TRUE);
@@ -71,19 +93,22 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds",                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                                                    Boolean.TRUE);
-		#if MC_VERSION < MC_1_20_5
+		defaults.put(mixinPackage + ".MinecraftClient_LoadingFinishedHook",                                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".MinecraftServer_InitializeSpawnPoint",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",                                                     Boolean.FALSE);
-		#endif
 		defaults.put(mixinPackage + ".MobSpawnerLogic_SpawnLightning",                                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentStructure_MovePiecesOnReCreate",                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
+		defaults.put(mixinPackage + ".PlayerEntity_FlyInHyperspace",                                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                                       Boolean.TRUE);
+		defaults.put(mixinPackage + ".PlayerManager_SyncWorldSettingsHook",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",                                 Boolean.TRUE);
+		defaults.put(mixinPackage + ".ServerWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_SpawnEnderDragonInBigGlobeWorlds",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                                     Boolean.TRUE);
@@ -91,17 +116,62 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_MoreMobsInTallerWorlds",                                                       Boolean.FALSE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                                               Boolean.TRUE);
+		defaults.put(mixinPackage + ".StructureAccessor_UseStructureManagerInBigGlobeWorlds",                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".SugarCaneBlock_MakePlaceableOnGravel",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                                               Boolean.TRUE);
+		defaults.put(mixinPackage + ".VoxyIntegration",                                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                                            Boolean.TRUE);
+		defaults.put(mixinPackage + ".WorldGenProperties_LogLevelType",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                                            Boolean.TRUE);
-		#if MC_VERSION >= MC_1_21_2
 		defaults.put(mixinPackage + ".WorldRenderer_RenderHyperspaceSky",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldRenderer_RenderWaypoints",                                                            Boolean.TRUE);
-		#endif
 		defaults.put(mixinPackage + ".WorldType_ChangeTranslation",                                                              Boolean.TRUE);
 		return defaults;
+	}
+
+	public Set<String> initUnconfigurable(String mixinPackage) {
+		Set<String> unconfigurable = new HashSet<>();
+		unconfigurable.add(mixinPackage + ".BigGlobeConfig_ImplementConfigData");
+		unconfigurable.add(mixinPackage + ".Biome_DownfallAccessor");
+		unconfigurable.add(mixinPackage + ".BlockEntityType_AddBlockHook");
+		unconfigurable.add(mixinPackage + ".BlockView_ExposeDimension");
+		unconfigurable.add(mixinPackage + ".ChunkRegion_UseCreateFlag");
+		unconfigurable.add(mixinPackage + ".ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently");
+		unconfigurable.add(mixinPackage + ".DataPacks_StoreResourceManager");
+		unconfigurable.add(mixinPackage + ".DebugHud_MakeSearchable");
+		unconfigurable.add(mixinPackage + ".DhScriptedWorldGenerator_BackwardsCompatibility");
+		unconfigurable.add(mixinPackage + ".DispenserBlock_BehaviorsAccess");
+		unconfigurable.add(mixinPackage + ".Entity_CurrentIdGetter");
+		unconfigurable.add(mixinPackage + ".FallingBlockEntity_DestroyOnLandingAccess");
+		unconfigurable.add(mixinPackage + ".Heightmap_StorageAccess");
+		unconfigurable.add(mixinPackage + ".InGameHud_DebugHudGetter");
+		unconfigurable.add(mixinPackage + ".ItemStack_DynamicMaxDamage");
+		unconfigurable.add(mixinPackage + ".JsonDataLoader_BackwardsCompatibleRecipes");
+		unconfigurable.add(mixinPackage + ".MinecraftClient_SetWorldEvent");
+		unconfigurable.add(mixinPackage + ".MinecraftServer_SessionAccess");
+		unconfigurable.add(mixinPackage + ".MobSpawnerLogic_GettersAndSettersForEverything");
+		unconfigurable.add(mixinPackage + ".NbtCompound_ImplementExtensions");
+		unconfigurable.add(mixinPackage + ".PalettedContainer_DataAccess");
+		unconfigurable.add(mixinPackage + ".PlantBlock_CanPlantOnTopAccess");
+		unconfigurable.add(mixinPackage + ".PlayerEntity_TrackWaypoints");
+		unconfigurable.add(mixinPackage + ".RandomSpreadStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently");
+		unconfigurable.add(mixinPackage + ".RegistryLoader_AddBigGlobeEntries");
+		unconfigurable.add(mixinPackage + ".RegistryLoader_LoadColumnEntryRegistry");
+		unconfigurable.add(mixinPackage + ".RegistryOps_MakeAdjustable");
+		unconfigurable.add(mixinPackage + ".SaveLoading_UnloadColumnEntryRegistry");
+		unconfigurable.add(mixinPackage + ".ServerChunkLoadingManager_InitStructureManager");
+		unconfigurable.add(mixinPackage + ".SingularPalette_EntryAccess");
+		unconfigurable.add(mixinPackage + ".SpawnRestriction_BackingMapAccess");
+		unconfigurable.add(mixinPackage + ".Structure_ImplementSizedStructure");
+		unconfigurable.add(mixinPackage + ".StructureAccessor_WorldAccess");
+		unconfigurable.add(mixinPackage + ".StructurePiece_DirectRotationSetter");
+		unconfigurable.add(mixinPackage + ".StructurePlacement_ImplementStreamableStructurePlacement");
+		unconfigurable.add(mixinPackage + ".StructureStart_BoundingBoxSetter");
+		unconfigurable.add(mixinPackage + ".StructureStart_ChildrenGetter");
+		unconfigurable.add(mixinPackage + ".WorldPreset_DimensionsAccess");
+		unconfigurable.add(mixinPackage + ".WorldRenderer_HoldLodSystem");
+		return unconfigurable;
 	}
 
 	public Properties loadProperties() {
@@ -280,6 +350,15 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if (!this.defaults.containsKey(mixinClassName) && !this.unconfigurable.contains(mixinClassName)) {
+			String message = "Mixin " + mixinClassName + " does not specify its configurability!";
+			if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+				throw new IllegalStateException(message);
+			}
+			else {
+				LOGGER.warn(message);
+			}
+		}
 		return switch (mixinClassName) {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
@@ -290,10 +369,17 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
 				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");
 			}
-			case "builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter" -> {
-				yield checkMod(mixinClassName, "voxy");
+			case
+				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseGeneratingStorageBackend",
+				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
+				"builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter"
+			-> {
+				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
 			}
-			case "builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning" -> {
+			case
+				"builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning",
+				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion"
+			-> {
 				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connector");
 			}
 			case "builderb0y.bigglobe.mixins.DhScriptedWorldGenerator_BackwardsCompatibility" -> {

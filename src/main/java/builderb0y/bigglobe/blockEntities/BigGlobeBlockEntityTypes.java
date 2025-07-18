@@ -11,7 +11,6 @@ import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBlockEntityTypes {
 

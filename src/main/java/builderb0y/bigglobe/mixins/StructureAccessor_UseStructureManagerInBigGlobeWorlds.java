@@ -27,8 +27,6 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.StructureManager.FinalStructures;

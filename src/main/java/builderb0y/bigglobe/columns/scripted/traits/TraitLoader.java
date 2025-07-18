@@ -18,6 +18,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.DataOps;
+import builderb0y.autocodec.data.UnknownData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
@@ -41,8 +42,7 @@ public class TraitLoader {
 		for (Resource resource : resources) {
 			context.logger().logMessageLazy(() -> "Loading traits from " + resource.#if MC_VERSION >= MC_1_20_5 getPackId() #else getResourcePackName() #endif);
 			try (BufferedReader reader = resource.getReader()) {
-				Data data = JsonOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, JsonParser.parseReader(reader));
-				result.putAll(context.withData(data).decodeWith(MAP_CODER));
+				result.putAll(context.withData(new UnknownData<>(JsonOps.INSTANCE, JsonParser.parseReader(reader))).decodeWith(MAP_CODER));
 			}
 			catch (Exception exception) {
 				if (failure == null) failure = new TraitLoadingException(generatorID.toString());

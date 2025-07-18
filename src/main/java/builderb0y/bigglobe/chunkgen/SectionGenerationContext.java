@@ -55,18 +55,6 @@ public class SectionGenerationContext {
 	public int endY() { return this.startY() | 15; }
 	public int endZ() { return this.startZ() | 15; }
 
-	public void setNonEmpty(int nonEmptyBlocks) {
-		SectionUtil.setNonEmptyBlocks(this.section(), nonEmptyBlocks);
-	}
-
-	public void setRandomTickingBlocks(int randomTicking) {
-		SectionUtil.setRandomTickingBlocks(this.section(), randomTicking);
-	}
-
-	public void setRandomTickingFluids(int nonEmptyFluids) {
-		SectionUtil.setRandomTickingFluids(this.section(), nonEmptyFluids);
-	}
-
 	public void setAllStates(BlockState state, boolean distantHorizons) {
 		if (this.palette() instanceof SingularPalette_EntryAccess singular) {
 			//how to set 4096 blocks in one operation.

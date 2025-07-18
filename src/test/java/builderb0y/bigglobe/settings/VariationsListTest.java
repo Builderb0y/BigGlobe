@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.DataOps;
 import builderb0y.autocodec.data.ListData;
+import builderb0y.autocodec.data.UnknownData;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -165,6 +166,6 @@ public class VariationsListTest {
 	}
 
 	public static Data data(String jsonText) {
-		return JsonOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, JsonParser.parseString(jsonText));
+		return new UnknownData<>(JsonOps.INSTANCE, JsonParser.parseString(jsonText));
 	}
 }

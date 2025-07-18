@@ -9,7 +9,7 @@ import net.minecraft.world.chunk.SingularPalette;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 
 /**
-used for optimization in {@link SectionGenerationContext#setAllStates(BlockState)}
+used for optimization in {@link SectionGenerationContext#setAllStates(BlockState, boolean)}
 to fill a chunk section with a specific block state in one operation.
 */
 @Mixin(SingularPalette.class)
