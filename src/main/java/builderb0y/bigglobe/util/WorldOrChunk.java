@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.util;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
@@ -85,7 +86,9 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		public void setBlockState(BlockPos pos, BlockState state) {
-			WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			if (state != null) {
+				WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			}
 		}
 
 		@Override
@@ -187,10 +190,12 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		public void setBlockState(BlockPos pos, BlockState state) {
-			this.chunk.setBlockState(pos, state, #if MC_VERSION >= MC_1_21_5 Block.NOTIFY_LISTENERS | Block.FORCE_STATE #else false #endif);
-			if (state.hasBlockEntity()) {
-				BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(pos, state);
-				if (blockEntity != null) this.chunk.setBlockEntity(blockEntity);
+			if (state != null) {
+				this.chunk.setBlockState(pos, state, #if MC_VERSION >= MC_1_21_5 Block.NOTIFY_LISTENERS | Block.FORCE_STATE #else false #endif);
+				if (state.hasBlockEntity()) {
+					BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(pos, state);
+					if (blockEntity != null) this.chunk.setBlockEntity(blockEntity);
+				}
 			}
 		}
 

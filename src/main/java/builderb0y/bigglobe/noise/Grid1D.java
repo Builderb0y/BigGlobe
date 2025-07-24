@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid1D;
 import builderb0y.bigglobe.noise.perlin.PerlinGrid1D;
 import builderb0y.bigglobe.noise.processing.*;
 import builderb0y.bigglobe.noise.resample.*;
@@ -57,6 +58,7 @@ public interface Grid1D extends Grid, CoderRegistryTyped<Grid1D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"),     SmoothDerivativeXResampleGrid1D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), SmootherDerivativeXResampleGrid1D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"),       CubicDerivativeXResampleGrid1D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_perlin"),                      PerlinDerivativeXGrid1D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid1D.class);
 

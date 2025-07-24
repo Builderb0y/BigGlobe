@@ -6,11 +6,10 @@ public class SmoothDerivativePolynomial extends Polynomial2 {
 
 	public static final Form FORM = new Form();
 
-	public double rcp, scalar;
+	public double scalar;
 
 	public SmoothDerivativePolynomial(double value0, double value1, double rcp) {
 		super(value0, value1, rcp);
-		this.rcp = rcp;
 	}
 
 	@Override

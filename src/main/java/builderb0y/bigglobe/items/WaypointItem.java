@@ -6,6 +6,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Direction;
 
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
@@ -41,6 +42,7 @@ public class WaypointItem extends Item {
 			}
 			return ActionResult.SUCCESS;
 		}
+		Direction side = context.getSide();
 		ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
 		if (
 			manager != null &&
@@ -55,9 +57,9 @@ public class WaypointItem extends Item {
 
 					new PackedWorldPos(
 						serverWorld.getRegistryKey(),
-						context.getBlockPos().getX() + 0.5D,
-						context.getBlockPos().getY() + 2.5D,
-						context.getBlockPos().getZ() + 0.5D
+						context.getBlockPos().getX() + (side.getOffsetX() << 1) + 0.5D,
+						context.getBlockPos().getY() + (side.getOffsetY() << 1) + 0.5D,
+						context.getBlockPos().getZ() + (side.getOffsetZ() << 1) + 0.5D
 					),
 
 					ItemStackVersions.getCustomName(context.getStack())

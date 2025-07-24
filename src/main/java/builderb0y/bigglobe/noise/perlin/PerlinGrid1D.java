@@ -1,29 +1,14 @@
 package builderb0y.bigglobe.noise.perlin;
 
-import builderb0y.autocodec.annotations.Alias;
-import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.noise.Grid1D;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.Seed;
 
-public class PerlinGrid1D implements Grid1D {
-
-	public static final long
-		SLOPE_X_SALT = Permuter.permute(0L, 'x');
-
-	public final Seed salt;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @Alias("scale") int scaleX;
-	public final transient double rcpX;
-	public final double max_slope, max_offset;
+public class PerlinGrid1D extends PerlinBaseGrid1D {
 
 	public PerlinGrid1D(Seed salt, int scaleX, double max_slope, double max_offset) {
-		this.salt = salt;
-		this.rcpX = 1.0D / (this.scaleX = scaleX);
-		this.max_slope = max_slope;
-		this.max_offset = max_offset;
+		super(salt, scaleX, max_slope, max_offset);
 	}
 
 	@Override
@@ -34,14 +19,6 @@ public class PerlinGrid1D implements Grid1D {
 	@Override
 	public double maxValue() {
 		return this.max_slope * 0.5D + this.max_offset;
-	}
-
-	public double slopeX(long seed, int x) {
-		return Permuter.toUniformDouble(Permuter.permute(seed ^ SLOPE_X_SALT, x)) * this.max_slope;
-	}
-
-	public double offset(long seed, int x) {
-		return Permuter.toUniformDouble(Permuter.permute(seed, x)) * this.max_offset;
 	}
 
 	@Override

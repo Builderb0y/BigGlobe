@@ -365,6 +365,7 @@ public class BigGlobeConfig {
 	@Mirror(VerifyNullable.class)
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
+	@SuppressWarnings("NullableProblems")
 	public static @interface DefaultIgnore {}
 
 	@Excluded

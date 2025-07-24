@@ -7,7 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.noise.perlin.PerlinGrid3D;
+import builderb0y.bigglobe.noise.perlin.*;
 import builderb0y.bigglobe.noise.processing.*;
 import builderb0y.bigglobe.noise.resample.*;
 import builderb0y.bigglobe.noise.resample.derivatives.*;
@@ -54,16 +54,19 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"),     SmoothDerivativeXResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), SmootherDerivativeXResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"),       CubicDerivativeXResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_perlin"),                      PerlinDerivativeXGrid3D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_linear_resample"),     LinearDerivativeYResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smooth_resample"),     SmoothDerivativeYResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smoother_resample"), SmootherDerivativeYResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"),       CubicDerivativeYResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_perlin"),                      PerlinDerivativeYGrid3D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_linear_resample"),     LinearDerivativeZResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_smooth_resample"),     SmoothDerivativeZResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_smoother_resample"), SmootherDerivativeZResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_cubic_resample"),       CubicDerivativeZResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dz_perlin"),                      PerlinDerivativeZGrid3D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid3D.class);
 

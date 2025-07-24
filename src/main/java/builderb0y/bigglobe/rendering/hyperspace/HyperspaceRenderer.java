@@ -1,15 +1,11 @@
 package builderb0y.bigglobe.rendering.hyperspace;
 
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.util.math.Vec3d;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.HyperspaceRendering;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.versions.RenderVersions;
 
@@ -17,16 +13,15 @@ import static org.lwjgl.opengl.GL32C.*;
 
 public class HyperspaceRenderer implements SafeCloseable {
 
-	public static final HyperspaceRenderer INSTANCE;
-	static {
-		HyperspaceRenderer instance = null;
+	public static HyperspaceRenderer INSTANCE;
+
+	public static void init() {
 		try {
-			instance = new HyperspaceRenderer();
+			INSTANCE = new HyperspaceRenderer();
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Hyperspace rendering unavailable:", exception);
 		}
-		INSTANCE = instance;
 	}
 
 	public HyperspaceBackgroundShader shader;

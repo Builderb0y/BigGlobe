@@ -161,6 +161,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".RegistryOps_MakeAdjustable");
 		unconfigurable.add(mixinPackage + ".SaveLoading_UnloadColumnEntryRegistry");
 		unconfigurable.add(mixinPackage + ".ServerChunkLoadingManager_InitStructureManager");
+		unconfigurable.add(mixinPackage + ".ServerPlayerEntity_FixNetherRoofGlitch");
 		unconfigurable.add(mixinPackage + ".SingularPalette_EntryAccess");
 		unconfigurable.add(mixinPackage + ".SpawnRestriction_BackingMapAccess");
 		unconfigurable.add(mixinPackage + ".Structure_ImplementSizedStructure");

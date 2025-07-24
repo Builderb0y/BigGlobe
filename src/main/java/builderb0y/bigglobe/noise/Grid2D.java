@@ -7,6 +7,9 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid1D;
+import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid2D;
+import builderb0y.bigglobe.noise.perlin.PerlinDerivativeYGrid2D;
 import builderb0y.bigglobe.noise.perlin.PerlinGrid2D;
 import builderb0y.bigglobe.noise.processing.*;
 import builderb0y.bigglobe.noise.resample.*;
@@ -51,11 +54,13 @@ public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"),     SmoothDerivativeXResampleGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), SmootherDerivativeXResampleGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"),       CubicDerivativeXResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_perlin"),                      PerlinDerivativeXGrid2D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_linear_resample"),     LinearDerivativeYResampleGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smooth_resample"),     SmoothDerivativeYResampleGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smoother_resample"), SmootherDerivativeYResampleGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"),       CubicDerivativeYResampleGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_perlin"),                      PerlinDerivativeYGrid2D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid2D.class);
 

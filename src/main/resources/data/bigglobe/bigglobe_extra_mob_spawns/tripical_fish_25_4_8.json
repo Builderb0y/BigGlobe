@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"bigglobe:shallow_ocean",
+		"bigglobe:ocean",
+		"bigglobe:deep_ocean"
+	],
+	"type": "minecraft:tropical_fish",
+	"weight": 25,
+	"minCount": 4,
+	"maxCount": 8
+}

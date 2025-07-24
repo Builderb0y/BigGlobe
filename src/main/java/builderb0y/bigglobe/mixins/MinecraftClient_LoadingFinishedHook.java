@@ -11,6 +11,8 @@ import net.minecraft.client.RunArgs;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
+import builderb0y.bigglobe.rendering.waypoints.WaypointWarpRenderer;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftClient_LoadingFinishedHook {
@@ -23,5 +25,7 @@ public class MinecraftClient_LoadingFinishedHook {
 			BigGlobeMod.LOGGER.info("Audit complete.");
 		}
 		ColumnEntryRegistry.Loading.reset(); //fix compatibility with veil.
+		HyperspaceRenderer.init();
+		WaypointWarpRenderer.init();
 	}
 }

@@ -4,11 +4,10 @@ public class LinearDerivativePolynomial extends Polynomial2 {
 
 	public static final Form FORM = new Form();
 
-	public double rcp, diff;
+	public double diff;
 
 	public LinearDerivativePolynomial(double value0, double value1, double rcp) {
 		super(value0, value1, rcp);
-		this.rcp = rcp;
 	}
 
 	@Override

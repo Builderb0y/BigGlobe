@@ -6,11 +6,10 @@ public class CubicDerivativePolynomial extends Polynomial4 {
 
 	public static final Form FORM = new Form();
 
-	public double rcp, term0, term1, term2;
+	public double term0, term1, term2;
 
 	public CubicDerivativePolynomial(double value0, double value1, double value2, double value3, double rcp) {
 		super(value0, value1, value2, value3, rcp);
-		this.rcp = rcp;
 	}
 
 	@Override

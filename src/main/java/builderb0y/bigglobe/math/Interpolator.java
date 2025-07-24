@@ -270,4 +270,12 @@ public class Interpolator {
 	public static double smootherDerivative(double value) {
 		return BigGlobeMath.squareD(value - value * value) * 30.0D;
 	}
+
+	public static double dMixPerlinExplicit(double v0, double v1, double smoothF, double dv0, double dv1, double dSmoothF) {
+		return (v1 - v0) * dSmoothF + (dv1 - dv0) * smoothF + dv0;
+	}
+
+	public static double dMixPerlin(double v0, double v1, double dv0, double dv1, double f) {
+		return (v1 - v0) * smoothDerivative(f) + (dv1 - dv0) * smooth(f) + dv0;
+	}
 }

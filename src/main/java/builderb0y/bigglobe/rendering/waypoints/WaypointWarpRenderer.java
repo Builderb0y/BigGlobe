@@ -17,16 +17,14 @@ import static org.lwjgl.opengl.GL32C.*;
 
 public class WaypointWarpRenderer implements SafeCloseable {
 
-	public static final WaypointWarpRenderer INSTANCE;
-	static {
-		WaypointWarpRenderer instance = null;
+	public static WaypointWarpRenderer INSTANCE;
+	public static void init() {
 		try {
-			instance = new WaypointWarpRenderer();
+			INSTANCE = new WaypointWarpRenderer();
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Waypoint warp renderer unavailable:", exception);
 		}
-		INSTANCE = instance;
 	}
 
 	public ScratchColorBuffer framebuffer;

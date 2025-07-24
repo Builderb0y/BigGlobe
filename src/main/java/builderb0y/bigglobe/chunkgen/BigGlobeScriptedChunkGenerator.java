@@ -184,7 +184,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final @VerifyNullable ColorOverrides colors;
 	public final @VerifyNullable RegistryEntry<ConfiguredFeature<?, ?>> grass_bonemeal_feature;
 	public static record NetherOverrides(
-		boolean place_portal_at_high_y_level
+		boolean place_portal_at_high_y_level,
+		boolean prevent_roof_exploration
 	) {}
 	public final @VerifyNullable NetherOverrides nether_overrides;
 	public static record EndOverrides(

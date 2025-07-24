@@ -67,6 +67,7 @@
 		"SaveLoading_UnloadColumnEntryRegistry",
 		"ServerChunkLoadingManager_InitStructureManager",
 		"ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",
+		"ServerPlayerEntity_FixNetherRoofGlitch",
 		"ServerWorld_CustomTimeSpeed",
 		"ServerWorld_SpawnEnderDragonInBigGlobeWorlds",
 		"ShipwreckGeneratorPiece_UseGeneratorHeight",
