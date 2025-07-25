@@ -52,10 +52,6 @@ high priority:
 	document extra spawn system.
 	document terrainAdaptation.
 	document structures in general.
-	derivative perlin grids.
-		documentation for derivative perlin grids.
-	add even stricter defaults for abandoned city lamps.
-		apparently it's still possible for the lamp state to be null, which obviously causes problems.
 
 LODs:
 	shader support.
@@ -71,6 +67,8 @@ json classes:
 
 changelog:
 	# For users
+	* Support MC 1.21.8.
+	* Fixed bamboo spawning on beaches.
 	* Probably fixed sinytra connector compatibility again.
 	* Fixed tropical fish not spawning anywhere.
 	* By small but very loud demand, made it impossible to be stranded on the nether roof in Big Globe worlds.

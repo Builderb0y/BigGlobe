@@ -70,15 +70,6 @@ public abstract class AbstractVoxyWorldGenerator {
 		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
 	}
 
-	public static interface Factory {
-
-		public abstract AbstractVoxyWorldGenerator create(
-			WorldEngine engine,
-			ServerWorld serverWorld,
-			BigGlobeScriptedChunkGenerator generator
-		);
-	}
-
 	public static @Nullable AbstractVoxyWorldGenerator createGenerator(ClientWorld newWorld, WorldEngine engine) {
 		MinecraftServer server;
 		ServerWorld serverWorld;

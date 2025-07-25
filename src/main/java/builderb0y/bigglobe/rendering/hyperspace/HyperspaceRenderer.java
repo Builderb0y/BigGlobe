@@ -35,6 +35,8 @@ public class HyperspaceRenderer implements SafeCloseable {
 	}
 
 	public HyperspaceRenderer() {
+		String message = GLException.checkMessage();
+		if (message != null) BigGlobeMod.LOGGER.warn("A GLException occurred just before setting up the hyperspace renderer: " + message);
 		try {
 			this.shader = new HyperspaceBackgroundShader();
 			this.vertices = new EmptyVertexArray();

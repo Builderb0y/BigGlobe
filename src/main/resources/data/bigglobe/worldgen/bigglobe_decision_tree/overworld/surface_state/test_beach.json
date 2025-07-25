@@ -1,9 +1,7 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
-		"min": 8.0,
-		"max": 4.0,
-		"trait": "bigglobe:exact_surface_y"
+		"type": "script",
+		"script": "world_traits.`bigglobe:is_beach`"
 	},
 	"if_true": "bigglobe:overworld/surface_state/test_river",
 	"if_false": "bigglobe:overworld/surface_state/test_hot"

@@ -62,17 +62,18 @@ The following other fields are also available when `type` is...
 		* f is a degree 3 polynomial.
 
 		Note that the resulting curve can sometimes, in rare circumstances, result in values that are greater than source's max value, or less than source's min value.
-* "perlin" (upcoming) - similar to "smooth", but where the smooth polynomial is flat at lattice points, perlin has a randomized slope there. Perlin grids have the following additional properties:
+* "perlin" (New in V5.0.4) - similar to "smooth", but where the smooth polynomial is flat at lattice points, perlin has a randomized slope there. Perlin grids have the following additional properties:
 	* `scaleX/Y/Z` - distance between lattice points, measured in blocks.
 	* `max_slope` - the bounds for the derivative at lattice points. The true partial derivative on each axis is a uniform random number between -max_slope and +max_slope. When this value is 0, this grid behaves like a smooth grid, which is to say, a smooth_resample grid with a white_noise source.
 	* `max_offset` - the bounds for the value at each lattice point. The value is a uniform random number between -max_offset and +max_offset. When this value is 0, this grid behaves like the more traditional perlin noise algorithm, which does not typically have an offset at lattice points.
-* (dx|dy|dz)_(linear|smooth|smoother|cubic)_resample (I didn't feel like typing out all the combinations here, but one example is dy_smoother_resample) interpolates values from another grid just like described above, but then computes the derivative of the curve they use for interpolation and returns that. Like the other resample grids above, the dx/y/z resample grids have the following additional properties:
+* (dx|dy|dz)_(linear|smooth|smoother|cubic)_resample (I didn't feel like typing out all the combinations here, but one example is dy_smoother_resample) - interpolates values from another grid just like described above, but then computes the derivative of the curve they use for interpolation and returns that. Like the other resample grids above, the dx/y/z resample grids have the following additional properties:
 	* `source`
 	* `scaleX/Y/Z`
 
 	They control the same thing as the normal resample grids.
 
 	Note: The "linear" derivative grids will be discontinuous every scaleX/Y/Z blocks!
+* (dx|dy|dz)_perlin (New in V5.0.6) - returns the derivative of perlin noise, with respect to x, y, or z. Has the same additional properties as perlin grids. Namely, `scaleX/Y/Z`, `max_slope`, and `max_offset`. This grid type is NOT a resample grid, and therefore does not have a source property.
 * "offset" (New in V4.6.0) - samples another grid at a different position. Has the following additional properties:
 	* `source` - the other grid to sample.
 	* `offsetX/Y/Z` - the offset from the current position to the sampled position. In other words, the sampled position is the requested position + offset.

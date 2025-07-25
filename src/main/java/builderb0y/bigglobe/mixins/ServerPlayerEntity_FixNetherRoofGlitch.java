@@ -25,14 +25,14 @@ public abstract class ServerPlayerEntity_FixNetherRoofGlitch extends PlayerEntit
 	@Shadow public ServerPlayNetworkHandler networkHandler;
 
 	public ServerPlayerEntity_FixNetherRoofGlitch() {
-		super(null, null);
+		super(null, null #if MC_VERSION < MC_1_21_6 , 0.0F, null #endif);
 	}
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void bigglobe_fixNetherRoofGlitch(CallbackInfo callback) {
 		double moveDown;
 		if (
-			this.getGameMode().isSurvivalLike() &&
+			EntityVersions.getGameMode((ServerPlayerEntity)(Object)(this)).isSurvivalLike() &&
 			EntityVersions.getServerWorld((ServerPlayerEntity)(Object)(this)).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
 			generator.nether_overrides != null && generator.nether_overrides.prevent_roof_exploration() &&
 			(moveDown = this.getBoundingBox().maxY - generator.height.max_y()) > 0.0D

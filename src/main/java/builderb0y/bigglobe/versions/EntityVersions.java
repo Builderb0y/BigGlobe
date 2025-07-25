@@ -13,6 +13,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
@@ -77,7 +78,11 @@ public class EntityVersions {
 	}
 
 	public static Box getBoundingBox(EntityType<?> type, double x, double y, double z) {
-		return type. #if MC_VERSION >= MC_1_20_5 getSpawnBox #else createSimpleBoundingBox #endif (x, y, z);
+		#if MC_VERSION >= MC_1_20_5
+			return type.getSpawnBox(x, y, z);
+		#else
+			return type.createSimpleBoundingBox(x, y, z);
+		#endif
 	}
 
 	public static ServerPlayerEntity teleport(ServerPlayerEntity player, ServerWorld destinationWorld, Vec3d position, Vec3d velocity, float yaw, float pitch) {
@@ -165,5 +170,13 @@ public class EntityVersions {
 
 	public static double prevZ(Entity entity) {
 		return entity.#if MC_VERSION >= MC_1_21_5 lastZ #else prevZ #endif;
+	}
+
+	public static GameMode getGameMode(ServerPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_5
+			return player.getGameMode();
+		#else
+			return player.interactionManager.getGameMode();
+		#endif
 	}
 }

@@ -122,6 +122,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".VoxyIntegration",                                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                                            Boolean.TRUE);
+		defaults.put(mixinPackage + ".World_UseCorrectSeaLevel",                                                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldGenProperties_LogLevelType",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldRenderer_RenderHyperspaceSky",                                                        Boolean.TRUE);
@@ -156,6 +157,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".PlantBlock_CanPlantOnTopAccess");
 		unconfigurable.add(mixinPackage + ".PlayerEntity_TrackWaypoints");
 		unconfigurable.add(mixinPackage + ".RandomSpreadStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently");
+		unconfigurable.add(mixinPackage + ".RecipeManager_BackwardsCompatibleRecipes");
 		unconfigurable.add(mixinPackage + ".RegistryLoader_AddBigGlobeEntries");
 		unconfigurable.add(mixinPackage + ".RegistryLoader_LoadColumnEntryRegistry");
 		unconfigurable.add(mixinPackage + ".RegistryOps_MakeAdjustable");
@@ -172,6 +174,12 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".StructureStart_ChildrenGetter");
 		unconfigurable.add(mixinPackage + ".WorldPreset_DimensionsAccess");
 		unconfigurable.add(mixinPackage + ".WorldRenderer_HoldLodSystem");
+		//VoxyIntegration controls all 3 of these,
+		//but the rest of the logic checks for individual classes.
+		//I am basically spoofing that logic here.
+		unconfigurable.add(mixinPackage + ".Voxy_ContextSelectionSystem_UseGeneratingStorageBackend");
+		unconfigurable.add(mixinPackage + ".Voxy_WorldEngine_UseBigGlobeGenerator");
+		unconfigurable.add(mixinPackage + ".Voxy_WorldSection_DataGetter");
 		return unconfigurable;
 	}
 
