@@ -52,6 +52,8 @@ high priority:
 	document extra spawn system.
 	document terrainAdaptation.
 	document structures in general.
+	fix vanilla bug causing ocean monument starting positions to be at sea level instead of at the bottom of the bounding box.
+		also prevent delegate ocean monument structure from spawning in caves.
 
 LODs:
 	shader support.
@@ -66,16 +68,7 @@ json classes:
 		merge stuff.
 
 changelog:
-	# For users
-	* Support MC 1.21.8.
-	* Fixed bamboo spawning on beaches.
-	* Probably fixed sinytra connector compatibility again.
-	* Fixed tropical fish not spawning anywhere.
-	* By small but very loud demand, made it impossible to be stranded on the nether roof in Big Globe worlds.
-	# For data pack developers
-	* Fixed scripts calling setBlockState() with a null block state causing problems.
-	* Implemented perlin derivative grids.
-		* Min and max values of perlin derivative grids are NOT implemented. Thankfully, not much uses those as far as I can tell. Seems to just be rock layers. So like... don't use perlin derivative grids for rock layers. Regular perlin grids are fine.
+	* Fixed sinytra connector a 3rd time.
 
 alternate world presets:
 	paradise.

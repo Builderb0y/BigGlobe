@@ -389,7 +389,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 				"builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning",
 				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion"
 			-> {
-				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connector");
+				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connectormod" /* 1.20.1 name */) && checkNoMod(mixinClassName, "connector" /* 1.21.1 name */);
 			}
 			case "builderb0y.bigglobe.mixins.DhScriptedWorldGenerator_BackwardsCompatibility" -> {
 				yield checkMod(mixinClassName, "distanthorizons");
