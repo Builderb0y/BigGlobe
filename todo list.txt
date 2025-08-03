@@ -54,6 +54,7 @@ high priority:
 	document structures in general.
 	fix vanilla bug causing ocean monument starting positions to be at sea level instead of at the bottom of the bounding box.
 		also prevent delegate ocean monument structure from spawning in caves.
+	voidmetal is not enchantable in 1.21.8 apparently.
 
 LODs:
 	shader support.
@@ -68,7 +69,7 @@ json classes:
 		merge stuff.
 
 changelog:
-	* Fixed sinytra connector a 3rd time.
+	* Updated chinese translations (provided by AstralArclight9001).
 
 alternate world presets:
 	paradise.

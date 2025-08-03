@@ -36,7 +36,7 @@ New in V4.8.0: faster, but less accurate versions of `exp`, `log`, `ln`, `exp2`,
 
 ## Interpolation
 
-* `float mixLinear(float min, float max, float value)` and `double mixLinear(double min, double max, double value)` - performs [linear interpolation](https://en.wikipedia.org/wiki/Linear_interpolation) between max.
+* `float mixLinear(float*(min, max, value))` and `double mixLinear(double*(min, max, value))` - performs [linear interpolation](https://en.wikipedia.org/wiki/Linear_interpolation) between `min` and `max`.
 	* These functions are equivalent to `(max - min) * value + min`.
 	* Invariants:
 		* When value is 0.0, the result is min.
@@ -47,20 +47,20 @@ New in V4.8.0: faster, but less accurate versions of `exp`, `log`, `ln`, `exp2`,
 		* When min, max, or value is NaN, the result is NaN.
 	* As the name would imply, `mixLinear(constant1, constant2, x)` is a [linear function](https://en.wikipedia.org/wiki/Linear_function_(calculus)) of x.
 		* This means that the function is [continuous](https://en.wikipedia.org/wiki/Continuous_function),  [smooth, and infinitely differentiable](https://en.wikipedia.org/wiki/Smoothness).
-* `float mixClamp(float min, float max, float value)` and `double mixClamp(double min, double max, double value)` - similar to `mixLinear(min, max, value)`, except that the result is always guaranteed to be between min and max.
+* `float mixClamp(float*(min, max, value))` and `double mixClamp(double*(min, max, value))` - similar to `mixLinear(min, max, value)`, except that the result is always guaranteed to be between min and max.
 	* Invariants:
 		* When value is less than 0.0, the result is min.
 		* When value is greater than 1.0, the result is max.
 		* When value is NaN, min is returned.
 		* All other invariants of mixLinear() apply to mixClamp().
 	* `mixClamp(constant1, constant2, x) is a continuous function of x, but it is not smooth.
-* `mixSmooth(float min, float max, float value)` and `double mixSmoother(double min, double max, double value)` - similar to `mixClamp(min, max, value)` except that after value is clamped to the 0-1 range, it is then passed through the polynomial `-2x^3 + 3x^2` before performing linear interpolation on the min and max.
+* `mixSmooth(float*(min, max, value))` and `double mixSmoother(double*(min, max, value))` - similar to `mixClamp(min, max, value)` except that after value is clamped to the 0-1 range, it is then passed through the polynomial `-2x^3 + 3x^2` before performing linear interpolation on the min and max.
 	* All the invariants of mixClamp() apply to mixSmooth().
 	* `mixSmooth(constant1, constant2, x)` is [C^1 differentiable](https://en.wikipedia.org/wiki/Smoothness#Differentiability_classes) as a function of x.
-* `float mixSmoother(float min, float max, float value)` and `double mixSmoother(double min, double max, double value)` - similar to `mixSmooth(min, max, value)` except that the polynomial used is `6x^5 - 15x^4 + 10x^3`.
+* `float mixSmoother(float*(min, max, value))` and `double mixSmoother(double*(min, max, value))` - similar to `mixSmooth(min, max, value)` except that the polynomial used is `6x^5 - 15x^4 + 10x^3`.
 	* All the invariants of mixSmooth() and, by extension, mixClamp() apply to mixSmoother().
 	* `mixSmoother(constant1, constant2, x)` is [C^2 differentiable](https://en.wikipedia.org/wiki/Smoothness#Differentiability_classes) as a function of x.
-* `float unmixLinear(float min, float max, float value)` and `double unmixLinear(double min, double max, double value)` - performs linear de-interpolation between min and max. In other words, instead of mapping the range [0-1] to [min-max], it maps the range [min-max] to the range [0-1].
+* `float unmixLinear(float*(min, max, value))` and `double unmixLinear(double*(min, max, value))` - performs linear de-interpolation between min and max. In other words, instead of mapping the range [0-1] to [min-max], it maps the range [min-max] to the range [0-1].
 	* These functions are equivalent to `(value - min) / (max - min)`.
 	* Invariants:
 		* When value equals min, the result is 0.0.
@@ -70,17 +70,17 @@ New in V4.8.0: faster, but less accurate versions of `exp`, `log`, `ln`, `exp2`,
 		* When value is greater than max, the result is greater than 1.0.
 	* `unmixLinear(constant1, constant2, x)` is a [linear function](https://en.wikipedia.org/wiki/Linear_function_(calculus)) of x.
 		* This means that the function is [continuous](https://en.wikipedia.org/wiki/Continuous_function),  [smooth, and infinitely differentiable](https://en.wikipedia.org/wiki/Smoothness).
-* `float unmixClamp(float min, float max, float value)` and `double unmixClamp(double min, double max, double value)` - similar to `unmixLinear(min, max, value)`, except that the result is always guaranteed to be between 0.0 and 1.0.
+* `float unmixClamp(float*(min, max, value))` and `double unmixClamp(double*(min, max, value))` - similar to `unmixLinear(min, max, value)`, except that the result is always guaranteed to be between 0.0 and 1.0.
 	* Invariants:
 		* When value is less than min, the result is 0.0.
 		* When value is greater than max, the result is 1.0.
 		* When value is NaN, the result is min.
 		* All other invariants of unmixLinear() remain unchanged.
 	* `mixClamp(constant1, constant2, x)` is [continuous](https://en.wikipedia.org/wiki/Continuous_function), and therefore [C^0 differentiable](https://en.wikipedia.org/wiki/Smoothness#Differentiability_classes).
-* `float unmixSmooth(float min, float max, float value)` and `double unmixSmooth(double min, double max, double value)` - similar to `unmixClamp(min, max, value)` except that the result is passed through the polynomial `-2x^3 + 3x^2` after being de-interpolated.
+* `float unmixSmooth(float*(min, max, value))` and `double unmixSmooth(double*(min, max, value))` - similar to `unmixClamp(min, max, value)` except that the result is passed through the polynomial `-2x^3 + 3x^2` after being de-interpolated.
 	* All the invariants of unmixClamp() apply to unmixSmooth().
 	* `unmixSmooth(constant1, constant2, x)` is [C^1 differentiable](https://en.wikipedia.org/wiki/Smoothness#Differentiability_classes).
-* `float unmixSmoother(float min, float max, float value)` and `double unmixSmoother(double min, double max, double value)` - similar to `unmixSmooth(min, max, value)` except that the polynomial used is `6x^5 - 15x^4 + 10x^3`.
+* `float unmixSmoother(float*(min, max, value))` and `double unmixSmoother(double*(min, max, value))` - similar to `unmixSmooth(min, max, value)` except that the polynomial used is `6x^5 - 15x^4 + 10x^3`.
 	* All the invariants of unmixSmooth() and, by extension, unmixClamp() apply to unmixSmoother().
 	* `unmixSmoother(constant1, constant2, x)` is [C^2 differentiable](https://en.wikipedia.org/wiki/Smoothness#Differentiability_classes) as a function of x.
 * `float smooth(float value)` and `double smooth(double value)` - special case of `mixSmooth(0.0, 1.0, value)`. In other words, applies the polynomial `-2x^3 + 3x^2` to value.
@@ -111,7 +111,7 @@ New in V4.8.0: faster, but less accurate versions of `exp`, `log`, `ln`, `exp2`,
 	* You must provide at least 2 arguments to these functions.
 	* For floats and doubles, NaN is considered farthest away from positive infinity.
 	* For floats and doubles, +0.0 is considered closer to positive infinity than -0.0.
-* `int clamp(int min, int max, int value)`, `long clamp(long min, long max, long value)`, `float clamp(float min, float max, float value)`, and `double clamp(double min, double max, double value)` - equivalent to `min(max(value, min), max)`, which is to say, it ensures that value is between min and max.
+* `int clamp(int min, int max, int value)`, `long clamp(long min, long max, long value)`, `float clamp(float*(min, max, value))`, and `double clamp(double*(min, max, value))` - equivalent to `min(max(value, min), max)`, which is to say, it ensures that value is between min and max.
 	* If value is less than min, then min is returned.
 	* If value is greater than max, then max is returned.
 	* For floats and doubles, if value is NaN, then min is returned.
