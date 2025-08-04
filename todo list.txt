@@ -70,6 +70,7 @@ json classes:
 
 changelog:
 	* Fixed mangrove trees grown from saplings not having mangrove propagules below any of the leaves.
+	* Added ukrainian translation (provided by hyperix).
 	* Updated chinese translations (provided by AstralArclight9001).
 
 alternate world presets:
