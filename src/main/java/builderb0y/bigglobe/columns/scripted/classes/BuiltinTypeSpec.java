@@ -13,6 +13,7 @@ import net.minecraft.state.property.Property;
 import net.minecraft.util.StringIdentifiable;
 
 import builderb0y.autocodec.data.*;
+import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
@@ -147,12 +148,11 @@ public class BuiltinTypeSpec extends TypeSpec {
 	}
 
 	public static BlockState blockState(ClassHierarchy hierarchy, Data data) {
-		BlockProperties block = BlockStateCoder.decodeState(hierarchy.registry.registries.getRegistry(RegistryKeys.BLOCK), asString(data).value);
-		Set<Property<?>> missing = block.missing();
-		if (!missing.isEmpty()) {
-			BigGlobeMod.LOGGER.warn("Block " + UnregisteredObjectException.getID(block.state().getRegistryEntry()) + " is missing properties: " + missing);
-		}
-		return block.state();
+		return (
+			BlockStateCoder.decodeStateWithMissingErrors(hierarchy.registry.registries.getRegistry(RegistryKeys.BLOCK), asString(data).value)
+			.unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new)
+			.state()
+		);
 	}
 
 	public static enum BuiltinJavaType implements StringIdentifiable {

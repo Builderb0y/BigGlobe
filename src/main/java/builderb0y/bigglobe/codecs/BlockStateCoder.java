@@ -5,9 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DynamicOps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -87,17 +89,13 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	public <T_Encoded> @Nullable BlockState decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
 		StringData string = context.tryAsString();
-		if (string != null) try {
+		if (string != null) {
 			BetterRegistry<Block> blockRegistry = AbstractRegistryCoder.registry(RegistryKeys.BLOCK, context);
-			BlockProperties blockProperties = decodeState(blockRegistry, string.value);
-			Set<Property<?>> missing = blockProperties.missing();
-			if (!missing.isEmpty()) {
-				context.logger().logErrorLazy(() -> "Block " + UnregisteredObjectException.getID(blockProperties.state.getRegistryEntry()) + " is missing properties: " + missing);
-			}
-			return blockProperties.state();
-		}
-		catch (RuntimeException exception) {
-			throw new DecodeException(exception);
+			return (
+				withMissingErrors(decodeState(blockRegistry, string.value))
+				.unwrapLazy(context.logger()::logErrorLazy, DecodeException::new)
+				.state()
+			);
 		}
 		else {
 			DynamicOps<Data> dataOps = context.ops.compressMaps() ? DataOps.COMPRESSED : DataOps.UNCOMPRESSED;
@@ -123,51 +121,69 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		};
 	}
 
-	public static BlockProperties decodeState(BetterRegistry<Block> blockRegistry, String input) {
+	public static Result<BlockProperties> decodeStateWithMissingErrors(BetterRegistry<Block> blockRegistry, String input) {
+		return withMissingErrors(decodeState(blockRegistry, input));
+	}
+
+	public static Result<BlockProperties> decodeState(BetterRegistry<Block> blockRegistry, String input) {
 		return switch (input) {
 			#if MC_VERSION >= MC_1_20_3
-				case "grass", "minecraft:grass" -> new BlockProperties(Blocks.SHORT_GRASS.getDefaultState());
+				case "grass", "minecraft:grass" -> new Result<>(new BlockProperties(Blocks.SHORT_GRASS.getDefaultState()));
 			#else
-				case "short_grass", "minecraft:short_grass" -> new BlockProperties(Blocks.GRASS.getDefaultState());
+				case "short_grass", "minecraft:short_grass" -> new Result<>(new BlockProperties(Blocks.GRASS.getDefaultState()));
 			#endif
 			default -> {
-				if (input.charAt(0) == '#') throw new IllegalArgumentException("Tags not allowed here");
+				if (input.charAt(0) == '#') yield new Result<>((StringBuilder builder) -> builder.append("Tags not allowed here"));
 				int openBracket = input.indexOf('[');
 				Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
 				Block block = blockRegistry.requireById(blockID).value();
 				BlockState state = block.getDefaultState();
 				if (openBracket >= 0) {
 					if (block.getStateManager().getProperties().isEmpty()) {
-						throw new IllegalArgumentException("Block " + blockID + " has no properties, but input string specified an opening '[' anyway.");
+						yield new Result<>(new BlockProperties(block.getDefaultState()), (StringBuilder builder) -> builder.append("Block ").append(blockID).append(" has no properties, but input string specified an opening '[' anyway."));
 					}
-					int closeBracket = input.indexOf(']');
+					List<Consumer<StringBuilder>> errors = null;
+					int closeBracket = input.indexOf(']', openBracket + 1);
 					if (closeBracket != input.length() - 1) {
-						throw new IllegalArgumentException("Closing ']' must be the last character in the input string: " + input);
+						errors = new ArrayList<>();
+						if (closeBracket >= 0) {
+							errors.add((StringBuilder builder) -> builder.append("Closing ']' is not at the end of the input string: ").append(input).append(", all input after it will be ignored"));
+						}
+						else {
+							errors.add((StringBuilder builder) -> builder.append("Closing ']' not found in input string: ").append(input).append(", attempting to parse everything until the end of the string"));
+							closeBracket = input.length();
+						}
 					}
 					String[] split = input.substring(openBracket + 1, closeBracket).split(",");
 					Map<Property<?>, Comparable<?>> properties = new Object2ObjectOpenHashMap<>(split.length);
 					for (String pair : split) {
 						int equals = pair.indexOf('=');
 						if (equals < 0) {
-							throw new IllegalArgumentException("Expected '=' somewhere in " + pair);
+							if (errors == null) errors = new ArrayList<>(split.length);
+							errors.add((StringBuilder builder) -> builder.append("Expected '=' somewhere in ").append(pair));
+							continue;
 						}
 						String propertyName = pair.substring(0, equals);
 						Property property = block.getStateManager().getProperty(propertyName);
 						if (property == null) {
-							throw new IllegalArgumentException("Block " + blockID + " has no such property named " + propertyName + " for input " + input);
+							if (errors == null) errors = new ArrayList<>(split.length);
+							errors.add((StringBuilder builder) -> builder.append("Block ").append(blockID).append(" has no such property named ").append(propertyName).append(" for input ").append(input));
+							continue;
 						}
 						String valueString = pair.substring(equals + 1);
 						Comparable value = (Comparable)(property.parse(valueString).orElse(null));
 						if (value == null) {
-							throw new IllegalArgumentException("Value " + valueString + " is not applicable for property " + propertyName + " for input " + input);
+							if (errors == null) errors = new ArrayList<>(split.length);
+							errors.add((StringBuilder builder) -> builder.append("Value ").append(valueString).append(" is not applicable for property ").append(propertyName).append(" for input ").append(input));
+							continue;
 						}
 						state = state.with(property, value);
 						properties.put(property, value);
 					}
-					yield new BlockProperties(blockID, block, state, properties);
+					yield new Result<>(new BlockProperties(blockID, block, state, properties), concat(errors));
 				}
 				else {
-					yield new BlockProperties(blockID, block, state, Collections.emptyMap());
+					yield new Result<>(new BlockProperties(blockID, block, state, Collections.emptyMap()));
 				}
 			}
 		};
@@ -211,7 +227,46 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		return world == null || block.isEnabled(world.getEnabledFeatures());
 	}
 
-	public static record BlockProperties(Identifier id, Block block, BlockState state, Map<Property<?>, Comparable<?>> properties, boolean enabled) {
+	public static Result<BlockProperties> withMissingErrors(Result<BlockProperties> result) {
+		BlockProperties block = result.value;
+		if (block != null) {
+			Set<Property<?>> missing = block.missing();
+			if (missing.isEmpty()) {
+				return result;
+			}
+			else {
+				Consumer<StringBuilder> missingErrors = (StringBuilder builder) -> builder.append("Block ").append(block.id).append(" is missing properties: ").append(missing);
+				Consumer<StringBuilder> errors = result.errors;
+				if (errors != null) {
+					return new Result<>(block, (StringBuilder builder) -> {
+						errors.accept(builder);
+						builder.append("; ");
+						missingErrors.accept(builder);
+					});
+				}
+				else {
+					return new Result<>(block, missingErrors);
+				}
+			}
+		}
+		else {
+			return result;
+		}
+	}
+
+	public static interface BlockStateSource {
+
+		public abstract Stream<BlockState> getMatchingStates();
+	}
+
+	public static record BlockProperties(
+		Identifier id,
+		Block block,
+		BlockState state,
+		Map<Property<?>, Comparable<?>> properties,
+		boolean enabled
+	)
+	implements BlockStateSource {
 
 		public BlockProperties(Identifier id, Block block, BlockState state, Map<Property<?>, Comparable<?>> properties) {
 			this(id, block, state, properties, isEnabled(block));
@@ -229,7 +284,8 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 			return set;
 		}
 
-		public Stream<BlockState> allStates() {
+		@Override
+		public Stream<BlockState> getMatchingStates() {
 			Stream<BlockState> stream = this.block.getStateManager().getStates().stream();
 			return switch (this.properties.size()) {
 				case 0 -> stream;
@@ -254,35 +310,61 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	public static TagProperties decodeTag(BetterRegistry<Block> blockRegistry, String input) {
-		if (input.charAt(0) != '#') throw new IllegalArgumentException("Not a tag: " + input);
+	public static Result<TagProperties> decodeTag(BetterRegistry<Block> blockRegistry, String input) {
+		if (input.charAt(0) != '#') return new Result<>((StringBuilder builder) -> builder.append("Not a tag: ").append(input));
 		int openBracket = input.indexOf('[');
 		Identifier tagID = IdentifierVersions.create(openBracket >= 0 ? input.substring(1, openBracket) : input.substring(1));
 		RegistryEntryList<Block> tag = blockRegistry.requireTag(TagKey.of(RegistryKeys.BLOCK, tagID));
 		if (openBracket >= 0) {
-			int closeBracket = input.indexOf(']');
+			List<Consumer<StringBuilder>> errors = null;
+			int closeBracket = input.indexOf(']', openBracket + 1);
 			if (closeBracket != input.length() - 1) {
-				throw new IllegalArgumentException("Closing ']' must be the last character in the input string: " + input);
+				errors = new ArrayList<>();
+				if (closeBracket >= 0) {
+					errors.add((StringBuilder builder) -> builder.append("Closing ']' is not at the end of the input string: ").append(input).append(", all input after it will be ignored"));
+				}
+				else {
+					errors.add((StringBuilder builder) -> builder.append("Closing ']' not found in input string: ").append(input).append(", attempting to parse everything until the end of the string"));
+					closeBracket = input.length();
+				}
 			}
 			String[] split = input.substring(openBracket + 1, closeBracket).split(",");
 			Map<String, String> properties = new Object2ObjectOpenHashMap<>(split.length);
 			for (String pair : split) {
 				int equals = pair.indexOf('=');
 				if (equals < 0) {
-					throw new IllegalArgumentException("Expected '=' somewhere in " + pair);
+					if (errors == null) errors = new ArrayList<>(split.length);
+					errors.add((StringBuilder builder) -> builder.append("Expected '=' somewhere in ").append(pair));
+					continue;
 				}
 				properties.put(pair.substring(0, equals), pair.substring(equals + 1));
 			}
-			return new TagProperties(tagID, tag, properties);
+			return new Result<>(new TagProperties(tagID, tag, properties), concat(errors));
 		}
 		else {
-			return new TagProperties(tagID, tag, Collections.emptyMap());
+			return new Result<>(new TagProperties(tagID, tag, Collections.emptyMap()));
 		}
 	}
 
-	public static record TagProperties(Identifier id, RegistryEntryList<Block> tag, Map<String, String> properties) {
+	public static Consumer<StringBuilder> concat(List<Consumer<StringBuilder>> errors) {
+		return errors == null ? null : (StringBuilder builder) -> {
+			for (Consumer<StringBuilder> error : errors) {
+				error.accept(builder);
+				builder.append("; ");
+			}
+			builder.setLength(builder.length() - 2);
+		};
+	}
 
-		public Stream<BlockState> collectStates() {
+	public static record TagProperties(
+		Identifier id,
+		RegistryEntryList<Block> tag,
+		Map<String, String> properties
+	)
+	implements BlockStateSource {
+
+		@Override
+		public Stream<BlockState> getMatchingStates() {
 			return this.tag.stream().map(
 				(RegistryEntry<Block> entry) -> entry.value().getStateManager()
 			)
@@ -341,8 +423,101 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	public static Either<BlockProperties, TagProperties> decodeBlockOrTag(BetterRegistry<Block> blockRegistry, String input) {
-		return input.charAt(0) == '#' ? Either.right(decodeTag(blockRegistry, input)) : Either.left(decodeState(blockRegistry, input));
+	public static Result<BlockOrTagProperties> decodeBlockOrTag(BetterRegistry<Block> blockRegistry, String input) {
+		return (
+			input.charAt(0) == '#'
+			? decodeTag(blockRegistry, input).map(BlockOrTagProperties::tag)
+			: decodeState(blockRegistry, input).map(BlockOrTagProperties::block)
+		);
+	}
+
+	public static record Result<T>(@Nullable T value, @Nullable Consumer<StringBuilder> errors) {
+
+		public Result(T value) {
+			this(value, null);
+		}
+
+		public Result(Consumer<StringBuilder> errors) {
+			this(null, errors);
+		}
+
+		public String collectErrorsEager() {
+			if (this.errors == null) return null;
+			StringBuilder builder = new StringBuilder();
+			this.errors.accept(builder);
+			return builder.toString();
+		}
+
+		public @Nullable Supplier<String> collectErrorsLazy() {
+			return this.errors == null ? null : this::collectErrorsEager;
+		}
+
+		public <X extends Throwable> T unwrapEager(
+			Consumer<String> partialSuccess,
+			Function<String, X> completeFailure
+		)
+		throws X {
+			if (this.value != null) {
+				if (this.errors != null) {
+					partialSuccess.accept(this.collectErrorsEager());
+				}
+				return this.value;
+			}
+			else {
+				throw completeFailure.apply(this.collectErrorsEager());
+			}
+		}
+
+		public <X extends Throwable> T unwrapLazy(
+			Consumer<Supplier<String>> partialSuccess,
+			Function<Supplier<String>, X> completeFailure
+		)
+		throws X {
+			if (this.value != null) {
+				if (this.errors != null) {
+					partialSuccess.accept(this.collectErrorsLazy());
+				}
+				return this.value;
+			}
+			else {
+				throw completeFailure.apply(this.collectErrorsLazy());
+			}
+		}
+
+		public @Nullable T unwrapNullableEager(Consumer<String> messageConsumer) {
+			if (this.errors != null) messageConsumer.accept(this.collectErrorsEager());
+			return this.value;
+		}
+
+		public @Nullable T unwrapNullableLazy(Consumer<Supplier<String>> messageConsumer) {
+			if (this.errors != null) messageConsumer.accept(this.collectErrorsLazy());
+			return this.value;
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T2> Result<T2> map(Function<T, T2> mapper) {
+			return this.value == null ? (Result<T2>)(this) : new Result<>(mapper.apply(this.value), this.errors);
+		}
+	}
+
+	public static record BlockOrTagProperties(
+		@Nullable BlockProperties blockResult,
+		@Nullable TagProperties tagResult
+	)
+	implements BlockStateSource {
+
+		public static BlockOrTagProperties block(BlockProperties blockResult) {
+			return new BlockOrTagProperties(blockResult, null);
+		}
+
+		public static BlockOrTagProperties tag(TagProperties tagResult) {
+			return new BlockOrTagProperties(null, tagResult);
+		}
+
+		@Override
+		public Stream<BlockState> getMatchingStates() {
+			return (this.blockResult != null ? this.blockResult : this.tagResult).getMatchingStates();
+		}
 	}
 
 	@Override

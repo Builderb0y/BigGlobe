@@ -6,6 +6,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Property;
 
 import builderb0y.bigglobe.codecs.BlockStateCoder;
+import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
+import builderb0y.bigglobe.codecs.BlockStateCoder.Result;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 
 /** frequently used BlockState's. */
@@ -44,6 +46,8 @@ public class BlockStates {
 	other methods besides static class initializers.
 	*/
 	public static BlockState of(String name) {
-		return BlockStateCoder.decodeState(new BetterHardCodedRegistry<>(Registries.BLOCK), name).state();
+		Result<BlockProperties> result = BlockStateCoder.decodeStateWithMissingErrors(new BetterHardCodedRegistry<>(Registries.BLOCK), name);
+		if (result.errors() != null) throw new IllegalArgumentException(result.collectErrorsEager());
+		return result.value().state();
 	}
 }

@@ -177,7 +177,7 @@ public class SerializableBlockQueue extends BlockQueue {
 		for (Data element : paletteData) {
 			StringData string = element.tryAsString();
 			if (string != null) {
-				palette.add(BlockStateCoder.decodeState(blockRegistry, string.value).state());
+				palette.add(BlockStateCoder.decodeState(blockRegistry, string.value).unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new).state());
 			}
 			else {
 				throw new IllegalArgumentException("Block state is not encoded as a string: " + element);

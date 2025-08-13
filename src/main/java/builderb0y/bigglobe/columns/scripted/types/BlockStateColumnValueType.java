@@ -31,12 +31,19 @@ public class BlockStateColumnValueType extends AbstractColumnValueType {
 		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
 		StringData stringData = data.tryAsString();
 		if (stringData == null) throw new ClassCastException("Not a String: " + data);
-		BlockProperties blockProperties = BlockStateCoder.decodeState(context.registry.registries.getRegistry(RegistryKeys.BLOCK), stringData.value);
-		Set<Property<?>> missing = blockProperties.missing();
-		if (!missing.isEmpty()) {
-			BigGlobeMod.LOGGER.warn("Missing properties for " + stringData.value + ": " + missing);
-		}
-		return ldc(blockProperties.state(), type(BlockState.class));
+		return ldc(
+			BlockStateCoder
+			.decodeStateWithMissingErrors(
+				context.registry.registries.getRegistry(RegistryKeys.BLOCK),
+				stringData.value
+			)
+			.unwrapEager(
+				BigGlobeMod.LOGGER::warn,
+				IllegalArgumentException::new
+			)
+			.state(),
+			type(BlockState.class)
+		);
 	}
 
 	@Override

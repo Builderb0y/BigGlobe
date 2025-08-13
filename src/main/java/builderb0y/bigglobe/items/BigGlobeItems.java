@@ -13,6 +13,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.AbstractBlock;
@@ -421,6 +422,17 @@ public class BigGlobeItems {
 					);
 				}
 			}
+		);
+		CompostingChanceRegistry.INSTANCE.add(
+			SHORT_GRASS,
+			CompostingChanceRegistry.INSTANCE.get(
+				#if MC_VERSION >= MC_1_20_3
+					Items.SHORT_GRASS
+				#else
+					Items.GRASS
+				#endif
+			)
+			* 0.5F
 		);
 	}
 

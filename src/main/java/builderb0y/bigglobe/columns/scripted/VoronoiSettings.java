@@ -24,7 +24,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 @UseVerifier(name = "verify", in = VoronoiSettings.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public record VoronoiSettings(
 	RegistryEntry<ColumnEntry> owner,
-	@VerifyFloatRange(min = 0.0D, minInclusive = false) double weight,
+	@VerifyFloatRange(min = 0.0D) double weight,
 	@DefaultEmpty Set<RegistryEntry<ColumnEntry>> enables,
 	@DefaultEmpty Map<@UseVerifier(name = "checkNotReserved", in = VoronoiColumnEntry.class, usage = MemberUsage.METHOD_IS_HANDLER) String, RegistryEntry<ColumnEntry>> exports
 )

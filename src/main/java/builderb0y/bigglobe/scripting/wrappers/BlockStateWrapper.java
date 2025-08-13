@@ -51,7 +51,11 @@ public class BlockStateWrapper {
 		if (id == null) return null;
 		BlockProperties block;
 		try {
-			block = BlockStateCoder.decodeState(BlockStateCoder.findBlockRegistry(), id);
+			block = (
+				BlockStateCoder
+				.decodeStateWithMissingErrors(BlockStateCoder.findBlockRegistry(), id)
+				.unwrapEager(BigGlobeMod.LOGGER::warn, RuntimeException::new)
+			);
 			if (!block.enabled()) {
 				throw new RuntimeException("Disabled block: " + id);
 			}
@@ -71,7 +75,11 @@ public class BlockStateWrapper {
 		if (id == null) return null;
 		//this is the non-constant code path, so we will skip logging of missing properties here.
 		try {
-			BlockProperties block = BlockStateCoder.decodeState(BlockStateCoder.findBlockRegistry(), id);
+			BlockProperties block = (
+				BlockStateCoder
+				.decodeState(BlockStateCoder.findBlockRegistry(), id)
+				.unwrapEager(BigGlobeMod.LOGGER::warn, RuntimeException::new)
+			);
 			if (!block.enabled()) {
 				throw new RuntimeException("Disabled block: " + id);
 			}

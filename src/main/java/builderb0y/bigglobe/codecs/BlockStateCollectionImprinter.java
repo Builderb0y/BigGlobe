@@ -16,8 +16,6 @@ import builderb0y.autocodec.imprinters.AutoImprinter.NamedImprinter;
 import builderb0y.autocodec.imprinters.ImprintContext;
 import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
-import builderb0y.bigglobe.codecs.BlockStateCoder.TagProperties;
 import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
 
 public class BlockStateCollectionImprinter extends NamedImprinter<Collection<BlockState>> {
@@ -41,8 +39,9 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 		try {
 			BlockStateCoder
 			.decodeBlockOrTag(AbstractRegistryCoder.registry(RegistryKeys.BLOCK, context), context.forceAsString().value)
-			.ifLeft((BlockProperties block) -> block.allStates().forEach(context.object::add))
-			.ifRight((TagProperties tag) -> tag.collectStates().forEach(context.object::add));
+			.unwrapLazy(context.logger()::logErrorLazy, ImprintException::new)
+			.getMatchingStates()
+			.forEach(context.object::add);
 		}
 		catch (DecodeException exception) {
 			throw new ImprintException(exception);
