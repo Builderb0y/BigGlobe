@@ -4,7 +4,7 @@ Feature Dispatchers are responsible for decorating chunks as they're being gener
 	* `group` - delegates to some other dispatchers. This type has the following property:
 		* `dispatchers` - an array of strings representing the namespace and path of other feature dispatchers to delegate to. They will be run in the order they are declared in this array.
 	* `tag` (Added in V4.6.0) - similar to the `group` type, but instead of declaring the child dispatchers inside the parent dispatcher, the parent dispatcher loads its children from a tag. The order which child dispatchers run in is sorted alphabetically, first by path, then by namespace. This type has the following additional property:
-		* `tag` - the tag to load children from, without a `#` prefix.
+		* `tag` - the tag to load children from, with a `#` prefix.
 	* `script` - uses a script to place other features or blocks. This type has the following properties:
 		* `script` - the script which places other features or blocks. This script has the following environments present:
 			* JavaUtilScriptEnvironment
