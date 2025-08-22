@@ -77,6 +77,7 @@ changelog:
 	* Updated chinese translations (provided by AstralArclight9001).
 	# For data pack developers:
 	* Invalid block state properties in string literals are now a warning instead of an error.
+	* Delegating structures can now provide `max_radius_in_chunks` to provide a hint to big globe about the maximum size of the structure being delegated to.
 
 alternate world presets:
 	paradise.

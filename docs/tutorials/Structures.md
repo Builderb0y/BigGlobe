@@ -38,7 +38,11 @@ Delegating solves all of these problems: a delegating structure is one which is 
 ```
 Simply add a structure like this to your compatibility pack, along with a biome tag for it to spawn in, and a structure set to control how often it spawns, and you should be good to go.
 
-Delegating structures can also tweak the spawn_overrides, the step, and the terrain_adaptation, just like for any vanilla structures. Delegating structures cannot override any other properties of the structure they're delegating to.
+Delegating structures can also tweak the `spawn_overrides`, the `step`, and the `terrain_adaptation`, just like for any other vanilla structure.
+
+**Upcoming**: delegating structures can specify `max_radius_in_chunks` to provide a hint to big globe about the maximum size of the structure that is being delegated to. This hint is not required, and can by omitted in most cases.
+
+Delegating structures cannot override any other properties of the structure they're delegating to.
 
 # What if the structure spawns weirdly or at a bad Y level?
 

@@ -39,17 +39,19 @@ public class DelegatingStructure extends Structure implements SizedStructure {
 
 	public final RegistryEntry<Structure> delegate;
 	public final @EncodeInline NullableConfig nullable_config;
+	public final @VerifyNullable Integer max_radius_in_chunks;
 	public boolean checkedCyclicReference;
 
-	public DelegatingStructure(NullableConfig nullable_config, RegistryEntry<Structure> delegate) {
+	public DelegatingStructure(RegistryEntry<Structure> delegate, NullableConfig nullable_config, @VerifyNullable Integer max_radius_in_chunks) {
 		super(nullable_config.toConfig());
 		this.nullable_config = nullable_config;
+		this.max_radius_in_chunks = max_radius_in_chunks;
 		this.delegate = delegate;
 	}
 
 	@Override
 	public int bigglobe_getMaxRadiusInChunks() {
-		return ((SizedStructure)(unwrap(this.delegate()).value())).bigglobe_getMaxRadiusInChunks();
+		return this.max_radius_in_chunks != null ? this.max_radius_in_chunks.intValue() : ((SizedStructure)(unwrap(this.delegate()).value())).bigglobe_getMaxRadiusInChunks();
 	}
 
 	public RegistryEntry<Structure> delegate() {
