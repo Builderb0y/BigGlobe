@@ -279,8 +279,19 @@ In addition to all the vanilla structures, the following structures also spawn i
 * Distance in hyperspace is non-linear.
 	* The distance between waypoints in hyperspace is the square root of the distance between those waypoints outside of hyperspace.
 	* This means that if you have 2 waypoints 100 blocks apart from each other in the overworld, they'll only be 10 blocks apart in hyperspace.
-* Hyperspace (and waypoints in general) look cooler when Satin is installed.
+* Hyperspace (and waypoints) look cooler when Satin is installed.
+	* Only required for cool visuals if your Minecraft version is older than 1.21.2 AND your Big Globe version is older than V5.0.4.
 * Hyperspace can be disabled in Big Globe's config file if you find it overpowered.
+
+## LOD system
+
+* Renders a preview of far-away terrain without generating actual chunks for it.
+* Useful for getting a sense of what your world looks like without needing to pre-gen it.
+* Does not (currently) include structures, features, or player-placed blocks.
+* Currently only works in Big Globe worlds.
+* Currently does not work while Iris shader packs are enabled.
+* Automatically disables itself when Distant Horizons or Voxy are installed.
+	* This behavior can be overridden in the config file to force it to be on or off regardless of what other mods are installed.
 
 # Material cheat sheet
 

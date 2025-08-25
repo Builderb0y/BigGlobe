@@ -50,6 +50,21 @@ public class HyperspaceRenderer implements SafeCloseable {
 	}
 
 	public void draw() {
+		String existingMessage = GLException.checkMessage();
+		if (existingMessage != null) {
+			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before hyperspace background rendering: " + existingMessage);
+		}
+		try {
+			this.doDraw();
+		}
+		catch (RuntimeException exception) {
+			BigGlobeMod.LOGGER.error("An exception occurred while rendering the hyperspace background effect. The hyperspace background effect will now disable itself to prevent further problems.", exception);
+			this.close();
+			INSTANCE = null;
+		}
+	}
+
+	public void doDraw() {
 		this.state.capture();
 		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
 		int framebufferID = RenderVersions.glID(framebuffer);

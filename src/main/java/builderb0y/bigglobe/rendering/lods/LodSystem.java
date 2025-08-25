@@ -36,7 +36,7 @@ public class LodSystem implements SafeCloseable {
 		WorldRenderEvents.AFTER_SETUP.register((WorldRenderContext context) -> {
 			LodSystem system = ((LodSystemHolder)(context.worldRenderer())).bigglobe_getLodSystem();
 			if (system != null && !context.worldRenderer().hasBlindnessOrDarkness(context.camera())) {
-				system.render(context);
+				system.draw(context);
 			}
 		});
 	}
@@ -149,7 +149,22 @@ public class LodSystem implements SafeCloseable {
 		this.renderer.oom();
 	}
 
-	public void render(WorldRenderContext context) {
+	public void draw(WorldRenderContext context) {
+		String existingMessage = GLException.checkMessage();
+		if (existingMessage != null) {
+			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before LOD rendering: " + existingMessage);
+		}
+		try {
+			this.doDraw(context);
+		}
+		catch (RuntimeException exception) {
+			BigGlobeMod.LOGGER.error("An exception occurred while rendering LODs. LOD rendering will now disable itself to prevent further problems. You can press F3+A to attempt to restart it.", exception);
+			this.close();
+			((LodSystemHolder)(context.worldRenderer())).bigglobe_setLodSystem(null);
+		}
+	}
+
+	public void doDraw(WorldRenderContext context) {
 		if (!this.generator.running) {
 			BigGlobeMod.LOGGER.error("LOD system shutting down due to exception in mesh generator thread. Press F3+A to restart it.");
 			this.close();
