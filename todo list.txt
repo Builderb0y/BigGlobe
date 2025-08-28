@@ -54,6 +54,7 @@ high priority:
 	document structures in general.
 	fix vanilla bug causing ocean monument starting positions to be at sea level instead of at the bottom of the bounding box.
 		also prevent delegate ocean monument structure from spawning in caves.
+	"tile" grid type.
 
 LODs:
 	shader support.
@@ -79,6 +80,8 @@ changelog:
 	# For data pack developers:
 	* Invalid block state properties in string literals are now a warning instead of an error.
 	* Delegating structures can now provide `max_radius_in_chunks` to provide a hint to big globe about the maximum size of the structure being delegated to.
+	* Invalid constant cast attempts are now caught at data pack validation time instead of at generation time.
+		* Invalid casts with `==.` and related operators are no longer silently ignored.
 
 alternate world presets:
 	paradise.

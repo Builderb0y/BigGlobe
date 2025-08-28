@@ -1,13 +1,16 @@
 package builderb0y.scripting.bytecode;
 
 import java.lang.StackWalker.Option;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.FakeRegistry.RegistryEntryImpl;
 import builderb0y.bigglobe.versions.IdentifierVersions;
@@ -22,12 +25,19 @@ public class ConstantFactory extends AbstractConstantFactory {
 	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	public final MethodInfo constantMethod, variableMethod;
+	public final MethodHandle validator;
 	public final boolean hasFlags;
 
 	public ConstantFactory(Class<?> owner, String name, Class<?> inType, Class<?> outType) {
 		super(type(inType), type(outType));
 		this.constantMethod = MethodInfo.findMethod(owner, name, outType, MethodHandles.Lookup.class, String.class, Class.class, inType, int.class);
 		this.variableMethod = MethodInfo.findMethod(owner, name, outType, inType, int.class);
+		try {
+			this.validator = MethodHandles.lookup().findStatic(owner, name, MethodType.methodType(outType, inType, int.class));
+		}
+		catch (Exception exception) {
+			throw AutoCodecUtil.rethrow(exception);
+		}
 		this.hasFlags = true;
 	}
 
@@ -35,6 +45,7 @@ public class ConstantFactory extends AbstractConstantFactory {
 		super(inType, outType);
 		this.constantMethod = constantMethod;
 		this.variableMethod = variableMethod;
+		this.validator = null;
 		this.hasFlags = hasFlags;
 	}
 
@@ -83,6 +94,12 @@ public class ConstantFactory extends AbstractConstantFactory {
 	@Override
 	public InsnTree createConstant(ConstantValue constant, int flags) {
 		if (this.hasFlags) {
+			if ((flags & NULLABLE) == 0) try {
+				this.validator.invoke(constant.asJavaObject(), flags);
+			}
+			catch (Throwable exception) {
+				throw new IllegalArgumentException(exception);
+			}
 			return ldc(this.constantMethod, constant, constant(flags));
 		}
 		else {
