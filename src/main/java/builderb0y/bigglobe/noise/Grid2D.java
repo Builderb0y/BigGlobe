@@ -63,6 +63,7 @@ public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_perlin"),                      PerlinDerivativeYGrid2D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid2D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("tile"),                                        TileGrid2D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                                    NegateGrid2D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                          AbsGrid2D.class);

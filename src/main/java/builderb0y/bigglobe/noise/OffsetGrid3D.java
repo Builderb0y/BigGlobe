@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.noise;
 
+import builderb0y.autocodec.annotations.Alias;
+
 public class OffsetGrid3D implements Grid3D {
 
 	public final Grid3D source;
-	public final int offsetX, offsetY, offsetZ;
+	public final @Alias("offset") int offsetX, offsetY, offsetZ;
 
 	public OffsetGrid3D(Grid3D source, int offsetX, int offsetY, int offsetZ) {
 		this.source  = source;

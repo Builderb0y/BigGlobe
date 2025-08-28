@@ -69,6 +69,7 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_perlin"),                      PerlinDerivativeZGrid3D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("offset"),                                    OffsetGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("tile"),                                        TileGrid3D.class);
 
 			REGISTRY.registerAuto(BigGlobeMod.modID("negate"),                                    NegateGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("abs"),                                          AbsGrid3D.class);

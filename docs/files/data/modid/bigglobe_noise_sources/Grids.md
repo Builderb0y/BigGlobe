@@ -76,7 +76,11 @@ The following other fields are also available when `type` is...
 * (dx|dy|dz)_perlin (New in V5.0.6) - returns the derivative of perlin noise, with respect to x, y, or z. Has the same additional properties as perlin grids. Namely, `scaleX/Y/Z`, `max_slope`, and `max_offset`. This grid type is NOT a resample grid, and therefore does not have a source property.
 * "offset" (New in V4.6.0) - samples another grid at a different position. Has the following additional properties:
 	* `source` - the other grid to sample.
-	* `offsetX/Y/Z` - the offset from the current position to the sampled position. In other words, the sampled position is the requested position + offset.
+	* `offsetX/Y/Z` - the offset from the current position to the sampled position. The sampled position is the requested position + offset.
+		* **New in V5.0.8:** A single `offset` field may be provided instead, and it will apply to `offsetX/Y/Z`, just like how `scale` applies to `scaleX/Y/Z`.
+* "tile" (New in V5.0.8) - samples another grid at a position that loops back on itself. Useful for making terrain that repeats after a certain number of blocks. If you are using it for this purpose, you will get best results by first making a `white_noise` grid the `source` for the `tile` grid, and then making the `tile` grid the source for one of the resample grids. Importantly, the resample grid's scale should be an integer multiple of the tile scale. Tile grids have the following additional properties:
+	* `source` - the other grid to sample.
+	* `scaleX/Y/Z` - the size of the domain of the other grid to sample. If any of the scales are 0, that axis will be treated as unbounded. Scale cannot be negative.
 * "negate" - negates another grid. The resulting value at every position will be the negative of the wrapped grid's value.
 	* `grid` - the grid to negate.
 * "abs" - takes the absolute value of another grid.
