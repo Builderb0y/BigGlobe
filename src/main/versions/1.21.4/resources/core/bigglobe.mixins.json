@@ -54,6 +54,7 @@
 		"NetherrackBlock_GrowProperly",
 		"OceanMonumentGeneratorBase_VanillaBugFixes",
 		"OceanMonumentStructure_MovePiecesOnReCreate",
+		"OceanMonumentStructure_UseCorrectPosition",
 		"OceanRuinGeneratorPiece_UseGeneratorHeight",
 		"PalettedContainer_DataAccess",
 		"PlantBlock_CanPlantOnTopAccess",

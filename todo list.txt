@@ -29,13 +29,10 @@ where I left off:
 		ensure this is actually doable with WorldWrapper inheriting columns from its parent.
 	no loading context available with cyanide installed.
 		possibly only an issue on dedicated servers.
-	add dumpVars() function which prints out the line number where it's called,
-		along with every variable accessible from the scope where dumpVars() was called.
 	separate texture layers for overgrown sand,
 		so that it can adapt to biome tint.
 	sync Grid registry to clients?
 		could potentially be useful for LODs.
-	stop using NbtHelper.toBlockState() where reasonable.
 	middle clicking a waypoint no longer works.
 		this is because all this logic was moved to server-side,
 		and waypoint entities don't exist server-side.
@@ -51,10 +48,7 @@ to finish before release:
 high priority:
 	document extra spawn system.
 	document terrainAdaptation.
-	document structures in general.
-	fix vanilla bug causing ocean monument starting positions to be at sea level instead of at the bottom of the bounding box.
-		also prevent delegate ocean monument structure from spawning in caves.
-	"tile" grid type.
+	document scripted structures in general.
 
 LODs:
 	shader support.
