@@ -40,7 +40,7 @@ Simply add a structure like this to your compatibility pack, along with a biome 
 
 Delegating structures can also tweak the `spawn_overrides`, the `step`, and the `terrain_adaptation`, just like for any other vanilla structure.
 
-**Upcoming**: delegating structures can specify `max_radius_in_chunks` to provide a hint to big globe about the maximum size of the structure that is being delegated to. This hint is not required, and can by omitted in most cases.
+**New in V5.0.8:** delegating structures can specify `max_radius_in_chunks` to provide a hint to big globe about the maximum size of the structure that is being delegated to. This hint is not required, and can by omitted in most cases.
 
 Delegating structures cannot override any other properties of the structure they're delegating to.
 
