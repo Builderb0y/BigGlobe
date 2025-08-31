@@ -108,7 +108,11 @@ Structure overriders have the following json properties:
 
 	And the following additional methods:
 	* `StructureStart.move(int yOffset)` - moves the start yOffset blocks up from its current position. If yOffset is negative, the structure moves down instead.
-	* `StructureStart.moveToRange(optional Random random, int*(minY, maxY))` - moves the start to a random Y level between minY and maxY. Returns true if the structure fits in this range, and false otherwise.
+	* `StructureStart.moveToRange(optional Random random, int*(minY, maxY))` - moves the start to a random Y level between minY and maxY. More specifically, this method attempts to ensure that `start.minY >= minY && start.maxY < maxY`. Returns true if the structure fits in this range, and false otherwise.
+
+		**Common mistake:** providing the same number for both bounds. This is a mistake because it creates a 0-block range for the structure to spawn in. Obviously, no structure will fit in this range.
+
+		If you want to move a structure to a specific Y level, you should first pick an anchor point somewhere in the structure and then call `start.move(target - anchor)`. The anchor point is the point you want to be moved to the target Y level. It can be the bottom of the structure, or the top, or anything else you want.
 
 	The overrider should return true if the structure is allowed to spawn at this location, and false if it should not spawn.
 
