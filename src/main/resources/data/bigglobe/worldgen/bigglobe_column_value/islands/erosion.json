@@ -36,13 +36,15 @@
 	"script": {
 		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
-			"dx": "dx_island_height + dx_height_offset",
-			"dz": "dz_island_height + dz_height_offset",
-			"minWavelength": "4 << hints.lod",
-			"midWavelength": "8 << hints.lod",
-			"maxWavelength": "128.0L",
+			"dx": "-(dx_island_height + dx_height_offset)",
+			"dz": "-(dz_island_height + dz_height_offset)",
+			"minWavelength": "4.0L",
+			"midWavelength": "exp2(2.5L - 1.5L * world_traits.`bigglobe:temperature_at_surface`)",
+			"maxWavelength": "256.0L",
 			"seed": "worldSeed # 16x09E2050BCB5FEC01UL",
-			"dampening": "2.0L"
+			"dampening": "2.0L",
+			"veininess": "-4.0L",
+			"preNormalize": "true"
 		}
 	},
 	"valid": {

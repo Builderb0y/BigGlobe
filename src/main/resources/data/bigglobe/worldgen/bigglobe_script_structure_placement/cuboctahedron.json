@@ -10,7 +10,7 @@
 			"iterMaxZ = min(maxZ, chunkMaxZ)",
 		")",
 		"BlockState state = data.state.asString().as(BlockState)",
-		"for positionLoop (",
+		"for (",
 			"int y in range[iterMinY, iterMaxY],",
 			"int z in range[iterMinZ, iterMaxZ],",
 			"int x in range[iterMinX, iterMaxX]",

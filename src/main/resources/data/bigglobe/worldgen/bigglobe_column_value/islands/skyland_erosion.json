@@ -9,8 +9,9 @@
 		"inputs": {
 			"dx": "(x - island.center_x) / (island.euclidean_distance + 16.0L)",
 			"dz": "(z - island.center_z) / (island.euclidean_distance + 16.0L)",
-			"minWavelength": "8 << hints.lod",
+			"minWavelength": "4.0L",
 			"maxWavelength": "512.0L",
+			"veininess": "8.0L",
 			"seed": "worldSeed # 16xAC78B019FAE7E857UL",
 			"amplitude": "2.0L"
 		}

@@ -21,8 +21,9 @@
 		"for (double wavelength = maxWavelength, wavelength >= minWavelength, wavelength *= decay:",
 			"double*(",
 				"phase             = (seed := seed.newSeed()).nextDouble(tau)",
-				"projection        = (unitX * x + unitZ * z) / wavelength + phase",
-				"adjustedAmplitude = ((unitX * -dz + unitZ * dx) / (sqrt(dx ^ 2 + dz ^ 2) + dampening)) ^ 2",
+				"derivativeLength  = sqrt(dx ^ 2 + dz ^ 2)",
+				"projection        = (unitX * x + unitZ * z) / wavelength + phase + veininess * (unitX * dx + unitZ * dz) / (derivativeLength + 1.0L)",
+				"adjustedAmplitude = ((unitX * -dz + unitZ * dx) / (derivativeLength + dampening)) ^ 2",
 				"addedValue        = fastSin(projection) * adjustedAmplitude * wavelength",
 				"addedDerivative   = fastCos(projection) * adjustedAmplitude",
 				"nextUnitX         = unitX * goldenCos + unitZ * -goldenSin",
@@ -43,6 +44,7 @@
 		{ "name": "maxWavelength", "type": "double" },
 		{ "name": "seed", "type": "long" },
 		{ "name": "dampening", "type": "double", "default": "4.0L" },
+		{ "name": "veininess", "type": "double", "default": "0.0L" },
 		{ "name": "amplitude", "type": "double", "default": "1.0L" },
 		{ "name": "preNormalize", "type": "boolean", "default": "false" }
 	]

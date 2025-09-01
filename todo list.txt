@@ -63,6 +63,7 @@ json classes:
 		merge stuff.
 
 changelog:
+	* Made pseudo-erosion algorithm better.
 
 alternate world presets:
 	paradise.
