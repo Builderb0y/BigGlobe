@@ -43,10 +43,8 @@
 			"minWavelength": "4.0L",
 			"midWavelength": "exp2(2.5L - 1.5L * world_traits.`bigglobe:temperature_at_surface`)",
 			"maxWavelength": "256.0L",
-			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL",
-			"dampening": "2.0L",
-			"veininess": "4.0L",
-			"preNormalize": "true"
+			"amplitude": "128.0L",
+			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL"
 		}
 	}
 }

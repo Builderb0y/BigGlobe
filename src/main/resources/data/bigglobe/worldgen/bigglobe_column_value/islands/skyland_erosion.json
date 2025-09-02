@@ -7,13 +7,12 @@
 	"script": {
 		"template": "bigglobe:sine_wave_erosion",
 		"inputs": {
-			"dx": "(x - island.center_x) / (island.euclidean_distance + 16.0L)",
-			"dz": "(z - island.center_z) / (island.euclidean_distance + 16.0L)",
+			"dx": "(x - island.center_x) / sqrt(island.euclidean_distance_squared + 65536.0L)",
+			"dz": "(z - island.center_z) / sqrt(island.euclidean_distance_squared + 65536.0L)",
 			"minWavelength": "4.0L",
-			"maxWavelength": "512.0L",
-			"veininess": "8.0L",
+			"maxWavelength": "256.0L",
 			"seed": "worldSeed # 16xAC78B019FAE7E857UL",
-			"amplitude": "2.0L"
+			"amplitude": "256.0L"
 		}
 	},
 	"valid": {

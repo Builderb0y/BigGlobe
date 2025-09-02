@@ -43,8 +43,7 @@
 			"minWavelength": "4.0L",
 			"midWavelength": "4.0L",
 			"maxWavelength": "64.0L",
-			"dampening": "3.0L",
-			"veininess": "4.0L",
+			"amplitude": "32.0L",
 			"seed": "worldSeed # 16x004DF3F0332599B7UL"
 		}
 	}

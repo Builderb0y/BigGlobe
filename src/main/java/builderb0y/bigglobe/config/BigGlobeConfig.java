@@ -182,10 +182,10 @@ public class BigGlobeConfig {
 			public LodRenderer createRenderer(LodRendering config) {
 				int quads = config.maxQuads;
 				return switch (this) {
-					case AUTO -> GL.getCapabilities().GL_ARB_shader_draw_parameters ? new SidedCombinedLodRenderer(quads) : new SidedSeparateLodRenderer(quads);
+					case            AUTO -> GL.getCapabilities().GL_ARB_shader_draw_parameters ? new SidedCombinedLodRenderer(quads) : new SidedSeparateLodRenderer(quads);
 					case SIMPLE_SEPARATE -> new SimpleLodRenderer(quads);
-					case SIDED_SEPARATE -> new SidedSeparateLodRenderer(quads);
-					case SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
+					case  SIDED_SEPARATE -> new SidedSeparateLodRenderer(quads);
+					case  SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
 				};
 			}
 		}
