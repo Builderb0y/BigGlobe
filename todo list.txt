@@ -50,6 +50,21 @@ high priority:
 	document terrainAdaptation.
 	document scripted structures in general.
 
+V6:
+	rivers:
+		investigate whether
+				ColorProviderRegistry.BLOCK.register(
+					(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
+						return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+					},
+					RIVER_WATER
+				);
+			is necessary for river water rendering or not.
+				test with DH and voxy.
+	add new json classes.
+	increase default player spawn radius in config file.
+	remove unnecessary heightmap and amp noise column values.
+
 LODs:
 	shader support.
 
@@ -64,6 +79,7 @@ json classes:
 
 changelog:
 	* Made pseudo-erosion algorithm better.
+	* Fixed end fractals spawning intersecting dragons's nest.
 
 alternate world presets:
 	paradise.

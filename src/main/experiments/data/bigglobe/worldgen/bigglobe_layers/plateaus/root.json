@@ -20,7 +20,7 @@
 			"> 0",
 		":",
 			"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:dirt')",
-			"setBlockState(surfaceY - 1, 'minecraft:grass_block')",
+			"setBlockState(surfaceY - 1, 'minecraft:grass_block[snowy=false]')",
 		")"
 	]
 }

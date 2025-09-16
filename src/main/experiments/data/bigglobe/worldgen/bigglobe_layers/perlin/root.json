@@ -10,6 +10,6 @@
 			"depth = int(4.0L + (columnSeed # 16x979303DE39989D2FUL).nextDouble(2.0L))",
 		")",
 		"setBlockStates(surfaceY - depth, surfaceY, 'minecraft:dirt')",
-		"setBlockState(surfaceY - 1, 'minecraft:grass_block')"
+		"setBlockState(surfaceY - 1, 'minecraft:grass_block[snowy=false]')"
 	]
 }

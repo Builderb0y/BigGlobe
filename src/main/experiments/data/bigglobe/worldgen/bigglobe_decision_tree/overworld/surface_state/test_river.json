@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "world_traits.`bigglobe:in_river`"
+	},
+	"if_true": "bigglobe:overworld/surface_state/test_river_gravel",
+	"if_false": "bigglobe:overworld/surface_state/test_beach"
+}

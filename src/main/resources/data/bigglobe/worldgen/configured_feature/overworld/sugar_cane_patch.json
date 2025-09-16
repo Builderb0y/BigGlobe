@@ -9,7 +9,9 @@
 					"x = originX + bitCount(rng & 16xFFFF) - 8",
 					"z = originZ + bitCount(rng >>> 16) - 8",
 				")",
-				"placeFeature(x, originY, z, 'bigglobe:overworld/sugar_cane')",
+				"if (getBlockState(x, originY, z).isAir():",
+					"placeFeature(x, originY, z, 'bigglobe:overworld/sugar_cane')",
+				")",
 			")",
 			"true"
 		]

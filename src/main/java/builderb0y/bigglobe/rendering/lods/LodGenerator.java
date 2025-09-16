@@ -28,6 +28,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.EmptyBlockView;
@@ -306,6 +307,16 @@ public class LodGenerator implements SafeCloseable {
 		return newList;
 	}
 
+	public static boolean quickCheckRender(BlockState self, BlockState other) {
+		VoxelShape shape = BlockStateVersions.getCullingShape(other, EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+		if (shape == VoxelShapes.fullCube()) return false;
+		FluidState fluid = self.getFluidState();
+		if (fluid.getBlockState() == self /* false for waterlogged blocks */ && other.getFluidState() == fluid) {
+			return false;
+		}
+		return true;
+	}
+
 	public void buildGeometry(
 		LodRequest request,
 		ColumnResults results,
@@ -341,11 +352,11 @@ public class LodGenerator implements SafeCloseable {
 							int y = pos.getY();
 							int nextY;
 							boolean shouldRender;
-							if (y == centerSegment.minY && centerIndex - 1 >= 0 && BlockStateVersions.getCullingShape(center.get(centerIndex - 1).value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) != VoxelShapes.fullCube()) {
+							if (y == centerSegment.minY && centerIndex - 1 >= 0 && quickCheckRender(centerSegment.value, center.get(centerIndex - 1).value)) {
 								shouldRender = true;
 								nextY = y + 1;
 							}
-							else if (y == centerSegment.maxY && centerIndex + 1 < centerSize && BlockStateVersions.getCullingShape(center.get(centerIndex + 1).value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) != VoxelShapes.fullCube()) {
+							else if (y == centerSegment.maxY && centerIndex + 1 < centerSize && quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value)) {
 								shouldRender = true;
 								nextY = y + 1;
 							}
@@ -355,7 +366,7 @@ public class LodGenerator implements SafeCloseable {
 								for (Direction direction : Directions.HORIZONTAL) {
 									BlockSegmentList adjacent = adjacents[DirectionVersions.horizontal(direction)];
 									Segment<BlockState> adjacentSegment = adjacent.getOverlappingSegment(y);
-									if (adjacentSegment == null || BlockStateVersions.getCullingShape(adjacentSegment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) != VoxelShapes.fullCube()) {
+									if (adjacentSegment == null || quickCheckRender(centerSegment.value, adjacentSegment.value)) {
 										shouldRender = true;
 										skipTo = y + 1;
 										break;

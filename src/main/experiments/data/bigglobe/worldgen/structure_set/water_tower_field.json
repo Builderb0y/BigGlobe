@@ -1,0 +1,11 @@
+{
+	"placement": {
+		"type": "minecraft:random_spread",
+		"salt": 1628562034,
+		"separation": 16,
+		"spacing": 32
+	},
+	"structures": [
+		{ "weight": 1, "structure": "bigglobe:water_tower_field" }
+	]
+}

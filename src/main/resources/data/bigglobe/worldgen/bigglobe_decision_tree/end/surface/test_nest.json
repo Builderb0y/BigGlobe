@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:end/distance_to_origin` < 512.0L"
+	},
+	"if_true": "bigglobe:end/surface/dragons_nest",
+	"if_false": "bigglobe:end/surface/the_void"
+}

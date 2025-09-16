@@ -1,0 +1,15 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.1024   }, "scale": 128 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.04096  }, "scale":  64 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.016384 }, "scale":  32 }
+		]
+	}
+}

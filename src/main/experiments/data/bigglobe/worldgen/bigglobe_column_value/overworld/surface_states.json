@@ -1,0 +1,16 @@
+{
+	"type": "bigglobe:decision_tree",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "SurfaceStates",
+			"fields": [
+				{ "name": "surfaceState",    "type": "block_state" },
+				{ "name": "subsurfaceState", "type": "block_state" }
+			]
+		},
+		"is_3d": false
+	},
+	"root": "bigglobe:overworld/surface_state/test_river",
+	"cache": false
+}

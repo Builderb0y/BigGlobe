@@ -1,0 +1,20 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double termination = `bigglobe:overworld/river_termination`",
+		"double curve(double value:",
+			"1.0L - 1.0L / (value ^ 4 + 1.0L)",
+		")",
+		"double macro = `river/macro`",
+		"double result = macro ^ 4 * 1024.0L + 12.0L",
+		"result *= curve((macro + `river/micro_1`) * 64.0L)",
+		"result *= curve((macro + `river/micro_2`) * 32.0L)",
+		"result *= curve((macro + `river/micro_3`) * 32.0L)",
+		"result *= curve((macro + `river/micro_4`) * 16.0L)",
+		"return(result + termination + `river/bottom_noise`)"
+	]
+}

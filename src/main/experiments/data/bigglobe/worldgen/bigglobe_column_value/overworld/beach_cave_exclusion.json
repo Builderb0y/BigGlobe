@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"float(unmixSmooth(",
+			"river_termination + 16.0L,",
+			"river_termination + 8.0L,",
+			"world_traits.`bigglobe:exact_surface_y`",
+		"))"
+	]
+}

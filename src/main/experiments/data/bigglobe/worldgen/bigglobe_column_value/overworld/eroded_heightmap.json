@@ -1,0 +1,50 @@
+{
+	"type": "script",
+	"params": {
+		"type": {
+			"type": "class",
+			"name": "DualSineWaveErosionData",
+			"fields": [
+				{
+					"name": "high",
+					"type": {
+						"type": "class",
+						"name": "SineWaveErosionData",
+						"fields": [
+							{ "name": "y",  "type": "double" },
+							{ "name": "dx", "type": "double" },
+							{ "name": "dz", "type": "double" }
+						]
+					}
+				},
+				{
+					"name": "low",
+					"type": {
+						"type": "class",
+						"name": "SineWaveErosionData",
+						"fields": [
+							{ "name": "y",  "type": "double" },
+							{ "name": "dx", "type": "double" },
+							{ "name": "dz", "type": "double" }
+						]
+					}
+				}
+			]
+		},
+		"is_3d": false
+	},
+	"script": {
+		"template": "bigglobe:dual_sine_wave_erosion",
+		"inputs": {
+			"lowY":  "`raw/ocean_adjusted_heightmap`",
+			"highY": "`raw/ocean_adjusted_heightmap`",
+			"dx": "`raw/dx_ocean_adjusted_heightmap`",
+			"dz": "`raw/dz_ocean_adjusted_heightmap`",
+			"minWavelength": "4.0L",
+			"midWavelength": "exp2(3.0L - 2.0L * world_traits.`bigglobe:temperature_at_surface`)",
+			"maxWavelength": "512.0L",
+			"amplitude": "512.0L",
+			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL"
+		}
+	}
+}

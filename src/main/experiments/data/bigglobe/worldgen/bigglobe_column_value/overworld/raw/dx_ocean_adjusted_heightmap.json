@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double y = heightmap / 1024.0L",
+		"double dy = dx_heightmap / 1024.0L",
+		"double common = 2.0L * y - 3.0L",
+		"y = common * (common * y - 3.0L) * dy * 0.125L",
+		"return(y * 1024.0L)"
+	]
+}

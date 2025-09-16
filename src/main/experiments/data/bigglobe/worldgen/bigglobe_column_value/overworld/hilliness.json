@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"`raw/dx_ocean_adjusted_heightmap` ^ 2 + `raw/dz_ocean_adjusted_heightmap` ^ 2"
+	]
+}

@@ -24,7 +24,7 @@
 				"double*(",
 					"phase             = (seed := seed.newSeed()).nextDouble(tau)",
 					"rcpDerivative     = 0.5L / sqrt(highDx ^ 2 + highDz ^ 2 + 1.0L)",
-					"projection        = (unitX * x + unitZ * z) / wavelength + phase - 32.0L * highAdded * (unitX * highDx + unitZ * highDz) * rcpDerivative",
+					"projection        = (unitX * x + unitZ * z) / wavelength + phase - 8.0L * highAdded * (unitX * highDx + unitZ * highDz) * rcpDerivative",
 					"adjustedAmplitude = ((unitX * -highDz + unitZ * highDx) * rcpDerivative) ^ 2",
 					"toAdd             = fastSin(projection) * adjustedAmplitude * wavelength / maxWavelength",
 					"addedDerivative   = fastCos(projection) * adjustedAmplitude",
