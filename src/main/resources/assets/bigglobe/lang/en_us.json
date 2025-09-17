@@ -342,6 +342,11 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[1]": "If false, Big Globe will not do that.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[2]": "This option can be useful for finding tags that you forgot to put values in, and can occasionally be useful for debugging tags that are referenced before loading is complete, resulting in a tag that shouldn't be empty, but is.",
 
+	"text.autoconfig.bigglobe.option.dataPackDebugging.rejectUnusedOverriders": "Reject unused overriders",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.rejectUnusedOverriders.@Tooltip[0]": "If true, Big Globe will prevent the world from loading if overriders are found which are not in any tags.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.rejectUnusedOverriders.@Tooltip[1]": "If false, Big Globe will log a warning in this case instead.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.rejectUnusedOverriders.@Tooltip[2]": "This option can be useful as a sanity check to ensure your overrider tags are setup correctly.",
+
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns": "Log extra mob spawns",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "If true, Big Globe will log a message to the game console and log file when extra mob spawns are computed for a biome/spawn group.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "If false, Big Globe will not do that.",

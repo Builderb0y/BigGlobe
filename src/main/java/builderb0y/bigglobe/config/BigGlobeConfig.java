@@ -133,6 +133,11 @@ public class BigGlobeConfig {
 		public boolean emptyTags = false;
 
 		@Tooltip(count = 3)
+		@UseName("Reject unused overriders")
+		@DefaultIgnore
+		public boolean rejectUnusedOverriders = false;
+
+		@Tooltip(count = 3)
 		@UseName("Log extra mob spawns")
 		@DefaultIgnore
 		public boolean logExtraMobSpawns = false;

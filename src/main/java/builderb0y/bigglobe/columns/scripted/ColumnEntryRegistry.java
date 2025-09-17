@@ -33,11 +33,14 @@ import builderb0y.bigglobe.columns.scripted.entries.VoronoiColumnEntry;
 import builderb0y.bigglobe.columns.scripted.traits.TraitManager;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.util.AsyncConsumer;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.ScopeLocal;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -308,12 +311,30 @@ public class ColumnEntryRegistry {
 							}
 						});
 					}
+					if (!this.client) {
+						Consumer<RegistryEntry<Overrider>> action = (
+							BigGlobeConfig.INSTANCE.get().dataPackDebugging.rejectUnusedOverriders
+							? (RegistryEntry<Overrider> entry) -> async.submit(() -> new RuntimeException(_unusedMessage(entry)))
+							: (RegistryEntry<Overrider> entry) -> BigGlobeMod.LOGGER.warn(_unusedMessage(entry))
+						);
+						this
+						.columnEntryRegistry
+						.registries
+						.getRegistry(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
+						.streamEntries()
+						.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
+						.forEach(action);
+					}
 				}
 				this.compileables.clear();
 				RuntimeException main = mainException.getValue();
 				if (main != null) throw main;
 			}
 		}
+	}
+
+	public static String _unusedMessage(RegistryEntry<Overrider> entry) {
+		return UnregisteredObjectException.getKey(entry) + " is not in any tags. It will not be able to function unless you add it to a tag which the chunk generator uses.";
 	}
 
 	@UseVerifier(name = "postConstruct", in = DelayedCompileable.class, usage = MemberUsage.METHOD_IS_HANDLER, strict = false)

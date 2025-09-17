@@ -63,12 +63,21 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 public class LodGenerator implements SafeCloseable {
 
 	public static final int
-		SINGLE_PADDING   = 2,
-		DOUBLE_PADDING   = SINGLE_PADDING << 1,
-		RENDER_WIDTH     = 1 << LodQuadTree.MIN_LEVEL,
-		RENDER_AREA      = RENDER_WIDTH * RENDER_WIDTH,
-		GENERATION_WIDTH = RENDER_WIDTH + DOUBLE_PADDING,
-		GENERATION_AREA  = GENERATION_WIDTH * GENERATION_WIDTH;
+		INNER_WIDTH           = 1 << LodQuadTree.MIN_LEVEL,
+		INNER_AREA            = INNER_WIDTH * INNER_WIDTH,
+
+		SINGLE_RENDER_PADDING = 2,
+		DOUBLE_RENDER_PADDING = SINGLE_RENDER_PADDING << 1,
+		RENDER_WIDTH          = INNER_WIDTH + DOUBLE_RENDER_PADDING,
+		RENDER_AREA           = RENDER_WIDTH * RENDER_WIDTH,
+
+		EDGE_THICKNESS        = 4,
+		SHORT_EDGE_LENGTH     = INNER_WIDTH << 1,
+		SHORT_EDGE_AREA       = SHORT_EDGE_LENGTH * EDGE_THICKNESS,
+		LONG_EDGE_LENGTH      = SHORT_EDGE_LENGTH + EDGE_THICKNESS * 2,
+		LONG_EDGE_AREA        = LONG_EDGE_LENGTH * EDGE_THICKNESS,
+		EDGE_COLUMN_COUNT     = SHORT_EDGE_AREA * 2 + LONG_EDGE_AREA * 2,
+		TOTAL_COLUMN_COUNT    = INNER_AREA + EDGE_COLUMN_COUNT;
 
 	public static final ThreadLocal<Boolean>
 		RENDERING_LODS = ThreadLocal.withInitial(() -> Boolean.FALSE);
@@ -101,8 +110,8 @@ public class LodGenerator implements SafeCloseable {
 			generatorParams.compiledWorldTraits
 		);
 		for (int thread = 0; thread < threads; thread++) {
-			ScriptedColumn[] columns = new ScriptedColumn[GENERATION_AREA];
-			for (int index = 0; index < GENERATION_AREA; index++) {
+			ScriptedColumn[] columns = new ScriptedColumn[TOTAL_COLUMN_COUNT];
+			for (int index = 0; index < TOTAL_COLUMN_COUNT; index++) {
 				columns[index] = factory.create(params);
 			}
 			this.columns.add(columns);
@@ -184,10 +193,18 @@ public class LodGenerator implements SafeCloseable {
 		}
 	}
 
-	public static record ColumnResults(ScriptedColumn[] columns, BlockSegmentList[] lists) {}
+	public static record ColumnResults(
+		ScriptedColumn[] recyclableColumns,
+		ScriptedColumn[] worldColumns,
+		BlockSegmentList[] lists
+	) {}
 
 	public void buildRegion(LodRequest request) {
-		ColumnResults results = this.generateColumns(request);
+		ColumnResults results = (
+			request.owner.level == LodQuadTree.MIN_LEVEL
+			? this.generateLod0Columns(request)
+			: this.generateLodNColumns(request)
+		);
 		if (results == null) return;
 		this.activeMeshers.incrementAndGet();
 		BigGlobeThreadPool.lodExecutor().execute(() -> {
@@ -204,20 +221,20 @@ public class LodGenerator implements SafeCloseable {
 			}
 			finally {
 				RENDERING_LODS.set(oldRenderingLods);
-				this.columns.add(results.columns);
+				this.columns.add(results.recyclableColumns);
 				this.activeMeshers.decrementAndGet();
 			}
 		});
 	}
 
-	public @Nullable ColumnResults generateColumns(LodRequest request) {
+	public @Nullable ColumnResults generateLod0Columns(LodRequest request) {
 		int lod  = request.owner.level;
 		int blockLod = lod - LodQuadTree.MIN_LEVEL;
 		int step = 1 << blockLod;
 		int quadSize = step << 1;
 		int minX = request.owner.minX() - quadSize;
-		int maxX = request.owner.maxX() + quadSize;
 		int minZ = request.owner.minZ() - quadSize;
+		int maxX = request.owner.maxX() + quadSize;
 		int maxZ = request.owner.maxZ() + quadSize;
 		ScriptedColumn[] columns;
 		try {
@@ -226,7 +243,7 @@ public class LodGenerator implements SafeCloseable {
 		catch (InterruptedException ignored) {
 			return null;
 		}
-		BlockSegmentList[] lists = new BlockSegmentList[GENERATION_AREA];
+		BlockSegmentList[] lists = new BlockSegmentList[RENDER_AREA];
 		int minY = this.generatorParams.minY;
 		int maxY = this.generatorParams.maxY;
 		Layer layer = this.generatorParams.layer.value();
@@ -245,16 +262,90 @@ public class LodGenerator implements SafeCloseable {
 				for (int quadX = minX; quadX < maxX; quadX += quadSize) {
 					final int quadX_ = quadX;
 					async.submit(() -> {
-						int baseIndex = ((quadZ_ - minZ) >> blockLod) * GENERATION_WIDTH + ((quadX_ - minX) >> blockLod);
+						int baseIndex = ((quadZ_ - minZ) >> blockLod) * RENDER_WIDTH + ((quadX_ - minX) >> blockLod);
 						ScriptedColumn
 							column00 = columns[baseIndex],
 							column01 = columns[baseIndex + 1],
-							column10 = columns[baseIndex + GENERATION_WIDTH],
-							column11 = columns[baseIndex + (GENERATION_WIDTH + 1)];
+							column10 = columns[baseIndex + RENDER_WIDTH],
+							column11 = columns[baseIndex + (RENDER_WIDTH + 1)];
 						column00.setParamsUnchecked(params.at(quadX_,        quadZ_       ));
 						column01.setParamsUnchecked(params.at(quadX_ + step, quadZ_       ));
 						column10.setParamsUnchecked(params.at(quadX_,        quadZ_ + step));
 						column11.setParamsUnchecked(params.at(quadX_ + step, quadZ_ + step));
+						BlockSegmentList
+							list00 = new BlockSegmentList(minY, maxY),
+							list01 = new BlockSegmentList(minY, maxY),
+							list10 = new BlockSegmentList(minY, maxY),
+							list11 = new BlockSegmentList(minY, maxY);
+						layer.emitSegments(column00, column01, column10, column11, list00);
+						layer.emitSegments(column01, column00, column11, column10, list01);
+						layer.emitSegments(column10, column11, column00, column01, list10);
+						layer.emitSegments(column11, column10, column01, column00, list11);
+						list00.computeLightLevels();
+						list01.computeLightLevels();
+						list10.computeLightLevels();
+						list11.computeLightLevels();
+						lists[baseIndex] = list00;
+						lists[baseIndex + 1] = list01;
+						lists[baseIndex + RENDER_WIDTH] = list10;
+						lists[baseIndex + (RENDER_WIDTH + 1)] = list11;
+					});
+				}
+			}
+		}
+		return new ColumnResults(columns, columns, lists);
+	}
+
+	public @Nullable ColumnResults generateLodNColumns(LodRequest request) {
+		int lod  = request.owner.level;
+		int blockLod = lod - LodQuadTree.MIN_LEVEL;
+		int innerStep = 1 << blockLod;
+		int innerQuadSize = innerStep << 1;
+		int outerStep = innerStep >> 1;
+		int outerQuadSize = innerQuadSize >> 1;
+		int minX = request.owner.minX();
+		int minZ = request.owner.minZ();
+		int maxX = request.owner.maxX();
+		int maxZ = request.owner.maxZ();
+		ScriptedColumn[] columns;
+		try {
+			columns = this.columns.take();
+		}
+		catch (InterruptedException ignored) {
+			return null;
+		}
+		BlockSegmentList[] lists = new BlockSegmentList[RENDER_AREA];
+		ScriptedColumn[] worldColumns = new ScriptedColumn[RENDER_AREA];
+		int minY = this.generatorParams.minY;
+		int maxY = this.generatorParams.maxY;
+		Layer layer = this.generatorParams.layer.value();
+		Params params = new Params(
+			this.generatorParams.columnSeed,
+			0,
+			0,
+			this.generatorParams.minY,
+			this.generatorParams.maxY,
+			ColumnUsage.RAW_GENERATION.builtinLodHints(blockLod),
+			this.generatorParams.compiledWorldTraits
+		);
+		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
+			for (int quadZ = minZ; quadZ < maxZ; quadZ += innerQuadSize) {
+				final int quadZ_ = quadZ;
+				for (int quadX = minX; quadX < maxX; quadX += innerQuadSize) {
+					final int quadX_ = quadX;
+					async.submit(() -> {
+						int relativeX = (quadX_ - minX) >> blockLod;
+						int relativeZ = (quadZ_ - minZ) >> blockLod;
+						int baseIndex = relativeZ * INNER_WIDTH + relativeX;
+						ScriptedColumn
+							column00 = columns[baseIndex],
+							column01 = columns[baseIndex + 1],
+							column10 = columns[baseIndex + INNER_WIDTH],
+							column11 = columns[baseIndex + (INNER_WIDTH + 1)];
+						column00.setParamsUnchecked(params.at(quadX_,        quadZ_       ));
+						column01.setParamsUnchecked(params.at(quadX_ + innerStep, quadZ_       ));
+						column10.setParamsUnchecked(params.at(quadX_,        quadZ_ + innerStep));
+						column11.setParamsUnchecked(params.at(quadX_ + innerStep, quadZ_ + innerStep));
 						BlockSegmentList
 							list00 = new BlockSegmentList(minY, maxY),
 							list01 = new BlockSegmentList(minY, maxY),
@@ -274,15 +365,128 @@ public class LodGenerator implements SafeCloseable {
 						list01.computeLightLevels();
 						list10.computeLightLevels();
 						list11.computeLightLevels();
+						baseIndex = (relativeZ + SINGLE_RENDER_PADDING) * RENDER_WIDTH + (relativeX + SINGLE_RENDER_PADDING);
 						lists[baseIndex] = list00;
 						lists[baseIndex + 1] = list01;
-						lists[baseIndex + GENERATION_WIDTH] = list10;
-						lists[baseIndex + (GENERATION_WIDTH + 1)] = list11;
+						lists[baseIndex + RENDER_WIDTH] = list10;
+						lists[baseIndex + (RENDER_WIDTH + 1)] = list11;
+						worldColumns[baseIndex] = column00;
+						worldColumns[baseIndex + 1] = column01;
+						worldColumns[baseIndex + RENDER_WIDTH] = column10;
+						worldColumns[baseIndex + (RENDER_WIDTH + 1)] = column11;
 					});
 				}
 			}
+			class EdgeTask implements Runnable {
+
+				public final int quadX, quadZ, columnIndex, listIndex;
+
+				public EdgeTask(int quadX, int quadZ, int columnIndex, int listIndex) {
+					if (columnIndex + 3 >= TOTAL_COLUMN_COUNT) {
+						throw new IllegalArgumentException();
+					}
+					if (listIndex >= RENDER_AREA) {
+						throw new IllegalArgumentException();
+					}
+					this.quadX = quadX;
+					this.quadZ = quadZ;
+					this.columnIndex = columnIndex;
+					this.listIndex = listIndex;
+				}
+
+				@Override
+				public void run() {
+					ScriptedColumn
+						column00 = columns[this.columnIndex],
+						column01 = columns[this.columnIndex + 1],
+						column10 = columns[this.columnIndex + 2],
+						column11 = columns[this.columnIndex + 3];
+					column00.setParamsUnchecked(params.at(this.quadX, this.quadZ));
+					column01.setParamsUnchecked(params.at(this.quadX + outerStep, this.quadZ));
+					column10.setParamsUnchecked(params.at(this.quadX, this.quadZ + outerStep));
+					column11.setParamsUnchecked(params.at(this.quadX + outerStep, this.quadZ + outerStep));
+					BlockSegmentList
+						list00 = new BlockSegmentList(minY, maxY),
+						list01 = new BlockSegmentList(minY, maxY),
+						list10 = new BlockSegmentList(minY, maxY),
+						list11 = new BlockSegmentList(minY, maxY);
+					layer.emitSegments(column00, column01, column10, column11, list00);
+					layer.emitSegments(column01, column00, column11, column10, list01);
+					layer.emitSegments(column10, column11, column00, column01, list10);
+					layer.emitSegments(column11, column10, column01, column00, list11);
+					BlockSegmentList merged = LodGenerator.this.merge(list00, list01, list10, list11);
+					merged = LodGenerator.this.downsampleColumnKeepAir(merged, blockLod);
+					merged.computeLightLevels();
+					lists[this.listIndex] = merged;
+					worldColumns[this.listIndex] = column00;
+				}
+			}
+			int columnIndex = INNER_AREA;
+			int paddedMinX = minX - outerStep * EDGE_THICKNESS;
+			int paddedMinZ = minZ - outerStep * EDGE_THICKNESS;
+			int paddedMaxX = maxX + outerStep * EDGE_THICKNESS;
+			int paddedMaxZ = maxZ + outerStep * EDGE_THICKNESS;
+			for (int quadX = paddedMinX; quadX < paddedMaxX; quadX += outerQuadSize) {
+				for (int quadZ = paddedMinZ; quadZ < minZ; quadZ += outerQuadSize) {
+					async.submit(new EdgeTask(quadX, quadZ, columnIndex, ((quadZ - paddedMinZ) >> blockLod) * RENDER_WIDTH + ((quadX - paddedMinX) >> blockLod)));
+					columnIndex += 4;
+				}
+				for (int quadZ = maxZ; quadZ < paddedMaxZ; quadZ += outerQuadSize) {
+					async.submit(new EdgeTask(quadX, quadZ, columnIndex, ((quadZ - paddedMinZ) >> blockLod) * RENDER_WIDTH + ((quadX - paddedMinX) >> blockLod)));
+					columnIndex += 4;
+				}
+			}
+			for (int quadZ = minZ; quadZ < maxZ; quadZ += outerQuadSize) {
+				for (int quadX = paddedMinX; quadX < minX; quadX += outerQuadSize) {
+					async.submit(new EdgeTask(quadX, quadZ, columnIndex, ((quadZ - paddedMinZ) >> blockLod) * RENDER_WIDTH + ((quadX - paddedMinX) >> blockLod)));
+					columnIndex += 4;
+				}
+				for (int quadX = maxX; quadX < paddedMaxX; quadX += outerQuadSize) {
+					async.submit(new EdgeTask(quadX, quadZ, columnIndex, ((quadZ - paddedMinZ) >> blockLod) * RENDER_WIDTH + ((quadX - paddedMinX) >> blockLod)));
+					columnIndex += 4;
+				}
+			}
+			assert columnIndex == TOTAL_COLUMN_COUNT;
 		}
-		return new ColumnResults(columns, lists);
+		return new ColumnResults(columns, worldColumns, lists);
+	}
+
+	public BlockSegmentList merge(
+		BlockSegmentList list00,
+		BlockSegmentList list01,
+		BlockSegmentList list10,
+		BlockSegmentList list11
+	) {
+		BlockSegmentList result = new BlockSegmentList(list00.minY(), list00.maxY());
+		result.addAllSegments(list00);
+		this.copyAir(list01, list00);
+		this.copyAir(list10, list00);
+		this.copyAir(list11, list00);
+		return result;
+	}
+
+	public void copyAir(BlockSegmentList source, BlockSegmentList destination) {
+		for (Segment<BlockState> segment : source) {
+			if (BlockStateVersions.getCullingShape(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) != VoxelShapes.fullCube()) {
+				destination.addSegment(segment.minY, segment.maxY, segment.value);
+			}
+		}
+	}
+
+	public BlockSegmentList downsampleColumnKeepAir(BlockSegmentList list, int lod) {
+		BlockSegmentList newList = new BlockSegmentList(list.minY >> lod, (list.maxY >> lod) + 1);
+		for (Segment<BlockState> segment : list) {
+			int minY = segment.minY >> lod, maxY = segment.maxY >> lod;
+			//ensure culling blocks can't overwrite non-culling blocks.
+			if (BlockStateVersions.getCullingShape(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) == VoxelShapes.fullCube()) {
+				Segment<BlockState> existing = newList.getOverlappingSegment(minY);
+				if (existing != null) {
+					minY = Math.max(minY, existing.maxY + 1);
+				}
+			}
+			newList.addSegment(minY, maxY, segment.value);
+		}
+		return newList;
 	}
 
 	public BlockSegmentList downsampleColumn(BlockSegmentList list, int lod) {
@@ -311,10 +515,7 @@ public class LodGenerator implements SafeCloseable {
 		VoxelShape shape = BlockStateVersions.getCullingShape(other, EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 		if (shape == VoxelShapes.fullCube()) return false;
 		FluidState fluid = self.getFluidState();
-		if (fluid.getBlockState() == self /* false for waterlogged blocks */ && other.getFluidState() == fluid) {
-			return false;
-		}
-		return true;
+		return fluid.getBlockState() != self /* false for waterlogged blocks */ || other.getFluidState() != fluid;
 	}
 
 	public void buildGeometry(
@@ -331,20 +532,20 @@ public class LodGenerator implements SafeCloseable {
 			request.owner.minX(),
 			request.owner.minZ(),
 			request.owner.level,
-			results.columns,
+			results.worldColumns,
 			this.generatorParams
 		);
 		BlockSegmentList[] adjacents = new BlockSegmentList[4];
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		MatrixStack matrixStack = new MatrixStack();
-		for (pos.setZ(0); pos.getZ() < RENDER_WIDTH; pos.setZ(pos.getZ() + 1)) {
-			for (pos.setX(0); pos.getX() < RENDER_WIDTH; pos.setX(pos.getX() + 1)) {
-				int baseColumnIndex = (pos.getZ() + SINGLE_PADDING) * GENERATION_WIDTH + (pos.getX() + SINGLE_PADDING);
+		for (pos.setZ(0); pos.getZ() < INNER_WIDTH; pos.setZ(pos.getZ() + 1)) {
+			for (pos.setX(0); pos.getX() < INNER_WIDTH; pos.setX(pos.getX() + 1)) {
+				int baseColumnIndex = (pos.getZ() + SINGLE_RENDER_PADDING) * RENDER_WIDTH + (pos.getX() + SINGLE_RENDER_PADDING);
 				BlockSegmentList center = lists[baseColumnIndex];
 				adjacents[DirectionVersions.horizontal(Directions.POSITIVE_X)] = lists[baseColumnIndex + 1];
 				adjacents[DirectionVersions.horizontal(Directions.NEGATIVE_X)] = lists[baseColumnIndex - 1];
-				adjacents[DirectionVersions.horizontal(Directions.POSITIVE_Z)] = lists[baseColumnIndex + GENERATION_WIDTH];
-				adjacents[DirectionVersions.horizontal(Directions.NEGATIVE_Z)] = lists[baseColumnIndex - GENERATION_WIDTH];
+				adjacents[DirectionVersions.horizontal(Directions.POSITIVE_Z)] = lists[baseColumnIndex + RENDER_WIDTH];
+				adjacents[DirectionVersions.horizontal(Directions.NEGATIVE_Z)] = lists[baseColumnIndex - RENDER_WIDTH];
 				for (int centerIndex = 0, centerSize = center.size(); centerIndex < centerSize; centerIndex++) {
 					LitSegment centerSegment = center.getLit(centerIndex);
 					if (!centerSegment.value.isAir()) {
@@ -518,9 +719,9 @@ public class LodGenerator implements SafeCloseable {
 		}
 
 		public ScriptedColumn getColumn(BlockPos pos) {
-			int x = Objects.checkIndex(pos.getX() + SINGLE_PADDING, GENERATION_WIDTH);
-			int z = Objects.checkIndex(pos.getZ() + SINGLE_PADDING, GENERATION_WIDTH);
-			return this.columns[z * GENERATION_WIDTH + x];
+			int x = Objects.checkIndex(pos.getX() + SINGLE_RENDER_PADDING, RENDER_WIDTH);
+			int z = Objects.checkIndex(pos.getZ() + SINGLE_RENDER_PADDING, RENDER_WIDTH);
+			return this.columns[z * RENDER_WIDTH + x];
 		}
 
 		@Override
@@ -569,11 +770,11 @@ public class LodGenerator implements SafeCloseable {
 
 		@Override
 		public BlockState getBlockState(BlockPos pos) {
-			int x = pos.getX() + SINGLE_PADDING;
-			if (x < 0 || x > GENERATION_WIDTH) return BlockStates.AIR;
-			int z = pos.getZ() + SINGLE_PADDING;
-			if (z < 0 || z > GENERATION_WIDTH) return BlockStates.AIR;
-			BlockState state = this.lists[z * GENERATION_WIDTH + x].getBlockState(pos.getY());
+			int x = pos.getX() + SINGLE_RENDER_PADDING;
+			if (x < 0 || x >= RENDER_WIDTH) return BlockStates.AIR;
+			int z = pos.getZ() + SINGLE_RENDER_PADDING;
+			if (z < 0 || z >= RENDER_WIDTH) return BlockStates.AIR;
+			BlockState state = this.lists[z * RENDER_WIDTH + x].getBlockState(pos.getY());
 			return state != null ? state : Blocks.AIR.getDefaultState();
 		}
 
@@ -615,11 +816,11 @@ public class LodGenerator implements SafeCloseable {
 					yield 0;
 				}
 				case SKY -> {
-					int x = pos.getX() + SINGLE_PADDING;
-					if (x < 0 || x > GENERATION_WIDTH) yield 15;
-					int z = pos.getZ() + SINGLE_PADDING;
-					if (z < 0 || z > GENERATION_WIDTH) yield 15;
-					Segment<BlockState> segment = this.lists[z * GENERATION_WIDTH + x].getOverlappingSegment(pos.getY());
+					int x = pos.getX() + SINGLE_RENDER_PADDING;
+					if (x < 0 || x >= RENDER_WIDTH) yield 15;
+					int z = pos.getZ() + SINGLE_RENDER_PADDING;
+					if (z < 0 || z >= RENDER_WIDTH) yield 15;
+					Segment<BlockState> segment = this.lists[z * RENDER_WIDTH + x].getOverlappingSegment(pos.getY());
 					yield segment instanceof LitSegment lit ? lit.getLightLevel(pos.getY(), this.lod - LodQuadTree.MIN_LEVEL) : 15;
 				}
 			};

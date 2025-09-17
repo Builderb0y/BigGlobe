@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
@@ -16,18 +15,14 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.KeyDispatchCoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueOverrider.Entry, StructureOverrider.Entry {
@@ -44,19 +39,6 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 			return type.coder;
 		}
 	};
-	public static final Object INITIALIZER = new Object() {{
-		CommonLifecycleEvents.TAGS_LOADED.register((DynamicRegistryManager registries, boolean client) -> {
-			if (!client) {
-				RegistryVersions
-				.getRegistry(registries, BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
-				.streamEntries()
-				.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
-				.forEach((RegistryEntry<Overrider> entry) -> {
-					BigGlobeMod.LOGGER.warn(UnregisteredObjectException.getKey(entry) + " is not in any tags. It will not be able to function unless you add it to a tag which the chunk generator uses.");
-				});
-			}
-		});
-	}};
 
 	public abstract Type getOverriderType();
 
