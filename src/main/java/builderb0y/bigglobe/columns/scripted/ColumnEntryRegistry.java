@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagGroupLoader.TrackedEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
@@ -34,6 +35,7 @@ import builderb0y.bigglobe.columns.scripted.traits.TraitManager;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.config.BigGlobeConfig.InvalidTagHandling;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.overriders.Overrider;
@@ -229,6 +231,10 @@ public class ColumnEntryRegistry {
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
 
+		//these have to be static because tags are actually loaded before registry entries, for some reason.
+		public static InvalidTagHandling invalidTagHandling;
+		public static Map<Identifier, List<TrackedEntry>> invalidTags;
+
 		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client) {
 			this.client = client;
 			this.betterRegistryLookup = betterRegistryLookup;
@@ -283,6 +289,25 @@ public class ColumnEntryRegistry {
 			return this.columnEntryRegistry;
 		}
 
+		public static boolean addInvalidTag(Identifier identifier, List<TrackedEntry> entries) {
+			return switch (invalidTagHandling) {
+				case VANILLA -> false;
+				case FORCE_LOAD -> {
+					BigGlobeMod.LOGGER.warn("Tag " + Objects.toString(identifier, "<unknown>") + " contains invalid entries: " + entries + "; forcing it to load anyway.");
+					yield true;
+				}
+				case FORCE_ABORT -> {
+					invalidTags.merge(identifier, new ArrayList<>(entries), (List<TrackedEntry> list1, List<TrackedEntry> list2) -> {
+						ArrayList<TrackedEntry> result = new ArrayList<>(list1.size() + list2.size());
+						result.addAll(list1);
+						result.addAll(list2);
+						return result;
+					});
+					yield true;
+				}
+			};
+		}
+
 		public void compile() {
 			if (this.columnEntryRegistry == null) try {
 				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.client);
@@ -324,6 +349,11 @@ public class ColumnEntryRegistry {
 						.streamEntries()
 						.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
 						.forEach(action);
+						if (invalidTagHandling == InvalidTagHandling.FORCE_ABORT) {
+							for (Map.Entry<Identifier, List<TrackedEntry>> invalidTag : invalidTags.entrySet()) {
+								async.submit(() -> new RuntimeException("Tag " + Objects.toString(invalidTag.getKey(), "<unknown>") + " contains invalid entries: " + invalidTag.getValue()));
+							}
+						}
 					}
 				}
 				this.compileables.clear();

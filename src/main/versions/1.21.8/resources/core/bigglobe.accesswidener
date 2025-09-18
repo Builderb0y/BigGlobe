@@ -45,3 +45,6 @@ accessible method net/minecraft/world/SpawnHelper getEntitySpawnPos (Lnet/minecr
 accessible method net/minecraft/client/render/WorldRenderer hasBlindnessOrDarkness (Lnet/minecraft/client/render/Camera;)Z
 accessible method net/minecraft/client/render/GameRenderer getFov (Lnet/minecraft/client/render/Camera;FZ)F
 accessible field net/minecraft/client/render/LightmapTextureManager glTexture Lcom/mojang/blaze3d/textures/GpuTexture;
+
+#used by mixin.
+accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies

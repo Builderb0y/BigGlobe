@@ -40,3 +40,6 @@ accessible field net/minecraft/client/render/GameRenderer zoom F
 accessible field net/minecraft/client/render/GameRenderer zoomX F
 accessible field net/minecraft/client/render/GameRenderer zoomY F
 accessible field net/minecraft/client/render/RenderLayer translucent Z #getter was added in MC 1.21.
+
+#used by mixin.
+accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies

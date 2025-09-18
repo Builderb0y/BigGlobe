@@ -138,9 +138,21 @@ public class BigGlobeConfig {
 		public boolean rejectUnusedOverriders = false;
 
 		@Tooltip(count = 3)
+		@UseName("Invalid tag handling")
+		@EnumHandler(option = EnumDisplayOption.BUTTON)
+		@DefaultIgnore
+		public InvalidTagHandling invalidTagHandling = InvalidTagHandling.VANILLA;
+
+		@Tooltip(count = 3)
 		@UseName("Log extra mob spawns")
 		@DefaultIgnore
 		public boolean logExtraMobSpawns = false;
+	}
+
+	public static enum InvalidTagHandling {
+		VANILLA,
+		FORCE_LOAD,
+		FORCE_ABORT;
 	}
 
 	@Tooltip(count = 2)

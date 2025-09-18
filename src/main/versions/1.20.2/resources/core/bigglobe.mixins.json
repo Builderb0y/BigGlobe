@@ -87,6 +87,7 @@
 		"StructureStart_SaveBoundingBox",
 		"Structure_ImplementSizedStructure",
 		"SugarCaneBlock_MakePlaceableOnGravel",
+		"TagGroupLoader_DontLoadMyF___ingTags",
 		"ThrownEntity_CollisionHook",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
 		"WorldGenProperties_LogLevelType",

@@ -78,8 +78,13 @@ json classes:
 		merge stuff.
 
 changelog:
+	# For normal people
 	* Made pseudo-erosion algorithm better.
 	* Fixed end fractals spawning intersecting dragons's nest.
+	* Fixed gaps in LOD transitions.
+	# For data pack developers
+	* Added config option to fail datapack validation when an overrider is not tagged properly.
+	* Added config option to fail datapack validation when any tag contains an invalid entry.
 
 alternate world presets:
 	paradise.

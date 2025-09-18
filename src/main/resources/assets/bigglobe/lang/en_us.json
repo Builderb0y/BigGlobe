@@ -347,6 +347,11 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.rejectUnusedOverriders.@Tooltip[1]": "If false, Big Globe will log a warning in this case instead.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.rejectUnusedOverriders.@Tooltip[2]": "This option can be useful as a sanity check to ensure your overrider tags are setup correctly.",
 
+	"text.autoconfig.bigglobe.option.dataPackDebugging.invalidTagHandling": "Invalid tag handling",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.invalidTagHandling.@Tooltip[0]": "VANILLA: Use vanilla logic. (pretends the tag is empty if it contains any invalid entries)",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.invalidTagHandling.@Tooltip[1]": "FORCE_LOAD: Same as the \"Load My F***ing Tags\" mod. (loads all valid entries and ignores invalid entries)",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.invalidTagHandling.@Tooltip[2]": "FORCE_ABORT: Fails datapack validation if any tags contain invalid entries. Useful for finding errors in data packs.",
+
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns": "Log extra mob spawns",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[0]": "If true, Big Globe will log a message to the game console and log file when extra mob spawns are computed for a biome/spawn group.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.logExtraMobSpawns.@Tooltip[1]": "If false, Big Globe will not do that.",

@@ -44,3 +44,6 @@ accessible method net/minecraft/client/render/GameRenderer getFov (Lnet/minecraf
 accessible field net/minecraft/client/render/GameRenderer zoom F
 accessible field net/minecraft/client/render/GameRenderer zoomX F
 accessible field net/minecraft/client/render/GameRenderer zoomY F
+
+#used by mixin.
+accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies

@@ -120,6 +120,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".StructureAccessor_UseStructureManagerInBigGlobeWorlds",                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".SugarCaneBlock_MakePlaceableOnGravel",                                                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".TagGroupLoader_DontLoadMyF___ingTags",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".VoxyIntegration",                                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                                            Boolean.TRUE);
