@@ -2,7 +2,7 @@ package builderb0y.bigglobe.rendering.lods;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.rendering.GLException;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL32C.*;
 

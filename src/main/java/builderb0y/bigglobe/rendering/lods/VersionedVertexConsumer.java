@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 
 import net.minecraft.client.render.VertexConsumer;
 
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 @Environment(EnvType.CLIENT)
 public abstract class VersionedVertexConsumer

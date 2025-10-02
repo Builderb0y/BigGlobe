@@ -14,7 +14,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.GpuMemory;
 import builderb0y.bigglobe.rendering.OutOfVramException;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL32C.*;
 import static org.lwjgl.system.MemoryUtil.*;

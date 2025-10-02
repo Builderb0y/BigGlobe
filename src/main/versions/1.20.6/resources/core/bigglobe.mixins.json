@@ -113,6 +113,7 @@
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",
+		"ServerChunkLoadingManager_NotifyLodSystem",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
 		"WorldRenderer_HoldLodSystem",
 		"WorldRenderer_RenderHyperspaceSky",

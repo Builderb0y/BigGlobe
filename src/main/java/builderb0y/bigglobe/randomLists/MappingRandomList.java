@@ -39,12 +39,12 @@ public abstract class MappingRandomList<T_From, T_To> extends AbstractRandomList
 	}
 
 	@Override
-	public T_To getRandomElement(RandomGenerator random) {
-		return this.map(this.delegate.getRandomElement(random));
+	public int getRandomIndex(RandomGenerator random) {
+		return this.delegate.getRandomIndex(random);
 	}
 
 	@Override
-	public T_To getRandomElement(long seed) {
-		return this.map(this.delegate.getRandomElement(seed));
+	public int getRandomIndex(long seed) {
+		return this.delegate.getRandomIndex(seed);
 	}
 }

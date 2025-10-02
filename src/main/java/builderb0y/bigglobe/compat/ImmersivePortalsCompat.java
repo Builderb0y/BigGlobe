@@ -7,10 +7,14 @@ import java.util.function.BiConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import org.jetbrains.annotations.Nullable;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.dimlib.api.DimensionAPI.ServerDynamicUpdateListener;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.network.PacketRedirection;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,6 +23,7 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class ImmersivePortalsCompat {
@@ -69,6 +74,22 @@ public class ImmersivePortalsCompat {
 		else {
 			action.accept(EntityVersions.getServerWorld(player), player);
 		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static @Nullable LodSystemHolder getLodSystem(RegistryKey<World> dimensionKey) {
+		if (InstalledMods.IMMERSIVE_PORTALS) try {
+			return IPCode.getLodSystem(dimensionKey);
+		}
+		catch (LinkageError error) {
+			InstalledMods.IMMERSIVE_PORTALS = false;
+			BigGlobeMod.LOGGER.error("Exception getting world renderer for " + dimensionKey, error);
+		}
+		ClientWorld world = MinecraftClient.getInstance().world;
+		if (world != null && world.getRegistryKey() == dimensionKey) {
+			return (LodSystemHolder)(MinecraftClient.getInstance().worldRenderer);
+		}
+		return null;
 	}
 
 	public static class DimLibCode {
@@ -134,6 +155,11 @@ public class ImmersivePortalsCompat {
 			for (ServerWorld serverWorld : server.getWorlds()) {
 				PacketRedirection.withForceRedirect(serverWorld, () -> action.accept(serverWorld, player));
 			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public static @Nullable LodSystemHolder getLodSystem(RegistryKey<World> dimensionKey) {
+			return (LodSystemHolder)(ClientWorldLoader.WORLD_RENDERER_MAP.get(dimensionKey));
 		}
 	}
 }

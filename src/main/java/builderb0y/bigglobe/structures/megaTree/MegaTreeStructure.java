@@ -56,7 +56,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 	public final @EncodeInline Data data;
 
 	public MegaTreeStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y, Data data) {
-		super(config, surface_y);
+		super(config, null, surface_y);
 		this.data = data;
 	}
 

@@ -108,6 +108,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                                        Boolean.TRUE);
+		defaults.put(mixinPackage + ".ServerChunkLoadingManager_NotifyLodSystem",                                                Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_SpawnEnderDragonInBigGlobeWorlds",                                             Boolean.TRUE);

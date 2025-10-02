@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.scripting.environments;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.resource.Resource;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.processor.StructureProcessorList;
@@ -82,9 +84,17 @@ public class StructureTemplateScriptEnvironment {
 		}
 		else {
 			Identifier identifier = IdentifierVersions.create(id);
-			StructureTemplate template = BigGlobeMod.getCurrentServer().getStructureTemplateManager().getTemplate(identifier).orElse(null);
-			if (template != null) return template;
-			else throw new IllegalArgumentException("Template not found: " + identifier);
+			if (BigGlobeMod.currentServer != null) {
+				StructureTemplate template = BigGlobeMod.currentServer.getStructureTemplateManager().getTemplate(identifier).orElse(null);
+				if (template != null) return template;
+				else throw new IllegalArgumentException("Template not found: " + identifier);
+			}
+			else {
+				Identifier adjusted = Identifier.of(identifier.getNamespace(), "structure/" + identifier.getPath() + ".nbt");
+				Optional<Resource> resource = BigGlobeMod.getResourceManager().getResource(adjusted);
+				if (resource.isPresent()) return null; //validation only requires that we don't throw.
+				else throw new IllegalArgumentException("Template not found: " + identifier);
+			}
 		}
 	}
 

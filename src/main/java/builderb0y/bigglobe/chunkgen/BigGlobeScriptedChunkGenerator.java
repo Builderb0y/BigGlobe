@@ -78,10 +78,12 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
+import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
-import builderb0y.bigglobe.chunkgen.scripted.SegmentList.Segment;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.*;
@@ -91,7 +93,6 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
@@ -731,23 +732,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									int baseIndex = (offsetZ_ << 4) | offsetX_;
 									int quadX = startX | offsetX_;
 									int quadZ = startZ | offsetZ_;
-									ScriptedColumn
-										column00 = columns[baseIndex],
-										column01 = columns[baseIndex | 1],
-										column10 = columns[baseIndex | 16],
-										column11 = columns[baseIndex | 17];
-									column00.setParamsUnchecked(params.at(quadX, quadZ));
-									column01.setParamsUnchecked(params.at(quadX | 1, quadZ));
-									column10.setParamsUnchecked(params.at(quadX, quadZ | 1));
-									column11.setParamsUnchecked(params.at(quadX | 1, quadZ | 1));
+									QuadColumn quadColumn = new QuadColumn();
+									quadColumn.loadFromArray(columns, baseIndex, 16);
+									quadColumn.at(params, quadX, quadZ, 1);
 									try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
 										for (String name : this.getOverriders().rawColumnValueDependencies)
 											try {
 												try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
-													column00.preComputeColumnValue(name);
-													column01.preComputeColumnValue(name);
-													column10.preComputeColumnValue(name);
-													column11.preComputeColumnValue(name);
+													quadColumn.preComputeColumnValue(name);
 												}
 											}
 											catch (Throwable throwable) {
@@ -757,29 +749,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
 										for (RegistryEntry<ColumnValueOverrider.Entry> overrider : this.getOverriders().rawColumnValues) {
 											try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overrider)::toString) : null) {
-												overrider.value().script().override(column00, structures);
-												overrider.value().script().override(column01, structures);
-												overrider.value().script().override(column10, structures);
-												overrider.value().script().override(column11, structures);
+												quadColumn.override(overrider.value().script(), structures);
 											}
 										}
 									}
-									BlockSegmentList
-										list00 = new BlockSegmentList(chunkMinY, chunkMaxY),
-										list01 = new BlockSegmentList(chunkMinY, chunkMaxY),
-										list10 = new BlockSegmentList(chunkMinY, chunkMaxY),
-										list11 = new BlockSegmentList(chunkMinY, chunkMaxY);
+									QuadList quadList = new QuadList();
+									quadList.createNew(chunkMinY, chunkMaxY);
 									Layer layer = this.layer.value();
 									try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
-										layer.emitSegments(column00, column01, column10, column11, list00);
-										layer.emitSegments(column01, column00, column11, column10, list01);
-										layer.emitSegments(column10, column11, column00, column01, list10);
-										layer.emitSegments(column11, column10, column01, column00, list11);
+										QuadHolder.generate(quadColumn, quadList, layer);
 									}
-									lists[baseIndex     ] = list00;
-									lists[baseIndex |  1] = list01;
-									lists[baseIndex | 16] = list10;
-									lists[baseIndex | 17] = list11;
+									quadList.storeInArray(lists, baseIndex, 16);
 								}
 							});
 						}
@@ -790,14 +770,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				for (BlockSegmentList list : lists) {
 					int size = list.size();
 					for (int index = 0; index < size; index++) {
-						Segment<BlockState> segment = list.get(index);
+						LitSegment segment = list.get(index);
 						if (!segment.value.isAir()) {
 							minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
 							break;
 						}
 					}
 					for (int index = size; --index >= 0;) {
-						Segment<BlockState> segment = list.get(index);
+						LitSegment segment = list.get(index);
 						if (!segment.value.isAir()) {
 							maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
 							break;
@@ -817,7 +797,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						int size = list.size();
 						int yIndex = list.getSegmentIndex(baseY, false);
 						while (yIndex < size) {
-							Segment<BlockState> segment = list.get(yIndex);
+							LitSegment segment = list.get(yIndex);
 							int segmentMinY = Math.max(segment.minY - baseY, 0);
 							int segmentMaxY = Math.min(segment.maxY - baseY, 15);
 							if (segmentMaxY >= segmentMinY) {
@@ -1047,7 +1027,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		#if MC_VERSION >= MC_1_21_4 , RegistryKey<World> dimension #endif
 	) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		FinalStructures starts = this.structureManager.getStructureStarts(
+		FinalStructures starts = this.structureManager.getFinalStructures(
 			new StructureGenerationParams(
 				this,
 				this.newColumnLookup(chunk, ColumnUsage.GENERIC.maybeDhHints(distantHorizons)),
@@ -1135,7 +1115,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		int chunkZ
 	) {
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
-		FinalStructures starts = this.structureManager.getStructureStarts(
+		FinalStructures starts = this.structureManager.getFinalStructures(
 			new StructureGenerationParams(
 				this,
 				this.newColumnLookup(world, hints),
@@ -1234,7 +1214,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public static int getHeight(BlockSegmentList list, Heightmap.Type type) {
 		for (int index = list.size(); --index >= 0;) {
-			Segment<BlockState> segment = list.get(index);
+			LitSegment segment = list.get(index);
 			if (type.getBlockPredicate().test(segment.value)) {
 				return segment.maxY + 1;
 			}

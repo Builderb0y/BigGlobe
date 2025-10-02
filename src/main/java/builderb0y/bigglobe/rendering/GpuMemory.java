@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL15C.*;
 

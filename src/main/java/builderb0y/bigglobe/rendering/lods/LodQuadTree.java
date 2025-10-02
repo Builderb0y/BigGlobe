@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.util.math.MathHelper;
 
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 @Environment(EnvType.CLIENT)
 public class LodQuadTree implements SafeCloseable {
@@ -27,6 +27,7 @@ public class LodQuadTree implements SafeCloseable {
 	public @Nullable SafeCloseable passes;
 	public @Nullable LodQuadTree x0z0, x0z1, x1z0, x1z1;
 	public int flags;
+	public long rebuildTime = Long.MAX_VALUE;
 
 	@Override
 	public String toString() {
@@ -118,7 +119,6 @@ public class LodQuadTree implements SafeCloseable {
 	}
 
 	public void split() {
-		//System.out.println("splitting " + this);
 		if (this.x0z0 == null) this.x0z0 = new LodQuadTree(this.minX(), this.minZ(), this.level - 1);
 		if (this.x1z0 == null) this.x1z0 = new LodQuadTree(this.midX(), this.minZ(), this.level - 1);
 		if (this.x0z1 == null) this.x0z1 = new LodQuadTree(this.minX(), this.midZ(), this.level - 1);

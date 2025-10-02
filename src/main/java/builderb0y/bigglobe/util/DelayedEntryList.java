@@ -33,6 +33,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	public final @NotNull RegistryKey<Registry<T>> registryKey;
 	public final @NotNull @SingletonArray List<DelayedEntry> delayedEntries;
 	public SortedEncodings sortedEncodings;
+	public boolean compileCalled = true;
 
 	public @Nullable List<RegistryEntry<T>> entryList;
 	public @Nullable Set<RegistryEntry<T>> entrySet;
@@ -183,7 +184,12 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	}
 
 	public void resolve() {
-		if (this.resolver == null) throw new IllegalStateException("Can't resolve DelayedEntryList with no registry!");
+		if (this.resolver == null) {
+			throw new IllegalStateException("Can't resolve DelayedEntryList with no registry!");
+		}
+		if (!this.compileCalled) {
+			BigGlobeMod.LOGGER.warn("Something is trying to resolve a DelayedEntryList too early!", new IllegalStateException("Stack trace"));
+		}
 		this.entryList = (
 			this
 			.delayedEntries
@@ -213,11 +219,22 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 				)
 			)
 		);
+		this.entrySet = null;
+		this.objectList = null;
+		this.objectSet = null;
 	}
 
 	@Override
-	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-		if (!this.isResolved()) this.resolve();
+	public void compile(ColumnEntryRegistry registry) {
+		if (!this.compileCalled) {
+			this.compileCalled = true;
+			this.resolve();
+		}
+	}
+
+	@Override
+	public void delay() {
+		ColumnEntryRegistry.Loading.get().addTag(this);
 	}
 
 	public SortedEncodings getSortedEncodings() {

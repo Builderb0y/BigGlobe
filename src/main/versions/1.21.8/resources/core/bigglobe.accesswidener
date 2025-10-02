@@ -45,6 +45,10 @@ accessible method net/minecraft/world/SpawnHelper getEntitySpawnPos (Lnet/minecr
 accessible method net/minecraft/client/render/WorldRenderer hasBlindnessOrDarkness (Lnet/minecraft/client/render/Camera;)Z
 accessible method net/minecraft/client/render/GameRenderer getFov (Lnet/minecraft/client/render/Camera;FZ)F
 accessible field net/minecraft/client/render/LightmapTextureManager glTexture Lcom/mojang/blaze3d/textures/GpuTexture;
+accessible field net/minecraft/world/chunk/SerializedChunk CODEC Lcom/mojang/serialization/Codec;
+accessible method net/minecraft/server/world/ServerChunkLoadingManager getUpdatedChunkNbt (Lnet/minecraft/util/math/ChunkPos;)Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/world/chunk/ChunkNibbleArray bytes [B
+accessible field net/minecraft/world/chunk/ChunkNibbleArray defaultValue I
 
 #used by mixin.
 accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies

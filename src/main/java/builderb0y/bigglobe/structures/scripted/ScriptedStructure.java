@@ -63,7 +63,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	public final @DefaultInt(8) int max_radius_in_chunks;
 
 	public ScriptedStructure(Config config, StructureLayoutScript.Holder layout, int max_radius_in_chunks) {
-		super(config, null);
+		super(config, null, null);
 		this.layout = layout;
 		this.max_radius_in_chunks = max_radius_in_chunks;
 	}

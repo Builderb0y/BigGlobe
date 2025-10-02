@@ -23,14 +23,16 @@ public class DebugHud_ShowLodStatus {
 		if (system != null) {
 			int meshedNodes = LodSystem.countMeshes(system.tree);
 			int renderingNodes = LodSystem.countRenderingNodes(system.tree);
+			int dirtyNodes = LodSystem.countDirty(system.tree);
 			int totalNodes = LodSystem.countTotalNodes(system.tree);
 			double currentQuality = system.currentQuality;
 			double qualityLimit = system.qualityLimit;
 			double qualityConfig = BigGlobeConfig.INSTANCE.get().lodRendering.quality;
 			String rendererName = system.renderer.getClass().getSimpleName();
 			if (rendererName.endsWith("LodRenderer")) rendererName = rendererName.substring(0, rendererName.length() - "LodRenderer".length());
-			callback.getReturnValue().add("[BG] LOD Renderer: " + rendererName + ", Nodes: R: " + renderingNodes + ", M: " + meshedNodes + ", T: " + totalNodes + ", Q: " + currentQuality + "/" + qualityLimit + "/" + qualityConfig);
+			callback.getReturnValue().add("[BG] LOD Renderer: " + rendererName + ", Nodes: R: " + renderingNodes + ", M: " + meshedNodes + ", D: " + dirtyNodes + ", T: " + totalNodes + ", Q: " + currentQuality + "/" + qualityLimit + "/" + qualityConfig);
 			system.renderer.appendTextToF3Menu(callback.getReturnValue());
+			callback.getReturnValue().add(system.generator.f3Message());
 		}
 	}
 }

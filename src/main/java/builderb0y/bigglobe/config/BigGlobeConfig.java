@@ -75,7 +75,7 @@ public class BigGlobeConfig {
 	@Tooltip(count = 3)
 	@UseName("Threads")
 	@DefaultIgnore
-	public int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1);
+	public int threads = Math.max(Runtime.getRuntime().availableProcessors() - 4, 1);
 
 	public int threads() {
 		return Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
@@ -235,6 +235,27 @@ public class BigGlobeConfig {
 		public double quality = 2.0D;
 
 		@Tooltip(count = 3)
+		@UseName("Max LOD For Chunk Loading")
+		@DefaultIgnore
+		public int maxLodForChunkLoading = 5;
+		@Excluded
+		public static transient int previousMaxLodForChunkLoading = 5;
+
+		@Tooltip(count = 3)
+		@UseName("Vertical Compression")
+		@DefaultIgnore
+		public int verticalCompression = 16;
+		@Excluded
+		public static transient int previousVerticalCompression = 16;
+
+		@Tooltip(count = 3)
+		@UseName("Cave Culling Depth")
+		@DefaultIgnore
+		public int caveCullingDepth = 16;
+		@Excluded
+		public static transient int previousCaveCullingDepth = 16;
+
+		@Tooltip(count = 3)
 		@UseName("Min View Distance")
 		@DefaultIgnore
 		public float minViewDistance = 0.25F;
@@ -270,6 +291,9 @@ public class BigGlobeConfig {
 		public void validatePostLoad() {
 			this.maxQuads = MathHelper.clamp(this.maxQuads, 10_000_000, 100_000_000);
 			this.quality = MathHelper.clamp(this.quality, 1.0D, 3.0D);
+			this.maxLodForChunkLoading = MathHelper.clamp(this.maxLodForChunkLoading, 0, 5);
+			this.verticalCompression = Math.max(this.verticalCompression, 0);
+			this.caveCullingDepth = Math.max(this.caveCullingDepth, -1);
 			this.minViewDistance = Math.max(this.minViewDistance, 1.0F / 256.0F);
 			this.maxViewDistance = Math.max(this.maxViewDistance, this.minViewDistance + 1.0F / 256.0F);
 			this.generationBufferDistance = Math.max(this.generationBufferDistance, this.maxViewDistance);
@@ -285,15 +309,21 @@ public class BigGlobeConfig {
 			MinecraftClient client = MinecraftClient.getInstance();
 			LodSystemHolder holder = client != null ? (LodSystemHolder)(client.worldRenderer) : null;
 			if (
-				this.renderingEnabled() != previousEnabled         ||
-				this.rendererBackend    != previousRendererBackend ||
-				this.maxQuads           != previousMaxQuads        ||
-				this.undergroundMode    != previousUndergroundMode
+				this.renderingEnabled()    != previousEnabled               ||
+				this.rendererBackend       != previousRendererBackend       ||
+				this.maxQuads              != previousMaxQuads              ||
+				this.undergroundMode       != previousUndergroundMode       ||
+				this.maxLodForChunkLoading != previousMaxLodForChunkLoading ||
+				this.verticalCompression   != previousVerticalCompression   ||
+				this.caveCullingDepth      != previousCaveCullingDepth
 			) {
-				previousEnabled         = this.renderingEnabled();
-				previousRendererBackend = this.rendererBackend;
-				previousMaxQuads        = this.maxQuads;
-				previousUndergroundMode = this.undergroundMode;
+				previousEnabled               = this.renderingEnabled();
+				previousRendererBackend       = this.rendererBackend;
+				previousMaxQuads              = this.maxQuads;
+				previousUndergroundMode       = this.undergroundMode;
+				previousMaxLodForChunkLoading = this.maxLodForChunkLoading;
+				previousVerticalCompression   = this.verticalCompression;
+				previousCaveCullingDepth      = this.caveCullingDepth;
 				if (holder != null) LodSystem.reload(holder, client.world);
 			}
 			else if (holder != null) {
@@ -365,7 +395,7 @@ public class BigGlobeConfig {
 		@Tooltip(count = 3)
 		@UseName("Multi-Threaded Structures")
 		@DefaultIgnore
-		public boolean multiThreadedStructures = false;
+		public boolean multiThreadedStructures = true;
 
 		public boolean multiThreadedStructures() {
 			return InstalledMods.C2ME && this.multiThreadedStructures;

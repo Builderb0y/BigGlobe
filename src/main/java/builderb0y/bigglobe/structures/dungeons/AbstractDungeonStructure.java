@@ -36,6 +36,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.UseName;
@@ -80,12 +81,13 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public AbstractDungeonStructure(
 		Config config,
+		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
 		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
-		super(config, surface_y);
+		super(config, min_y, surface_y);
 		this.room_decorators = room_decorators;
 		this.spawner_entries = spawner_entries;
 		this.palettes = palettes;
@@ -127,7 +129,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public static abstract class DungeonLayout extends LabyrinthLayout {
 
 		public int centerX, centerZ;
-		public Palette palette;
+		public RegistryEntry<Structure> owningStructure;
+		public int paletteIndex;
 		public @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators;
 		public IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries;
 
@@ -138,12 +141,17 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int maxRooms,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
 			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
-			List<Palette> palettes
+			RegistryEntry<Structure> owningStructure
 		) {
 			super(random, maxRooms);
-			this.palette = new RestrictedList<>(palettes, column, y).getRandomElement(random);
+			this.owningStructure = owningStructure;
 			this.centerX = column.x();
 			this.centerZ = column.z();
+			this.paletteIndex = (
+				owningStructure.value() instanceof AbstractDungeonStructure dungeon
+				? new RestrictedList<>(dungeon.palettes, column, y).getRandomIndex(random)
+				: -1
+			);
 			this.roomDecorators = roomDecorators;
 			this.spawnerEntries = spawnerEntries;
 			RoomDungeonPiece room = this.newRoom();
@@ -173,12 +181,31 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class DungeonPiece extends StructurePiece implements LabyrinthPiece {
 
-		public byte variant;
-		public Palette palette;
+		public static final AutoCoder<RegistryEntry<Structure>> STRUCTURE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
 
-		public DungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette) {
+		public byte variant;
+		public @Nullable RegistryEntry<Structure> owningStructure;
+		public int paletteIndex;
+		public Palette cachedPalette;
+
+		public DungeonPiece(
+			StructurePieceType type,
+			int length,
+			BlockBox boundingBox,
+			@Nullable RegistryEntry<Structure> owningStructure,
+			int paletteIndex
+		) {
 			super(type, length, boundingBox);
-			this.palette = palette;
+			this.owningStructure = owningStructure;
+			this.paletteIndex = paletteIndex;
+			this.cachedPalette = (
+				owningStructure != null &&
+				owningStructure.value() instanceof AbstractDungeonStructure dungeon
+				&& paletteIndex >= 0
+				&& paletteIndex < dungeon.palettes.size()
+				? dungeon.palettes.get(paletteIndex)
+				: Palette.COBBLE
+			);
 		}
 
 		public DungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
@@ -186,11 +213,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			if (nbt.get("var") instanceof AbstractNbtNumber number) {
 				this.variant = number.byteValue();
 			}
-			NbtElement paletteNBT = nbt.get("palette");
-			if (paletteNBT != null) try {
-				this.palette = BigGlobeAutoCodec.AUTO_CODEC.decode(
-					Palette.CODER,
-					paletteNBT,
+			NbtElement owningStructure = nbt.get("struct");
+			if (owningStructure != null) try {
+				this.owningStructure = BigGlobeAutoCodec.AUTO_CODEC.decode(
+					STRUCTURE_CODER,
+					owningStructure,
 					RegistryOps.of(
 						NbtOps.INSTANCE,
 						context.registryManager()
@@ -200,8 +227,17 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			catch (DecodeException exception) {
 				throw new RuntimeException(exception);
 			}
+			this.paletteIndex = nbt.get("paletteIndex") instanceof AbstractNbtNumber number ? number.intValue() : -1;
+			if (
+				this.owningStructure != null &&
+				this.owningStructure.value() instanceof AbstractDungeonStructure dungeon &&
+				this.paletteIndex >= 0 &&
+				this.paletteIndex < dungeon.palettes.size()
+			) {
+				this.cachedPalette = dungeon.palettes.get(this.paletteIndex);
+			}
 			else {
-				this.palette = Palette.COBBLE;
+				this.cachedPalette = Palette.COBBLE;
 			}
 		}
 
@@ -209,7 +245,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			nbt.putByte("var", this.variant);
-			nbt.put("palette", BigGlobeAutoCodec.AUTO_CODEC.encode(Palette.CODER, this.palette, NbtOps.INSTANCE));
+			if (this.owningStructure != null) nbt.put("struct", BigGlobeAutoCodec.AUTO_CODEC.encode(STRUCTURE_CODER, this.owningStructure, RegistryOps.of(NbtOps.INSTANCE, context.registryManager())));
+			nbt.putInt("paletteIndex", this.paletteIndex);
 		}
 
 		@Override
@@ -226,7 +263,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		public Palette palette() {
-			return this.palette;
+			return this.cachedPalette;
 		}
 	}
 
@@ -243,10 +280,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			StructurePieceType type,
 			int chainLength,
 			BlockBox boundingBox,
-			Palette palette,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
 		) {
-			super(type, chainLength, boundingBox, palette);
+			super(type, chainLength, boundingBox, owningStructure, paletteIndex);
 			this.decorators = decorators;
 		}
 
@@ -396,8 +434,17 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			RADIUS_MASK  = 0b11000;
 
 
-		public PitDungeonPiece(StructurePieceType type, int x, int y, int z, Palette palette, int innerRadius, RandomGenerator random) {
-			super(type, 0, new BlockBox(x - innerRadius - 1, y - 2, z - innerRadius - 1, x + innerRadius + 1, y, z + innerRadius + 1), palette);
+		public PitDungeonPiece(
+			StructurePieceType type,
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			int innerRadius,
+			RandomGenerator random
+		) {
+			super(type, 0, new BlockBox(x - innerRadius - 1, y - 2, z - innerRadius - 1, x + innerRadius + 1, y, z + innerRadius + 1), owningStructure, paletteIndex);
 			this.setToRandomType(random);
 			this.setInnerRadius(innerRadius);
 		}
@@ -457,8 +504,16 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public long seed;
 
-		public ChestDungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette, Direction facing, long seed) {
-			super(type, length, boundingBox, palette);
+		public ChestDungeonPiece(
+			StructurePieceType type,
+			int length,
+			BlockBox boundingBox,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			Direction facing,
+			long seed
+		) {
+			super(type, length, boundingBox, owningStructure, paletteIndex);
 			this.setOrientation(facing);
 			this.seed = seed;
 		}
@@ -504,8 +559,15 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public final RegistryEntry<EntityType<?>> spawnerType;
 
-		public SpawnerDungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette, RegistryEntry<EntityType<?>> spawnerType) {
-			super(type, length, boundingBox, palette);
+		public SpawnerDungeonPiece(
+			StructurePieceType type,
+			int length,
+			BlockBox boundingBox,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			RegistryEntry<EntityType<?>> spawnerType
+		) {
+			super(type, length, boundingBox, owningStructure, paletteIndex);
 			this.spawnerType = spawnerType;
 		}
 
@@ -533,8 +595,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public byte sidewaysness;
 
-		public HallDungeonPiece(StructurePieceType type, int chainLength, BlockBox boundingBox, Palette palette) {
-			super(type, chainLength, boundingBox, palette);
+		public HallDungeonPiece(
+			StructurePieceType type,
+			int chainLength,
+			BlockBox boundingBox,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex
+		) {
+			super(type, chainLength, boundingBox, owningStructure, paletteIndex);
 		}
 
 		public HallDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
@@ -599,8 +667,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class DecorationDungeonPiece extends DungeonPiece implements DecorationPiece {
 
-		public DecorationDungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette) {
-			super(type, length, boundingBox, palette);
+		public DecorationDungeonPiece(
+			StructurePieceType type,
+			int length,
+			BlockBox boundingBox,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex
+		) {
+			super(type, length, boundingBox, owningStructure, paletteIndex);
 		}
 
 		public DecorationDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {

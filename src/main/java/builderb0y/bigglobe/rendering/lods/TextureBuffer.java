@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.GpuMemory;
 import builderb0y.bigglobe.rendering.NativeMemory;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL31C.*;
 

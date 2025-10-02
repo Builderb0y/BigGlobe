@@ -41,13 +41,13 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 	}
 
 	@Override
-	public E getRandomElement(RandomGenerator random) {
-		return this.weight > 0.0D ? this.element : null;
+	public int getRandomIndex(RandomGenerator random) {
+		return this.weight > 0.0D ? 0 : -1;
 	}
 
 	@Override
-	public E getRandomElement(long seed) {
-		return this.weight > 0.0D ? this.element : null;
+	public int getRandomIndex(long seed) {
+		return this.weight > 0.0D ? 0 : -1;
 	}
 
 	//////////////////////////////// set ////////////////////////////////

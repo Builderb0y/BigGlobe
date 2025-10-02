@@ -67,8 +67,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	public final @VerifyRandomRange(min = 0.0D, max = 1.0D) RandomSource cracked_chance;
 
-	public PortalTempleStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y, RandomSource cracked_chance) {
-		super(config, surface_y);
+	public PortalTempleStructure(
+		Config config,
+		ColumnToIntScript.@VerifyNullable Holder min_y,
+		ColumnToIntScript.@VerifyNullable Holder surface_y,
+		RandomSource cracked_chance
+	) {
+		super(config, min_y, surface_y);
 		this.cracked_chance = cracked_chance;
 	}
 

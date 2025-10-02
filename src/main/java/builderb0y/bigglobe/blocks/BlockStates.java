@@ -15,6 +15,7 @@ public class BlockStates {
 
 	public static final BlockState
 		AIR                    = Blocks.AIR.getDefaultState(),
+		VOID_AIR               = Blocks.VOID_AIR.getDefaultState(),
 		STONE                  = Blocks.STONE.getDefaultState(),
 		SAND                   = Blocks.SAND.getDefaultState(),
 		SANDSTONE              = Blocks.SANDSTONE.getDefaultState(),

@@ -162,7 +162,7 @@ public abstract class AbstractVoxyWorldGenerator {
 								BlockSegmentList list = lists[packedXZ];
 								int segmentIndex = list.getSegmentIndex(sectionBottomY_, false);
 								while (segmentIndex < list.size()) {
-									LitSegment segment = list.getLit(segmentIndex++);
+									LitSegment segment = list.get(segmentIndex++);
 									if (segment.minY > (sectionBottomY_ | ((1 << (level + 5)) - 1))) break;
 									if (lightAir || !segment.value.isAir()) {
 										if (section == null) {
@@ -176,7 +176,7 @@ public abstract class AbstractVoxyWorldGenerator {
 											previousColumnState = segment.value;
 											previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
 										}
-										byte startLightLevel = segment.lightLevel;
+										byte startLightLevel = segment.skylightLevel;
 										int diminishment = BlockStateVersions.getOpacity(previousColumnState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 										int blockLightLevel = previousColumnState.getLuminance() << 4;
 										if (startLightLevel == 0 || diminishment == 0) {

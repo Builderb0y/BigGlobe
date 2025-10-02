@@ -385,15 +385,13 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template) {
-		this.placeStructureTemplate(x, y, z, template, new StructurePlacementData());
+		this.placeStructureTemplate(x, y, z, template, this.newStructurePlacementData());
 	}
 
 	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data) {
 		data = data.copy();
 		BlockPos pos = this.unboundedPos(x, y, z);
 		x = pos.getX(); y = pos.getY(); z = pos.getZ();
-		pos = this.unboundedPos(data.getPosition().getX(), data.getPosition().getY(), data.getPosition().getZ());
-		data.setPosition(pos.toImmutable());
 		Symmetry oldSymmetry = Symmetry.of(data.getMirror()).andThen(Symmetry.of(data.getRotation()));
 		Symmetry newSymmetry = this.coordination.transformation().symmetry().andThen(oldSymmetry);
 		data.setMirror(newSymmetry.isFlipped() ? BlockMirror.FRONT_BACK : BlockMirror.NONE);

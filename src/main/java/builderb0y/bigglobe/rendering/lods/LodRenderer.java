@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.lwjgl.opengl.*;
 
 import builderb0y.bigglobe.rendering.OutOfVramException;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 @Environment(EnvType.CLIENT)
 public interface LodRenderer extends SafeCloseable {

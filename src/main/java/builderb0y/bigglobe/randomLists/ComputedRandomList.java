@@ -61,13 +61,13 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 	}
 
 	@Override
-	public E getRandomElement(RandomGenerator random) {
-		return RandomAccessRandomList.super.getRandomElement(random);
+	public int getRandomIndex(RandomGenerator random) {
+		return RandomAccessRandomList.super.getRandomIndex(random);
 	}
 
 	@Override
-	public E getRandomElement(long seed) {
-		return RandomAccessRandomList.super.getRandomElement(seed);
+	public int getRandomIndex(long seed) {
+		return RandomAccessRandomList.super.getRandomIndex(seed);
 	}
 
 	//////////////////////////////// set ////////////////////////////////

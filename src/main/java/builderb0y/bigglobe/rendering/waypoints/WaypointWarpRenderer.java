@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.rendering.waypoints;
 
-import org.lwjgl.system.*;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 
@@ -11,6 +9,7 @@ import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.hyperspace.HyperspaceRendering;
 import builderb0y.bigglobe.hyperspace.HyperspaceRendering.VisibleWaypointData;
 import builderb0y.bigglobe.rendering.*;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 import static org.lwjgl.opengl.GL32C.*;

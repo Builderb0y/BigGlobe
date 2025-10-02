@@ -8,7 +8,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
 import builderb0y.bigglobe.versions.RenderVersions;
 

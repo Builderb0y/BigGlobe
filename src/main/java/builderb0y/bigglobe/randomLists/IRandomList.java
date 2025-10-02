@@ -61,34 +61,46 @@ public interface IRandomList<E> extends List<E> {
 		}
 	}
 
-	public default E getRandomElement(RandomGenerator random) {
+	public default int getRandomIndex(RandomGenerator random) {
 		if (this.isEmpty()) throw new NoSuchElementException();
-		E choice = this.get(this.size() - 1);
+		int choice = this.size() - 1;
 		double totalWeight = 0.0D;
-		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext();) {
-			E element = iterator.next();
+		int index = 0;
+		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); index++) {
+			iterator.next();
 			double weight = iterator.getWeight();
 			if (weight > 0.0D && random.nextDouble() * (totalWeight += weight) < weight) {
-				choice = element;
+				choice = index;
 			}
 		}
-		if (!(totalWeight > 0.0D)) choice = null;
+		if (!(totalWeight > 0.0D)) choice = -1;
+		return choice;
+	}
+
+	public default E getRandomElement(RandomGenerator random) {
+		int index = this.getRandomIndex(random);
+		return index >= 0 ? this.get(index) : null;
+	}
+
+	public default int getRandomIndex(long seed) {
+		if (this.isEmpty()) throw new NoSuchElementException();
+		int choice = this.size() - 1;
+		double totalWeight = 0.0D;
+		int index = 0;
+		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); index++) {
+			iterator.next();
+			double weight = iterator.getWeight();
+			if (weight > 0.0D && Permuter.nextPositiveDouble(seed += Permuter.PHI64) * (totalWeight += weight) < weight) {
+				choice = index;
+			}
+		}
+		if (!(totalWeight > 0.0D)) choice = -1;
 		return choice;
 	}
 
 	public default E getRandomElement(long seed) {
-		if (this.isEmpty()) throw new NoSuchElementException();
-		E choice = this.get(this.size() - 1);
-		double totalWeight = 0.0D;
-		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext();) {
-			E element = iterator.next();
-			double weight = iterator.getWeight();
-			if (weight > 0.0D && Permuter.nextPositiveDouble(seed += Permuter.PHI64) * (totalWeight += weight) < weight) {
-				choice = element;
-			}
-		}
-		if (!(totalWeight > 0.0D)) choice = null;
-		return choice;
+		int index = this.getRandomIndex(seed);
+		return index >= 0 ? this.get(index) : null;
 	}
 
 	@Override
@@ -226,36 +238,36 @@ public interface IRandomList<E> extends List<E> {
 		}
 
 		@Override
-		public default E getRandomElement(RandomGenerator random) {
+		public default int getRandomIndex(RandomGenerator random) {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm takes advantage of RandomAccess
 			//by not instantiating a WeightedIterator.
-			E choice = this.get(this.size() - 1);
+			int choice = this.size() - 1;
 			double totalWeight = 0.0D;
 			for (int index = 0, size = this.size(); index < size; index++) {
 				double weight = this.getWeight(index);
 				if (weight > 0.0D && random.nextDouble() * (totalWeight += weight) < weight) {
-					choice = this.get(index);
+					choice = index;
 				}
 			}
-			if (!(totalWeight > 0.0D)) choice = null;
+			if (!(totalWeight > 0.0D)) choice = -1;
 			return choice;
 		}
 
 		@Override
-		public default E getRandomElement(long seed) {
+		public default int getRandomIndex(long seed) {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm takes advantage of RandomAccess
 			//by not instantiating a WeightedIterator.
-			E choice = this.get(this.size() - 1);
+			int choice = this.size() - 1;
 			double totalWeight = 0.0D;
 			for (int index = 0, size = this.size(); index < size; index++) {
 				double weight = this.getWeight(index);
 				if (weight > 0.0D && Permuter.nextPositiveDouble(seed += Permuter.PHI64) * (totalWeight += weight) < weight) {
-					choice = this.get(index);
+					choice = index;
 				}
 			}
-			if (!(totalWeight > 0.0D)) choice = null;
+			if (!(totalWeight > 0.0D)) choice = -1;
 			return choice;
 		}
 
@@ -320,7 +332,7 @@ public interface IRandomList<E> extends List<E> {
 		}
 
 		@Override
-		public default E getRandomElement(RandomGenerator random) {
+		public default int getRandomIndex(RandomGenerator random) {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm takes advantage of knowing the total weight by only
 			//invoking random.nextDouble() once, instead of once per element.
@@ -328,20 +340,21 @@ public interface IRandomList<E> extends List<E> {
 			double targetWeight = this.getTotalWeight();
 			if (targetWeight > 0.0D) {
 				targetWeight *= random.nextDouble();
-				for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
-					E element = iterator.next();
+				int index = 0;
+				for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); index++) {
+					iterator.next();
 					double weight = iterator.getWeight();
 					if (weight > 0.0D && (targetWeight -= weight) <= 0.0D) {
-						return element;
+						return index;
 					}
 				}
-				return this.get(this.size() - 1);
+				return this.size() - 1;
 			}
-			return null;
+			return -1;
 		}
 
 		@Override
-		public default E getRandomElement(long seed) {
+		public default int getRandomIndex(long seed) {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm takes advantage of knowing the total weight by only
 			//invoking Permuter.nextPositiveDouble() once, instead of once per element.
@@ -349,16 +362,17 @@ public interface IRandomList<E> extends List<E> {
 			double targetWeight = this.getTotalWeight();
 			if (targetWeight > 0.0D) {
 				targetWeight *= Permuter.nextPositiveDouble(seed);
-				for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
-					E element = iterator.next();
+				int index = 0;
+				for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); index++) {
+					iterator.next();
 					double weight = iterator.getWeight();
 					if (weight > 0.0D && (targetWeight -= weight) <= 0.0D) {
-						return element;
+						return index;
 					}
 				}
-				return this.get(this.size() - 1);
+				return this.size() - 1;
 			}
-			return null;
+			return -1;
 		}
 
 		@Override
@@ -370,7 +384,7 @@ public interface IRandomList<E> extends List<E> {
 	public static interface RandomAccessKnownTotalWeightRandomList<E> extends KnownTotalWeightRandomList<E>, RandomAccessRandomList<E> {
 
 		@Override
-		public default E getRandomElement(RandomGenerator random) {
+		public default int getRandomIndex(RandomGenerator random) {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm is a hybrid of RandomAccessRandomList's
 			//algorithm and KnownTotalWeightRandomList's algorithm.
@@ -380,16 +394,16 @@ public interface IRandomList<E> extends List<E> {
 				for (int index = 0, size = this.size(); index < size; index++) {
 					double weight = this.getWeight(index);
 					if (weight > 0.0D && (targetWeight -= weight) <= 0.0D) {
-						return this.get(index);
+						return index;
 					}
 				}
-				return this.get(this.size() - 1);
+				return this.size() - 1;
 			}
-			return null;
+			return -1;
 		}
 
 		@Override
-		public default E getRandomElement(long seed) {
+		public default int getRandomIndex(long seed) {
 			if (this.isEmpty()) throw new NoSuchElementException();
 			//this algorithm is a hybrid of RandomAccessRandomList's
 			//algorithm and KnownTotalWeightRandomList's algorithm.
@@ -399,12 +413,12 @@ public interface IRandomList<E> extends List<E> {
 				for (int index = 0, size = this.size(); index < size; index++) {
 					double weight = this.getWeight(index);
 					if (weight > 0.0D && (targetWeight -= weight) <= 0.0D) {
-						return this.get(index);
+						return index;
 					}
 				}
-				return this.get(this.size() - 1);
+				return this.size() - 1;
 			}
-			return null;
+			return -1;
 		}
 
 		@Override
@@ -418,13 +432,6 @@ public interface IRandomList<E> extends List<E> {
 	//////////////////////////////// coding ////////////////////////////////
 
 
-
-	public static @Nullable String elementName(ReifiedType<?> elementType) {
-		UseName useName = elementType.getAnnotations().getFirst(UseName.class);
-		if (useName != null) return useName.value();
-		if (elementType.getAnnotations().has(EncodeInline.class)) return null;
-		return "element";
-	}
 
 	public static class IRandomListCoder<T> extends NamedCoder<IRandomList<T>> {
 
@@ -450,6 +457,13 @@ public interface IRandomList<E> extends List<E> {
 			this.elementCoder = context.type(elementType).forceCreateCoder();
 			this.elementName = elementName(elementType);
 			this.weightCoder = context.type(new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {}).forceCreateCoder();
+		}
+
+		public static @Nullable String elementName(ReifiedType<?> elementType) {
+			UseName useName = elementType.getAnnotations().getFirst(UseName.class);
+			if (useName != null) return useName.value();
+			if (elementType.getAnnotations().has(EncodeInline.class)) return null;
+			return "element";
 		}
 
 		public <T_Encoded> T element(DecodeContext<T_Encoded> context) throws DecodeException {

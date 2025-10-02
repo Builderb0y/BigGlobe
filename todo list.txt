@@ -1,6 +1,8 @@
 reminders for myself:
 	renderdoc:
 		LD_PRELOAD=/home/builderb0y/renderdoc_1.38/lib/librenderdoc.so
+	SoftReference delays:
+		-XX:SoftRefLRUPolicyMSPerMB=10
 
 bugs:
 	geode spikes can still spawn outside of geodes.
@@ -49,6 +51,8 @@ high priority:
 	document extra spawn system.
 	document terrainAdaptation.
 	document scripted structures in general.
+	incorrect world height detection code doesn't work correctly for bclib.
+	make nether surface depth a bubble property.
 
 V6:
 	rivers:
@@ -63,7 +67,12 @@ V6:
 				test with DH and voxy.
 	add new json classes.
 	increase default player spawn radius in config file.
-	remove unnecessary heightmap and amp noise column values.
+	LOD renderer improvements:
+		config option for ingest delay?
+	revert old tree density and threshold.
+		maybe figure out how to make acacia trees work differently?
+	islands world type:
+		larger scale?
 
 LODs:
 	shader support.
@@ -82,6 +91,14 @@ changelog:
 	* Made pseudo-erosion algorithm better.
 	* Fixed end fractals spawning intersecting dragons's nest.
 	* Fixed gaps in LOD transitions.
+	* LODs will now display more block besides what generated as part of raw terrain.
+		* This only works for areas that you've explored.
+		* This also only works in singleplayer.
+	* Fixed structures not spawning when world weaver was installed.
+		* This is a dependency of Better Nether and Better End, so they should work better now too.
+	* Geodes in the overworld no longer spawn in or below the deep dark.
+	* Mega dungeons should now choose a block palette that more accurately represents their depth.
+	* Fixed cuboctahedron end fractal structure sometimes spawning in a way that intersects terrain.
 	# For data pack developers
 	* Added config option to fail datapack validation when an overrider is not tagged properly.
 	* Added config option to fail datapack validation when any tag contains an invalid entry.

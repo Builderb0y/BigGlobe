@@ -1,13 +1,10 @@
 package builderb0y.bigglobe.columns.scripted;
 
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.function.Consumer;
 
 import net.minecraft.world.HeightLimitView;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
@@ -17,7 +14,6 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.InfoHolder;
 

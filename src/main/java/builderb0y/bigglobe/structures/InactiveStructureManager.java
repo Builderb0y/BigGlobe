@@ -10,7 +10,7 @@ public class InactiveStructureManager extends StructureManager {
 	}
 
 	@Override
-	public FinalStructures getStructureStarts(StructureGenerationParams params) {
+	public FinalStructures getFinalStructures(StructureGenerationParams params) {
 		return EMPTY_STRUCTURES;
 	}
 

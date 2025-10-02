@@ -18,7 +18,7 @@ public class NoopStructure extends BigGlobeStructure {
 	#endif
 
 	public NoopStructure(Config config) {
-		super(config, null);
+		super(config, null, null);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
@@ -18,15 +19,16 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.OutOfVramException;
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.rendering.lods.LodGenerator.LoadMode;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.lods.LodGenerator.LodSupply;
 import builderb0y.bigglobe.rendering.lods.LodRenderer.FogParams;
 import builderb0y.bigglobe.rendering.lods.LodRenderer.MeshUploader;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.FastMath.Log;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 
 @Environment(EnvType.CLIENT)
@@ -49,7 +51,7 @@ public class LodSystem implements SafeCloseable {
 	public LodRenderer renderer;
 	public LodFrustum frustum;
 	public FogParams fog;
-	public double currentQuality, qualityLimit;
+	public double currentQuality, qualityLimit, loadDistance;
 
 	@Override
 	public void close() {
@@ -134,6 +136,16 @@ public class LodSystem implements SafeCloseable {
 		);
 	}
 
+	public static int countDirty(LodQuadTree root) {
+		return root == null ? 0 : (
+			+ (root.rebuildTime != Long.MAX_VALUE ? 1 : 0)
+			+ countDirty(root.x0z0)
+			+ countDirty(root.x0z1)
+			+ countDirty(root.x1z0)
+			+ countDirty(root.x1z1)
+		);
+	}
+
 	public void oom() {
 		this.currentQuality = Math.min(this.currentQuality, this.qualityLimit -= 0.5D);
 
@@ -145,7 +157,7 @@ public class LodSystem implements SafeCloseable {
 		else {
 			BigGlobeMod.LOGGER.warn(text.getString());
 		}
-		this.makeRequests(this.tree, false);
+		this.makeRequests(this.tree, System.currentTimeMillis(), false);
 		this.renderer.oom();
 	}
 
@@ -182,12 +194,19 @@ public class LodSystem implements SafeCloseable {
 
 		profiler.push("BG LODs");
 
+		LodChunkCache cache = this.generator.chunkCache;
+		if (cache != null) {
+			profiler.push("Process Dirty Chunks");
+			cache.processDirtyChunks(this);
+			profiler.pop();
+		}
+
 		if (this.generator.hasSupply()) {
 			profiler.push("Process Supply");
 			try {
 				try (MeshUploader uploader = this.renderer.finishMeshing()) {
 					for (LodSupply supply; (supply = this.generator.getSupply()) != null;) {
-						supply.apply(uploader);
+						supply.apply(uploader, this.generator.maxLoadLevel);
 					}
 				}
 				GLException.check();
@@ -202,6 +221,9 @@ public class LodSystem implements SafeCloseable {
 		}
 		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
 			this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
+			if (this.currentQuality == this.qualityLimit) {
+				this.loadDistance = Math.min(this.loadDistance + 16.0D, this.frustum.generationBuffer);
+			}
 		}
 
 		if (failure == null) {
@@ -210,7 +232,7 @@ public class LodSystem implements SafeCloseable {
 				this.frustum.setup(context);
 				this.fog.farPlaneDistance = this.frustum.farClippingPlane;
 				profiler.swap("Request");
-				this.makeRequests(this.tree, true);
+				this.makeRequests(this.tree, System.currentTimeMillis(), true);
 				profiler.swap("Visibility");
 				this.computeVisibility(this.tree, null);
 				profiler.swap("Opaque");
@@ -241,7 +263,7 @@ public class LodSystem implements SafeCloseable {
 				profiler.pop();
 			}
 			else if (!this.tree.isQueued()) {
-				this.generator.request(this.tree);
+				this.generator.request(this.tree, LoadMode.GENERATE_ONLY);
 				this.tree.split();
 			}
 		}
@@ -308,31 +330,37 @@ public class LodSystem implements SafeCloseable {
 		}
 	}
 
-	public void makeRequests(LodQuadTree tree, boolean canSplit) {
+	public void makeRequests(LodQuadTree tree, long time, boolean canSplit) {
 		double squareDistance = this.squareDistanceTo(tree);
 		tree.setInRange(squareDistance < BigGlobeMath.squareD(this.frustum.farClippingPlane));
 		double idealQuality = this.computeIdealQuality(squareDistance, tree);
-		if (tree.isQueued()) {
-			if (idealQuality > this.currentQuality + 0.5D) {
-				tree.merge();
-				return;
-			}
+		if (idealQuality > this.currentQuality + 0.5D) {
+			tree.merge();
+			return;
 		}
-		else if (canSplit) {
-			if (idealQuality < this.currentQuality) {
-				if (squareDistance < BigGlobeMath.squareD(this.frustum.generationBuffer)) {
-					this.generator.request(tree);
-				}
-				if (tree.level > LodQuadTree.MIN_LEVEL) {
-					tree.split();
-				}
+		if (!tree.isQueued() && canSplit) {
+			if (tree.level > LodQuadTree.MIN_LEVEL && idealQuality < this.currentQuality) {
+				tree.split();
+			}
+			boolean request = false;
+			LoadMode loadMode = null;
+			if (tree.passes == null && squareDistance < BigGlobeMath.squareD(this.frustum.generationBuffer)) {
+				request = true;
+				loadMode = squareDistance < BigGlobeMath.squareD(this.loadDistance) ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY;
+			}
+			if (time > tree.rebuildTime && squareDistance < BigGlobeMath.squareD(this.loadDistance)) {
+				request = true;
+				loadMode = tree.passes == null ? LoadMode.LOAD_OR_GENERATE : LoadMode.LOAD_ONLY;
+			}
+			if (request) {
+				this.generator.request(tree, loadMode);
 			}
 		}
 		if (tree.level > LodQuadTree.MIN_LEVEL) {
-			if (tree.x0z0 != null) this.makeRequests(tree.x1z1, canSplit);
-			if (tree.x0z1 != null) this.makeRequests(tree.x0z1, canSplit);
-			if (tree.x1z0 != null) this.makeRequests(tree.x1z0, canSplit);
-			if (tree.x1z1 != null) this.makeRequests(tree.x0z0, canSplit);
+			if (tree.x0z0 != null) this.makeRequests(tree.x1z1, time, canSplit);
+			if (tree.x0z1 != null) this.makeRequests(tree.x0z1, time, canSplit);
+			if (tree.x1z0 != null) this.makeRequests(tree.x1z0, time, canSplit);
+			if (tree.x1z1 != null) this.makeRequests(tree.x0z0, time, canSplit);
 		}
 	}
 
@@ -344,6 +372,39 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public double computeIdealQuality(double squareDistance, LodQuadTree tree) {
-		return Log.fastLog2(squareDistance) * 0.5D - tree.level;
+		return FastMath.Log.fastLog2(squareDistance) * 0.5D - tree.level;
+	}
+
+	public void invalidateChunkLater(ChunkPos chunkPos) {
+		LodChunkCache cache = this.generator.chunkCache;
+		if (cache != null) cache.invalidateChunkLater(chunkPos);
+	}
+
+	public void invalidateChunkNow(ChunkPos chunkPos) {
+		if (this.tree != null) {
+			this.recursiveInvalidateBlock(this.tree, System.currentTimeMillis() + 5000L, chunkPos.x << 4, chunkPos.z << 4);
+		}
+	}
+
+	public void recursiveInvalidateBlock(LodQuadTree tree, long time, int blockX, int blockZ) {
+		if (tree.level - LodQuadTree.MIN_LEVEL < this.generator.maxLoadLevel) {
+			tree.rebuildTime = time;
+		}
+		if (blockZ >= tree.midZ()) {
+			if (blockX >= tree.midX()) {
+				if (tree.x1z1 != null) this.recursiveInvalidateBlock(tree.x1z1, time, blockX, blockZ);
+			}
+			else {
+				if (tree.x0z1 != null) this.recursiveInvalidateBlock(tree.x0z1, time, blockX, blockZ);
+			}
+		}
+		else {
+			if (blockX >= tree.midX()) {
+				if (tree.x1z0 != null) this.recursiveInvalidateBlock(tree.x1z0, time, blockX, blockZ);
+			}
+			else {
+				if (tree.x0z0 != null) this.recursiveInvalidateBlock(tree.x0z0, time, blockX, blockZ);
+			}
+		}
 	}
 }

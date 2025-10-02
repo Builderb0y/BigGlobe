@@ -61,13 +61,13 @@ public class ConstantWeightRandomList<E> extends AbstractRandomList<E> implement
 	}
 
 	@Override
-	public E getRandomElement(RandomGenerator random) {
-		return this.get(random.nextInt(this.size()));
+	public int getRandomIndex(RandomGenerator random) {
+		return random.nextInt(this.size());
 	}
 
 	@Override
-	public E getRandomElement(long seed) {
-		return this.get(Permuter.nextBoundedInt(seed, this.size()));
+	public int getRandomIndex(long seed) {
+		return Permuter.nextBoundedInt(seed, this.size());
 	}
 
 	@Override

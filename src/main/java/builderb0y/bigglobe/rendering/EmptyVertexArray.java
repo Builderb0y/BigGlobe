@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.rendering;
 
+import builderb0y.bigglobe.util.SafeCloseable;
+
 import static org.lwjgl.opengl.GL30C.*;
 
 public class EmptyVertexArray implements SafeCloseable {

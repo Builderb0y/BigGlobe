@@ -54,7 +54,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 	#endif
 
 	public BiggerDesertPyramidStructure(Config config, ColumnToIntScript.@VerifyNullable Holder surface_y) {
-		super(config, surface_y);
+		super(config, null, surface_y);
 	}
 
 	@Override

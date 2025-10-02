@@ -7,9 +7,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.TextureState;
 import builderb0y.bigglobe.versions.RenderVersions;
 

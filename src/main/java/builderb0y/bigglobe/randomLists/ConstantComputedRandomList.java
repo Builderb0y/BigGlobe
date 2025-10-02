@@ -169,12 +169,12 @@ public abstract class ConstantComputedRandomList<E> extends ComputedRandomList<E
 	}
 
 	@Override
-	public E getRandomElement(RandomGenerator random) {
-		return RandomAccessKnownTotalWeightRandomList.super.getRandomElement(random);
+	public int getRandomIndex(RandomGenerator random) {
+		return RandomAccessKnownTotalWeightRandomList.super.getRandomIndex(random);
 	}
 
 	@Override
-	public E getRandomElement(long seed) {
-		return RandomAccessKnownTotalWeightRandomList.super.getRandomElement(seed);
+	public int getRandomIndex(long seed) {
+		return RandomAccessKnownTotalWeightRandomList.super.getRandomIndex(seed);
 	}
 }

@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.rendering;
+package builderb0y.bigglobe.util;
 
 public interface SafeCloseable extends AutoCloseable {
 

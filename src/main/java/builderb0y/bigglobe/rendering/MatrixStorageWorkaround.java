@@ -5,6 +5,8 @@ import java.nio.FloatBuffer;
 import org.joml.Matrix4f;
 import org.lwjgl.system.*;
 
+import builderb0y.bigglobe.util.SafeCloseable;
+
 /**
 one person has encountered an error in LWJGL caused by JVM implementation details.
 as such, I cannot use {@link Matrix4f#getToAddress(long)}.

@@ -10,7 +10,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.NativeMemory;
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.rendering.SafeCloseable;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.lods.SimpleLodRenderer.DefaultLodState;
 import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
 import builderb0y.bigglobe.versions.RenderVersions;

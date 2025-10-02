@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 import static org.lwjgl.opengl.GL32C.*;

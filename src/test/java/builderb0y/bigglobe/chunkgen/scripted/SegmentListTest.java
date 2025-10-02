@@ -15,7 +15,7 @@ public class SegmentListTest {
 		Object shared = new Object();
 		for (int minY = 0; minY < 100; minY++) {
 			for (int maxY = minY; maxY < 100; maxY++) {
-				SegmentList<Object> wrapped = new SegmentList<>(minY, maxY);
+				ObjectSegmentList<Object> wrapped = new ObjectSegmentList<>(minY, maxY);
 				Object[] unwrapped = new Object[maxY - minY + 1];
 				for (int operation = 0; operation < 100; operation++) {
 					int low = random.nextInt(minY, maxY + 1);
@@ -46,7 +46,7 @@ public class SegmentListTest {
 		}
 	}
 
-	public static void checkEqual(SegmentList<Object> wrapped, Object[] unwrapped, int offset) {
+	public static void checkEqual(ObjectSegmentList<Object> wrapped, Object[] unwrapped, int offset) {
 		for (int y = 0; y < 100; y++) {
 			Object actual = wrapped.getOverlappingObject(y);
 			if (actual != null) {
@@ -60,7 +60,7 @@ public class SegmentListTest {
 
 	@Test
 	public void testGetTopOrBottomOfSegment() {
-		SegmentList<Object> list = new SegmentList<>(0, 10);
+		ObjectSegmentList<Object> list = new ObjectSegmentList<>(0, 10);
 		list.addSegment(5, 5, new Object());
 		for (int start = -1; start <= 11; start++) {
 			int desired = start < 5 ? Integer.MIN_VALUE : start == 5 ? 5 : 6;

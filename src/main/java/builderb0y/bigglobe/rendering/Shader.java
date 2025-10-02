@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
 import static org.lwjgl.opengl.GL20C.*;

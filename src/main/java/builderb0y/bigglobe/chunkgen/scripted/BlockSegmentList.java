@@ -9,7 +9,7 @@ import net.minecraft.world.EmptyBlockView;
 
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
-public class BlockSegmentList extends SegmentList<BlockState> {
+public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, BlockSegmentList.LitSegment> {
 
 	public BlockSegmentList(int minY, int maxY) {
 		super(minY, maxY - 1 /* convert to inclusive */);
@@ -23,12 +23,13 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		return this.maxY + 1 /* convert to exclusive */;
 	}
 
-	public BlockState getBlockState(int y) {
+	public @Nullable BlockState getBlockState(int y) {
 		return this.getOverlappingObject(y);
 	}
 
 	public void setBlockState(int y, BlockState state) {
-		this.setBlockStates(y, y + 1, state);
+		if (state != null) this.setBlockStates(y, y + 1, state);
+		else this.removeSegment(y, y + 1);
 	}
 
 	public void setBlockStates(int minY, int maxY, BlockState state) {
@@ -48,7 +49,7 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 
 	public @Nullable BlockSegmentList splitAtPlacedRange() {
 		if (this.isEmpty()) return null;
-		else return new BlockSegmentList(this.getLit(0).minY(), this.getLit(this.size() - 1).maxY());
+		else return new BlockSegmentList(this.get(0).minY(), this.get(this.size() - 1).maxY());
 	}
 
 	public void mergeAndKeepEverywhere(BlockSegmentList that) {
@@ -78,33 +79,40 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 	}
 
 	@Override
-	public Segment<BlockState> newSegment(int minY, int maxY, BlockState value) {
-		return new LitSegment(minY, maxY, value);
+	public LitSegment addSegment(LitSegment segment) {
+		LitSegment result = super.addSegment(segment);
+		if (result != null) result.skylightLevel = segment.skylightLevel;
+		return result;
 	}
 
-	public LitSegment getLit(int index) {
-		return (LitSegment)(this.get(index));
+	@Override
+	public LitSegment newSegment(int minY, int maxY) {
+		return new LitSegment(minY, maxY);
 	}
 
 	public void computeLightLevels() {
 		byte lightLevel = 15;
 		for (int index = this.size(); --index >= 0;) {
-			LitSegment segment = this.getLit(index);
-			segment.lightLevel = lightLevel;
+			LitSegment segment = this.get(index);
+			segment.skylightLevel = lightLevel;
 			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - BlockStateVersions.getOpacity(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY() - segment.minY()), 0));
 		}
 	}
 
-	public static class LitSegment extends Segment<BlockState> {
+	public static class LitSegment extends ObjectSegment<BlockState> {
 
-		public byte lightLevel = -1;
+		public byte skylightLevel = -1;
 
-		public LitSegment(int minY, int maxY, BlockState value) {
-			super(minY, maxY, value);
+		public LitSegment(int minY, int maxY) {
+			super(minY, maxY);
 		}
 
 		public int getLightLevel(int y, int lod) {
-			return MathHelper.clamp(this.lightLevel - ((this.maxY - y) << lod) * BlockStateVersions.getOpacity(this.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN), 0, 15);
+			return MathHelper.clamp(this.skylightLevel - ((this.maxY - y) << lod) * BlockStateVersions.getOpacity(this.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN), 0, 15);
+		}
+
+		public int getBlockLight() {
+			return this.value.getLuminance();
 		}
 
 		public int minY() {
@@ -113,6 +121,11 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 
 		public int maxY() {
 			return this.maxY + 1; //convert to exclusive.
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + ", skylight: " + this.skylightLevel;
 		}
 	}
 }

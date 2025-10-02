@@ -7,6 +7,8 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import builderb0y.bigglobe.util.SafeCloseable;
+
 @Environment(EnvType.CLIENT)
 public class ResourceTracker implements SafeCloseable {
 

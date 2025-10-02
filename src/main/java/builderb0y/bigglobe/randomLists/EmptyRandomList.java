@@ -42,12 +42,12 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 	}
 
 	@Override
-	public E getRandomElement(long seed) {
+	public int getRandomIndex(long seed) {
 		throw new NoSuchElementException();
 	}
 
 	@Override
-	public E getRandomElement(RandomGenerator random) {
+	public int getRandomIndex(RandomGenerator random) {
 		throw new NoSuchElementException();
 	}
 

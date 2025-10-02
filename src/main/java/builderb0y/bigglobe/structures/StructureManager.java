@@ -2,11 +2,9 @@ package builderb0y.bigglobe.structures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import net.minecraft.registry.DynamicRegistryManager;
@@ -124,48 +122,9 @@ public abstract class StructureManager {
 
 	public abstract FinalStructures getIntersectingStructures(StructureGenerationParams params);
 
-	public abstract FinalStructures getStructureStarts(StructureGenerationParams params);
+	public abstract FinalStructures getFinalStructures(StructureGenerationParams params);
 
 	public abstract StructureManager copy();
-
-	public static class UngeneratedStructures<K, V extends Timestamped> extends Object2ObjectLinkedOpenHashMap<K, V> {
-
-		public final long retainTimeMilliseconds;
-
-		public UngeneratedStructures(long retainTimeMilliseconds) {
-			super(128);
-			this.retainTimeMilliseconds = retainTimeMilliseconds;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public V get(Object key) {
-			V pieces = this.getAndMoveToLast((K)(key));
-			if (pieces != null) pieces.markUsed();
-			this.purge();
-			return pieces;
-		}
-
-		public void purge() {
-			long deadline = System.currentTimeMillis() - this.retainTimeMilliseconds;
-			while (!this.isEmpty()) {
-				V value = this.firstValue();
-				if (value.wasUsed(deadline)) break;
-				else this.removeFirst();
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		public V firstValue() {
-			if (this.size == 0) throw new NoSuchElementException();
-			return (V)(
-				(
-					(Object[])(this.value)
-				)
-				[this.first]
-			);
-		}
-	}
 
 	public static record StructureKey(int chunkX, int chunkZ, RegistryEntry<StructureSet> set) {
 
@@ -174,34 +133,17 @@ public abstract class StructureManager {
 		}
 	}
 
-	public static interface Timestamped {
-
-		public abstract long getTimestamp();
-
-		public abstract void setTimestamp(long timestamp);
-
-		public default void markUsed() {
-			this.setTimestamp(System.currentTimeMillis());
-		}
-
-		public default boolean wasUsed(long deadline) {
-			return this.getTimestamp() >= deadline;
-		}
-	}
-
-	public static class SectionSortedStructurePieces extends Long2ObjectOpenHashMap<List<StructurePiece>> implements Timestamped {
+	public static class SectionSortedStructurePieces extends Long2ObjectOpenHashMap<List<StructurePiece>> {
 
 		public final RegistryEntry<StructureSet> set;
 		public final StructureStartWrapper startWrapper;
 		public final int volume, scale;
-		public long timestamp; @Override public long getTimestamp() { return this.timestamp; } @Override public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 
 		public SectionSortedStructurePieces(RegistryEntry<StructureSet> set) {
 			this.set = set;
 			this.startWrapper = null;
 			this.volume = 0;
 			this.scale = 0;
-			this.markUsed();
 		}
 
 		public SectionSortedStructurePieces(RegistryEntry<StructureSet> set, StructureStartWrapper startWrapper) {
@@ -232,7 +174,6 @@ public abstract class StructureManager {
 					}
 				}
 			}
-			this.markUsed();
 		}
 
 		public boolean intersects(StructureStart start) {
@@ -289,17 +230,12 @@ public abstract class StructureManager {
 		}
 	}
 
-	public static class FinalStructures extends ObjectArrayList<StructureStart> implements Timestamped {
+	public static class FinalStructures extends ObjectArrayList<StructureStart> {
 
-		public long timestamp; @Override public long getTimestamp() { return this.timestamp; } @Override public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
-		public FinalStructures() {
-			this.markUsed();
-		}
+		public FinalStructures() {}
 
 		public FinalStructures(int capacity) {
 			super(capacity);
-			this.markUsed();
 		}
 	}
 }

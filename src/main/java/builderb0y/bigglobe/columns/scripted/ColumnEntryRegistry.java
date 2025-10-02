@@ -39,10 +39,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig.InvalidTagHandling;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.overriders.Overrider;
-import builderb0y.bigglobe.util.AsyncConsumer;
-import builderb0y.bigglobe.util.BigGlobeThreadPool;
-import builderb0y.bigglobe.util.ScopeLocal;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.util.*;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -230,6 +227,7 @@ public class ColumnEntryRegistry {
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
+		public List<DelayedEntryList<?>> tags;
 
 		//these have to be static because tags are actually loaded before registry entries, for some reason.
 		public static InvalidTagHandling invalidTagHandling;
@@ -238,7 +236,8 @@ public class ColumnEntryRegistry {
 		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client) {
 			this.client = client;
 			this.betterRegistryLookup = betterRegistryLookup;
-			this.compileables = new ArrayList<>(256);
+			this.compileables = new ArrayList<>(1024);
+			this.tags = new ArrayList<>(1024);
 		}
 
 		public static void reset() {
@@ -282,6 +281,15 @@ public class ColumnEntryRegistry {
 			}
 		}
 
+		public void addTag(DelayedEntryList<?> tag) {
+			if (this.columnEntryRegistry != null) {
+				tag.compile(this.columnEntryRegistry);
+			}
+			else {
+				this.tags.add(tag);
+			}
+		}
+
 		public ColumnEntryRegistry getRegistry() {
 			if (this.columnEntryRegistry == null) {
 				throw new IllegalStateException("ColumnEntryRegistry not compiled yet!");
@@ -315,6 +323,12 @@ public class ColumnEntryRegistry {
 			catch (ScriptParsingException exception) {
 				LOADING = null;
 				throw new RuntimeException(exception);
+			}
+			if (!this.tags.isEmpty()) {
+				for (DelayedEntryList<?> tag : this.tags) {
+					tag.compile(this.columnEntryRegistry);
+				}
+				this.tags.clear();
 			}
 			if (!this.compileables.isEmpty()) {
 				MutableObject<RuntimeException> mainException = new MutableObject<>(null);

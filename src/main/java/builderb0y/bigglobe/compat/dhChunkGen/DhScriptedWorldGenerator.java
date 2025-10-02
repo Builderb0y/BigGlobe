@@ -19,14 +19,15 @@ import net.minecraft.world.biome.BiomeKeys;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.QuadHolder;
+import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
+import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
-import builderb0y.bigglobe.overriders.ColumnValueOverrider;
-import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -108,6 +109,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 				for (int index = 0; index < totalColumns; index++) {
 					dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, yOffset);
 				}
+				Layer layer = generator.layer.value();
 				ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.dhHints(detailLevel));
 				try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 					for (int offsetZ = 0; offsetZ < width; offsetZ += 2) {
@@ -118,49 +120,27 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 								int baseIndex = offsetZ_ * width + offsetX_;
 								int quadX = startX | (offsetX_ << detailLevel);
 								int quadZ = startZ | (offsetZ_ << detailLevel);
-								ScriptedColumn
-									column00 = columns[baseIndex            ],
-									column01 = columns[baseIndex + 1        ],
-									column10 = columns[baseIndex + width    ],
-									column11 = columns[baseIndex + width + 1];
-								column00.setParamsUnchecked(params.at(quadX,        quadZ       ));
-								column01.setParamsUnchecked(params.at(quadX | step, quadZ       ));
-								column10.setParamsUnchecked(params.at(quadX,        quadZ | step));
-								column11.setParamsUnchecked(params.at(quadX | step, quadZ | step));
+								QuadColumn quadColumn = new QuadColumn();
+								quadColumn.loadFromArray(columns, baseIndex, width);
+								quadColumn.at(params, quadX, quadZ, step);
 								/*
 								//pre-computing column values results in
 								//computation of noise which will never
 								//be used, like cave/deep dark/core noise.
 								for (String name : this.chunkGenerator.getOverriders().rawColumnValueDependencies) try {
-									column00.preComputeColumnValue(name);
-									column01.preComputeColumnValue(name);
-									column10.preComputeColumnValue(name);
-									column11.preComputeColumnValue(name);
+									quadColumn.preComputeColumnValue(name);
 								}
 								catch (Throwable throwable) {
 									BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
 								}
 								for (ColumnValueOverrider.Holder overrider : this.chunkGenerator.getOverriders().rawColumnValues) {
-									overrider.override(column00, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
-									overrider.override(column01, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
-									overrider.override(column10, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
-									overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
+									quadColumn.override(overrider, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 								}
 								*/
-								BlockSegmentList
-									list00 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
-									list01 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
-									list10 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y()),
-									list11 = new BlockSegmentList(generator.height.min_y(), generator.height.max_y());
-								Layer layer = generator.layer.value();
-								layer.emitSegments(column00, column01, column10, column11, list00);
-								layer.emitSegments(column01, column00, column11, column10, list01);
-								layer.emitSegments(column10, column11, column00, column01, list10);
-								layer.emitSegments(column11, column10, column01, column00, list11);
-								this.convertToDataPoints(dataPointBuilders[baseIndex            ], list00);
-								this.convertToDataPoints(dataPointBuilders[baseIndex + 1        ], list01);
-								this.convertToDataPoints(dataPointBuilders[baseIndex + width    ], list10);
-								this.convertToDataPoints(dataPointBuilders[baseIndex + width + 1], list11);
+								QuadList quadList = new QuadList();
+								quadList.createNew(generator.height.min_y(), generator.height.max_y());
+								QuadHolder.generate(quadColumn, quadList, layer);
+								this.convertToDataPoints(quadList, dataPointBuilders, baseIndex, width);
 							});
 						}
 					}
@@ -258,28 +238,13 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 						int baseIndex = (offsetZ_ << 4) | offsetX_;
 						int quadX = startX | offsetX_;
 						int quadZ = startZ | offsetZ_;
-						ScriptedColumn
-							column00 = columns[baseIndex     ],
-							column01 = columns[baseIndex |  1],
-							column10 = columns[baseIndex | 16],
-							column11 = columns[baseIndex | 17];
-						column00.setParamsUnchecked(params.at(quadX,     quadZ    ));
-						column01.setParamsUnchecked(params.at(quadX | 1, quadZ    ));
-						column10.setParamsUnchecked(params.at(quadX,     quadZ | 1));
-						column11.setParamsUnchecked(params.at(quadX | 1, quadZ | 1));
-						BlockSegmentList
-							list00 = new BlockSegmentList(minY, maxY),
-							list01 = new BlockSegmentList(minY, maxY),
-							list10 = new BlockSegmentList(minY, maxY),
-							list11 = new BlockSegmentList(minY, maxY);
-						layer.emitSegments(column00, column01, column10, column11, list00);
-						layer.emitSegments(column01, column00, column11, column10, list01);
-						layer.emitSegments(column10, column11, column00, column01, list10);
-						layer.emitSegments(column11, column10, column01, column00, list11);
-						this.convertToDataPoints(dataPointBuilders[baseIndex     ], list00);
-						this.convertToDataPoints(dataPointBuilders[baseIndex |  1], list01);
-						this.convertToDataPoints(dataPointBuilders[baseIndex | 16], list10);
-						this.convertToDataPoints(dataPointBuilders[baseIndex | 17], list11);
+						QuadColumn quadColumn = new QuadColumn();
+						quadColumn.loadFromArray(columns, baseIndex, 16);
+						quadColumn.at(params, quadX, quadZ, 1);
+						QuadList quadList = new QuadList();
+						quadList.createNew(minY, maxY);
+						QuadHolder.generate(quadColumn, quadList, layer);
+						this.convertToDataPoints(quadList, dataPointBuilders, baseIndex, 16);
 					});
 				}
 			}
@@ -293,13 +258,20 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		return results;
 	}
 
+	public void convertToDataPoints(QuadList quadList, DataPointListBuilder[] dataPointBuilders, int baseIndex, int zOffset) {
+		this.convertToDataPoints(dataPointBuilders[baseIndex], quadList.object00);
+		this.convertToDataPoints(dataPointBuilders[baseIndex + 1], quadList.object01);
+		this.convertToDataPoints(dataPointBuilders[baseIndex + zOffset], quadList.object10);
+		this.convertToDataPoints(dataPointBuilders[baseIndex + zOffset + 1], quadList.object11);
+	}
+
 	public void convertToDataPoints(DataPointListBuilder builder, BlockSegmentList segments) {
 		segments.computeLightLevels();
 		for (int index = segments.size(); --index >= 0;) {
-			LitSegment segment = segments.getLit(index);
+			LitSegment segment = segments.get(index);
 			//some versions of DH break if I don't provide air...
 			//if (segment.value.isAir()) continue;
-			builder.skyLightLevel = segment.lightLevel;
+			builder.skyLightLevel = segment.skylightLevel;
 			builder.add(segment.value, segment.minY, segment.maxY + 1);
 		}
 	}

@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
+		"bigglobe:cuboctahedron",
 		"bigglobe:endger_sponge",
 		"bigglobe:octahedron",
 		"bigglobe:snowflake",

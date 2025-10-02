@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.mixins;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry.PendingTagLoad;
 import net.minecraft.registry.tag.TagEntry.ValueGetter;
 import net.minecraft.registry.tag.TagGroupLoader;
 import net.minecraft.registry.tag.TagGroupLoader.TagDependencies;
@@ -72,9 +72,25 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		}
 	}
 
-	@Inject(method = "startReload(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/DynamicRegistryManager;)Ljava/util/List;", at = @At("HEAD"))
-	private static void bigglobe_prepareForReload(ResourceManager resourceManager, DynamicRegistryManager registryManager, CallbackInfoReturnable<List<PendingTagLoad<?>>> callback) {
-		ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
-		ColumnEntryRegistry.Loading.invalidTags = new HashMap<>();
-	}
+	#if MC_VERSION >= MC_1_21_2
+
+		@Inject(method = "startReload(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/DynamicRegistryManager;)Ljava/util/List;", at = @At("HEAD"))
+		private static void bigglobe_prepareForReload(
+			ResourceManager resourceManager,
+			DynamicRegistryManager registryManager,
+			CallbackInfoReturnable<List<net.minecraft.registry.Registry.PendingTagLoad<?>>> callback
+		) {
+			ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
+			ColumnEntryRegistry.Loading.invalidTags = new HashMap<>();
+		}
+
+	#else
+
+		@Inject(method = "load", at = @At("HEAD"))
+		private static void bigglobe_prepareForReload(ResourceManager manager, CallbackInfoReturnable<Map<Identifier, Collection<?>>> callback) {
+			ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
+			ColumnEntryRegistry.Loading.invalidTags = new HashMap<>();
+		}
+
+	#endif
 }

@@ -38,10 +38,12 @@ public class DelayedEntryListCoder<T> extends NamedCoder<DelayedEntryList<T>> {
 	@OverrideOnly
 	public @Nullable <T_Encoded> DelayedEntryList<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		return new DelayedEntryList<>(
+		DelayedEntryList<T> tag = new DelayedEntryList<>(
 			AbstractRegistryCoder.registry(this.registryKey, context),
 			context.decodeWith(DelayedCoders.LIST_CODER)
 		);
+		tag.compileCalled = false;
+		return tag;
 	}
 
 	@Override

@@ -42,16 +42,18 @@ import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
 import builderb0y.bigglobe.util.LinkedArrayList;
+import builderb0y.bigglobe.util.TimestampedComputingCache;
+import builderb0y.bigglobe.util.TimestampedComputingCache.Units;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class ActiveStructureManager extends StructureManager {
 
-	public final UngeneratedStructures<StructureKey, SectionSortedStructurePieces>
-		potentialStructures    = new UngeneratedStructures<>(5L * 60L * 1000L);
-	public final UngeneratedStructures<ChunkPos, FinalStructures>
-		finalStructures        = new UngeneratedStructures<>(5L * 60L * 1000L),
-		intersectingStructures = new UngeneratedStructures<>(5L * 60L * 1000L);
+	public final TimestampedComputingCache<ChunkPos, FinalStructures>
+		intersectingStructures = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D)),
+		finalStructures        = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
+	public final TimestampedComputingCache<StructureKey, SectionSortedStructurePieces>
+		potentialStructures    = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
 
 	public static <T> Stream<T> maybeParallel(Stream<T> stream) {
 		return BigGlobeConfig.INSTANCE.get().c2meIntegration.multiThreadedStructures() ? stream.parallel() : stream.sequential();
@@ -91,17 +93,9 @@ public class ActiveStructureManager extends StructureManager {
 
 	@Override
 	public FinalStructures getIntersectingStructures(StructureGenerationParams params) {
-		FinalStructures starts;
-		synchronized (this.intersectingStructures) {
-			starts = this.intersectingStructures.get(params.chunkPos());
-		}
-		if (starts != null) return starts;
-		starts = this.computeIntersectingStructures(params);
-		synchronized (this.intersectingStructures) {
-			FinalStructures existing = this.intersectingStructures.putIfAbsent(params.chunkPos(), starts);
-			if (existing != null) starts = existing;
-		}
-		return starts;
+		return this.intersectingStructures.computeIfUnknown(params.chunkPos(), (ChunkPos pos) -> {
+			return this.computeIntersectingStructures(params);
+		});
 	}
 
 	public FinalStructures computeIntersectingStructures(StructureGenerationParams params) {
@@ -117,7 +111,7 @@ public class ActiveStructureManager extends StructureManager {
 			})
 			.map(StructureKey::chunkPos)
 			.distinct()
-			.flatMap((ChunkPos pos) -> maybeParallel(this.getStructureStarts(params.at(pos)).stream()))
+			.flatMap((ChunkPos pos) -> maybeParallel(this.getFinalStructures(params.at(pos)).stream()))
 			.filter((StructureStart start) -> (
 				params.chunkPos().x >= start.getBoundingBox().getMinX() >> 4 &&
 				params.chunkPos().z >= start.getBoundingBox().getMinZ() >> 4 &&
@@ -137,21 +131,13 @@ public class ActiveStructureManager extends StructureManager {
 	}
 
 	@Override
-	public FinalStructures getStructureStarts(StructureGenerationParams params) {
-		FinalStructures finalStructures;
-		synchronized (this.finalStructures) {
-			finalStructures = this.finalStructures.get(params.chunkPos());
-		}
-		if (finalStructures != null) return finalStructures;
-		finalStructures = this.computeStructureStarts(params);
-		synchronized (this.finalStructures) {
-			FinalStructures existing = this.finalStructures.putIfAbsent(params.chunkPos(), finalStructures);
-			if (existing != null) finalStructures = existing;
-		}
-		return finalStructures;
+	public FinalStructures getFinalStructures(StructureGenerationParams params) {
+		return this.finalStructures.computeIfUnknown(params.chunkPos(), (ChunkPos chunkPos) -> {
+			return this.computeFinalStructures(params);
+		});
 	}
 
-	public FinalStructures computeStructureStarts(StructureGenerationParams params) {
+	public FinalStructures computeFinalStructures(StructureGenerationParams params) {
 		LinkedArrayList<SectionSortedStructurePieces> starts = new LinkedArrayList<>();
 		MutableInt maxSizeForChunk = new MutableInt(0);
 
@@ -167,7 +153,7 @@ public class ActiveStructureManager extends StructureManager {
 			return getFilteredStartChunks(params, set, 0);
 		})
 		.forEach((StructureKey key) -> {
-			SectionSortedStructurePieces pieces = this.getStructureStart(params.at(key.chunkX(), key.chunkZ()), key.set());
+			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
 			if (!pieces.isEmpty()) synchronized (starts) {
 				starts.addElementToEnd(pieces);
 				maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
@@ -190,7 +176,7 @@ public class ActiveStructureManager extends StructureManager {
 		})
 		.filter((StructureKey key) -> key.chunkX() != params.chunkPos().x || key.chunkZ() != params.chunkPos().z)
 		.forEach((StructureKey key) -> {
-			SectionSortedStructurePieces pieces = this.getStructureStart(params.at(key.chunkX(), key.chunkZ()), key.set());
+			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
 			if (!pieces.isEmpty()) synchronized (starts) {
 				starts.addElementToEnd(pieces);
 			}
@@ -239,26 +225,20 @@ public class ActiveStructureManager extends StructureManager {
 		return filtered;
 	}
 
-	public @NotNull SectionSortedStructurePieces getStructureStart(StructureGenerationParams params, RegistryEntry<StructureSet> set) {
-		SectionSortedStructurePieces pieces;
-		StructureKey key = new StructureKey(params.chunkPos().x, params.chunkPos().z, set);
-		synchronized (this.potentialStructures) {
-			pieces = this.potentialStructures.get(key);
+	public @NotNull SectionSortedStructurePieces getPotentialStructures(StructureGenerationParams params, RegistryEntry<StructureSet> set) {
+		return this.potentialStructures.computeIfUnknown(new StructureKey(params.chunkPos().x, params.chunkPos().z, set), (StructureKey chunkPos) -> {
+			return this.computePotentialStructures(params, set);
+		});
+	}
+
+	public @NotNull SectionSortedStructurePieces computePotentialStructures(StructureGenerationParams params, RegistryEntry<StructureSet> set) {
+		StructureStartWrapper wrapper = this.computeStructureStart(params, set);
+		if (wrapper != null) {
+			return new SectionSortedStructurePieces(set, wrapper);
 		}
-		if (pieces == null) {
-			StructureStartWrapper wrapper = this.computeStructureStart(params, set);
-			if (wrapper != null) {
-				pieces = new SectionSortedStructurePieces(set, wrapper);
-			}
-			else {
-				pieces = new SectionSortedStructurePieces(set);
-			}
-			synchronized (this.potentialStructures) {
-				SectionSortedStructurePieces existing = this.potentialStructures.putIfAbsent(key, pieces);
-				if (existing != null) pieces = existing;
-			}
+		else {
+			return new SectionSortedStructurePieces(set);
 		}
-		return pieces;
 	}
 
 	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, RegistryEntry<StructureSet> set) {

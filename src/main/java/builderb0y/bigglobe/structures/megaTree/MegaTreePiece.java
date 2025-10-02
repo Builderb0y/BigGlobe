@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.joml.Vector3d;
 
@@ -11,7 +9,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
@@ -27,7 +24,6 @@ import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -36,12 +32,11 @@ import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.DataStructurePiece;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -84,7 +79,7 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 
 		@Hidden
 		public Data(MegaTreeStructure actualStructure, RegistryEntry<WoodPalette> wood, double originX, double originY, double originZ, float[] balls) {
-			this(getActualEntry(actualStructure), actualStructure, wood, originX, originY, originZ, balls);
+			this(BigGlobeStructure.getActualEntry(actualStructure), actualStructure, wood, originX, originY, originZ, balls);
 		}
 
 		public int countBalls() {
@@ -105,16 +100,6 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 
 		public double getRadius(int index) {
 			return this.balls[(index << 2) | 3];
-		}
-
-		public static RegistryEntry<Structure> getActualEntry(MegaTreeStructure structure) {
-			return RegistryVersions.getEntry(
-				RegistryVersions.getRegistry(
-					BigGlobeMod.getCurrentServer().getRegistryManager(),
-					RegistryKeys.STRUCTURE
-				),
-				structure
-			);
 		}
 	}
 

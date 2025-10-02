@@ -32,6 +32,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -59,17 +60,18 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public SmallDungeonStructure(
 		Config config,
+		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
 		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
-		super(config, surface_y, room_decorators, spawner_entries, palettes);
+		super(config, min_y, surface_y, room_decorators, spawner_entries, palettes);
 	}
 
 	@Override
 	public DungeonLayout layout(ScriptedColumn column, int y, RandomGenerator random) {
-		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, this.palettes);
+		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, getActualEntry(this));
 	}
 
 	@Override
@@ -85,14 +87,14 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
 			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
-			List<Palette> palettes
+			RegistryEntry<Structure> owningStructure
 		) {
-			super(column, y, random, random.nextInt(384) + 192, roomDecorators, spawnerEntries, palettes);
+			super(column, y, random, random.nextInt(384) + 192, roomDecorators, spawnerEntries, owningStructure);
 		}
 
 		@Override
 		public RoomDungeonPiece newRoom() {
-			return new Room(BigGlobeStructures.SMALL_DUNGEON_ROOM_TYPE, this.palette, this.random, this.roomDecorators);
+			return new Room(BigGlobeStructures.SMALL_DUNGEON_ROOM_TYPE, this.owningStructure, this.paletteIndex, this.random, this.roomDecorators);
 		}
 
 		@Override
@@ -124,8 +126,14 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Room extends RoomDungeonPiece {
 
-		public Room(StructurePieceType type, Palette palette, RandomGenerator random, @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators) {
-			super(type, 0, null, palette, decorators);
+		public Room(
+			StructurePieceType type,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			RandomGenerator random,
+			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
+		) {
+			super(type, 0, null, owningStructure, paletteIndex, decorators);
 			this.setPit((random.nextInt() & 15) == 0);
 			this.setPos(0, 0, 0);
 		}
@@ -196,18 +204,18 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			super.addDecorations(layout);
 			Direction deadEndDirection;
 			if (this.hasPit()) {
-				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.palette, layout.random.nextInt(2), layout.random));
+				layout.decorations.add(new PitDungeonPiece(BigGlobeStructures.DUNGEON_PIT_TYPE, this.x(), this.y(), this.z(), this.owningStructure, this.paletteIndex, layout.random.nextInt(2), layout.random));
 				this.decorators = null;
 			}
 			else if ((deadEndDirection = this.getDeadEndDirection()) != null) {
 				if (layout.random.nextBoolean()) {
-					layout.decorations.add(new ChestPiece(BigGlobeStructures.SMALL_DUNGEON_CHEST_TYPE, this.x(), this.y() + 1, this.z(), this.palette, deadEndDirection, layout.random.nextLong()));
+					layout.decorations.add(new ChestPiece(BigGlobeStructures.SMALL_DUNGEON_CHEST_TYPE, this.x(), this.y() + 1, this.z(), this.owningStructure, this.paletteIndex, deadEndDirection, layout.random.nextLong()));
 					this.decorators = null;
 				}
 			}
 			else {
 				if ((layout.random.nextInt() & 15) == 0) {
-					layout.decorations.add(new SpawnerPiece(BigGlobeStructures.SMALL_DUNGEON_SPAWNER_TYPE, this.x(), this.y() + 1, this.z(), this.palette, ((Layout)(layout)).spawnerEntries.getRandomElement(layout.random)));
+					layout.decorations.add(new SpawnerPiece(BigGlobeStructures.SMALL_DUNGEON_SPAWNER_TYPE, this.x(), this.y() + 1, this.z(), this.owningStructure, this.paletteIndex, ((Layout)(layout)).spawnerEntries.getRandomElement(layout.random)));
 					this.decorators = null;
 				}
 			}
@@ -221,8 +229,17 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static class ChestPiece extends ChestDungeonPiece {
 
-		public ChestPiece(StructurePieceType type, int x, int y, int z, Palette palette, Direction direction, long seed) {
-			super(type, 0, new BlockBox(x, y, z, x, y, z), palette, direction, seed);
+		public ChestPiece(
+			StructurePieceType type,
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			Direction direction,
+			long seed
+		) {
+			super(type, 0, new BlockBox(x, y, z, x, y, z), owningStructure, paletteIndex, direction, seed);
 			this.setOrientation(direction);
 		}
 
@@ -247,8 +264,16 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static class SpawnerPiece extends SpawnerDungeonPiece {
 
-		public SpawnerPiece(StructurePieceType type, int x, int y, int z, Palette palette, RegistryEntry<EntityType<?>> spawnerType) {
-			super(type, 0, new BlockBox(x, y, z, x, y, z), palette, spawnerType);
+		public SpawnerPiece(
+			StructurePieceType type,
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			RegistryEntry<EntityType<?>> spawnerType
+		) {
+			super(type, 0, new BlockBox(x, y, z, x, y, z), owningStructure, paletteIndex, spawnerType);
 		}
 
 		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
@@ -286,8 +311,17 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static abstract class Hall extends HallDungeonPiece {
 
-		public Hall(StructurePieceType type, int x, int y, int z, Palette palette, Direction direction, RandomGenerator random) {
-			super(type, 0, new BlockBox(x - 2, y, z - 2, x + 2, y + 4, z + 2), palette);
+		public Hall(
+			StructurePieceType type,
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			Direction direction,
+			RandomGenerator random
+		) {
+			super(type, 0, new BlockBox(x - 2, y, z - 2, x + 2, y + 4, z + 2), owningStructure, paletteIndex);
 			this.setOrientation(direction);
 			this.setBars((random.nextInt() & 7) == 0);
 			int width = random.nextInt(3) + 1;
@@ -305,19 +339,29 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 				(from.x() + to.x()) >> 1,
 				Math.min(from.y(), to.y()),
 				(from.z() + to.z()) >> 1,
-				from.palette,
+				from.owningStructure,
+				from.paletteIndex,
 				direction,
 				random,
 				to.y() - from.y()
 			);
 		}
 
-		public static Hall create(int x, int y, int z, Palette palette, Direction direction, RandomGenerator random, int step) {
+		public static Hall create(
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			Direction direction,
+			RandomGenerator random,
+			int step
+		) {
 			if (step != 0) y++;
 			return switch (step) {
-				case -1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, palette, direction.getOpposite(), random);
-				case  0 -> new Hall0(BigGlobeStructures.SMALL_DUNGEON_HALL0_TYPE, x, y, z, palette, direction, random);
-				case  1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, palette, direction, random);
+				case -1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
+				case  0 -> new Hall0(BigGlobeStructures.SMALL_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case  1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
 				default -> throw new IllegalArgumentException(Integer.toString(step));
 			};
 		}
@@ -325,8 +369,17 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Hall0 extends Hall {
 
-		public Hall0(StructurePieceType type, int x, int y, int z, Palette palette, Direction direction, RandomGenerator random) {
-			super(type, x, y, z, palette, direction, random);
+		public Hall0(
+			StructurePieceType type,
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			Direction direction,
+			RandomGenerator random
+		) {
+			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
 		public Hall0(StructurePieceType type, StructureContext context, NbtCompound nbt) {
@@ -343,8 +396,17 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Hall1 extends Hall {
 
-		public Hall1(StructurePieceType type, int x, int y, int z, Palette palette, Direction direction, RandomGenerator random) {
-			super(type, x, y, z, palette, direction, random);
+		public Hall1(
+			StructurePieceType type,
+			int x,
+			int y,
+			int z,
+			RegistryEntry<Structure> owningStructure,
+			int paletteIndex,
+			Direction direction,
+			RandomGenerator random
+		) {
+			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
 		public Hall1(StructurePieceType type, StructureContext context, NbtCompound nbt) {

@@ -386,6 +386,21 @@
 	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[1]": "Higher quality will use higher quality models for further distances.",
 	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[2]": "Lower quality will reduce time between lag spikes.",
 
+	"text.autoconfig.bigglobe.option.lodRendering.maxLodForChunkLoading": "Max LOD For Chunk Loading",
+	"text.autoconfig.bigglobe.option.lodRendering.maxLodForChunkLoading.@Tooltip[0]": "Higher numbers will result in non-worldgen blocks rendering from farther away.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxLodForChunkLoading.@Tooltip[1]": "Lower numbers will result in better performance, as chunk loading is slow, and so is rendering caves unnecessarily.",
+	"text.autoconfig.bigglobe.option.lodRendering.maxLodForChunkLoading.@Tooltip[2]": "LOD chunk loading currently only works in singleplayer.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.verticalCompression": "Vertical Compression",
+	"text.autoconfig.bigglobe.option.lodRendering.verticalCompression.@Tooltip[0]": "Maximum number of solid blocks which can be skipped over when constructing LOD geometry from real blocks.",
+	"text.autoconfig.bigglobe.option.lodRendering.verticalCompression.@Tooltip[1]": "Higher numbers will result in less memory usage.",
+	"text.autoconfig.bigglobe.option.lodRendering.verticalCompression.@Tooltip[2]": "Lower numbers will result in more accurate LODs.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.caveCullingDepth": "Cave Culling Depth",
+	"text.autoconfig.bigglobe.option.lodRendering.caveCullingDepth.@Tooltip[0]": "Depth below the surface where real blocks start getting ignored.",
+	"text.autoconfig.bigglobe.option.lodRendering.caveCullingDepth.@Tooltip[1]": "Higher numbers will allow some caves near the surface to continue rendering in LODs.",
+	"text.autoconfig.bigglobe.option.lodRendering.caveCullingDepth.@Tooltip[2]": "Set to -1 to disable cave culling and allow all caves to render.",
+
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance": "Min View Distance",
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[0]": "Closest distance that LOD terrain will render at, as a multiplier of your vanilla render distance.",
 	"text.autoconfig.bigglobe.option.lodRendering.minViewDistance.@Tooltip[1]": "Lower numbers will allow LOD terrain to render closer to the player.",
