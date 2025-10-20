@@ -53,6 +53,8 @@ high priority:
 	document scripted structures in general.
 	incorrect world height detection code doesn't work correctly for bclib.
 	make nether surface depth a bubble property.
+	hyperspace flight still persists after leaving hyperspace.
+		only on forge/sinytra.
 
 V6:
 	rivers:
@@ -73,6 +75,13 @@ V6:
 		maybe figure out how to make acacia trees work differently?
 	islands world type:
 		larger scale?
+	fix Data mutability paradigm in AutoCodec.
+	dynamic block segment types?
+	random.between[low, high).
+
+1.21.10:
+	charred variant of new vanilla shelf block.
+		needs textures and stuff.
 
 LODs:
 	shader support.

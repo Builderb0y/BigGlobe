@@ -13,7 +13,7 @@ When this project got started, I didn't care about it too much, since I hadn't p
 * This one's less important, but please don't make videos or other media of Big Globe with the intent of changing Big Globe's popularity.
 	* Big Globe is already more popular than I want it to be.
 	* Videos or other media of Big Globe made with any other intent are fine.
-	* If you've already this type of media in the past, it's fine, and you don't need to take it down.
+	* If you've already made this type of media in the past, it's fine, and you don't need to take it down.
 * Do NOT claim to be the author of Big Globe.
 	* You ARE allowed claim to be the author of any 3rd-party packs that you create.
-* Do NOT attempt to continue Big Globe's development if, for any reason, I ever become unable to continue it myself.
+* Do NOT attempt to continue Big Globe's development if, for any reason, I ever stop developing it myself.

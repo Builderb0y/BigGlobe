@@ -304,7 +304,7 @@ public class TypeInfo {
 		else {
 			String name = this.getInternalName();
 			int start = name.length();
-			for (char c; --start >= 0 && (c = name.charAt(start)) != '/' && c != '$'; ) ;
+			for (char c; --start >= 0 && (c = name.charAt(start)) != '/' && c != '$';);
 			return name.substring(start + 1);
 		}
 	}

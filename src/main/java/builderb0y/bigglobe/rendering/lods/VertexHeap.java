@@ -325,7 +325,7 @@ public class VertexHeap extends GpuMemory {
 			//3. each vertex contains at least one byte of information.
 			//because of these assumptions, we can copy 4 bytes at a time.
 			//
-			//NOTE: do NOT replace this memCopy(),
+			//NOTE: do NOT replace this with memCopy(),
 			//as the results of memCopy() are undefined when
 			//the source and destination ranges overlap.
 			for (long offset = 0L, length = this.key.length; offset < length; offset += Integer.BYTES) {

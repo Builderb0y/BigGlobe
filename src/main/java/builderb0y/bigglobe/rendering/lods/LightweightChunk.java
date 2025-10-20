@@ -10,6 +10,7 @@ import net.minecraft.util.collection.EmptyPaletteStorage;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.chunk.ChunkNibbleArray;
@@ -171,12 +172,13 @@ public class LightweightChunk {
 								if (cullingData != null) {
 									this.cull(list, cullingData[columnIndex_]);
 								}
+								list.trim();
 								columns[columnIndex_] = list;
 							}
 
 							public void addSegment(BlockSegmentList list, int minY, int maxY, BlockState state, int skylight) {
 								if (maxY == list.minY) return; //ignore void air.
-								if (BlockStateVersions.isOpaqueFullCube(state, EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+								if (BlockStateVersions.getCullingShape(state, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) == VoxelShapes.fullCube()) {
 									for (int index = list.size(); --index >= 0;) {
 										LitSegment segment = list.get(index);
 										if (segment.value == state) {
@@ -189,7 +191,7 @@ public class LightweightChunk {
 										else if (segment.minY < minY - verticalCompression) {
 											break;
 										}
-										else if (!BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+										else if (BlockStateVersions.getCullingShape(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) != VoxelShapes.fullCube()) {
 											break;
 										}
 									}

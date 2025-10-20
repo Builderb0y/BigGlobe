@@ -5,12 +5,11 @@ import java.util.Arrays;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.collection.EmptyPaletteStorage;
 import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.Palette;
@@ -192,8 +191,8 @@ public class LightweightSection {
 
 		public static int compare(BlockState oldState, BlockState newState) {
 			int compare = Boolean.compare(
-				BlockStateVersions.isOpaqueFullCube(newState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN),
-				BlockStateVersions.isOpaqueFullCube(oldState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN)
+				BlockStateVersions.getCullingShape(newState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) == VoxelShapes.fullCube(),
+				BlockStateVersions.getCullingShape(oldState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) == VoxelShapes.fullCube()
 			);
 			if (compare != 0) return compare;
 			return Boolean.compare(isPlantLike(newState), isPlantLike(oldState));

@@ -212,7 +212,7 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 				new ClassCompileContext(
 					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
 					ClassType.CLASS,
-					Type.getInternalName(gridTypeInfo.parserClass) + '$' + "Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+					Type.getInternalName(gridTypeInfo.parserClass) + "$Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 					TypeInfos.OBJECT,
 					new TypeInfo[] { TypeInfo.of(gridTypeInfo.gridClass), TypeInfo.of(Script.class) }
 				),

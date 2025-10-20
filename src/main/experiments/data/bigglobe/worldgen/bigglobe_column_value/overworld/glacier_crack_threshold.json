@@ -1,0 +1,20 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"min(",
+			"unmixLinear(-0.25I, -0.75I, world_traits.`bigglobe:temperature_at_sea_level`),",
+			"float(unmixLinear(",
+				"sea_level,",
+				"sea_level - hilliness * 1024.0L,",
+				"world_traits.`bigglobe:approximate_surface_y`",
+			"))",
+		")"
+	],
+	"valid": {
+		"where": "world_traits.`bigglobe:approximate_surface_y` < sea_level"
+	}
+}

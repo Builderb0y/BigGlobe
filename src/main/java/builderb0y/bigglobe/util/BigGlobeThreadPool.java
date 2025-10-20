@@ -9,7 +9,6 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 
 public class BigGlobeThreadPool {
 
-	public static final AtomicBoolean BUSY = new AtomicBoolean(false);
 	public static final LinkedBlockingDeque<Runnable> TASKS = new LinkedBlockingDeque<>();
 	public static final ThreadPoolExecutor POOL;
 	static {
@@ -44,13 +43,8 @@ public class BigGlobeThreadPool {
 		}
 	}
 
-	public static void onMainTaskStarted() {
-		BUSY.set(true);
-	}
-
 	public static Executor mainExecutor() {
 		checkThreads();
-		onMainTaskStarted();
 		return MAIN_EXECUTOR;
 	}
 
@@ -81,9 +75,5 @@ public class BigGlobeThreadPool {
 
 	public static Executor autoExecutor() {
 		return executor(DistantHorizonsCompat.isOnDistantHorizonThread());
-	}
-
-	public static boolean isBusy() {
-		return BUSY.getAndSet(false);
 	}
 }

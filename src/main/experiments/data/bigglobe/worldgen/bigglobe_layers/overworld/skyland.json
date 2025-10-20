@@ -1,0 +1,22 @@
+{
+	"type": "simple_2d",
+	"state": "'bigglobe:cloud'",
+	"after_children": {
+		"file": "bigglobe:world_preset/overworld_skyland_surface_placement",
+		"includes": [
+			"bigglobe:include/generate_snow"
+		]
+	},
+	"valid": {
+		"where": [
+			"if (hints.usage ==. 'heightmap': return(false))",
+			"double*(",
+				"minY = `bigglobe:overworld/skyland_min_y`",
+				"maxY = `bigglobe:overworld/skyland_max_y`",
+			")",
+			"return(maxY > minY)"
+		],
+		"min_y": "floorInt(`bigglobe:overworld/skyland_min_y`)",
+		"max_y": "floorInt(`bigglobe:overworld/skyland_max_y`)"
+	}
+}

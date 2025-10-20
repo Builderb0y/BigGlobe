@@ -334,6 +334,7 @@ There are no ores in the end yet.
 
 ## Misc
 
+* Slimes: Spawn in water lakes, and in underground water pockets. And probably also in slime chunks in the vanilla Y range, as I don't touch that logic.
 * Glowstone: Most common in crimson forests, warped forests, and infernos. Less common in nether and ashen wastes. Does not spawn at all in the valley of souls.
 * Shroomlights: In the centers of wart block clusters on crimson and warped trees.
 * Clouds, aura-infused clouds: Found in skylands above oceans and inside obelisks in the overworld.

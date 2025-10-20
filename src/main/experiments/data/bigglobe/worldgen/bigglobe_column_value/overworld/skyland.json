@@ -1,0 +1,32 @@
+{
+	"type": "voronoi",
+	"params": {
+		"type": {
+			"type": "voronoi",
+			"name": "SkylandCell",
+			"exports": {
+				"bounds": {
+					"type": {
+						"type": "class",
+						"name": "SkylandBounds",
+						"fields": [
+							{ "name": "min_y",         "type": "double" },
+							{ "name": "max_y",         "type": "double" },
+							{ "name": "surface_depth", "type": "int"    }
+						]
+					},
+					"is_3d": false
+				},
+				"tree_feature": {
+					"type": "configured_feature",
+					"is_3d": false
+				}
+			}
+		},
+		"is_3d": false
+	},
+	"diagram": {
+		"distance": 2048,
+		"variation": 1536
+	}
+}

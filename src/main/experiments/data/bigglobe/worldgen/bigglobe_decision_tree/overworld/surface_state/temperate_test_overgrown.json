@@ -1,0 +1,17 @@
+{
+	"condition": {
+		"type": "and",
+		"conditions": [
+			{
+				"type": "script",
+				"script": "!world_traits.`bigglobe:in_river`"
+			},
+			{
+				"type": "script_chance",
+				"script": "world_traits.`bigglobe:foliage_at_surface`"
+			}
+		]
+	},
+	"if_true": "bigglobe:overworld/surface_state/overgrown_test_forest",
+	"if_false": "bigglobe:overworld/surface_state/temperate"
+}

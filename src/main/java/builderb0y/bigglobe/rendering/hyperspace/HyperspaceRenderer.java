@@ -7,6 +7,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.HyperspaceRendering;
 import builderb0y.bigglobe.rendering.*;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 import static org.lwjgl.opengl.GL32C.*;

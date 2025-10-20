@@ -49,7 +49,8 @@ should ONLY be closed from the thread that allocated it.
 	"NumericCastThatLosesPrecision",
 	"OverloadedMethodsWithSameNumberOfParameters",
 	"RedundantCast",
-	"SameParameterValue"
+	"SameParameterValue",
+	"unused"
 })
 public class NumberArray implements AutoCloseable {
 
@@ -187,9 +188,23 @@ public class NumberArray implements AutoCloseable {
 	public final int byteOffset, byteLength, elementOffset, elementCount;
 	public final boolean freeable;
 	public final Throwable allocator;
+	public Throwable closing;
 
 	/** creates a zero-sized, already-closed NumberArray. */
-	public NumberArray(byte type) {
+	public NumberArray(
+		@MagicConstant(
+			intValues = {
+				BYTE_TYPE,
+				SHORT_TYPE,
+				INT_TYPE,
+				LONG_TYPE,
+				FLOAT_TYPE,
+				DOUBLE_TYPE,
+				BOOLEAN_TYPE
+			}
+		)
+		byte type
+	) {
 		this.type = type;
 		this.byteOffset = this.byteLength = this.elementOffset = this.elementCount = 0;
 		this.freeable = false;
@@ -216,6 +231,9 @@ public class NumberArray implements AutoCloseable {
 		int elementCount,
 		boolean freeable
 	) {
+		if (manager == null) {
+			throw new IllegalArgumentException("Null manager");
+		}
 		if ((byteLength & 7) != 0) {
 			throw new IllegalArgumentException("Invalid alignment for length " + byteLength);
 		}
@@ -235,8 +253,8 @@ public class NumberArray implements AutoCloseable {
 		this.elementOffset = elementOffset;
 		this.elementCount = elementCount;
 		this.freeable = freeable;
-		if (freeable) manager.used += byteLength;
 		this.allocator = TRACE_ALLOCATIONS && freeable ? new Throwable("Allocation site:") : null;
+		if (freeable) manager.used += byteLength;
 	}
 
 	//////////////////////////////// allocation ////////////////////////////////
@@ -267,6 +285,15 @@ public class NumberArray implements AutoCloseable {
 
 	//////////////////////////////// util ////////////////////////////////
 
+	public byte[] getBase() {
+		try {
+			return this.manager.base;
+		}
+		catch (NullPointerException exception) {
+			throw new IllegalStateException("NumberArray already closed!", this.closing);
+		}
+	}
+
 	public int   byteIndexUnchecked(int index) { return ((index + this.elementOffset) <<   BYTE_SHIFT) + this.byteOffset; }
 	public int  shortIndexUnchecked(int index) { return ((index + this.elementOffset) <<  SHORT_SHIFT) + this.byteOffset; }
 	public int    intIndexUnchecked(int index) { return ((index + this.elementOffset) <<    INT_SHIFT) + this.byteOffset; }
@@ -289,17 +316,60 @@ public class NumberArray implements AutoCloseable {
 		return Objects.checkFromToIndex(from, to, this.elementCount);
 	}
 
-	public int checkTypeIndex(int type, int index) {
+	public int checkTypeIndex(
+		@MagicConstant(
+			intValues = {
+				BYTE_TYPE,
+				SHORT_TYPE,
+				INT_TYPE,
+				LONG_TYPE,
+				FLOAT_TYPE,
+				DOUBLE_TYPE,
+				BOOLEAN_TYPE
+			}
+		)
+		int type,
+		int index
+	) {
 		this.checkType(type);
 		return this.checkIndex(index);
 	}
 
-	public int checkTypeRange(int type, int from, int to) {
+	@SuppressWarnings("UnusedReturnValue")
+	public int checkTypeRange(
+		@MagicConstant(
+			intValues = {
+				BYTE_TYPE,
+				SHORT_TYPE,
+				INT_TYPE,
+				LONG_TYPE,
+				FLOAT_TYPE,
+				DOUBLE_TYPE,
+				BOOLEAN_TYPE
+			}
+		)
+		int type,
+		int from,
+		int to
+	) {
 		this.checkType(type);
 		return this.checkRange(from, to);
 	}
 
-	public void checkType(int type) {
+	public void checkType(
+		@MagicConstant(
+			intValues = {
+				BYTE_TYPE,
+				SHORT_TYPE,
+				INT_TYPE,
+				LONG_TYPE,
+				FLOAT_TYPE,
+				DOUBLE_TYPE,
+				BOOLEAN_TYPE
+			}
+		)
+		int type
+	) {
 		if (CHECK_TYPE && this.type != type) {
 			throw new IllegalStateException("Incorrect type: expected " + typeName(type) + ", got " + typeName(this.type));
 		}
@@ -320,15 +390,15 @@ public class NumberArray implements AutoCloseable {
 
 	//////////////////////////////// get ////////////////////////////////
 
-	public byte    implGetB(int index) { return (byte  )(  BYTE_ACCESS.get(this.manager.base, this.  byteIndex(index))); }
-	public short   implGetS(int index) { return (short )( SHORT_ACCESS.get(this.manager.base, this. shortIndex(index))); }
-	public int     implGetI(int index) { return (int   )(   INT_ACCESS.get(this.manager.base, this.   intIndex(index))); }
-	public long    implGetL(int index) { return (long  )(  LONG_ACCESS.get(this.manager.base, this.  longIndex(index))); }
-	public float   implGetF(int index) { return (float )( FLOAT_ACCESS.get(this.manager.base, this. floatIndex(index))); }
-	public double  implGetD(int index) { return (double)(DOUBLE_ACCESS.get(this.manager.base, this.doubleIndex(index))); }
+	public byte    implGetB(int index) { return (byte  )(  BYTE_ACCESS.get(this.getBase(), this.  byteIndex(index))); }
+	public short   implGetS(int index) { return (short )( SHORT_ACCESS.get(this.getBase(), this. shortIndex(index))); }
+	public int     implGetI(int index) { return (int   )(   INT_ACCESS.get(this.getBase(), this.   intIndex(index))); }
+	public long    implGetL(int index) { return (long  )(  LONG_ACCESS.get(this.getBase(), this.  longIndex(index))); }
+	public float   implGetF(int index) { return (float )( FLOAT_ACCESS.get(this.getBase(), this. floatIndex(index))); }
+	public double  implGetD(int index) { return (double)(DOUBLE_ACCESS.get(this.getBase(), this.doubleIndex(index))); }
 	public boolean implGetZ(int index) {
 		index = this.checkTypeIndex(BOOLEAN_TYPE, index) + this.elementOffset;
-		return ((this.manager.base[(index >>> 3) + this.byteOffset] >>> (index & 7)) & 1) != 0;
+		return ((this.getBase()[(index >>> 3) + this.byteOffset] >>> (index & 7)) & 1) != 0;
 	}
 
 	public byte getB(int index) {
@@ -424,19 +494,21 @@ public class NumberArray implements AutoCloseable {
 
 	//////////////////////////////// set ////////////////////////////////
 
-	public void implSetB(int index, byte    value) {   BYTE_ACCESS.set(this.manager.base, this.  byteIndex(index), value); }
-	public void implSetS(int index, short   value) {  SHORT_ACCESS.set(this.manager.base, this. shortIndex(index), value); }
-	public void implSetI(int index, int     value) {    INT_ACCESS.set(this.manager.base, this.   intIndex(index), value); }
-	public void implSetL(int index, long    value) {   LONG_ACCESS.set(this.manager.base, this.  longIndex(index), value); }
-	public void implSetF(int index, float   value) {  FLOAT_ACCESS.set(this.manager.base, this. floatIndex(index), value); }
-	public void implSetD(int index, double  value) { DOUBLE_ACCESS.set(this.manager.base, this.doubleIndex(index), value); }
+	public void implSetB(int index, byte    value) {   BYTE_ACCESS.set(this.getBase(), this.  byteIndex(index), value); }
+	public void implSetS(int index, short   value) {  SHORT_ACCESS.set(this.getBase(), this. shortIndex(index), value); }
+	public void implSetI(int index, int     value) {    INT_ACCESS.set(this.getBase(), this.   intIndex(index), value); }
+	public void implSetL(int index, long    value) {   LONG_ACCESS.set(this.getBase(), this.  longIndex(index), value); }
+	public void implSetF(int index, float   value) {  FLOAT_ACCESS.set(this.getBase(), this. floatIndex(index), value); }
+	public void implSetD(int index, double  value) { DOUBLE_ACCESS.set(this.getBase(), this.doubleIndex(index), value); }
+
+	@SuppressWarnings("lossy-conversions")
 	public void implSetZ(int index, boolean value) {
 		index = this.checkTypeIndex(BOOLEAN_TYPE, index) + this.elementOffset;
 		if (value) {
-			this.manager.base[(index >>> 3) + this.byteOffset] |=  (1 << (index & 7));
+			this.getBase()[(index >>> 3) + this.byteOffset] |=  (1 << (index & 7));
 		}
 		else {
-			this.manager.base[(index >>> 3) + this.byteOffset] &= ~(1 << (index & 7));
+			this.getBase()[(index >>> 3) + this.byteOffset] &= ~(1 << (index & 7));
 		}
 	}
 
@@ -534,7 +606,7 @@ public class NumberArray implements AutoCloseable {
 	//////////////////////////////// fill ////////////////////////////////
 
 	public void implFillFromTo(int from, int to, byte value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(BYTE_TYPE, from, to);
 		if (from == to) return;
 		from = this.byteIndexUnchecked(from);
@@ -545,7 +617,7 @@ public class NumberArray implements AutoCloseable {
 	}
 
 	public void implFillFromTo(int from, int to, short value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(SHORT_TYPE, from, to);
 		if (from == to) return;
 		from = this.shortIndexUnchecked(from);
@@ -556,7 +628,7 @@ public class NumberArray implements AutoCloseable {
 	}
 
 	public void implFillFromTo(int from, int to, int value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(INT_TYPE, from, to);
 		if (from == to) return;
 		from = this.intIndexUnchecked(from);
@@ -567,7 +639,7 @@ public class NumberArray implements AutoCloseable {
 	}
 
 	public void implFillFromTo(int from, int to, long value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(LONG_TYPE, from, to);
 		if (from == to) return;
 		from = this.longIndexUnchecked(from);
@@ -578,7 +650,7 @@ public class NumberArray implements AutoCloseable {
 	}
 
 	public void implFillFromTo(int from, int to, float value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(FLOAT_TYPE, from, to);
 		if (from == to) return;
 		from = this.floatIndexUnchecked(from);
@@ -589,7 +661,7 @@ public class NumberArray implements AutoCloseable {
 	}
 
 	public void implFillFromTo(int from, int to, double value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(DOUBLE_TYPE, from, to);
 		if (from == to) return;
 		from = this.doubleIndexUnchecked(from);
@@ -600,7 +672,7 @@ public class NumberArray implements AutoCloseable {
 	}
 
 	public void implFillFromTo(int from, int to, boolean value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		this.checkTypeRange(BOOLEAN_TYPE, from, to);
 		if (from == to) return;
 		from += this.elementOffset;
@@ -737,37 +809,37 @@ public class NumberArray implements AutoCloseable {
 	//////////////////////////////// add ////////////////////////////////
 
 	public void implAdd(int index, byte value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.byteIndex(index);
 		BYTE_ACCESS.set(base, index, ((byte)(((byte)(BYTE_ACCESS.get(base, index))) + value)));
 	}
 
 	public void implAdd(int index, short value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.shortIndex(index);
 		SHORT_ACCESS.set(base, index, ((short)(((short)(SHORT_ACCESS.get(base, index))) + value)));
 	}
 
 	public void implAdd(int index, int value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.intIndex(index);
 		INT_ACCESS.set(base, index, ((int)(INT_ACCESS.get(base, index))) + value);
 	}
 
 	public void implAdd(int index, long value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.longIndex(index);
 		LONG_ACCESS.set(base, index, ((long)(LONG_ACCESS.get(base, index))) + value);
 	}
 
 	public void implAdd(int index, float value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.floatIndex(index);
 		FLOAT_ACCESS.set(base, index, ((float)(FLOAT_ACCESS.get(base, index))) + value);
 	}
 
 	public void implAdd(int index, double value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.doubleIndex(index);
 		DOUBLE_ACCESS.set(base, index, ((double)(DOUBLE_ACCESS.get(base, index))) + value);
 	}
@@ -853,37 +925,37 @@ public class NumberArray implements AutoCloseable {
 	//////////////////////////////// mul ////////////////////////////////
 
 	public void implMul(int index, byte value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.byteIndex(index);
 		BYTE_ACCESS.set(base, index, ((byte)(((byte)(BYTE_ACCESS.get(base, index))) * value)));
 	}
 
 	public void implMul(int index, short value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.shortIndex(index);
 		SHORT_ACCESS.set(base, index, ((short)(((short)(SHORT_ACCESS.get(base, index))) * value)));
 	}
 
 	public void implMul(int index, int value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.intIndex(index);
 		INT_ACCESS.set(base, index, ((int)(INT_ACCESS.get(base, index))) * value);
 	}
 
 	public void implMul(int index, long value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.longIndex(index);
 		LONG_ACCESS.set(base, index, ((long)(LONG_ACCESS.get(base, index))) * value);
 	}
 
 	public void implMul(int index, float value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.floatIndex(index);
 		FLOAT_ACCESS.set(base, index, ((float)(FLOAT_ACCESS.get(base, index))) * value);
 	}
 
 	public void implMul(int index, double value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.doubleIndex(index);
 		DOUBLE_ACCESS.set(base, index, ((double)(DOUBLE_ACCESS.get(base, index))) * value);
 	}
@@ -969,37 +1041,37 @@ public class NumberArray implements AutoCloseable {
 	//////////////////////////////// min (used by worley noise) ////////////////////////////////
 
 	public void implMin(int index, byte value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.byteIndex(index);
 		BYTE_ACCESS.set(base, index, (byte)(Math.min((byte)(BYTE_ACCESS.get(base, index)), value)));
 	}
 
 	public void implMin(int index, short value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.shortIndex(index);
 		SHORT_ACCESS.set(base, index, (short)(Math.min((short)(SHORT_ACCESS.get(base, index)), value)));
 	}
 
 	public void implMin(int index, int value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.intIndex(index);
 		INT_ACCESS.set(base, index, Math.min(((int)(INT_ACCESS.get(base, index))), value));
 	}
 
 	public void implMin(int index, long value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.longIndex(index);
 		LONG_ACCESS.set(base, index, Math.min(((long)(LONG_ACCESS.get(base, index))), value));
 	}
 
 	public void implMin(int index, float value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.floatIndex(index);
 		FLOAT_ACCESS.set(base, index, Math.min(((float)(FLOAT_ACCESS.get(base, index))), value));
 	}
 
 	public void implMin(int index, double value) {
-		byte[] base = this.manager.base;
+		byte[] base = this.getBase();
 		index = this.doubleIndex(index);
 		DOUBLE_ACCESS.set(base, index, Math.min(((double)(DOUBLE_ACCESS.get(base, index))), value));
 	}
@@ -1094,12 +1166,20 @@ public class NumberArray implements AutoCloseable {
 
 	public NumberArray sliceFromTo(int from, int to) {
 		Objects.checkFromToIndex(from, to, this.elementCount);
-		return new NumberArray(this.type, this.manager, this.byteOffset, this.byteLength, from, to - from, false);
+		Manager manager = this.manager;
+		if (manager == null) {
+			throw new IllegalStateException("NumberArray already closed!", this.closing);
+		}
+		return new NumberArray(this.type, manager, this.byteOffset, this.byteLength, from, to - from, false);
 	}
 
 	public NumberArray sliceOffsetLength(int offset, int length) {
 		Objects.checkFromIndexSize(offset, length, this.elementCount);
-		return new NumberArray(this.type, this.manager, this.byteOffset, this.byteLength, offset, length, false);
+		Manager manager = this.manager;
+		if (manager == null) {
+			throw new IllegalStateException("NumberArray already closed!", this.closing);
+		}
+		return new NumberArray(this.type, manager, this.byteOffset, this.byteLength, offset, length, false);
 	}
 
 	@Override
@@ -1111,14 +1191,16 @@ public class NumberArray implements AutoCloseable {
 			else {
 				throw new IllegalStateException("Attempt to close NumberArray in wrong order!", this.allocator);
 			}
+			if (TRACE_ALLOCATIONS) this.closing = new Throwable("Stack trace");
 		}
 		this.manager = null;
 	}
 
 	@Override
 	public String toString() {
-		if (this.manager == null) return "NumberArray (closed)";
-		byte[] base = this.manager.base;
+		Manager manager = this.manager;
+		if (manager == null) return "NumberArray (closed)";
+		byte[] base = manager.base;
 		int elementCount = this.elementCount;
 		StringBuilder builder;
 		int from, to, index;
