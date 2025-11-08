@@ -1,4 +1,4 @@
-# This file contains documentation on an UPCOMING feature intended for Big Globe 5.1.0. It is not fully finalized yet, and may change before then.
+# This file contains documentation on an UPCOMING feature intended for Big Globe 6.0.0. It is not fully finalized yet, and may change before then.
 
 An element is the common type that includes custom classes and their various member types. All elements begin with an `"element_type"`. This determines the schema for the rest of the file. It can take on the following values:
 * When `element_type` is `class/builtin`, the following property is available:

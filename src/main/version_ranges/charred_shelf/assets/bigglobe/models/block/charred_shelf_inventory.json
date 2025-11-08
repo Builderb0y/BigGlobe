@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/template_shelf_inventory",
+	"textures": {
+		"all": "bigglobe:block/charred_shelf",
+		"particle": "bigglobe:block/stripped_charred_log"
+	}
+}

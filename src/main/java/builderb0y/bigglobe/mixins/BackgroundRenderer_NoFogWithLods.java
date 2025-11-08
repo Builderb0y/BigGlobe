@@ -52,11 +52,11 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 		@ModifyReturnValue(method = "getFogColor", at = @At(value = "RETURN"))
 		private Vector4f bigglobe_captureFogColor(Vector4f original) {
 			if (MinecraftClient.getInstance() != null && MinecraftClient.getInstance().worldRenderer != null) {
-				LodSystem system = ((LodSystemHolder)(MinecraftClient.getInstance().worldRenderer)).bigglobe_getLodSystem();
+				LodSystem system = LodSystemHolder.of(MinecraftClient.getInstance().worldRenderer).bigglobe_getLodSystem();
 				if (system != null) {
-					system.fog.red   = original.x;
-					system.fog.green = original.y;
-					system.fog.blue  = original.z;
+					system.renderState.fogR = original.x;
+					system.renderState.fogG = original.y;
+					system.renderState.fogB = original.z;
 				}
 			}
 			return original;
@@ -71,11 +71,11 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 			@Local(argsOnly = true) Camera camera,
 			@Local(argsOnly = true) Vector4f fogColor
 		) {
-			LodSystem system = ((LodSystemHolder)(MinecraftClient.getInstance().worldRenderer)).bigglobe_getLodSystem();
+			LodSystem system = LodSystemHolder.of(MinecraftClient.getInstance().worldRenderer).bigglobe_getLodSystem();
 			if (type == net.minecraft.client.render.BackgroundRenderer.FogType.FOG_TERRAIN && system != null && !MinecraftClient.getInstance().worldRenderer.hasBlindnessOrDarkness(camera)) {
-				system.fog.red   = fogColor.x;
-				system.fog.green = fogColor.y;
-				system.fog.blue  = fogColor.z;
+				system.renderState.fogR = fogColor.x;
+				system.renderState.fogG = fogColor.y;
+				system.renderState.fogB = fogColor.z;
 				return false;
 			}
 			return fogEnabled;
@@ -96,11 +96,11 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 			float tickDelta,
 			CallbackInfo callback
 		) {
-			LodSystem system = ((LodSystemHolder)(MinecraftClient.getInstance().worldRenderer)).bigglobe_getLodSystem();
+			LodSystem system = LodSystemHolder.of(MinecraftClient.getInstance().worldRenderer).bigglobe_getLodSystem();
 			if (fogType == net.minecraft.client.render.BackgroundRenderer.FogType.FOG_TERRAIN && system != null) {
-				system.fog.red   = red;
-				system.fog.green = green;
-				system.fog.blue  = blue;
+				system.renderState.fogR = red;
+				system.renderState.fogG = green;
+				system.renderState.fogB = blue;
 				//clearFog() works by setting the fog start to Float.MAX_VALUE,
 				//while leaving the fog end unchanged.
 				//this basically inverts the range where fog exists,

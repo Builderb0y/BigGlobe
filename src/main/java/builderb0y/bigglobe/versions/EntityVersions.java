@@ -2,12 +2,18 @@ package builderb0y.bigglobe.versions;
 
 import java.util.Collections;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -26,14 +32,45 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 public class EntityVersions {
 
 	public static World getWorld(Entity entity) {
-		return entity.getWorld();
+		#if MC_VERSION >= MC_1_21_9
+			return entity.getEntityWorld();
+		#else
+			return entity.getWorld();
+		#endif
 	}
 
 	public static ServerWorld getServerWorld(ServerPlayerEntity player) {
-		#if MC_VERSION >= MC_1_21_6
+		#if MC_VERSION >= MC_1_21_9
+			return player.getEntityWorld();
+		#elif MC_VERSION >= MC_1_21_6
 			return player.getWorld();
 		#else
 			return player.getServerWorld();
+		#endif
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static ClientWorld getClientWorld(ClientPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_9
+			return (ClientWorld)(player.getEntityWorld());
+		#else
+			return player.clientWorld;
+		#endif
+	}
+
+	public static MinecraftServer getServer(ServerPlayerEntity player) {
+		#if MC_VERSION >= MC_1_21_9
+			return player.getEntityWorld().getServer();
+		#else
+			return player.getServer();
+		#endif
+	}
+
+	public static Vec3d getPos(Entity entity) {
+		#if MC_VERSION >= MC_1_21_9
+			return entity.getEntityPos();
+		#else
+			return entity.getPos();
 		#endif
 	}
 
@@ -129,7 +166,9 @@ public class EntityVersions {
 	}
 
 	public static RegistryKey<World> getRespawnDimension(ServerPlayerEntity player) {
-		#if MC_VERSION >= MC_1_21_5
+		#if MC_VERSION >= MC_1_21_9
+			return player.getRespawn() != null ? player.getRespawn().respawnData().getDimension() : null;
+		#elif MC_VERSION >= MC_1_21_5
 			return player.getRespawn() != null ? player.getRespawn().dimension() : null;
 		#else
 			return player.getSpawnPointDimension();
@@ -137,7 +176,9 @@ public class EntityVersions {
 	}
 
 	public static BlockPos getRespawnPosition(ServerPlayerEntity player) {
-		#if MC_VERSION >= MC_1_21_5
+		#if MC_VERSION >= MC_1_21_9
+			return player.getRespawn() != null ? player.getRespawn().respawnData().getPos() : null;
+		#elif MC_VERSION >= MC_1_21_5
 			return player.getRespawn() != null ? player.getRespawn().pos() : null;
 		#else
 			return player.getSpawnPointPosition();
@@ -153,7 +194,9 @@ public class EntityVersions {
 	}
 
 	public static float getRespawnAngle(ServerPlayerEntity player) {
-		#if MC_VERSION >= MC_1_21_5
+		#if MC_VERSION >= MC_1_21_9
+			return player.getRespawn() != null ? player.getRespawn().respawnData().yaw() : 0.0F;
+		#elif MC_VERSION >= MC_1_21_5
 			return player.getRespawn() != null ? player.getRespawn().angle() : 0.0F;
 		#else
 			return player.getSpawnAngle();

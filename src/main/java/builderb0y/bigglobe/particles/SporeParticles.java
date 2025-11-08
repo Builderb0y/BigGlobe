@@ -27,6 +27,7 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 #if MC_VERSION >= MC_1_20_5
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.util.math.random.Random;
 #endif
 
 public class SporeParticles {
@@ -114,13 +115,25 @@ public class SporeParticles {
 			this.spriteProvider = spriteProvider;
 		}
 
-		@Nullable
-		@Override
-		public Particle createParticle(Effect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
-			WaterSuspendParticle particle = new WaterSuspendParticle(world, this.spriteProvider, x, y, z, velocityX, velocityY, velocityZ);
-			particle.setColor(parameters.red / 255.0F, parameters.green / 255.0F, parameters.blue / 255.0F);
-			return particle;
-		}
+		#if MC_VERSION >= MC_1_21_9
+
+			@Override
+			public @Nullable Particle createParticle(Effect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
+				WaterSuspendParticle particle = new WaterSuspendParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider.getSprite(random));
+				particle.setColor(parameters.red / 255.0F, parameters.green / 255.0F, parameters.blue / 255.0F);
+				return particle;
+			}
+
+		#else
+
+			@Override
+			public @Nullable Particle createParticle(Effect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+				WaterSuspendParticle particle = new WaterSuspendParticle(world, this.spriteProvider, x, y, z, velocityX, velocityY, velocityZ);
+				particle.setColor(parameters.red / 255.0F, parameters.green / 255.0F, parameters.blue / 255.0F);
+				return particle;
+			}
+
+		#endif
 	}
 
 	#if MC_VERSION < MC_1_20_5

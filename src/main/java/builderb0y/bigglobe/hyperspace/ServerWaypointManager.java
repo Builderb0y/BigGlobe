@@ -33,6 +33,8 @@ import builderb0y.autocodec.imprinters.ImprintException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 
 /**
 manages all the waypoints on a server,
@@ -137,7 +139,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 	}
 
 	public Stream<ServerWaypointData> getVisibleWaypoints(PlayerEntity player) {
-		return this.getVisibleWaypoints(player.getGameProfile().getId(), player.getWorld().getRegistryKey());
+		return this.getVisibleWaypoints(GameProfileVersions.getUUID(player.getGameProfile()), EntityVersions.getWorld(player).getRegistryKey());
 	}
 
 	public Stream<ServerWaypointData> getVisibleWaypoints(UUID playerUUID, RegistryKey<World> playerWorld) {
@@ -188,7 +190,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 							PlayerWaypointManager playerManager = PlayerWaypointManager.get(player);
 							if (playerManager != null) {
 								PlayerWaypointData serverWaypoint;
-								if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+								if (EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
 									serverWaypoint = waypoint.relativize(playerManager.entrance != null ? playerManager.entrance.pos() : PackedPos.ZERO);
 								}
 								else {

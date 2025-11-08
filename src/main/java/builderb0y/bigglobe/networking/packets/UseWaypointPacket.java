@@ -15,6 +15,7 @@ import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 
 #if MC_VERSION < MC_1_21_0
 	import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
@@ -41,7 +42,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			EntityVersions.setPortalCooldown(player, 20);
 			return;
 		}
-		if (!BigGlobeConfig.INSTANCE.get().hyperspaceEnabled && player.getWorld().getRegistryKey() != HyperspaceConstants.WORLD_KEY) {
+		if (!BigGlobeConfig.INSTANCE.get().hyperspaceEnabled && EntityVersions.getWorld(player).getRegistryKey() != HyperspaceConstants.WORLD_KEY) {
 			player.sendMessage(Text.translatable("bigglobe.hyperspace.disabled").formatted(Formatting.RED), true);
 			return;
 		}
@@ -57,21 +58,21 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			return;
 		}
 
-		if (waypoint.owner() != null && !waypoint.owner().equals(player.getGameProfile().getId())) {
+		if (waypoint.owner() != null && !waypoint.owner().equals(GameProfileVersions.getUUID(player.getGameProfile()))) {
 			BigGlobeMod.LOGGER.warn(player + " attempted to use a waypoint that doesn't belong to them: " + waypoint);
 			return;
 		}
 
 		if (
-			player.getWorld().getRegistryKey() != waypoint.displayPosition().world() ||
+			EntityVersions.getWorld(player).getRegistryKey() != waypoint.displayPosition().world() ||
 			!(player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= 1.0D)
 		) {
 			BigGlobeMod.LOGGER.warn(player + " attempted to use " + waypoint + " without being near it.");
 			return;
 		}
 
-		if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			ServerWorld destinationWorld = player.getServer().getWorld(waypoint.destinationPosition().world());
+		if (EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+			ServerWorld destinationWorld = EntityVersions.getServer(player).getWorld(waypoint.destinationPosition().world());
 			if (destinationWorld != null) {
 				manager.entrance = null;
 				PackedWorldPos destinationPosition = waypoint.destination().pos();
@@ -96,7 +97,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			}
 		}
 		else {
-			ServerWorld hyperspace = player.getServer().getWorld(HyperspaceConstants.WORLD_KEY);
+			ServerWorld hyperspace = EntityVersions.getServer(player).getWorld(HyperspaceConstants.WORLD_KEY);
 			if (hyperspace != null) {
 				manager.entrance = waypoint.destination().pos();
 				ServerPlayerEntity newPlayer = EntityVersions.teleport(

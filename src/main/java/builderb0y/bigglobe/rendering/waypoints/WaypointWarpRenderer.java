@@ -1,13 +1,20 @@
 package builderb0y.bigglobe.rendering.waypoints;
 
+import java.util.TreeSet;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.entity.Entity;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity;
-import builderb0y.bigglobe.hyperspace.HyperspaceRendering;
-import builderb0y.bigglobe.hyperspace.HyperspaceRendering.VisibleWaypointData;
+import builderb0y.bigglobe.entities.WaypointEntityRenderer;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
@@ -20,6 +27,42 @@ public class WaypointWarpRenderer implements SafeCloseable {
 	public static void init() {
 		try {
 			INSTANCE = new WaypointWarpRenderer();
+			#if MC_VERSION >= MC_1_21_9
+				net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_EXTRACTION.register(context -> {
+					WaypointWarpRenderer renderer = INSTANCE;
+					if (renderer != null) {
+						for (net.minecraft.client.render.entity.state.EntityRenderState entity : context.worldState().entityRenderStates) {
+							if (entity instanceof WaypointEntityRenderer.State waypoint) {
+								renderer.markWaypointVisible(waypoint.x, waypoint.y, waypoint.z, waypoint.age, waypoint.health);
+							}
+						}
+					}
+				});
+				net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_MAIN.register(context -> {
+					WaypointWarpRenderer renderer = INSTANCE;
+					if (renderer != null) {
+						renderer.draw();
+						renderer.endFrame();
+					}
+				});
+			#else
+				net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
+					WaypointWarpRenderer renderer = INSTANCE;
+					if (renderer != null) {
+						#if MC_VERSION >= MC_1_21_2
+							for (Entity entity : context.worldRenderer().renderedEntities) {
+								if (entity instanceof WaypointEntity waypoint) {
+									renderer.markWaypointVisible(waypoint.getX(), waypoint.getY(), waypoint.getZ(), waypoint.age, waypoint.health);
+								}
+							}
+						#endif
+						if (!renderer.visibleWaypoints.isEmpty()) {
+							renderer.draw();
+							renderer.endFrame();
+						}
+					}
+				});
+			#endif
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Waypoint warp renderer unavailable:", exception);
@@ -31,7 +74,8 @@ public class WaypointWarpRenderer implements SafeCloseable {
 	public EmptyVertexArray vertices;
 	public MatrixStorageWorkaround matrices;
 	public NativeMemory waypointData;
-	public WaypointWarpGlState state;
+	public WaypointWarpGlState glState;
+	public TreeSet<VisibleWaypointData> visibleWaypoints;
 
 	@Override
 	public void close() {
@@ -47,7 +91,8 @@ public class WaypointWarpRenderer implements SafeCloseable {
 			this.vertices = new EmptyVertexArray();
 			this.matrices = new MatrixStorageWorkaround();
 			this.waypointData = new NativeMemory(16 * 4 * Float.BYTES);
-			this.state = new WaypointWarpGlState();
+			this.glState = new WaypointWarpGlState();
+			this.visibleWaypoints = new TreeSet<>();
 		}
 		catch (Throwable throwable) {
 			this.close();
@@ -71,38 +116,38 @@ public class WaypointWarpRenderer implements SafeCloseable {
 	}
 
 	public void doDraw() {
-		this.state.capture();
+		this.glState.capture();
 		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
 		this.framebuffer.ensureSize(framebuffer.textureWidth, framebuffer.textureHeight);
-		this.state.setFramebuffer(this.framebuffer.fbo);
-		this.state.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
-		this.state.setVao(this.vertices.vao);
-		this.state.setCullFace(false);
-		this.state.setDepthRead(false);
-		this.state.setDepthWrite(false);
-		this.state.setBlend(false);
-		this.state.setColorMask(true, true, true, true);
-		this.state.setProgram(this.shader.program);
-		this.state.colortex.set(RenderVersions.colorAttachment(framebuffer), GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
+		this.glState.setFramebuffer(this.framebuffer.fbo);
+		this.glState.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
+		this.glState.setVao(this.vertices.vao);
+		this.glState.setCullFace(false);
+		this.glState.setDepthRead(false);
+		this.glState.setDepthWrite(false);
+		this.glState.setBlend(false);
+		this.glState.setColorMask(true, true, true, true);
+		this.glState.setProgram(this.shader.program);
+		this.glState.colortex.set(RenderVersions.colorAttachment(framebuffer), GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
 		glUniform1i(this.shader.colortex, 0);
-		this.state.depthtex.set(RenderVersions.depthAttachment(framebuffer), GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
+		this.glState.depthtex.set(RenderVersions.depthAttachment(framebuffer), GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
 		glUniform1i(this.shader.depthtex, 1);
-		this.matrices.set(HyperspaceRendering.modelView);
+		this.matrices.set(Matrices.modelView);
 		nglUniformMatrix4fv(this.shader.modelViewMatrix, 1, false, this.matrices.address());
-		this.matrices.set(HyperspaceRendering.modelViewInverse);
+		this.matrices.set(Matrices.modelViewInverse);
 		nglUniformMatrix4fv(this.shader.inverseModelViewMatrix, 1, false, this.matrices.address());
-		this.matrices.set(HyperspaceRendering.projection);
+		this.matrices.set(Matrices.projection);
 		nglUniformMatrix4fv(this.shader.projectionMatrix, 1, false, this.matrices.address());
-		this.matrices.set(HyperspaceRendering.projectionInverse);
+		this.matrices.set(Matrices.projectionInverse);
 		nglUniformMatrix4fv(this.shader.inverseProjectionMatrix, 1, false, this.matrices.address());
-		glUniform1f(this.shader.time, HyperspaceRendering.time);
-		int waypointCount = HyperspaceRendering.visibleWaypoints.size();
+		glUniform1f(this.shader.time, Matrices.dayTimeInSeconds);
+		int waypointCount = this.visibleWaypoints.size();
 		glUniform1i(this.shader.waypointCount, waypointCount);
-		for (VisibleWaypointData waypoint : HyperspaceRendering.visibleWaypoints) {
-			this.waypointData.appendFloat((float)(waypoint.x() - HyperspaceRendering.cameraPosition.x));
-			this.waypointData.appendFloat((float)(waypoint.y() - HyperspaceRendering.cameraPosition.y + 1.0D));
-			this.waypointData.appendFloat((float)(waypoint.z() - HyperspaceRendering.cameraPosition.z));
-			this.waypointData.appendFloat(waypoint.health() / WaypointEntity.MAX_HEALTH + (float)(Math.sin((waypoint.age() + HyperspaceRendering.partialTicks) * (Math.PI / 50.0D)) * 0.125D));
+		for (VisibleWaypointData waypoint : this.visibleWaypoints) {
+			this.waypointData.appendFloat((float)(waypoint.x()));
+			this.waypointData.appendFloat((float)(waypoint.y() + 1.0D));
+			this.waypointData.appendFloat((float)(waypoint.z()));
+			this.waypointData.appendFloat(waypoint.health() / WaypointEntity.MAX_HEALTH + (float)(Math.sin(waypoint.age() * (Math.PI / 50.0D)) * 0.125D));
 		}
 		nglUniform4fv(this.shader.waypoints, waypointCount, this.waypointData.address);
 		this.waypointData.clear();
@@ -111,7 +156,18 @@ public class WaypointWarpRenderer implements SafeCloseable {
 		GLException.check();
 		this.framebuffer.copyTo(RenderVersions.glID(framebuffer));
 		GLException.check();
-		this.state.restore();
+		this.glState.restore();
+	}
+
+	public void markWaypointVisible(double x, double y, double z, float age, float health) {
+		this.visibleWaypoints.add(new VisibleWaypointData(x - Matrices.cameraX, y - Matrices.cameraY, z - Matrices.cameraZ, age, health));
+		if (this.visibleWaypoints.size() > 16) {
+			this.visibleWaypoints.pollLast();
+		}
+	}
+
+	public void endFrame() {
+		this.visibleWaypoints.clear();
 	}
 
 	public static class WaypointWarpGlState extends GlState {
@@ -132,6 +188,19 @@ public class WaypointWarpRenderer implements SafeCloseable {
 			this.depthtex.restore();
 			this.colortex.restore();
 			super.restore();
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static record VisibleWaypointData(double x, double y, double z, float age, float health) implements Comparable<VisibleWaypointData> {
+
+		public double squareDistanceToCamera() {
+			return BigGlobeMath.squareD(this.x, this.y + 1.0D, this.z);
+		}
+
+		@Override
+		public int compareTo(@NotNull VisibleWaypointData that) {
+			return Double.compare(this.squareDistanceToCamera(), that.squareDistanceToCamera());
 		}
 	}
 }

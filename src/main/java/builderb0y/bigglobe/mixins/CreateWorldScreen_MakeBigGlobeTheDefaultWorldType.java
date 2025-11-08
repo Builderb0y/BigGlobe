@@ -26,7 +26,9 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 @Mixin(CreateWorldScreen.class)
 public class CreateWorldScreen_MakeBigGlobeTheDefaultWorldType {
 
-	#if MC_VERSION >= MC_1_21_2
+	#if MC_VERSION >= MC_1_21_9
+		@ModifyExpressionValue(method = "show(Lnet/minecraft/client/MinecraftClient;Ljava/lang/Runnable;Lnet/minecraft/client/gui/screen/world/CreateWorldCallback;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/gen/WorldPresets;DEFAULT:Lnet/minecraft/registry/RegistryKey;"))
+	#elif MC_VERSION >= MC_1_21_2
 		@ModifyExpressionValue(method = "show(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/client/gui/screen/world/CreateWorldCallback;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/gen/WorldPresets;DEFAULT:Lnet/minecraft/registry/RegistryKey;"))
 	#else
 		@ModifyExpressionValue(method = "create(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/gen/WorldPresets;DEFAULT:Lnet/minecraft/registry/RegistryKey;"))

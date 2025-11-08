@@ -13,6 +13,7 @@ import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
 import builderb0y.bigglobe.rendering.lods.LodSystem;
+import builderb0y.bigglobe.rendering.waypoints.WaypointWarpRenderer;
 import builderb0y.bigglobe.scripting.ClientPrintSink;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
@@ -31,6 +32,9 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeParticles.initClient();
 		HyperspaceDimensionEffects.init();
 		LodSystem.init();
+		#if MC_VERSION >= MC_1_21_9
+			builderb0y.bigglobe.f3.BigGlobeDebugHudEntries.init();
+		#endif
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		BigGlobeMod.LOGGER.info("Done initializing client.");
 	}

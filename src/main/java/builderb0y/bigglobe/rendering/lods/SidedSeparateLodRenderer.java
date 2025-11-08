@@ -2,7 +2,6 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 
 import net.minecraft.client.MinecraftClient;
 
@@ -51,7 +50,7 @@ public class SidedSeparateLodRenderer extends AbstractLodRenderer {
 	}
 
 	@Override
-	public SafeCloseable bind(WorldRenderContext context, FogParams fog, boolean translucent) {
+	public SafeCloseable bind(LodRenderState state, boolean translucent) {
 		if (translucent) {
 			this.state.inTranslucentPass = true;
 			this.state.setBlend(true);
@@ -68,7 +67,7 @@ public class SidedSeparateLodRenderer extends AbstractLodRenderer {
 			this.state.setProgram(this.shader.program);
 			this.shader.bindTextures();
 
-			this.setupUniforms(context, this.shader, fog);
+			this.setupUniforms(state, this.shader);
 		}
 		return () -> {
 			if (this.state.inTranslucentPass) {

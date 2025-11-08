@@ -114,6 +114,7 @@ public class BigGlobeEntityTypes {
 					Optional.empty(),
 				#endif
 				FeatureSet.empty()
+				#if MC_VERSION >= MC_1_21_9 , true #endif
 			)
 		);
 	}

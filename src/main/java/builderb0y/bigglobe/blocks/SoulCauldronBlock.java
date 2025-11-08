@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -76,8 +77,22 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity #if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif) {
-		super.onEntityCollision(state, world, pos, entity #if MC_VERSION >= MC_1_21_5 , handler #endif);
+	public void onEntityCollision(
+		BlockState state,
+		World world,
+		BlockPos pos,
+		Entity entity
+		#if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif
+		#if MC_VERSION >= MC_1_21_9 , boolean movingFastOrBlockPosIsInsideDestinationBox #endif
+	) {
+		super.onEntityCollision(
+			state,
+			world,
+			pos,
+			entity
+			#if MC_VERSION >= MC_1_21_5 , handler #endif
+			#if MC_VERSION >= MC_1_21_9 , movingFastOrBlockPosIsInsideDestinationBox #endif
+		);
 		#if MC_VERSION >= MC_1_21_6
 			entity.setOnFireFromLava();
 		#else
@@ -89,7 +104,7 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+	public int getComparatorOutput(BlockState state, World world, BlockPos pos #if MC_VERSION >= MC_1_21_9 , Direction direction #endif) {
 		return 3;
 	}
 }

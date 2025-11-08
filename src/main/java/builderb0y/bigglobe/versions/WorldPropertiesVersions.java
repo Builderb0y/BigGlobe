@@ -6,7 +6,9 @@ import net.minecraft.world.WorldProperties;
 public class WorldPropertiesVersions {
 
 	public static int getSpawnX(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_9
+			return properties.getSpawnPoint().getPos().getX();
+		#elif MC_VERSION >= MC_1_20_5
 			return properties.getSpawnPos().getX();
 		#else
 			return properties.getSpawnX();
@@ -14,7 +16,9 @@ public class WorldPropertiesVersions {
 	}
 
 	public static int getSpawnY(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_9
+			return properties.getSpawnPoint().getPos().getY();
+		#elif MC_VERSION >= MC_1_20_5
 			return properties.getSpawnPos().getY();
 		#else
 			return properties.getSpawnY();
@@ -22,7 +26,9 @@ public class WorldPropertiesVersions {
 	}
 
 	public static int getSpawnZ(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_9
+			return properties.getSpawnPoint().getPos().getZ();
+		#elif MC_VERSION >= MC_1_20_5
 			return properties.getSpawnPos().getZ();
 		#else
 			return properties.getSpawnZ();
@@ -30,10 +36,20 @@ public class WorldPropertiesVersions {
 	}
 
 	public static BlockPos getSpawnPos(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_9
+			return properties.getSpawnPoint().getPos();
+		#elif MC_VERSION >= MC_1_20_5
 			return properties.getSpawnPos();
 		#else
 			return new BlockPos(properties.getSpawnX(), properties.getSpawnY(), properties.getSpawnZ());
+		#endif
+	}
+
+	public static float getSpawnYaw(WorldProperties properties) {
+		#if MC_VERSION >= MC_1_21_9
+			return properties.getSpawnPoint().yaw();
+		#else
+			return properties.getSpawnAngle();
 		#endif
 	}
 }

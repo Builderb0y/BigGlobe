@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class HyperspaceFlight {
 
@@ -16,7 +17,7 @@ public class HyperspaceFlight {
 	}
 
 	public static void onPlayerTick(PlayerEntity player) {
-		if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+		if (EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
 			player.getAbilities().allowFlying = true;
 			player.getAbilities().flying = true;
 		}

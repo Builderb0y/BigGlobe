@@ -76,7 +76,7 @@ public class SlingshotItem extends RangedWeaponItem
 			return #if MC_VERSION >= MC_1_21_2 false #endif;
 		}
 		boolean creativeRock = creative && ammunitionStack.isOf(BigGlobeItems.ROCK);
-		if (!world.isClient) {
+		if (!world.isClient()) {
 			SlingshotAmmunition arrowItem = ammunitionStack.getItem() instanceof SlingshotAmmunition ammo ? ammo : (SlingshotAmmunition)(BigGlobeItems.ROCK);
 			ProjectileEntity projectile = arrowItem.createProjectile(world, user, ammunitionStack, stack);
 			projectile.setVelocity(playerEntity, playerEntity.getPitch(), playerEntity.getYaw(), 0.0F, progress * 1.5F, 1.0F);

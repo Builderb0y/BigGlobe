@@ -2,10 +2,12 @@ package builderb0y.bigglobe.rendering.lods;
 
 import java.lang.ref.SoftReference;
 
+import com.mojang.serialization.DataResult;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.*;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.EmptyPaletteStorage;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.util.math.BlockPos;
@@ -14,7 +16,10 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.chunk.ChunkNibbleArray;
+import net.minecraft.world.chunk.PalettedContainer;
 
+import builderb0y.autocodec.util.DFUVersions;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
@@ -57,7 +62,7 @@ public class LightweightChunk {
 		this.columns = new BlockSegmentList[ColumnIndexRange.LOD4.end];
 	}
 
-	public void update(NbtList sectionsNBT, BlockSegmentList @Nullable [] cullingData) {
+	public void update(ServerWorld world, NbtList sectionsNBT, BlockSegmentList @Nullable [] cullingData) {
 		int minChunkSectionY = this.minY >> 4;
 		int maxChunkSectionY = this.maxY >> 4;
 		LightweightSection[] sections = new LightweightSection[maxChunkSectionY - minChunkSectionY];
@@ -70,16 +75,27 @@ public class LightweightChunk {
 						if (y >= minChunkSectionY && y < maxChunkSectionY) {
 							NbtElement containerNBT = compound.get("block_states");
 							if (containerNBT != null) {
-								byte[] skylight = compound.get("SkyLight") instanceof NbtByteArray byteArray ? byteArray.getByteArray() : null;
-								sections[y - minChunkSectionY] = new LightweightSection(
-									#if MC_VERSION >= MC_1_21_2
-										net.minecraft.world.chunk.SerializedChunk
+								DataResult<PalettedContainer<BlockState>> containerResult = (
+									#if MC_VERSION >= MC_1_21_9
+										world.getPalettesFactory().blockStatesContainerCodec()
+									#elif MC_VERSION >= MC_1_21_2
+										net.minecraft.world.chunk.SerializedChunk.CODEC
 									#else
-										net.minecraft.world.ChunkSerializer
+										net.minecraft.world.ChunkSerializer.CODEC
 									#endif
-									.CODEC.parse(NbtOps.INSTANCE, containerNBT).getOrThrow(),
-									skylight != null ? new ChunkNibbleArray(skylight) : null
+									.parse(NbtOps.INSTANCE, containerNBT)
 								);
+								PalettedContainer<BlockState> container = DFUVersions.getResult(containerResult);
+								if (container != null) {
+									byte[] skylight = compound.get("SkyLight") instanceof NbtByteArray byteArray ? byteArray.getByteArray() : null;
+									sections[y - minChunkSectionY] = new LightweightSection(
+										container,
+										skylight != null ? new ChunkNibbleArray(skylight) : null
+									);
+								}
+								else {
+									BigGlobeMod.LOGGER.error("Error while reading chunk data for LODs: " + DFUVersions.getMessage(containerResult));
+								}
 							}
 						}
 					}

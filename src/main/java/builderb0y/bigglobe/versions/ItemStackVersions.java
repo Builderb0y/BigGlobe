@@ -75,7 +75,9 @@ public class ItemStackVersions {
 	}
 
 	public static void damage(ItemStack stack, PlayerEntity player, Hand hand) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_9
+			stack.damage(1, player, hand);
+		#elif MC_VERSION >= MC_1_20_5
 			stack.damage(1, player, LivingEntity.getSlotForHand(hand));
 		#else
 			stack.damage(1, player, p -> p.sendToolBreakStatus(hand));

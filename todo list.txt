@@ -79,9 +79,9 @@ V6:
 	dynamic block segment types?
 	random.between[low, high).
 
-1.21.10:
-	charred variant of new vanilla shelf block.
-		needs textures and stuff.
+1.21.11: (?)
+	new skeleton-like entity spawns in deserts.
+		need to patch spawning logic, as it does not spawn in caves by default, similar to husks.
 
 LODs:
 	shader support.
@@ -97,17 +97,19 @@ json classes:
 
 changelog:
 	# For normal people
+	* Ported to MC 1.21.9 and 1.21.10.
 	* Made pseudo-erosion algorithm better.
 	* Fixed end fractals spawning intersecting dragons's nest.
+	* Fixed cuboctahedron end fractal structure sometimes spawning in a way that intersects terrain.
 	* Fixed gaps in LOD transitions.
-	* LODs will now display more block besides what generated as part of raw terrain.
+	* LODs will now display more blocks besides what generated as part of raw terrain.
 		* This only works for areas that you've explored.
 		* This also only works in singleplayer.
 	* Fixed structures not spawning when world weaver was installed.
 		* This is a dependency of Better Nether and Better End, so they should work better now too.
 	* Geodes in the overworld no longer spawn in or below the deep dark.
 	* Mega dungeons should now choose a block palette that more accurately represents their depth.
-	* Fixed cuboctahedron end fractal structure sometimes spawning in a way that intersects terrain.
+	* Fixed shovels not being able to turn overgrown podzol into paths.
 	# For data pack developers
 	* Added config option to fail datapack validation when an overrider is not tagged properly.
 	* Added config option to fail datapack validation when any tag contains an invalid entry.

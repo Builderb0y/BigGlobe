@@ -87,6 +87,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".FlowableFluid_DontFlowInRivers",                                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".FluidRenderer_DontHardCodeChunkSectionSizedAreas",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".FungusBlock_GrowIntoBigGlobeTree",                                                         Boolean.TRUE);
+		defaults.put(mixinPackage + ".GameRenderer_CaptureProjectionMatrix",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".GrassBlock_UseCustomFeatureInBigGlobeWorlds",                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".HuskEntity_AllowSpawningUndergroundInBigGlobeWorlds",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",                                             Boolean.TRUE);
@@ -108,7 +109,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                                        Boolean.TRUE);
-		defaults.put(mixinPackage + ".ServerChunkLoadingManager_NotifyLodSystem",                                                Boolean.TRUE);
+		defaults.put(mixinPackage + ".Chunk_NotifyLodSystem",                                                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_SpawnEnderDragonInBigGlobeWorlds",                                             Boolean.TRUE);
@@ -129,7 +130,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".WorldGenProperties_LogLevelType",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2",                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldRenderer_RenderHyperspaceSky",                                                        Boolean.TRUE);
-		defaults.put(mixinPackage + ".WorldRenderer_RenderWaypoints",                                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldType_ChangeTranslation",                                                              Boolean.TRUE);
 		return defaults;
 	}

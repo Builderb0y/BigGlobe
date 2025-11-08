@@ -18,6 +18,7 @@ import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRenameC2SPacket.Data> {
@@ -43,11 +44,11 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 			if (manager != null) {
 				ServerWaypointData waypoint = manager.getWaypoint(data.id);
 				if (waypoint != null) {
-					if (waypoint.owner() == null || waypoint.owner().equals(player.getGameProfile().getId())) {
+					if (waypoint.owner() == null || waypoint.owner().equals(GameProfileVersions.getUUID(player.getGameProfile()))) {
 						if (
 							(
-								player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
-								player.getWorld().getRegistryKey() == waypoint.pos().world()
+								EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
+								EntityVersions.getWorld(player).getRegistryKey() == waypoint.pos().world()
 							)
 							&& player.getEyePos().squaredDistanceTo(waypoint.pos().x(), waypoint.pos().y(), waypoint.pos().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
 						) {

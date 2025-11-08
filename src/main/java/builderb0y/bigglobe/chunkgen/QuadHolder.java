@@ -106,11 +106,11 @@ public class QuadHolder<T> {
 			this.object11 = new BlockSegmentList(minY, maxY);
 		}
 
-		public void computeLightLevels() {
-			this.object00.computeLightLevels();
-			this.object01.computeLightLevels();
-			this.object10.computeLightLevels();
-			this.object11.computeLightLevels();
+		public void computeLightLevels(byte topLightLevel) {
+			this.object00.computeLightLevels(topLightLevel);
+			this.object01.computeLightLevels(topLightLevel);
+			this.object10.computeLightLevels(topLightLevel);
+			this.object11.computeLightLevels(topLightLevel);
 		}
 
 		public void downscale(int deltaLod) {

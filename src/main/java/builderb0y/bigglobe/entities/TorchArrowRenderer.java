@@ -14,6 +14,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 
 #if MC_VERSION >= MC_1_21_2
 	import net.minecraft.client.render.entity.state.ProjectileEntityRenderState;
+	import net.minecraft.util.math.BlockPos;
 #endif
 
 @Environment(EnvType.CLIENT)
@@ -25,35 +26,46 @@ public class TorchArrowRenderer extends ProjectileEntityRenderer<TorchArrowEntit
 		super(context);
 	}
 
-	@Override
-	public void render(
-		#if MC_VERSION >= MC_1_21_2
-			ProjectileEntityRenderState state,
-		#else
-			TorchArrowEntity entity,
-			float yaw,
-			float partialTicks,
-		#endif
-		MatrixStack matrixStack,
-		VertexConsumerProvider vertexConsumerProvider,
-		int light
-	) {
-		int skylight = LightmapTextureManager.getSkyLightCoordinates(light);
-		int blockLight = 15;
-		light = LightmapTextureManager.pack(blockLight, skylight);
-		super.render(
+	#if MC_VERSION >= MC_1_21_9
+
+		@Override
+		public int getBlockLight(TorchArrowEntity entity, BlockPos pos) {
+			return 16;
+		}
+
+	#else
+
+		@Override
+		public void render(
 			#if MC_VERSION >= MC_1_21_2
-				state,
+				ProjectileEntityRenderState state,
 			#else
-				entity,
-				yaw,
-				partialTicks,
+				TorchArrowEntity entity,
+				float yaw,
+				float partialTicks,
 			#endif
-			matrixStack,
-			vertexConsumerProvider,
-			light
-		);
-	}
+			MatrixStack matrixStack,
+			VertexConsumerProvider vertexConsumerProvider,
+			int light
+		) {
+			int skylight = LightmapTextureManager.getSkyLightCoordinates(light);
+			int blockLight = 15;
+			light = LightmapTextureManager.pack(blockLight, skylight);
+			super.render(
+				#if MC_VERSION >= MC_1_21_2
+					state,
+				#else
+					entity,
+					yaw,
+					partialTicks,
+				#endif
+				matrixStack,
+				vertexConsumerProvider,
+				light
+			);
+		}
+
+	#endif
 
 	#if MC_VERSION >= MC_1_21_2
 

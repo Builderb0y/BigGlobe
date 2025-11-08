@@ -38,7 +38,7 @@ public class RockItem extends BlockItem implements SlingshotAmmunition {
 	use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
 		world.playSound(null, user.getX(), user.getY(), user.getZ(), BigGlobeSoundEvents.ENTITY_ROCK_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		if (!world.isClient) {
+		if (!world.isClient()) {
 			RockEntity rockEntity = new RockEntity(BigGlobeEntityTypes.ROCK, user, world);
 			rockEntity.setItem(stack);
 			rockEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.75F, 8.0F);

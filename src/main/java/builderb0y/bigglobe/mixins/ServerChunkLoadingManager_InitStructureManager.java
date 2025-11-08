@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ChunkTicketManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureTemplateManager;
@@ -40,7 +39,9 @@ public class ServerChunkLoadingManager_InitStructureManager {
 		ThreadExecutor<Runnable> mainThreadExecutor,
 		ChunkProvider chunkProvider,
 		ChunkGenerator chunkGenerator,
-		WorldGenerationProgressListener worldGenerationProgressListener,
+		#if MC_VERSION < MC_1_21_9
+			net.minecraft.server.WorldGenerationProgressListener worldGenerationProgressListener,
+		#endif
 		ChunkStatusChangeListener chunkStatusChangeListener,
 		Supplier<PersistentStateManager> persistentStateManagerFactory,
 		#if MC_VERSION >= MC_1_21_5

@@ -1,5 +1,11 @@
 import java.lang.reflect.Method
+import java.nio.channels.FileChannel
+import java.nio.channels.FileLock
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeUnit
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 plugins() {
 	id('fabric-loom') version('1.11-SNAPSHOT')
@@ -43,6 +49,57 @@ repositories() {
 	maven() {
 		url('https://oss.sonatype.org/content/repositories/snapshots/')
 	}
+
+	//loom does this automatically, but does it too late.
+	//we need to ensure this gets added as a repository before
+	//all the hacks below that make JIJ dependencies work.
+	maven() {
+		name = 'MavenCentralLWJGL' //loom checks for this name, so it cannot be changed.
+		url(ArtifactRepositoryContainer.MAVEN_CENTRAL_URL)
+		content() {
+			includeGroup('org.lwjgl')
+		}
+	}
+}
+
+static void extractNestedJars(File dependenciesFolder, File toUnpack) {
+	try (JarFile jar = new JarFile(toUnpack)) {
+		Enumeration<JarEntry> entries = jar.entries()
+		while (entries.hasMoreElements()) {
+			JarEntry entry = entries.nextElement()
+			String name = entry.getName()
+			if (name.startsWith('META-INF/jars/') && name.endsWith('.jar') && !name.regionMatches(false, 'META-inf/jars/'.length(), 'fabric-', 0, 'fabric-'.length())) {
+				name = name.substring('META-INF/jars/'.length())
+				File unpackDir = new File(dependenciesFolder, name.substring(0, name.length() - '.jar'.length()))
+				unpackDir.mkdir()
+				File unpacked = new File(unpackDir, name)
+				try (FileOutputStream out = new FileOutputStream(unpacked)) {
+					jar.getInputStream(entry).transferTo(out)
+				}
+				extractNestedJars(unpackDir, unpacked)
+			}
+		}
+	}
+}
+
+void extractDependencies() {
+	File jijDependenciesFolder = file('jijDependencies')
+	jijDependenciesFolder.deleteDir()
+	jijDependenciesFolder.mkdir()
+	for (String dependencyType : [ 'implementation', 'runtimeOnly', 'compileOnly' ]) {
+		File specificDependenciesFolder = new File(jijDependenciesFolder, dependencyType)
+		specificDependenciesFolder.mkdir()
+		for (File from : file("dependencies/${ project.minecraft_version }/$dependencyType").listFiles()) {
+			String fileName = from.getName()
+			File fromRoot = new File(specificDependenciesFolder, fileName.substring(0, fileName.length() - '.jar'.length()))
+			fromRoot.mkdir()
+			File to = new File(fromRoot, fileName)
+			if (!to.exists()) {
+				Files.copy(from.toPath(), to.toPath())
+				extractNestedJars(fromRoot, to)
+			}
+		}
+	}
 }
 
 dependencies() {
@@ -70,11 +127,18 @@ dependencies() {
 		include("org.joml:joml:$JOML_VERSION")
 	}
 
-	modCompileOnly   (fileTree(file("dependencies/$project.minecraft_version/compileOnly"   )))
-	modImplementation(fileTree(file("dependencies/$project.minecraft_version/implementation")))
-	modRuntimeOnly   (fileTree(file("dependencies/$project.minecraft_version/runtimeOnly"   )))
-
 	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.27')
+
+	//the runClientServer task launches 2 gradle instances at the same time,
+	//and both of them will try to extract dependencies at more or less the same time.
+	//so, we guard against race conditions by using a file lock.
+	FileChannel channel = FileChannel.open(file('jij.lock').toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+	try (FileLock lock = channel.lock()) {
+		extractDependencies()
+		modImplementation(fileTree(new File('jijDependencies/implementation')))
+		modCompileOnly   (fileTree(new File('jijDependencies/compileOnly')))
+		modRuntimeOnly   (fileTree(new File('jijDependencies/runtimeOnly')))
+	}
 }
 
 compileJava() {
@@ -138,7 +202,7 @@ jar() {
 	exclude('assets/bigglobe/icon_256x_pride.gif') //also not used except as my discord server icon.
 }
 
-task copyToReleases(type: Copy) {
+tasks.register('copyToReleases', Copy) {
 	dependsOn(remapJar)
 	from("$projectDir/build/libs") {
 		include("$archivesBaseName-${project.version}.jar")
@@ -151,6 +215,7 @@ task copyToReleases(type: Copy) {
 
 runClient() {
 	workingDir = file('run')
+	jvmArgs('-Dbigglobe.mixinAudit=true')
 	doFirst() {
 		assert file('run/.voxy').deleteDir()
 	}
@@ -162,14 +227,14 @@ runServer() {
 	getInternalRunDir.setAccessible(true)
 	getInternalRunDir.invoke(it).set('server')
 	workingDir = file('server')
-	jvmArgs("-Duser.dir=${file('server').getAbsolutePath()}")
+	jvmArgs("-Duser.dir=${file('server').getAbsolutePath()}", '-Dbigglobe.mixinAudit=true')
 	doFirst() {
 		assert file('server/world').deleteDir()
 	}
 }
 
 static Process makeProcess(String taskName) {
-	ProcessBuilder builder = new ProcessBuilder('./gradlew', taskName, '--no-daemon').redirectErrorStream(true)
+	ProcessBuilder builder = new ProcessBuilder('./gradlew', taskName, '--no-daemon', '--stacktrace').redirectErrorStream(true)
 	builder.environment().put('JAVA_HOME', System.getProperty('java.home'))
 	Process process = builder.start()
 	System.out.println("${taskName} gradle process started with pid ${process.pid()}")
@@ -192,7 +257,7 @@ static Process makeProcess(String taskName) {
 	return process
 }
 
-task runClientServer() {
+tasks.register('runClientServer') {
 	group('fabric')
 	doFirst() {
 		Process client = makeProcess('runClient')
@@ -224,6 +289,11 @@ test() {
 
 build() {
 	dependsOn(copyToReleases)
+}
+
+tasks.register('checkIfMyCodeCompiles') {
+	group('build')
+	dependsOn('assemble', 'validateAccessWidener')
 }
 
 class Version {
@@ -285,6 +355,7 @@ for (Version version in [
 	new Version(21, 4),
 	new Version(21, 5),
 	new Version(21, 8),
+	new Version(21, 10),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -311,6 +382,8 @@ MC_1_21_5=12105
 MC_1_21_6=12106
 MC_1_21_7=12107
 MC_1_21_8=12108
+MC_1_21_9=12109
+MC_1_21_10=12110
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

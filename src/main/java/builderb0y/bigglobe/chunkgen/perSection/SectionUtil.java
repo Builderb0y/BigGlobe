@@ -15,7 +15,7 @@ public class SectionUtil {
 	}
 
 	public static <T> int id(PalettedContainer<T> container, T state) {
-		return data(container).palette().index(state);
+		return data(container).palette().index(state #if MC_VERSION >= MC_1_21_9 , container #endif);
 	}
 
 	public static <T> PaletteStorage storage(PalettedContainer<T> container) {

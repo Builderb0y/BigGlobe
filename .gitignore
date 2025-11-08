@@ -4,6 +4,8 @@
 /build/
 /run/
 /dependencies/
+/jijDependencies/
+/jij.lock
 /logs/
 /releases/
 /server/

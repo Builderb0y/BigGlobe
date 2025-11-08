@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.server.world.ServerWorld;
@@ -23,14 +24,30 @@ import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 @Mixin(Chunk.class)
-public abstract class ServerChunkLoadingManager_NotifyLodSystem {
+public abstract class Chunk_NotifyLodSystem {
 
 	@Shadow public abstract ChunkStatus getStatus();
 
 	@Shadow public abstract ChunkPos getPos();
 
-	@Inject(method = "tryMarkSaved", at = @At(value = "FIELD", target = "Lnet/minecraft/world/chunk/Chunk;needsSaving:Z", opcode = Opcodes.PUTFIELD))
-	private void bigglobe_notifyLodSystem(CallbackInfoReturnable<Boolean> callback) {
+	#if MC_VERSION >= MC_1_21_2
+
+		@Inject(method = "tryMarkSaved", at = @At(value = "FIELD", target = "Lnet/minecraft/world/chunk/Chunk;needsSaving:Z", opcode = Opcodes.PUTFIELD))
+		private void bigglobe_notifyLodSystem(CallbackInfoReturnable<Boolean> callback) {
+			this.bigglobe_tryNotify();
+		}
+
+	#else
+
+		@Inject(method = "setNeedsSaving", at = @At("HEAD"))
+		private void bigglobe_notifyLodSystem(boolean needsSaving, CallbackInfo callback) {
+			if (!needsSaving) this.bigglobe_tryNotify();
+		}
+
+	#endif
+
+	@Unique
+	private void bigglobe_tryNotify() {
 		try {
 			if (
 				this.getStatus() == ChunkStatus.FULL &&
@@ -38,7 +55,7 @@ public abstract class ServerChunkLoadingManager_NotifyLodSystem {
 				worldChunk.getWorld() instanceof ServerWorld serverWorld &&
 				FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
 			) {
-				bigglobe_notifyLodSystem(serverWorld, this.getPos());
+				bigglobe_doNotify(serverWorld, this.getPos());
 			}
 		}
 		catch (Throwable throwable) {
@@ -48,7 +65,7 @@ public abstract class ServerChunkLoadingManager_NotifyLodSystem {
 
 	@Unique
 	@Environment(EnvType.CLIENT)
-	private static void bigglobe_notifyLodSystem(ServerWorld world, ChunkPos chunkPos) {
+	private static void bigglobe_doNotify(ServerWorld world, ChunkPos chunkPos) {
 		LodSystemHolder holder = ImmersivePortalsCompat.getLodSystem(world.getRegistryKey());
 		if (holder != null) {
 			LodSystem system = holder.bigglobe_getLodSystem();

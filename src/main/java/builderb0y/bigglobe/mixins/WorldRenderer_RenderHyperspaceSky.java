@@ -29,16 +29,25 @@ public abstract class WorldRenderer_RenderHyperspaceSky {
 
 		@Shadow @Final private DefaultFramebufferSet framebufferSet;
 
-		@Inject(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getDimensionEffects()Lnet/minecraft/client/render/DimensionEffects;"), cancellable = true)
+		#if MC_VERSION >= MC_1_21_9
+			@Inject(method = "renderSky", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/state/SkyRenderState;skyType:Lnet/minecraft/client/render/DimensionEffects$SkyType;"), cancellable = true)
+		#else
+			@Inject(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getDimensionEffects()Lnet/minecraft/client/render/DimensionEffects;"), cancellable = true)
+		#endif
 		private void bigglobe_renderHyperspaceSky(
 			FrameGraphBuilder frameGraphBuilder,
 			Camera camera,
-			float tickProgress,
+
+			#if MC_VERSION < MC_1_21_9
+				float tickProgress,
+			#endif
+
 			#if MC_VERSION >= MC_1_21_6
 				GpuBufferSlice fog,
 			#else
 				Fog fog,
 			#endif
+
 			CallbackInfo callback
 		) {
 			if (HyperspaceRenderer.INSTANCE != null && this.world.getRegistryKey() == HyperspaceConstants.WORLD_KEY) {

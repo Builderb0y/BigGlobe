@@ -7,7 +7,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.server.world.ServerChunkLoadingManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 
@@ -23,7 +22,11 @@ public class LodChunkCache implements SafeCloseable {
 
 	public final LodGenerator generator;
 	public final ServerWorld world;
-	public final ServerChunkLoadingManager loader;
+	#if MC_VERSION >= MC_1_21_0
+		public final net.minecraft.server.world.ServerChunkLoadingManager loader;
+	#else
+		public final net.minecraft.server.world.ThreadedAnvilChunkStorage loader;
+	#endif
 	public final TimestampedComputingCache<ChunkPos, LightweightChunk> chunks;
 	public final ConcurrentLinkedQueue<ChunkPos> dirtyChunks;
 	public final ExecutorService ingester = Executors.newSingleThreadExecutor((Runnable runnable) -> {
@@ -35,7 +38,11 @@ public class LodChunkCache implements SafeCloseable {
 	public LodChunkCache(LodGenerator generator, ServerWorld world) {
 		this.generator = generator;
 		this.world = world;
-		this.loader = world.getChunkManager().chunkLoadingManager;
+		#if MC_VERSION >= MC_1_21_0
+			this.loader = world.getChunkManager().chunkLoadingManager;
+		#else
+			this.loader = world.getChunkManager().threadedAnvilChunkStorage;
+		#endif
 		this.chunks = new TimestampedComputingCache<>(Units.seconds(10.0D), Units.gigabytes(1.0D));
 		this.dirtyChunks = new ConcurrentLinkedQueue<>();
 	}
@@ -91,7 +98,7 @@ public class LodChunkCache implements SafeCloseable {
 				: null
 			);
 			LightweightChunk result = new LightweightChunk(this.world, chunkPos);
-			result.update(sectionsNbt, cullingData);
+			result.update(this.world, sectionsNbt, cullingData);
 			return result;
 		}
 		else {

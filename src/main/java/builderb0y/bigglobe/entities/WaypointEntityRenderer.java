@@ -16,8 +16,8 @@ import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity.Orbit;
-import builderb0y.bigglobe.hyperspace.HyperspaceRendering;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.rendering.waypoints.WaypointWarpRenderer;
 
 @Environment(EnvType.CLIENT)
 public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntity, WaypointEntityRenderer.State> {
@@ -50,9 +50,12 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 	}
 
 	@Override
-	public void doRender(WaypointEntityRenderer.State state, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light) {
-		VertexConsumer buffer = vertexConsumerProvider.getBuffer(LIGHTNING_LAYER);
-		Vec3d camera = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+	public RenderLayer getRenderLayer() {
+		return LIGHTNING_LAYER;
+	}
+
+	@Override
+	public void doRender(WaypointEntityRenderer.State state, MatrixStack.Entry matrices, VertexConsumer buffer, Vec3d camera, int light) {
 		Vector3f cameraToPos = new Vector3f(
 			(float)(state.x - camera.x),
 			(float)(state.y - camera.y + 1.0D),
@@ -188,13 +191,14 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 			}
 		}
 		#if MC_VERSION < MC_1_21_2
-			HyperspaceRendering.markWaypointVisible(state.x, state.y, state.z, state.age, state.health);
+			WaypointWarpRenderer renderer = WaypointWarpRenderer.INSTANCE;
+			if (renderer != null) renderer.markWaypointVisible(state.x, state.y, state.z, state.age, state.health);
 		#endif
 	}
 
 	public static void vertex(
 		VertexConsumer buffer,
-		MatrixStack matrices,
+		MatrixStack.Entry matrices,
 		float x,
 		float y,
 		float z,
@@ -210,7 +214,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 			//to the entity to being relative to the camera.
 			//however, our positions are already relative to the camera,
 			//so offset is necessary.
-			matrices.peek().getPositionMatrix().transform(scratch.set(x, y, z, 0.0F));
+			matrices.getPositionMatrix().transform(scratch.set(x, y, z, 0.0F));
 			x = scratch.x;
 			y = scratch.y;
 			z = scratch.z;
@@ -219,6 +223,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 	}
 
 	#if MC_VERSION < MC_1_20_4
+
 		//1.20.4 has this built in, so this override is only necessary in older versions.
 		@Override
 		public boolean hasLabel(WaypointEntity entity) {
@@ -230,6 +235,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 				)
 			);
 		}
+
 	#endif
 
 	#if MC_VERSION < MC_1_21_2
@@ -248,16 +254,16 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 
 	@Override
 	public void updateState(WaypointEntity entity, WaypointEntityRenderer.State state, float partialTicks) {
-		state.age = entity.age;
-		state.health = entity.health;
+		state.age = entity.age + partialTicks;
 		state.partialTicks = partialTicks;
+		state.health = entity.health;
 		state.orbits = Orbit.copy(entity.orbits, state.orbits);
 	}
 
 	public static class State extends BigGlobeEntityRenderer.State {
 
 		#if MC_VERSION <= MC_1_21_1
-			public int age;
+			public float age;
 		#endif
 		public float health, partialTicks;
 		public WaypointEntity.Orbit[] orbits;

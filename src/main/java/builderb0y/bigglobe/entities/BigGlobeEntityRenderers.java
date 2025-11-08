@@ -13,10 +13,17 @@ public class BigGlobeEntityRenderers {
 
 	public static void init() {
 		BigGlobeMod.LOGGER.debug("Registering entity renderers...");
-		EntityRendererRegistry.register(BigGlobeEntityTypes.TORCH_ARROW,  TorchArrowRenderer::new);
-		EntityRendererRegistry.register(BigGlobeEntityTypes.ROCK,   FlyingItemEntityRenderer::new);
-		EntityRendererRegistry.register(BigGlobeEntityTypes.STRING,     StringEntityRenderer::new);
-		EntityRendererRegistry.register(BigGlobeEntityTypes.WAYPOINT, WaypointEntityRenderer::new);
+		#if MC_VERSION >= MC_1_21_9
+			net.minecraft.client.render.entity.EntityRendererFactories.register(BigGlobeEntityTypes.TORCH_ARROW,  TorchArrowRenderer::new);
+			net.minecraft.client.render.entity.EntityRendererFactories.register(BigGlobeEntityTypes.ROCK,   FlyingItemEntityRenderer::new);
+			net.minecraft.client.render.entity.EntityRendererFactories.register(BigGlobeEntityTypes.STRING,     StringEntityRenderer::new);
+			net.minecraft.client.render.entity.EntityRendererFactories.register(BigGlobeEntityTypes.WAYPOINT, WaypointEntityRenderer::new);
+		#else
+			EntityRendererRegistry.register(BigGlobeEntityTypes.TORCH_ARROW,  TorchArrowRenderer::new);
+			EntityRendererRegistry.register(BigGlobeEntityTypes.ROCK,   FlyingItemEntityRenderer::new);
+			EntityRendererRegistry.register(BigGlobeEntityTypes.STRING,     StringEntityRenderer::new);
+			EntityRendererRegistry.register(BigGlobeEntityTypes.WAYPOINT, WaypointEntityRenderer::new);
+		#endif
 		BigGlobeMod.LOGGER.debug("Done registering entity renderers.");
 	}
 }

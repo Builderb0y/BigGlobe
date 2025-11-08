@@ -25,6 +25,7 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.networking.packets.*;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 #if MC_VERSION >= MC_1_20_5
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -105,7 +106,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 		public void receive(BigGlobePayload payload, ServerPlayNetworking.Context context) {
 			byte id = payload.buffer().readByte();
 			if (this.getHandler(id) instanceof C2SPlayPacketHandler<?> packetHandler) {
-				this.doReceive(context.player().getServer(), context.player(), payload.buffer(), context.responseSender(), packetHandler);
+				this.doReceive(EntityVersions.getServer(context.player()), context.player(), payload.buffer(), context.responseSender(), packetHandler);
 			}
 			else {
 				LOGGER.warn("No client to server play packet handler registered for ID " + Byte.toUnsignedInt(id));

@@ -14,7 +14,9 @@ import com.seibel.distanthorizons.api.objects.data.DhApiChunk;
 import com.seibel.distanthorizons.api.objects.data.IDhApiFullDataSource;
 
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.LightType;
 import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.chunk.light.ChunkLightingView;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -38,6 +40,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	public final ServerWorld serverWorld;
 	public final BigGlobeScriptedChunkGenerator chunkGenerator;
 	public final ThreadLocal<ScriptedColumn[]> columns;
+	public final byte topSkylight;
 
 	public DhScriptedWorldGenerator(
 		IDhApiLevelWrapper level,
@@ -48,6 +51,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		this.serverWorld = serverWorld;
 		this.chunkGenerator = chunkGenerator;
 		this.columns = new ThreadLocal<>();
+		this.topSkylight = serverWorld.getDimension().hasSkyLight() ? ((byte)(15)) : ((byte)(0));
 	}
 
 	public ScriptedColumn[] getColumns(int length) {
@@ -266,7 +270,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	}
 
 	public void convertToDataPoints(DataPointListBuilder builder, BlockSegmentList segments) {
-		segments.computeLightLevels();
+		segments.computeLightLevels(this.topSkylight);
 		for (int index = segments.size(); --index >= 0;) {
 			LitSegment segment = segments.get(index);
 			//some versions of DH break if I don't provide air...

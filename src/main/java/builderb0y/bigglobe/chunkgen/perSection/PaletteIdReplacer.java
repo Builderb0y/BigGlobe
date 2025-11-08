@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.Palette;
+import net.minecraft.world.chunk.PalettedContainer;
 
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
@@ -34,6 +35,7 @@ public class PaletteIdReplacer {
 		if (context.palette() instanceof SingularPalette_EntryAccess singular && singular.bigglobe_getEntry() == BlockStates.AIR) {
 			return null;
 		}
+		PalettedContainer<BlockState> container = context.container();
 		outer:
 		while (true) {
 			boolean changed = false;
@@ -46,7 +48,7 @@ public class PaletteIdReplacer {
 				BlockState to = replacements.runtimeStates.get(from);
 				if (to != null) {
 					changed = true;
-					lookup[id] = BigGlobeMath.toShortExact(palette.index(to));
+					lookup[id] = BigGlobeMath.toShortExact(palette.index(to #if MC_VERSION >= MC_1_21_9 , container #endif));
 				}
 				else {
 					lookup[id] = BigGlobeMath.toShortExact(id);

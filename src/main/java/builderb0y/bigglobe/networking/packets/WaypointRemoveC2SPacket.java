@@ -51,11 +51,11 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 								if (waypoint.destination().name() != null) {
 									ItemStackVersions.setCustomName(stack, waypoint.destination().name());
 								}
-								ItemEntity entity = new ItemEntity(player.getWorld(), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
-								if (player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+								ItemEntity entity = new ItemEntity(EntityVersions.getWorld(player), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
+								if (EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
 									entity.setNoGravity(true);
 								}
-								player.getWorld().spawnEntity(entity);
+								EntityVersions.getWorld(player).spawnEntity(entity);
 							}
 						}
 						else {

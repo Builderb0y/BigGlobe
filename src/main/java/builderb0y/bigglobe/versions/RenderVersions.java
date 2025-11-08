@@ -3,8 +3,8 @@ package builderb0y.bigglobe.versions;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -13,6 +13,10 @@ import net.minecraft.client.texture.AbstractTexture;
 
 @Environment(EnvType.CLIENT)
 public class RenderVersions {
+
+	//frapi doesn't provide this for some reason,
+	//so it's extracted via mixin instead.
+	public static final ThreadLocal<Matrix4f> minecraftProjectionMatrix = ThreadLocal.withInitial(Matrix4f::new);
 
 	public static int glID(Framebuffer framebuffer) {
 		#if MC_VERSION >= MC_1_21_5
@@ -77,15 +81,43 @@ public class RenderVersions {
 		#endif
 	}
 
-	public static Matrix4f modelViewMatrix(WorldRenderContext context) {
-		#if MC_VERSION >= MC_1_20_5
+	public static Matrix4fc modelViewMatrix(
+		#if MC_VERSION >= MC_1_21_9
+			net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
+		#else
+			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
+		#endif
+	) {
+		#if MC_VERSION >= MC_1_21_9
+			return context.viewMatrix();
+		#elif MC_VERSION >= MC_1_20_5
 			return context.positionMatrix();
 		#else
 			return context.matrixStack().peek().getPositionMatrix();
 		#endif
 	}
 
-	public static float partialTicks(WorldRenderContext context) {
+	public static Matrix4fc projectionMatrix(
+		#if MC_VERSION >= MC_1_21_9
+			net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
+		#else
+			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
+		#endif
+	) {
+		#if MC_VERSION >= MC_1_21_9
+			return minecraftProjectionMatrix.get();
+		#else
+			return context.projectionMatrix();
+		#endif
+	}
+
+	public static float partialTicks(
+		#if MC_VERSION >= MC_1_21_9
+			net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
+		#else
+			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
+		#endif
+	) {
 		#if MC_VERSION >= MC_1_21_5
 			return context.tickCounter().getTickProgress(false);
 		#elif MC_VERSION >= MC_1_21_1

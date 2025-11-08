@@ -14,6 +14,7 @@ import builderb0y.bigglobe.hyperspace.PackedWorldPos;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointItem extends Item {
@@ -52,7 +53,7 @@ public class WaypointItem extends Item {
 					Entity_CurrentIdGetter.bigglobe_getCurrentID().incrementAndGet(),
 
 					this.isPrivate && context.getPlayer() != null
-					? context.getPlayer().getGameProfile().getId()
+					? GameProfileVersions.getUUID(context.getPlayer().getGameProfile())
 					: null,
 
 					new PackedWorldPos(

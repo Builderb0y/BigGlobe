@@ -20,7 +20,15 @@ import builderb0y.bigglobe.BigGlobeMod;
 @Mixin(CreateWorldScreen.class)
 public class Dev_CreateWorldScreen_DontCrashOnFailure {
 
-	#if MC_VERSION >= MC_1_21_2
+	#if MC_VERSION >= MC_1_21_9
+		@WrapOperation(
+			method = "show(Lnet/minecraft/client/MinecraftClient;Ljava/lang/Runnable;Ljava/util/function/Function;Lnet/minecraft/client/world/GeneratorOptionsFactory;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/gui/screen/world/CreateWorldCallback;)V",
+			at = @At(
+				value = "INVOKE",
+				target = "Ljava/util/concurrent/CompletableFuture;join()Ljava/lang/Object;"
+			)
+		)
+	#elif MC_VERSION >= MC_1_21_2
 		@WrapOperation(
 			method = "show(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/gui/screen/Screen;Ljava/util/function/Function;Lnet/minecraft/client/world/GeneratorOptionsFactory;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/gui/screen/world/CreateWorldCallback;)V",
 			at = @At(
@@ -36,7 +44,11 @@ public class Dev_CreateWorldScreen_DontCrashOnFailure {
 		Operation<GeneratorOptionsHolder> original,
 		@Cancellable CallbackInfo callback,
 		@Local(index = 0, argsOnly = true) MinecraftClient client,
-		@Local(index = 1, argsOnly = true) Screen parentScreen
+		#if MC_VERSION >= MC_1_21_9
+			@Local(index = 1, argsOnly = true) Runnable closer
+		#else
+			@Local(index = 1, argsOnly = true) Screen parentScreen
+		#endif
 	) {
 		if (callback.isCancelled()) return null; //https://github.com/LlamaLad7/MixinExtras/wiki/Cancellable#niche-interactions-with-wrapoperation
 		try {
@@ -44,7 +56,11 @@ public class Dev_CreateWorldScreen_DontCrashOnFailure {
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Caught exception from loading built-in data packs:", exception);
-			client.setScreen(parentScreen);
+			#if MC_VERSION >= MC_1_21_9
+				closer.run();
+			#else
+				client.setScreen(parentScreen);
+			#endif
 			callback.cancel();
 			return null;
 		}

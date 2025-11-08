@@ -307,7 +307,7 @@ public class BigGlobeConfig {
 		@Environment(EnvType.CLIENT)
 		public void maybeReloadLODs() {
 			MinecraftClient client = MinecraftClient.getInstance();
-			LodSystemHolder holder = client != null ? (LodSystemHolder)(client.worldRenderer) : null;
+			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.worldRenderer) : null;
 			if (
 				this.renderingEnabled()    != previousEnabled               ||
 				this.rendererBackend       != previousRendererBackend       ||

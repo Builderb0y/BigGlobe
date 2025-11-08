@@ -53,7 +53,7 @@ public class CloudBlock extends Block {
 		if (!player.isSneaking()) {
 			if (this.color != CloudColor.BLANK) {
 				if (stack.getItem() == Items.GLASS_BOTTLE) {
-					if (!world.isClient) {
+					if (!world.isClient()) {
 						world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(CloudColor.BLANK).getDefaultState());
 						player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
 					}
@@ -62,7 +62,7 @@ public class CloudBlock extends Block {
 			}
 			else {
 				if (stack.getItem() instanceof AuraBottleItem bottle) {
-					if (!world.isClient) {
+					if (!world.isClient()) {
 						world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(bottle.color).getDefaultState());
 						player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
 					}

@@ -62,6 +62,20 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
+	public static Map<Identifier, Block> RENAMED_BLOCKS = new Object2ObjectOpenHashMap<>(2);
+	static {
+		#if MC_VERSION >= MC_1_21_9
+			RENAMED_BLOCKS.put(BigGlobeMod.mcID("chain"), Blocks.IRON_CHAIN);
+		#else
+			RENAMED_BLOCKS.put(BigGlobeMod.mcID("iron_chain"), Blocks.CHAIN);
+		#endif
+
+		#if MC_VERSION >= MC_1_20_3
+			RENAMED_BLOCKS.put(BigGlobeMod.mcID("grass"), Blocks.SHORT_GRASS);
+		#else
+			RENAMED_BLOCKS.put(BigGlobeMod.mcID("short_grass"), Blocks.GRASS);
+		#endif
+	}
 	public static final BlockStateCoder INSTANCE = new BlockStateCoder("BlockStateCoder.INSTANCE");
 
 	public BlockStateCoder(String toString) {
@@ -111,14 +125,9 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	}
 
 	public static Block blockOnly(BetterRegistry<Block> blockRegistry, String input) {
-		return switch (input) {
-			#if MC_VERSION >= MC_1_20_3
-				case "grass", "minecraft:grass" -> Blocks.SHORT_GRASS;
-			#else
-				case "short_grass", "minecraft:short_grass" -> Blocks.GRASS;
-			#endif
-			default -> blockRegistry.requireByName(input).value();
-		};
+		Identifier identifier = IdentifierVersions.create(input);
+		Block block = RENAMED_BLOCKS.get(identifier);
+		return block != null ? block : blockRegistry.requireByName(input).value();
 	}
 
 	public static Result<BlockProperties> decodeStateWithMissingErrors(BetterRegistry<Block> blockRegistry, String input) {
@@ -127,16 +136,12 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static Result<BlockProperties> decodeState(BetterRegistry<Block> blockRegistry, String input) {
 		return switch (input) {
-			#if MC_VERSION >= MC_1_20_3
-				case "grass", "minecraft:grass" -> new Result<>(new BlockProperties(Blocks.SHORT_GRASS.getDefaultState()));
-			#else
-				case "short_grass", "minecraft:short_grass" -> new Result<>(new BlockProperties(Blocks.GRASS.getDefaultState()));
-			#endif
 			default -> {
 				if (input.charAt(0) == '#') yield new Result<>((StringBuilder builder) -> builder.append("Tags not allowed here"));
 				int openBracket = input.indexOf('[');
 				Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
-				Block block = blockRegistry.requireById(blockID).value();
+				Block block = RENAMED_BLOCKS.get(blockID);
+				if (block == null) block = blockRegistry.requireById(blockID).value();
 				BlockState state = block.getDefaultState();
 				if (openBracket >= 0) {
 					if (block.getStateManager().getProperties().isEmpty()) {

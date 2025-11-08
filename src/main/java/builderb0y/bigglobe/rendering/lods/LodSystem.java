@@ -2,8 +2,6 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -24,9 +22,9 @@ import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.OutOfVramException;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.rendering.lods.LodGenerator.LoadMode;
+import builderb0y.bigglobe.rendering.lods.LodRenderer.LodRenderState;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.lods.LodGenerator.LodSupply;
-import builderb0y.bigglobe.rendering.lods.LodRenderer.FogParams;
 import builderb0y.bigglobe.rendering.lods.LodRenderer.MeshUploader;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
@@ -35,12 +33,30 @@ import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 public class LodSystem implements SafeCloseable {
 
 	static {
-		WorldRenderEvents.AFTER_SETUP.register((WorldRenderContext context) -> {
-			LodSystem system = ((LodSystemHolder)(context.worldRenderer())).bigglobe_getLodSystem();
-			if (system != null && !context.worldRenderer().hasBlindnessOrDarkness(context.camera())) {
-				system.draw(context);
-			}
-		});
+		#if MC_VERSION >= MC_1_21_9
+			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_EXTRACTION.register(context -> {
+				LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+				if (system != null) {
+					system.renderState.setup(context);
+					system.renderingThisFrame = !context.worldRenderer().hasBlindnessOrDarkness(context.camera());
+				}
+			});
+			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.START_MAIN.register(context -> {
+				LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+				if (system != null) system.draw();
+			});
+		#else
+			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents.AFTER_SETUP.register(
+				context -> {
+					LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+					if (system != null) {
+						system.renderState.setup(context);
+						system.renderingThisFrame = !context.worldRenderer().hasBlindnessOrDarkness(context.camera());
+						system.draw();
+					}
+				}
+			);
+		#endif
 	}
 
 	public static void init() {}
@@ -49,9 +65,10 @@ public class LodSystem implements SafeCloseable {
 	public LodGenerator generator;
 	public LodQuadTree tree;
 	public LodRenderer renderer;
-	public LodFrustum frustum;
-	public FogParams fog;
+	public LodRenderState renderState;
 	public double currentQuality, qualityLimit, loadDistance;
+	public int levelLimit = LodQuadTree.MAX_LEVEL;
+	public boolean renderingThisFrame;
 
 	@Override
 	public void close() {
@@ -67,8 +84,7 @@ public class LodSystem implements SafeCloseable {
 			this.renderer = BigGlobeConfig.INSTANCE.get().lodRendering.createRendererBackend();
 			this.generator = new LodGenerator(this, generator);
 			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
-			this.frustum = new LodFrustum();
-			this.fog = new FogParams();
+			this.renderState = new LodRenderState();
 			GLException.check();
 			this.generator.start();
 		}
@@ -161,26 +177,30 @@ public class LodSystem implements SafeCloseable {
 		this.renderer.oom();
 	}
 
-	public void draw(WorldRenderContext context) {
+	public boolean canRender() {
+		return this.renderingThisFrame;
+	}
+
+	public void draw() {
 		String existingMessage = GLException.checkMessage();
 		if (existingMessage != null) {
 			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before LOD rendering: " + existingMessage);
 		}
 		try {
-			this.doDraw(context);
+			this.doDraw();
 		}
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.error("An exception occurred while rendering LODs. LOD rendering will now disable itself to prevent further problems. You can press F3+A to attempt to restart it.", exception);
 			this.close();
-			((LodSystemHolder)(context.worldRenderer())).bigglobe_setLodSystem(null);
+			this.renderState.lodSystemHolder.bigglobe_setLodSystem(null);
 		}
 	}
 
-	public void doDraw(WorldRenderContext context) {
+	public void doDraw() {
 		if (!this.generator.running) {
 			BigGlobeMod.LOGGER.error("LOD system shutting down due to exception in mesh generator thread. Press F3+A to restart it.");
 			this.close();
-			((LodSystemHolder)(context.worldRenderer())).bigglobe_setLodSystem(null);
+			this.renderState.lodSystemHolder.bigglobe_setLodSystem(null);
 			return;
 		}
 
@@ -189,7 +209,7 @@ public class LodSystem implements SafeCloseable {
 		#if MC_VERSION >= MC_1_21_2
 			Profiler profiler = net.minecraft.util.profiler.Profilers.get();
 		#else
-			Profiler profiler = context.profiler();
+			Profiler profiler = this.renderState.profiler;
 		#endif
 
 		profiler.push("BG LODs");
@@ -220,17 +240,19 @@ public class LodSystem implements SafeCloseable {
 			profiler.pop();
 		}
 		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
-			this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
-			if (this.currentQuality == this.qualityLimit) {
-				this.loadDistance = Math.min(this.loadDistance + 16.0D, this.frustum.generationBuffer);
+			if (this.levelLimit > LodQuadTree.MIN_LEVEL) {
+				this.levelLimit--;
+			}
+			else {
+				this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
+				if (this.currentQuality == this.qualityLimit) {
+					this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
+				}
 			}
 		}
 
-		if (failure == null) {
+		if (failure == null && this.canRender()) {
 			if (this.tree.passes != null) {
-				profiler.push("Setup");
-				this.frustum.setup(context);
-				this.fog.farPlaneDistance = this.frustum.farClippingPlane;
 				profiler.swap("Request");
 				this.makeRequests(this.tree, System.currentTimeMillis(), true);
 				profiler.swap("Visibility");
@@ -238,19 +260,19 @@ public class LodSystem implements SafeCloseable {
 				profiler.swap("Opaque");
 
 				//must ensure either both passes are bound and unbound, or neither are.
-				try (var $ = this.renderer.bind(context, this.fog, false)) {
+				try (var $ = this.renderer.bind(this.renderState, false)) {
 					GLException.check();
-					this.drawTree(context, this.tree);
+					this.drawTree(this.tree);
 					GLException.check();
 				}
 				catch (GLException exception) {
 					failure = exception;
 				}
 				profiler.swap("Translucent");
-				try (var $ = this.renderer.bind(context, this.fog, true)) {
+				try (var $ = this.renderer.bind(this.renderState, true)) {
 					GLException.check();
 					if (failure == null) {
-						this.drawTree(context, this.tree);
+						this.drawTree(this.tree);
 						GLException.check();
 					}
 				}
@@ -258,8 +280,6 @@ public class LodSystem implements SafeCloseable {
 					if (failure == null) failure = exception;
 					else failure.addSuppressed(exception);
 				}
-				profiler.swap("Restore");
-				this.frustum.restore(context);
 				profiler.pop();
 			}
 			else if (!this.tree.isQueued()) {
@@ -273,7 +293,7 @@ public class LodSystem implements SafeCloseable {
 		if (failure != null) {
 			BigGlobeMod.LOGGER.error("LOD rendering encountered an unexpected exception and will now stop. Press F3+A to restart it.", failure);
 			this.close();
-			((LodSystemHolder)(context.worldRenderer())).bigglobe_setLodSystem(null);
+			this.renderState.lodSystemHolder.bigglobe_setLodSystem(null);
 		}
 	}
 
@@ -281,7 +301,7 @@ public class LodSystem implements SafeCloseable {
 
 	public int computeVisibility(LodQuadTree tree, Boolean frustumStatus) {
 		if (frustumStatus == null) {
-			frustumStatus = this.frustum.test(
+			frustumStatus = this.renderState.frustum.test(
 				tree.minX(),
 				this.generator.generatorParams.minY,
 				tree.minZ(),
@@ -309,42 +329,42 @@ public class LodSystem implements SafeCloseable {
 		return tree.passes != null || !tree.isInRange() ? ALL : childrenState;
 	}
 
-	public void drawTree(WorldRenderContext context, LodQuadTree tree) {
+	public void drawTree(LodQuadTree tree) {
 		if (tree.canRender()) {
 			assert tree.passes != null : "renderable tree has no passes";
-			Vec3d cameraPos = context.camera().getPos();
+			LodFrustum frustum = this.renderState.frustum;
 			this.renderer.draw(
 				tree.passes,
-				(float)(tree.minX() - cameraPos.x),
-				(float)(            - cameraPos.y),
-				(float)(tree.minZ() - cameraPos.z),
+				(float)(tree.minX() - frustum.x),
+				(float)(            - frustum.y),
+				(float)(tree.minZ() - frustum.z),
 				(float)(1 << (tree.level - LodQuadTree.MIN_LEVEL))
 			);
 		}
 		else if (tree.isTraversableForRender()) {
 			assert tree.x0z0 != null && tree.x0z1 != null && tree.x1z0 != null && tree.x1z1 != null : "tree with missing children is traversable";
-			this.drawTree(context, tree.x0z0);
-			this.drawTree(context, tree.x0z1);
-			this.drawTree(context, tree.x1z0);
-			this.drawTree(context, tree.x1z1);
+			this.drawTree(tree.x0z0);
+			this.drawTree(tree.x0z1);
+			this.drawTree(tree.x1z0);
+			this.drawTree(tree.x1z1);
 		}
 	}
 
 	public void makeRequests(LodQuadTree tree, long time, boolean canSplit) {
 		double squareDistance = this.squareDistanceTo(tree);
-		tree.setInRange(squareDistance < BigGlobeMath.squareD(this.frustum.farClippingPlane));
+		tree.setInRange(squareDistance < BigGlobeMath.squareD(this.renderState.frustum.farClippingPlane));
 		double idealQuality = this.computeIdealQuality(squareDistance, tree);
 		if (idealQuality > this.currentQuality + 0.5D) {
 			tree.merge();
 			return;
 		}
 		if (!tree.isQueued() && canSplit) {
-			if (tree.level > LodQuadTree.MIN_LEVEL && idealQuality < this.currentQuality) {
+			if (tree.level > this.levelLimit && idealQuality < this.currentQuality) {
 				tree.split();
 			}
 			boolean request = false;
 			LoadMode loadMode = null;
-			if (tree.passes == null && squareDistance < BigGlobeMath.squareD(this.frustum.generationBuffer)) {
+			if (tree.passes == null && squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer)) {
 				request = true;
 				loadMode = squareDistance < BigGlobeMath.squareD(this.loadDistance) ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY;
 			}
@@ -365,10 +385,11 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public double squareDistanceTo(LodQuadTree tree) {
-		double closestX = MathHelper.clamp(this.frustum.x, tree.minX(), tree.maxX());
-		double closestY = MathHelper.clamp(this.frustum.y, this.generator.generatorParams.minY, this.generator.generatorParams.maxY);
-		double closestZ = MathHelper.clamp(this.frustum.z, tree.minZ(), tree.maxZ());
-		return BigGlobeMath.squareD(closestX - this.frustum.x, closestY - this.frustum.y, closestZ - this.frustum.z);
+		LodFrustum frustum = this.renderState.frustum;
+		double closestX = MathHelper.clamp(frustum.x, tree.minX(), tree.maxX());
+		double closestY = MathHelper.clamp(frustum.y, this.generator.generatorParams.minY, this.generator.generatorParams.maxY);
+		double closestZ = MathHelper.clamp(frustum.z, tree.minZ(), tree.maxZ());
+		return BigGlobeMath.squareD(closestX - frustum.x, closestY - frustum.y, closestZ - frustum.z);
 	}
 
 	public double computeIdealQuality(double squareDistance, LodQuadTree tree) {

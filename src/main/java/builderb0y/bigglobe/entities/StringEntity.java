@@ -184,7 +184,7 @@ public class StringEntity extends Entity {
 			if (this.isInvulnerableTo(source)) {
 				return false;
 			}
-			if (this.getWorld() instanceof ServerWorld serverWorld) {
+			if (EntityVersions.getWorld(this) instanceof ServerWorld serverWorld) {
 				this.dropString(serverWorld, source);
 				this.remove(RemovalReason.KILLED);
 			}
@@ -210,7 +210,7 @@ public class StringEntity extends Entity {
 				new net.minecraft.loot.context.LootContextParameterSet.Builder(world)
 			#endif
 			.add(LootContextParameters.THIS_ENTITY, this)
-			.add(LootContextParameters.ORIGIN, this.getPos())
+			.add(LootContextParameters.ORIGIN, EntityVersions.getPos(this))
 			.add(LootContextParameters.DAMAGE_SOURCE, damageSource)
 			#if MC_VERSION >= MC_1_21_0
 				.addOptional(LootContextParameters.ATTACKING_ENTITY, damageSource.getAttacker())
@@ -240,7 +240,7 @@ public class StringEntity extends Entity {
 		super.tick();
 		if (!(this.getNextEntity() instanceof StringEntity)) {
 			//last entity in the line.
-			TO_TICK.computeIfAbsent(this.getWorld(), $ -> new ArrayList<>(4)).add(this);
+			TO_TICK.computeIfAbsent(EntityVersions.getWorld(this), $ -> new ArrayList<>(4)).add(this);
 		}
 	}
 
@@ -280,7 +280,7 @@ public class StringEntity extends Entity {
 			while (iter.next());
 		}
 
-		if (!this.getWorld().isClient) {
+		if (!EntityVersions.getWorld(this).isClient()) {
 			this.maybeSplit();
 		}
 	}
@@ -303,7 +303,7 @@ public class StringEntity extends Entity {
 
 	public void moveTowards(Entity other, boolean slow) {
 		if (other == null) return;
-		Vec3d projection = project(this.getPos(), other.getPos(), slow);
+		Vec3d projection = project(EntityVersions.getPos(this), EntityVersions.getPos(other), slow);
 		if (projection != null) {
 			if (other instanceof StringEntity string) {
 				//make 2 adjacent strings "pull" on each other.
@@ -340,7 +340,7 @@ public class StringEntity extends Entity {
 	}
 
 	public void moveLeniently(Vec3d to) {
-		double scalar = this.getPos().squaredDistanceTo(to);
+		double scalar = EntityVersions.getPos(this).squaredDistanceTo(to);
 		if (!(scalar > 1.0E-7D)) return;
 		this.setPosition(to);
 		this.moveOutOfBlocks();
@@ -357,7 +357,7 @@ public class StringEntity extends Entity {
 		for (
 			BlockCollisionSpliterator<PositionedVoxelShape> iterator = (
 				new BlockCollisionSpliterator<>(
-					this.getWorld(),
+					EntityVersions.getWorld(this),
 					this,
 					this.getBoundingBox(),
 					false,
@@ -394,7 +394,7 @@ public class StringEntity extends Entity {
 					//sort by distance we need to move to escape the block in this direction.
 					Arrays.sort(directions, Comparator.comparing((Direction direction) -> overlaps[direction.ordinal()]));
 
-					Vec3d oldPos = this.getPos();
+					Vec3d oldPos = EntityVersions.getPos(this);
 					//try to escape the block by moving the least distance first.
 					for (Direction direction : directions) {
 						double amount = overlaps[direction.ordinal()];
@@ -405,10 +405,10 @@ public class StringEntity extends Entity {
 						//check if moving on this axis would put us inside another block or not.
 						if (
 							VoxelShapes.matchesAnywhere(
-								this
-								.getWorld()
+								EntityVersions
+								.getWorld(this)
 								.getBlockState(offsetPos)
-								.getCollisionShape(this.getWorld(), offsetPos, ShapeContext.of(this)),
+								.getCollisionShape(EntityVersions.getWorld(this), offsetPos, ShapeContext.of(this)),
 
 								VoxelShapes.cuboidUnchecked(
 									newBounds.minX - offsetPos.getX(),
@@ -441,7 +441,7 @@ public class StringEntity extends Entity {
 		Entity prevEntity = this.getPrevEntity();
 		Entity nextEntity = this.getNextEntity();
 		if (nextEntity instanceof PlayerEntity player) {
-			double distanceSquared = this.getPos().squaredDistanceTo(
+			double distanceSquared = EntityVersions.getPos(this).squaredDistanceTo(
 				player.getX(),
 				MathHelper.clamp(
 					this.getY(),
@@ -454,7 +454,7 @@ public class StringEntity extends Entity {
 				if (tryTakeString(player, false)) {
 					Vec3d target = project(
 						player.getBoundingBox().getCenter(),
-						this.getPos(),
+						EntityVersions.getPos(this),
 						false
 					);
 					//should always be the case since distance was > 4 to begin with,
@@ -595,7 +595,7 @@ public class StringEntity extends Entity {
 		public Entity update() {
 			World world = EntityVersions.getWorld(StringEntity.this);
 			Entity entity;
-			if (world.isClient) {
+			if (world.isClient()) {
 				Integer id = StringEntity.this.dataTracker.get(this.trackedID);
 				entity = id == 0 ? null : world.getEntityById(id);
 			}
@@ -612,14 +612,14 @@ public class StringEntity extends Entity {
 					entity = null;
 				}
 			}
-			if (!world.isClient) {
+			if (!world.isClient()) {
 				StringEntity.this.dataTracker.set(this.trackedID, entity != null ? entity.getId() : 0);
 			}
 			return this.entity = entity;
 		}
 
 		public void setEntity(Entity entity) {
-			if (!EntityVersions.getWorld(StringEntity.this).isClient) {
+			if (!EntityVersions.getWorld(StringEntity.this).isClient()) {
 				if (entity != null) {
 					this.uuid = entity.getUuid();
 					StringEntity.this.dataTracker.set(this.trackedID, entity.getId());

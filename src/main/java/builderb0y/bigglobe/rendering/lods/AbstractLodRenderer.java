@@ -1,10 +1,10 @@
 package builderb0y.bigglobe.rendering.lods;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -92,55 +92,38 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 		state.setCullFaceMode(GL_BACK);
 		state.setDepthRead(true);
 		state.setDepthWrite(true);
+		state.setDepthFunc(GL_LEQUAL);
 		state.setBlend(false);
 		state.setColorMask(true, true, true, true);
 	}
 
-	public void setupUniforms(WorldRenderContext context, VanillaLodShader shader, FogParams fog) {
-		this.matrixStorage.set(
-			context
-			.projectionMatrix()
-			.mul(
-				#if MC_VERSION >= MC_1_20_5
-					context.positionMatrix(),
-				#else
-					context.matrixStack().peek().getPositionMatrix(),
-				#endif
-				this.matrixStorage.scratch
-			)
-		);
+	public void setupUniforms(LodRenderState state, VanillaLodShader shader) {
+		this.matrixStorage.set(state.frustum.modelViewProjectionMatrix);
 		nglUniformMatrix4fv(shader.modelViewProjectionMatrix, 1, false, this.matrixStorage.address());
-		glUniform3f(shader.fogColor, fog.red, fog.green, fog.blue);
+		glUniform3f(shader.fogColor, state.fogR, state.fogG, state.fogB);
 		float globalFogDensity = BigGlobeConfig.INSTANCE.get().lodRendering.fogDensity;
 		float fogHeightScale = BigGlobeConfig.INSTANCE.get().lodRendering.fogHeightScale;
-		ClientState state;
 		ClientGeneratorParams params;
 		if (
-			(state = ClientState.get(context.world())) != null &&
-			(params = state.generatorParams) != null &&
+			state.clientState != null &&
+			(params = state.clientState.generatorParams) != null &&
 			params.seaLevel != null &&
 			fogHeightScale != 0.0F
 		) {
-			double seaLevel = params.seaLevel.doubleValue();
-			double cameraY = context.camera().getPos().y;
-			double worldMaxY = HeightLimitViewVersions.getMaxY(context.world());
-			float tickProgress = RenderVersions.partialTicks(context);
-			float rainStrength = context.world().getRainGradient(tickProgress);
-			float thunderStrength = context.world().getThunderGradient(tickProgress);
 			glUniform3f(
 				shader.fogParams,
-				(float)(cameraY - seaLevel),
-				-fogHeightScale / ((float)(worldMaxY - seaLevel)),
+				(float)(state.frustum.y - params.seaLevel.doubleValue()),
+				-fogHeightScale / ((float)(state.worldMaxY - params.seaLevel)),
 				Interpolator.mixSmoothUnchecked(
 					-1.0F,
-					Interpolator.mixSmoothUnchecked(-2.0F, -4.0F, thunderStrength),
-					rainStrength
+					Interpolator.mixSmoothUnchecked(-2.0F, -4.0F, state.thunderStrength),
+					state.rainStrength
 				)
-				* globalFogDensity / fog.farPlaneDistance
+				* globalFogDensity / state.frustum.farClippingPlane
 			);
 		}
 		else {
-			glUniform3f(shader.fogParams, 0.0F, 0.0F, -globalFogDensity / fog.farPlaneDistance);
+			glUniform3f(shader.fogParams, 0.0F, 0.0F, -globalFogDensity / state.frustum.farClippingPlane);
 		}
 	}
 
@@ -150,14 +133,14 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 	}
 
 	@Override
-	public void appendTextToF3Menu(List<String> lines) {
+	public List<String> getF3MenuText() {
 		long reallyUsed = this.heap.reallyUsed();
 		long used = this.heap.used();
 		long fragmentation = used == 0L ? 0L : 100L - reallyUsed * 100L / used;
 		long capacity = this.heap.capacity;
 		long percent = used * 100L / capacity;
 		long elements = this.elementBuffer.capacity;
-		lines.add("[BG] Vertices: U: " + reallyUsed + ", A: " + used + ", C: " + capacity + ", F: " + fragmentation + "%, P: " + percent + '%' + ", E: " + elements);
+		return Collections.singletonList("[BG] LOD Geometry: U: " + reallyUsed + ", A: " + used + ", C: " + capacity + ", F: " + fragmentation + "%, P: " + percent + '%' + ", E: " + elements);
 	}
 
 	public static class LodGlState extends GlState {

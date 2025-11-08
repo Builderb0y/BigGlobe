@@ -62,7 +62,7 @@ public class TorchArrowEntity extends PersistentProjectileEntity {
 	@Override
 	public void onBlockHit(BlockHitResult blockHitResult) {
 		World world = EntityVersions.getWorld(this);
-		if (!world.isClient) {
+		if (!world.isClient()) {
 			BlockState hitState = world.getBlockState(blockHitResult.getBlockPos());
 			if (hitState.getBlock() instanceof TntBlock) {
 				this.setOnFireFor(1); //TNT ignites when a flaming projectile hits it.

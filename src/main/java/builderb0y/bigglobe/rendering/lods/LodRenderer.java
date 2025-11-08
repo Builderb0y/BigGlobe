@@ -1,21 +1,66 @@
 package builderb0y.bigglobe.rendering.lods;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.lwjgl.opengl.*;
 
+import net.minecraft.util.profiler.Profiler;
+
+import builderb0y.bigglobe.ClientState;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.rendering.OutOfVramException;
 import builderb0y.bigglobe.util.SafeCloseable;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import builderb0y.bigglobe.versions.RenderVersions;
 
 @Environment(EnvType.CLIENT)
 public interface LodRenderer extends SafeCloseable {
 
-	public static class FogParams {
+	public static class LodRenderState {
 
-		public float red, green, blue, farPlaneDistance;
+		public LodSystemHolder
+			lodSystemHolder;
+		public float
+			fogR,
+			fogG,
+			fogB,
+			partialTicks,
+			rainStrength,
+			thunderStrength;
+		public int
+			worldMinY,
+			worldMaxY;
+		public ClientState
+			clientState;
+		public LodFrustum
+			frustum = new LodFrustum();
+
+		#if MC_VERSION < MC_1_21_2
+			public Profiler profiler;
+		#endif
+
+		public void setup(
+			#if MC_VERSION >= MC_1_21_9
+				net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
+			#else
+				net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
+			#endif
+		) {
+			this.lodSystemHolder = LodSystemHolder.of(context.worldRenderer());
+			this.partialTicks = RenderVersions.partialTicks(context);
+			this.rainStrength = context.world().getRainGradient(this.partialTicks);
+			this.thunderStrength = context.world().getThunderGradient(this.partialTicks);
+			this.worldMinY = HeightLimitViewVersions.getMinY(context.world());
+			this.worldMaxY = HeightLimitViewVersions.getMaxY(context.world());
+			this.clientState = ClientState.get(context.world().getRegistryKey());
+			this.frustum.setup(context);
+			#if MC_VERSION < MC_1_21_2
+				this.profiler = context.profiler();
+			#endif
+		}
 	}
 
 	/**
@@ -31,8 +76,7 @@ public interface LodRenderer extends SafeCloseable {
 	it will be closed on the same thread which calls bind().
 	*/
 	public abstract SafeCloseable bind(
-		WorldRenderContext context,
-		FogParams fog,
+		LodRenderState state,
 		boolean translucent
 	);
 
@@ -45,9 +89,9 @@ public interface LodRenderer extends SafeCloseable {
 	whether that implies calling {@link GL11C#glDrawArrays(int, int, int)},
 	{@link GL11C#glDrawElements}, or appending the request to an internal
 	buffer to be multi-drawn when the return value of
-	{@link #bind(WorldRenderContext, FogParams, boolean)} is closed.
+	{@link #bind(LodRenderState, boolean)} is closed.
 
-	{@link #bind(WorldRenderContext, FogParams, boolean)} will always be called before this method.
+	{@link #bind(LodRenderState, boolean)} will always be called before this method.
 	if this renderer uses a VAO, it should be bound in that method, not this one.
 	*/
 	public abstract void draw(
@@ -125,8 +169,10 @@ public interface LodRenderer extends SafeCloseable {
 	*/
 	public abstract void endMeshing(VersionedVertexConsumerProvider provider);
 
-	/** self-explanatory. default impl does nothing. */
-	public default void appendTextToF3Menu(List<String> lines) {}
+	/** self-explanatory. default impl returns an empty list. */
+	public default List<String> getF3MenuText() {
+		return Collections.emptyList();
+	}
 
 	/**
 	called when the LOD system is shutting down.

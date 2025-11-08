@@ -3,6 +3,7 @@ package builderb0y.bigglobe.blocks;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -72,9 +73,30 @@ public class RiverWaterBlock extends FluidBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity #if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif) {
-		super.onEntityCollision(state, world, pos, entity #if MC_VERSION >= MC_1_21_5 , handler #endif);
-		if (this.isDangerous(world) && !(entity instanceof PlayerEntity player && player.getAbilities().flying) && entity.getBlockPos().equals(pos)) {
+	public void onEntityCollision(
+		BlockState state,
+		World world,
+		BlockPos pos,
+		Entity entity
+		#if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif
+		#if MC_VERSION >= MC_1_21_9 , boolean movingFastOrBlockPosIsInsideDestinationBox #endif
+	) {
+		super.onEntityCollision(
+			state,
+			world,
+			pos,
+			entity
+			#if MC_VERSION >= MC_1_21_5 , handler #endif
+			#if MC_VERSION >= MC_1_21_9 , movingFastOrBlockPosIsInsideDestinationBox #endif
+		);
+		if (
+			#if MC_VERSION >= MC_1_21_9 movingFastOrBlockPosIsInsideDestinationBox && #endif
+			this.isDangerous(world) &&
+			!(
+				entity instanceof PlayerEntity player &&
+				player.getAbilities().flying
+			)
+			&& entity.getBlockPos().equals(pos)) {
 			BlockPos.Mutable mutablePos = pos.mutableCopy();
 			while (world.getBlockState(mutablePos.setY(mutablePos.getY() + 1)).getBlock() == this);
 			Vec3d velocity = this.fluid.getVelocity(world, mutablePos.setY(mutablePos.getY() - 1), world.getFluidState(mutablePos));
@@ -96,7 +118,7 @@ public class RiverWaterBlock extends FluidBlock {
 	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		super.randomDisplayTick(state, world, pos, random);
 		ClientState clientState;
-		if (world.isClient && (clientState = ClientState.get(world)) != null && clientState.dangerousRapids) {
+		if (world.isClient() && (clientState = ClientState.get(world)) != null && clientState.dangerousRapids) {
 			if (random.nextInt(64) == 0) {
 				world.playSound(MinecraftClient.getInstance().player, pos, SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
 			}

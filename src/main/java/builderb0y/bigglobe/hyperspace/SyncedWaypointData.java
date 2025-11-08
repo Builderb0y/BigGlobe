@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
+import builderb0y.bigglobe.versions.GameProfileVersions;
+
 /**
 information about a waypoint for the purposes of syncing that waypoint to a client.
 since the player can only see public waypoints and their own private waypoints,
@@ -28,7 +30,7 @@ public record SyncedWaypointData(
 			new ServerWaypointData(
 				this.id,
 				this.entityId,
-				this.owned ? player.getGameProfile().getId() : null,
+				this.owned ? GameProfileVersions.getUUID(player.getGameProfile()) : null,
 				this.destinationPosition,
 				this.name
 			),

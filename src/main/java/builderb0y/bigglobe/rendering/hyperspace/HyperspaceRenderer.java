@@ -5,7 +5,6 @@ import net.minecraft.client.gl.Framebuffer;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.hyperspace.HyperspaceRendering;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
@@ -28,7 +27,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 	public HyperspaceBackgroundShader shader;
 	public EmptyVertexArray vertices;
 	public MatrixStorageWorkaround matrices;
-	public GlState state;
+	public GlState glState;
 
 	@Override
 	public void close() {
@@ -42,7 +41,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 			this.shader = new HyperspaceBackgroundShader();
 			this.vertices = new EmptyVertexArray();
 			this.matrices = new MatrixStorageWorkaround();
-			this.state = new GlState();
+			this.glState = new GlState();
 		}
 		catch (Throwable throwable) {
 			this.close();
@@ -66,25 +65,25 @@ public class HyperspaceRenderer implements SafeCloseable {
 	}
 
 	public void doDraw() {
-		this.state.capture();
+		this.glState.capture();
 		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
 		int framebufferID = RenderVersions.glID(framebuffer);
-		this.state.setFramebuffer(framebufferID);
-		this.state.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
-		this.state.setVao(this.vertices.vao);
-		this.state.setCullFace(false);
-		this.state.setDepthRead(false);
-		this.state.setDepthWrite(false);
-		this.state.setBlend(false);
-		this.state.setColorMask(true, true, true, true);
-		this.state.setProgram(this.shader.program);
-		this.matrices.set(HyperspaceRendering.modelViewInverse);
+		this.glState.setFramebuffer(framebufferID);
+		this.glState.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
+		this.glState.setVao(this.vertices.vao);
+		this.glState.setCullFace(false);
+		this.glState.setDepthRead(false);
+		this.glState.setDepthWrite(false);
+		this.glState.setBlend(false);
+		this.glState.setColorMask(true, true, true, true);
+		this.glState.setProgram(this.shader.program);
+		this.matrices.set(Matrices.modelViewInverse);
 		nglUniformMatrix4fv(this.shader.inverseModelView, 1, false, this.matrices.address());
-		this.matrices.set(HyperspaceRendering.projectionInverse);
+		this.matrices.set(Matrices.projectionInverse);
 		nglUniformMatrix4fv(this.shader.inverseProjection, 1, false, this.matrices.address());
-		glUniform3f(this.shader.cameraPosition, (float)(HyperspaceRendering.cameraPosition.x), (float)(HyperspaceRendering.cameraPosition.y), (float)(HyperspaceRendering.cameraPosition.z));
-		glUniform1f(this.shader.time, HyperspaceRendering.time);
+		glUniform3f(this.shader.cameraPosition, (float)(Matrices.cameraX), (float)(Matrices.cameraY), (float)(Matrices.cameraZ));
+		glUniform1f(this.shader.time, Matrices.dayTimeInSeconds);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		this.state.restore();
+		this.glState.restore();
 	}
 }

@@ -48,8 +48,9 @@ public abstract class AbstractVoxyWorldGenerator {
 	public final GenerationQueue queue;
 	public final Thread thread;
 	public final ScriptedColumn[] columns;
-	public volatile boolean running;
 	public final int plainsBiomeId;
+	public volatile boolean running;
+	public final byte topSkylight;
 
 	public AbstractVoxyWorldGenerator(WorldEngine engine, ServerWorld world, BigGlobeScriptedChunkGenerator generator) {
 		this.engine = engine;
@@ -68,6 +69,7 @@ public abstract class AbstractVoxyWorldGenerator {
 			this.columns[index] = factory.create(params);
 		}
 		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
+		this.topSkylight = world.getDimension().hasSkyLight() ? ((byte)(15)) : ((byte)(0));
 	}
 
 	public static @Nullable AbstractVoxyWorldGenerator createGenerator(ClientWorld newWorld, WorldEngine engine) {

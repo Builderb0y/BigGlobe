@@ -92,11 +92,12 @@ public class LodGenerator implements SafeCloseable {
 	public final ClientGeneratorParams generatorParams;
 	public final int maxLoadLevel;
 	public final LinkedBlockingQueue<ScriptedColumn[]> columns;
-	public final Thread thread;
-	public volatile boolean running;
 	public final LinkedBlockingQueue<LodRequest> requests;
 	public final ConcurrentLinkedQueue<LodSupply> currentSupply;
 	public final AtomicInteger activeMeshers = new AtomicInteger();
+	public final Thread thread;
+	public volatile boolean running;
+	public final byte topSkyLight;
 
 	public String f3Message() {
 		int
@@ -112,7 +113,7 @@ public class LodGenerator implements SafeCloseable {
 			}
 			total++;
 		}
-		return "[BG]: Req L: " + loadOnly + ", G: " + genOnly + ", LG: " + loadOrGen + ", T: " + total + ", Cache: " + this.cacheDescription();
+		return "[BG] LOD Req L: " + loadOnly + ", G: " + genOnly + ", LG: " + loadOrGen + ", T: " + total + ", Cache: " + this.cacheDescription();
 	}
 
 	public String cacheDescription() {
@@ -163,6 +164,7 @@ public class LodGenerator implements SafeCloseable {
 			}
 		}
 		this.chunkCache = chunkCache;
+		this.topSkyLight = system.world.getDimension().hasSkyLight() ? ((byte)(15)) : ((byte)(0));
 	}
 
 	public void start() {
@@ -420,7 +422,7 @@ public class LodGenerator implements SafeCloseable {
 					if (quadList.anyNull()) async.submit(() -> {
 						quadList.createNew(minY, maxY);
 						QuadHolder.generate(quadColumn, quadList, layer);
-						quadList.computeLightLevels();
+						quadList.computeLightLevels(LodGenerator.this.topSkyLight);
 						quadList.storeInArray(lists, baseIndex, RENDER_WIDTH);
 					});
 				}
@@ -476,7 +478,7 @@ public class LodGenerator implements SafeCloseable {
 						quadList.createNew(minY, maxY);
 						QuadHolder.generate(quadColumn, quadList, layer);
 						quadList.downscale(blockLod);
-						quadList.computeLightLevels();
+						quadList.computeLightLevels(LodGenerator.this.topSkyLight);
 						quadList.storeInArray(lists, listIndex, RENDER_WIDTH);
 					});
 				}
@@ -498,7 +500,7 @@ public class LodGenerator implements SafeCloseable {
 						QuadHolder.generate(quadColumn, quadList, layer);
 						BlockSegmentList merged = quadList.merge();
 						merged = QuadList.downscaleColumnKeepAir(merged, blockLod);
-						merged.computeLightLevels();
+						merged.computeLightLevels(LodGenerator.this.topSkyLight);
 						lists[listIndex] = merged;
 					});
 				}

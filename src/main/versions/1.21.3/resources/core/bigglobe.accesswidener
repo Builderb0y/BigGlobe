@@ -48,6 +48,13 @@ accessible method net/minecraft/client/render/GameRenderer getFov (Lnet/minecraf
 accessible field net/minecraft/client/render/GameRenderer zoom F
 accessible field net/minecraft/client/render/GameRenderer zoomX F
 accessible field net/minecraft/client/render/GameRenderer zoomY F
+accessible field net/minecraft/world/chunk/SerializedChunk CODEC Lcom/mojang/serialization/Codec;
+accessible method net/minecraft/server/world/ServerChunkLoadingManager getUpdatedChunkNbt (Lnet/minecraft/util/math/ChunkPos;)Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/world/chunk/ChunkNibbleArray bytes [B
+accessible field net/minecraft/world/chunk/ChunkNibbleArray defaultValue I
+
+#used for waypoint rendering.
+accessible field net/minecraft/client/render/WorldRenderer renderedEntities Ljava/util/List;
 
 #used by mixin.
 accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies

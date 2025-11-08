@@ -16,13 +16,15 @@ public class GlState {
 		CHANGED_COLOR_MASK     = 1 << 8,
 		CHANGED_PROGRAM        = 1 << 9,
 		CHANGED_VAO            = 1 << 10,
-		CHANGED_ELEMENT_BUFFER = 1 << 11;
+		CHANGED_ELEMENT_BUFFER = 1 << 11,
+		CHANGED_DEPTH_FUNC     = 1 << 12;
 
 	public int changed;
 	public int framebuffer;
 	public int[] viewport = new int[4];
 	public boolean cullFace, depthTest, depthMask, blend;
 	public int cullFaceMode;
+	public int depthFunc;
 	public int blendSrcRgb, blendDstRgb, blendSrcAlpha, blendDstAlpha;
 	public int[] colorMask = new int[4];
 	public int activeTexture;
@@ -52,6 +54,8 @@ public class GlState {
 		this.depthTest = glIsEnabled(GL_DEPTH_TEST);
 		GLException.check();
 		this.depthMask = glGetBoolean(GL_DEPTH_WRITEMASK);
+		GLException.check();
+		this.depthFunc = glGetInteger(GL_DEPTH_FUNC);
 		GLException.check();
 		this.blend = glIsEnabled(GL_BLEND);
 		GLException.check();
@@ -137,6 +141,14 @@ public class GlState {
 		}
 	}
 
+	public void setDepthFunc(int depthFunc) {
+		if (this.hasChanged(CHANGED_DEPTH_FUNC) || this.depthFunc != depthFunc) {
+			this.setChanged(CHANGED_DEPTH_FUNC);
+			glDepthFunc(depthFunc);
+			GLException.check();
+		}
+	}
+
 	public void setBlend(boolean blend) {
 		if (this.hasChanged(CHANGED_BLEND) || this.blend != blend) {
 			this.setChanged(CHANGED_BLEND);
@@ -204,6 +216,10 @@ public class GlState {
 		}
 		if (this.hasChanged(CHANGED_DEPTH_TEST)) {
 			setEnabled(GL_DEPTH_TEST, this.depthTest);
+			GLException.check();
+		}
+		if (this.hasChanged(CHANGED_DEPTH_FUNC)) {
+			glDepthFunc(this.depthFunc);
 			GLException.check();
 		}
 		if (this.hasChanged(CHANGED_CULL_FACE_MODE)) {

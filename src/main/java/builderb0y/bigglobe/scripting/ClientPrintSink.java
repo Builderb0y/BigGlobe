@@ -53,7 +53,9 @@ public class ClientPrintSink implements PrintSink {
 		if (MinecraftClient.getInstance().getServer() != null) {
 			ClientPlayerEntity player = MinecraftClient.getInstance().player;
 			if (player != null) {
-				player.sendMessage(Text.literal("[Big Globe/Scripting]: " + value), false);
+				MinecraftClient.getInstance().execute(() -> {
+					player.sendMessage(Text.literal("[Big Globe/Scripting]: " + value), false);
+				});
 			}
 			else {
 				ScriptLogger.LOGGER.info(value);

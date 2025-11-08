@@ -5,6 +5,9 @@ import me.cortex.voxy.common.world.WorldEngine;
 import net.minecraft.server.world.ServerWorld;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.QuadHolder;
+import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
+import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -39,15 +42,9 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 						int x = startX | (offsetX_ << level);
 						int z = startZ | (offsetZ_ << level);
 						int baseIndex = (offsetZ_ << 5) | offsetX_;
-						ScriptedColumn
-							column00 = columns[baseIndex     ],
-							column01 = columns[baseIndex |  1],
-							column10 = columns[baseIndex | 32],
-							column11 = columns[baseIndex | 33];
-						column00.setParamsUnchecked(params.at(x,        z       ));
-						column01.setParamsUnchecked(params.at(x | step, z       ));
-						column10.setParamsUnchecked(params.at(x,        z | step));
-						column11.setParamsUnchecked(params.at(x | step, z | step));
+						QuadColumn quadColumn = new QuadColumn();
+						quadColumn.loadFromArray(columns, baseIndex, 32);
+						quadColumn.at(params, x, z, step);
 						//reminder: pre-computing column values will compute things that aren't needed, like deep dark noise.
 						/*
 						for (String name : this.generator.getOverriders().rawColumnValueDependencies) try {
@@ -66,23 +63,11 @@ public class VoxyWorldGenerator extends AbstractVoxyWorldGenerator {
 							overrider.override(column11, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 						}
 						*/
-						BlockSegmentList
-							list00 = new BlockSegmentList(minY, maxY),
-							list01 = new BlockSegmentList(minY, maxY),
-							list10 = new BlockSegmentList(minY, maxY),
-							list11 = new BlockSegmentList(minY, maxY);
-						layer.emitSegments(column00, column01, column10, column11, list00);
-						layer.emitSegments(column01, column00, column11, column10, list01);
-						layer.emitSegments(column10, column11, column00, column01, list10);
-						layer.emitSegments(column11, column10, column01, column00, list11);
-						list00.computeLightLevels();
-						list01.computeLightLevels();
-						list10.computeLightLevels();
-						list11.computeLightLevels();
-						lists[baseIndex     ] = list00;
-						lists[baseIndex |  1] = list01;
-						lists[baseIndex | 32] = list10;
-						lists[baseIndex | 33] = list11;
+						QuadList quadList = new QuadList();
+						quadList.createNew(minY, maxY);
+						QuadHolder.generate(quadColumn, quadList, layer);
+						quadList.computeLightLevels(this.topSkylight);
+						quadList.storeInArray(lists, baseIndex, 32);
 					});
 				}
 			}

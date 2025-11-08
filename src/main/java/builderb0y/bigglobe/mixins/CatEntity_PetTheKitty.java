@@ -32,7 +32,7 @@ public abstract class CatEntity_PetTheKitty extends TameableEntity {
 	@Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
 	public void bigglobe_petTheKitty(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> callback) {
 		if (player.isSneaking() && player.getStackInHand(hand).isEmpty()) {
-			if (EntityVersions.getWorld(this).isClient) {
+			if (EntityVersions.getWorld(this).isClient()) {
 				this.handleStatus(EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
 				EntityVersions.getWorld(this).playSound(
 					player,

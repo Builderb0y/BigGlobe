@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.spawning;
 
+import java.util.UUID;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.RegistryKeys;
@@ -8,7 +10,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.Heightmap;
+import net.minecraft.world.WorldProperties;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -24,6 +28,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
 import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeSpawnLocator {
@@ -33,11 +38,19 @@ public class BigGlobeSpawnLocator {
 		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			SpawnPoint spawnPoint = findSpawn(world, generator, world.getSeed());
 			if (spawnPoint != null) {
-				world.setSpawnPos(spawnPoint.toBlockPos(), spawnPoint.yaw);
+				#if MC_VERSION >= MC_1_21_9
+					world.setSpawnPoint(new WorldProperties.SpawnPoint(new GlobalPos(world.getRegistryKey(), spawnPoint.toBlockPos()), spawnPoint.yaw(), 0.0F));
+				#else
+					world.setSpawnPos(spawnPoint.toBlockPos(), spawnPoint.yaw);
+				#endif
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public static long perPlayerSeed(ServerWorld serverWorld, UUID playerUUID) {
+		return Permuter.permute(serverWorld.getSeed() ^ 0x4BB5FF80362770B0L, playerUUID);
 	}
 
 	/** called by {@link PlayerManager_InitializeSpawnPoint} */
@@ -49,21 +62,43 @@ public class BigGlobeSpawnLocator {
 			SpawnPoint spawnPoint = findSpawn(
 				EntityVersions.getServerWorld(player),
 				generator,
-				Permuter.permute(
-					EntityVersions.getServerWorld(player).getSeed() ^ 0x4BB5FF80362770B0L,
-					player.getGameProfile().getId()
-				)
+				perPlayerSeed(EntityVersions.getServerWorld(player), GameProfileVersions.getUUID(player.getGameProfile()))
 			);
 			if (spawnPoint != null) {
-				player.setSpawnPoint(
-					#if MC_VERSION >= MC_1_21_5 new net.minecraft.server.network.ServerPlayerEntity.Respawn( #endif
+				#if MC_VERSION >= MC_1_21_9
+					player.setSpawnPoint(
+						new ServerPlayerEntity.Respawn(
+							new WorldProperties.SpawnPoint(
+								new GlobalPos(
+									EntityVersions.getWorld(player).getRegistryKey(),
+									spawnPoint.toBlockPos()
+								),
+								spawnPoint.yaw(),
+								0.0F
+							),
+							true
+						),
+						false
+					);
+				#elif MC_VERSION >= MC_1_21_5
+					player.setSpawnPoint(
+						new ServerPlayerEntity.Respawn(
+							EntityVersions.getWorld(player).getRegistryKey(),
+							spawnPoint.toBlockPos(),
+							spawnPoint.yaw,
+							true
+						),
+						false
+					);
+				#else
+					player.setSpawnPoint(
 						EntityVersions.getWorld(player).getRegistryKey(),
 						spawnPoint.toBlockPos(),
 						spawnPoint.yaw,
-						true
-					#if MC_VERSION >= MC_1_21_5 ) #endif,
-					false
-				);
+						true,
+						false
+					);
+				#endif
 				player.refreshPositionAndAngles(spawnPoint.toBlockPos(), spawnPoint.yaw, 0.0F);
 			}
 		}

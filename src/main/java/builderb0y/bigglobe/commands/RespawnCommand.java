@@ -19,6 +19,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
@@ -92,7 +93,7 @@ public class RespawnCommand {
 			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
 				if (tryRespawnBed(player, force) == null) return null;
 				if (tryRespawnCommand(player, force) == null) return null;
-				return doRespawnWorld(player, player.getServer().getOverworld(), force);
+				return doRespawnWorld(player, EntityVersions.getServer(player).getOverworld(), force);
 			}
 		},
 
@@ -124,7 +125,7 @@ public class RespawnCommand {
 
 			@Override
 			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
-				return doRespawnWorld(player, player.getServer().getOverworld(), force);
+				return doRespawnWorld(player, EntityVersions.getServer(player).getOverworld(), force);
 			}
 		},
 
@@ -173,7 +174,7 @@ public class RespawnCommand {
 						WorldPropertiesVersions.getSpawnZ(properties) + 0.5D
 					),
 					Vec3d.ZERO,
-					properties.getSpawnAngle(),
+					WorldPropertiesVersions.getSpawnYaw(properties),
 					0.0F
 				);
 				return null;
@@ -192,15 +193,33 @@ public class RespawnCommand {
 			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
 			if (dimension == null) return Text.translatable(PREFIX + "dimension_not_set");
 
-			ServerWorld world = player.getServer().getWorld(dimension);
+			ServerWorld world = EntityVersions.getServer(player).getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "dimension_doesnt_exist");
 
 			float yaw = EntityVersions.getRespawnAngle(player);
 			Vec3d actualPosition = (
-				#if MC_VERSION >= MC_1_21_5
+				#if MC_VERSION >= MC_1_21_9
 					ServerPlayerEntity.findRespawnPosition(
 						world,
-						new net.minecraft.server.network.ServerPlayerEntity.Respawn(
+						new ServerPlayerEntity.Respawn(
+							new WorldProperties.SpawnPoint(
+								new GlobalPos(
+									dimension,
+									position
+								),
+								yaw,
+								0.0F
+							),
+							false
+						),
+						false
+					)
+					.map(ServerPlayerEntity.RespawnPos::pos)
+					.orElse(null)
+				#elif MC_VERSION >= MC_1_21_5
+					ServerPlayerEntity.findRespawnPosition(
+						world,
+						new ServerPlayerEntity.Respawn(
 							dimension,
 							position,
 							yaw,
@@ -253,7 +272,7 @@ public class RespawnCommand {
 			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
 			if (dimension == null) return Text.translatable(PREFIX + "command.dimension_not_set");
 
-			ServerWorld world = player.getServer().getWorld(dimension);
+			ServerWorld world = EntityVersions.getServer(player).getWorld(dimension);
 			if (world == null) return Text.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.getValue().toString());
 
 			if (

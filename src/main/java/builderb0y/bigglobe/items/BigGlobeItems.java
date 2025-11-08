@@ -87,10 +87,10 @@ public class BigGlobeItems {
 				BigGlobeBlocks.SPELUNKING_ROPE,
 				settings(BigGlobeBlocks.SPELUNKING_ROPE)
 				#if MC_VERSION >= MC_1_21_5
-				.component(
-					net.minecraft.component.DataComponentTypes.LORE,
-					lore("item.bigglobe.spelunking_rope.tooltip")
-				)
+					.component(
+						net.minecraft.component.DataComponentTypes.LORE,
+						lore("item.bigglobe.spelunking_rope.tooltip")
+					)
 				#endif
 			)
 		),
@@ -151,6 +151,9 @@ public class BigGlobeItems {
 				settings(BigGlobeBlocks.CHARRED_DOOR)
 			)
 		),
+		#if MC_VERSION >= MC_1_21_9
+		CHARRED_SHELF            = registerPlacer(BigGlobeBlocks.CHARRED_SHELF),
+		#endif
 		SOUL_MAGMA               = registerPlacer(BigGlobeBlocks.SOUl_MAGMA),
 		ROUGH_QUARTZ             = registerPlacer(BigGlobeBlocks.ROUGH_QUARTZ),
 		BUDDING_QUARTZ           = registerPlacer(BigGlobeBlocks.BUDDING_QUARTZ),
@@ -485,9 +488,12 @@ public class BigGlobeItems {
 			VOID_CLOUDS.values().stream().map(BlockItem::getDefaultStack).forEachOrdered(entries::add);
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.CHAIN, ROPE_ANCHOR, SPELUNKING_ROPE);
+			entries.addAfter(#if MC_VERSION >= MC_1_21_9 Items.COPPER_CHAINS.waxedOxidized() #else Items.CHAIN #endif, ROPE_ANCHOR, SPELUNKING_ROPE);
 			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_SIGN, CHARRED_HANGING_SIGN);
+			#if MC_VERSION >= MC_1_21_9
+				entries.addAfter(Items.WARPED_SHELF, CHARRED_SHELF);
+			#endif
 		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register((FabricItemGroupEntries entries) -> {
 			entries.addAfter(Items.REDSTONE_ORE, ANCIENT_AUTOMATA, AUTOMATA);

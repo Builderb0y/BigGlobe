@@ -31,10 +31,13 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 	}
 
 	@Override
-	public void doRender(State state, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light) {
+	public RenderLayer getRenderLayer() {
+		return RenderLayer.getEntitySolid(TEXTURE);
+	}
+
+	@Override
+	public void doRender(State state, MatrixStack.Entry matrix, VertexConsumer buffer, Vec3d cameraPosition, int light) {
 		Vector3d scratch = new Vector3d();
-		MatrixStack.Entry matrix = matrices.peek();
-		VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayer.getEntitySolid(TEXTURE));
 		class VertexHelper {
 
 			public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier) {

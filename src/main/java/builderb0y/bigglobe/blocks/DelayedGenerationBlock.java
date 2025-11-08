@@ -41,8 +41,8 @@ public class DelayedGenerationBlock extends Block implements BlockEntityProvider
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-		if (!world.isClient && type == BigGlobeBlockEntityTypes.DELAYED_GENERATION) {
-			return (world1, pos, state1, blockEntity) -> ((DelayedGenerationBlockEntity)(blockEntity)).tick();
+		if (!world.isClient() && type == BigGlobeBlockEntityTypes.DELAYED_GENERATION) {
+			return (World world1, BlockPos pos, BlockState state1, T blockEntity) -> ((DelayedGenerationBlockEntity)(blockEntity)).tick();
 		}
 		return null;
 	}

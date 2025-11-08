@@ -57,7 +57,7 @@ public class PercussiveHammerItem extends #if MC_VERSION >= MC_1_21_5 Item #else
 		BlockPos pos = context.getBlockPos();
 		BlockState state = world.getBlockState(pos);
 		if (isSolidOpaqueFullCube(world, pos, state)) {
-			if (!world.isClient) {
+			if (!world.isClient()) {
 				world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.BLOCKS, 2.0F, 2.0F);
 				pulses.add(new SoundPulse(
 					world.getRegistryKey(),

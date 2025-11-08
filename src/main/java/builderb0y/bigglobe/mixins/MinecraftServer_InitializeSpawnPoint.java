@@ -25,6 +25,9 @@ public class MinecraftServer_InitializeSpawnPoint {
 		ServerWorldProperties worldProperties,
 		boolean bonusChest,
 		boolean debugWorld,
+		#if MC_VERSION >= MC_1_21_9
+			net.minecraft.world.chunk.ChunkLoadProgress loadProgress,
+		#endif
 		CallbackInfo callback
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {

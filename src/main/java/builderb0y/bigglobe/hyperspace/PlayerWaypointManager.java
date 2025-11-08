@@ -11,6 +11,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 /**
 manages waypoints visible to a specific player at a specific time.
@@ -43,7 +44,7 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 		if (player.getClass() == ServerPlayerEntity.class) {
 			return new ServerPlayerWaypointManager((ServerPlayerEntity)(player));
 		}
-		else if (player.getWorld().isClient) {
+		else if (EntityVersions.getWorld(player).isClient()) {
 			return forPlayerClient(player);
 		}
 		else {

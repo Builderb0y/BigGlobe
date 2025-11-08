@@ -240,7 +240,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	}
 
 	public boolean placeRopesAuto(World world, BlockPos.Mutable mutablePos, BlockState toPlace, PlayerEntity player, ItemStack stack) {
-		if (world.isClient) {
+		if (world.isClient()) {
 			return this.placeRopesSimulate(world, mutablePos, toPlace);
 		}
 		else if (player.isCreative()) {

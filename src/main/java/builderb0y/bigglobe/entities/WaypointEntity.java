@@ -34,6 +34,8 @@ import builderb0y.bigglobe.networking.packets.WaypointRemoveC2SPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRenameC2SPacket;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Vectors;
+import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointEntity extends Entity {
@@ -84,7 +86,7 @@ public class WaypointEntity extends Entity {
 
 	public WaypointEntity(EntityType<?> type, World world) {
 		super(type, world);
-		if (world.isClient) {
+		if (world.isClient()) {
 			this.orbits = new Orbit[16];
 			Permuter permuter = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
 			float circularHue = permuter.nextFloat();
@@ -151,7 +153,7 @@ public class WaypointEntity extends Entity {
 			damageSource.getSource() instanceof PlayerEntity player && (
 				this.data == null ||
 				this.data.owner() == null ||
-				this.data.owner().equals(player.getGameProfile().getId())
+				this.data.owner().equals(GameProfileVersions.getUUID(player.getGameProfile()))
 			)
 		);
 	}
@@ -169,7 +171,7 @@ public class WaypointEntity extends Entity {
 		if (this.isInvulnerableTo(source)) {
 			return false;
 		}
-		if (this.isFake != this.getWorld().isClient) {
+		if (this.isFake != EntityVersions.getWorld(this).isClient()) {
 			return true;
 		}
 		float newHealth = this.health - amount;
@@ -185,7 +187,7 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public void tick() {
-		if (this.getWorld().isClient) {
+		if (EntityVersions.getWorld(this).isClient()) {
 			for (Orbit orbit : this.orbits) {
 				orbit.tick();
 			}

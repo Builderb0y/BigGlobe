@@ -59,7 +59,7 @@ public class RockEntity extends ThrownItemEntity {
 	@Override
 	public void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
-		if (this.getWorld() instanceof ServerWorld serverWorld) {
+		if (EntityVersions.getWorld(this) instanceof ServerWorld serverWorld) {
 			entityHitResult.getEntity().damage(
 				#if MC_VERSION >= MC_1_21_2
 					serverWorld,
@@ -81,7 +81,7 @@ public class RockEntity extends ThrownItemEntity {
 		Vec3d nextPosition;
 		Vec3d velocity = this.getVelocity();
 		World world = EntityVersions.getWorld(this);
-		Vec3d position = this.getPos();
+		Vec3d position = EntityVersions.getPos(this);
 		HitResult blockHitResult = world.raycast(
 			new RaycastContext(
 				position,
@@ -143,10 +143,10 @@ public class RockEntity extends ThrownItemEntity {
 
 	public void placeRock(BlockHitResult blockHitResult) {
 		BlockPos placePos = blockHitResult.getBlockPos().up();
-		BlockState existingState = this.getWorld().getBlockState(placePos);
+		BlockState existingState = EntityVersions.getWorld(this).getBlockState(placePos);
 		int rocks;
 		if (existingState.isOf(BigGlobeBlocks.ROCK) && (rocks = existingState.get(RockBlock.ROCKS)) < 6) {
-			this.getWorld().setBlockState(placePos, existingState.with(RockBlock.ROCKS, rocks + 1));
+			EntityVersions.getWorld(this).setBlockState(placePos, existingState.with(RockBlock.ROCKS, rocks + 1));
 		}
 		else {
 			SingleBlockFeature.place(EntityVersions.getWorld(this), placePos, BigGlobeBlocks.ROCK.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);

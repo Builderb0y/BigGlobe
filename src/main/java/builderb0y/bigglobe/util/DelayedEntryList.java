@@ -109,31 +109,35 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	}
 
 	public List<RegistryEntry<T>> entryList() {
-		if (!this.isResolved()) {
-			this.resolve();
+		List<RegistryEntry<T>> entryList = this.entryList;
+		if (entryList == null) {
+			entryList = this.entryList = this.resolve();
 		}
-		return this.entryList;
+		return entryList;
 	}
 
 	public Set<RegistryEntry<T>> entrySet() {
-		if (this.entrySet == null) {
-			this.entrySet = Set.copyOf(this.entryList());
+		Set<RegistryEntry<T>> entrySet = this.entrySet;
+		if (entrySet == null) {
+			entrySet = this.entrySet = Set.copyOf(this.entryList());
 		}
-		return this.entrySet;
+		return entrySet;
 	}
 
 	public List<T> objectList() {
-		if (this.objectList == null) {
-			this.objectList = this.entryList().stream().map(RegistryEntry<T>::value).toList();
+		List<T> objectList = this.objectList;
+		if (objectList == null) {
+			objectList = this.objectList = this.entryList().stream().map(RegistryEntry<T>::value).toList();
 		}
-		return this.objectList;
+		return objectList;
 	}
 
 	public Set<T> objectSet() {
-		if (this.objectSet == null) {
-			this.objectSet = this.entryList().stream().map(RegistryEntry<T>::value).collect(Collectors.toUnmodifiableSet());
+		Set<T> objectSet = this.objectSet;
+		if (objectSet == null) {
+			objectSet = this.objectSet = this.entryList().stream().map(RegistryEntry<T>::value).collect(Collectors.toUnmodifiableSet());
 		}
-		return this.objectSet;
+		return objectSet;
 	}
 
 	public RegistryEntryList<T> tag() {
@@ -183,14 +187,14 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 		return Permuter.choose(seed, this.entryList());
 	}
 
-	public void resolve() {
+	public List<RegistryEntry<T>> resolve() {
 		if (this.resolver == null) {
 			throw new IllegalStateException("Can't resolve DelayedEntryList with no registry!");
 		}
 		if (!this.compileCalled) {
 			BigGlobeMod.LOGGER.warn("Something is trying to resolve a DelayedEntryList too early!", new IllegalStateException("Stack trace"));
 		}
-		this.entryList = (
+		List<RegistryEntry<T>> entryList = this.entryList = (
 			this
 			.delayedEntries
 			.stream()
@@ -219,9 +223,10 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 				)
 			)
 		);
-		this.entrySet = null;
 		this.objectList = null;
 		this.objectSet = null;
+		this.entrySet = null;
+		return entryList;
 	}
 
 	@Override

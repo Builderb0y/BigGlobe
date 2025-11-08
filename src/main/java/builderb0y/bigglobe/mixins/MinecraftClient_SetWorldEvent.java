@@ -19,13 +19,13 @@ public class MinecraftClient_SetWorldEvent {
 	@Shadow @Nullable public ClientWorld world;
 
 	@Inject(method = "joinWorld", at = @At("HEAD"))
-	private void bigglobe_unloadOnJoinWorld(ClientWorld world, #if MC_VERSION >= MC_1_20_5 net.minecraft.client.gui.screen.DownloadingTerrainScreen.WorldEntryReason reason, #endif CallbackInfo callback) {
+	private void bigglobe_unloadOnJoinWorld(ClientWorld world, #if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_9 net.minecraft.client.gui.screen.DownloadingTerrainScreen.WorldEntryReason reason, #endif CallbackInfo callback) {
 		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, world);
 	}
 
 	#if MC_VERSION >= MC_1_21_6
 
-		@Inject(method = "disconnect", at = @At("HEAD"))
+		@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;Z)V", at = @At("HEAD"))
 		private void bigglobe_unloadOnDisconnect(Screen screen, boolean transferring, CallbackInfo callback) {
 			if (this.world != null) {
 				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);

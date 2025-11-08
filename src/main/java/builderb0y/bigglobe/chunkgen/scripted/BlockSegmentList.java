@@ -90,8 +90,8 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, Bloc
 		return new LitSegment(minY, maxY);
 	}
 
-	public void computeLightLevels() {
-		byte lightLevel = 15;
+	public void computeLightLevels(byte topLightLevel) {
+		byte lightLevel = topLightLevel;
 		for (int index = this.size(); --index >= 0;) {
 			LitSegment segment = this.get(index);
 			segment.skylightLevel = lightLevel;

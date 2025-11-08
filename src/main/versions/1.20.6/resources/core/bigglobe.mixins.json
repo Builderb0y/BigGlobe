@@ -102,6 +102,7 @@
 		"BackgroundRenderer_SoulLavaFogColor",
 		"BiomeColors_UseNoiseInBigGlobeWorlds",
 		"Camera_HandleSoulLavaSubmersion",
+		"Chunk_NotifyLodSystem",
 		"ClientWorldProperties_SetHorizonHeightToSeaLevel",
 		"ClientWorld_CustomTimeSpeed",
 		"CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",
@@ -113,11 +114,9 @@
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",
-		"ServerChunkLoadingManager_NotifyLodSystem",
 		"Sodium_WorldSlice_UseNoiseInBigGlobeWorlds",
 		"WorldRenderer_HoldLodSystem",
 		"WorldRenderer_RenderHyperspaceSky",
-		"WorldRenderer_RenderWaypoints",
 		"WorldType_ChangeTranslation"
 	],
 	"injectors": {

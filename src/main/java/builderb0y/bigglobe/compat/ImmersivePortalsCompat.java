@@ -87,7 +87,7 @@ public class ImmersivePortalsCompat {
 		}
 		ClientWorld world = MinecraftClient.getInstance().world;
 		if (world != null && world.getRegistryKey() == dimensionKey) {
-			return (LodSystemHolder)(MinecraftClient.getInstance().worldRenderer);
+			return LodSystemHolder.of(MinecraftClient.getInstance().worldRenderer);
 		}
 		return null;
 	}
@@ -159,7 +159,7 @@ public class ImmersivePortalsCompat {
 
 		@Environment(EnvType.CLIENT)
 		public static @Nullable LodSystemHolder getLodSystem(RegistryKey<World> dimensionKey) {
-			return (LodSystemHolder)(ClientWorldLoader.WORLD_RENDERER_MAP.get(dimensionKey));
+			return LodSystemHolder.of(ClientWorldLoader.WORLD_RENDERER_MAP.get(dimensionKey));
 		}
 	}
 }

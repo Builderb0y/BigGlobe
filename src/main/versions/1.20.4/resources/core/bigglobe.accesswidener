@@ -36,6 +36,10 @@ accessible field net/minecraft/client/render/GameRenderer zoom F
 accessible field net/minecraft/client/render/GameRenderer zoomX F
 accessible field net/minecraft/client/render/GameRenderer zoomY F
 accessible field net/minecraft/client/render/RenderLayer translucent Z #getter was added in MC 1.21.
+accessible field net/minecraft/world/ChunkSerializer CODEC Lcom/mojang/serialization/Codec;
+accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage getUpdatedChunkNbt (Lnet/minecraft/util/math/ChunkPos;)Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/world/chunk/ChunkNibbleArray bytes [B
+accessible field net/minecraft/world/chunk/ChunkNibbleArray defaultValue I
 
 #used by mixin.
 accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies

@@ -65,7 +65,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		if (manager == null) return;
 		PacketByteBuf buffer = this.buffer();
 
-		boolean isHyperspace = player.getWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY;
+		boolean isHyperspace = EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY;
 		buffer.writeBoolean(isHyperspace);
 		Object2IntMap<RegistryKey<World>> worlds = new Object2IntLinkedOpenHashMap<>(4);
 		worlds.defaultReturnValue(-1);

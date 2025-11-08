@@ -1,4 +1,4 @@
-# This file contains documentation on an UPCOMING feature intended for Big Globe 5.1.0. It is not fully finalized yet, and may change before then.
+# This file contains documentation on an UPCOMING feature intended for Big Globe 6.0.0. It is not fully finalized yet, and may change before then.
 
 Voronoi options work like tags, but specifically for `class/voronoi`-typed ElementSpec's. The primary difference from normal tags is that each element also specifies a weight. A secondary difference is that each element can either add to the results from the previous data pack, or remove from them. Voronoi options have the following properties:
 * `replace` - if true, the contents of the previous data pack are discarded before new values are added (or removed). Defaults to false.

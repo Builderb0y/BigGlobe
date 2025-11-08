@@ -75,7 +75,7 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 				);
 			}
 			if (newState != null && newState != oldState) {
-				int id = context.palette().index(newState);
+				int id = context.palette().index(newState #if MC_VERSION >= MC_1_21_9 , context.container() #endif);
 				context.storage().set(index, id);
 			}
 		}

@@ -1,0 +1,10 @@
+{
+	"layers": {
+		"humanoid": [
+			{ "texture": "bigglobe:voidmetal" }
+		],
+		"humanoid_leggings": [
+			{ "texture": "bigglobe:voidmetal" }
+		]
+	}
+}

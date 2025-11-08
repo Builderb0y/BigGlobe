@@ -41,7 +41,7 @@ public class FastMath {
 		public static double fastAtan(double x) {
 			double x2 = x * x;
 			double common = x / Math.sqrt((4.0D / (Math.PI * Math.PI)) * x2 + 1.0D);
-			return common + 0.6D * (common - x) / (0.64D * x2 + 1.0D);
+			return common + (common - x) / (x2 * (16.0D / 15.0D) + (5.0D / 3.0D));
 		}
 
 		public static double fastAtan2(double x, double y) {

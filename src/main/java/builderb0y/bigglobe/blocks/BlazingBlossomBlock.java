@@ -68,8 +68,22 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity #if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif) {
-		super.onEntityCollision(state, world, pos, entity #if MC_VERSION >= MC_1_21_5 , handler #endif);
+	public void onEntityCollision(
+		BlockState state,
+		World world,
+		BlockPos pos,
+		Entity entity
+		#if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif
+		#if MC_VERSION >= MC_1_21_9 , boolean movingFastOrBlockPosIsInsideDestinationBox #endif
+	) {
+		super.onEntityCollision(
+			state,
+			world,
+			pos,
+			entity
+			#if MC_VERSION >= MC_1_21_5 , handler #endif
+			#if MC_VERSION >= MC_1_21_9 , movingFastOrBlockPosIsInsideDestinationBox #endif
+		);
 		if (entity.getType().isFireImmune() || (entity instanceof PlayerEntity player && player.isCreative())) {
 			return;
 		}

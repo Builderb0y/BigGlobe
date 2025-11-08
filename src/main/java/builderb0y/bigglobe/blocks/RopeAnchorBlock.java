@@ -89,7 +89,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	#endif
 		if (stack.isEmpty() && player.isSneaking()) {
 			if (this.retractRopeAuto(world, pos, state, player)) {
-				if (!world.isClient && !player.isCreative()) {
+				if (!world.isClient() && !player.isCreative()) {
 					player.getInventory().insertStack(new ItemStack(BigGlobeItems.SPELUNKING_ROPE));
 				}
 				return ActionResultVersions.ITEM_SUCCESS;
@@ -115,7 +115,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 		BlockState toPlace = SPELUNKING_ROPE.getDefaultState().with(FACING, direction.getOpposite());
 		boolean placed = false;
 		if (!anchorState.get(HAS_ROPE)) {
-			if (world.isClient) {
+			if (world.isClient()) {
 				return true;
 			}
 			else {
@@ -140,7 +140,7 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	}
 
 	public boolean retractRopeAuto(World world, BlockPos anchorPos, BlockState anchorState, PlayerEntity player) {
-		if (world.isClient) {
+		if (world.isClient()) {
 			return this.retractRopeSimulate(anchorState);
 		}
 		else if (player.isCreative()) {
