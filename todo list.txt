@@ -96,23 +96,6 @@ json classes:
 		merge stuff.
 
 changelog:
-	# For normal people
-	* Ported to MC 1.21.9 and 1.21.10.
-	* Made pseudo-erosion algorithm better.
-	* Fixed end fractals spawning intersecting dragons's nest.
-	* Fixed cuboctahedron end fractal structure sometimes spawning in a way that intersects terrain.
-	* Fixed gaps in LOD transitions.
-	* LODs will now display more blocks besides what generated as part of raw terrain.
-		* This only works for areas that you've explored.
-		* This also only works in singleplayer.
-	* Fixed structures not spawning when world weaver was installed.
-		* This is a dependency of Better Nether and Better End, so they should work better now too.
-	* Geodes in the overworld no longer spawn in or below the deep dark.
-	* Mega dungeons should now choose a block palette that more accurately represents their depth.
-	* Fixed shovels not being able to turn overgrown podzol into paths.
-	# For data pack developers
-	* Added config option to fail datapack validation when an overrider is not tagged properly.
-	* Added config option to fail datapack validation when any tag contains an invalid entry.
 
 alternate world presets:
 	paradise.
