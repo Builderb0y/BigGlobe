@@ -1,0 +1,13 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"double macro = `river/macro`",
+		"double macro2 = macro ^ 2",
+		"double macro4 = macro2 ^ 2",
+		"return((macro2 + macro4) * 0.5L)"
+	]
+}

@@ -1,0 +1,25 @@
+{
+	"condition": {
+		"type": "and",
+		"conditions": [
+			{
+				"type": "world_trait_threshold",
+				"min": 2.0,
+				"max": 6.0,
+				"trait": "bigglobe:exact_surface_y"
+			},
+			{
+				"type": "world_trait_threshold",
+				"min": 0.75,
+				"max": 0.5,
+				"trait": "bigglobe:temperature_at_surface"
+			},
+			{
+				"type": "script",
+				"script": "!world_traits.`bigglobe:in_river`"
+			}
+		]
+	},
+	"if_true": "bigglobe:overworld/surface_state/overgrown_beach",
+	"if_false": "bigglobe:overworld/surface_state/beach"
+}

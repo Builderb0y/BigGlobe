@@ -52,9 +52,11 @@ high priority:
 	document terrainAdaptation.
 	document scripted structures in general.
 	incorrect world height detection code doesn't work correctly for bclib.
-	make nether surface depth a bubble property.
 	hyperspace flight still persists after leaving hyperspace.
 		only on forge/sinytra.
+	make nether surface depth a bubble property.
+	unit tests for assignment-as-an-expression type inference.
+	float1 ?: float2 does not seem to work for NaN in some cases?
 
 V6:
 	rivers:
@@ -68,8 +70,9 @@ V6:
 			is necessary for river water rendering or not.
 				test with DH and voxy.
 	add new json classes.
-	increase default player spawn radius in config file.
 	LOD renderer improvements:
+		make it work in non-bigglobe worlds.
+		make it work in multiplayer.
 		config option for ingest delay?
 	revert old tree density and threshold.
 		maybe figure out how to make acacia trees work differently?
@@ -96,6 +99,7 @@ json classes:
 		merge stuff.
 
 changelog:
+	* Fixed trial chambers spawning inside volcanoes in the islands world preset.
 
 alternate world presets:
 	paradise.

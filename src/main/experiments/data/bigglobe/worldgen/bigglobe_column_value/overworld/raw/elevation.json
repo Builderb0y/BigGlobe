@@ -1,0 +1,17 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"seed": "bigglobe:river_mountains/elevation",
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 153.6    }, "scale": 3072 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude":  61.44   }, "scale": 1536 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude":  24.576  }, "scale":  768 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude":   9.8304 }, "scale":  384 }
+		]
+	}
+}

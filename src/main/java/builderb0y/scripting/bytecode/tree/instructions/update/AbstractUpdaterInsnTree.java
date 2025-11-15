@@ -21,7 +21,21 @@ public abstract class AbstractUpdaterInsnTree implements UpdateInsnTree {
 		return switch (this.mode) {
 			case VOID, VOID_ASSIGN -> TypeInfos.VOID;
 			case PRE,   PRE_ASSIGN -> this.getPreType();
-			case POST, POST_ASSIGN -> this.getPostType();
+			//in some cases, it may be possible to
+			//perform some operation to the right operand
+			//before the value to store can even be obtained.
+			//and in these cases, we cannot safely rely on the right
+			//operand actually being stored directly in the lvalue.
+			//example:
+			//	int x = 0I
+			//	float y = 0.0I
+			//	int z = y :+ x
+			//in this case, x must be cast to a float
+			//before the addition operation can be performed.
+			//as such, the value of y is not guaranteed to be equal
+			//to the value of x as the conversion could be lossy.
+			//thanks to Niko for finding this oversight!
+			case POST, POST_ASSIGN -> this.getPostType().extendsOrImplements(this.getPreType()) ? this.getPostType() : this.getPreType();
 		};
 	}
 

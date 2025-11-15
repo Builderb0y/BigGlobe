@@ -390,7 +390,8 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			}
 			case
 				"builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning",
-				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion"
+				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion",
+				"builderb0y.bigglobe.mixins.TagGroupLoader_DontLoadMyF___ingTags"
 			-> {
 				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connectormod" /* 1.20.1 name */) && checkNoMod(mixinClassName, "connector" /* 1.21.1 name */);
 			}

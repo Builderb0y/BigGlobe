@@ -7,9 +7,9 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.1024   }, "scale": 128 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.04096  }, "scale":  64 },
-			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.016384 }, "scale":  32 }
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.1   }, "scale": 128 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.04  }, "scale":  64 },
+			{ "type": "smoother_resample", "source": { "type": "binary", "amplitude": 0.016 }, "scale":  32 }
 		]
 	}
 }

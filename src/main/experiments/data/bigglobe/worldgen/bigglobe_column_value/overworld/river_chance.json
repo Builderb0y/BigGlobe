@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "unmixSmooth(0.0L, -4.0L, `raw/river`)"
+}

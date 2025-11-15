@@ -54,13 +54,13 @@ public class FastMath {
 		}
 
 		public static double fastSinh(double x) {
-			x *= Exp.LOG2E;
-			return (Exp.fastExp2(x) - Exp.fastExp2(-x)) * 0.5D;
+			double exp = Exp.fastExp(x);
+			return (exp - 1.0D / exp) * 0.5D;
 		}
 
 		public static double fastCosh(double x) {
-			x *= Exp.LOG2E;
-			return (Exp.fastExp2(x) + Exp.fastExp2(-x)) * 0.5D;
+			double exp = Exp.fastExp(x);
+			return (exp + 1.0D / exp) * 0.5D;
 		}
 
 		public static double fastTanh(double x) {

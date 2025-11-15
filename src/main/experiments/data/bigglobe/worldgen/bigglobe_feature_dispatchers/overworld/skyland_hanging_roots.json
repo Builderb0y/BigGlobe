@@ -1,12 +1,4 @@
 {
-	"type": "script",
-	"dispatcher": [
-		"int x = minModifiableX | random.nextInt(16)",
-		"int z = minModifiableZ | random.nextInt(16)",
-		"double minY = `bigglobe:overworld/skyland_min_y`(x, z)",
-		"double maxY = `bigglobe:overworld/skyland_max_y`(x, z)",
-		"if (maxY > minY:",
-			"placeFeature(x, floorInt(minY) - 1, z, 'bigglobe:overworld/skylands/hanging_roots')",
-		")"
-	]
+	"type": "group",
+	"dispatchers": []
 }

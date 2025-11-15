@@ -5,10 +5,14 @@
 		"is_3d": false
 	},
 	"script": [
-		"float(unmixSmooth(",
-			"river_termination + 16.0L,",
-			"river_termination + 8.0L,",
-			"world_traits.`bigglobe:exact_surface_y`",
-		"))"
+		"float(",
+			"1.0L -",
+			"unmixSmooth(",
+				"world_traits.`bigglobe:sea_level` + 8.0L,",
+				"world_traits.`bigglobe:sea_level` + 16.0L,",
+				"world_traits.`bigglobe:exact_surface_y`",
+			")",
+			"* (1.0L - river_chance)",
+		")"
 	]
 }

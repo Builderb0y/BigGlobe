@@ -342,6 +342,9 @@ public class BuiltinScriptEnvironment {
 		.addFunction("truncInt", makeOpcode("truncInt(double value)", TypeInfos.DOUBLE, TypeInfos.INT, D2I))
 		.addFunction("truncLong", makeOpcode("truncLong(float value)", TypeInfos.FLOAT, TypeInfos.LONG, F2L))
 		.addFunction("truncLong", makeOpcode("truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
+
+		//////////////// breakpoint ////////////////
+		.addFunctionInvokeStatic(BuiltinScriptEnvironment.class, "breakpoint")
 	);
 
 	public static FunctionHandler.Named makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
@@ -515,5 +518,9 @@ public class BuiltinScriptEnvironment {
 
 	public static InsnTree tryParenthesized(ExpressionParser parser) throws ScriptParsingException {
 		return parser.input.peekAfterWhitespace() == '(' ? ParenthesizedScript.parse(parser).contents() : parser.nextSingleExpression();
+	}
+
+	public static void breakpoint() {
+		int x = 0;
 	}
 }

@@ -137,7 +137,7 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean rejectUnusedOverriders = false;
 
-		@Tooltip(count = 3)
+		@Tooltip(count = 4)
 		@UseName("Invalid tag handling")
 		@EnumHandler(option = EnumDisplayOption.BUTTON)
 		@DefaultIgnore

@@ -1,0 +1,6 @@
+{
+	"bigglobe:river_water_y": {
+		"get": "`bigglobe:overworld/river_water_y`",
+		"set": "`bigglobe:overworld/river_water_y` = value"
+	}
+}

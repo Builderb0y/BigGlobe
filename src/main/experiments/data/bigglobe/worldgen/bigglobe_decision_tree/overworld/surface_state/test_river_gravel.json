@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script",
-		"script": "columnSeed(16x10D83D131003459EUL).nextBoolean(unmixSmooth(8.0L, 4.0L, world_traits.`bigglobe:exact_surface_y` - `bigglobe:overworld/river_termination`))"
-	},
-	"if_true": "bigglobe:overworld/surface_state/river_test_hot",
-	"if_false": "bigglobe:overworld/surface_state/test_hot"
-}

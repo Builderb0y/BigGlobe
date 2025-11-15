@@ -1,21 +1,19 @@
 {
-	"type": "bigglobe:script",
+	"type": "script",
 	"params": {
 		"type": "double",
 		"is_3d": false
 	},
 	"script": [
-		"double extra = world_traits.`bigglobe:temperature_at_surface` * -16.0L - 8.0L",
-		"double normalSnowmap = eroded_heightmap.low.y + extra",
-		"double riverSnowmap = mixSmooth(eroded_river.high.y, eroded_river.low.y + extra, normalSnowmap - eroded_heightmap.high.y)",
-		"double snowmap = min(normalSnowmap, max(eroded_river.high.y, riverSnowmap))",
-		"if (slope_surface_y - river_termination < 32.0L:",
-			"snowmap = mixSmooth(",
-				"slope_surface_y,",
-				"snowmap,",
-				"(slope_surface_y - river_termination) / 32.0L",
+		"mixLinear(",
+			"world_traits.`bigglobe:exact_surface_y`,",
+			"eroded_heightmap.low.y + (world_traits.`bigglobe:temperature_at_surface` * -16.0L - 8.0L),",
+			"unmixSmooth(",
+				"world_traits.`bigglobe:sea_level`,",
+				"world_traits.`bigglobe:sea_level` + 32.0L,",
+				"world_traits.`bigglobe:exact_surface_y`",
 			")",
-		")",
-		"return(snowmap)"
+			"* (1.0L - river_chance)",
+		")"
 	]
 }

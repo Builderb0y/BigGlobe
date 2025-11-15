@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": "columnSeed(16x8822FC9D450F8FA4UL).nextBoolean(river_chance)"
+}

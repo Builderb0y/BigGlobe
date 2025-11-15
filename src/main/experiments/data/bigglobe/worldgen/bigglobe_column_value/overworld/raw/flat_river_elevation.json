@@ -1,0 +1,22 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		";magic newton iteration predicts the location and Y level of the",
+		";center of the river without actually needing a column there.",
+		"double*(",
+			"riverY  = `river/macro`",
+			"dxRiver = `river/dx_macro`",
+			"dzRiver = `river/dz_macro`",
+			"dist2   = dxRiver ^ 2 + dzRiver ^ 2 + riverY ^ 2 >> 16 + 1.0L >> 32",
+		")",
+		"return(",
+			"elevation",
+			"- dx_elevation * riverY * dxRiver / dist2",
+			"- dz_elevation * riverY * dzRiver / dist2",
+		")"
+	]
+}

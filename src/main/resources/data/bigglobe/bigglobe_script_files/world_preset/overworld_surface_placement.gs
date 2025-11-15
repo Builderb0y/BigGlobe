@@ -85,7 +85,7 @@ if (surfaceY.isBetween[minY, maxY]:
 			)
 		)
 	)
-	if (world_traits.`bigglobe:exact_surface_y` > `bigglobe:overworld/sea_level` && (seed := seed.newSeed()).nextBoolean(world_traits.`bigglobe:snow_chance`):
-		generateSnow(surfaceY, `bigglobe:overworld/snow_y`)
+	if (world_traits.`bigglobe:exact_surface_y` > world_traits.`bigglobe:sea_level` && (seed := seed.newSeed()).nextBoolean(world_traits.`bigglobe:snow_chance`):
+		generateSnow(surfaceY, world_traits.`bigglobe:snow_y`)
 	)
 )

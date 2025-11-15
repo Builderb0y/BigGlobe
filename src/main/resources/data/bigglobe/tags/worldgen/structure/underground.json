@@ -4,6 +4,14 @@
 		"#bigglobe:underground_pockets",
 		"bigglobe:core_spire",
 		"bigglobe:vanilla/ancient_city",
-		"minecraft:ancient_city"
+		"minecraft:ancient_city",
+		{
+			"id": "minecraft:trial_chambers",
+			"required": false
+		},
+		{
+			"id": "bigglobe:vanilla/trial_chambers",
+			"required": false
+		}
 	]
 }

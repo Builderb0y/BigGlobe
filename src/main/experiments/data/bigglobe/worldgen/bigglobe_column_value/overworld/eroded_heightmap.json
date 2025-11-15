@@ -36,14 +36,14 @@
 	"script": {
 		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
-			"lowY":  "`raw/ocean_adjusted_heightmap`",
-			"highY": "`raw/ocean_adjusted_heightmap`",
-			"dx": "`raw/dx_ocean_adjusted_heightmap`",
-			"dz": "`raw/dz_ocean_adjusted_heightmap`",
+			"lowY":  "approximate_surface_y",
+			"highY": "approximate_surface_y",
+			"dx": "`raw/dx_heightmap`",
+			"dz": "`raw/dz_heightmap`",
 			"minWavelength": "4.0L",
-			"midWavelength": "exp2(3.0L - 2.0L * world_traits.`bigglobe:temperature_at_surface`)",
-			"maxWavelength": "512.0L",
-			"amplitude": "512.0L",
+			"midWavelength": "exp2(2.5L - 1.5L * world_traits.`bigglobe:temperature_at_surface`)",
+			"maxWavelength": "256.0L",
+			"amplitude": "128.0L * (1.0L - 1.0L / (`raw/river/macro` ^ 2 * 256.0L + 1.0L))",
 			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL"
 		}
 	}
