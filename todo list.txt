@@ -110,10 +110,11 @@ breaking changes I want to make:
 			replace with accessibleArea and modifiableArea.
 		migrate equivalent getters from Structure/StructurePiece.
 		expose intersectionArea for scripted structure pieces specifically.
-		also expose (Int|Double)(Area|Range).
+		also expose (Int|Double)(Volume|Area|Range).
 			all of these should be iterable with for each loops.
-				for (int*(x, y, z) in volume: body)
+				for (int*(x, y, z) in volume.xyz: body)
 				for (int*(x, z) in volume.xz: body)
+				for (int y in volume.y: body)
 
 4.0 stuff:
 	/waypoint
