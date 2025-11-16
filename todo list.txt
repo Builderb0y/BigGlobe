@@ -99,6 +99,7 @@ json classes:
 		merge stuff.
 
 changelog:
+	* Automatically disable another mixin that breaks on Sinytra Connector.
 	* Fixed trial chambers spawning inside volcanoes in the islands world preset.
 
 alternate world presets:

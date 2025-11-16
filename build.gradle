@@ -129,16 +129,12 @@ dependencies() {
 
 	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.27')
 
-	//the runClientServer task launches 2 gradle instances at the same time,
-	//and both of them will try to extract dependencies at more or less the same time.
-	//so, we guard against race conditions by using a file lock.
-	FileChannel channel = FileChannel.open(file('jij.lock').toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
-	try (FileLock lock = channel.lock()) {
+	if (!Boolean.getBoolean('skipJIJExtraction')) {
 		extractDependencies()
-		modImplementation(fileTree(new File('jijDependencies/implementation')))
-		modCompileOnly   (fileTree(new File('jijDependencies/compileOnly')))
-		modRuntimeOnly   (fileTree(new File('jijDependencies/runtimeOnly')))
 	}
+	modImplementation(fileTree(new File('jijDependencies/implementation')))
+	modCompileOnly   (fileTree(new File('jijDependencies/compileOnly')))
+	modRuntimeOnly   (fileTree(new File('jijDependencies/runtimeOnly')))
 }
 
 compileJava() {
@@ -234,7 +230,7 @@ runServer() {
 }
 
 static Process makeProcess(String taskName) {
-	ProcessBuilder builder = new ProcessBuilder('./gradlew', taskName, '--no-daemon', '--stacktrace').redirectErrorStream(true)
+	ProcessBuilder builder = new ProcessBuilder('./gradlew', taskName, '--no-daemon', '--stacktrace', '-DskipJIJExtraction=true').redirectErrorStream(true)
 	builder.environment().put('JAVA_HOME', System.getProperty('java.home'))
 	Process process = builder.start()
 	System.out.println("${taskName} gradle process started with pid ${process.pid()}")
@@ -307,7 +303,7 @@ class Version {
 	}
 
 	static String pad(int number) {
-		return number < 10 ? "0$number" : number.toString()
+		return number < 10 ? "0$number" : Integer.toString(number)
 	}
 
 	String shorthand() {

@@ -83,8 +83,8 @@ public class FastMath {
 
 	/**
 	fast approximations for 2^x and e^x.
-	accurate to within 3.6 parts in 10000.
-	in other words, (1 - 3.6 / 10000) <= (approx / exact) <= (1 + 3.6 / 10000).
+	accurate to within 5 parts in 10,000,000
+	in other words, 0.9999995 <= (approx / exact) <= 1.0000005.
 
 	special cases:
 		if the input {@link Double#isNaN(double) is NaN}, then the result is {@link Double#NaN}.
@@ -98,7 +98,7 @@ public class FastMath {
 	algorithm:
 		for base 2, the result is computed as 2 ^ ((value mod 1) + floor(value))
 		= (2 ^ (value mod 1)) * (2 ^ floor(value))
-		the first part uses a cubic curve to get an
+		the first part uses a quintic curve to get an
 		approximation for 2 ^ value in the domain [0, 1].
 		the 2nd part uses bitwise tricks to modify the exponent of the result.
 		adding N to the exponent is the same as multiplying the result by 2^N.
@@ -108,22 +108,14 @@ public class FastMath {
 	public static class Exp {
 
 		public static final double
-			LOGE2, //ln(2)
-			LOG2E, //log2(e)
-			TERM3, //coefficient for x^3
-			TERM2, //coefficient for x^2
-			TERM1, //coefficient for x^1
-			TERM0; //coefficient for x^0
-
-		static {
-			final double ln2 = Math.log(2.0D);
-			LOGE2 = ln2;
-			LOG2E = 1.0D / ln2;
-			TERM3 = 3.0D * ln2 - 2.0D;
-			TERM2 = -4.0D * ln2 + 3.0D;
-			TERM1 = ln2;
-			TERM0 = 1.0D;
-		}
+			LOGE2 = Math.log(2.0D), //ln(2)
+			LOG2E = 1.0D / LOGE2, //log2(e)
+			TERM0 = 1.0D,
+			TERM1 = 0.6931471805599453D,
+			TERM2 = 0.24017440574159999D,
+			TERM3 = 0.055811747933191217D,
+			TERM4 = 0.008970203549168332D,
+			TERM5 = 0.0018964622161163903D;
 
 		public static double fastExp2(double value) {
 			if (Double.isNaN(value)) return Double.NaN;
@@ -134,7 +126,7 @@ public class FastMath {
 
 			double floor = Math.floor(value);
 			value -= floor;
-			double cubicCurve = ((TERM3 * value + TERM2) * value + TERM1) * value + TERM0;
+			double cubicCurve = ((((TERM5 * value + TERM4) * value + TERM3) * value + TERM2) * value + TERM1) * value + TERM0;
 			long bits = Double.doubleToRawLongBits(cubicCurve);
 			bits += ((long)(floor)) << 52;
 			return Double.longBitsToDouble(bits);
@@ -147,8 +139,8 @@ public class FastMath {
 
 	/**
 	fast approximations for log2(x) and ln(x).
-	accurate to within about 0.0005 of the correct answer.
-	in other words, -0.0005 <= (approx - exact) <= 0.0005
+	accurate to within about 0.00005D of the correct answer.
+	in other words, -0.00005D <= (approx - exact) <= 0.00005D
 
 	special cases:
 		if the input {@link Double#isNaN(double) is NaN}, then the result is {@link Double#NaN}.
@@ -164,7 +156,7 @@ public class FastMath {
 		for base 2, the result is computed as log2(mantissa * 2 ^ exponent)
 		= log2(mantissa) + log2(2 ^ exponent)
 		= log2(mantissa) + exponent.
-		the first part uses a quartic curve to get an
+		the first part uses a quintic curve to get an
 		approximation for log2(value) in the domain [1, 2].
 		the 2nd part uses the bitwise representation
 		of floats to extract the exponent directly.
@@ -172,24 +164,14 @@ public class FastMath {
 	public static class Log {
 
 		public static final double
-			LOGE2, //ln(2)
-			LOG2E, //log2(e)
-			TERM4, //coefficient for x^4
-			TERM3, //coefficient for x^3
-			TERM2, //coefficient for x^2
-			TERM1, //coefficient for x^1
-			TERM0; //coefficient for x^0
-
-		static {
-			final double ln2 = Math.log(2.0D);
-			LOGE2 = ln2;
-			LOG2E = 1.0D / ln2;
-			TERM4 = -0.0848624815362354D;
-			TERM3 =  0.6732174505508489D;
-			TERM2 = -2.202077546193809D;
-			TERM1 =  4.166647707768923D;
-			TERM0 = -2.552925130589761D;
-		}
+			LOGE2 = Math.log(2.0D), //ln(2)
+			LOG2E = 1.0D / LOGE2, //log2(e)
+			TERM0 = -2.816159410743029D,
+			TERM1 =  5.136019940826246D,
+			TERM2 = -3.5965971344845508D,
+			TERM3 =  1.651994396722813D,
+			TERM4 = -0.42017514047089418D,
+			TERM5 =  0.044917348149390499D;
 
 		public static double fastLog2(double value) {
 			if (!(value >= Double.MIN_NORMAL)) {
@@ -201,7 +183,7 @@ public class FastMath {
 			long exponent = ((bits & 0x7FF0000000000000L) >>> 52) - 1023;
 			bits = (bits & ~0x7FF0000000000000L) | (1023L << 52);
 			double result = Double.longBitsToDouble(bits);
-			result = (((TERM4 * result + TERM3) * result + TERM2) * result + TERM1) * result + TERM0;
+			result = ((((TERM5 * result + TERM4) * result + TERM3) * result + TERM2) * result + TERM1) * result + TERM0;
 			return result + ((double)(exponent));
 		}
 
