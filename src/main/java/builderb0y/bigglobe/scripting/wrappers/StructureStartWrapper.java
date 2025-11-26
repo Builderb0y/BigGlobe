@@ -9,6 +9,7 @@ import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.gen.structure.Structure;
 
+import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
@@ -22,6 +23,7 @@ public record StructureStartWrapper(
 	BlockBox box
 ) {
 
+	public static final ObjectArrayFactory<StructureStartWrapper> ARRAY_FACTORY = new ObjectArrayFactory<>(StructureStartWrapper.class);
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
 	public static StructureStartWrapper of(RegistryEntry<Structure> original, StructureStart start) {

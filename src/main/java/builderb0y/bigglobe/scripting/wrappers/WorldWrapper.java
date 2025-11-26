@@ -148,7 +148,13 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public static record AutoOverride(ScriptStructures structures, RegistryEntry<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
+	public static record AutoOverride(ScriptStructures[] structures, RegistryEntry<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
+
+		public AutoOverride {
+			if (structures.length != overriders.length) {
+				throw new IllegalArgumentException("Wrong length!");
+			}
+		}
 
 		public void override(ScriptedColumn column) {
 			for (String name : this.preFetch) try {
@@ -157,8 +163,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			catch (Throwable throwable) {
 				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
 			}
-			for (RegistryEntry<ColumnValueOverrider.Entry> overrider : this.overriders) {
-				overrider.value().script().override(column, this.structures);
+			for (int index = 0; index < this.structures.length; index++) {
+				this.overriders[index].value().script.override(column, this.structures[index]);
 			}
 		}
 	}

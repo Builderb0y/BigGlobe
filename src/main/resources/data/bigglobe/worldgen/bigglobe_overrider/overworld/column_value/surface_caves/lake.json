@@ -4,15 +4,17 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (start.structure.isIn('#bigglobe:lakes'):",
-					"double distance = distanceToCircle(start)",
-					"double mixLevel = smooth(1.0L - distance * 0.0625L)",
-					"excludeSurface(mixLevel)",
-				")",
+				"double distance = distanceToCircle(start)",
+				"double mixLevel = smooth(1.0L - distance * 0.0625L)",
+				"excludeSurface(mixLevel)",
 			")"
 		],
 		"includes": [
 			"bigglobe:include/cave_exclude_surface"
 		]
+	},
+	"structure_filter": {
+		"structure": "#bigglobe:lakes",
+		"radius_in_chunks": 1
 	}
 }

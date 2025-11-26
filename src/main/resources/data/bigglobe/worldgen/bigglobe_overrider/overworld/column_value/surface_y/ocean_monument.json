@@ -3,15 +3,17 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (start.structure.type ==. 'minecraft:ocean_monument':",
-					"double distance = distanceToSquare(start)",
-					"double mixLevel = smooth(distance * 0.0625L)",
-					"setSurfaceY(start.minY - 0.5L, mixLevel, keepSnow)",
-				")",
+				"double distance = distanceToSquare(start)",
+				"double mixLevel = smooth(distance * 0.015625L)",
+				"setSurfaceY(start.minY - 0.5L, mixLevel, keepSnow)",
 			")"
 		],
 		"includes": [
 			"bigglobe:include/surface_manipulation"
 		]
+	},
+	"structure_filter": {
+		"structure_type": "minecraft:ocean_monument",
+		"radius_in_chunks": 4
 	}
 }

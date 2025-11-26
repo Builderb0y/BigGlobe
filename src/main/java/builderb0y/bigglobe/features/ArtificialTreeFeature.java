@@ -26,6 +26,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -78,6 +79,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		double centerX = origin.getX();
 		int centerY = origin.getY();
 		double centerZ = origin.getZ();
+		int maxSaplingCount = BigGlobeConfig.INSTANCE.get().maxSaplingCount;
 		outer:
 		for (BlockPos pos; (pos = toCheck.pollFirst()) != null;) {
 			for (Direction direction : Directions.HORIZONTAL) {
@@ -86,7 +88,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 					blockQueue.queueBlock(offset, BlockStates.AIR);
 					centerX += offset.getX();
 					centerZ += offset.getZ();
-					if (blockQueue.blockCount() >= 1024) break outer;
+					if (blockQueue.blockCount() >= maxSaplingCount) break outer;
 					toCheck.addLast(offset);
 				}
 			}

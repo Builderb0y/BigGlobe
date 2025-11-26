@@ -4,7 +4,7 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (start.structure.type ==. 'minecraft:jigsaw' && start.structure.generationStep == 'surface_structures':",
+				"if (start.structure.generationStep == 'surface_structures':",
 					"for (StructurePiece piece in start.pieces:",
 						"int diameter = max(piece.sizeX, piece.sizeZ) + 1",
 						"double radius = diameter * 0.5L",
@@ -18,5 +18,9 @@
 		"includes": [
 			"bigglobe:include/cave_exclude_surface"
 		]
+	},
+	"structure_filter": {
+		"structure_type": "minecraft:jigsaw",
+		"radius_in_chunks": 1
 	}
 }

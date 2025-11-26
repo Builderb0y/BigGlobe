@@ -1,27 +1,34 @@
 package builderb0y.bigglobe.overriders;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import com.google.common.collect.ObjectArrays;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
+import net.minecraft.structure.StructureSet;
+import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.util.math.BlockBox;
+import net.minecraft.world.gen.structure.Structure;
+import net.minecraft.world.gen.structure.StructureType;
 
-import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.WoodPaletteScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -96,17 +103,112 @@ public interface ColumnValueOverrider extends ColumnScript {
 		return _distanceToCircle(column, piece.getBoundingBox());
 	}
 
-	public static record Entry(
-		Holder script,
-		@DefaultBoolean(true) boolean raw_generation,
-		@DefaultBoolean(true) boolean feature_generation
-	)
-	implements Overrider {
+	public static record StructureFilter(
+		@VerifyNullable DelayedEntryList<Structure> structure,
+		@VerifyNullable DelayedEntryList<StructureType<?>> structure_type,
+		@VerifyIntRange(min = 0L) int radius_in_chunks
+	) {
+
+		public boolean matches(Structure structure) {
+			while (structure instanceof DelegatingStructure delegating) {
+				structure = delegating.delegate().value();
+			}
+			if (this.structure != null) {
+				if (this.structure_type != null) {
+					return this.structure.objectSet().contains(structure) || this.structure_type.objectSet().contains(structure.getType());
+				}
+				else {
+					return this.structure.objectSet().contains(structure);
+				}
+			}
+			else {
+				if (this.structure_type != null) {
+					return this.structure_type.objectSet().contains(structure.getType());
+				}
+				else {
+					return true; //allow { "radius": ... } to match all structures.
+				}
+			}
+		}
+
+		public static int getSearchRadius(StructureFilter[] filters, StructureSet set, int baseRadius) {
+			int radius = baseRadius;
+			List<WeightedEntry> structures = set.structures();
+			int structureCount = structures.size();
+			for (StructureFilter filter : filters) {
+				if (radius >= filter.radius_in_chunks) continue;
+				for (int index = 0; index < structureCount; index++) {
+					if (filter.matches(structures.get(index).structure().value())) {
+						radius = filter.radius_in_chunks;
+						break;
+					}
+				}
+			}
+			return radius;
+		}
+	}
+
+	public static non-sealed class Entry implements Overrider {
+
+		public final Holder script;
+		public final @DefaultBoolean(true) boolean raw_generation;
+		public final @DefaultBoolean(true) boolean feature_generation;
+		public final StructureFilter @VerifyNullable @SingletonArray [] structure_filter;
+		public final transient Reference2IntMap<Structure> cachedRadii;
+
+		public Entry(
+			Holder script,
+			@DefaultBoolean(true) boolean raw_generation,
+			@DefaultBoolean(true) boolean feature_generation,
+			StructureFilter @VerifyNullable @SingletonArray [] structure_filter
+		) {
+			this.script = script;
+			this.raw_generation = raw_generation;
+			this.feature_generation = feature_generation;
+			this.structure_filter = structure_filter;
+			this.cachedRadii = structure_filter != null ? new Reference2IntOpenHashMap<>() : null;
+		}
 
 		@Override
 		public Type getOverriderType() {
 			return Type.COLUMN_VALUE;
 		}
+
+		public boolean matches(Structure structure) {
+			if (this.structure_filter == null) return true;
+			for (StructureFilter filter : this.structure_filter) {
+				if (filter.matches(structure)) return true;
+			}
+			return false;
+		}
+
+		public int getSearchRadius(Structure structure) {
+			if (this.structure_filter == null) return 1;
+			synchronized (this.cachedRadii) {
+				return this.cachedRadii.computeIfAbsent(structure, (Structure structure_) -> {
+					int radius = -1;
+					for (StructureFilter filter : this.structure_filter) {
+						if (filter.radius_in_chunks > radius && filter.matches(structure)) {
+							radius = filter.radius_in_chunks;
+						}
+					}
+					return radius;
+				});
+			}
+		}
+
+		public int getSearchRadius(StructureSet set, int baseRadius) {
+			if (this.structure_filter == null) return Math.max(baseRadius, 1);
+			return StructureFilter.getSearchRadius(this.structure_filter, set, baseRadius);
+		}
+	}
+
+	public static int getSearchRadius(RegistryEntry<Entry>[] overriders, StructureSet set) {
+		int radius = -1;
+		for (RegistryEntry<Entry> overrider : overriders) {
+			radius = overrider.value().getSearchRadius(set, radius);
+		}
+		return radius;
 	}
 
 	@Wrapper

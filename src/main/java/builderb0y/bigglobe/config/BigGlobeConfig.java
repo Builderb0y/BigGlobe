@@ -39,6 +39,7 @@ public class BigGlobeConfig {
 	public static void init() {}
 
 	public void validatePostLoad() {
+		this.maxSaplingCount = Math.max(this.maxSaplingCount, 1);
 		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
 		this.moltenRockOreificationChance = MathHelper.clamp(this.moltenRockOreificationChance, 0.0F, 1.0F);
 		this.lodRendering.validatePostLoad();
@@ -61,6 +62,11 @@ public class BigGlobeConfig {
 	@UseName("Big Globe Trees In Big Globe Worlds")
 	@DefaultIgnore
 	public boolean bigGlobeTreesInBigGlobeWorlds = true;
+
+	@Tooltip(count = 3)
+	@UseName("Maximum Sapling Count")
+	@DefaultIgnore
+	public int maxSaplingCount = 64;
 
 	@Tooltip(count = 3)
 	@UseName("Hyperspace Enabled")
@@ -225,9 +231,9 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		@BoundedDiscrete(min = 10_000_000L, max = 100_000_000L)
 		@VerifyIntRange(min = 10_000_000L, max = 100_000_000L)
-		public int maxQuads = 20_000_000;
+		public int maxQuads = 25_000_000;
 		@Excluded
-		public static transient int previousMaxQuads = 20_000_000;
+		public static transient int previousMaxQuads = 25_000_000;
 
 		@Tooltip(count = 3)
 		@UseName("Quality")

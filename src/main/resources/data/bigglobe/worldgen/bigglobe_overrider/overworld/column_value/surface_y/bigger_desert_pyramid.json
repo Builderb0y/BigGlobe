@@ -3,15 +3,17 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (start.structure.type ==. 'bigglobe:bigger_desert_pyramid':",
-					"double distance = distanceToSquare(start)",
-					"double mixLevel = smooth(distance * 0.0625L)",
-					"setSurfaceY(start.minY + 16.5L, mixLevel, addSnow)",
-				")",
+				"double distance = distanceToSquare(start)",
+				"double mixLevel = smooth(distance * 0.03125L)",
+				"setSurfaceY(start.minY + 16.5L, mixLevel, addSnow)",
 			")"
 		],
 		"includes": [
 			"bigglobe:include/surface_manipulation"
 		]
+	},
+	"structure_filter": {
+		"structure_type": "bigglobe:bigger_desert_pyramid",
+		"radius_in_chunks": 2
 	}
 }

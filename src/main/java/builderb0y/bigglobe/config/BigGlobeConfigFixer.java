@@ -20,6 +20,7 @@ public class BigGlobeConfigFixer extends VersionedFixer<BigGlobeConfig> {
 	}
 
 	@Override
+	@SuppressWarnings("fallthrough")
 	public @NotNull <T_Encoded> DataFixContext<T_Encoded> fixData(@NotNull DataFixContext<T_Encoded> context, int version) throws DataFixException {
 		switch (version) {
 			default: throw new DataFixException(() -> "Unknown config version: " + version);

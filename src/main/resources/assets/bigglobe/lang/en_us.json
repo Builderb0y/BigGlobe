@@ -291,6 +291,11 @@
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[1]": "If false, saplings will grow into normal (vanilla) trees in Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.bigGlobeTreesInBigGlobeWorlds.@Tooltip[2]": "This config option has no effect on trees that spawn during worldgen.",
 
+	"text.autoconfig.bigglobe.option.maxSaplingCount": "Max Sapling Count",
+	"text.autoconfig.bigglobe.option.maxSaplingCount.@Tooltip[0]": "Maximum number of saplings which can grow together into a single tree in Big Globe worlds.",
+	"text.autoconfig.bigglobe.option.maxSaplingCount.@Tooltip[1]": "Larger numbers allow bigger trees, which can cause issues when using mods that let you cut down entire trees at once.",
+	"text.autoconfig.bigglobe.option.maxSaplingCount.@Tooltip[2]": "It is recommended to not increase this in multiplayer, to prevent the creation of game-crashingly large trees.",
+
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled": "Hyperspace Enabled",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[0]": "If true, waypoints will be usable.",
 	"text.autoconfig.bigglobe.option.hyperspaceEnabled.@Tooltip[1]": "If false, waypoints cannot be used.",

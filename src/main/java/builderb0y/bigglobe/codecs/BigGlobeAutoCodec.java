@@ -51,6 +51,7 @@ import net.minecraft.world.gen.densityfunction.DensityFunction;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.structure.Structure;
+import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.coders.*;
@@ -146,6 +147,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<ConfiguredFeature<?, ?>>          CONFIGURED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature.class), RegistryKeys.CONFIGURED_FEATURE);
 	public static final RegistryCoders<PlacedFeature>                        PLACED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(PlacedFeature                         .class), RegistryKeys.PLACED_FEATURE);
 	public static final RegistryCoders<Structure>                                 STRUCTURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Structure                             .class), RegistryKeys.STRUCTURE);
+	public static final RegistryCoders<StructureType<?>>                     STRUCTURE_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(StructureType    .class), RegistryKeys.STRUCTURE_TYPE);
 	public static final RegistryCoders<StructureSet>                          STRUCTURE_SET_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructureSet                          .class), RegistryKeys.STRUCTURE_SET);
 	public static final RegistryCoders<StructureProcessorList>     STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructureProcessorList                .class), RegistryKeys.PROCESSOR_LIST);
 	public static final RegistryCoders<StructurePool>                        STRUCTURE_POOL_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StructurePool                         .class), RegistryKeys.TEMPLATE_POOL);
@@ -181,6 +183,7 @@ public class BigGlobeAutoCodec {
 		CONFIGURED_FEATURE_REGISTRY_CODERS,
 		PLACED_FEATURE_REGISTRY_CODERS,
 		STRUCTURE_REGISTRY_CODERS,
+		STRUCTURE_TYPE_REGISTRY_CODERS,
 		STRUCTURE_SET_REGISTRY_CODERS,
 		STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS,
 		STRUCTURE_POOL_REGISTRY_CODERS,

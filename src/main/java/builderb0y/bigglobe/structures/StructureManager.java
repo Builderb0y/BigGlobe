@@ -6,6 +6,8 @@ import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
@@ -30,6 +32,7 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -121,6 +124,8 @@ public abstract class StructureManager {
 	}
 
 	public abstract FinalStructures getIntersectingStructures(StructureGenerationParams params);
+
+	public abstract ScriptStructures[] computeRelevantStructuresForOverriders(StructureGenerationParams params, ColumnValueOverridersWithRadiusCache overriders);
 
 	public abstract FinalStructures getFinalStructures(StructureGenerationParams params);
 

@@ -3,17 +3,15 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (start.structure ==. 'bigglobe:campfire':",
-					";don't include tent interior if present.",
-					"for (int index in range[0, min(2, start.pieces.size)):",
-						"StructurePiece piece = start.pieces.(index)",
-						"double distance = distanceToCircle(piece, 4.0L)",
-						"if (distance < 8.0L:",
-							"double mixLevel = smooth(distance :* 0.125)",
-							"int targetY = index == 0 ? piece.maxY : piece.minY",
-							"setSurfaceY(targetY - 0.5L, mixLevel, setSnow)",
-							"setSurfaceFoliage(targetY, mixLevel)",
-						")",
+				";don't include tent interior if present.",
+				"for (int index in range[0, min(2, start.pieces.size)):",
+					"StructurePiece piece = start.pieces.(index)",
+					"double distance = distanceToCircle(piece, 4.0L)",
+					"if (distance < 8.0L:",
+						"double mixLevel = smooth(distance :* 0.125)",
+						"int targetY = index == 0 ? piece.maxY : piece.minY",
+						"setSurfaceY(targetY - 0.5L, mixLevel, setSnow)",
+						"setSurfaceFoliage(targetY, mixLevel)",
 					")",
 				")",
 			")"
@@ -21,5 +19,9 @@
 		"includes": [
 			"bigglobe:include/surface_manipulation"
 		]
+	},
+	"structure_filter": {
+		"structure": "bigglobe:campfire",
+		"radius_in_chunks": 1
 	}
 }

@@ -30,5 +30,12 @@
 				")",
 			")",
 		")"
-	]
+	],
+	"structure_filter": {
+		"structure": [
+			"bigglobe:soul_campfire",
+			"minecraft:nether_fossil"
+		],
+		"radius_in_chunks": 1
+	}
 }

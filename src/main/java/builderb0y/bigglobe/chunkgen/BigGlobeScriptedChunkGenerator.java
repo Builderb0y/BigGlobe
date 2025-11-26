@@ -698,11 +698,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		Hints hints = ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons);
-		ScriptStructures structures = ScriptStructures.getStructures(
+		RegistryEntry<ColumnValueOverrider.Entry>[] overriders = this.getOverriders().rawColumnValues.overriders();
+		ScriptStructures[] structures = ScriptStructures.getStructures(
 			this,
 			this.newColumnLookup(chunk, hints),
 			structureAccessor,
-			chunk.getPos()
+			chunk.getPos(),
+			this.getOverriders().rawColumnValues
 		);
 		ScriptedColumn.Params params = new ScriptedColumn.Params(
 			this.columnSeed,
@@ -736,20 +738,19 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									quadColumn.loadFromArray(columns, baseIndex, 16);
 									quadColumn.at(params, quadX, quadZ, 1);
 									try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
-										for (String name : this.getOverriders().rawColumnValueDependencies)
-											try {
-												try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
-													quadColumn.preComputeColumnValue(name);
-												}
+										for (String name : this.getOverriders().rawColumnValueDependencies) try {
+											try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
+												quadColumn.preComputeColumnValue(name);
 											}
-											catch (Throwable throwable) {
-												BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
-											}
+										}
+										catch (Throwable throwable) {
+											BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+										}
 									}
 									try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
-										for (RegistryEntry<ColumnValueOverrider.Entry> overrider : this.getOverriders().rawColumnValues) {
-											try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overrider)::toString) : null) {
-												quadColumn.override(overrider.value().script(), structures);
+										for (int index = 0; index < structures.length; index++) {
+											try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overriders[index])::toString) : null) {
+												quadColumn.override(overriders[index].value().script, structures[index]);
 											}
 										}
 									}
@@ -837,7 +838,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				);
 				worldWrapper.overriders = new AutoOverride(
 					structures,
-					this.getOverriders().rawColumnValues,
+					this.getOverriders().rawColumnValues.overriders(),
 					this.getOverriders().rawColumnValueDependencies
 				);
 				for (ScriptedColumn column : columns) {
@@ -892,16 +893,17 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			),
 			ColumnUsage.FEATURES.maybeDhHints()
 		);
-		ScriptStructures structures = ScriptStructures.getStructures(
+		ScriptStructures[] structures = ScriptStructures.getStructures(
 			this,
 			worldWrapper,
 			structureAccessor,
-			chunk.getPos()
+			chunk.getPos(),
+			this.getOverriders().featureColumnValues
 		);
 		ScriptedColumn[] columns = this.chunkReuseColumns.get();
 		worldWrapper.overriders = new AutoOverride(
 			structures,
-			this.getOverriders().featureColumnValues,
+			this.getOverriders().featureColumnValues.overriders(),
 			this.getOverriders().featureColumnValueDependencies
 		);
 		try (AsyncConsumer<ScriptedColumn> async = new AsyncConsumer<>(BigGlobeThreadPool.autoExecutor(), (ScriptedColumn column) -> {

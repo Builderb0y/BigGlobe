@@ -56,7 +56,11 @@ high priority:
 		only on forge/sinytra.
 	make nether surface depth a bubble property.
 	unit tests for assignment-as-an-expression type inference.
-	float1 ?: float2 does not seem to work for NaN in some cases?
+	LOD chunk ingesting might not get correct skylight levels.
+		test WITHOUT nightvision.
+	verify that lapis still spawns correctly.
+	noop-typed feature dispatcher.
+	expand nether feature dispatchers to allow adding more that aren't defined by per-column configured features.
 
 V6:
 	rivers:
@@ -71,8 +75,7 @@ V6:
 				test with DH and voxy.
 	add new json classes.
 	LOD renderer improvements:
-		make it work in non-bigglobe worlds.
-		make it work in multiplayer.
+		make ingesting work in multiplayer.
 		config option for ingest delay?
 	revert old tree density and threshold.
 		maybe figure out how to make acacia trees work differently?
@@ -81,6 +84,10 @@ V6:
 	fix Data mutability paradigm in AutoCodec.
 	dynamic block segment types?
 	random.between[low, high).
+	cave floor/ceiling states no longer work properly.
+	separate dragon nest for each stronghold?
+		this will probably require some hacks for dragon flight logic.
+		also end crystal spike generation.
 
 1.21.11: (?)
 	new skeleton-like entity spawns in deserts.
@@ -99,8 +106,14 @@ json classes:
 		merge stuff.
 
 changelog:
-	* Automatically disable another mixin that breaks on Sinytra Connector.
+	# For normal people
 	* Fixed trial chambers spawning inside volcanoes in the islands world preset.
+		* This was technically fixed in V5.1.1, but now the fix is available for all supported MC versions.
+	* Ocean monuments are now slightly rarer.
+	* Some structures have terrain adaptation in a larger area around them now.
+	# For data pack developers
+	* Column value overriders can now pre-filter which structures they want to intercept.
+	* Column value overriders can now have access to structures that are further away from the current chunk.
 
 alternate world presets:
 	paradise.

@@ -3,12 +3,16 @@ package builderb0y.bigglobe.overriders;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructureSet;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -56,11 +60,45 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 		}
 	}
 
+	public static record ColumnValueOverridersWithRadiusCache(
+		RegistryEntry<ColumnValueOverrider.Entry>[] overriders,
+		Reference2IntMap<RegistryEntry<StructureSet>> radii,
+		Reference2ObjectMap<Structure, int[]> indices
+	) {
+
+		public ColumnValueOverridersWithRadiusCache(RegistryEntry<ColumnValueOverrider.Entry>[] overriders) {
+			this(overriders, new Reference2IntOpenHashMap<>(64), new Reference2ObjectOpenHashMap<>(64));
+		}
+
+		public int getSearchRadius(RegistryEntry<StructureSet> set) {
+			synchronized (this.radii) {
+				return this.radii.computeIfAbsent(set, (RegistryEntry<StructureSet> set_) -> {
+					return ColumnValueOverrider.getSearchRadius(this.overriders, set_.value());
+				});
+			}
+		}
+
+		public int[] getIndices(Structure structure) {
+			synchronized (this.indices) {
+				return this.indices.computeIfAbsent(structure, (Structure structure_) -> {
+					int length = this.overriders.length;
+					IntArrayList list = new IntArrayList(length);
+					for (int index = 0; index < length; index++) {
+						if (this.overriders[index].value().matches(structure_)) {
+							list.add(index);
+						}
+					}
+					return list.toIntArray();
+				});
+			}
+		}
+	}
+
 	public static class SortedOverriders {
 
 		public final StructureOverrider.Entry[] structures;
 		public final CollisionOverrider.Entry[] collisions;
-		public final RegistryEntry<ColumnValueOverrider.Entry>[] rawColumnValues, featureColumnValues;
+		public final ColumnValueOverridersWithRadiusCache rawColumnValues, featureColumnValues;
 		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
 		@SuppressWarnings("unchecked")
@@ -68,10 +106,10 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 			Map<Type, List<RegistryEntry<Overrider>>> map = generator.overriders.entryStream().collect(Collectors.groupingBy((RegistryEntry<Overrider> entry) -> entry.value().getOverriderType()));
 			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(RegistryEntry<Overrider>::value).map(StructureOverrider.Entry.class::cast).toArray(StructureOverrider.Entry[]::new);
 			this.collisions = map.getOrDefault(Type.COLLISION, Collections.emptyList()).stream().map(RegistryEntry<Overrider>::value).map(CollisionOverrider.Entry.class::cast).toArray(CollisionOverrider.Entry[]::new);
-			this.rawColumnValues     = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((RegistryEntry<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).    raw_generation()).toArray(RegistryEntry[]::new);
-			this.featureColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((RegistryEntry<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).feature_generation()).toArray(RegistryEntry[]::new);
-			this.    rawColumnValueDependencies = this.extractDependencies(this.    rawColumnValues, generator);
-			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues, generator);
+			this.    rawColumnValues = new ColumnValueOverridersWithRadiusCache(map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((RegistryEntry<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).    raw_generation).toArray(RegistryEntry[]::new));
+			this.featureColumnValues = new ColumnValueOverridersWithRadiusCache(map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((RegistryEntry<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).feature_generation).toArray(RegistryEntry[]::new));
+			this.    rawColumnValueDependencies = this.extractDependencies(this.    rawColumnValues.overriders, generator);
+			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues.overriders, generator);
 		}
 
 		public int getCollisionPriority(
@@ -89,7 +127,7 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 		public String[] extractDependencies(RegistryEntry<ColumnValueOverrider.Entry>[] holders, BigGlobeScriptedChunkGenerator generator) {
 			IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 			for (RegistryEntry<ColumnValueOverrider.Entry> entry : holders) {
-				entry.value().script().streamDirectDependencies().forEach(collector);
+				entry.value().script.streamDirectDependencies().forEach(collector);
 			}
 			return (
 				collector

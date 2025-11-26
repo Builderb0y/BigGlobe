@@ -4,27 +4,26 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (",
-					"start.structure.isIn(",
-						"'bigglobe:medium_house',",
-						"'bigglobe:large_house',",
-						"'bigglobe:log_cabin'",
-					")",
-					"||",
-					"start.structure.type.isIn(",
-						"'minecraft:desert_pyramid',",
-						"'bigglobe:bigger_desert_pyramid',",
-						"'minecraft:woodland_mansion'",
-					")",
-				":",
-					"double distance = distanceToSquare(start)",
-					"double mixLevel = smooth(1.0L - distance * 0.0625L)",
-					"excludeSurface(mixLevel)",
-				")",
+				"double distance = distanceToSquare(start)",
+				"double mixLevel = smooth(1.0L - distance * 0.0625L)",
+				"excludeSurface(mixLevel)",
 			")"
 		],
 		"includes": [
 			"bigglobe:include/cave_exclude_surface"
 		]
+	},
+	"structure_filter": {
+		"structure": [
+			"bigglobe:medium_house",
+			"bigglobe:large_house",
+			"bigglobe:log_cabin"
+		],
+		"structure_type": [
+			"minecraft:desert_pyramid",
+			"bigglobe:bigger_desert_pyramid",
+			"minecraft:woodland_mansion"
+		],
+		"radius_in_chunks": 1
 	}
 }

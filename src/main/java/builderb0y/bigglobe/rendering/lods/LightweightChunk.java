@@ -212,7 +212,7 @@ public class LightweightChunk {
 										}
 									}
 								}
-								assert list.isEmpty() || list.getLast().maxY() == minY;
+								assert list.isEmpty() || list.get(list.size() - 1).maxY() == minY;
 								LitSegment segment = new LitSegment(minY, maxY - 1);
 								segment.value = state;
 								segment.skylightLevel = (byte)(skylight);

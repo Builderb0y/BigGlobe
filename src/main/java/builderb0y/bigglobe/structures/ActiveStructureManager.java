@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.structures;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
@@ -14,6 +11,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.structure.StructurePiecesCollector;
@@ -23,7 +22,6 @@ import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.StructureTerrainAdaptation;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
@@ -35,8 +33,9 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.mixins.StructureStart_BoundingBoxSetter;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
+import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -46,6 +45,7 @@ import builderb0y.bigglobe.util.TimestampedComputingCache;
 import builderb0y.bigglobe.util.TimestampedComputingCache.Units;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.scripting.util.CollectionTransformer;
 
 public class ActiveStructureManager extends StructureManager {
 
@@ -119,14 +119,81 @@ public class ActiveStructureManager extends StructureManager {
 				params.chunkPos().z <= start.getBoundingBox().getMaxZ() >> 4
 			))
 			.sorted(
-				Comparator.comparing(
-					(StructureStart start) -> start.getStructure().getFeatureGenerationStep()
-				)
-				.thenComparing(
-					(StructureStart start) -> structureID(start.getStructure())
-				)
+				Comparator
+				.comparing((StructureStart start) -> start.getStructure().getFeatureGenerationStep())
+				.thenComparing((StructureStart start) -> structureID(start.getStructure()))
 			)
 			.collect(Collectors.toCollection(FinalStructures::new))
+		);
+	}
+
+	@Override
+	public ScriptStructures[] computeRelevantStructuresForOverriders(StructureGenerationParams params, ColumnValueOverridersWithRadiusCache overriders) {
+		//note: need an actual Registry instance here due to its
+		//ability to lookup the key associated with a given object.
+		Registry<Structure> structureRegistry = RegistryVersions.getRegistry(
+			params.dynamicRegistries(),
+			RegistryKeys.STRUCTURE
+		);
+		@SuppressWarnings("unchecked")
+		@Nullable List<@NotNull StructureStartWrapper> @NotNull [] intermediate = new List[overriders.overriders().length];
+		params
+		.structurePlacementCalculator()
+		.getStructureSets()
+		.stream()
+		.flatMap((RegistryEntry<StructureSet> set) -> {
+			OptionalInt size = maxSize(set);
+			if (size.isEmpty()) return Stream.empty();
+			int extra = overriders.getSearchRadius(set);
+			if (extra < 0) return Stream.empty();
+			return getFilteredStartChunks(params, set, size.getAsInt() + extra);
+		})
+		.map(StructureKey::chunkPos)
+		.distinct()
+		.flatMap((ChunkPos pos) -> this.getFinalStructures(params.at(pos)).stream())
+		.sorted(
+			Comparator
+			.comparing((StructureStart start) -> start.getStructure().getFeatureGenerationStep())
+			.thenComparing((StructureStart start) -> structureID(start.getStructure()))
+		)
+		.forEachOrdered((StructureStart start) -> {
+			for (int index : overriders.getIndices(start.getStructure())) {
+				List<StructureStartWrapper> structures = intermediate[index];
+				if (structures == null) {
+					structures = intermediate[index] = new ArrayList<>();
+				}
+				ColumnValueOverrider.Entry overrider = overriders.overriders()[index].value();
+				int extra = overrider.getSearchRadius(start.getStructure());
+				if (
+					(start.getBoundingBox().getMinX() >> 4) - extra <= params.chunkPos().x &&
+					(start.getBoundingBox().getMinZ() >> 4) - extra <= params.chunkPos().z &&
+					(start.getBoundingBox().getMaxX() >> 4) + extra >= params.chunkPos().x &&
+					(start.getBoundingBox().getMaxZ() >> 4) + extra >= params.chunkPos().z
+				) {
+					structures.add(
+						StructureStartWrapper.of(
+							RegistryVersions.getEntry(
+								structureRegistry,
+								start.getStructure()
+							),
+							start
+						)
+					);
+				}
+			}
+		});
+		return CollectionTransformer.convertArray(
+			intermediate,
+			ScriptStructures[]::new,
+			(List<StructureStartWrapper> wrappers) -> (
+				wrappers == null
+				? ScriptStructures.EMPTY_SCRIPT_STRUCTURES
+				: new ScriptStructures(
+					wrappers.toArray(
+						StructureStartWrapper.ARRAY_FACTORY
+					)
+				)
+			)
 		);
 	}
 
@@ -373,16 +440,6 @@ public class ActiveStructureManager extends StructureManager {
 			}
 			return null;
 		}
-
-		//expand structure bounding boxes so that overriders
-		//which depend on them being expanded work properly.
-		((StructureStart_BoundingBoxSetter)(Object)(newStart)).bigglobe_setBoundingBox(
-			newStart.getBoundingBox().expand(
-				weightedEntry.structure().value().getTerrainAdaptation() == StructureTerrainAdaptation.NONE
-				? 16
-				: 4
-			)
-		);
 
 		return wrapper;
 	}

@@ -4,17 +4,19 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (",
-					"start.structure ==. 'bigglobe:windmill' ||",
-					"start.structure ==. 'bigglobe:well'",
-				":",
-					"double distance = distanceToCircle(start, 4.0L)",
-					"excludeSurface(smooth(1.0L - distance * 0.125L))",
-				")",
+				"double distance = distanceToCircle(start, 4.0L)",
+				"excludeSurface(smooth(1.0L - distance * 0.125L))",
 			")"
 		],
 		"includes": [
 			"bigglobe:include/cave_exclude_surface"
 		]
+	},
+	"structure_filter": {
+		"structure": [
+			"bigglobe:windmill",
+			"bigglobe:well"
+		],
+		"radius_in_chunks": 1
 	}
 }

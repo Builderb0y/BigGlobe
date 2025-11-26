@@ -3,6 +3,7 @@ package builderb0y.bigglobe.config;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.stream.JsonReader;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +54,7 @@ public class BigGlobeConfigLoader {
 	public static BigGlobeConfig load() throws Exception {
 		if (Files.exists(CONFIG_FILE)) {
 			String text = Files.readString(CONFIG_FILE, StandardCharsets.UTF_8);
-			JsonElement json = JsonParser.parseString(text);
+			JsonElement json = toJson(text);
 			return AUTO_CODEC.decode(AUTO_CODEC.createCoder(BigGlobeConfig.class), json, JsonOps.INSTANCE);
 		}
 		else {
@@ -72,7 +74,7 @@ public class BigGlobeConfigLoader {
 		BigGlobeConfig config = null;
 		if (Files.exists(CONFIG_FILE)) try {
 			oldText = Files.readString(CONFIG_FILE, StandardCharsets.UTF_8);
-			JsonElement json = JsonParser.parseString(oldText);
+			JsonElement json = toJson(oldText);
 			config = AUTO_CODEC.decode(AUTO_CODEC.createCoder(BigGlobeConfig.class), json, JsonOps.INSTANCE);
 			config.validatePostLoad();
 		}
@@ -96,6 +98,12 @@ public class BigGlobeConfigLoader {
 			LOGGER.error("Could not save " + CONFIG_FILE, exception);
 		}
 		return config;
+	}
+
+	public static JsonElement toJson(String text) {
+		JsonReader reader = new JsonReader(new StringReader(text));
+		reader.setLenient(true);
+		return JsonParser.parseReader(reader);
 	}
 
 	public static String toString(BigGlobeConfig config) throws Exception {

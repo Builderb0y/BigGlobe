@@ -4,14 +4,16 @@
 	"script": [
 		"if (!hints.carve: return())",
 		"for (StructureStart start in structures:",
-			"if (start.structure ==. 'bigglobe:core_spire':",
-				"for (int y in range(start.minY - 12, start.maxY + 16):",
-					"int distanceSquared = (x - start.midX) ^ 2 + (z - start.midZ) ^ 2 + (y - clamp(start.minY + 4, start.maxY, y)) ^ 2",
-					"if (distanceSquared < 20 ^ 2:",
-						"`bigglobe:overworld/biased_core_noise`(y) *= unmixSmooth(4.0I, 20.0I, sqrt(distanceSquared).as(float))",
-					")",
+			"for (int y in range(start.minY - 12, start.maxY + 16):",
+				"int distanceSquared = (x - start.midX) ^ 2 + (z - start.midZ) ^ 2 + (y - clamp(start.minY + 4, start.maxY, y)) ^ 2",
+				"if (distanceSquared < 20 ^ 2:",
+					"`bigglobe:overworld/biased_core_noise`(y) *= unmixSmooth(4.0I, 20.0I, sqrt(distanceSquared).as(float))",
 				")",
 			")",
 		")"
-	]
+	],
+	"structure_filter": {
+		"structure": "bigglobe:core_spire",
+		"radius_in_chunks": 1
+	}
 }

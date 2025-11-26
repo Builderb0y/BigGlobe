@@ -120,7 +120,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".SpawnHelper_MoreMobsInTallerWorlds",                                                       Boolean.FALSE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".StructureAccessor_UseStructureManagerInBigGlobeWorlds",                                    Boolean.TRUE);
-		defaults.put(mixinPackage + ".StructureStart_SaveBoundingBox",                                                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".SugarCaneBlock_MakePlaceableOnGravel",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".TagGroupLoader_DontLoadMyF___ingTags",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".ThrownEntity_CollisionHook",                                                               Boolean.TRUE);
@@ -173,7 +172,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".StructureAccessor_WorldAccess");
 		unconfigurable.add(mixinPackage + ".StructurePiece_DirectRotationSetter");
 		unconfigurable.add(mixinPackage + ".StructurePlacement_ImplementStreamableStructurePlacement");
-		unconfigurable.add(mixinPackage + ".StructureStart_BoundingBoxSetter");
 		unconfigurable.add(mixinPackage + ".StructureStart_ChildrenGetter");
 		unconfigurable.add(mixinPackage + ".WorldPreset_DimensionsAccess");
 		unconfigurable.add(mixinPackage + ".WorldRenderer_HoldLodSystem");

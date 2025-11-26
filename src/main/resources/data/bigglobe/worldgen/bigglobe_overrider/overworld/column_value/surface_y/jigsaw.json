@@ -3,7 +3,7 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (start.structure.type ==. 'minecraft:jigsaw' && start.structure.generationStep == 'surface_structures' && start.structure.terrainAdaptation != 'none':",
+				"if (start.structure.generationStep == 'surface_structures' && start.structure.terrainAdaptation != 'none':",
 					"for (StructurePiece piece in start.pieces:",
 						"if (piece.hasPreferredTerrainHeight:",
 							"int diameter = max(piece.sizeX, piece.sizeZ)",
@@ -28,5 +28,9 @@
 		"includes": [
 			"bigglobe:include/surface_manipulation"
 		]
+	},
+	"structure_filter": {
+		"structure_type": "minecraft:jigsaw",
+		"radius_in_chunks": 1
 	}
 }
