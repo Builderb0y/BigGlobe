@@ -23,6 +23,8 @@ import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToIntScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -72,14 +74,16 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		BlockPos origin = context.getOrigin();
 		if (!saplingBlocks.contains(world.getBlockState(origin).getRegistryEntry())) return false;
 		Permuter permuter = Permuter.from(context.getRandom());
+		ScriptedColumn column = generator.newColumn(world, origin.getX(), origin.getZ(), ColumnUsage.GENERIC.normalHints());
+		int maxSaplingCount = config.max_saplings != null ? config.max_saplings.get(column, permuter, origin.getY()) : 64;
+		if (maxSaplingCount <= 0) return false;
 		BlockQueue blockQueue = new BlockQueue(true);
 		Deque<BlockPos> toCheck = new ArrayDeque<>(8);
 		blockQueue.queueBlock(origin, BlockStates.AIR);
 		toCheck.add(origin);
 		double centerX = origin.getX();
-		int centerY = origin.getY();
+		int    centerY = origin.getY();
 		double centerZ = origin.getZ();
-		int maxSaplingCount = BigGlobeConfig.INSTANCE.get().maxSaplingCount;
 		outer:
 		for (BlockPos pos; (pos = toCheck.pollFirst()) != null;) {
 			for (Direction direction : Directions.HORIZONTAL) {
@@ -101,7 +105,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		double baseRadius = Math.sqrt(saplingCount / Math.PI);
 		int trunkHeight = config.height.getHeight(baseRadius, permuter);
 		if (trunkHeight <= 0) return false;
-		ScriptedColumn column = generator.newColumn(world, BigGlobeMath.floorI(centerX), BigGlobeMath.floorI(centerZ), ColumnUsage.GENERIC.normalHints());
+		column = generator.newColumn(world, BigGlobeMath.floorI(centerX), BigGlobeMath.floorI(centerZ), ColumnUsage.GENERIC.normalHints());
 		TrunkConfig trunkConfig = config.trunk.create(
 			column,
 			centerX,
@@ -144,7 +148,8 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		TreeHeightScript.Holder height,
 		TrunkFactory trunk,
 		Branches branches,
-		@VerifyNullable Decorations decorations
+		@VerifyNullable Decorations decorations,
+		ColumnRandomYToIntScript.@VerifyNullable Holder max_saplings
 	)
 	implements FeatureConfig {}
 

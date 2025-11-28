@@ -57,6 +57,26 @@
 		"minecraft:big_dripleaf_stem",
 		"minecraft:small_dripleaf",
 		"minecraft:pink_petals",
+		{
+			"id": "minecraft:leaf_litter",
+			"required": false
+		},
+		{
+			"id": "minecraft:wildflowers",
+			"required": false
+		},
+		{
+			"id": "bigglobe:red_wildflowers",
+			"required": false
+		},
+		{
+			"id": "bigglobe:bluebonnets",
+			"required": false
+		},
+		{
+			"id": "bigglobe:violets",
+			"required": false
+		},
 
 		"bigglobe:tall_chorus_spores",
 		"bigglobe:short_chorus_spores"

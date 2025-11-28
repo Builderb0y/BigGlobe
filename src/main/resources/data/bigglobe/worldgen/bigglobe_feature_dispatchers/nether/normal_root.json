@@ -1,6 +1,4 @@
 {
-	"type": "group",
-	"dispatchers": [
-		"bigglobe:nether/bubble_decorator"
-	]
+	"type": "tag",
+	"tag": "#bigglobe:nether/normal"
 }

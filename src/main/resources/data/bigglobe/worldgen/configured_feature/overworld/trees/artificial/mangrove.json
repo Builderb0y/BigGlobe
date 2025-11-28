@@ -36,6 +36,7 @@
 			"minecraft:sand":            "minecraft:sand",
 			"minecraft:red_sand":        "minecraft:red_sand",
 			"bigglobe:overgrown_sand":   "minecraft:sand"
-		}
+		},
+		"max_saplings": "world_traits.`bigglobe:max_artificial_tree_saplings`"
 	}
 }

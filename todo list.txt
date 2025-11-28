@@ -41,6 +41,14 @@ where I left off:
 	non-voronoi caves that resemble the surface.
 	warm and cold ocean biomes.
 		make tropical fish only spawn in warm oceans.
+	new tree script:
+		missing decoration:
+			bee hives.
+			mushroom shelves.
+			vines.
+		ground replacements (grass -> dirt, etc...)
+		better detection of ground that doesn't involve checking y_level_on_surface.
+		move to V6 folder.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -54,13 +62,9 @@ high priority:
 	incorrect world height detection code doesn't work correctly for bclib.
 	hyperspace flight still persists after leaving hyperspace.
 		only on forge/sinytra.
-	make nether surface depth a bubble property.
 	unit tests for assignment-as-an-expression type inference.
 	LOD chunk ingesting might not get correct skylight levels.
 		test WITHOUT nightvision.
-	verify that lapis still spawns correctly.
-	noop-typed feature dispatcher.
-	expand nether feature dispatchers to allow adding more that aren't defined by per-column configured features.
 
 V6:
 	rivers:
@@ -84,10 +88,12 @@ V6:
 	fix Data mutability paradigm in AutoCodec.
 	dynamic block segment types?
 	random.between[low, high).
-	cave floor/ceiling states no longer work properly.
 	separate dragon nest for each stronghold?
 		this will probably require some hacks for dragon flight logic.
 		also end crystal spike generation.
+	new "rock layers" for nether too?
+	reduce rock layer amplitude offset based on mountainness.
+	make nether surface depth a bubble property.
 
 1.21.11: (?)
 	new skeleton-like entity spawns in deserts.
@@ -111,9 +117,12 @@ changelog:
 		* This was technically fixed in V5.1.1, but now the fix is available for all supported MC versions.
 	* Ocean monuments are now slightly rarer.
 	* Some structures have terrain adaptation in a larger area around them now.
+	* Increased default LOD quad count from 20M to 50M. The max is still 100M.
 	# For data pack developers
 	* Column value overriders can now pre-filter which structures they want to intercept.
 	* Column value overriders can now have access to structures that are further away from the current chunk.
+	* Nether root feature dispatchers are now a tag instead of a group.
+	* Added a "noop" feature dispatcher type, for anyone who wants an easy way to disable an existing feature dispatcher.
 
 alternate world presets:
 	paradise.
@@ -253,6 +262,7 @@ features:
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
+		make overgrown podzol decay to dirt when there's a block on top of it?
 		big canyons?
 		deep ocean hydrothermal vents?
 			new biome for extremely deep oceans: the abyss.

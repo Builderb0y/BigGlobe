@@ -10,6 +10,7 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
@@ -81,6 +82,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			int chunkZ = origin.getZ() >> 4;
 			BlockBox box = (
 				context.getConfig().queueType == QueueType.DELAYED
+				|| context.getWorld() instanceof World
 				? new BlockBox(
 					origin.getX() - 128,
 					origin.getY() - 128,

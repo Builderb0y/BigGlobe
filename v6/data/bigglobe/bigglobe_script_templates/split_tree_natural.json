@@ -1,0 +1,32 @@
+{
+	"script": [
+		"float foliage = world_traits.`bigglobe:foliage_at`",
+		"double*(",
+			"slantAngle = random.nextDouble(tau)",
+			"slantRadius = random.nextDouble(0.25L)",
+			"x1 = originX + random.nextDouble()",
+			"y1 = originY",
+			"z1 = originZ + random.nextDouble()",
+			"height = max(foliage * 8.0I, 4.0I)",
+			"x2 = x1 + height * cos(slantAngle) * slantRadius",
+			"y2 = y1 + height",
+			"z2 = z1 + height * sin(slantAngle) * slantRadius",
+			"r1 = height * 0.25L",
+		")",
+		"tree(",
+			"x1, y1, z1, r1,",
+			"x2, y2, z2, r1 * 0.75L + 0.25L,",
+			"palette,",
+			"max(foliage * 2.0I, 1.25I),",
+			"0",
+		")",
+		"placeTree()",
+		"true"
+	],
+	"inputs": [
+		{ "name": "palette", "type": "WoodPalette" }
+	],
+	"includes": [
+		"bigglobe:include/split_tree"
+	]
+}

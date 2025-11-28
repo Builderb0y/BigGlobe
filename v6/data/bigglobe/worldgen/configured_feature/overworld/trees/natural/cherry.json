@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:split_tree_natural",
+			"inputs": {
+				"palette": "'minecraft:cherry'"
+			}
+		}
+	}
+}

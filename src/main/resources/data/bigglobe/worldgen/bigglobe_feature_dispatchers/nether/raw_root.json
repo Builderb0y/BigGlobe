@@ -1,4 +1,4 @@
 {
-	"type": "group",
-	"dispatchers": []
+	"type": "tag",
+	"tag": "#bigglobe:nether/raw"
 }

@@ -4,6 +4,18 @@
 		"bigglobe:rose",
 		"bigglobe:blazing_blossom",
 		"bigglobe:glowing_goldenrod",
-		"bigglobe:charred_sapling"
+		"bigglobe:charred_sapling",
+		{
+			"id": "bigglobe:red_wildflowers",
+			"required": false
+		},
+		{
+			"id": "bigglobe:bluebonnets",
+			"required": false
+		},
+		{
+			"id": "bigglobe:violets",
+			"required": false
+		}
 	]
 }

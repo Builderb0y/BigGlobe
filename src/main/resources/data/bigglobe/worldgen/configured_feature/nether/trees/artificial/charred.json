@@ -33,6 +33,7 @@
 			"minecraft:netherrack":      "minecraft:netherrack",
 			"minecraft:soul_sand":       "minecraft:soul_sand",
 			"minecraft:soul_soil":       "minecraft:soul_soil"
-		}
+		},
+		"max_saplings": "world_traits.`bigglobe:max_artificial_tree_saplings`"
 	}
 }

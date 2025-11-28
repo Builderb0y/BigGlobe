@@ -1,0 +1,5 @@
+{
+	"type": "int",
+	"is_3d": true,
+	"default": "64"
+}

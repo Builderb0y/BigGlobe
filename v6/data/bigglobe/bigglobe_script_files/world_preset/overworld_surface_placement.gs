@@ -10,11 +10,11 @@ if (surfaceY.isBetween[minY, maxY]:
 	(
 		int lowerBound = hints.isLod ? ceilInt(world_traits.`bigglobe:slope_surface_y`) - 16 : world_traits.`bigglobe:core_max_y`
 		int upperBound = world_traits.`bigglobe:y_level_in_surface`
-		double terracottaOffset = `bigglobe:overworld/terracotta_offset`
+		double terracottaOffset = `bigglobe:overworld/terracotta_offset` * `bigglobe:overworld/raw/mountainness`
 		boolean desert = `bigglobe:overworld/is_desert`
 		boolean mesa = `bigglobe:overworld/is_mesa`
 		for (int blockY in range[lowerBound, upperBound]:
-			if (BlockState state = getBlockState(blockY),, state != null && !state.isAir():
+			if (BlockState state = getBlockState(blockY),, state ==. 'minecraft:stone':
 				double dY = (blockY + terracottaOffset) * 0.5L
 				int layerY = floorInt(dY)
 				double fracY = dY - layerY
