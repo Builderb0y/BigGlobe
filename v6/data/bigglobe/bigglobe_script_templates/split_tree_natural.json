@@ -1,5 +1,6 @@
 {
 	"script": [
+		"if (groundReplacements.(getBlockState(originX, originY - 1, originZ).getBlock()) == null: return(false))",
 		"float foliage = world_traits.`bigglobe:foliage_at`",
 		"double*(",
 			"slantAngle = random.nextDouble(tau)",
@@ -21,10 +22,40 @@
 			"0",
 		")",
 		"placeTree()",
+		"if (!decorations.isEmpty(): placeDecorations())",
 		"true"
 	],
 	"inputs": [
-		{ "name": "palette", "type": "WoodPalette" }
+		{
+			"name": "palette",
+			"type": "WoodPalette"
+		},
+		{
+			"name": "groundReplacements",
+			"type": "ConstantMap",
+			"default": [
+				"ConstantMap.new(",
+					"Block('minecraft:grass_block'    ): BlockState('minecraft:dirt'       ),",
+					"Block('minecraft:podzol'         ): BlockState('minecraft:dirt'       ),",
+					"Block('bigglobe:overgrown_podzol'): BlockState('minecraft:dirt'       ),",
+					"Block('minecraft:farmland'       ): BlockState('minecraft:dirt'       ),",
+					"Block('minecraft:coarse_dirt'    ): BlockState('minecraft:coarse_dirt'),",
+					"Block('minecraft:rooted_dirt'    ): BlockState('minecraft:rooted_dirt'),",
+					"Block('minecraft:sand'           ): BlockState('minecraft:sand'       ),",
+					"Block('minecraft:red_sand'       ): BlockState('minecraft:red_sand'   ),",
+					"Block('bigglobe:overgrown_sand'  ): BlockState('minecraft:sand'       )",
+				")"
+			]
+		},
+		{
+			"name": "requireValidGround",
+			"type": "boolean"
+		},
+		{
+			"name": "decorations",
+			"type": "ConstantMap",
+			"default": "ConstantMap.new()"
+		}
 	],
 	"includes": [
 		"bigglobe:include/split_tree"

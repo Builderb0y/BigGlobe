@@ -1,8 +1,8 @@
 {
 	"type": "group",
 	"dispatchers": [
-		"bigglobe:end/nest_spikes",
-		"bigglobe:end/outer_island_spikes",
-		"bigglobe:end/outer_island_foliage"
+		"bigglobe:end/large_features",
+		"bigglobe:end/medium_features",
+		"bigglobe:end/small_features"
 	]
 }

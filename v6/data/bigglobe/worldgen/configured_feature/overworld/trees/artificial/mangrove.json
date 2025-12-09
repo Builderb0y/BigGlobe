@@ -4,7 +4,8 @@
 		"script": {
 			"template": "bigglobe:split_tree_artificial",
 			"inputs": {
-				"palette": "'minecraft:mangrove'"
+				"palette": "'minecraft:mangrove'",
+				"requireValidGround": "false"
 			}
 		}
 	}

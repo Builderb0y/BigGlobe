@@ -136,7 +136,7 @@ Column value overriders have the following json properties:
 	* WoodPaletteScriptEnvironment (new in V5.0.2)
 
 	And the following additional variable:
-	* `structures` - the List of structures intersecting the current chunk. Not all of them will have pieces intersecting the current column. Check for this and handle it sanely.
+	* `structures` - the List of structures intersecting the current chunk. Not all of them will have pieces intersecting the current column. Check for this and handle it sanely. If a `structure_filter` is present (see below), this variable will only contain matching structures.
 
 	And the following additional functions:
 	* `distanceToSquare()` returns the distance from the current column to a square defined by one of the following:
@@ -152,3 +152,15 @@ Column value overriders have the following json properties:
 	* ScriptStructurePiece.data
 
 	This script returns nothing.
+* `raw_generation` - true if this overrider should run in the "raw" generation phase, false otherwise. Defaults to true.
+* `feature_generation` - true if this overrider should run in the "feature" generation phase, false otherwise. Defaults to true.
+* `structure_filter` (Upcoming) - an array of filters. May be null, and may also be a single filter instead of an array. Each filter has the following properties:
+	* `structure` (optional) - the structure(s) to match. May be a single structure, a tag, or an array of structures and tags.
+	* `structure_type` (optional)- the type(s) of structure to match. May be a single type, a tag, or an array of types and tags.
+	* `radius_in_chunks` - maximum radius where this overrider cares about the structure's existence.
+
+	If `structure` and `structure_type` are both present, the final structure will match if the structure OR type matches.
+
+	If neither `structure` nor `structure_type` are present, all structures will match.
+
+	For backwards compatibility, if the `structure_filter` is not present, then all structures will match and the `radius_in_chunks` defaults to 1.

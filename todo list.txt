@@ -42,13 +42,9 @@ where I left off:
 	warm and cold ocean biomes.
 		make tropical fish only spawn in warm oceans.
 	new tree script:
+		make vines only on oak trunks, not branches.
 		missing decoration:
-			bee hives.
 			mushroom shelves.
-			vines.
-		ground replacements (grass -> dirt, etc...)
-		better detection of ground that doesn't involve checking y_level_on_surface.
-		move to V6 folder.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -63,8 +59,6 @@ high priority:
 	hyperspace flight still persists after leaving hyperspace.
 		only on forge/sinytra.
 	unit tests for assignment-as-an-expression type inference.
-	LOD chunk ingesting might not get correct skylight levels.
-		test WITHOUT nightvision.
 
 V6:
 	rivers:
@@ -121,7 +115,7 @@ changelog:
 	# For data pack developers
 	* Column value overriders can now pre-filter which structures they want to intercept.
 	* Column value overriders can now have access to structures that are further away from the current chunk.
-	* Nether root feature dispatchers are now a tag instead of a group.
+	* Nether and end root feature dispatchers are now a tag instead of a group.
 	* Added a "noop" feature dispatcher type, for anyone who wants an easy way to disable an existing feature dispatcher.
 
 alternate world presets:

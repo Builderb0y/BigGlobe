@@ -9,7 +9,7 @@ void branch(double*(x1, y1, z1, r1, x2, y2, z2, r2), WoodPalette woodPalette, in
 	)
 	int*(
 		minX = higherInt(min(x1 - r1, x2 - r2))
-		minY = higherInt(min(y1 - r1, y2 - r2))
+		minY =  floorInt(min(y1 - r1, y2 - r2)) ;one block lower for ground replacements.
 		minZ = higherInt(min(z1 - r1, z2 - r2))
 		maxX = lowerInt(max(x1 + r1, x2 + r2))
 		maxY = lowerInt(max(y1 + r1, y2 + r2))
@@ -17,35 +17,56 @@ void branch(double*(x1, y1, z1, r1, x2, y2, z2, r2), WoodPalette woodPalette, in
 	)
 	for (
 		int z in range[minZ, maxZ],
-		int x in range[minX, maxX],
-		int y in range[minY, maxY]
+		int x in range[minX, maxX]
 	:
-		double*(
-			relativeX = x - x1
-			relativeY = y - y1
-			relativeZ = z - z1
-			dot = clamp(0.0L, 1.0L, (relativeX * dx + relativeY * dy + relativeZ * dz) * dr)
-			closestX = dx * dot
-			closestY = dy * dot
-			closestZ = dz * dot
-			projDist = (
-				+ (relativeX - closestX) ^ 2
-				+ (relativeY - closestY) ^ 2
-				+ (relativeZ - closestZ) ^ 2
+		boolean placedPreviously = false
+		for (int y in -range[minY, maxY]:
+			double*(
+				relativeX = x - x1
+				relativeY = y - y1
+				relativeZ = z - z1
+				dot = clamp(0.0L, 1.0L, (relativeX * dx + relativeY * dy + relativeZ * dz) * dr)
+				closestX = dx * dot
+				closestY = dy * dot
+				closestZ = dz * dot
+				projDist = (
+					+ (relativeX - closestX) ^ 2
+					+ (relativeY - closestY) ^ 2
+					+ (relativeZ - closestZ) ^ 2
+				)
+				threshold = mixLinear(r1, r2, dot) ^ 2
 			)
-			threshold = mixLinear(r1, r2, dot) ^ 2
-		)
-		if (projDist < threshold:
 			BlockState state = getBlockState(x, y, z)
 			if (state.isReplaceable() || state.isIn('#bigglobe:tree_trunk_replaceables'):
-				positions.put(Pos.new(x, y, z), woodPalette.woodState(random, axis: y))
+				placedPreviously = (projDist < threshold).if (
+					positions.(Pos.new(x, y, z)) = woodPalette.woodState(random, axis: y)
+				)
 			)
-			else if (recursionLevel > 0 || y >= world_traits.`bigglobe:y_level_on_surface`(x, z):
-				abort()
+			else (
+				if (recursionLevel == 0:
+					if (placedPreviously:
+						BlockState replacement = groundReplacements.(state.getBlock())
+						if (replacement != null:
+							if (replacement != state:
+								positions.(Pos.new(x, y, z)) = replacement
+							)
+						)
+						else (
+							if (requireValidGround:
+								abort()
+							)
+						)
+						placedPreviously = false
+					)
+				)
+				else (
+					abort()
+				)
 			)
 		)
 	)
 )
+
 void tree(
 	double*(x1, y1, z1, r1, x2, y2, z2, r2),
 	WoodPalette woodPalette,
@@ -127,6 +148,7 @@ void tree(
 		)
 	)
 )
+
 void placeTree(:
 	for (Pos pos, BlockState state in positions:
 		setBlockState(pos.x, pos.y, pos.z, state)
@@ -134,6 +156,15 @@ void placeTree(:
 			if (getBlockState(pos.x, pos.y + 1, pos.z).isAir():
 				setBlockState(pos.x, pos.y + 1, pos.z, 'minecraft:snow[layers=1]')
 			)
+		)
+	)
+)
+
+void placeDecorations(:
+	for (Pos pos, BlockState state in positions:
+		ConfiguredFeature decoration = decorations.(state.getBlock())
+		if (decoration != null:
+			placeFeature(pos.x, pos.y, pos.z, decoration)
 		)
 	)
 )

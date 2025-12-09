@@ -29,7 +29,7 @@
 			],
 			"leaves": [
 				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" },
-				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/bee_nest" }
+				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/beehive_64th_chance" }
 			]
 		},
 		"shelves": [
