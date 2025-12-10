@@ -112,6 +112,7 @@ changelog:
 	* Ocean monuments are now slightly rarer.
 	* Some structures have terrain adaptation in a larger area around them now.
 	* Increased default LOD quad count from 20M to 50M. The max is still 100M.
+	* Fixed endermen not spawning on the ender dragon's nest.
 	# For data pack developers
 	* Column value overriders can now pre-filter which structures they want to intercept.
 	* Column value overriders can now have access to structures that are further away from the current chunk.
