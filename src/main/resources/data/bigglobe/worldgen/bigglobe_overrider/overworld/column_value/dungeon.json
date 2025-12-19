@@ -8,28 +8,21 @@
 			"int structureMaxY = start.maxY",
 			"int bufferMinY = structureMinY - 64",
 			"int bufferMaxY = structureMaxY + 64",
-			"float horizontalFactor = clamp(0.0, 1.0, 1.0 - distanceToCircle(start).as(float) * 0.015625) ^ 2",
+			"float horizontalFactor = (distanceToCircle(start).as(float) / 48.0I) ^ 2",
 			"for (",
 				"int y in range[",
 					"max(bufferMinY, world_traits.`bigglobe:cave_min_y`),",
 					"min(bufferMaxY, world_traits.`bigglobe:cave_max_y`)",
 				")",
 			":",
-				"float verticalFactor = if (y < structureMinY:",
-					"unmixLinear(double(bufferMinY), double(structureMinY), double(y)).as(float) ^ 2",
-				")",
-				"else if (y > structureMaxY:",
-					"unmixLinear(double(bufferMaxY), double(structureMaxY), double(y)).as(float) ^ 2",
-				")",
-				"else (",
-					"1.0",
-				")",
-				"world_traits.`bigglobe:cave_noise`(y) *= 1.0 - horizontalFactor * verticalFactor",
+				"float verticalFactor = ((clamp(double(structureMinY), double(structureMaxY), double(y)) - double(y)).as(float) / 48.0I) ^ 2",
+				"float combinedFactor = min(horizontalFactor + verticalFactor, 1.0)",
+				"world_traits.`bigglobe:cave_noise`(y) *= combinedFactor * (2.0 - combinedFactor)",
 			")",
 		")"
 	],
 	"structure_filter": {
 		"structure": "#bigglobe:dungeons",
-		"radius_in_chunks": 4
+		"radius_in_chunks": 3
 	}
 }

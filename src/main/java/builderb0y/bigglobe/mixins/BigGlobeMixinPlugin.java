@@ -69,6 +69,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ClientWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreakingHeartBlock_MakeWorkInTheNether",                                                   Boolean.TRUE);
+		defaults.put(mixinPackage + ".CreakingHeartBlockEntity_MakeWorkInTheNether",                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType",                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreateWorldScreen_MakeBigGlobeTheDefaultWorldType$WorldTab_HandleUnknownWorldTypesSanely", Boolean.TRUE);
 		defaults.put(mixinPackage + ".DebugHud_ShowLodStatus",                                                                   Boolean.TRUE);

@@ -1,0 +1,53 @@
+{
+	"attributes": {
+		"minecraft:visual/fog_color": 4140847,
+		"minecraft:visual/sky_color": 7254527,
+		"minecraft:visual/water_fog_color": 329011,
+		"minecraft:visual/ambient_particles": [
+			{
+				"probability": 0.0625,
+				"particle": {
+					"type": "minecraft:ash"
+				}
+			}
+		],
+		"minecraft:audio/background_music": {
+			"default": {
+				"sound": "minecraft:music.nether.nether_wastes",
+				"min_delay": 12000,
+				"max_delay": 24000,
+				"replace_current_music": false
+			}
+		},
+		"minecraft:audio/ambient_sounds": {
+			"mood": {
+				"sound": "minecraft:ambient.nether_wastes.mood",
+				"tick_delay": 6000,
+				"block_search_extent": 8,
+				"offset": 2.0
+			},
+			"additions": {
+				"sound": "minecraft:ambient.nether_wastes.additions",
+				"tick_chance": 0.0111
+			}
+		}
+	},
+	"carvers": [],
+	"downfall": 0.0,
+	"effects": {
+		"water_color": 4159204
+	},
+	"features": [],
+	"has_precipitation": false,
+	"spawn_costs": {},
+	"spawners": {
+		"ambient": [],
+		"creature": [],
+		"misc": [],
+		"monster": [],
+		"underground_water_creature": [],
+		"water_ambient": [],
+		"water_creature": []
+	},
+	"temperature": 2.0
+}

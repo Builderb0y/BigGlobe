@@ -30,8 +30,7 @@ import net.minecraft.loot.entry.TagEntry;
 import net.minecraft.registry.*;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.util.*;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
@@ -41,8 +40,6 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 
 #if MC_VERSION < MC_1_21_4
 	import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -239,7 +236,7 @@ public class BigGlobeItems {
 		)
 	);
 	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings("chorus_spore")));
-	public static final @Nullable WaypointItem
+	public static final WaypointItem
 		PUBLIC_WAYPOINT  = register("public_waypoint",  new WaypointItem(settings("public_waypoint"), false)),
 		PRIVATE_WAYPOINT = register("private_waypoint", new WaypointItem(settings("private_waypoint"), true ));
 	public static final EnumMap<CloudColor, AuraBottleItem> AURA_BOTTLES = new EnumMap<>(CloudColor.class);
@@ -273,6 +270,7 @@ public class BigGlobeItems {
 			#if MC_VERSION >= MC_1_21_2
 				, new Item.Settings()
 				.registryKey(key("voidmetal_upgrade"))
+				.rarity(Rarity.UNCOMMON)
 			#endif
 		)
 	);

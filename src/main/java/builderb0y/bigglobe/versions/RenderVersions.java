@@ -7,9 +7,11 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
 public class RenderVersions {
@@ -132,6 +134,14 @@ public class RenderVersions {
 			return layer.isTranslucent();
 		#else
 			return layer.translucent;
+		#endif
+	}
+
+	public static Vec3d getCameraPosition(Camera camera) {
+		#if MC_VERSION >= MC_1_21_11
+			return camera.getCameraPos();
+		#else
+			return camera.getPos();
 		#endif
 	}
 }

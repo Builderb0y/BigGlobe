@@ -72,7 +72,11 @@ public abstract class VersionedVertexConsumer
 
 	public abstract void handleNormal(float nx, float ny, float nz);
 
-	#if MC_VERSION >= MC_1_21_0 @Override #endif
+	public VertexConsumer lineWidth(float width) {
+		return this;
+	}
+
+	//@Override
 	public VertexConsumer vertex(float x, float y, float z) {
 		if (this.setFlag(CompactVertexFormat.FLAG_POSITION)) {
 			this.handlePosition(x, y, z);

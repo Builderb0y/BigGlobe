@@ -39,7 +39,6 @@ public abstract class ServerPlayerEntity_FixNetherRoofGlitch extends PlayerEntit
 		) {
 			this.setVelocity(Vec3d.ZERO);
 			this.velocityDirty = true;
-			this.velocityModified = true;
 			this.networkHandler.requestTeleport(this.getX(), this.getY() - moveDown, this.getZ(), this.getYaw(), this.getPitch());
 			BigGlobeMod.LOGGER.warn(this.getName().getString() + " ended up on the nether roof somehow. Teleporting them back down so that they're not stranded there.");
 		}

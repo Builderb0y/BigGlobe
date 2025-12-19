@@ -25,7 +25,11 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 	public static final Identifier TEXTURE = BigGlobeMod.mcID("textures/particle/flash.png");
 	public static RenderLayer LIGHTNING_LAYER;
 	static {
-		RenderLayer layer = RenderLayer.getLightning();
+		#if MC_VERSION >= MC_1_21_11
+			RenderLayer layer = RenderLayers.lightning();
+		#else
+			RenderLayer layer = RenderLayer.getLightning();
+		#endif
 		got:
 		if (FabricLoader.getInstance().isModLoaded("iris")) {
 			try {

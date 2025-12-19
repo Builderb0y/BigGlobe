@@ -28,6 +28,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.CommandVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 import net.minecraft.registry.RegistryLoader;
@@ -37,8 +38,8 @@ public class DumpRegistriesCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 		dispatcher.register(
 			CommandManager.literal(BigGlobeMod.MODID + ":dumpRegistries")
-			.requires(source -> source.hasPermissionLevel(4))
-			.executes(context -> {
+			.requires(CommandVersions.levelPredicate(4).or((ServerCommandSource source) -> source.getServer() != null && source.getServer().isSingleplayer()))
+			.executes((CommandContext<ServerCommandSource> context) -> {
 				try {
 					dumpEverything(context);
 					context.getSource().sendFeedback(() -> Text.translatable("commands." + BigGlobeMod.MODID + ".registryDump.success"), false);

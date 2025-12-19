@@ -12,6 +12,7 @@ import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameruleVersions;
 
 public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 
@@ -30,7 +31,7 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 	}
 
 	public void send(ServerPlayerEntity player) {
-		boolean dangerousRapids = EntityVersions.getServerWorld(player).getGameRules().get(BigGlobeGameRules.DANGEROUS_RAPIDS).get();
+		boolean dangerousRapids = GameruleVersions.dangerousRapids(EntityVersions.getServerWorld(player));
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeBoolean(dangerousRapids);
 		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);

@@ -15,4 +15,5 @@ export JAVA_HOME=/home/builderb0y/java/jdk-25+36/
 ./gradlew "Switch to 1.21.5" && ./gradlew checkIfMyCodeCompiles && \
 ./gradlew "Switch to 1.21.8" && ./gradlew checkIfMyCodeCompiles && \
 ./gradlew "Switch to 1.21.10" && ./gradlew checkIfMyCodeCompiles && \
+./gradlew "Switch to 1.21.11" && ./gradlew checkIfMyCodeCompiles && \
 ./gradlew --stop;

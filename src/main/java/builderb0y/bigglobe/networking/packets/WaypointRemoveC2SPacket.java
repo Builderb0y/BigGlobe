@@ -8,7 +8,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameRules;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.*;
@@ -17,6 +16,7 @@ import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameruleVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
@@ -46,7 +46,7 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 						if (player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getEntityReachDistanceSquared(player)) {
 							serverManager.removeWaypoint(id, true);
 							Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
-							if (drop != null && EntityVersions.getServerWorld(player).getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
+							if (GameruleVersions.entityDrops(EntityVersions.getServerWorld(player))) {
 								ItemStack stack = new ItemStack(drop);
 								if (waypoint.destination().name() != null) {
 									ItemStackVersions.setCustomName(stack, waypoint.destination().name());

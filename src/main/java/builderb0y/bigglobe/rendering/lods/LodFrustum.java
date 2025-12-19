@@ -43,7 +43,7 @@ public class LodFrustum {
 			this.modelViewMatrix.set(context.matrixStack().peek().getPositionMatrix());
 		#endif
 
-		Vec3d cameraPos = context.camera().getPos();
+		Vec3d cameraPos = RenderVersions.getCameraPosition(context.camera());
 		this.x = cameraPos.x;
 		this.y = cameraPos.y;
 		this.z = cameraPos.z;

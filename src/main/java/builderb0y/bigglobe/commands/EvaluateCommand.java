@@ -28,6 +28,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
+import builderb0y.bigglobe.versions.CommandVersions;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -45,7 +46,7 @@ public class EvaluateCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":evaluate")
-			.requires((ServerCommandSource source) -> source.hasPermissionLevel(4) && getGenerator(source) != null)
+			.requires(CommandVersions.levelPredicate(4).and((ServerCommandSource source) -> getGenerator(source) != null))
 			.then(
 				CommandManager
 				.argument("script", StringArgumentType.greedyString())

@@ -55,7 +55,9 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 				.hasChildren()
 			)
 			//vanilla logic.
-			&& world.random.nextFloat() < world.getMoonSize()
+			&& world.random.nextFloat() < world.getMoonSize(
+				#if MC_VERSION >= MC_1_21_11 pos #endif
+			)
 			&& world.getLightLevel(pos) <= world.random.nextInt(8)
 		) {
 			callback.setReturnValue(

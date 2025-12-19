@@ -182,8 +182,9 @@ public class SidedCombinedLodRenderer extends AbstractLodRenderer {
 	public static class SidedMultiDrawLodState extends LodGlState {
 
 		public TextureState
+			texture1 = TextureState.buffer(GL_TEXTURE1);
+		public FilteredTextureState
 			texture0 = TextureState._2D(GL_TEXTURE0),
-			texture1 = TextureState.buffer(GL_TEXTURE1),
 			texture2 = TextureState._2D(GL_TEXTURE2);
 
 		@Override
@@ -196,9 +197,9 @@ public class SidedCombinedLodRenderer extends AbstractLodRenderer {
 
 		@Override
 		public void restore() {
-			this.texture2.capture();
-			this.texture1.capture();
-			this.texture0.capture();
+			this.texture2.restore();
+			this.texture1.restore();
+			this.texture0.restore();
 			super.restore();
 		}
 	}

@@ -36,7 +36,9 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 		private void bigglobe_disableFogWhenRenderingLods(
 			Camera camera,
 			int viewDistance,
-			boolean thick,
+			#if MC_VERSION < MC_1_21_11
+				boolean thick,
+			#endif
 			RenderTickCounter tickCounter,
 			float skyDarkness,
 			ClientWorld world,

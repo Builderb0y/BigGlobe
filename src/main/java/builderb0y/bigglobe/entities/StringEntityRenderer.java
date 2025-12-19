@@ -32,7 +32,11 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 
 	@Override
 	public RenderLayer getRenderLayer() {
-		return RenderLayer.getEntitySolid(TEXTURE);
+		#if MC_VERSION >= MC_1_21_11
+			return RenderLayers.entitySolid(TEXTURE);
+		#else
+			return RenderLayer.getEntitySolid(TEXTURE);
+		#endif
 	}
 
 	@Override

@@ -1,0 +1,42 @@
+{
+	"attributes": {
+		"minecraft:visual/fog_color": 12638463,
+		"minecraft:visual/sky_color": 8103167,
+		"minecraft:visual/water_fog_color": 6141935,
+		"minecraft:audio/background_music": {
+			"default": {
+				"max_delay": 24000,
+				"min_delay": 12000,
+				"replace_current_music": false,
+				"sound": "minecraft:music.overworld.cherry_grove"
+			}
+		},
+		"minecraft:audio/ambient_sounds": {
+			"mood": {
+				"block_search_extent": 8,
+				"offset": 2.0,
+				"sound": "minecraft:ambient.cave",
+				"tick_delay": 6000
+			}
+		}
+	},
+	"carvers": [],
+	"downfall": 0.5,
+	"effects": {
+		"foliage_color": 11983713,
+		"water_color": 6141935
+	},
+	"features": [],
+	"has_precipitation": true,
+	"spawn_costs": {},
+	"spawners": {
+		"ambient": [],
+		"creature": [],
+		"misc": [],
+		"monster": [],
+		"underground_water_creature": [],
+		"water_ambient": [],
+		"water_creature": []
+	},
+	"temperature": 0.5
+}

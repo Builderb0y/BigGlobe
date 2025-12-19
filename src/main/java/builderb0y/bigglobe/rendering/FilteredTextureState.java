@@ -1,11 +1,13 @@
 package builderb0y.bigglobe.rendering;
 
+import org.lwjgl.opengl.*;
+
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL13C.*;
 
 public class FilteredTextureState extends TextureState {
 
-	public int minFilter, magFilter, wrapX, wrapY;
+	public int minFilter, magFilter, wrapX, wrapY, sampler;
 
 	public FilteredTextureState(int binder, int bindQuery, int index) {
 		super(binder, bindQuery, index);
@@ -37,6 +39,10 @@ public class FilteredTextureState extends TextureState {
 		GLException.check();
 		this.wrapY = glGetTexParameteri(this.binder, GL_TEXTURE_WRAP_T);
 		GLException.check();
+		#if MC_VERSION >= MC_1_21_11
+			this.sampler = glGetInteger(GL33C.GL_SAMPLER_BINDING);
+			GLException.check();
+		#endif
 	}
 
 	@Override
@@ -50,5 +56,9 @@ public class FilteredTextureState extends TextureState {
 		GLException.check();
 		glTexParameteri(this.binder, GL_TEXTURE_WRAP_T, this.wrapY);
 		GLException.check();
+		#if MC_VERSION >= MC_1_21_11
+			GL33C.glBindSampler(this.index - GL_TEXTURE0, this.sampler);
+			GLException.check();
+		#endif
 	}
 }

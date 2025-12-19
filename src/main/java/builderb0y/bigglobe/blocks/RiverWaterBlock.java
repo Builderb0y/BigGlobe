@@ -37,6 +37,7 @@ import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
+import builderb0y.bigglobe.versions.GameruleVersions;
 
 @AddPseudoField("fluid")
 public class RiverWaterBlock extends FluidBlock {
@@ -62,7 +63,7 @@ public class RiverWaterBlock extends FluidBlock {
 
 	public boolean isDangerous(World world) {
 		if (world instanceof ServerWorld serverWorld) {
-			return serverWorld.getGameRules().getBoolean(BigGlobeGameRules.DANGEROUS_RAPIDS);
+			return GameruleVersions.dangerousRapids(serverWorld);
 		}
 		else {
 			ClientState state = ClientState.get(world);

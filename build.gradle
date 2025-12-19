@@ -1,19 +1,20 @@
 import java.lang.reflect.Method
-import java.nio.channels.FileChannel
-import java.nio.channels.FileLock
 import java.nio.file.Files
-import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeUnit
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 plugins() {
-	id('fabric-loom') version('1.11-SNAPSHOT')
+	id('fabric-loom') version('1.14-SNAPSHOT')
 	//id('maven-publish')
 }
 
 version = project.mod_version
 group   = project.maven_group
+
+base() {
+	archivesName = project.archives_base_name
+}
 
 sourceSets() {
 	main() {
@@ -113,19 +114,14 @@ dependencies() {
 	modImplementation("net.fabricmc:fabric-loader:${ project.loader_version }")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
 
-	testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.0-M1')
-	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.0-M1')
+	testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
+	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 
 	String AUTO_CODEC_VERSION = '6.0.2'
 	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION") {
 		transitive = false //don't include different version of DFU than what minecraft uses.
 	}
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
-	if (project.minecraft_version == '1.19.2') {
-		String JOML_VERSION = '1.10.4'
-		implementation("org.joml:joml:$JOML_VERSION")
-		include("org.joml:joml:$JOML_VERSION")
-	}
 
 	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.27')
 
@@ -184,7 +180,6 @@ java() {
 	if (JavaVersion.current() < javaVersion) {
 		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 	}
-	archivesBaseName = project.archives_base_name
 	//Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	//if it is present.
 	//If you remove this line, sources will not be generated.
@@ -201,9 +196,9 @@ jar() {
 tasks.register('copyToReleases', Copy) {
 	dependsOn(remapJar)
 	from("$projectDir/build/libs") {
-		include("$archivesBaseName-${project.version}.jar")
+		include("$project.archives_base_name-${project.version}.jar")
 		rename() {
-			"$archivesBaseName-$project.version-MC${minecraft_version}.jar"
+			"$project.archives_base_name-$project.version-MC${minecraft_version}.jar"
 		}
 	}
 	into(file("releases/${project.version.toString().replace('.' as char, '/' as char)}"))
@@ -277,7 +272,7 @@ test() {
 	dependsOn(runClientServer)
 	useJUnitPlatform()
 	doFirst() {
-		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$archivesBaseName-$project.version-MC${minecraft_version}.jar").exists()) {
+		if (file("releases/${project.version.toString().replace('.' as char, '/' as char)}/$project.archives_base_name-$project.version-MC${minecraft_version}.jar").exists()) {
 			throw new IllegalStateException("Release file $project.version-MC$minecraft_version already exists. If you intend to overwrite this file, delete it first. Otherwise, you probably forgot to bump the version.")
 		}
 	}
@@ -352,6 +347,7 @@ for (Version version in [
 	new Version(21, 5),
 	new Version(21, 8),
 	new Version(21, 10),
+	new Version(21, 11),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -380,6 +376,7 @@ MC_1_21_7=12107
 MC_1_21_8=12108
 MC_1_21_9=12109
 MC_1_21_10=12110
+MC_1_21_11=12111
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

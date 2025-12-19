@@ -15,6 +15,8 @@ bugs:
 	fabric fails to upgrade big globe worlds.
 		TaggedChoiceTypeMixin cancels a method with a Codec,
 		despite the fact that minecraft changed to using a MapCodec instead.
+	hyperspace flight still persists after leaving hyperspace.
+		only on forge/sinytra.
 
 testing:
 	cubic chunks compatibility, whenever that's released.
@@ -45,6 +47,7 @@ where I left off:
 		make vines only on oak trunks, not branches.
 		missing decoration:
 			mushroom shelves.
+			mangrove propagules.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -56,21 +59,9 @@ high priority:
 	document terrainAdaptation.
 	document scripted structures in general.
 	incorrect world height detection code doesn't work correctly for bclib.
-	hyperspace flight still persists after leaving hyperspace.
-		only on forge/sinytra.
 	unit tests for assignment-as-an-expression type inference.
 
 V6:
-	rivers:
-		investigate whether
-				ColorProviderRegistry.BLOCK.register(
-					(BlockState state, BlockRenderView world, BlockPos pos, int tintIndex) -> {
-						return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
-					},
-					RIVER_WATER
-				);
-			is necessary for river water rendering or not.
-				test with DH and voxy.
 	add new json classes.
 	LOD renderer improvements:
 		make ingesting work in multiplayer.
@@ -88,17 +79,27 @@ V6:
 	new "rock layers" for nether too?
 	reduce rock layer amplitude offset based on mountainness.
 	make nether surface depth a bubble property.
-
-1.21.11: (?)
-	new skeleton-like entity spawns in deserts.
-		need to patch spawning logic, as it does not spawn in caves by default, similar to husks.
+	structure dispatchers?
+		2D and 3D variants.
+	remove all but one biome?
+	make nether fortresses spawn exclusively in the upper part of the nether,
+		and bastion remnants exclusively in the lower part.
+			ideally on the lava surface.
+			maybe remove column value overrider for them.
+	clean up dimensional overrides in scripted chunk generator.
+	fix registry namespaces (right now all my custom ones are in the "minecraft" namespace).
 
 LODs:
 	shader support.
 
 json classes:
 	extra goals:
-		* json-defined interfaces, interface inheritance, and classes implementing multiple interfaces.
+		* json-defined interfaces.
+			* interface inheritance.
+			* classes implementing multiple interfaces.
+		* json-defined enums.
+			* tag controlling the enum values.
+			* "weighted" enum interface, allowing scripts to choose a random element from the enum values.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
@@ -107,12 +108,15 @@ json classes:
 
 changelog:
 	# For normal people
+	* Ported to MC 1.21.11.
 	* Fixed trial chambers spawning inside volcanoes in the islands world preset.
 		* This was technically fixed in V5.1.1, but now the fix is available for all supported MC versions.
 	* Ocean monuments are now slightly rarer.
 	* Some structures have terrain adaptation in a larger area around them now.
 	* Increased default LOD quad count from 20M to 50M. The max is still 100M.
+		* Does not retroactively apply to existing config files.
 	* Fixed endermen not spawning on the ender dragon's nest.
+	* Fixed name on voidmetal upgrade item.
 	# For data pack developers
 	* Column value overriders can now pre-filter which structures they want to intercept.
 	* Column value overriders can now have access to structures that are further away from the current chunk.

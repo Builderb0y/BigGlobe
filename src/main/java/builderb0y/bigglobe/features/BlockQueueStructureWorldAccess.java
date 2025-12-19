@@ -45,6 +45,10 @@ import builderb0y.bigglobe.blocks.BlockStates;
 
 import net.minecraft.resource.featuretoggle.FeatureSet;
 
+#if MC_VERSION >= MC_1_21_11
+	import net.minecraft.world.attribute.EnvironmentAttributeAccess;
+#endif
+
 public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 
 	public final StructureWorldAccess world;
@@ -169,6 +173,15 @@ public class BlockQueueStructureWorldAccess implements StructureWorldAccess {
 	public Random getRandom() {
 		return this.world.getRandom();
 	}
+
+	#if MC_VERSION >= MC_1_21_11
+
+		@Override
+		public EnvironmentAttributeAccess getEnvironmentAttributes() {
+			return this.world.getEnvironmentAttributes();
+		}
+
+	#endif
 
 	#if MC_VERSION >= MC_1_21_5
 

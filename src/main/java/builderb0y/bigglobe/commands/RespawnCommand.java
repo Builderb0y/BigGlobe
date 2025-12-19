@@ -29,6 +29,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.CommandVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.WorldPropertiesVersions;
 
@@ -40,7 +41,7 @@ public class RespawnCommand {
 		dispatcher.register(
 			CommandManager
 			.literal(BigGlobeMod.MODID + ":respawn")
-			.requires((ServerCommandSource source) -> source.hasPermissionLevel(2))
+			.requires(CommandVersions.levelPredicate(2))
 			.executes((CommandContext<ServerCommandSource> context) -> {
 				Text failReason = RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrThrow(), false);
 				if (failReason == null) return 1;

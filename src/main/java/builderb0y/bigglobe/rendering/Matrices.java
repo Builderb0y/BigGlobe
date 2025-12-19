@@ -39,7 +39,7 @@ public class Matrices {
 			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
 		#endif
 	) {
-		Vec3d cameraPos = context.camera().getPos();
+		Vec3d cameraPos = RenderVersions.getCameraPosition(context.camera());
 		cameraX = cameraPos.x;
 		cameraY = cameraPos.y;
 		cameraZ = cameraPos.z;

@@ -15,8 +15,12 @@ public class EyeblossomBlock_MakeWorkInTheNether {
 	@ModifyReceiver(
 		method = "updateStateAndNotifyOthers",
 		at = {
-			@At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getDimension()Lnet/minecraft/world/dimension/DimensionType;"),
-			@At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;isDay()Z")
+			#if MC_VERSION >= MC_1_21_11
+				@At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getEnvironmentAttributes()Lnet/minecraft/world/attribute/WorldEnvironmentAttributeAccess;")
+			#else
+				@At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getDimension()Lnet/minecraft/world/dimension/DimensionType;"),
+				@At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;isDay()Z")
+			#endif
 		}
 	)
 	private ServerWorld bigglobe_useAlternateWorldIfDesired(ServerWorld original) {

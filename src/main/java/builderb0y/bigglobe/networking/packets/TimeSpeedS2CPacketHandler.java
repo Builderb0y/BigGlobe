@@ -12,6 +12,7 @@ import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.GameruleVersions;
 
 public class TimeSpeedS2CPacketHandler implements S2CPlayPacketHandler<Double> {
 
@@ -30,7 +31,7 @@ public class TimeSpeedS2CPacketHandler implements S2CPlayPacketHandler<Double> {
 	}
 
 	public void send(ServerPlayerEntity player) {
-		double speed = EntityVersions.getServerWorld(player).getGameRules().get(BigGlobeGameRules.DAYLIGHT_CYCLE_SPEED).get();
+		double speed = GameruleVersions.daylightCycleSpeed(EntityVersions.getServerWorld(player));
 		PacketByteBuf buffer = this.buffer();
 		buffer.writeDouble(speed);
 		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);

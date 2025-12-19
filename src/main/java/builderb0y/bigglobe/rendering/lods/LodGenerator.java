@@ -19,8 +19,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.world.BiomeColors;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayers;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -758,7 +757,7 @@ public class LodGenerator implements SafeCloseable {
 										fabricHandler.renderFluid(
 											pos,
 											columnBlockView,
-											provider.getBuffer(RenderLayers.getFluidLayer(fluidState)),
+											provider.getBuffer(layerOf(fluidState)),
 											centerSegment.value,
 											fluidState
 										);
@@ -767,7 +766,7 @@ public class LodGenerator implements SafeCloseable {
 										blockRenderManager.renderFluid(
 											pos,
 											columnBlockView,
-											provider.getBuffer(RenderLayers.getFluidLayer(fluidState)),
+											provider.getBuffer(layerOf(fluidState)),
 											centerSegment.value,
 											fluidState
 										);
@@ -782,6 +781,26 @@ public class LodGenerator implements SafeCloseable {
 			}
 		}
 	}
+
+	#if MC_VERSION >= MC_1_21_11
+
+		public static BlockRenderLayer layerOf(FluidState state) {
+			return BlockRenderLayers.getFluidLayer(state);
+		}
+
+	#elif MC_VERSION >= MC_1_21_8
+
+		public static BlockRenderLayer layerOf(FluidState state) {
+			return RenderLayers.getFluidLayer(state);
+		}
+
+	#else
+
+		public static RenderLayer layerOf(FluidState state) {
+			return RenderLayers.getFluidLayer(state);
+		}
+
+	#endif
 
 	public static enum LoadMode {
 		GENERATE_ONLY,

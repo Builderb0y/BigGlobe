@@ -19,8 +19,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.*;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
-import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.GameruleVersions;
 
 public abstract class SoulLavaFluid extends FlowableFluid {
 
@@ -42,7 +42,7 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 			World world
 		#endif
 	) {
-		return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
+		return GameruleVersions.soulLavaSourceConversion(world);
 	}
 
 	@Override
@@ -52,12 +52,12 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 
 	@Override
 	public int #if MC_VERSION >= MC_1_21_0 getMaxFlowDistance #else getFlowSpeed #endif (WorldView world) {
-		return world.getDimension().ultrawarm() ? 4 : 2;
+		return this.isNether(world) ? 4 : 2;
 	}
 
 	@Override
 	public int getLevelDecreasePerBlock(WorldView world) {
-		return world.getDimension().ultrawarm() ? 1 : 2;
+		return this.isNether(world) ? 1 : 2;
 	}
 
 	@Override
@@ -83,7 +83,15 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 
 	@Override
 	public int getTickRate(WorldView world) {
-		return world.getDimension().ultrawarm() ? 10 : 30;
+		return this.isNether(world) ? 10 : 30;
+	}
+
+	public boolean isNether(WorldView world) {
+		#if MC_VERSION >= MC_1_21_11
+			return world.getEnvironmentAttributes().getAttributeValue(net.minecraft.world.attribute.EnvironmentAttributes.FAST_LAVA_GAMEPLAY);
+		#else
+			return world.getDimension().ultrawarm();
+		#endif
 	}
 
 	@Override

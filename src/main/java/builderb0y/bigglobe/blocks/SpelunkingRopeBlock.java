@@ -26,7 +26,6 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
@@ -37,6 +36,7 @@ import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.ActionResultVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.GameruleVersions;
 
 #if MC_VERSION >= MC_1_21_0
 	import net.minecraft.item.tooltip.TooltipType;
@@ -124,7 +124,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	@Override
 	public void onDestroyedOnLanding(World world, BlockPos pos, FallingBlockEntity fallingBlockEntity) {
-		if (world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getBoolean(GameRules.DO_TILE_DROPS)) {
+		if (world instanceof ServerWorld serverWorld && GameruleVersions.tileDrops(serverWorld)) {
 			world.spawnEntity(
 				new ItemEntity(
 					world,

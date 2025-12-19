@@ -1,0 +1,84 @@
+{
+	"replace": false,
+	"values": [
+		"#minecraft:saplings",
+		"#c:mushrooms",
+		"#minecraft:crops",
+		"#minecraft:corals",
+
+		"minecraft:dandelion",
+		"minecraft:poppy",
+		"minecraft:blue_orchid",
+		"minecraft:allium",
+		"minecraft:azure_bluet",
+		"minecraft:red_tulip",
+		"minecraft:orange_tulip",
+		"minecraft:white_tulip",
+		"minecraft:pink_tulip",
+		"minecraft:oxeye_daisy",
+		"minecraft:cornflower",
+		"minecraft:lily_of_the_valley",
+		"minecraft:wither_rose",
+		"minecraft:torchflower",
+		"minecraft:closed_eyeblossom",
+		"minecraft:open_eyeblossom",
+
+		"minecraft:sunflower",
+		"minecraft:lilac",
+		"minecraft:peony",
+		"minecraft:rose_bush",
+		"minecraft:pitcher_plant",
+
+		"minecraft:sugar_cane",
+		"minecraft:attached_pumpkin_stem",
+		"minecraft:attached_melon_stem",
+		"minecraft:pumpkin_stem",
+		"minecraft:melon_stem",
+		"minecraft:lily_pad",
+		"minecraft:nether_wart",
+		"minecraft:cocoa",
+		"minecraft:chorus_plant",
+		"minecraft:chorus_flower",
+		"minecraft:kelp",
+		"minecraft:kelp_plant",
+		"minecraft:sea_pickle",
+		"minecraft:sweet_berry_bush",
+		"minecraft:warped_fungus",
+		"minecraft:crimson_fungus",
+		"minecraft:weeping_vines",
+		"minecraft:weeping_vines_plant",
+		"minecraft:twisting_vines",
+		"minecraft:twisting_vines_plant",
+		"minecraft:cave_vines",
+		"minecraft:cave_vines_plant",
+		"minecraft:spore_blossom",
+		"minecraft:moss_carpet",
+		"minecraft:big_dripleaf",
+		"minecraft:big_dripleaf_stem",
+		"minecraft:small_dripleaf",
+		"minecraft:pink_petals",
+		{
+			"id": "minecraft:leaf_litter",
+			"required": false
+		},
+		{
+			"id": "minecraft:wildflowers",
+			"required": false
+		},
+		{
+			"id": "bigglobe:red_wildflowers",
+			"required": false
+		},
+		{
+			"id": "bigglobe:bluebonnets",
+			"required": false
+		},
+		{
+			"id": "bigglobe:violets",
+			"required": false
+		},
+
+		"bigglobe:tall_chorus_spores",
+		"bigglobe:short_chorus_spores"
+	]
+}
