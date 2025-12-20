@@ -100,6 +100,7 @@ json classes:
 		* json-defined enums.
 			* tag controlling the enum values.
 			* "weighted" enum interface, allowing scripts to choose a random element from the enum values.
+				* polymorphic signature for weight methods, so that Y level can be taken into account.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
@@ -107,21 +108,6 @@ json classes:
 		merge stuff.
 
 changelog:
-	# For normal people
-	* Ported to MC 1.21.11.
-	* Fixed trial chambers spawning inside volcanoes in the islands world preset.
-		* This was technically fixed in V5.1.1, but now the fix is available for all supported MC versions.
-	* Ocean monuments are now slightly rarer.
-	* Some structures have terrain adaptation in a larger area around them now.
-	* Increased default LOD quad count from 20M to 50M. The max is still 100M.
-		* Does not retroactively apply to existing config files.
-	* Fixed endermen not spawning on the ender dragon's nest.
-	* Fixed name on voidmetal upgrade item.
-	# For data pack developers
-	* Column value overriders can now pre-filter which structures they want to intercept.
-	* Column value overriders can now have access to structures that are further away from the current chunk.
-	* Nether and end root feature dispatchers are now a tag instead of a group.
-	* Added a "noop" feature dispatcher type, for anyone who wants an easy way to disable an existing feature dispatcher.
 
 alternate world presets:
 	paradise.
