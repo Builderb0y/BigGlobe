@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -24,6 +25,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
@@ -62,6 +64,7 @@ public class ColumnEntryRegistry {
 	public final transient ScriptedColumn.Factory columnFactory;
 	public final transient ColumnCompileContext columnContext;
 	public final transient ScriptClassLoader loader;
+	public final transient LinkedBlockingQueue<ScriptedColumn[]> chunkReuseColumns;
 
 	public ColumnEntryRegistry(BetterRegistry.Lookup registries, boolean client) throws ScriptParsingException {
 		this.client         = client;
@@ -149,6 +152,16 @@ public class ColumnEntryRegistry {
 			throw new ScriptParsingException("Exception occurred while creating classes to hold column values.", throwable, null);
 		}
 		this.traitManager.compile();
+
+		int threads = Runtime.getRuntime().availableProcessors();
+		this.chunkReuseColumns = new LinkedBlockingQueue<>(threads);
+		for (int thread = 0; thread < threads; thread++) {
+			ScriptedColumn[] columns = new ScriptedColumn[256];
+			for (int index = 0; index < 256; index++) {
+				columns[index] = this.columnFactory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), null));
+			}
+			this.chunkReuseColumns.add(columns);
+		}
 	}
 
 	public static void checkExceptions(Map<RegistryEntry<ColumnEntry>, Exception> exceptions) {
