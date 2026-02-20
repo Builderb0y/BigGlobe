@@ -98,8 +98,8 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			}
 		}
 		double saplingCount = blockQueue.blockCount();
-		centerX /= saplingCount;
-		centerZ /= saplingCount;
+		centerX = centerX / saplingCount + 0.5D;
+		centerZ = centerZ / saplingCount + 0.5D;
 		centerX += Permuter.nextUniformDouble(permuter) * 0.5D;
 		centerZ += Permuter.nextUniformDouble(permuter) * 0.5D;
 		double baseRadius = Math.sqrt(saplingCount / Math.PI);
