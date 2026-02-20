@@ -22,6 +22,7 @@ public class Matrices {
 		projection        = new Matrix4f(),
 		projectionInverse = new Matrix4f();
 	public static float
+		partialTicks,
 		dayTimeInSeconds;
 
 	public static void init() {
@@ -45,6 +46,7 @@ public class Matrices {
 		cameraZ = cameraPos.z;
 		modelView.set(RenderVersions.modelViewMatrix(context)).invert(modelViewInverse);
 		projection.set(RenderVersions.projectionMatrix(context)).invert(projectionInverse);
+		partialTicks = RenderVersions.partialTicks(context);
 		dayTimeInSeconds = (
 			(
 				(
@@ -55,7 +57,7 @@ public class Matrices {
 						)
 					)
 				)
-				+ RenderVersions.partialTicks(context)
+				+ partialTicks
 			)
 			/ 20.0F
 		);
