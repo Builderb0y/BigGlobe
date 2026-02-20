@@ -80,26 +80,37 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			}
 			int chunkX = origin.getX() >> 4;
 			int chunkZ = origin.getZ() >> 4;
-			BlockBox box = (
-				context.getConfig().queueType == QueueType.DELAYED
-				|| context.getWorld() instanceof World
-				? new BlockBox(
+			BlockBox box;
+			if (context.getConfig().queueType == QueueType.DELAYED) {
+				box = new BlockBox(
 					origin.getX() - 128,
 					origin.getY() - 128,
 					origin.getZ() - 128,
 					origin.getX() + 127,
 					origin.getY() + 127,
 					origin.getZ() + 127
-				)
-				: new BlockBox(
+				);
+			}
+			else if (context.getWorld() instanceof World) {
+				box = new BlockBox(
+					origin.getX() - 128,
+					HeightLimitViewVersions.getMinY(context.getWorld()),
+					origin.getZ() - 128,
+					origin.getX() + 127,
+					HeightLimitViewVersions.getMaxY(context.getWorld()),
+					origin.getZ() + 127
+				);
+			}
+			else {
+				box = new BlockBox(
 					(chunkX - 1) << 4,
 					HeightLimitViewVersions.getMinY(context.getWorld()),
 					(chunkZ - 1) << 4,
 					((chunkX + 1) << 4) | 15,
 					HeightLimitViewVersions.getMaxY(context.getWorld()),
 					((chunkZ + 1) << 4) | 15
-				)
-			);
+				);
+			}
 			Coordination coordination = new Coordination(
 				SymmetricOffset.fromCenter(origin.getX(), origin.getZ(), symmetry),
 				box,
