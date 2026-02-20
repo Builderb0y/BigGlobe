@@ -9,10 +9,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
-import net.fabricmc.fabric.api.registry.FlattenableBlockRegistry;
-import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
-import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
+import net.fabricmc.fabric.api.registry.*;
 
 import net.minecraft.block.*;
 import net.minecraft.block.AbstractBlock.OffsetType;
