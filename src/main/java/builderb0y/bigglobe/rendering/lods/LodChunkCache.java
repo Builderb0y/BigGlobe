@@ -52,19 +52,14 @@ public class LodChunkCache implements SafeCloseable {
 	}
 
 	public void processDirtyChunks(LodSystem system) {
-		if (this.chunks.globalLock.tryLock()) try {
-			for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null;) {
-				if (this.chunks.tryInvalidate(chunkPos)) {
-					system.invalidateChunkNow(chunkPos);
-				}
-				else {
-					this.dirtyChunks.add(chunkPos);
-					break;
-				}
+		for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null;) {
+			if (this.chunks.tryInvalidate(chunkPos)) {
+				system.invalidateChunkNow(chunkPos);
 			}
-		}
-		finally {
-			this.chunks.globalLock.unlock();
+			else {
+				this.dirtyChunks.add(chunkPos);
+				break;
+			}
 		}
 	}
 
@@ -81,7 +76,7 @@ public class LodChunkCache implements SafeCloseable {
 				if (exception.getCause() instanceof CancellationException) return null;
 				else throw exception;
 			}
-			return nbt.isPresent() ? this.convertChunk(chunkPos, nbt.get()) : null;
+			return nbt.isPresent() ? this.convertChunk(chunkPos_, nbt.get()) : null;
 		});
 	}
 
