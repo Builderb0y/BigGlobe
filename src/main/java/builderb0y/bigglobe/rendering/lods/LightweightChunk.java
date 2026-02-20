@@ -102,10 +102,10 @@ public class LightweightChunk {
 				});
 			}
 		}
-		this.update(sections, cullingData);
+		this.update(sections, cullingData, world.getDimension().hasSkyLight() ? ((byte)(15)) : ((byte)(0)));
 	}
 
-	public void update(LightweightSection[] sections, BlockSegmentList @Nullable [] cullingData) {
+	public void update(LightweightSection[] sections, BlockSegmentList @Nullable [] cullingData, byte topLightLevel) {
 		int minBlockY = this.minY;
 		int maxBlockY = this.maxY;
 		int minSectionY = minBlockY >> 4;
@@ -184,7 +184,7 @@ public class LightweightChunk {
 										}
 									}
 								}
-								this.addSegment(list, startY, endY, state, prevLightLevel);
+								this.addSegment(list, startY, endY, state, Math.max(topLightLevel - state.getOpacity(), 0));
 								if (cullingData != null) {
 									this.cull(list, cullingData[columnIndex_]);
 								}
