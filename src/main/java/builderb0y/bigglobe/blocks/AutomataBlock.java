@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
@@ -77,12 +79,18 @@ public class AutomataBlock extends Block {
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		super.randomTick(state, world, pos, random);
-		if (state == this.empty) {
-			if (random.nextInt(64) == 0) {
-				this.activate(world, pos, new BlockPos.Mutable());
-			}
+	public void onBlockBreakStart(BlockState state, World world, BlockPos pos, PlayerEntity player) {
+		super.onBlockBreakStart(state, world, pos, player);
+		if (this.natural && world instanceof ServerWorld serverWorld) {
+			this.activate(serverWorld, pos, new BlockPos.Mutable());
+		}
+	}
+
+	@Override
+	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+		super.onLandedUpon(world, state, pos, entity, fallDistance);
+		if (this.natural && world instanceof ServerWorld serverWorld && !entity.bypassesLandingEffects()) {
+			this.activate(serverWorld, pos, new BlockPos.Mutable());
 		}
 	}
 
