@@ -5,7 +5,7 @@
 		"blocks": {
 			"minecraft:netherrack": "minecraft:nether_gold_ore"
 		},
-		"chance": "`bigglobe:nether/bubble`.biome.isIn('#bigglobe:nether_ores/gold_more') ? 0.25 : 0.0",
+		"chance": "`bigglobe:nether/bubble`.biome.isIn('#bigglobe:nether_ores/gold_more') ? 0.5 : 0.0",
 		"radius": { "type": "bigglobe:average", "min": 2.0, "max": 6.0, "average": 3.0 }
 	}
 }
