@@ -70,7 +70,7 @@ public class ScriptedLayer extends Layer {
 		public abstract void emitSegments(ScriptedColumn column, BlockSegmentList blocks);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<Impl> implements Impl, SetBasedMutableDependencyView {
+		public static class Holder extends ScriptHolder<ScriptedLayer.Impl> implements ScriptedLayer.Impl, SetBasedMutableDependencyView {
 
 			public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
 
@@ -87,11 +87,11 @@ public class ScriptedLayer extends Layer {
 			@Override
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				ClassCompileContext clazz = new ClassCompileContext(
-					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 					ClassType.CLASS,
-					Type.getInternalName(Impl.class) + '$' + (this.usage.debug_name != null ? this.usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+					Type.getInternalName(ScriptedLayer.Impl.class) + '$' + (this.usage.debug_name != null ? this.usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 					TypeInfos.OBJECT,
-					new TypeInfo[] { type(Impl.class) }
+					new TypeInfo[] { type(ScriptedLayer.Impl.class) }
 				);
 				clazz.addNoArgConstructor(ACC_PUBLIC);
 				LazyVarInfo[] bridgeParams = {
@@ -123,8 +123,8 @@ public class ScriptedLayer extends Layer {
 					.configure(MinecraftScriptEnvironment.create())
 					.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
 					.configure(ScriptedColumn.baseEnvironment(loadColumn))
-					.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-					.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+					.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+					.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
 					.addAll(ColorScriptEnvironment.ENVIRONMENT)
 					;
 					registry.setupExternalEnvironment(
