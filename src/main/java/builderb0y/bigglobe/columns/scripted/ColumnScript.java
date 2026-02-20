@@ -160,7 +160,7 @@ public interface ColumnScript extends Script {
 			Class<S> type = this.getScriptClass();
 			ImplParameters parameters = new ImplParameters(registry, type);
 			ClassCompileContext clazz = new ClassCompileContext(
-				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 				ClassType.CLASS,
 				Type.getInternalName(type) + '$' + (usage.debug_name != null ? usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,

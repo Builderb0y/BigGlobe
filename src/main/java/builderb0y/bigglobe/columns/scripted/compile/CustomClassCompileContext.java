@@ -30,7 +30,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 		super(parent);
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
-			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 			Type.getInternalName(ScriptedColumn.class) + '$' + spec.name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()

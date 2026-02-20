@@ -33,8 +33,8 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
 			exportsAnything
-			? ACC_PUBLIC | ACC_SYNTHETIC | ACC_ABSTRACT
-			: ACC_PUBLIC | ACC_SYNTHETIC,
+			? ACC_PUBLIC | ACC_SYNTHETIC | ACC_SUPER | ACC_ABSTRACT
+			: ACC_PUBLIC | ACC_SYNTHETIC | ACC_SUPER,
 			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Base_" + name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(VoronoiDataBase.class),
 			new TypeInfo[0]

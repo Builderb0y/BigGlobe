@@ -31,7 +31,7 @@ public class UserClassDefiner {
 		this.parser = parser;
 		this.className = className;
 		this.innerClass = parser.clazz.newInnerClass(
-			ACC_PUBLIC | ACC_STATIC,
+			ACC_PUBLIC | ACC_STATIC | ACC_SUPER,
 			parser.clazz.innerClassName(className),
 			TypeInfos.OBJECT,
 			TypeInfo.ARRAY_FACTORY.empty()

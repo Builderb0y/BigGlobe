@@ -95,7 +95,7 @@ public class RandomSwitch {
 
 		//create class.
 		ClassCompileContext clazz = new ClassCompileContext(
-			ACC_PUBLIC,
+			ACC_PUBLIC | ACC_SUPER,
 			ClassType.CLASS,
 			BASE_NAME + "$Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			TypeInfos.OBJECT,

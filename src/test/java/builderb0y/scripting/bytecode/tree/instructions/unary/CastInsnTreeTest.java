@@ -95,7 +95,7 @@ public class CastInsnTreeTest {
 
 	public static ClassCompileContext clazz() {
 		return new ClassCompileContext(
-			ACC_PUBLIC,
+			ACC_PUBLIC | ACC_SUPER,
 			ClassType.CLASS,
 			"test/Test$Generated_0",
 			TypeInfos.OBJECT,

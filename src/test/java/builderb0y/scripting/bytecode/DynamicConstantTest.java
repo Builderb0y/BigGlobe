@@ -23,7 +23,7 @@ public class DynamicConstantTest {
 		System.out.println("test " + implNumber);
 		TypeInfo superClass = TypeInfo.of(C.class);
 		ClassCompileContext clazz = new ClassCompileContext(
-			ACC_PUBLIC,
+			ACC_PUBLIC | ACC_SUPER,
 			ClassType.CLASS,
 			superClass.getInternalName() + "$Impl_" + implNumber,
 			superClass,

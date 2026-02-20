@@ -33,7 +33,7 @@ public class VoronoiImplCompileContext extends AbstractVoronoiDataCompileContext
 
 		String name = internalName(UnregisteredObjectException.getID(entry), ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement());
 		this.mainClass = parent.mainClass.newInnerClass(
-			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Impl_" + name,
 			parent.mainClass.info,
 			TypeInfo.ARRAY_FACTORY.empty()

@@ -63,7 +63,7 @@ public interface SurfaceScript extends Script {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			ClassCompileContext clazz = new ClassCompileContext(
-				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 				ClassType.CLASS,
 				Type.getInternalName(SurfaceScript.class) + '$' + (this.usage.debug_name != null ? this.usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,

@@ -52,7 +52,7 @@ public class TraitManager {
 		this.traitRegistry = columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY);
 		this.infos = new HashMap<>();
 		this.baseTraitsClass = new ClassCompileContext(
-			ACC_PUBLIC,
+			ACC_PUBLIC | ACC_SUPER,
 			ClassType.CLASS,
 			Type.getInternalName(WorldTraits.class) + "$GeneratedBase_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			WorldTraits.TYPE,
@@ -153,7 +153,7 @@ public class TraitManager {
 			return this.baseTraits;
 		}
 		ClassCompileContext context = new ClassCompileContext(
-			ACC_PUBLIC,
+			ACC_PUBLIC | ACC_SUPER,
 			ClassType.CLASS,
 			Type.getInternalName(WorldTraits.class) + "$GeneratedImpl_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			this.baseTraitsClass.info,

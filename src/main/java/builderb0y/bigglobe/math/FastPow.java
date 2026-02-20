@@ -258,7 +258,7 @@ public class FastPow {
 	public static CacheEntry createCacheEntry(int power) {
 		assert Thread.holdsLock(CACHE);
 		ClassCompileContext clazz = new ClassCompileContext(
-			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 			ClassType.CLASS,
 			Type.getInternalName(FastPowOperator.class) + "$Generated_" + counter++,
 			TypeInfo.of(FastPowOperator.class),

@@ -98,7 +98,7 @@ public class ScriptParser<I> extends ExpressionParser {
 			input,
 			debugName,
 			new ClassCompileContext(
-				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+				ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 				ClassType.CLASS,
 				Type.getInternalName(ScriptParser.class) + '$' + (debugName != null ? debugName : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,

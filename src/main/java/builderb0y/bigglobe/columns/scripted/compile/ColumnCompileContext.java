@@ -38,7 +38,7 @@ public class ColumnCompileContext extends DataCompileContext {
 		this.memories = new IdentityHashMap<>(256);
 
 		this.mainClass = new ClassCompileContext(
-			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 			ClassType.CLASS,
 			Type.getInternalName(ScriptedColumn.class) + "$Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(ScriptedColumn.class),
