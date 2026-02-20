@@ -118,6 +118,7 @@ public class NumberParser {
 
 	public static BigInteger parsePrecision(ExpressionReader input) throws ScriptParsingException {
 		boolean negative = input.has('-');
+		if (!negative) input.has('+');
 		BigInteger precision = BigInteger.ZERO;
 		while (input.canRead()) {
 			char c = input.peek();
