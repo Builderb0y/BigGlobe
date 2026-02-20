@@ -23,7 +23,7 @@
 				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false }
 			],
 			"leaves": [
-				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/mangrove_propagule_32nd_chance" }
+				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/mangrove_propagule_16th_chance" }
 			]
 		},
 		"ground_replacements": {

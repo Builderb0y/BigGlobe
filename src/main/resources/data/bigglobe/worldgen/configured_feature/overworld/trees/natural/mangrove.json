@@ -25,7 +25,7 @@
 				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
 			],
 			"leaves": [
-				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/mangrove_propagule_32nd_chance" },
+				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/mangrove_propagule_16th_chance" },
 				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
 			]
 		},
@@ -34,6 +34,7 @@
 			"minecraft:podzol":          "minecraft:dirt",
 			"bigglobe:overgrown_podzol": "minecraft:dirt",
 			"minecraft:farmland":        "minecraft:dirt",
+			"minecraft:dirt":            "minecraft:dirt",
 			"minecraft:coarse_dirt":     "minecraft:coarse_dirt",
 			"minecraft:rooted_dirt":     "minecraft:rooted_dirt",
 			"minecraft:mud":             "minecraft:mud"
