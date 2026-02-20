@@ -71,12 +71,11 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
 		glEnableVertexAttribArray(4);
-		glVertexAttribIPointer(0, 2, GL_UNSIGNED_BYTE, 16, 0L); //horizontalPosition
-		glVertexAttribIPointer(1, 1, GL_SHORT, 16, 2L); //verticalPosition
-		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, true, 16, 4L); //color
-		glVertexAttribPointer(3, 2, GL_UNSIGNED_SHORT, false, 16, 8L); //texcoord
-		glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, true, 16, 12L); //lmcoord
-		//and 2 bytes of padding.
+		glVertexAttribIPointer(0, 2, GL_UNSIGNED_BYTE, 12, 0L); //horizontalPosition
+		glVertexAttribIPointer(1, 1, GL_SHORT, 12, 2L); //verticalPosition
+		glVertexAttribIPointer(2, 2, GL_UNSIGNED_SHORT, 12, 4L); //texcoordData
+		glVertexAttribIPointer(3, 3, GL_UNSIGNED_BYTE, 12, 8L); //colorData
+		glVertexAttribIPointer(4, 1, GL_UNSIGNED_BYTE, 12, 11L); //lightData
 		glBindVertexArray(oldVao);
 
 		GLException.check();

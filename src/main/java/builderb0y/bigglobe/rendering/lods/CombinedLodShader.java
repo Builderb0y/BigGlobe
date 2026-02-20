@@ -74,9 +74,9 @@ public class CombinedLodShader extends VanillaLodShader {
 			
 			in uvec2 horizontalPosition;
 			in int verticalPosition;
-			in vec4 colorData;
-			in vec2 texcoordData;
-			in vec2 lightData;
+			in uvec2 texcoordData;
+			in uvec3 colorData;
+			in uint lightData;
 			
 			out vec2 texcoord;
 			out vec2 lmcoord;
@@ -85,14 +85,15 @@ public class CombinedLodShader extends VanillaLodShader {
 			
 			void main() {
 				vec4 transformation = texelFetch(transformations, gl_DrawIDARB);
-				vec3 modelPos;
-				modelPos.xz = vec2(horizontalPosition) * (float(1 << MIN_LOD) / 128.0) - 64.0 * (float(1 << MIN_LOD) / 128.0);
-				modelPos.y = float(verticalPosition) * (4096.0 / 32768.0);
-				pos = modelPos * transformation.w + transformation.xyz;
-				gl_Position = modelViewProjectionMatrix * vec4(pos, 1.0);
-				tint = colorData;
+				vec3 decodedPos;
+				decodedPos.xz = vec2(horizontalPosition) * (float(1 << MIN_LOD) / 128.0) - 64.0 * (float(1 << MIN_LOD) / 128.0);
+				decodedPos.y = float(verticalPosition) * (4096.0 / 32768.0);
+				uint decodedColor = (colorData.z << 16u) | (colorData.y << 8u) | colorData.x;
+				tint = vec4((uvec4(decodedColor) >> uvec4(0u, 6u, 12u, 18u)) & uvec4(63u)) * (1.0 / 64.0) + (0.5 / 64.0);
+				lmcoord = vec2((uvec2(lightData) >> uvec2(0u, 4u)) & uvec2(15u)) * (1.0 / 16.0) + (0.5 / 16.0);
 				texcoord = texcoordData * (1.0 / 65536.0);
-				lmcoord = lightData;
+				pos = decodedPos * transformation.w + transformation.xyz;
+				gl_Position = modelViewProjectionMatrix * vec4(pos, 1.0);
 			}
 			"""
 		);

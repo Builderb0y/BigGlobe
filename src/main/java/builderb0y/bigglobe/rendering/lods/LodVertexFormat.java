@@ -4,8 +4,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.system.*;
 
-import net.minecraft.util.math.MathHelper;
-
 import builderb0y.bigglobe.math.BigGlobeMath;
 
 @Environment(EnvType.CLIENT)
@@ -24,6 +22,14 @@ public class LodVertexFormat {
 				MemoryUtil.memPutShort(pointer + 2L, (short)(iy));
 			}
 		},
+		TEXCOORD = new CompactVertexFormatElement.Named("LodVertexFormat.TEXCOORD") {
+
+			@Override
+			public void put2f(long pointer, float v0, float v1) {
+				MemoryUtil.memPutShort(pointer + 4L, (short)(Math.min((int)(v0 * 65536.0F), 65535)));
+				MemoryUtil.memPutShort(pointer + 6L, (short)(Math.min((int)(v1 * 65536.0F), 65535)));
+			}
+		},
 		COLOR = new CompactVertexFormatElement.Named("LodVertexFormat.COLOR") {
 
 			@Override
@@ -39,18 +45,14 @@ public class LodVertexFormat {
 
 			@Override
 			public void put4i(long pointer, int v0, int v1, int v2, int v3) {
-				MemoryUtil.memPutByte(pointer + 4L, (byte)(v0));
-				MemoryUtil.memPutByte(pointer + 5L, (byte)(v1));
-				MemoryUtil.memPutByte(pointer + 6L, (byte)(v2));
-				MemoryUtil.memPutByte(pointer + 7L, (byte)(v3));
-			}
-		},
-		TEXCOORD = new CompactVertexFormatElement.Named("LodVertexFormat.TEXCOORD") {
-
-			@Override
-			public void put2f(long pointer, float v0, float v1) {
-				MemoryUtil.memPutShort(pointer +  8L, (short)(Math.min((int)(v0 * 65536.0F), 65535)));
-				MemoryUtil.memPutShort(pointer + 10L, (short)(Math.min((int)(v1 * 65536.0F), 65535)));
+				v0 = (v0 >>> 2) & 63;
+				v1 = (v1 >>> 2) & 63;
+				v2 = (v2 >>> 2) & 63;
+				v3 = (v3 >>> 2) & 63;
+				int packed = (v3 << 18) | (v2 << 12) | (v1 << 6) | v0;
+				MemoryUtil.memPutByte(pointer +  8L, (byte)(packed));
+				MemoryUtil.memPutByte(pointer +  9L, (byte)(packed >>>  8));
+				MemoryUtil.memPutByte(pointer + 10L, (byte)(packed >>> 16));
 			}
 		},
 		LMCOORD = new CompactVertexFormatElement.Named("LodVertexFormat.LMCOORD") {
@@ -62,10 +64,10 @@ public class LodVertexFormat {
 
 			@Override
 			public void put2i(long pointer, int v0, int v1) {
-				int blocklight = MathHelper.clamp(v0, 8, 248);
-				int   skylight = MathHelper.clamp(v1, 8, 248);
-				MemoryUtil.memPutByte(pointer + 12L, (byte)(blocklight));
-				MemoryUtil.memPutByte(pointer + 13L, (byte)(  skylight));
+				v0 = (v0 >>> 4) & 15;
+				v1 = (v1 >>> 4) & 15;
+				int packed = (v1 << 4) | v0;
+				MemoryUtil.memPutByte(pointer + 11L, (byte)(packed));
 			}
 		};
 
@@ -76,7 +78,7 @@ public class LodVertexFormat {
 		.color(COLOR)
 		.texture(TEXCOORD)
 		.lightmap(LMCOORD)
-		.byteStride(16)
+		.byteStride(12)
 		.build()
 	);
 }
