@@ -226,11 +226,21 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		for (int index = 0; index < 256; index++) {
 			dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, 0);
 		}
-		ScriptedColumn[] columns = this.chunkGenerator.chunkReuseColumns.get();
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.dhHints(0));
-		int startX = chunkX << 4;
-		int startZ = chunkZ << 4;
+		int chunkBottomY = this.chunkGenerator.height.min_y();
+		int chunkTopY    = this.chunkGenerator.height.max_y();
+		DhApiChunk results = DHCode.newChunk(chunkX, chunkZ, chunkBottomY, chunkTopY);
+		ScriptedColumn[] columns;
+		try {
+			columns = this.chunkGenerator.columnEntryRegistry.chunkReuseColumns.take();
+		}
+		catch (InterruptedException exception) {
+			BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
+			return results;
+		}
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
+			ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.dhHints(0));
+			int startX = chunkX << 4;
+			int startZ = chunkZ << 4;
 			for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 				final int offsetZ_ = offsetZ;
 				for (int offsetX = 0; offsetX < 16; offsetX += 2) {
@@ -253,9 +263,9 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 				}
 			}
 		}
-		int chunkBottomY = this.chunkGenerator.height.min_y();
-		int chunkTopY    = this.chunkGenerator.height.max_y();
-		DhApiChunk results = DHCode.newChunk(chunkX, chunkZ, chunkBottomY, chunkTopY);
+		finally {
+			this.chunkGenerator.columnEntryRegistry.chunkReuseColumns.add(columns);
+		}
 		for (int index = 0; index < 256; index++) {
 			results.setDataPoints(index & 15, index >>> 4, dataPointBuilders[index]);
 		}
