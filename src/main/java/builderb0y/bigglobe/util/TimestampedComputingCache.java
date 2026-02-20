@@ -78,6 +78,7 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 	}
 
 	public T_Value checkOrCompute(T_Key key, ValueHolder<T_Value> holder, Function<? super T_Key, ? extends T_Value> computer) {
+		assert !this.globalLock.isHeldByCurrentThread() : "Attempting to acquire local and global lock at the same time!";
 		holder.lock.lock();
 		try {
 			if (holder.state != ValueHolder.UNKNOWN) {
