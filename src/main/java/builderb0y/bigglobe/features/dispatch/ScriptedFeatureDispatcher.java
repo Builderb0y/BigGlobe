@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import net.minecraft.registry.entry.RegistryEntry;
 
+import builderb0y.autocodec.annotations.Alias;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -28,6 +29,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
+	@Alias("script")
 	public final Holder dispatcher;
 
 	public ScriptedFeatureDispatcher(Holder dispatcher) {
