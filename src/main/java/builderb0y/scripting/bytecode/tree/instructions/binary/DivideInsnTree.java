@@ -26,16 +26,43 @@ public class DivideInsnTree extends BinaryInsnTree {
 
 	public static InsnTree create(ExpressionParser parser, InsnTree left, InsnTree right) throws ScriptParsingException {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
-		ConstantValue leftConstant  = left .getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
-		if (leftConstant.isConstant() && rightConstant.isConstant()) {
-			return switch (type.getSort()) {
-				case INT    -> ldc(divideExact(parser, leftConstant.asInt (), rightConstant.asInt ()));
-				case LONG   -> ldc(divideExact(parser, leftConstant.asLong(), rightConstant.asLong()));
-				case FLOAT  -> ldc(leftConstant.asFloat () / rightConstant.asFloat ());
-				case DOUBLE -> ldc(leftConstant.asDouble() / rightConstant.asDouble());
-				default -> throw new AssertionError(type);
-			};
+		if (rightConstant.isConstant()) {
+			ConstantValue leftConstant  = left.getConstantValue();
+			if (leftConstant.isConstant()) {
+				return switch (type.getSort()) {
+					case INT -> ldc(divideExact(parser, leftConstant.asInt(), rightConstant.asInt()));
+					case LONG -> ldc(divideExact(parser, leftConstant.asLong(), rightConstant.asLong()));
+					case FLOAT -> ldc(leftConstant.asFloat() / rightConstant.asFloat());
+					case DOUBLE -> ldc(leftConstant.asDouble() / rightConstant.asDouble());
+					default -> throw new AssertionError(type);
+				};
+			}
+			else {
+				switch (type.getSort()) {
+					case INT -> {
+						int intScalar = rightConstant.asInt();
+						if (intScalar == 0) {
+							throw new ArithmeticException("Division by literal zero");
+						}
+						else if (intScalar > 0 && (intScalar & (intScalar - 1)) == 0) {
+							int shift = Integer.numberOfTrailingZeros(intScalar);
+							return new SignedRightShiftInsnTree(left, ldc(shift), ISHR);
+						}
+					}
+					case LONG -> {
+						long longScalar = rightConstant.asLong();
+						if (longScalar == 0L) {
+							throw new ArithmeticException("Division by literal zero");
+						}
+						else if (longScalar > 0L && (longScalar & (longScalar - 1L)) == 0L) {
+							int shift = Long.numberOfTrailingZeros(longScalar);
+							return new SignedRightShiftInsnTree(left, ldc(shift), LSHR);
+						}
+					}
+					default -> {}
+				}
+			}
 		}
 		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);

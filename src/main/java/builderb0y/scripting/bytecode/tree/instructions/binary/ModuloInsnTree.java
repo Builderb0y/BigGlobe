@@ -28,16 +28,37 @@ public class ModuloInsnTree extends BinaryInsnTree {
 
 	public static InsnTree create(ExpressionParser parser, InsnTree left, InsnTree right) {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
-		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
-		if (leftConstant.isConstant() && rightConstant.isConstant()) {
-			return switch (type.getSort()) {
-				case INT    -> ldc(BigGlobeMath.modulus(leftConstant.   asInt(), rightConstant.   asInt()));
-				case LONG   -> ldc(BigGlobeMath.modulus(leftConstant.  asLong(), rightConstant.  asLong()));
-				case FLOAT  -> ldc(BigGlobeMath.modulus(leftConstant. asFloat(), rightConstant. asFloat()));
-				case DOUBLE -> ldc(BigGlobeMath.modulus(leftConstant.asDouble(), rightConstant.asDouble()));
-				default     -> throw new AssertionError(type);
-			};
+		if (rightConstant.isConstant()) {
+			ConstantValue leftConstant = left.getConstantValue();
+			if (leftConstant.isConstant()) {
+				return switch (type.getSort()) {
+					case INT -> ldc(BigGlobeMath.modulus(leftConstant.asInt(), rightConstant.asInt()));
+					case LONG -> ldc(BigGlobeMath.modulus(leftConstant.asLong(), rightConstant.asLong()));
+					case FLOAT -> ldc(BigGlobeMath.modulus(leftConstant.asFloat(), rightConstant.asFloat()));
+					case DOUBLE -> ldc(BigGlobeMath.modulus(leftConstant.asDouble(), rightConstant.asDouble()));
+					default -> throw new AssertionError(type);
+				};
+			}
+			else {
+				switch (type.getSort()) {
+					case INT -> {
+						int intMod = rightConstant.asInt();
+						if (intMod > 0 && (intMod & (intMod - 1)) == 0) {
+							int mask = intMod - 1;
+							return new BitwiseAndInsnTree(left, ldc(mask), IAND);
+						}
+					}
+					case LONG -> {
+						long longMod = rightConstant.asLong();
+						if (longMod > 0L && (longMod & (longMod - 1L)) == 0) {
+							long mask = longMod - 1L;
+							return new BitwiseAndInsnTree(left, ldc(mask), LAND);
+						}
+					}
+					default -> {}
+				}
+			}
 		}
 		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
