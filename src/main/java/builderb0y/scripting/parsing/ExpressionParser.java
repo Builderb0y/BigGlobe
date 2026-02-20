@@ -820,7 +820,7 @@ public class ExpressionParser {
 				else {
 					boolean member = this.input.has('.');
 					string.append((char)(1));
-					arguments.add(member ? this.nextMember() : this.nextTerm());
+					arguments.add(member ? this.nextElvis() : this.nextTerm());
 					this.addSkippedWhitespace(string);
 				}
 			}
