@@ -20,6 +20,7 @@ import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.Structure;
@@ -33,6 +34,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
@@ -403,6 +405,19 @@ public class ActiveStructureManager extends StructureManager {
 			}
 			return null;
 		}
+		int structureX = Interpolator.clamp(newStart.getBoundingBox().getMinX(), newStart.getBoundingBox().getMaxX(), newStartPosition.position().getX());
+		int structureY = Interpolator.clamp(newStart.getBoundingBox().getMinY(), newStart.getBoundingBox().getMaxY(), newStartPosition.position().getY());
+		int structureZ = Interpolator.clamp(newStart.getBoundingBox().getMinZ(), newStart.getBoundingBox().getMaxZ(), newStartPosition.position().getZ());
+		if (
+			(
+				newStartPosition.position().getX() != structureX ||
+				newStartPosition.position().getY() != structureY ||
+				newStartPosition.position().getZ() != structureZ
+			)
+			&& BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning
+		) {
+			BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " has a position outside its bounding box. This may lead to unexpected results. It will now be clamped.");
+		}
 
 		StructureStartWrapper wrapper = StructureStartWrapper.of(weightedEntry.structure(), newStart);
 		int oldY = newStart.getBoundingBox().getMinY();
@@ -428,9 +443,9 @@ public class ActiveStructureManager extends StructureManager {
 
 		int newY = newStart.getBoundingBox().getMinY();
 		RegistryEntry<Biome> biome = params.biomeSource().getBiome(
-			newStartPosition.position().getX() >> 2,
-			(newStartPosition.position().getY() + (newY - oldY)) >> 2,
-			newStartPosition.position().getZ() >> 2,
+			(structureX                ) >> 2,
+			(structureY + (newY - oldY)) >> 2,
+			(structureZ                ) >> 2,
 			params.noiseConfig().getMultiNoiseSampler()
 		);
 

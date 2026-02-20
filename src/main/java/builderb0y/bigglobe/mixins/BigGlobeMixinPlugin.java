@@ -102,7 +102,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".NetherrackBlock_GrowProperly",                                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentStructure_MovePiecesOnReCreate",                                              Boolean.TRUE);
-		defaults.put(mixinPackage + ".OceanMonumentStructure_UseCorrectPosition",                                                Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerEntity_FlyInHyperspace",                                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                                       Boolean.TRUE);
