@@ -435,6 +435,10 @@ public class BigGlobeItems {
 			)
 			* 0.5F
 		);
+		Float wildflowerChance = CompostingChanceRegistry.INSTANCE.get(Items.WILDFLOWERS);
+		CompostingChanceRegistry.INSTANCE.add(RED_WILDFLOWERS, wildflowerChance);
+		CompostingChanceRegistry.INSTANCE.add(VIOLETS, wildflowerChance);
+		CompostingChanceRegistry.INSTANCE.add(BLUEBONNETS, wildflowerChance);
 	}
 
 	@Environment(EnvType.CLIENT)
