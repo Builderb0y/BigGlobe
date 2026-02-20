@@ -5,7 +5,11 @@ import net.fabricmc.api.Environment;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -38,7 +42,7 @@ public class LodSystem implements SafeCloseable {
 				LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
 				if (system != null) {
 					system.renderState.setup(context);
-					system.renderingThisFrame = !context.worldRenderer().hasBlindnessOrDarkness(context.camera());
+					system.renderingThisFrame = shouldRenderLods(context.camera());
 				}
 			});
 			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.START_MAIN.register(context -> {
@@ -51,7 +55,7 @@ public class LodSystem implements SafeCloseable {
 					LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
 					if (system != null) {
 						system.renderState.setup(context);
-						system.renderingThisFrame = !context.worldRenderer().hasBlindnessOrDarkness(context.camera());
+						system.renderingThisFrame = shouldRenderLods(context.camera());
 						system.draw();
 					}
 				}
@@ -60,6 +64,14 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public static void init() {}
+
+	/**
+	I would normally use {@link WorldRenderer#hasBlindnessOrDarkness(Camera)} for this,
+	but sodium mixes into that to also cancel when the camera is underwater.
+	*/
+	public static boolean shouldRenderLods(Camera camera) {
+		return !(camera.getFocusedEntity() instanceof LivingEntity entity && (entity.hasStatusEffect(StatusEffects.BLINDNESS) || entity.hasStatusEffect(StatusEffects.DARKNESS)));
+	}
 
 	public ClientWorld world;
 	public LodGenerator generator;
