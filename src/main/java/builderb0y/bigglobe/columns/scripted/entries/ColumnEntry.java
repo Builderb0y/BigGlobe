@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
@@ -18,11 +19,8 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
-import builderb0y.bigglobe.columns.scripted.ColumnValueGetter;
-import builderb0y.bigglobe.columns.scripted.ColumnValuePreComputer;
-import builderb0y.bigglobe.columns.scripted.ColumnValueSetter;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -353,14 +351,19 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			boolean is3D,
 			boolean hasTraits,
 			MethodInfo valueGetter,
-			MethodInfo valueSetter,
+			@Nullable MethodInfo valueSetter,
 			InsnTree... arguments
 		)
 		throws ScriptParsingException {
+			InsnTree loadColumn = this.loadColumn;
+			if (arguments.length != 0 && arguments[0].getTypeInfo().extendsOrImplements(ScriptedColumn.INFO.type)) {
+				loadColumn = arguments[0];
+				arguments = Arrays.copyOfRange(arguments, 1, arguments.length);
+			}
 			if (!is3D && (arguments.length & 1) != 0) {
 				throw new ScriptParsingException("Invalid number of arguments for 2D column value " + name, parser.input);
 			}
-			if (this.loadColumn != null && arguments.length >= 2) {
+			if (loadColumn != null && arguments.length >= 2) {
 				throw new ScriptParsingException("x and z are hard-coded in this context and cannot be manually specified.", parser.input);
 			}
 			InsnTree x, y, z;
@@ -395,34 +398,34 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			if (z != null && z != (z = z.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false))) requiredCasting = true;
 
 			StringBuilder error = null;
-			if (this.loadColumn == null) error = appendIfMissing(error, name, x, "x");
+			if (loadColumn == null) error = appendIfMissing(error, name, x, "x");
 			if (is3D                   ) error = appendIfMissing(error, name, y, "y");
-			if (this.loadColumn == null) error = appendIfMissing(error, name, z, "z");
-			if (error != null) throw new ScriptParsingException(error.toString(), parser.input);
+			if (loadColumn == null) error = appendIfMissing(error, name, z, "z");
+			if (error           != null) throw new ScriptParsingException(error.toString(), parser.input);
 
 			if (!this.mutable) valueSetter = null;
 			if (this.offsetY != null) y = new AddInsnTree(y, this.offsetY, IADD);
 
 			InsnTree result;
-			if (this.loadColumn != null) {
+			if (loadColumn != null) {
 				if (hasTraits) {
 					if (is3D) {
-						result = new StandAloneTraits3DGetterInsnTree(this.loadColumn, y, valueGetter, valueSetter);
+						result = new StandAloneTraits3DGetterInsnTree(loadColumn, y, valueGetter, valueSetter);
 					}
 					else {
-						result = new StandAloneTraits2DGetterInsnTree(this.loadColumn, valueGetter, valueSetter);
+						result = new StandAloneTraits2DGetterInsnTree(loadColumn, valueGetter, valueSetter);
 					}
 				}
 				else {
 					if (is3D) {
-						result = new StandAloneDirect3DGetterInsnTree(this.loadColumn, y, valueGetter, valueSetter);
+						result = new StandAloneDirect3DGetterInsnTree(loadColumn, y, valueGetter, valueSetter);
 					}
 					else {
-						result = new StandAloneDirect2DGetterInsnTree(this.loadColumn, valueGetter, valueSetter);
+						result = new StandAloneDirect2DGetterInsnTree(loadColumn, valueGetter, valueSetter);
 					}
 				}
 			}
-			else {
+			else if (this.loadLookup != null) {
 				if (hasTraits) {
 					if (is3D) {
 						result = new LookupTraits3DGetterInsnTree(this.loadLookup, x, y, z, valueGetter, valueSetter);
@@ -439,6 +442,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 						result = new LookupDirect2DGetterInsnTree(this.loadLookup, x, z, valueGetter, valueSetter);
 					}
 				}
+			}
+			else {
+				throw new ScriptParsingException("No column available.", parser.input);
 			}
 			return new CastResult(result, requiredCasting);
 		}
