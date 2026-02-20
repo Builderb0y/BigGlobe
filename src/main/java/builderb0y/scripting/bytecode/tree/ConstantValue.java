@@ -52,13 +52,13 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		}
 		if (object instanceof Number number && type.isNumber()) {
 			return switch (type.getSort()) {
-				case BYTE    -> of(number.byteValue());
-				case SHORT   -> of(number.shortValue());
-				case INT     -> of(number.intValue());
-				case LONG    -> of(number.longValue());
-				case FLOAT   -> of(number.floatValue());
-				case DOUBLE  -> of(number.doubleValue());
-				case CHAR    -> of((char)(number.intValue()));
+				case BYTE   -> of(number.byteValue());
+				case SHORT  -> of(number.shortValue());
+				case INT    -> of(number.intValue());
+				case LONG   -> of(number.longValue());
+				case FLOAT  -> of(number.floatValue());
+				case DOUBLE -> of(number.doubleValue());
+				case CHAR   -> of((char)(number.intValue()));
 				case VOID, OBJECT, ARRAY, BOOLEAN -> throw new IllegalArgumentException(type.toString());
 			};
 		}
