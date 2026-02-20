@@ -9,6 +9,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
@@ -71,40 +73,34 @@ public class RockEntity extends ThrownItemEntity {
 		this.discard();
 	}
 
-	/**
-	mostly a copy-paste of {@link ProjectileUtil#getCollision(Entity, Predicate)},
-	but allowing collisions with fluids when this rock is not in a fluid.
-	*/
-	@SuppressWarnings("unused")
-	public HitResult bigglobe_getCollision() {
-		EntityHitResult entityHitResult;
-		Vec3d nextPosition;
-		Vec3d velocity = this.getVelocity();
+	@Override
+	public void tick() {
+		BlockHitResult bounceCollision = this.getBounceCollision();
+		if (bounceCollision != null && bounceCollision.getType() != HitResult.Type.MISS) {
+			this.tryBounceCollision(bounceCollision);
+		}
+		super.tick();
+	}
+
+	public BlockHitResult getBounceCollision() {
 		World world = EntityVersions.getWorld(this);
+		FluidState fluidState = world.getFluidState(BlockPos.ofFloored(this.getX(), this.getY() + 0.125D, this.getZ()));
+		Vec3d velocity = this.getVelocity();
 		Vec3d position = EntityVersions.getPos(this);
-		HitResult blockHitResult = world.raycast(
+		return world.raycast(
 			new RaycastContext(
 				position,
-				nextPosition = position.add(velocity),
+				position.add(velocity),
 				ShapeType.COLLIDER,
-				world.getBlockState(BlockPos.ofFloored(this.getX(), this.getY() + 0.125D, this.getZ())).getBlock() == Blocks.WATER
-				? FluidHandling.NONE
-				: FluidHandling.ANY,
+				fluidState.isEmpty()
+				? FluidHandling.ANY
+				: FluidHandling.NONE,
 				this
 			)
 		);
-		if (blockHitResult.getType() != HitResult.Type.MISS) {
-			nextPosition = blockHitResult.getPos();
-		}
-		if ((entityHitResult = ProjectileUtil.getEntityCollision(world, this, position, nextPosition, this.getBoundingBox().stretch(this.getVelocity()).expand(1.0), this::canHit)) != null) {
-			blockHitResult = entityHitResult;
-		}
-		return blockHitResult;
 	}
 
-	@Override
-	public void onBlockHit(BlockHitResult blockHitResult) {
-		super.onBlockHit(blockHitResult);
+	public void tryBounceCollision(BlockHitResult blockHitResult) {
 		BlockState hitState = EntityVersions.getWorld(this).getBlockState(blockHitResult.getBlockPos());
 		if (!hitState.getFluidState().isEmpty()) {
 			if (hitState.getFluidState().isIn(FluidTags.WATER)) {
@@ -160,9 +156,9 @@ public class RockEntity extends ThrownItemEntity {
 		Vec3d velocity = this.getVelocity();
 		Axis axis = blockHitResult.getSide().getAxis();
 		this.setVelocity(
-			(axis == Axis.X ? -0.25D : 0.75D) * velocity.x,
-			(axis == Axis.Y ? -0.25D : 0.75D) * velocity.y,
-			(axis == Axis.Z ? -0.25D : 0.75D) * velocity.z
+			(axis == Axis.X ? (water ? -0.5D : -0.25D) : (water ? 1.0D : 0.75D)) * velocity.x,
+			(axis == Axis.Y ? (water ? -0.5D : -0.25D) : (water ? 1.0D : 0.75D)) * velocity.y,
+			(axis == Axis.Z ? (water ? -0.5D : -0.25D) : (water ? 1.0D : 0.75D)) * velocity.z
 		);
 		this.velocityDirty = true;
 		if (water) {
