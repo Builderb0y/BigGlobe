@@ -28,7 +28,9 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -265,36 +267,26 @@ public class TraitManager {
 			MethodInfo getter = info.getter.info;
 			MethodInfo setter = info.setter.info;
 			boolean is3D = entry.value().schema().is_3d();
-			environment.addMethod(
-				TypeInfos.CLASS,
+			environment.addQualifiedFunction(
+				this.baseTraitsClass.info,
 				name,
-				new MethodHandler.Named(
+				new FunctionHandler.Named(
 					"world_traits.`" + name + '`' + params.getPossibleArguments(is3D),
-					(ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
-						if (receiver.getConstantValue().isConstant() && receiver.getConstantValue().asJavaObject().equals(this.baseTraitsClass.info)) {
-							if (params.dependencies != null) params.dependencies.addDependency(entry);
-							return params.resolveColumn(parser, name1, is3D, true, getter, setter, arguments);
-						}
-						else {
-							return null;
-						}
+					(ExpressionParser parser, String name1, InsnTree... arguments) -> {
+						if (params.dependencies != null) params.dependencies.addDependency(entry);
+						return params.resolveColumn(parser, name1, is3D, true, getter, setter, arguments);
 					}
 				)
 			);
 			if (params.requiresNoArguments(is3D)) {
-				environment.addField(
-					TypeInfos.CLASS,
+				environment.addQualifiedVariable(
+					this.baseTraitsClass.info,
 					name,
-					new FieldHandler.Named(
+					new VariableHandler.Named(
 						"world_traits.`" + name + '`',
-						(ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-							if (receiver.getConstantValue().isConstant() && receiver.getConstantValue().asJavaObject().equals(this.baseTraitsClass.info)) {
-								if (params.dependencies != null) params.dependencies.addDependency(entry);
-								return params.resolveColumn(parser, name1, is3D, true, getter, setter).tree();
-							}
-							else {
-								return null;
-							}
+						(ExpressionParser parser, String name1) -> {
+							if (params.dependencies != null) params.dependencies.addDependency(entry);
+							return params.resolveColumn(parser, name1, is3D, true, getter, setter).tree();
 						}
 					)
 				);
