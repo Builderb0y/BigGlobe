@@ -97,4 +97,13 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 			return BigGlobeMod.getRegistry(RegistryKeys.BIOME).requireEntry(BiomeKeys.PLAINS);
 		}
 	}
+
+	@Override
+	public String toString() {
+		//some other mod injects toString() into BiomeSource,
+		//which explicitly queries our biome tag.
+		//toString() is called by AutoCodec immediately after deserialization,
+		//which logs a stack trace that we don't want.
+		return "ScriptedColumnBiomeSource";
+	}
 }
