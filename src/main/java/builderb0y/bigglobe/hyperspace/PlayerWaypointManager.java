@@ -2,6 +2,9 @@ package builderb0y.bigglobe.hyperspace;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -10,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.versions.EntityVersions;
 
@@ -29,8 +33,11 @@ when the player is in any other dimension, this position is null.
 */
 public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypointData> {
 
+	public static final int COLLAPSE_DURATION_TICKS = 20 * 20;
+
 	public final PlayerEntity player;
 	public @Nullable PackedWorldPos entrance;
+	public int collapseProgress = -1;
 
 	public PlayerWaypointManager(PlayerEntity player) {
 		this.player = player;
@@ -41,7 +48,7 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 	}
 
 	public static PlayerWaypointManager create(PlayerEntity player) {
-		if (player.getClass() == ServerPlayerEntity.class) {
+		if (player.getClass() == ServerPlayerEntity.class) { //exclude fake players.
 			return new ServerPlayerWaypointManager((ServerPlayerEntity)(player));
 		}
 		else if (EntityVersions.getWorld(player).isClient()) {
@@ -59,6 +66,20 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 		}
 		else {
 			return null;
+		}
+	}
+
+	public void tick() {
+		if (EntityVersions.getWorld(this.player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+			if (this.getAllWaypoints().isEmpty()) {
+				if (this.collapseProgress < COLLAPSE_DURATION_TICKS) this.collapseProgress++;
+			}
+			else {
+				if (this.collapseProgress >= 0) this.collapseProgress--;
+			}
+		}
+		else {
+			this.collapseProgress = -1;
 		}
 	}
 

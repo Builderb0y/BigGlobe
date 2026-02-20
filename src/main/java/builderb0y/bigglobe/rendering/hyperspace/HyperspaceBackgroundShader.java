@@ -11,7 +11,7 @@ import static org.lwjgl.opengl.GL20C.*;
 @Environment(EnvType.CLIENT)
 public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 
-	public int inverseModelView, inverseProjection, cameraPosition, time;
+	public int inverseModelView, inverseProjection, cameraPosition, time, collapse;
 
 	public HyperspaceBackgroundShader() {
 		try {
@@ -24,6 +24,7 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 				uniform mat4 inverseModelView;
 				uniform mat4 inverseProjection;
 				uniform vec3 cameraPosition;
+				uniform float collapse;
 				uniform float time;
 				
 				in vec2 texcoord;
@@ -45,8 +46,31 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					return v * v;
 				}
 				
+				float smoothify(float f) {
+					return f * f * (f * -2.0 + 3.0);
+				}
+				
 				vec3 smoothify(vec3 v) {
 					return v * v * (v * -2.0 + 3.0);
+				}
+				
+				float unmix(float a, float b, float f) {
+					return (f - a) / (b - a);
+				}
+
+				float hash11(float p) {
+					p = fract(p * 0.1031);
+					p *= p + 33.33;
+					p *= p + p;
+					return fract(p);
+				}
+				
+				float noise11(float coord) {
+					float  fractCoord = fract(coord);
+					float  floorCoord = coord - fractCoord;
+					float   ceilCoord = floorCoord + 1.0;
+					float smoothCoord = smoothify(fractCoord);
+					return mix(hash11(floorCoord), hash11(ceilCoord), smoothCoord);
 				}
 				
 				vec2 hash21(float p) {
@@ -61,10 +85,42 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					return vec3(vec2(cos(surface.y), sin(surface.y)) * r, surface.x);
 				}
 				
+				float hash13(vec3 p3) {
+					p3 = fract(p3 * 0.1031);
+					p3 += dot(p3, p3.zyx + 31.32);
+					return fract((p3.x + p3.y) * p3.z);
+				}
+				
 				vec2 hash23(vec3 p3) {
 					p3 = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
 					p3 += dot(p3, p3.yzx + 33.33);
 					return fract((p3.xx + p3.yz) * p3.zy);
+				}
+				
+				vec3 hash33(vec3 p3) {
+					p3 = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
+					p3 += dot(p3, p3.yxz + 33.33);
+					return fract((p3.xxy + p3.yxx) * p3.zyx);
+				}
+				
+				vec4 voronoise(vec3 coord) {
+					vec4 closest = vec4(0.0);
+					for (int index = 0; index < 64; index++) {
+						vec3 point = unitVec(float(index));
+						float dotProduct = dot(coord, point);
+						if (dotProduct > closest.w) {
+							closest = vec4(point, dotProduct);
+						}
+					}
+					closest.w = 0.0;
+					for (int index = 0; index < 64; index++) {
+						vec3 point = unitVec(float(index));
+						vec3 cellOffset = point - closest.xyz;
+						vec3 coordOffset = coord - closest.xyz;
+						closest.w = max(closest.w, dot(cellOffset, coordOffset) / dot(cellOffset, cellOffset));
+					}
+					closest.w *= 2.0;
+					return closest;
 				}
 				
 				vec2 noise23(vec3 coord) {
@@ -122,8 +178,36 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 				void main() {
 					vec4 tmp = inverseProjection * vec4(texcoord * 2.0 - 1.0, 1.0, 1.0);
 					vec3 norm = normalize(mat3(inverseModelView) * tmp.xyz);
-					vec3 offsetNorm = norm + cameraPosition * 0.015625;
-				
+					vec3 offsetNorm;
+					float flash;
+					if (collapse > 0.0) {
+						vec4 voronoi = voronoise(norm);
+						float flashOffset = (hash13(voronoi.xyz) * 0.75 + 0.25) - collapse * collapse;
+						flash = flashOffset > 0.0 ? 0.0 : exp2(flashOffset * 64.0);
+						float threshold = collapse * 1.5 - 0.5;
+						threshold = 1.0 - threshold * threshold * threshold;
+						threshold *= threshold;
+						if (voronoi.w > threshold) {
+							vec2 rng = hash23(voronoi.xyz);
+							float red = 0.0;
+							red += noise11(4.0 * time * rng.x) * 0.5;
+							red = mix(red, 0.25, square(voronoi.w));
+							red += cos((1.0 - voronoi.w) * exp2(mix(3.0, 6.0, rng.y)) * smoothify(unmix(1.0 / 3.0, 1.0, collapse))) * 0.0625;
+							fragColor = vec4(red, 0.0, 0.0, 1.0);
+							fragColor.rgb += flash * exp2((threshold - voronoi.w) * 16.0);
+							return;
+						}
+						else {
+							vec3 collapseOffset = (hash33(voronoi.xyz) * 2.0 - 1.0) * (collapse * collapse);
+							norm += collapseOffset;
+							offsetNorm = norm + cameraPosition * 0.015625;
+							norm = normalize(norm);
+						}
+					}
+					else {
+						offsetNorm = norm + cameraPosition * 0.015625;
+						flash = 0.0;
+					}
 					vec2 noise = vec2(0.0);
 					noise += backgroundNoise(offsetNorm *  2.0) * 0.5;
 					noise += backgroundNoise(offsetNorm *  4.0) * 0.25;
@@ -131,11 +215,11 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					noise += backgroundNoise(offsetNorm * 16.0) * 0.0625;
 					noise += backgroundNoise(offsetNorm * 32.0) * 0.03125;
 					noise += backgroundNoise(offsetNorm * 64.0) * 0.015625;
-				
+
 					vec3 color = mix(smoothHue(noise.y * 0.5 + 0.375), vec3(1.0), noise.x) * noise.x;
-				
+
 					vec3 starSum = vec3(0.0);
-				
+
 					for (int planeIndex = 1; planeIndex <= 16; planeIndex++) {
 						vec3 axis1 = unitVec( float(planeIndex));
 						vec3 axis2 = unitVec(-float(planeIndex));
@@ -154,11 +238,11 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 						starSum += starColor * starIntensity * planeIntensity;
 					}
 					starSum *= noise.x;
-				
-					color += starSum * 4.0;
+
+					color += starSum * 4.0 + flash;
 					float distanceFromOrigin = length(cameraPosition);
 					color *= exp2((dot(norm, cameraPosition) / distanceFromOrigin * -0.5 - 0.5) * distanceFromOrigin * 0.03125);
-				
+
 					fragColor = vec4(color, 1.0);
 				}
 				"""
@@ -167,6 +251,7 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 			this.inverseModelView = glGetUniformLocation(this.program, "inverseModelView");
 			this.inverseProjection = glGetUniformLocation(this.program, "inverseProjection");
 			this.cameraPosition = glGetUniformLocation(this.program, "cameraPosition");
+			this.collapse = glGetUniformLocation(this.program, "collapse");
 			this.time = glGetUniformLocation(this.program, "time");
 		}
 		catch (Throwable throwable) {

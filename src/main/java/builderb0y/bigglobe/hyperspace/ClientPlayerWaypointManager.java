@@ -8,6 +8,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Entity.RemovalReason;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.WaypointEntity;
@@ -28,6 +30,14 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 
 	public ClientPlayerEntity clientPlayer() {
 		return (ClientPlayerEntity)(this.player);
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		if (this.collapseProgress == 0 && this.getAllWaypoints().isEmpty() && this.player.getEntityWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+			EntityVersions.getClientWorld(this.clientPlayer()).playSoundClient(SoundEvents.ENTITY_ENDER_DRAGON_DEATH, SoundCategory.AMBIENT, 1.0F, 0.5F);
+		}
 	}
 
 	@Override

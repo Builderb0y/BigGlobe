@@ -1,16 +1,22 @@
 package builderb0y.bigglobe.rendering.hyperspace;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.network.ClientPlayerEntity;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 import static org.lwjgl.opengl.GL32C.*;
 
+@Environment(EnvType.CLIENT)
 public class HyperspaceRenderer implements SafeCloseable {
 
 	public static HyperspaceRenderer INSTANCE;
@@ -21,6 +27,18 @@ public class HyperspaceRenderer implements SafeCloseable {
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Hyperspace rendering unavailable:", exception);
+		}
+	}
+
+	public static void debug_reload() {
+		if (INSTANCE != null) {
+			INSTANCE.close();
+		}
+		try {
+			INSTANCE = new HyperspaceRenderer();
+		}
+		catch (Exception exception) {
+			BigGlobeMod.LOGGER.error("Hyperspace reload failed:", exception);
 		}
 	}
 
@@ -83,6 +101,19 @@ public class HyperspaceRenderer implements SafeCloseable {
 		nglUniformMatrix4fv(this.shader.inverseProjection, 1, false, this.matrices.address());
 		glUniform3f(this.shader.cameraPosition, (float)(Matrices.cameraX), (float)(Matrices.cameraY), (float)(Matrices.cameraZ));
 		glUniform1f(this.shader.time, Matrices.dayTimeInSeconds);
+		float progress = 0;
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		if (player != null) {
+			PlayerWaypointManager manager = PlayerWaypointManager.get(player);
+			if (manager != null) {
+				progress = manager.collapseProgress + (
+					manager.getAllWaypoints().isEmpty()
+					? +Matrices.partialTicks
+					: -Matrices.partialTicks
+				);
+			}
+		}
+		glUniform1f(this.shader.collapse, progress / PlayerWaypointManager.COLLAPSE_DURATION_TICKS);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		this.glState.restore();
 	}
