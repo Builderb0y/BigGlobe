@@ -1,6 +1,8 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:plants"
+		"#bigglobe:plants",
+		"minecraft:snow",
+		"minecraft:snow_block"
 	]
 }

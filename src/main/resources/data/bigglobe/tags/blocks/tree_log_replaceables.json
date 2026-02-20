@@ -3,6 +3,8 @@
 	"values": [
 		"#bigglobe:plants",
 		"#minecraft:leaves",
-		"minecraft:bamboo"
+		"minecraft:bamboo",
+		"minecraft:snow",
+		"minecraft:snow_block"
 	]
 }
