@@ -1,0 +1,256 @@
+{
+	"version": 9,
+	"layer_graph": {
+		"showing_layer": "naturalColor1",
+		"selected_layer": "convolve1",
+		"layers": [
+			{
+				"name": "New image",
+				"gridX": 0,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": false,
+					"clampA": false,
+					"code": [
+						"float ign = ign(UV);",
+						"float bayer = reverseBits(UV.x) >>> 28 == UV.y ? 2.0 : 0.0625;",
+						"float combined = ign * bayer;",
+						"combined = combined / sqrt(combined ^ 2 + 1.0);",
+						"return float4(...float3(combined * 2.0), 1.0);"
+					],
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_tiling",
+					"draw_outline": true,
+					"darken_exterior": true,
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "convolve1",
+				"gridX": 1,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "convolve",
+					"clampRGB": true,
+					"clampA": true,
+					"linear": false,
+					"shape": "SQUARE",
+					"weight_type": "CUSTOM",
+					"radius": 1,
+					"normalize": true,
+					"dependencies": {
+						"main": {
+							"type": "layer",
+							"layer": "New image"
+						},
+						"mask": {
+							"type": "color",
+							"color": [
+								1.0,
+								1.0,
+								1.0,
+								1.0
+							]
+						}
+					},
+					"custom_weights": [
+						1.0,
+						1.0,
+						1.0,
+						1.0,
+						8.0,
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					]
+				},
+				"views": {
+					"type": "flat_tiling",
+					"draw_outline": false,
+					"darken_exterior": false,
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "convolve2",
+				"gridX": 1,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "convolve",
+					"clampRGB": true,
+					"clampA": true,
+					"linear": false,
+					"shape": "SQUARE",
+					"weight_type": "CUSTOM",
+					"radius": 2,
+					"normalize": true,
+					"dependencies": {
+						"main": {
+							"type": "layer",
+							"layer": "New image"
+						},
+						"mask": {
+							"type": "color",
+							"color": [
+								1.0,
+								1.0,
+								1.0,
+								1.0
+							]
+						}
+					},
+					"custom_weights": [
+						1.0,
+						1.0,
+						1.0,
+						1.0,
+						1.0,
+						1.0,
+						0.0,
+						0.0,
+						0.0,
+						1.0,
+						1.0,
+						0.0,
+						4.0,
+						0.0,
+						1.0,
+						1.0,
+						0.0,
+						0.0,
+						0.0,
+						1.0,
+						1.0,
+						1.0,
+						1.0,
+						1.0,
+						1.0
+					]
+				},
+				"views": {
+					"type": "flat_tiling",
+					"draw_outline": false,
+					"darken_exterior": false,
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "naturalColor1",
+				"gridX": 2,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "cliff",
+					"clampRGB": true,
+					"clampA": true,
+					"dual": false,
+					"linear": true,
+					"dependencies": {
+						"strength": {
+							"type": "color",
+							"color": [
+								0.25,
+								0.5,
+								0.75,
+								0.5
+							]
+						},
+						"midpoint": {
+							"type": "color",
+							"color": [
+								0.5,
+								0.5,
+								0.5,
+								0.5
+							]
+						},
+						"main": {
+							"type": "layer",
+							"layer": "convolve1"
+						},
+						"mask": {
+							"type": "color",
+							"color": [
+								1.0,
+								1.0,
+								1.0,
+								1.0
+							]
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": true,
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "artificialColor1",
+				"gridX": 2,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "cliff",
+					"clampRGB": true,
+					"clampA": true,
+					"dual": false,
+					"linear": true,
+					"dependencies": {
+						"strength": {
+							"type": "color",
+							"color": [
+								0.625,
+								0.375,
+								0.125,
+								0.5
+							]
+						},
+						"midpoint": {
+							"type": "color",
+							"color": [
+								0.5,
+								0.5,
+								0.5,
+								0.5
+							]
+						},
+						"main": {
+							"type": "layer",
+							"layer": "convolve1"
+						},
+						"mask": {
+							"type": "color",
+							"color": [
+								1.0,
+								1.0,
+								1.0,
+								1.0
+							]
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": true,
+					"dependencies": {}
+				}
+			}
+		]
+	},
+	"animation": {
+		"frames": 1
+	}
+}

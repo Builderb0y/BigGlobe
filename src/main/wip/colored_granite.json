@@ -1,0 +1,734 @@
+{
+	"version": 11,
+	"parameter_sets": {
+		"groups": [
+			{
+				"name": "Global",
+				"selected": "Default",
+				"variations": [
+					"Default"
+				]
+			},
+			{
+				"name": "Color",
+				"selected": "Purple",
+				"variations": [
+					"Blue",
+					"Cyan",
+					"Green",
+					"Yellow",
+					"Fire",
+					"Magenta",
+					"Purple"
+				]
+			},
+			{
+				"name": "Shape",
+				"selected": "Rough",
+				"variations": [
+					"Rough",
+					"Smooth"
+				]
+			}
+		]
+	},
+	"layer_graph": {
+		"showing_layer": "contrast",
+		"selected_layer": "adjust",
+		"layers": [
+			{
+				"name": "granite",
+				"gridX": 0,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/61XQWxMURQdVhIrIpEQkVhIrFhYsHCfHXaIjdgIFpYWFhYWM2MzjVFtEaOdItOk2lHtSEh0tIOkYiqVzBQV00pqppJpJS0JRVH+fWTyc9/7c/4Xu7nt/+/fc8+5596ntt65q9a2JdWK5hYVDoXU+mvXaWzsFWUyt/3GalmsQYXCEY5pYuINtba2UTR6RsfOc/ybDk++1fHMzHvK54dpYGBQv7+y5QINDT2mVKpDxxtSHbSw8J0m/zyvNnWnaXZ2jt+xfZ9KpXFKJK7Q6R8/feUrzwMx50mxWAMdr07X8mdMDkZbrI5WptTOh4/U5r6Mjg+8eMmY1PKzcVtMhUKR4vFzdGzqnfU85sepL+dkzWdx8Rf19NziM7zwaG6ZI1v9urq66cSHj7T7L95c7gGFwxHaWyja8jPw7Bl+qlZfTqglkai13khfAp+Rn9CTwY/8vzyPf/MzXnwfGp/QXK3x4G+po91s9j4lk+21enH9T339Zj1P4gV6Mt6X3+P6sx46O2/40TfNz3/R8cjIM6u+QD2N+gH+qFyu6HzT6Zv/6h919SL1b+s/t584WqRqdbqGR/KJ9BrQL4x6yvd3DObURoe7de1XfZ0v/NA4X+pV8oH81Q/f7hjpV/AV2M/kvAB4rd+vk7+hF+lvsl6Ib4lP+uORckXtepJX2/uznn7v7uf/7acylnpB+EQ9DP647gdfl9T+0efW/gL6NuaX5B/NV+BPQfVh1FPyIfvL6SPeZWjbvX4r/8ifpb4l31zPfcVR/XeveRDgexAvmD9oPhv4bPuem0+Zv/QnkL/Rr8CvDDzAb2E/SL0KPRj9BvoP6hv168lPn2mL8/6qi5d89Q+YLwYesL8G9iPbvJL46+0baB9F/YvmqdQb59bYeN5rv4R+Y7m/uO9LCJ/O1cHEHFvxBfRzw6993Ifc9wc0/wx+0H4g9Av3cbSfoPmK9hmkV76b9vb2UVNTs9U/wP4R1B9gP4h8jPoDfn8DA/WakwAQAAA="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "smooth",
+				"gridX": 0,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/6VXzUtUURQ3iwwqIqKINtGiRVCrIGjRuYuWBbVq3R/Qoj+gRY2mk870MY5jqdE46qQxMxlNpZOGaQvT8SODEWxTZgo2gtlGwaB3b6PUubd37uHu3o/37vn6nfO754lLhWlxujcnTqQz4npZmTg3mhcH7z8Q5YFKayzPHmlNKHxhYlI97wqFFT7T/0bsq4+KLTcCCmN/Z4feib33IrC6uqbw+fyYONqRFPsbYkZ72P+pl6/EjuAtWFz8bhWv9DUyMgqdnV1G+55vmJ9fgIGBtxLD3Nw3iMdbobq6Rr334ob19V8wM/PJCh9+FIdCYRq6u59ZYcKeFs+BWCMMD7+HZPKxKX5Vy21VN2F5+Yc679mBSKQerv7Biovd4duwsvLTaI+Kl/pe8ryzLiRzsMoXvzfk44uxvT137qqcN/icnf0KLS0PIVDqB8w/Pi9jHxwcgkSibRNPTX2EXO71//z/ky/VT/g89ifrIePxvrHi4+TzrJq37SX76D07f4q/Y11PxNbKqs354/Y71S8W8/b39zIOaG/vgNraOuP8jI9PQNDTi8ufvxj1wbX/mHxo5y3m2dcfrh+yp/Ev9VieOdTUbKyvhR6y5puwT2FXPdb4x/cRt94YH0+l1Tz4zavfPLvqKdFfNvPvO3+4n5n6Teof937F80/0BxSLS5BKpSEabTDyT9WzoiYotR+aSvPC1Tdq3nH9TfeBwz6h8u/r65c1MPKP/XH3GXnf5vNjkMk8tTpv0e++9xGlJygfrf/x/sm8z7V+cN1XmPrI1UNN/zD/3P7m6hGXX9d9wnX/QfsjuY9T/HH3OXmXZLMvIBZrtNITon81/SP+f/D/g/M+h/lwvQ+Y9cX8K+0JhcJwpbikMPo/0nBPTy9c8+xfnPxgmidcXw1j/xRGek3Gg98T9n8Dlw2jRgAQAAA="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "selector",
+				"gridX": 1,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "passthrough",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"main": {
+							"input": {
+								"group": "Shape",
+								"variations": {
+									"Smooth": {
+										"type": "layer",
+										"layer": "smooth"
+									},
+									"Rough": {
+										"type": "layer",
+										"layer": "granite"
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "swap",
+				"gridX": 2,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"code": {
+						"group": "Color",
+						"variations": {
+							"Purple": [
+								"return selector(UV).gbra;"
+							],
+							"Magenta": [
+								"return selector(UV).rbga;"
+							],
+							"Yellow": [
+								"return selector(UV).rrba;"
+							],
+							"Fire": [
+								"return selector(UV);"
+							],
+							"Cyan": [
+								"return selector(UV).bgra;"
+							],
+							"Blue": [
+								"return selector(UV).bgra;"
+							],
+							"Green": [
+								"return selector(UV).grba;"
+							]
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "adjust",
+				"gridX": 3,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "cliff",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dual": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"linear": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"strength": {
+							"input": {
+								"group": "Color",
+								"variations": {
+									"Purple": {
+										"type": "color",
+										"color": [ 0.5, 0.4375, 0.5625, 0.5 ]
+									},
+									"Magenta": {
+										"type": "color",
+										"color": [ 0.5625, 0.5, 0.625, 0.5 ]
+									},
+									"Yellow": {
+										"type": "color",
+										"color": [ 0.5625, 0.5, 0.4375, 0.5 ]
+									},
+									"Fire": {
+										"type": "color",
+										"color": [ 0.625, 0.4375, 0.375, 0.5 ]
+									},
+									"Cyan": {
+										"type": "color",
+										"color": [ 0.5, 0.5625, 0.5625, 0.5 ]
+									},
+									"Blue": {
+										"type": "color",
+										"color": [ 0.4375, 0.46875, 0.5625, 0.5 ]
+									},
+									"Green": {
+										"type": "color",
+										"color": [ 0.5, 0.5, 0.5, 0.5 ]
+									}
+								}
+							}
+						},
+						"midpoint": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.5, 0.5, 0.5, 0.5 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "swap"
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "blur",
+				"gridX": 4,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "convolve",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"linear": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"shape": {
+						"group": "Global",
+						"variations": {
+							"Default": "SEPARABLE"
+						}
+					},
+					"weight_type": {
+						"group": "Global",
+						"variations": {
+							"Default": "GAUSSIAN"
+						}
+					},
+					"radius": {
+						"group": "Global",
+						"variations": {
+							"Default": 1
+						}
+					},
+					"normalize": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "adjust"
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "detail",
+				"gridX": 5,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "max",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"main": [
+							{
+								"input": {
+									"group": "Global",
+									"variations": {
+										"Default": {
+											"type": "layer",
+											"layer": "blur"
+										}
+									}
+								},
+								"enabled": {
+									"group": "Global",
+									"variations": {
+										"Default": true
+									}
+								}
+							},
+							{
+								"input": {
+									"group": "Global",
+									"variations": {
+										"Default": {
+											"type": "layer",
+											"layer": "adjust"
+										}
+									}
+								},
+								"enabled": {
+									"group": "Global",
+									"variations": {
+										"Default": true
+									}
+								}
+							}
+						]
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "contrast",
+				"gridX": 6,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"code": {
+						"group": "Color",
+						"variations": {
+							"Purple": [
+								"float4 c = detail(UV);",
+								"c = c * c.b;",
+								"return c.a(1.0);"
+							],
+							"Magenta": [
+								"float4 c = detail(UV);",
+								"c = c * c.r;",
+								"return c.a(1.0);"
+							],
+							"Yellow": [
+								"float4 c = detail(UV);",
+								"c = c * c.r;",
+								"return c.a(1.0);"
+							],
+							"Fire": [
+								"float4 c = detail(UV);",
+								"c = c * c.r;",
+								"return c.a(1.0);"
+							],
+							"Cyan": [
+								"float4 c = detail(UV);",
+								"c = c * c.b;",
+								"return c.a(1.0);"
+							],
+							"Blue": [
+								"float4 c = detail(UV);",
+								"c = c * c.b;",
+								"return c.a(1.0);"
+							],
+							"Green": [
+								"float4 c = detail(UV);",
+								"c = c * c.g;",
+								"return c.a(1.0);"
+							]
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "cube",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"shade": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"east": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "contrast"
+									}
+								}
+							},
+							"uv": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minU": 0.0,
+										"minV": 0.0,
+										"maxU": 16.0,
+										"maxV": 16.0,
+										"rotation": "IDENTITY"
+									}
+								}
+							}
+						},
+						"south": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "contrast"
+									}
+								}
+							},
+							"uv": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minU": 0.0,
+										"minV": 0.0,
+										"maxU": 16.0,
+										"maxV": 16.0,
+										"rotation": "IDENTITY"
+									}
+								}
+							}
+						},
+						"north": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "contrast"
+									}
+								}
+							},
+							"uv": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minU": 0.0,
+										"minV": 0.0,
+										"maxU": 16.0,
+										"maxV": 16.0,
+										"rotation": "IDENTITY"
+									}
+								}
+							}
+						},
+						"west": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "contrast"
+									}
+								}
+							},
+							"uv": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minU": 0.0,
+										"minV": 0.0,
+										"maxU": 16.0,
+										"maxV": 16.0,
+										"rotation": "IDENTITY"
+									}
+								}
+							}
+						},
+						"up": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "contrast"
+									}
+								}
+							},
+							"uv": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minU": 0.0,
+										"minV": 0.0,
+										"maxU": 16.0,
+										"maxV": 16.0,
+										"rotation": "IDENTITY"
+									}
+								}
+							}
+						},
+						"down": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "contrast"
+									}
+								}
+							},
+							"uv": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minU": 0.0,
+										"minV": 0.0,
+										"maxU": 16.0,
+										"maxV": 16.0,
+										"rotation": "IDENTITY"
+									}
+								}
+							}
+						},
+						"dimensions": {
+							"size": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"minX": 0.0,
+										"minY": 0.0,
+										"minZ": 0.0,
+										"maxX": 16.0,
+										"maxY": 16.0,
+										"maxZ": 16.0
+									}
+								}
+							}
+						}
+					},
+					"yaw": 0.7101167943736593,
+					"pitch": -0.6487418864009519,
+					"fov": 0.5
+				}
+			}
+		]
+	},
+	"animation": {
+		"frames": 1
+	}
+}
