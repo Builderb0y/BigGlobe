@@ -26,6 +26,10 @@ public class CoderRegistry<E extends CoderRegistryTyped<E>> extends DispatchCode
 		return (IdentifierLookupCoder<E>)(this.keyCoder);
 	}
 
+	public Identifier getType(E value) {
+		return this.lookup().encode.get(value.getCoder());
+	}
+
 	public <E2 extends E> void register(Identifier id, AutoCoder<E2> coder) {
 		this.lookup().add(id, coder);
 	}
