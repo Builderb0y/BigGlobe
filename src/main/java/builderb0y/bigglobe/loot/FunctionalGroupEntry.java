@@ -72,7 +72,7 @@ public class FunctionalGroupEntry extends LootPoolEntry {
 	public boolean expand(LootContext context, Consumer<LootChoice> choiceConsumer) {
 		boolean success = false;
 		for (LootPoolEntry child : this.children) {
-			success |= child.expand(context, choice -> {
+			success |= child.expand(context, (LootChoice choice) -> {
 				choiceConsumer.accept(new LootChoice() {
 
 					@Override
