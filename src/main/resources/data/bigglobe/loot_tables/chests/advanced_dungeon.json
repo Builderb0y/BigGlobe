@@ -2,7 +2,7 @@
 	"type": "minecraft:chest",
 	"pools": [
 		{
-			"rolls": 2,
+			"rolls": 4,
 			"bonus_rolls": 1,
 			"entries": [
 				{
@@ -11,7 +11,7 @@
 					"name": "minecraft:coal",
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 6 }
+						"count": { "min": 3, "max": 6 }
 					}]
 				},
 				{
@@ -20,7 +20,7 @@
 					"name": "minecraft:redstone",
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 6 }
+						"count": { "min": 3, "max": 6 }
 					}]
 				},
 				{
@@ -29,51 +29,51 @@
 					"name": "minecraft:lapis_lazuli",
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 6 }
+						"count": { "min": 3, "max": 6 }
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"weight": 5,
+					"name": "minecraft:iron_ingot",
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 2, "max": 4 }
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"weight": 5,
+					"quality": 1,
+					"name": "minecraft:gold_ingot",
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 2, "max": 4 }
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"weight": 5,
+					"quality": 2,
+					"name": "minecraft:diamond",
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 2, "max": 4 }
+					}]
+				},
+				{
+					"type": "minecraft:item",
+					"weight": 4,
+					"quality": 2,
+					"name": "minecraft:emerald",
+					"functions": [{
+						"function": "minecraft:set_count",
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{
 					"type": "minecraft:item",
 					"weight": 3,
-					"name": "minecraft:iron_ingot",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 2,
-					"quality": 1,
-					"name": "minecraft:gold_ingot",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 3 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 1,
-					"quality": 2,
-					"name": "minecraft:diamond",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 2 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 1,
-					"quality": 2,
-					"name": "minecraft:emerald",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 2 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 2,
 					"quality": 1,
 					"name": "minecraft:experience_bottle",
 					"functions": [{
@@ -101,7 +101,7 @@
 					],
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 6 }
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{ "type": "minecraft:item", "weight": 5, "quality": 1, "name": "minecraft:golden_apple" },
@@ -109,94 +109,7 @@
 			]
 		},
 		{
-			"rolls": 2,
-			"entries": [
-				{
-					"type": "minecraft:item",
-					"weight": 7,
-					"name": "minecraft:dirt",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 7,
-					"name": "minecraft:cobblestone",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 7,
-					"name": "minecraft:stone_bricks",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 2 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 7,
-					"name": "minecraft:stick",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"weight": 14,
-					"name": "minecraft:torch",
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 6 }
-					}]
-				},
-				{
-					"type": "minecraft:item",
-					"name": "minecraft:bucket",
-					"weight": 14
-				},
-				{
-					"type": "bigglobe:group",
-					"children": [
-						{ "type": "minecraft:item", "name": "minecraft:oak_planks" },
-						{ "type": "minecraft:item", "name": "minecraft:spruce_planks" },
-						{ "type": "minecraft:item", "name": "minecraft:birch_planks" },
-						{ "type": "minecraft:item", "name": "minecraft:jungle_planks" },
-						{ "type": "minecraft:item", "name": "minecraft:acacia_planks" },
-						{ "type": "minecraft:item", "name": "minecraft:dark_oak_planks" },
-						{ "type": "minecraft:item", "name": "minecraft:mangrove_planks" }
-					],
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
-					}]
-				},
-				{
-					"type": "bigglobe:group",
-					"children": [
-						{ "type": "minecraft:item", "name": "minecraft:oak_log" },
-						{ "type": "minecraft:item", "name": "minecraft:spruce_log" },
-						{ "type": "minecraft:item", "name": "minecraft:birch_log" },
-						{ "type": "minecraft:item", "name": "minecraft:jungle_log" },
-						{ "type": "minecraft:item", "name": "minecraft:acacia_log" },
-						{ "type": "minecraft:item", "name": "minecraft:dark_oak_log" },
-						{ "type": "minecraft:item", "name": "minecraft:mangrove_log" }
-					],
-					"functions": [{
-						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 2 }
-					}]
-				}
-			]
-		},
-		{
-			"rolls": 2,
+			"rolls": 1,
 			"entries": [
 				{
 					"type": "minecraft:item",
@@ -204,7 +117,7 @@
 					"name": "minecraft:rotten_flesh",
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
+						"count": { "min": 1, "max": 2 }
 					}]
 				},
 				{
@@ -213,7 +126,7 @@
 					"name": "minecraft:bone",
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 3 }
+						"count": { "min": 1, "max": 2 }
 					}]
 				},
 				{
@@ -249,7 +162,7 @@
 			]
 		},
 		{
-			"rolls": 2,
+			"rolls": 1,
 			"entries": [
 				{ "type": "minecraft:item", "weight": 20, "name": "minecraft:saddle" },
 				{ "type": "minecraft:item", "weight": 20, "name": "minecraft:name_tag" },
@@ -270,7 +183,7 @@
 			]
 		},
 		{
-			"rolls": 2,
+			"rolls": 1,
 			"entries": [
 				{
 					"type": "bigglobe:group",
@@ -278,13 +191,13 @@
 						{
 							"type": "bigglobe:group",
 							"children": [
-								{ "type": "minecraft:item", "weight": 20, "name": "minecraft:leather_helmet" },
-								{ "type": "minecraft:item", "weight": 20, "name": "minecraft:leather_chestplate" },
-								{ "type": "minecraft:item", "weight": 20, "name": "minecraft:leather_leggings" },
-								{ "type": "minecraft:item", "weight": 20, "name": "minecraft:leather_boots" },
-								{ "type": "minecraft:item", "weight": 20, "name": "minecraft:wooden_sword" },
-								{ "type": "minecraft:item", "weight": 30, "name": "minecraft:bow" },
-								{ "type": "minecraft:item", "weight": 30, "name": "minecraft:shield" }
+								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:leather_helmet" },
+								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:leather_chestplate" },
+								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:leather_leggings" },
+								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:leather_boots" },
+								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:wooden_sword" },
+								{ "type": "minecraft:item", "weight": 100, "name": "minecraft:bow" },
+								{ "type": "minecraft:item", "weight": 100, "name": "minecraft:shield" }
 							],
 							"functions": [{
 								"function": "minecraft:enchant_with_levels",
@@ -298,11 +211,11 @@
 						{
 							"type": "bigglobe:group",
 							"children": [
-								{ "type": "minecraft:item", "weight": 4, "name": "minecraft:chainmail_helmet" },
-								{ "type": "minecraft:item", "weight": 4, "name": "minecraft:chainmail_chestplate" },
-								{ "type": "minecraft:item", "weight": 4, "name": "minecraft:chainmail_leggings" },
-								{ "type": "minecraft:item", "weight": 4, "name": "minecraft:chainmail_boots" },
-								{ "type": "minecraft:item", "weight": 4, "name": "minecraft:stone_sword" }
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:chainmail_helmet" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:chainmail_chestplate" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:chainmail_leggings" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:chainmail_boots" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:stone_sword" }
 							],
 							"functions": [{
 								"function": "minecraft:enchant_with_levels",
@@ -316,11 +229,11 @@
 						{
 							"type": "bigglobe:group",
 							"children": [
-								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:iron_helmet" },
-								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:iron_chestplate" },
-								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:iron_leggings" },
-								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:iron_boots" },
-								{ "type": "minecraft:item", "weight": 5, "name": "minecraft:iron_sword" }
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:iron_helmet" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:iron_chestplate" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:iron_leggings" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:iron_boots" },
+								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:iron_sword" }
 							],
 							"functions": [{
 								"function": "minecraft:enchant_with_levels",
@@ -334,11 +247,11 @@
 						{
 							"type": "bigglobe:group",
 							"children": [
-								{ "type": "minecraft:item", "weight": 3, "quality": 1, "name": "minecraft:golden_helmet" },
-								{ "type": "minecraft:item", "weight": 3, "quality": 1, "name": "minecraft:golden_chestplate" },
-								{ "type": "minecraft:item", "weight": 3, "quality": 1, "name": "minecraft:golden_leggings" },
-								{ "type": "minecraft:item", "weight": 3, "quality": 1, "name": "minecraft:golden_boots" },
-								{ "type": "minecraft:item", "weight": 3, "quality": 1, "name": "minecraft:golden_sword" }
+								{ "type": "minecraft:item", "weight": 30, "quality": 1, "name": "minecraft:golden_helmet" },
+								{ "type": "minecraft:item", "weight": 30, "quality": 1, "name": "minecraft:golden_chestplate" },
+								{ "type": "minecraft:item", "weight": 30, "quality": 1, "name": "minecraft:golden_leggings" },
+								{ "type": "minecraft:item", "weight": 30, "quality": 1, "name": "minecraft:golden_boots" },
+								{ "type": "minecraft:item", "weight": 30, "quality": 1, "name": "minecraft:golden_sword" }
 							],
 							"functions": [{
 								"function": "minecraft:enchant_with_levels",
@@ -352,11 +265,11 @@
 						{
 							"type": "bigglobe:group",
 							"children": [
-								{ "type": "minecraft:item", "weight": 1, "quality": 1, "name": "minecraft:diamond_helmet" },
-								{ "type": "minecraft:item", "weight": 1, "quality": 1, "name": "minecraft:diamond_chestplate" },
-								{ "type": "minecraft:item", "weight": 1, "quality": 1, "name": "minecraft:diamond_leggings" },
-								{ "type": "minecraft:item", "weight": 1, "quality": 1, "name": "minecraft:diamond_boots" },
-								{ "type": "minecraft:item", "weight": 1, "quality": 1, "name": "minecraft:diamond_sword" }
+								{ "type": "minecraft:item", "weight": 50, "quality": 1, "name": "minecraft:diamond_helmet" },
+								{ "type": "minecraft:item", "weight": 50, "quality": 1, "name": "minecraft:diamond_chestplate" },
+								{ "type": "minecraft:item", "weight": 50, "quality": 1, "name": "minecraft:diamond_leggings" },
+								{ "type": "minecraft:item", "weight": 50, "quality": 1, "name": "minecraft:diamond_boots" },
+								{ "type": "minecraft:item", "weight": 50, "quality": 1, "name": "minecraft:diamond_sword" }
 							],
 							"functions": [{
 								"function": "minecraft:enchant_with_levels",
@@ -375,11 +288,11 @@
 				},
 				{
 					"type": "minecraft:item",
-					"weight": 50,
+					"weight": 500,
 					"name": "minecraft:arrow",
 					"functions": [{
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 16 }
+						"count": { "min": 4, "max": 8 }
 					}]
 				}
 			]
