@@ -37,6 +37,11 @@ public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 		LodSystem.reload(this, this.world);
 	}
 
+	@Inject(method = "setWorld", at = @At("HEAD"))
+	private void bigglobe_closeLodSystemOnWorldChange(ClientWorld world, CallbackInfo callback) {
+		this.bigglobe_closeLodSystem(null);
+	}
+
 	@Inject(method = "close", at = @At("HEAD"))
 	private void bigglobe_closeLodSystem(CallbackInfo callback) {
 		if (this.bigglobe_lodSystem != null) {
