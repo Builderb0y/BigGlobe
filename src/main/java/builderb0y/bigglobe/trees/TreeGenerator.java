@@ -3,6 +3,7 @@ package builderb0y.bigglobe.trees;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.world.StructureWorldAccess;
@@ -12,6 +13,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -263,7 +265,7 @@ public class TreeGenerator {
 	}
 
 	public boolean canTrunkReplaceBush(BlockPos.Mutable mutablePos, BlockState existingState) {
-		if (this.palette.woodBlocks().contains(existingState.getRegistryEntry())) {
+		if (existingState.isIn(BlockTags.LOGS)) {
 			//hacky workaround for bushes.
 			int oldY = mutablePos.getY();
 			mutablePos.setY(oldY - 1);
