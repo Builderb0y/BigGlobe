@@ -59,6 +59,40 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		this.weights  = initialCapacity == 0 ? DoubleArrays.DEFAULT_EMPTY_ARRAY : new double[initialCapacity];
 	}
 
+	public RandomList(IRandomList<? extends E> other) {
+		if (other.isEmpty()) {
+			this.elements = ObjectArrays.DEFAULT_EMPTY_ARRAY;
+			this.weights  = DoubleArrays.DEFAULT_EMPTY_ARRAY;
+		}
+		else if (other instanceof RandomList<? extends E> that) {
+			this.elements    = Arrays.copyOf(that.elements, that.size);
+			this.weights     = Arrays.copyOf(that.weights,  that.size);
+			this.size        = that.size;
+			this.totalWeight = that.totalWeight;
+		}
+		else {
+			int size = other.size();
+			double totalWeight = 0.0D;
+			this.elements = new Object[size];
+			this.weights = new double[size];
+			if (other instanceof RandomAccess) {
+				for (int index = 0; index < size; index++) {
+					this.elements[index] = other.get(index);
+					totalWeight += (this.weights[index] = other.getWeight(index));
+				}
+			}
+			else {
+				int index = 0;
+				for (WeightedIterator<? extends E> iterator = other.iterator(); iterator.hasNext();) {
+					this.elements[index] = iterator.next();
+					totalWeight += (this.weights[index] = iterator.getWeight());
+				}
+			}
+			this.size = size;
+			this.totalWeight = totalWeight;
+		}
+	}
+
 	public RandomList(RandomList<? extends E> other) {
 		if (other.isEmpty()) {
 			this.elements = ObjectArrays.DEFAULT_EMPTY_ARRAY;
