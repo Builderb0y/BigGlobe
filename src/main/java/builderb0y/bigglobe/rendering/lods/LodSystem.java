@@ -251,17 +251,41 @@ public class LodSystem implements SafeCloseable {
 			}
 			profiler.pop();
 		}
-		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
-			if (this.levelLimit > LodQuadTree.MIN_LEVEL) {
-				this.levelLimit--;
-			}
-			else {
-				this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
-				if (this.currentQuality == this.qualityLimit) {
-					this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
+		//using previous frame data is fine here.
+		LodQuadTree atPlayer = this.tree;
+		while (!atPlayer.canRender() && atPlayer.isTraversableForRender()) {
+			LodQuadTree next;
+			LodFrustum frustum = this.renderState.frustum;
+			if (frustum.x >= atPlayer.midX()) {
+				if (frustum.z >= atPlayer.midZ()) {
+					next = atPlayer.x1z1;
+				}
+				else {
+					next = atPlayer.x1z0;
 				}
 			}
+			else {
+				if (frustum.z >= atPlayer.midZ()) {
+					next = atPlayer.x0z1;
+				}
+				else {
+					next = atPlayer.x0z0;
+				}
+			}
+			if (next != null) atPlayer = next;
+			else break;
 		}
+		if (atPlayer.level > this.levelLimit) {
+			this.currentQuality = 0.0D;
+			this.loadDistance = 0.0D;
+		}
+		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
+			this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
+			if (this.currentQuality == this.qualityLimit) {
+				this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
+			}
+		}
+		this.levelLimit = Math.max(atPlayer.level - 1, LodQuadTree.MIN_LEVEL);
 
 		if (failure == null && this.canRender()) {
 			if (this.tree.passes != null) {
@@ -366,33 +390,34 @@ public class LodSystem implements SafeCloseable {
 		double squareDistance = this.squareDistanceTo(tree);
 		tree.setInRange(squareDistance < BigGlobeMath.squareD(this.renderState.frustum.farClippingPlane));
 		double idealQuality = this.computeIdealQuality(squareDistance, tree);
-		if (idealQuality > this.currentQuality + 0.5D) {
+		if (idealQuality > this.qualityLimit + 0.5D) {
 			tree.merge();
-			return;
 		}
-		if (!tree.isQueued() && canSplit) {
-			if (tree.level > this.levelLimit && idealQuality < this.currentQuality) {
-				tree.split();
+		else {
+			if (!tree.isQueued() && canSplit) {
+				if (tree.level > this.levelLimit && idealQuality < this.currentQuality) {
+					tree.split();
+				}
+				boolean request = false;
+				LoadMode loadMode = null;
+				if (tree.passes == null && squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer)) {
+					request = true;
+					loadMode = squareDistance < BigGlobeMath.squareD(this.loadDistance) ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY;
+				}
+				if (time > tree.rebuildTime && squareDistance < BigGlobeMath.squareD(this.loadDistance)) {
+					request = true;
+					loadMode = tree.passes == null ? LoadMode.LOAD_OR_GENERATE : LoadMode.LOAD_ONLY;
+				}
+				if (request) {
+					this.generator.request(tree, loadMode);
+				}
 			}
-			boolean request = false;
-			LoadMode loadMode = null;
-			if (tree.passes == null && squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer)) {
-				request = true;
-				loadMode = squareDistance < BigGlobeMath.squareD(this.loadDistance) ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY;
+			if (tree.level > LodQuadTree.MIN_LEVEL) {
+				if (tree.x0z0 != null) this.makeRequests(tree.x1z1, time, canSplit);
+				if (tree.x0z1 != null) this.makeRequests(tree.x0z1, time, canSplit);
+				if (tree.x1z0 != null) this.makeRequests(tree.x1z0, time, canSplit);
+				if (tree.x1z1 != null) this.makeRequests(tree.x0z0, time, canSplit);
 			}
-			if (time > tree.rebuildTime && squareDistance < BigGlobeMath.squareD(this.loadDistance)) {
-				request = true;
-				loadMode = tree.passes == null ? LoadMode.LOAD_OR_GENERATE : LoadMode.LOAD_ONLY;
-			}
-			if (request) {
-				this.generator.request(tree, loadMode);
-			}
-		}
-		if (tree.level > LodQuadTree.MIN_LEVEL) {
-			if (tree.x0z0 != null) this.makeRequests(tree.x1z1, time, canSplit);
-			if (tree.x0z1 != null) this.makeRequests(tree.x0z1, time, canSplit);
-			if (tree.x1z0 != null) this.makeRequests(tree.x1z0, time, canSplit);
-			if (tree.x1z1 != null) this.makeRequests(tree.x0z0, time, canSplit);
 		}
 	}
 
