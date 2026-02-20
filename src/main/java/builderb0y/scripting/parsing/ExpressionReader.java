@@ -262,12 +262,23 @@ public class ExpressionReader {
 			if (this.has(';')) {
 				int end;
 				if (this.has('(')) {
-					int depth = 1;
-					while (depth > 0) {
-						char read = this.read();
-						if (read == '(') depth++; else
-						if (read == ')') depth--; else
-						if (read ==  0 ) throw new ScriptParsingException("Mismatched parentheses in comment", this);
+					int depth = 0;
+					scopedComment:
+					while (true) {
+						int read = this.read();
+						switch (read) {
+							case '(', '[', '{' -> {
+								depth++;
+							}
+							case ')', ']', '}' -> {
+								if (--depth < 0) {
+									break scopedComment;
+								}
+							}
+							case 0 -> {
+								throw new ScriptParsingException("Mismatched parentheses in comment", this);
+							}
+						}
 					}
 				}
 				else if (this.has(';')) {
