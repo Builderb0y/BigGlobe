@@ -2,14 +2,17 @@ package builderb0y.bigglobe.commands;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.function.Supplier;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.EnumArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.CommandManager;
@@ -26,6 +29,7 @@ import net.minecraft.world.WorldProperties;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator.SpawnPoint;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -50,7 +54,7 @@ public class RespawnCommand {
 			})
 			.then(
 				CommandManager
-				.argument("mode", new EnumArgument<>(RespawnMode.class))
+				.argument("mode", new RespawnModeArgumentType())
 				.executes((CommandContext<ServerCommandSource> context) -> {
 					Text failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrThrow(), false);
 					if (failReason == null) return 1;
@@ -136,9 +140,11 @@ public class RespawnCommand {
 			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
 				return tryRespawnNew(player);
 			}
-		}
+		},
 
 		;
+
+		public static final Codec<RespawnMode> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RespawnMode.class);
 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 
@@ -323,6 +329,13 @@ public class RespawnCommand {
 			else {
 				return Text.translatable(PREFIX + "new.not_supported_dimension");
 			}
+		}
+	}
+
+	public static class RespawnModeArgumentType extends EnumArgumentType<RespawnMode> {
+
+		public RespawnModeArgumentType() {
+			super(RespawnMode.CODEC, RespawnMode::values);
 		}
 	}
 }
