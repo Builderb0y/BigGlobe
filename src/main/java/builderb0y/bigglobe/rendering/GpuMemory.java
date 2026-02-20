@@ -34,7 +34,7 @@ public abstract class GpuMemory implements SafeCloseable {
 			glBindBuffer(this.binder, id);
 			GLException.check();
 			this.populateInitialData();
-			GLException.check();
+			GLException.forceCheck(); //we want to make sure GL_OUT_OF_MEMORY will not ruin everything from this point onward.
 		}
 		catch (Throwable throwable) {
 			glDeleteBuffers(id);

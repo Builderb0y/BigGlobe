@@ -2,16 +2,27 @@ package builderb0y.bigglobe.rendering;
 
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.bigglobe.BigGlobeMod;
+
 import static org.lwjgl.opengl.GL30C.*;
 import static org.lwjgl.opengl.GL32C.*;
 
 public class GLException extends RuntimeException {
+
+	public static final boolean ENABLED = Boolean.getBoolean("bigglobe.checkGLErrors");
+	static {
+		BigGlobeMod.LOGGER.info("GL error checking is " + (ENABLED ? "enabled" : "disabled") + ".");
+	}
 
 	public GLException(String message) {
 		super(message);
 	}
 
 	public static void check() {
+		if (ENABLED) forceCheck();
+	}
+
+	public static void forceCheck() {
 		int error = glGetError();
 		if (error != GL_NO_ERROR) {
 			throw new GLException(message(error));
@@ -19,6 +30,7 @@ public class GLException extends RuntimeException {
 	}
 
 	public static @Nullable String checkMessage() {
+		if (!ENABLED) return null;
 		int error = glGetError();
 		return error != GL_NO_ERROR ? message(error) : null;
 	}
