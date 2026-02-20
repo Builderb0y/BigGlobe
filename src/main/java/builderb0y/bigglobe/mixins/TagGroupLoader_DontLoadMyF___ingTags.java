@@ -87,7 +87,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 	#else
 
 		@Inject(method = "load", at = @At("HEAD"))
-		private static void bigglobe_prepareForReload(ResourceManager manager, CallbackInfoReturnable<Map<Identifier, Collection<?>>> callback) {
+		private void bigglobe_prepareForReload(ResourceManager manager, CallbackInfoReturnable<Map<Identifier, Collection<?>>> callback) {
 			ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
 			ColumnEntryRegistry.Loading.invalidTags = new HashMap<>();
 		}
