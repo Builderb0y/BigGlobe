@@ -14,6 +14,7 @@ import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.Height;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
@@ -29,6 +30,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.CommandVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -56,11 +58,19 @@ public class EvaluateCommand {
 					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 					ServerWorld actualWorld = context.getSource().getWorld();
 					Vec3d position = context.getSource().getPosition();
+					BlockBox area = new BlockBox(
+						-30_000_000,
+						HeightLimitViewVersions.getMinY(actualWorld),
+						-30_000_000,
+						+30_000_000,
+						HeightLimitViewVersions.getMaxY(actualWorld),
+						+30_000_000
+					);
 					WorldWrapper world = new WorldWrapper(
 						new WorldDelegator(actualWorld),
 						generator,
 						Permuter.from(actualWorld.random),
-						new Coordination(SymmetricOffset.IDENTITY, BlockBox.infinite(), BlockBox.infinite()),
+						new Coordination(SymmetricOffset.IDENTITY, area, area),
 						ColumnUsage.GENERIC.normalHints()
 					);
 					Object result = script.evaluate(
