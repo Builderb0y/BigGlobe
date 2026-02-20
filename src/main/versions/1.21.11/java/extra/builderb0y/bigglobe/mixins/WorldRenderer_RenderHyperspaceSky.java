@@ -1,9 +1,8 @@
 package builderb0y.bigglobe.mixins;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
-
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
@@ -24,7 +22,7 @@ public abstract class WorldRenderer_RenderHyperspaceSky {
 	@Shadow private @Nullable ClientWorld world;
 	@Shadow @Final private DefaultFramebufferSet framebufferSet;
 
-	@Inject(method = "renderSky", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/state/SkyRenderState;skybox:Lnet/minecraft/world/dimension/DimensionType$Skybox;"), cancellable = true)
+	@Inject(method = "renderSky", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/state/SkyRenderState;skybox:Lnet/minecraft/world/dimension/DimensionType$Skybox;", opcode = Opcodes.GETFIELD), cancellable = true)
 	private void bigglobe_renderHyperspaceSky(
 		FrameGraphBuilder frameGraphBuilder,
 		Camera camera,
