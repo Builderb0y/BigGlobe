@@ -231,7 +231,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient boolean seedSet;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
-	public transient ThreadLocal<ScriptedColumn[]> chunkReuseColumns;
 	public transient StructureManager structureManager;
 
 	public BigGlobeScriptedChunkGenerator(
@@ -324,14 +323,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public void setCompiledWorldTraits(WorldTraits traits) {
 		this.compiledWorldTraits = traits;
-		ScriptedColumn.Factory factory = this.columnEntryRegistry.columnFactory;
-		this.chunkReuseColumns = ThreadLocal.withInitial(() -> {
-			ScriptedColumn[] columns = new ScriptedColumn[256];
-			for (int index = 0; index < 256; index++) {
-				columns[index] = factory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), traits));
-			}
-			return columns;
-		});
 	}
 
 	/** public API. */
@@ -721,143 +712,170 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				int startZ = chunk.getPos().getStartZ();
 				int chunkMinY = HeightLimitViewVersions.getMinY(chunk);
 				int chunkMaxY = HeightLimitViewVersions.getMaxY(chunk);
-				ScriptedColumn[] columns = this.chunkReuseColumns.get();
-				BlockSegmentList[] lists = new BlockSegmentList[256];
-				try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
-					for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
-						final int offsetZ_ = offsetZ;
-						for (int offsetX = 0; offsetX < 16; offsetX += 2) {
-							final int offsetX_ = offsetX;
-							async.submit(() -> {
-								boolean trace = TracyWrapper.ENABLED && TRACE_OPERATION.compareAndSet(true, false);
-								try (ZoneWrapper generateQuad = trace ? TracyWrapper.beginZone("generateQuad") : null) {
-									int baseIndex = (offsetZ_ << 4) | offsetX_;
-									int quadX = startX | offsetX_;
-									int quadZ = startZ | offsetZ_;
-									QuadColumn quadColumn = new QuadColumn();
-									quadColumn.loadFromArray(columns, baseIndex, 16);
-									quadColumn.at(params, quadX, quadZ, 1);
-									try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
-										for (String name : this.getOverriders().rawColumnValueDependencies) try {
-											try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
-												quadColumn.preComputeColumnValue(name);
+				ScriptedColumn[] columns;
+				try {
+					columns = this.columnEntryRegistry.chunkReuseColumns.take();
+				}
+				catch (InterruptedException exception) {
+					BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
+					return;
+				}
+				try {
+
+					//////////////////////////////// layers ////////////////////////////////
+
+					BlockSegmentList[] lists = new BlockSegmentList[256];
+					try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
+						for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
+							final int offsetZ_ = offsetZ;
+							for (int offsetX = 0; offsetX < 16; offsetX += 2) {
+								final int offsetX_ = offsetX;
+								async.submit(() -> {
+									boolean trace = TracyWrapper.ENABLED && TRACE_OPERATION.compareAndSet(true, false);
+									try (ZoneWrapper generateQuad = trace ? TracyWrapper.beginZone("generateQuad") : null) {
+										int baseIndex = (offsetZ_ << 4) | offsetX_;
+										int quadX = startX | offsetX_;
+										int quadZ = startZ | offsetZ_;
+										QuadColumn quadColumn = new QuadColumn();
+										quadColumn.loadFromArray(columns, baseIndex, 16);
+										quadColumn.at(params, quadX, quadZ, 1);
+										try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
+											for (String name : this.getOverriders().rawColumnValueDependencies) try {
+												try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
+													quadColumn.preComputeColumnValue(name);
+												}
+											}
+											catch (Throwable throwable) {
+												BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
 											}
 										}
-										catch (Throwable throwable) {
-											BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
-										}
-									}
-									try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
-										for (int index = 0; index < structures.length; index++) {
-											try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overriders[index])::toString) : null) {
-												quadColumn.override(overriders[index].value().script, structures[index]);
+										try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
+											for (int index = 0; index < structures.length; index++) {
+												try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overriders[index])::toString) : null) {
+													quadColumn.override(overriders[index].value().script, structures[index]);
+												}
 											}
 										}
+										QuadList quadList = new QuadList();
+										quadList.createNew(chunkMinY, chunkMaxY);
+										Layer layer = this.layer.value();
+										try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
+											QuadHolder.generate(quadColumn, quadList, layer);
+										}
+										quadList.storeInArray(lists, baseIndex, 16);
 									}
-									QuadList quadList = new QuadList();
-									quadList.createNew(chunkMinY, chunkMaxY);
-									Layer layer = this.layer.value();
-									try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
-										QuadHolder.generate(quadColumn, quadList, layer);
-									}
-									quadList.storeInArray(lists, baseIndex, 16);
-								}
-							});
-						}
-					}
-				}
-				int minFilledSectionY = Integer.MAX_VALUE;
-				int maxFilledSectionY = Integer.MIN_VALUE;
-				for (BlockSegmentList list : lists) {
-					int size = list.size();
-					for (int index = 0; index < size; index++) {
-						LitSegment segment = list.get(index);
-						if (!segment.value.isAir()) {
-							minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
-							break;
-						}
-					}
-					for (int index = size; --index >= 0;) {
-						LitSegment segment = list.get(index);
-						if (!segment.value.isAir()) {
-							maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
-							break;
-						}
-					}
-				}
-				minFilledSectionY >>= 4;
-				maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
-				Async.loop(BigGlobeThreadPool.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
-					ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
-					int baseY = coord << 4;
-					SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
-					BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
-					if (centerState != null) context.setAllStates(centerState, distantHorizons);
-					for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-						BlockSegmentList list = lists[horizontalIndex];
-						int size = list.size();
-						int yIndex = list.getSegmentIndex(baseY, false);
-						while (yIndex < size) {
-							LitSegment segment = list.get(yIndex);
-							int segmentMinY = Math.max(segment.minY - baseY, 0);
-							int segmentMaxY = Math.min(segment.maxY - baseY, 15);
-							if (segmentMaxY >= segmentMinY) {
-								int id = context.id(segment.value);
-								PaletteStorage storage = context.storage();
-								for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
-									storage.set((blockY << 8) | horizontalIndex, id);
-								}
+								});
 							}
-							yIndex++;
 						}
 					}
-				});
-				for (Heightmap.Type type : chunk.getStatus().getHeightmapTypes()) {
-					Heightmap heightmap = chunk.getHeightmap(type);
-					@SuppressWarnings("CastToIncompatibleInterface")
-					PaletteStorage heightmapStorage = ((Heightmap_StorageAccess)(heightmap)).bigglobe_getStorage();
-					for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-						BlockSegmentList list = lists[horizontalIndex];
-						if (!list.isEmpty()) {
-							int height = getHeight(list, type);
-							height = MathHelper.clamp(height - HeightLimitViewVersions.getMinY(chunk), 0, HeightLimitViewVersions.getHeight(chunk));
-							heightmapStorage.set(horizontalIndex, height);
+
+					//////////////////////////////// compute sections to populate ////////////////////////////////
+
+					int minFilledSectionY = Integer.MAX_VALUE;
+					int maxFilledSectionY = Integer.MIN_VALUE;
+					for (BlockSegmentList list : lists) {
+						int size = list.size();
+						for (int index = 0; index < size; index++) {
+							LitSegment segment = list.get(index);
+							if (!segment.value.isAir()) {
+								minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
+								break;
+							}
+						}
+						for (int index = size; --index >= 0;) {
+							LitSegment segment = list.get(index);
+							if (!segment.value.isAir()) {
+								maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
+								break;
+							}
 						}
 					}
-				}
-				WorldWrapper worldWrapper = new WorldWrapper(
-					new ChunkDelegator(chunk, this.columnSeed),
-					this,
-					new Permuter(Permuter.permute(this.columnSeed, chunk.getPos())),
-					new Coordination(
-						SymmetricOffset.IDENTITY,
-						WorldUtil.chunkBox(chunk),
-						WorldUtil.chunkBox(chunk)
-					),
-					hints
-				);
-				worldWrapper.overriders = new AutoOverride(
-					structures,
-					this.getOverriders().rawColumnValues.overriders(),
-					this.getOverriders().rawColumnValueDependencies
-				);
-				for (ScriptedColumn column : columns) {
-					worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
-				}
-				int minFilledSectionY_ = minFilledSectionY;
-				int maxFilledSectionY_ = maxFilledSectionY;
-				ScriptedColumnLookup.GLOBAL.run(worldWrapper, () -> {
-					if (!distantHorizons) {
-						for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
-							replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
+					minFilledSectionY >>= 4;
+					maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
+
+					//////////////////////////////// populate sections ////////////////////////////////
+
+					Async.loop(BigGlobeThreadPool.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
+						ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(coord));
+						int baseY = coord << 4;
+						SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
+						BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
+						if (centerState != null) context.setAllStates(centerState, distantHorizons);
+						for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+							BlockSegmentList list = lists[horizontalIndex];
+							int size = list.size();
+							int yIndex = list.getSegmentIndex(baseY, false);
+							while (yIndex < size) {
+								LitSegment segment = list.get(yIndex);
+								int segmentMinY = Math.max(segment.minY - baseY, 0);
+								int segmentMaxY = Math.min(segment.maxY - baseY, 15);
+								if (segmentMaxY >= segmentMinY) {
+									int id = context.id(segment.value);
+									PaletteStorage storage = context.storage();
+									for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
+										storage.set((blockY << 8) | horizontalIndex, id);
+									}
+								}
+								yIndex++;
+							}
 						}
-					}
-					Async.loop(BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int coord) -> {
-						chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
 					});
-					this.generateRawStructures(chunk, structureAccessor, worldWrapper);
-					this.feature_dispatcher.generateRaw(worldWrapper);
-				});
+
+					//////////////////////////////// heightmaps ////////////////////////////////
+
+					for (Heightmap.Type type : chunk.getStatus().getHeightmapTypes()) {
+						Heightmap heightmap = chunk.getHeightmap(type);
+						@SuppressWarnings("CastToIncompatibleInterface")
+						PaletteStorage heightmapStorage = ((Heightmap_StorageAccess)(heightmap)).bigglobe_getStorage();
+						for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+							BlockSegmentList list = lists[horizontalIndex];
+							if (!list.isEmpty()) {
+								int height = getHeight(list, type);
+								height = MathHelper.clamp(height - HeightLimitViewVersions.getMinY(chunk), 0, HeightLimitViewVersions.getHeight(chunk));
+								heightmapStorage.set(horizontalIndex, height);
+							}
+						}
+					}
+
+					//////////////////////////////// raw feature dispatchers ////////////////////////////////
+
+					WorldWrapper worldWrapper = new WorldWrapper(
+						new ChunkDelegator(chunk, this.columnSeed),
+						this,
+						new Permuter(Permuter.permute(this.columnSeed, chunk.getPos())),
+						new Coordination(
+							SymmetricOffset.IDENTITY,
+							WorldUtil.chunkBox(chunk),
+							WorldUtil.chunkBox(chunk)
+						),
+						hints
+					);
+					worldWrapper.overriders = new AutoOverride(
+						structures,
+						this.getOverriders().rawColumnValues.overriders(),
+						this.getOverriders().rawColumnValueDependencies
+					);
+					for (ScriptedColumn column : columns) {
+						worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
+					}
+					int minFilledSectionY_ = minFilledSectionY;
+					int maxFilledSectionY_ = maxFilledSectionY;
+					ScriptedColumnLookup.GLOBAL.run(worldWrapper, () -> {
+						if (!distantHorizons) {
+							for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
+								replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
+							}
+						}
+						Async.loop(BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int coord) -> {
+							chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
+						});
+						this.generateRawStructures(chunk, structureAccessor, worldWrapper);
+						this.feature_dispatcher.generateRaw(worldWrapper);
+					});
+				}
+				finally {
+					this.columnEntryRegistry.chunkReuseColumns.add(columns);
+				}
 			},
 			#if MC_VERSION >= MC_1_21_0
 				Util.getMainWorkerExecutor()
@@ -900,27 +918,39 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			chunk.getPos(),
 			this.getOverriders().featureColumnValues
 		);
-		ScriptedColumn[] columns = this.chunkReuseColumns.get();
-		worldWrapper.overriders = new AutoOverride(
-			structures,
-			this.getOverriders().featureColumnValues.overriders(),
-			this.getOverriders().featureColumnValueDependencies
-		);
-		try (AsyncConsumer<ScriptedColumn> async = new AsyncConsumer<>(BigGlobeThreadPool.autoExecutor(), (ScriptedColumn column) -> {
-			worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
-		})) {
-			for (int index = 0; index < 256; index++) {
-				final int index_ = index;
-				async.submit(() -> {
-					int x = chunk.getPos().getStartX() | (index_ & 15);
-					int z = chunk.getPos().getStartZ() | (index_ >>> 4);
-					columns[index_].setParamsUnchecked(worldWrapper.params.at(x, z));
-					worldWrapper.overriders.override(columns[index_]);
-					return columns[index_];
-				});
-			}
+		ScriptedColumn[] columns;
+		try {
+			columns = this.columnEntryRegistry.chunkReuseColumns.take();
 		}
-		ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher::generateNormal);
+		catch (InterruptedException exception) {
+			BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
+			return;
+		}
+		try {
+			worldWrapper.overriders = new AutoOverride(
+				structures,
+				this.getOverriders().featureColumnValues.overriders(),
+				this.getOverriders().featureColumnValueDependencies
+			);
+			try (AsyncConsumer<ScriptedColumn> async = new AsyncConsumer<>(BigGlobeThreadPool.autoExecutor(), (ScriptedColumn column) -> {
+				worldWrapper.columns.put(ColumnPos.pack(column.x(), column.z()), column);
+			})) {
+				for (int index = 0; index < 256; index++) {
+					final int index_ = index;
+					async.submit(() -> {
+						int x = chunk.getPos().getStartX() | (index_ & 15);
+						int z = chunk.getPos().getStartZ() | (index_ >>> 4);
+						columns[index_].setParamsUnchecked(worldWrapper.params.at(x, z));
+						worldWrapper.overriders.override(columns[index_]);
+						return columns[index_];
+					});
+				}
+			}
+			ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher::generateNormal);
+		}
+		finally {
+			this.columnEntryRegistry.chunkReuseColumns.add(columns);
+		}
 	}
 
 	public void generateRawStructures(Chunk chunk, StructureAccessor structureAccessor, ScriptedColumnLookup columns) {
