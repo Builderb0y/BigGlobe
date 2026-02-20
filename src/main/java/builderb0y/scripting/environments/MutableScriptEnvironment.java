@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -24,7 +23,6 @@ import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsn
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.ReflectionData;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -40,6 +38,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public Map<NamedType,              FieldHandler.Named > fields             = new HashMap<>(16);
 	public Map<String,         List<FunctionHandler.Named>> functions          = new HashMap<>(64);
 	public Map<NamedType,      List<  MethodHandler.Named>> methods            = new HashMap<>(64);
+	public Map<NamedType,           VariableHandler.Named > qualifiedVariables = new HashMap<>(64);
 	public Map<NamedType,      List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
 	public Map<String,                     TypeInfo       > types              = new HashMap<>(16);
 	public Map<String,               KeywordHandler.Named > keywords           = new HashMap<>(16);
@@ -161,6 +160,17 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
+	public MutableScriptEnvironment addAllQualifiedVariables(MutableScriptEnvironment that) {
+		if (!that.qualifiedVariables.isEmpty()) {
+			for (Map.Entry<NamedType, VariableHandler.Named> entry : that.qualifiedVariables.entrySet()) {
+				if (this.qualifiedVariables.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+					throw new IllegalArgumentException("Qualified variable '" + entry.getKey() + "' is already defined in this scope");
+				}
+			}
+		}
+		return this;
+	}
+
 	public MutableScriptEnvironment addAllTypes(MutableScriptEnvironment that) {
 		if (!that.types.isEmpty()) {
 			for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
@@ -223,6 +233,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			.addAllFields            (that)
 			.addAllFunctions         (that)
 			.addAllMethods           (that)
+			.addAllQualifiedVariables(that)
 			.addAllQualifiedFunctions(that)
 			.addAllTypes             (that)
 			.addAllKeywords          (that)
@@ -746,14 +757,12 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// qualified variables ////////////////////////////////
 
-	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, VariableHandler variableHandler) {
-		return this.addField(TypeInfos.CLASS, name, new FieldHandler.Named("qualifiedVariable on " + owner + ": " + variableHandler, (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-			ConstantValue constant = receiver.getConstantValue();
-			if (constant.isConstant() && constant.asJavaObject().equals(owner)) {
-				return variableHandler.create(parser, name1);
-			}
-			return null;
-		}));
+	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, VariableHandler.Named variableHandler) {
+		NamedType key = new NamedType(owner, name);
+		if (this.qualifiedVariables.putIfAbsent(key, variableHandler) != null) {
+			throw new IllegalArgumentException("Qualified variable " + key + " is already defined in this scope");
+		}
+		return this;
 	}
 
 	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, InsnTree tree) {
@@ -1071,6 +1080,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	@Override
 	public @Nullable InsnTree getField(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) throws ScriptParsingException {
+		ConstantValue constant = receiver.getConstantValue();
+		if (constant.isConstant() && constant.asJavaObject() instanceof TypeInfo type) {
+			InsnTree result = this.tryGetQualifiedVariable(parser, type, name);
+			if (result != null) return result;
+		}
 		class Accumulator {
 
 			public final NamedType query = new NamedType();
@@ -1128,6 +1142,14 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		if (accumulator.update(name)) return accumulator.result();
 		if (accumulator.update(null)) return accumulator.result();
 		return accumulator.result();
+	}
+
+	public InsnTree tryGetQualifiedVariable(ExpressionParser parser, TypeInfo owner, String name) throws ScriptParsingException {
+		VariableHandler.Named handler = this.qualifiedVariables.get(new NamedType(owner, name));
+		if (handler != null) {
+			return handler.create(parser, name);
+		}
+		return null;
 	}
 
 	public InsnTree tryGetQualifiedFunction(ExpressionParser parser, TypeInfo owner, String name, InsnTree... arguments) throws ScriptParsingException {
