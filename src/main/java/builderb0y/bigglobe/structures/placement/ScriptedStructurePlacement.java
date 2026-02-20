@@ -103,7 +103,7 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 
 		public abstract void getNearbyStartChunks(
 			Stream.Builder<ChunkPos> builder,
-			ScriptedColumnLookup lookup,
+			ScriptedColumnLookup columns,
 			long worldSeed,
 			int centerChunkX,
 			int centerChunkZ,
@@ -152,7 +152,7 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 			@Override
 			public void getNearbyStartChunks(
 				Stream.Builder<ChunkPos> builder,
-				ScriptedColumnLookup lookup,
+				ScriptedColumnLookup columns,
 				long worldSeed,
 				int centerChunkX,
 				int centerChunkZ,
@@ -163,7 +163,7 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 				try {
 					this.script.getNearbyStartChunks(
 						builder,
-						lookup,
+						columns,
 						worldSeed,
 						centerChunkX,
 						centerChunkZ,
