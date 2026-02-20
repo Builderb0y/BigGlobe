@@ -46,45 +46,66 @@ public class JavaUtilScriptEnvironment {
 	@Deprecated //use noAllocateNoModify() instead.
 	public static final MutableScriptEnvironment NO_ALLOCATE_NO_MODIFY = (
 		new MutableScriptEnvironment()
-		.addMethodInvokes(Object.class, "toString", "equals", "hashCode", "getClass")
-		.addType("Iterator", Iterator.class)
-		.addMethodInvokes(Iterator.class, "hasNext", "next")
-		.addType("ListIterator", ListIterator.class)
-		.addMethodInvokes(ListIterator.class, "hasPrevious", "previous", "nextIndex", "previousIndex")
-		.addType("Map", Map.class)
-		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "keySet", "values", "entrySet", "getOrDefault")
+		.addType("ArrayDeque",      ArrayDeque   .class)
+		.addType("ArrayList",       ArrayList    .class)
+		.addType("Collection",      Collection   .class)
+		.addType("ConstantList",    ArrayWrapper .class)
+		.addType("ConstantMap",     ConstantMap  .class)
+		.addType("ConstantSet",     ConstantSet  .class)
+		.addType("Deque",           Deque        .class)
+		.addType("HashMap",         HashMap      .class)
+		.addType("HashSet",         HashSet      .class)
+		.addType("Iterable",        Iterable     .class)
+		.addType("Iterator",        Iterator     .class)
+		.addType("LinkedHashMap",   LinkedHashMap.class)
+		.addType("LinkedHashSet",   LinkedHashSet.class)
+		.addType("LinkedList",      LinkedList   .class)
+		.addType("List",            List         .class)
+		.addType("ListIterator",    ListIterator .class)
+		.addType("Map",             Map          .class)
+		.addType("MapEntry",        Map.Entry    .class)
+		.addType("NavigableMap",    NavigableMap .class)
+		.addType("NavigableSet",    NavigableSet .class)
+		.addType("PriorityQueue",   PriorityQueue.class)
+		.addType("Queue",           Queue        .class)
+		.addType("RandomArrayList", RandomList   .class)
+		.addType("RandomList",      IRandomList  .class)
+		.addType("Set",             Set          .class)
+		.addType("SortedMap",       SortedMap    .class)
+		.addType("SortedSet",       SortedSet    .class)
+		.addType("TreeMap",         TreeMap      .class)
+		.addType("TreeSet",         TreeSet      .class)
+
 		.addFieldInvokes(Map.class, "size", "isEmpty")
-		.addType("MapEntry", Map.Entry.class)
-		.addMethodInvokes(Map.Entry.class, "getKey", "getValue")
 		.addFieldInvoke("key", MAP_ENTRY_GET_KEY)
-		.addType("SortedMap", SortedMap.class)
-		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey")
-		.addType("NavigableMap", NavigableMap.class)
+		.addFieldInvokes(Collection.class, "size", "isEmpty")
+
+		.addMethodInvokes(Object.class, "toString", "equals", "hashCode", "getClass")
+		.addMethodInvokes(Iterator.class, "hasNext", "next")
+		.addMethodInvokes(ListIterator.class, "hasPrevious", "previous", "nextIndex", "previousIndex")
+		.addMethodMultiInvokes(Map.class, "size", "isEmpty", "containsKey", "containsValue", "get", "keySet", "values", "entrySet", "getOrDefault")
+		.addMethodInvokes(Map.Entry.class, "getKey", "getValue")
+		.addMethodInvokes(SortedMap.class, "firstKey", "lastKey", "subMap", "headMap", "tailMap")
 		.addMethodMultiInvokes(NavigableMap.class, "lowerEntry", "lowerKey", "floorEntry", "floorKey", "ceilingEntry", "ceilingKey", "higherEntry", "higherKey", "firstEntry", "lastEntry", "descendingMap", "navigableKeySet", "descendingKeySet", "subMap", "headMap", "tailMap")
-		.addType("TreeMap", TreeMap.class)
-		.addType("HashMap", HashMap.class)
-		.addType("LinkedHashMap", LinkedHashMap.class)
-		.addType("ConstantMap", ConstantMap.class)
+		.addMethodInvoke(Iterable.class, "iterator")
+		.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "containsAll")
+		.addMethodInvokes(SortedSet.class, "subSet", "headSet", "tailSet", "first", "last")
+		.addMethodMultiInvokes(NavigableSet.class, "lower", "floor", "ceiling", "higher", "descendingSet", "descendingIterator", "subSet", "headSet", "tailSet")
+		.addMethodMultiInvokes(List.class, "get", "indexOf", "lastIndexOf", "listIterator", "subList")
+		.addMethodInvokes(Queue.class, "element", "peek")
+		.addMethodInvokes(Deque.class, "getFirst", "getLast", "peekFirst", "peekLast")
+		.addMethodMultiInvokes(IRandomList.class, "getWeight", "iterator", "listIterator", "subList")
+		.addMethodInvokeSpecific(IRandomList.class, "getRandomIndex", int.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(IRandomList.class, "getRandomIndex", int.class, long.class)
+		.addMethodInvokeSpecific(IRandomList.class, "getRandomElement", Object.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(IRandomList.class, "getRandomElement", Object.class, long.class)
+
 		.addMemberKeyword(TypeInfos.CLASS, "new", new MemberKeywordHandler.Named("ConstantMap.new(key1: value1, key2: value2, ...)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 			if (receiver.getConstantValue().isConstant() && receiver.getConstantValue().asJavaObject().equals(type(ConstantMap.class))) {
 				return ldc(CONSTANT_MAP, inflate(ConstantMapSyntax.parse(parser).keysAndValues()));
 			}
 			return null;
 		}))
-		.addType("Iterable", Iterable.class)
-		.addMethodInvoke(Iterable.class, "iterator")
-		.addType("Collection", Collection.class)
-		.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "containsAll")
-		.addFieldInvokes(Collection.class, "size", "isEmpty")
-		.addType("Set", Set.class)
-		.addType("SortedSet", SortedSet.class)
-		.addMethodInvokes(SortedSet.class, "subSet", "headSet", "tailSet", "first", "last")
-		.addType("NavigableSet", NavigableSet.class)
-		.addMethodMultiInvokes(NavigableSet.class, "lower", "floor", "ceiling", "higher", "descendingSet", "descendingIterator", "subSet", "headSet", "tailSet")
-		.addType("TreeSet", TreeSet.class)
-		.addType("HashSet", HashSet.class)
-		.addType("LinkedHashSet", LinkedHashSet.class)
-		.addType("ConstantSet", ConstantSet.class)
 		.addQualifiedFunction(type(ConstantSet.class), "new", new FunctionHandler.Named("ConstantSet.new(values)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			int elementCount = arguments.length;
 			ConstantValue[] constants = new ConstantValue[elementCount];
@@ -95,11 +116,6 @@ public class JavaUtilScriptEnvironment {
 			}
 			return new CastResult(ldc(CONSTANT_SET, inflate(constants)), false);
 		}))
-		.addType("List", List.class)
-		.addMethodMultiInvokes(List.class, "addAll", "get", "indexOf", "lastIndexOf", "listIterator", "subList")
-		.addType("LinkedList", LinkedList.class)
-		.addType("ArrayList", ArrayList.class)
-		.addType("ConstantList", ArrayWrapper.class)
 		.addQualifiedFunction(type(ArrayWrapper.class), "new", new FunctionHandler.Named("ConstantList.new(values)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
 			int argumentCount = arguments.length;
 			ConstantValue[] constants = new ConstantValue[argumentCount];
@@ -110,16 +126,6 @@ public class JavaUtilScriptEnvironment {
 			}
 			return new CastResult(ldc(CONSTANT_LIST, inflate(constants)), false);
 		}))
-		.addType("Queue", Queue.class)
-		.addMethodInvokes(Queue.class, "element", "peek")
-		.addType("Deque", Deque.class)
-		.addMethodInvokes(Deque.class, "getFirst", "getLast", "peekFirst", "peekLast")
-		.addType("ArrayDeque", ArrayDeque.class)
-		.addType("PriorityQueue", PriorityQueue.class)
-		.addType("RandomList", IRandomList.class)
-		.addMethodMultiInvokes(IRandomList.class, "getWeight", "iterator", "listIterator", "subList")
-		.addMethodInvokeSpecific(IRandomList.class, "getRandomElement", Object.class, RandomGenerator.class)
-		.addType("RandomArrayList", RandomList.class)
 	);
 
 	public static Consumer<MutableScriptEnvironment> noAllocateNoModify() {
