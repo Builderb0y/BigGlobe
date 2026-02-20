@@ -36,6 +36,8 @@ import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 @Environment(EnvType.CLIENT)
 public class LodSystem implements SafeCloseable {
 
+	public static final long CHUNK_REBUILD_DELAY = 2000L;
+
 	static {
 		#if MC_VERSION >= MC_1_21_9
 			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_EXTRACTION.register(context -> {
@@ -440,7 +442,7 @@ public class LodSystem implements SafeCloseable {
 
 	public void invalidateChunkNow(ChunkPos chunkPos) {
 		if (this.tree != null) {
-			this.recursiveInvalidateBlock(this.tree, System.currentTimeMillis() + 5000L, chunkPos.x << 4, chunkPos.z << 4);
+			this.recursiveInvalidateBlock(this.tree, System.currentTimeMillis() + CHUNK_REBUILD_DELAY, chunkPos.x << 4, chunkPos.z << 4);
 		}
 	}
 

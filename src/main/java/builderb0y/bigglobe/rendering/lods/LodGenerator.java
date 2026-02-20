@@ -846,7 +846,7 @@ public class LodGenerator implements SafeCloseable {
 							owner.passes = null;
 						}
 						else if (owner.level - LodQuadTree.MIN_LEVEL < maxLoadLevel) {
-							owner.rebuildTime = System.currentTimeMillis() + 5000L;
+							owner.rebuildTime = System.currentTimeMillis() + LodSystem.CHUNK_REBUILD_DELAY;
 						}
 						owner.passes = uploader.upload(this.request.provider);
 					}
