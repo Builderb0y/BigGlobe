@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import java.lang.invoke.MethodHandle;
-
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.util.TypeFormatter;

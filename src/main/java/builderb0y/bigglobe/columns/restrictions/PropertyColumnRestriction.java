@@ -3,17 +3,14 @@ package builderb0y.bigglobe.columns.restrictions;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
