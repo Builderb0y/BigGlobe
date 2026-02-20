@@ -2,6 +2,10 @@
 	"replace": false,
 	"values": [
 		"bigglobe:crimson_forest",
-		"bigglobe:warped_forest"
+		"bigglobe:warped_forest",
+		{
+			"id": "bigglobe:pale_garden",
+			"required": false
+		}
 	]
 }

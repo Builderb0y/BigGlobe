@@ -1,6 +1,10 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:ashen_wastes"
+		"bigglobe:ashen_wastes",
+		{
+			"id": "bigglobe:pale_garden",
+			"required": false
+		}
 	]
 }
