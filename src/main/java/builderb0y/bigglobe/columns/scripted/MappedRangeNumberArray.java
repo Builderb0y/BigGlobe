@@ -24,7 +24,7 @@ public class MappedRangeNumberArray extends MappedRangeArray {
 	public boolean reallocate(int requiredLength) {
 		this.valid = true;
 		if (this.array.length() < requiredLength) {
-			requiredLength = Math.max(requiredLength, this.array.length() << 1);
+			requiredLength = Math.max(requiredLength, this.array.length() * 3 / 2);
 			this.array.close();
 			this.array = switch (this.array.type) {
 				case NumberArray.   BYTE_TYPE -> NumberArray.allocateBytesHeap   (requiredLength);
