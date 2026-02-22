@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 
@@ -172,8 +173,14 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 
 		public final OreBlockReplacerScript.Holder replacer_script;
 
-		public Config(Seed seed, ColumnYToDoubleScript.Holder chance, RandomSource radius, OreBlockReplacerScript.Holder replacer_script) {
-			super(seed, chance, radius);
+		public Config(
+			Seed seed,
+			ColumnYToDoubleScript.Holder chance,
+			ColumnYToDoubleScript.Holder core_chance,
+			RandomSource radius,
+			OreBlockReplacerScript.Holder replacer_script
+		) {
+			super(seed, chance, core_chance, radius);
 			this.replacer_script = replacer_script;
 		}
 	}

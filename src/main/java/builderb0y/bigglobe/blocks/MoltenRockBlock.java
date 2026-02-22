@@ -22,6 +22,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.features.AbstractOreFeature;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.ScriptedOreFeature;
@@ -82,25 +83,27 @@ public class MoltenRockBlock extends Block {
 				RandomSelector<BlockState> selector = new RandomSelector<>(new Permuter(serverWorld.random.nextLong()));
 				ScriptedColumn column = generator.newColumn(world, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints());
 				for (ConfiguredRockReplacerFeature<?> feature : generator.feature_dispatcher.getFlattenedRockReplacers()) {
-					if (feature.config() instanceof OreFeature.Config config) {
-						BlockState newState = config.blocks.runtimeStates.get(BlockStates.STONE);
-						if (newState != null) selector.accept(newState, config.chance.get(column, pos.getY()));
-					}
-					else if (feature.config() instanceof ScriptedOreFeature.Config config) {
-						BlockState newState = config.replacer_script.getReplacement(
-							column,
-							BlockStates.STONE,
-							pos.getX(),
-							pos.getY(),
-							pos.getZ(),
-							serverWorld.random.nextLong(),
-							pos.getX(),
-							pos.getY(),
-							pos.getZ(),
-							1.0D,
-							serverWorld.random.nextDouble()
-						);
-						if (newState != null) selector.accept(newState, config.chance.get(column, pos.getY()));
+					if (feature.config() instanceof AbstractOreFeature.Config config) {
+						if (config instanceof OreFeature.Config normalConfig) {
+							BlockState newState = normalConfig.blocks.runtimeStates.get(BlockStates.STONE);
+							if (newState != null) selector.accept(newState, normalConfig.getCoreChance().get(column, pos.getY()));
+						}
+						else if (config instanceof ScriptedOreFeature.Config scriptedConfig) {
+							BlockState newState = scriptedConfig.replacer_script.getReplacement(
+								column,
+								BlockStates.STONE,
+								pos.getX(),
+								pos.getY(),
+								pos.getZ(),
+								serverWorld.random.nextLong(),
+								pos.getX(),
+								pos.getY(),
+								pos.getZ(),
+								1.0D,
+								serverWorld.random.nextDouble()
+							);
+							if (newState != null) selector.accept(newState, scriptedConfig.getCoreChance().get(column, pos.getY()));
+						}
 					}
 				}
 				if (selector.value != null) return selector.value;

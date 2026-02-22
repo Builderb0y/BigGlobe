@@ -19,6 +19,11 @@
 		* y - the Y level the ore is attempting to spawn at.
 
 		Note that x and z are provided by BaseColumnScriptEnvironment.
+	* `core_chance` (upcoming) (optional) - a script returning a double between 0 and 1 which determines how likely the ore is to spawn when a molten rock is cooled by water.
+		* Has the same environments and variables as `chance`.
+		* When this value is absent, the regular chance is used by molten rock blocks.
+		* Note that molten rock uses a weighted random system, so the returned chance is effectively divided by the total core chance of all ores.
+			* This has the implication that even if every ore has a very low chance of spawning, one of them will still be selected anyway.
 	* `radius` - a RandomSource returning a number between 0 and 16 which determines how big the ore is.
 
 # Other requirements

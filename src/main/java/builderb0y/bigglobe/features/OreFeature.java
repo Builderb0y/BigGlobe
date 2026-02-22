@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 
@@ -72,10 +73,11 @@ public class OreFeature extends AbstractOreFeature<OreFeature.Config> {
 		public Config(
 			Seed seed,
 			ColumnYToDoubleScript.Holder chance,
+			ColumnYToDoubleScript.Holder core_chance,
 			RandomSource radius,
-			BlockState2ObjectMap<BlockState> blocks
+			BlockState2ObjectMap<@VerifyNormal BlockState> blocks
 		) {
-			super(seed, chance, radius);
+			super(seed, chance, core_chance, radius);
 			this.blocks = blocks;
 		}
 	}

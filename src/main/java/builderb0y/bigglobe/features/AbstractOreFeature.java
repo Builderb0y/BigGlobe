@@ -1,9 +1,12 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.chunk.Chunk;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
@@ -257,12 +260,23 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 
 		public final @SeedModes(Seed.NUMBER | Seed.STRING) Seed seed;
 		public final ColumnYToDoubleScript.Holder chance;
+		public final ColumnYToDoubleScript.@VerifyNullable Holder core_chance;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius;
 
-		public Config(Seed seed, ColumnYToDoubleScript.Holder chance, RandomSource radius) {
-			this.seed   = seed;
-			this.chance = chance;
-			this.radius = radius;
+		public Config(
+			Seed seed,
+			ColumnYToDoubleScript.Holder chance,
+			ColumnYToDoubleScript.Holder core_chance,
+			RandomSource radius
+		) {
+			this.seed        = seed;
+			this.chance      = chance;
+			this.core_chance = core_chance;
+			this.radius      = radius;
+		}
+
+		public ColumnYToDoubleScript.Holder getCoreChance() {
+			return this.core_chance != null ? this.core_chance : this.chance;
 		}
 	}
 }

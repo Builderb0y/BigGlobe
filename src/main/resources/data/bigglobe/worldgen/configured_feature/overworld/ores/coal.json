@@ -7,6 +7,7 @@
 			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_coal_ore"
 		},
 		"chance": "1.0L",
+		"core_chance": "0.25L",
 		"radius": {
 			"type": "average",
 			"min": 3.0,
