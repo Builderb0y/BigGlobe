@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -15,6 +16,7 @@ import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 public class BigGlobeCommands {
 
@@ -48,7 +50,7 @@ public class BigGlobeCommands {
 		RegistrationEnvironment environment
 	) {
 		BigGlobeMod.LOGGER.debug("Registering commands to dispatcher...");
-		LocateCommand        .register(dispatcher);
+		BigGlobeLocateCommand.register(dispatcher);
 		RespawnCommand       .register(dispatcher);
 		EvaluateCommand      .register(dispatcher);
 		DumpRegistriesCommand.register(dispatcher);
@@ -73,5 +75,13 @@ public class BigGlobeCommands {
 		DisplayColumnsClientCommand.register(dispatcher);
 		SearchF3ClientCommand.register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering client commands to dispatcher.");
+	}
+
+	public static BigGlobeScriptedChunkGenerator generator(CommandContext<ServerCommandSource> context) {
+		return generator(context.getSource());
+	}
+
+	public static BigGlobeScriptedChunkGenerator generator(ServerCommandSource source) {
+		return source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
 	}
 }

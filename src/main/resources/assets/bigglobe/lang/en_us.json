@@ -235,6 +235,7 @@
 	"commands.bigglobe.registryDump.success": "All registries have been dumped. You can find them in .minecraft/bigglobe_registry_dump",
 
 	"commands.bigglobe.locate.searching": "Searching...",
+	"commands.bigglobe.locate.done": "Done searching.",
 	"commands.bigglobe.locate.clickToTeleport": "Click to Teleport",
 	"commands.bigglobe.locate.more": "...%d more",
 	"commands.bigglobe.locate.nearest.success": "Found %s at %d, %d (%d block(s) away)",
@@ -245,6 +246,8 @@
 	"commands.bigglobe.locate.max.success": "Largest %s values within %d blocks of you:",
 	"commands.bigglobe.locate.min.fail": "Could not find any %s values within %d blocks of you.",
 	"commands.bigglobe.locate.max.fail": "Could not find any %s values within %d blocks of you.",
+	"commands.bigglobe.locate.structure.success": "Found %s at [%d, %d, %d] (%s block(s) away)",
+	"commands.bigglobe.locate.structure.fail.structures_disabled": "Structures are disabled in this world.",
 
 	"commands.bigglobe.respawn.new.no_good_location": "Could not find a good spawn location in this world.",
 	"commands.bigglobe.respawn.new.not_supported_dimension": "/bigglobe:respawn new can only be used in Big Globe dimensions which support it. The dimension you are currently in does not support it.",

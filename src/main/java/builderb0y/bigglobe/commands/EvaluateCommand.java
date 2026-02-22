@@ -14,7 +14,6 @@ import net.minecraft.util.math.Vec3d;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.Height;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
@@ -54,7 +53,7 @@ public class EvaluateCommand {
 				.argument("script", StringArgumentType.greedyString())
 				.executes((CommandContext<ServerCommandSource> context) -> {
 					CommandScript.Holder script = new CommandScript.Holder(context.getArgument("script", String.class));
-					if (!LocateCommand.compile(script, context.getSource())) return 0;
+					if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
 					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 					ServerWorld actualWorld = context.getSource().getWorld();
 					Vec3d position = context.getSource().getPosition();
