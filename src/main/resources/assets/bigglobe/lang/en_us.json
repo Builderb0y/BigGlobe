@@ -333,10 +333,15 @@
 	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[1]": "If false, Big Globe will not do that.",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.decisionTrees.@Tooltip[2]": "Decision trees can be hard to follow, so having the entire tree in one place can be useful for understanding its structure.",
 
-	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning": "Log structure spawn attempts",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[0]": "If true, Big Globe will log a message to the game console and log file when a structure attempts to spawn somewhere and, if applicable, the reason why it failed to spawn there.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[1]": "If false, Big Globe will not do that.",
-	"text.autoconfig.bigglobe.option.dataPackDebugging.structureSpawning.@Tooltip[2]": "This option can be useful for debugging why a specific structure isn't spawning anywhere.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logStructureSpawning": "Log structure spawn attempts",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logStructureSpawning.@Tooltip[0]": "If true, Big Globe will log a message to the game console and log file when a structure attempts to spawn somewhere and, if applicable, the reason why it failed to spawn there.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logStructureSpawning.@Tooltip[1]": "If false, Big Globe will not do that.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.logStructureSpawning.@Tooltip[2]": "This option can be useful for debugging why a specific structure isn't spawning anywhere.",
+
+	"text.autoconfig.bigglobe.option.dataPackDebugging.structureLogFilter": "Structure spawning log filter",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.structureLogFilter.@Tooltip[0]": "Regex controlling which structures get logged when 'Log structure spawn attempts' is enabled.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.structureLogFilter.@Tooltip[1]": "This regex will be matched against the name of the structure that's trying to spawn.",
+	"text.autoconfig.bigglobe.option.dataPackDebugging.structureLogFilter.@Tooltip[2]": "Useful for cutting down on log spam and focusing only on the structure(s) you care about.",
 
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags": "Log empty tags",
 	"text.autoconfig.bigglobe.option.dataPackDebugging.emptyTags.@Tooltip[0]": "If true, Big Globe will log a message to the game console and log file when an empty tag is loaded.",

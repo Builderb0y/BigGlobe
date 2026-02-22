@@ -3,6 +3,7 @@ package builderb0y.bigglobe.structures;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -32,6 +33,8 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.config.BigGlobeConfig.DataPackDebugging;
 import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -121,6 +124,34 @@ public abstract class StructureManager {
 
 	public static String structureName(Structure structure) {
 		return structureID(structure).toString();
+	}
+
+	public static boolean canLog(Structure structure) {
+		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning) {
+			Pattern pattern = DataPackDebugging.structureLogFilterPattern;
+			return pattern == null || pattern.matcher(structureName(structure)).find();
+		}
+		return false;
+	}
+
+	public static RegistryKey<Structure> structureKey(RegistryEntry<Structure> structure) {
+		return UnregisteredObjectException.getKey(structure);
+	}
+
+	public static Identifier structureID(RegistryEntry<Structure> structure) {
+		return structureKey(structure).getValue();
+	}
+
+	public static String structureName(RegistryEntry<Structure> structure) {
+		return structureID(structure).toString();
+	}
+
+	public static boolean canLog(RegistryEntry<Structure> structure) {
+		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning) {
+			Pattern pattern = DataPackDebugging.structureLogFilterPattern;
+			return pattern == null || pattern.matcher(structureName(structure)).find();
+		}
+		return false;
 	}
 
 	public abstract FinalStructures getIntersectingStructures(StructureGenerationParams params);

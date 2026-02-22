@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.BoundedDiscrete;
@@ -41,6 +43,7 @@ public class BigGlobeConfig {
 	public void validatePostLoad() {
 		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
 		this.moltenRockOreificationChance = MathHelper.clamp(this.moltenRockOreificationChance, 0.0F, 1.0F);
+		this.dataPackDebugging.validatePostLoad();
 		this.lodRendering.validatePostLoad();
 		this.distantHorizonsIntegration.validatePostLoad();
 		this.voxyIntegration.validatePostLoad();
@@ -125,7 +128,15 @@ public class BigGlobeConfig {
 		@Tooltip(count = 3)
 		@UseName("Log structure spawn attempts")
 		@DefaultIgnore
-		public boolean structureSpawning = false;
+		public boolean logStructureSpawning = false;
+
+		@Tooltip(count = 3)
+		@UseName("Structure spawning log filter")
+		@DefaultIgnore
+		public String structureLogFilter = "";
+
+		@Excluded
+		public static transient Pattern structureLogFilterPattern;
 
 		@Tooltip(count = 3)
 		@UseName("Log empty tags")
@@ -147,6 +158,16 @@ public class BigGlobeConfig {
 		@UseName("Log extra mob spawns")
 		@DefaultIgnore
 		public boolean logExtraMobSpawns = false;
+
+		public void validatePostLoad() {
+			try {
+				structureLogFilterPattern = this.structureLogFilter.isEmpty() ? null : Pattern.compile(this.structureLogFilter);
+			}
+			catch (PatternSyntaxException exception) {
+				structureLogFilterPattern = null;
+				BigGlobeMod.LOGGER.warn("Config option 'Structure spawning log filter' was set to an invalid regex: " + this.structureLogFilter, exception);
+			}
+		}
 	}
 
 	public static enum InvalidTagHandling {

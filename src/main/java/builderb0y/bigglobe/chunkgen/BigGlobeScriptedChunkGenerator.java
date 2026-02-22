@@ -1072,7 +1072,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				distantHorizons
 			)
 		);
-		boolean log = BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning;
+		boolean log = BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning;
 		Map<Structure, StructureStart> map = new Object2ObjectOpenHashMap<>(starts.size());
 		for (StructureStart start : starts) {
 			map.merge(start.getStructure(), start, (StructureStart start1, StructureStart start2) -> {

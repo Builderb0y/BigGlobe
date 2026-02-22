@@ -20,7 +20,6 @@ import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureSet.WeightedEntry;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.Structure;
@@ -254,11 +253,12 @@ public class ActiveStructureManager extends StructureManager {
 		//step 3: filter, log, and convert.
 		LinkedArrayList<SectionSortedStructurePieces> filtered = removeIntersections(params, starts);
 		if (filtered.isEmpty()) return new FinalStructures(0);
-		boolean log = BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning;
 		FinalStructures result = new FinalStructures(filtered.size());
 		while (!filtered.isEmpty()) {
 			StructureStart start = filtered.removeFirstElement().startWrapper.start();
-			if (log) BigGlobeMod.LOGGER.info("Structure " + structureName(start.getStructure()) + " spawned at " + start.getBoundingBox().getCenter());
+			if (canLog(start.getStructure())) {
+				BigGlobeMod.LOGGER.info("Structure " + structureName(start.getStructure()) + " spawned at " + start.getBoundingBox().getCenter());
+			}
 			result.add(start);
 		}
 		return result;
@@ -275,13 +275,13 @@ public class ActiveStructureManager extends StructureManager {
 					if (SectionSortedStructurePieces.intersects(current.element, other.element)) {
 						int priority = overriders.getCollisionPriority(params.columns(), current.element.startWrapper, other.element.startWrapper);
 						if (priority < 0) {
-							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+							if (canLog(current.element.startWrapper.structure().entry)) {
 								BigGlobeMod.LOGGER.info("Structure " + current.element + " did not spawn because it collided with a " + other.element + " and a collision overrider returned a negative priority.");
 							}
 							continue outer;
 						}
 						else if (priority == 0 && current.element.volume <= other.element.volume) {
-							if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+							if (canLog(current.element.startWrapper.structure().entry)) {
 								BigGlobeMod.LOGGER.info("Structure " + current.element + " did not spawn because it collided with a " + other.element + " and the other structure is bigger.");
 							}
 							continue outer;
@@ -356,7 +356,7 @@ public class ActiveStructureManager extends StructureManager {
 
 	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, WeightedEntry weightedEntry) {
 		if (ValkyrienSkiesCompat.isInShipyard(params.chunkPos())) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+			if (canLog(weightedEntry.structure())) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos() + " because Valkyrien Skies reserves this area.");
 			}
 			return null;
@@ -382,7 +382,7 @@ public class ActiveStructureManager extends StructureManager {
 		}
 
 		if (newStartPosition == null) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+			if (canLog(weightedEntry.structure())) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos() + " because the structure itself decided not to.");
 			}
 			return null;
@@ -400,7 +400,7 @@ public class ActiveStructureManager extends StructureManager {
 
 		StructureStart newStart = new StructureStart(weightedEntry.structure().value(), params.chunkPos(), 0, collector.toList());
 		if (!newStart.hasChildren()) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+			if (canLog(weightedEntry.structure())) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos() + " because the resulting structure has no pieces.");
 			}
 			return null;
@@ -414,7 +414,7 @@ public class ActiveStructureManager extends StructureManager {
 				newStartPosition.position().getY() != structureY ||
 				newStartPosition.position().getZ() != structureZ
 			)
-			&& BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning
+			&& canLog(weightedEntry.structure())
 		) {
 			BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " has a position outside its bounding box. This may lead to unexpected results. It will now be clamped.");
 		}
@@ -450,7 +450,7 @@ public class ActiveStructureManager extends StructureManager {
 		);
 
 		if (!validBiomes.contains(biome)) {
-			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+			if (canLog(weightedEntry.structure())) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn at " + newStart.getBoundingBox().getCenter() + " because the biome at this location (" + biome + ") is not in the structure's biome tag.");
 			}
 			return null;
@@ -472,7 +472,7 @@ public class ActiveStructureManager extends StructureManager {
 		);
 		for (StructureOverrider.Entry overrider : params.generator().getOverriders().structures) {
 			if (!overrider.script().override(lookup, wrapper, permuter, params.generator().columnSeed)) {
-				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.structureSpawning) {
+				if (canLog(start.getStructure())) {
 					BigGlobeMod.LOGGER.info(
 						"Structure " +
 						structureName(start.getStructure()) +
