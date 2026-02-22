@@ -1129,9 +1129,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		int centerZ = center.getZ() >> 4;
 		StructurePlacementCalculator calculator = world.getChunkManager().getStructurePlacementCalculator();
 		return structures.stream().flatMap((RegistryEntry<Structure> structureEntry) -> {
-			return calculator.getPlacements(structureEntry).stream().flatMap((StructurePlacement placement) -> {
-				return ((StreamableStructurePlacement)(placement)).bigglobe_getNearbyStartChunks(this, calculator, centerX, centerZ, radius);
-			});
+			return calculator.getPlacements(structureEntry).stream();
+		})
+		.distinct()
+		.flatMap((StructurePlacement placement) -> {
+			return ((StreamableStructurePlacement)(placement)).bigglobe_getNearbyStartChunks(this, calculator, centerX, centerZ, radius);
 		})
 		.sorted(StreamableStructurePlacement.distanceComparator(centerX, centerZ))
 		.map((ChunkPos chunkPos) -> this.getStructure(world, structures, chunkPos.x, chunkPos.z))
