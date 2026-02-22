@@ -279,7 +279,7 @@ public class LodSystem implements SafeCloseable {
 		}
 		if (atPlayer.level > this.levelLimit) {
 			this.currentQuality = 0.0D;
-			this.loadDistance = 0.0D;
+			//this.loadDistance = 0.0D;
 		}
 		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
 			this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
