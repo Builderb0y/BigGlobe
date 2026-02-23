@@ -156,6 +156,7 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 	returns true if this key is guaranteed to be
 	invalidated after this call returns, false otherwise.
 	note that true is returned if this cache does not contain the specified key.
+	false may be returned if we could not acquire a lock immediately.
 	*/
 	public boolean tryInvalidate(T_Key key) {
 		ValueHolder<T_Value> holder;

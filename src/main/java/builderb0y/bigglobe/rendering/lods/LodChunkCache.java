@@ -11,6 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.compat.voxy.DistanceGraph;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.util.TimestampedComputingCache;
@@ -28,6 +29,17 @@ public class LodChunkCache implements SafeCloseable {
 		public final net.minecraft.server.world.ThreadedAnvilChunkStorage loader;
 	#endif
 	public final TimestampedComputingCache<ChunkPos, LightweightChunk> chunks;
+	/**
+	querying whether or not a chunk exists is slow,
+	and our {@link #chunks} will forget quickly.
+	so we have a secondary cache just for chunk existence.
+	we start by assuming all chunks are present,
+	and mark them as not present when this assumption is invalidated.
+	chunks are re-marked as present when they are invalidated
+	by {@link #invalidateChunkLater(ChunkPos)}.
+	*/
+	public final DistanceGraph presentChunks = DistanceGraph.worldOfChunks(true);
+	public final ReentrantLock presentChunksLock = new ReentrantLock();
 	public final ConcurrentLinkedQueue<ChunkPos> dirtyChunks;
 	public final ExecutorService ingester = Executors.newSingleThreadExecutor((Runnable runnable) -> {
 		Thread thread = new Thread(runnable, "Big Globe LOD chunk ingest thread");
@@ -52,17 +64,24 @@ public class LodChunkCache implements SafeCloseable {
 	}
 
 	public void processDirtyChunks(LodSystem system) {
-		for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null;) {
-			if (this.chunks.tryInvalidate(chunkPos)) {
-				system.invalidateChunkNow(chunkPos);
+		if (this.presentChunksLock.tryLock()) try {
+			for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null; ) {
+				if (this.chunks.tryInvalidate(chunkPos)) {
+					this.presentChunks.set(chunkPos.x, chunkPos.z, true);
+					system.invalidateChunkNow(chunkPos);
+				}
+				else {
+					this.dirtyChunks.add(chunkPos);
+					break;
+				}
 			}
-			else {
-				this.dirtyChunks.add(chunkPos);
-				break;
-			}
+		}
+		finally {
+			this.presentChunksLock.unlock();
 		}
 	}
 
+	/*
 	public LightweightChunk getChunk(ChunkPos chunkPos) {
 		return this.chunks.computeIfUnknown(chunkPos, (ChunkPos chunkPos_) -> {
 			Optional<NbtCompound> nbt;
@@ -76,9 +95,19 @@ public class LodChunkCache implements SafeCloseable {
 				if (exception.getCause() instanceof CancellationException) return null;
 				else throw exception;
 			}
+			if (nbt.isEmpty()) {
+				this.presentChunksLock.lock();
+				try {
+					this.presentChunks.set(chunkPos_.x, chunkPos_.z, false);
+				}
+				finally {
+					this.presentChunksLock.unlock();
+				}
+			}
 			return nbt.isPresent() ? this.convertChunk(chunkPos_, nbt.get()) : null;
 		});
 	}
+	*/
 
 	public LightweightChunk convertChunk(ChunkPos chunkPos, NbtCompound root) {
 		if (
@@ -106,36 +135,55 @@ public class LodChunkCache implements SafeCloseable {
 		ReentrantLock[] lockedHolders = new ReentrantLock[chunkCount];
 		CompletableFuture<?>[] futures = new CompletableFuture[chunkCount];
 		LightweightChunk[] chunks = new LightweightChunk[chunkCount];
+		this.presentChunksLock.lock();
 		try {
 			int index = 0;
 			for (int chunkZ = minPos.z; chunkZ < maxPos.z; chunkZ++) {
 				for (int chunkX = minPos.x; chunkX < maxPos.x; chunkX++) {
-					final int index_ = index;
-					ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
-					ValueHolder<LightweightChunk> holder = this.chunks.getHolder(chunkPos, true);
-					(lockedHolders[index] = holder.lock).lock();
-					if (holder.state != ValueHolder.UNKNOWN) {
-						chunks[index] = holder.value;
-					}
-					else {
-						futures[index] = this.loader.getUpdatedChunkNbt(chunkPos).thenApplyAsync(
-							(Optional<NbtCompound> optional) -> {
-								LightweightChunk chunk = optional.isPresent() ? this.convertChunk(chunkPos, optional.get()) : null;
-								holder.set(chunk);
-								chunks[index_] = chunk;
-								if (chunk != null) {
-									this.chunks.presentCount.incrementAndGet();
-								}
-								return null;
-							},
-							this.ingester
-						);
+					if (this.presentChunks.get(chunkX, chunkZ)) {
+						final int index_ = index;
+						ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+						ValueHolder<LightweightChunk> holder = this.chunks.getHolder(chunkPos, true);
+						(lockedHolders[index] = holder.lock).lock();
+						if (holder.state != ValueHolder.UNKNOWN) {
+							chunks[index] = holder.value;
+						}
+						else {
+							futures[index] = this.loader.getUpdatedChunkNbt(chunkPos).thenApplyAsync(
+								(Optional<NbtCompound> optional) -> {
+									if (optional.isEmpty()) {
+										//remember: this lambda runs in the ingester thread,
+										//not the thread that called getChunks().
+										//as such, this lock operation and the
+										//one outside the loops do not stack.
+										this.presentChunksLock.lock();
+										try {
+											this.presentChunks.set(chunkPos.x, chunkPos.z, false);
+										}
+										finally {
+											this.presentChunksLock.unlock();
+										}
+									}
+									LightweightChunk chunk = optional.isPresent() ? this.convertChunk(chunkPos, optional.get()) : null;
+									holder.set(chunk);
+									chunks[index_] = chunk;
+									if (chunk != null) {
+										this.chunks.presentCount.incrementAndGet();
+									}
+									return null;
+								},
+								this.ingester
+							);
+						}
 					}
 					index++;
 				}
 			}
 		}
 		finally {
+			//reminder: we must unlock this lock BEFORE joining
+			//all the futures or else we will get deadlock.
+			this.presentChunksLock.unlock();
 			try {
 				joinAll(futures);
 			}
