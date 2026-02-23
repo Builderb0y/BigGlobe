@@ -309,6 +309,11 @@ public class BigGlobeConfig {
 		@Excluded
 		public static transient UndergroundMode previousUndergroundMode = UndergroundMode.FILL;
 
+		@Tooltip(count = 3)
+		@UseName("Show Progress")
+		@DefaultIgnore
+		public boolean showProgress = true;
+
 		public void validatePostLoad() {
 			this.maxQuads = MathHelper.clamp(this.maxQuads, 10_000_000, 100_000_000);
 			this.quality = MathHelper.clamp(this.quality, 1.0D, 3.0D);

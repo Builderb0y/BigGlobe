@@ -201,6 +201,13 @@ public class LodSystem implements SafeCloseable {
 		if (existingMessage != null) {
 			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before LOD rendering: " + existingMessage);
 		}
+		if ((this.levelLimit > LodQuadTree.MIN_LEVEL || this.currentQuality == 0.0D) && BigGlobeConfig.INSTANCE.get().lodRendering.showProgress) {
+			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			if (player != null) {
+				int percent = 100 - (this.levelLimit - LodQuadTree.MIN_LEVEL) * 100 / (LodQuadTree.MAX_LEVEL - LodQuadTree.MIN_LEVEL);
+				player.sendMessage(Text.translatable("bigglobe.lod.generating", percent), true);
+			}
+		}
 		try {
 			this.doDraw();
 		}

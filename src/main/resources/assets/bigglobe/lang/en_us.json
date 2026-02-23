@@ -231,6 +231,7 @@
 	"bigglobe.hyperspace.cant_place_waypoint_here": "Can't place waypoint here",
 
 	"bigglobe.lod.oom": "[Big Globe]: Exceeded the maximum LOD quad count in your config file. The LOD quality has been decreased to %d to compensate for this.",
+	"bigglobe.lod.generating": "Generating LODs... %d%%",
 
 	"gamerule.bigglobe:daylightCycleSpeed": "Daylight Cycle Speed",
 	"gamerule.bigglobe:soulLavaSourceConversion": "Soul Lava converts to source",
@@ -445,6 +446,11 @@
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[2]": "CARVE - Caves will generate, but underground structures and features will not.",
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[3]": "DECORATE - All underground stuff will generate normally.",
 	"text.autoconfig.bigglobe.option.lodRendering.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate LOD terrain at.",
+
+	"text.autoconfig.bigglobe.option.lodRendering.showProgress": "Show Progress",
+	"text.autoconfig.bigglobe.option.lodRendering.showProgress.@Tooltip[0]": "If true, the current progress of LOD generation will be displayed as a status message.",
+	"text.autoconfig.bigglobe.option.lodRendering.showProgress.@Tooltip[1]": "If false, it will stay in the F3 menu only.",
+	"text.autoconfig.bigglobe.option.lodRendering.showProgress.@Tooltip[2]": "This feature was added because people kept reporting my LOD renderer as a bug without waiting for it to finish loading in first.",
 
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration": "Distant Horizons Integration",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.@Tooltip[0]": "Configures special actions to skip when generating chunks for Distant Horizons.",
