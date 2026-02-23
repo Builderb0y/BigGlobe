@@ -2,6 +2,9 @@
 	"generator.bigglobe.bigglobe": "Big Globe",
 	"generator.bigglobe.islands": "Big Globe Islands",
 
+	"advancements.bigglobe.find_obelisk.title": "Ominous Aura",
+	"advancements.bigglobe.find_obelisk.description": "Be near an obelisk",
+
 	"block.bigglobe.ashen_netherrack": "Ashen Netherrack",
 	"block.bigglobe.ancient_automata": "Ancient Automata",
 	"block.bigglobe.automata": "Automata",

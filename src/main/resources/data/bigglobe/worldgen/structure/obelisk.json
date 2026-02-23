@@ -12,7 +12,7 @@
 		"water_creature":             { "bounding_box": "full", "spawns": [] }
 	},
 	"step": "raw_generation",
-	"max_radius_in_chunks": 24,
+	"max_radius_in_chunks": 16,
 	"layout": [
 		"double radius = 128.0L",
 		"double height = radius * random.nextDouble(4.0L, 6.0L)",
@@ -30,7 +30,7 @@
 			"maxTerrainY = max(maxTerrainY, terrainY)",
 		")",
 		"if (maxTerrainY + ceilInt(height) >= world_traits.`bigglobe:max_y`: return())",
-		"int iRadius = ceilInt(radius * 3.0L)",
+		"int iRadius = ceilInt(radius * 2.0L)",
 		"pieces.add(",
 			"ScriptStructurePiece.new(",
 				"originX - iRadius,",

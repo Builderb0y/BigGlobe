@@ -33,6 +33,6 @@
 	],
 	"structure_filter": {
 		"structure": "bigglobe:obelisk",
-		"radius_in_chunks": 0
+		"radius_in_chunks": 8
 	}
 }

@@ -1,0 +1,39 @@
+{
+	"parent": "minecraft:adventure/root",
+	"criteria": {
+		"find_obelisk": {
+			"conditions": {
+				"player": [
+					{
+						"condition": "minecraft:entity_properties",
+						"entity": "this",
+						"predicate": {
+							"location": {
+								"structures": "bigglobe:obelisk"
+							}
+						}
+					}
+				]
+			},
+			"trigger": "minecraft:location"
+		}
+	},
+	"display": {
+		"title": {
+			"translate": "advancements.bigglobe.find_obelisk.title"
+		},
+		"description": {
+			"translate": "advancements.bigglobe.find_obelisk.description"
+		},
+		"icon": {
+			"count": 1,
+			"id": "minecraft:deepslate"
+		}
+	},
+	"requirements": [
+		[
+			"find_obelisk"
+		]
+	],
+	"sends_telemetry_event": false
+}
