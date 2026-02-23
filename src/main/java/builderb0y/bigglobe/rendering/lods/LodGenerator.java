@@ -663,6 +663,7 @@ public class LodGenerator implements SafeCloseable {
 		ColumnResults results,
 		VersionedVertexConsumerProvider provider
 	) {
+		boolean cullTop = this.system.world.getDimension().hasCeiling();
 		BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
 		BlockModelRenderer renderer = blockRenderManager.getModelRenderer();
 		BlockSegmentList[] lists = results.lists;
@@ -700,7 +701,13 @@ public class LodGenerator implements SafeCloseable {
 								shouldRender = true;
 								nextY = y + 1;
 							}
-							else if (y == centerSegment.maxY && centerIndex + 1 < centerSize && quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value)) {
+							else if (
+								y == centerSegment.maxY && (
+									cullTop
+									? (centerIndex + 1 <  centerSize && quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value))
+									: (centerIndex + 1 >= centerSize || quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value))
+								)
+							) {
 								shouldRender = true;
 								nextY = y + 1;
 							}
