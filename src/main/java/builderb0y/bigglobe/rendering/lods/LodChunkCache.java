@@ -81,8 +81,16 @@ public class LodChunkCache implements SafeCloseable {
 		}
 	}
 
-	/*
 	public LightweightChunk getChunk(ChunkPos chunkPos) {
+		this.presentChunksLock.lock();
+		try {
+			if (!this.presentChunks.get(chunkPos.x, chunkPos.z)) {
+				return null;
+			}
+		}
+		finally {
+			this.presentChunksLock.unlock();
+		}
 		return this.chunks.computeIfUnknown(chunkPos, (ChunkPos chunkPos_) -> {
 			Optional<NbtCompound> nbt;
 			try {
@@ -107,7 +115,6 @@ public class LodChunkCache implements SafeCloseable {
 			return nbt.isPresent() ? this.convertChunk(chunkPos_, nbt.get()) : null;
 		});
 	}
-	*/
 
 	public LightweightChunk convertChunk(ChunkPos chunkPos, NbtCompound root) {
 		if (
