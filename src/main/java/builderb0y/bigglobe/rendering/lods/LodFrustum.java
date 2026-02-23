@@ -61,14 +61,18 @@ public class LodFrustum {
 		}
 
 		this.projectionMatrix.set(RenderVersions.projectionMatrix(context));
+		float minMultiplier = BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance;
+		float maxMultiplier = BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance;
+		float generationMultiplier = BigGlobeConfig.INSTANCE.get().lodRendering.generationBufferDistance;
+		vanillaViewDistance = Math.min(vanillaViewDistance, 60_000_000.0F / generationMultiplier);
 		this.changeNearFar(
 			this.projectionMatrix,
 			0.05F,
 			renderer.getFarPlaneDistance(),
-			this.nearClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance,
-			this.farClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance
+			this.nearClippingPlane = vanillaViewDistance * minMultiplier,
+			this.farClippingPlane = vanillaViewDistance * maxMultiplier
 		);
-		this.generationBuffer = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.generationBufferDistance;
+		this.generationBuffer = vanillaViewDistance * generationMultiplier;
 		this.projectionMatrix.mul(this.modelViewMatrix, this.modelViewProjectionMatrix);
 		this.jomlFrustum.set(this.modelViewProjectionMatrix, false);
 	}
@@ -82,7 +86,6 @@ public class LodFrustum {
 		float m22 = r * matrix.m23() + l * matrix.m22();
 		float m32 = r * matrix.m33() + l * matrix.m32();
 		matrix.m02(m02).m12(m12).m22(m22).m32(m32);
-		//*/
 	}
 
 	public Boolean test(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
