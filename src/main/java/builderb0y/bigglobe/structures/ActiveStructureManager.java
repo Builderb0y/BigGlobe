@@ -1,12 +1,14 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,23 +57,47 @@ public class ActiveStructureManager extends StructureManager {
 		finalStructures        = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
 	public final TimestampedComputingCache<StructureKey, SectionSortedStructurePieces>
 		potentialStructures    = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
+	public final Object2ObjectOpenHashMap<RegistryEntry<StructureSet>, OptionalInt>
+		structureSetSizeCache  = new Object2ObjectOpenHashMap<>();
+	public final ReentrantReadWriteLock
+		sizeCacheLock          = new ReentrantReadWriteLock();
 
 	public static <T> Stream<T> maybeParallel(Stream<T> stream) {
 		return BigGlobeConfig.INSTANCE.get().c2meIntegration.multiThreadedStructures() ? stream.parallel() : stream.sequential();
 	}
 
-	public static OptionalInt maxSize(RegistryEntry<StructureSet> set) {
-		return (
-			set
-			.value()
-			.structures()
-			.stream()
-			.map(WeightedEntry::structure)
-			.map(RegistryEntry<Structure>::value)
-			.map(SizedStructure.class::cast)
-			.mapToInt(SizedStructure::bigglobe_getMaxRadiusInChunks)
-			.max()
-		);
+	public OptionalInt maxSize(RegistryEntry<StructureSet> set) {
+		OptionalInt result;
+		this.sizeCacheLock.readLock().lock();
+		try {
+			result = this.structureSetSizeCache.get(set);
+		}
+		finally {
+			this.sizeCacheLock.readLock().unlock();
+		}
+		if (result == null) {
+			this.sizeCacheLock.writeLock().lock();
+			try {
+				result = this.structureSetSizeCache.computeIfAbsent(
+					set,
+					(RegistryEntry<StructureSet> set_) -> (
+						set_
+						.value()
+						.structures()
+						.stream()
+						.map(WeightedEntry::structure)
+						.map(RegistryEntry<Structure>::value)
+						.map(SizedStructure.class::cast)
+						.mapToInt(SizedStructure::bigglobe_getMaxRadiusInChunks)
+						.max()
+					)
+				);
+			}
+			finally {
+				this.sizeCacheLock.writeLock().unlock();
+			}
+		}
+		return result;
 	}
 
 	public static Stream<StructureKey> getFilteredStartChunks(StructureGenerationParams params, RegistryEntry<StructureSet> set, int radius) {
@@ -108,7 +134,7 @@ public class ActiveStructureManager extends StructureManager {
 				.stream()
 			)
 			.flatMap((RegistryEntry<StructureSet> set) -> {
-				return maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
+				return this.maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
 			})
 			.map(StructureKey::chunkPos)
 			.distinct()
@@ -143,7 +169,7 @@ public class ActiveStructureManager extends StructureManager {
 		.getStructureSets()
 		.stream()
 		.flatMap((RegistryEntry<StructureSet> set) -> {
-			OptionalInt size = maxSize(set);
+			OptionalInt size = this.maxSize(set);
 			if (size.isEmpty()) return Stream.empty();
 			int extra = overriders.getSearchRadius(set);
 			if (extra < 0) return Stream.empty();
@@ -224,7 +250,7 @@ public class ActiveStructureManager extends StructureManager {
 			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
 			if (!pieces.isEmpty()) synchronized (starts) {
 				starts.addElementToEnd(pieces);
-				maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
+				this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
 			}
 		});
 		if (starts.isEmpty()) return new FinalStructures(0);
@@ -237,7 +263,7 @@ public class ActiveStructureManager extends StructureManager {
 			.stream()
 		)
 		.flatMap((RegistryEntry<StructureSet> set) -> {
-			return maxSize(set).stream().mapToObj((int radius) -> {
+			return this.maxSize(set).stream().mapToObj((int radius) -> {
 				return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
 			})
 			.flatMap(Function.identity());
