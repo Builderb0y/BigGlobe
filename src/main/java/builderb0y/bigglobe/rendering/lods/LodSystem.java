@@ -32,6 +32,7 @@ import builderb0y.bigglobe.rendering.lods.LodGenerator.LodSupply;
 import builderb0y.bigglobe.rendering.lods.LodRenderer.MeshUploader;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 @Environment(EnvType.CLIENT)
 public class LodSystem implements SafeCloseable {
@@ -253,41 +254,32 @@ public class LodSystem implements SafeCloseable {
 			}
 			profiler.pop();
 		}
-		//using previous frame data is fine here.
-		LodQuadTree atPlayer = this.tree;
-		while (!atPlayer.canRender() && atPlayer.isTraversableForRender()) {
-			LodQuadTree next;
-			LodFrustum frustum = this.renderState.frustum;
-			if (frustum.x >= atPlayer.midX()) {
-				if (frustum.z >= atPlayer.midZ()) {
-					next = atPlayer.x1z1;
+		LodQuadTree atPlayer = this.getTreeAtPlayerForDowngradeChecking();
+		if (atPlayer != null) {
+			if (atPlayer.level > this.levelLimit) {
+				this.currentQuality = 0.0D;
+			}
+			else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
+				this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
+				if (this.currentQuality == this.qualityLimit) {
+					this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
+				}
+			}
+			this.levelLimit = Math.max(atPlayer.level - 1, LodQuadTree.MIN_LEVEL);
+		}
+		else {
+			if (this.generator.requests.isEmpty() && this.tree.passes != null) {
+				if (this.levelLimit > LodQuadTree.MIN_LEVEL) {
+					this.levelLimit--;
 				}
 				else {
-					next = atPlayer.x1z0;
+					this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
+					if (this.currentQuality == this.qualityLimit) {
+						this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
+					}
 				}
 			}
-			else {
-				if (frustum.z >= atPlayer.midZ()) {
-					next = atPlayer.x0z1;
-				}
-				else {
-					next = atPlayer.x0z0;
-				}
-			}
-			if (next != null) atPlayer = next;
-			else break;
 		}
-		if (atPlayer.level > this.levelLimit) {
-			this.currentQuality = 0.0D;
-			//this.loadDistance = 0.0D;
-		}
-		else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
-			this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
-			if (this.currentQuality == this.qualityLimit) {
-				this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
-			}
-		}
-		this.levelLimit = Math.max(atPlayer.level - 1, LodQuadTree.MIN_LEVEL);
 
 		if (failure == null && this.canRender()) {
 			if (this.tree.passes != null) {
@@ -333,6 +325,40 @@ public class LodSystem implements SafeCloseable {
 			this.close();
 			this.renderState.lodSystemHolder.bigglobe_setLodSystem(null);
 		}
+	}
+
+	public LodQuadTree getTreeAtPlayerForDowngradeChecking() {
+		LodFrustum frustum = this.renderState.frustum;
+		//don't downgrade anything if we're above the world,
+		//because the LodQuadTree at the player's horizontal position
+		//will not match our current quality in this case no matter how long we wait.
+		if (frustum.y > HeightLimitViewVersions.getMaxY(this.world)) {
+			return null;
+		}
+		//using previous frame data is fine here.
+		LodQuadTree atPlayer = this.tree;
+		while (!atPlayer.canRender() && atPlayer.isTraversableForRender()) {
+			LodQuadTree next;
+			if (frustum.x >= atPlayer.midX()) {
+				if (frustum.z >= atPlayer.midZ()) {
+					next = atPlayer.x1z1;
+				}
+				else {
+					next = atPlayer.x1z0;
+				}
+			}
+			else {
+				if (frustum.z >= atPlayer.midZ()) {
+					next = atPlayer.x0z1;
+				}
+				else {
+					next = atPlayer.x0z0;
+				}
+			}
+			if (next != null) atPlayer = next;
+			else break;
+		}
+		return atPlayer;
 	}
 
 	public static final int NONE = 0, SOME = 1, ALL = 2;
