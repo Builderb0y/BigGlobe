@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:small_quartz_bud",
+		"bigglobe:medium_quartz_bud",
+		"bigglobe:large_quartz_bud",
+		"bigglobe:quartz_cluster"
+	]
+}
