@@ -246,14 +246,14 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		@BoundedDiscrete(min = 10_000_000L, max = 100_000_000L)
 		@VerifyIntRange(min = 10_000_000L, max = 100_000_000L)
-		public int maxQuads = 50_000_000;
+		public int maxQuads = 20_000_000;
 		@Excluded
-		public static transient int previousMaxQuads = 50_000_000;
+		public static transient int previousMaxQuads = 20_000_000;
 
 		@Tooltip(count = 3)
 		@UseName("Quality")
 		@DefaultIgnore
-		public double quality = 2.0D;
+		public double quality = 1.0D;
 
 		@Tooltip(count = 3)
 		@UseName("Max LOD For Chunk Loading")
@@ -284,17 +284,17 @@ public class BigGlobeConfig {
 		@Tooltip(count = 3)
 		@UseName("Max View Distance")
 		@DefaultIgnore
-		public float maxViewDistance = 1024.0F;
+		public float maxViewDistance = 256.0F;
 
 		@Tooltip(count = 3)
 		@UseName("Generation Buffer Distance")
 		@DefaultIgnore
-		public float generationBufferDistance = 1536.0F;
+		public float generationBufferDistance = 512.0F;
 
 		@Tooltip(count = 3)
 		@UseName("Fog Density")
 		@DefaultIgnore
-		public float fogDensity = 64.0F;
+		public float fogDensity = 16.0F;
 
 		@Tooltip(count = 3)
 		@UseName("Fog Height Scale")
@@ -444,5 +444,5 @@ public class BigGlobeConfig {
 	@Excluded
 	@Tooltip(count = 1)
 	@UseName("Config Version")
-	public static final int CONFIG_VERSION = 1;
+	public static final int CONFIG_VERSION = 2;
 }

@@ -24,8 +24,9 @@ public class BigGlobeConfigFixer extends VersionedFixer<BigGlobeConfig> {
 	public @NotNull <T_Encoded> DataFixContext<T_Encoded> fixData(@NotNull DataFixContext<T_Encoded> context, int version) throws DataFixException {
 		switch (version) {
 			default: throw new DataFixException(() -> "Unknown config version: " + version);
-			case 0: this.resetLodRendering(context);
-			case 1:
+			case 0:
+			case 1: this.resetLodRendering(context);
+			case 2:
 		}
 		return context;
 	}
