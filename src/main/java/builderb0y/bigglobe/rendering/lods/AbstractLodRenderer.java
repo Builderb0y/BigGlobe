@@ -133,13 +133,13 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 
 	@Override
 	public List<String> getF3MenuText() {
-		long reallyUsed = this.heap.reallyUsed();
-		long used = this.heap.used();
-		long fragmentation = used == 0L ? 0L : 100L - reallyUsed * 100L / used;
 		long capacity = this.heap.capacity;
-		long percent = used * 100L / capacity;
-		long elements = this.elementBuffer.capacity;
-		return Collections.singletonList("[BG] LOD Geometry: U: " + reallyUsed + ", A: " + used + ", C: " + capacity + ", F: " + fragmentation + "%, P: " + percent + '%' + ", E: " + elements);
+		long usedBytes = this.heap.used();
+		long reallyUsedBytes = this.heap.reallyUsed();
+		long percent = usedBytes * 100L / capacity;
+		long fragmentation = usedBytes == 0L ? 0L : 100L - reallyUsedBytes * 100L / usedBytes;
+		long reallyUsedFraction = reallyUsedBytes * 100L / capacity;
+		return Collections.singletonList("[BG] LOD Geometry: P: " + percent + "%, F: " + fragmentation + "%" + ", R: " + reallyUsedFraction);
 	}
 
 	public static class LodGlState extends GlState {
