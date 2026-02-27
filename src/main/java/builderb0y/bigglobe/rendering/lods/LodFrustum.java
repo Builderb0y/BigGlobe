@@ -57,34 +57,34 @@ public class LodFrustum {
 		#endif
 		float aboveDifference = (float)(this.y - HeightLimitViewVersions.getMaxY(context.world()));
 		if (aboveDifference > 0.0F) {
-			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.25F);
+			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.5F);
 		}
 
 		this.projectionMatrix.set(RenderVersions.projectionMatrix(context));
-		float minMultiplier = BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance;
-		float maxMultiplier = BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance;
-		float generationMultiplier = BigGlobeConfig.INSTANCE.get().lodRendering.generationBufferDistance;
-		vanillaViewDistance = Math.min(vanillaViewDistance, 60_000_000.0F / generationMultiplier);
 		this.changeNearFar(
 			this.projectionMatrix,
 			0.05F,
 			renderer.getFarPlaneDistance(),
-			this.nearClippingPlane = vanillaViewDistance * minMultiplier,
-			this.farClippingPlane = vanillaViewDistance * maxMultiplier
+			this.nearClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance,
+			this.farClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance
 		);
-		this.generationBuffer = vanillaViewDistance * generationMultiplier;
+		this.generationBuffer = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.generationBufferDistance;
 		this.projectionMatrix.mul(this.modelViewMatrix, this.modelViewProjectionMatrix);
 		this.jomlFrustum.set(this.modelViewProjectionMatrix, false);
 	}
 
 	public void changeNearFar(Matrix4f matrix, float oldNear, float oldFar, float newNear, float newFar) {
-		float denominator = (newNear - newFar) * oldFar * oldNear;
-		float l = (newFar * newNear * (oldNear - oldFar)) / denominator;
-		float r = (newFar * newNear * (oldNear + oldFar)) / denominator - (newNear + newFar) / (newNear - newFar);
-		float m02 = r * matrix.m03() + l * matrix.m02();
-		float m12 = r * matrix.m13() + l * matrix.m12();
-		float m22 = r * matrix.m23() + l * matrix.m22();
-		float m32 = r * matrix.m33() + l * matrix.m32();
+		float oldProduct  = oldNear * oldFar;
+		float oldSum      = oldNear + oldFar;
+		float oldDiff     = oldNear - oldFar;
+		float newProduct  = newNear * newFar;
+		float newSum      = newNear + newFar;
+		float newDiff     = newNear - newFar;
+		float productDiff = newProduct / oldProduct;
+		float m02 = ((matrix.m03() * oldSum + matrix.m02() * oldDiff) * productDiff - matrix.m03() * newSum) / newDiff;
+		float m12 = ((matrix.m13() * oldSum + matrix.m12() * oldDiff) * productDiff - matrix.m13() * newSum) / newDiff;
+		float m22 = ((matrix.m23() * oldSum + matrix.m22() * oldDiff) * productDiff - matrix.m23() * newSum) / newDiff;
+		float m32 = ((matrix.m33() * oldSum + matrix.m32() * oldDiff) * productDiff - matrix.m33() * newSum) / newDiff;
 		matrix.m02(m02).m12(m12).m22(m22).m32(m32);
 	}
 
