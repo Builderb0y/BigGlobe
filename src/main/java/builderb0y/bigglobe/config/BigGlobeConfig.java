@@ -246,9 +246,9 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		@BoundedDiscrete(min = 10_000_000L, max = 100_000_000L)
 		@VerifyIntRange(min = 10_000_000L, max = 100_000_000L)
-		public int maxQuads = 20_000_000;
+		public int maxQuads = 50_000_000;
 		@Excluded
-		public static transient int previousMaxQuads = 20_000_000;
+		public static transient int previousMaxQuads = 50_000_000;
 
 		@Tooltip(count = 3)
 		@UseName("Quality")
