@@ -68,7 +68,7 @@ public class FastMath {
 		}
 
 		public static double fastAsinh(double x) {
-			return Log.fastLog(Math.sqrt(x * x + 1.0D) + x);
+			return Math.copySign(Log.fastLog(Math.sqrt(x * x + 1.0D) + Math.abs(x)), x);
 		}
 
 		public static double fastAcosh(double x) {
