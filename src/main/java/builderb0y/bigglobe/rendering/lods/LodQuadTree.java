@@ -19,14 +19,14 @@ public class LodQuadTree implements SafeCloseable {
 	public static final int
 		CLOSED = 1 << 0,
 		QUEUED = 1 << 1,
-		CAN_RENDER = 1 << 2,
-		TRAVERSABLE_FOR_RENDER = 1 << 3,
-		IN_RANGE = 1 << 4;
+		IN_RANGE = 1 << 4,
+		IN_FRUSTUM = 1 << 5;
 
-	public final int x, z, level;
+	public final int x, z;
+	public final byte level;
+	public byte flags, ancestorDepth;
 	public @Nullable SafeCloseable passes;
 	public @Nullable LodQuadTree x0z0, x0z1, x1z0, x1z1;
-	public int flags;
 	public long rebuildTime = Long.MAX_VALUE;
 
 	@Override
@@ -37,7 +37,7 @@ public class LodQuadTree implements SafeCloseable {
 	public LodQuadTree(int x, int z, int level) {
 		this.x = x;
 		this.z = z;
-		this.level = level;
+		this.level = (byte)(level);
 	}
 
 	public boolean getFlag(int flag) {
@@ -48,6 +48,14 @@ public class LodQuadTree implements SafeCloseable {
 		assert !this.isClosed() : "Modifying flags of closed LodQuadTree";
 		if (set) this.flags |= flag;
 		else this.flags &= ~flag;
+	}
+
+	public int getAncestorDepth() {
+		return this.ancestorDepth;
+	}
+
+	public void setAncestorDepth(int ancestorDepth) {
+		this.ancestorDepth = (byte)(ancestorDepth);
 	}
 
 	public boolean isClosed() {
@@ -66,28 +74,20 @@ public class LodQuadTree implements SafeCloseable {
 		this.setFlag(QUEUED, queued);
 	}
 
-	public boolean canRender() {
-		return this.getFlag(CAN_RENDER);
-	}
-
-	public void setCanRender(boolean canRender) {
-		this.setFlag(CAN_RENDER, canRender);
-	}
-
-	public boolean isTraversableForRender() {
-		return this.getFlag(TRAVERSABLE_FOR_RENDER);
-	}
-
-	public void setTraversableForRender(boolean traversableForRender) {
-		this.setFlag(TRAVERSABLE_FOR_RENDER, traversableForRender);
-	}
-
 	public boolean isInRange() {
 		return this.getFlag(IN_RANGE);
 	}
 
 	public void setInRange(boolean inRange) {
 		this.setFlag(IN_RANGE, inRange);
+	}
+
+	public boolean isInFrustum() {
+		return this.getFlag(IN_FRUSTUM);
+	}
+
+	public void setInFrustum(boolean inFrustum) {
+		this.setFlag(IN_FRUSTUM, inFrustum);
 	}
 
 	public int minX() {
@@ -140,5 +140,18 @@ public class LodQuadTree implements SafeCloseable {
 		ResourceTracker.closeAll(this.x0z0, this.x0z1, this.x1z0, this.x1z1, this.passes);
 		this.x0z0 = this.x0z1 = this.x1z0 = this.x1z1 = null;
 		this.passes = null;
+	}
+
+	public void mergeChildren() {
+		ResourceTracker.closeAll(this.x0z0, this.x0z1, this.x1z0, this.x1z1);
+		this.x0z0 = this.x0z1 = this.x1z0 = this.x1z1 = null;
+	}
+
+	public void unload() {
+		this.setQueued(false);
+		if (this.passes != null) {
+			this.passes.close();
+			this.passes = null;
+		}
 	}
 }

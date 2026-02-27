@@ -316,7 +316,7 @@ public class BigGlobeConfig {
 
 		public void validatePostLoad() {
 			this.maxQuads = MathHelper.clamp(this.maxQuads, 10_000_000, 100_000_000);
-			this.quality = MathHelper.clamp(this.quality, 1.0D, 3.0D);
+			this.quality = MathHelper.clamp(this.quality, -2.0D, 2.0D);
 			this.maxLodForChunkLoading = MathHelper.clamp(this.maxLodForChunkLoading, 0, 5);
 			this.verticalCompression = Math.max(this.verticalCompression, 0);
 			this.caveCullingDepth = Math.max(this.caveCullingDepth, -1);

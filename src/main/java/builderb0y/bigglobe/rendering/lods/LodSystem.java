@@ -13,7 +13,6 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -141,18 +140,13 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public static int countRenderingNodes(LodQuadTree root) {
-		if (root != null) {
-			if (root.canRender()) {
-				return 1;
-			}
-			else if (root.isTraversableForRender()) {
-				return (
-					+ countRenderingNodes(root.x0z0)
-					+ countRenderingNodes(root.x0z1)
-					+ countRenderingNodes(root.x1z0)
-					+ countRenderingNodes(root.x1z1)
-				);
-			}
+		if (root != null && root.isInRange() && root.isInFrustum()) {
+			return root.getAncestorDepth() == 1 ? 1 : (
+				+ countRenderingNodes(root.x0z0)
+				+ countRenderingNodes(root.x0z1)
+				+ countRenderingNodes(root.x1z0)
+				+ countRenderingNodes(root.x1z1)
+			);
 		}
 		return 0;
 	}
@@ -188,8 +182,25 @@ public class LodSystem implements SafeCloseable {
 		else {
 			BigGlobeMod.LOGGER.warn(text.getString());
 		}
-		this.makeRequests(this.tree, System.currentTimeMillis(), false);
+		this.pruneTree(this.tree);
 		this.renderer.oom();
+	}
+
+	public void pruneTree(LodQuadTree tree) {
+		if (tree == null) {
+			return;
+		}
+		double squareDistance = this.squareDistanceTo(tree);
+		double treeQuality = this.computeTreeQuality(squareDistance, tree);
+		if (treeQuality > this.qualityLimit) {
+			tree.mergeChildren();
+		}
+		else {
+			this.pruneTree(tree.x0z0);
+			this.pruneTree(tree.x0z1);
+			this.pruneTree(tree.x1z0);
+			this.pruneTree(tree.x1z1);
+		}
 	}
 
 	public boolean canRender() {
@@ -201,7 +212,7 @@ public class LodSystem implements SafeCloseable {
 		if (existingMessage != null) {
 			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before LOD rendering: " + existingMessage);
 		}
-		if ((this.levelLimit > LodQuadTree.MIN_LEVEL || this.currentQuality == 0.0D) && BigGlobeConfig.INSTANCE.get().lodRendering.showProgress) {
+		if ((this.levelLimit > LodQuadTree.MIN_LEVEL || this.currentQuality == -3.0D) && BigGlobeConfig.INSTANCE.get().lodRendering.showProgress) {
 			ClientPlayerEntity player = MinecraftClient.getInstance().player;
 			if (player != null) {
 				int percent = 100 - (this.levelLimit - LodQuadTree.MIN_LEVEL) * 100 / (LodQuadTree.MAX_LEVEL - LodQuadTree.MIN_LEVEL);
@@ -264,9 +275,9 @@ public class LodSystem implements SafeCloseable {
 		LodQuadTree atPlayer = this.getTreeAtPlayerForDowngradeChecking();
 		if (atPlayer != null) {
 			if (atPlayer.level > this.levelLimit) {
-				this.currentQuality = 0.0D;
+				this.currentQuality = this.qualityLimit - (atPlayer.level - LodQuadTree.MIN_LEVEL);
 			}
-			else if (this.generator.requests.isEmpty() && this.tree.passes != null) {
+			else if (this.generator.requests.isEmpty()) {
 				this.currentQuality = Math.min(this.currentQuality + 0.0625D, this.qualityLimit);
 				if (this.currentQuality == this.qualityLimit) {
 					this.loadDistance = Math.min(this.loadDistance + 16.0D, this.renderState.frustum.generationBuffer);
@@ -275,7 +286,7 @@ public class LodSystem implements SafeCloseable {
 			this.levelLimit = Math.max(atPlayer.level - 1, LodQuadTree.MIN_LEVEL);
 		}
 		else {
-			if (this.generator.requests.isEmpty() && this.tree.passes != null) {
+			if (this.generator.requests.isEmpty()) {
 				if (this.levelLimit > LodQuadTree.MIN_LEVEL) {
 					this.levelLimit--;
 				}
@@ -289,40 +300,33 @@ public class LodSystem implements SafeCloseable {
 		}
 
 		if (failure == null && this.canRender()) {
-			if (this.tree.passes != null) {
-				profiler.swap("Request");
-				this.makeRequests(this.tree, System.currentTimeMillis(), true);
-				profiler.swap("Visibility");
-				this.computeVisibility(this.tree, null);
-				profiler.swap("Opaque");
+			profiler.push("Update");
+			this.updateTree(this.tree, System.currentTimeMillis(), null);
+			//this.verifyTree(this.tree);
 
-				//must ensure either both passes are bound and unbound, or neither are.
-				try (var $ = this.renderer.bind(this.renderState, false)) {
-					GLException.check();
+			profiler.swap("Opaque");
+			//must ensure either both passes are bound and unbound, or neither are.
+			try (var $ = this.renderer.bind(this.renderState, false)) {
+				GLException.check();
+				this.drawTree(this.tree);
+				GLException.check();
+			}
+			catch (GLException exception) {
+				failure = exception;
+			}
+			profiler.swap("Translucent");
+			try (var $ = this.renderer.bind(this.renderState, true)) {
+				GLException.check();
+				if (failure == null) {
 					this.drawTree(this.tree);
 					GLException.check();
 				}
-				catch (GLException exception) {
-					failure = exception;
-				}
-				profiler.swap("Translucent");
-				try (var $ = this.renderer.bind(this.renderState, true)) {
-					GLException.check();
-					if (failure == null) {
-						this.drawTree(this.tree);
-						GLException.check();
-					}
-				}
-				catch (GLException exception) {
-					if (failure == null) failure = exception;
-					else failure.addSuppressed(exception);
-				}
-				profiler.pop();
 			}
-			else if (!this.tree.isQueued()) {
-				this.generator.request(this.tree, LoadMode.GENERATE_ONLY);
-				this.tree.split();
+			catch (GLException exception) {
+				if (failure == null) failure = exception;
+				else failure.addSuppressed(exception);
 			}
+			profiler.pop();
 		}
 
 		profiler.pop();
@@ -332,6 +336,37 @@ public class LodSystem implements SafeCloseable {
 			this.close();
 			this.renderState.lodSystemHolder.bigglobe_setLodSystem(null);
 		}
+	}
+
+	public boolean verifyTree(LodQuadTree tree) {
+		if (tree == null) {
+			return false;
+		}
+		boolean haveAllChildren = (
+			this.verifyTree(tree.x0z0) &
+			this.verifyTree(tree.x0z1) &
+			this.verifyTree(tree.x1z0) &
+			this.verifyTree(tree.x1z1)
+		);
+		if (haveAllChildren && tree.passes != null) {
+			System.err.println(tree + " has meshes and children with meshes.");
+		}
+		double squareDistance = this.squareDistanceTo(tree);
+		boolean inGenerationRange = squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer);
+		if (!inGenerationRange && tree.passes != null) {
+			System.err.println(tree + " is outside of generation range, but still has passes.");
+		}
+		double treeQuality = this.computeTreeQuality(squareDistance, tree);
+		//tree quality could be qualityLimit + sqrt(2)
+		//because if the corner of a node is close enough to be split,
+		//at least one of its children will be further away.
+		//but also, quality is logarithmic.
+		//as such, I'm just using 2 as the threshold here,
+		//as 1 seems to be insufficient.
+		if (treeQuality > this.qualityLimit + 2.0D) {
+			System.err.println(tree + " is more detailed than it needs to be (" + treeQuality + ")");
+		}
+		return haveAllChildren || tree.passes != null;
 	}
 
 	public LodQuadTree getTreeAtPlayerForDowngradeChecking() {
@@ -344,7 +379,7 @@ public class LodSystem implements SafeCloseable {
 		}
 		//using previous frame data is fine here.
 		LodQuadTree atPlayer = this.tree;
-		while (!atPlayer.canRender() && atPlayer.isTraversableForRender()) {
+		while (atPlayer.getAncestorDepth() > 1) {
 			LodQuadTree next;
 			if (frustum.x >= atPlayer.midX()) {
 				if (frustum.z >= atPlayer.midZ()) {
@@ -368,92 +403,120 @@ public class LodSystem implements SafeCloseable {
 		return atPlayer;
 	}
 
-	public static final int NONE = 0, SOME = 1, ALL = 2;
-
-	public int computeVisibility(LodQuadTree tree, Boolean frustumStatus) {
-		if (frustumStatus == null) {
-			frustumStatus = this.renderState.frustum.test(
-				tree.minX(),
-				this.generator.generatorParams.minY,
-				tree.minZ(),
-				tree.maxX(),
-				this.generator.generatorParams.maxY,
-				tree.maxZ()
-			);
-		}
-		int x1z1 = tree.x1z1 != null ? this.computeVisibility(tree.x1z1, frustumStatus) : NONE;
-		int x0z1 = tree.x0z1 != null ? this.computeVisibility(tree.x0z1, frustumStatus) : NONE;
-		int x1z0 = tree.x1z0 != null ? this.computeVisibility(tree.x1z0, frustumStatus) : NONE;
-		int x0z0 = tree.x0z0 != null ? this.computeVisibility(tree.x0z0, frustumStatus) : NONE;
-		int childrenState;
-		if (x0z0 == NONE && x1z0 == NONE && x0z1 == NONE && x1z1 == NONE) {
-			childrenState = NONE;
-		}
-		else if (x0z0 == ALL && x1z0 == ALL && x0z1 == ALL && x1z1 == ALL) {
-			childrenState = ALL;
-		}
-		else {
-			childrenState = SOME;
-		}
-		tree.setTraversableForRender(childrenState != NONE && frustumStatus != Boolean.FALSE);
-		tree.setCanRender(childrenState != ALL && tree.passes != null && frustumStatus != Boolean.FALSE);
-		return tree.passes != null || !tree.isInRange() ? ALL : childrenState;
-	}
-
 	public void drawTree(LodQuadTree tree) {
-		if (tree.canRender()) {
-			assert tree.passes != null : "renderable tree has no passes";
-			LodFrustum frustum = this.renderState.frustum;
-			this.renderer.draw(
-				tree.passes,
-				(float)(tree.minX() - frustum.x),
-				(float)(            - frustum.y),
-				(float)(tree.minZ() - frustum.z),
-				(float)(1 << (tree.level - LodQuadTree.MIN_LEVEL))
-			);
-		}
-		else if (tree.isTraversableForRender()) {
-			assert tree.x0z0 != null && tree.x0z1 != null && tree.x1z0 != null && tree.x1z1 != null : "tree with missing children is traversable";
-			this.drawTree(tree.x0z0);
-			this.drawTree(tree.x0z1);
-			this.drawTree(tree.x1z0);
-			this.drawTree(tree.x1z1);
+		if (tree != null && tree.isInRange() && tree.isInFrustum()) {
+			if (tree.getAncestorDepth() == 1) {
+				assert tree.passes != null : "renderable tree has no passes";
+				LodFrustum frustum = this.renderState.frustum;
+				this.renderer.draw(
+					tree.passes,
+					(float)(tree.minX() - frustum.x),
+					(float)(-frustum.y),
+					(float)(tree.minZ() - frustum.z),
+					(float)(1 << (tree.level - LodQuadTree.MIN_LEVEL))
+				);
+			}
+			else {
+				this.drawTree(tree.x0z0);
+				this.drawTree(tree.x0z1);
+				this.drawTree(tree.x1z0);
+				this.drawTree(tree.x1z1);
+			}
 		}
 	}
 
-	public void makeRequests(LodQuadTree tree, long time, boolean canSplit) {
-		double squareDistance = this.squareDistanceTo(tree);
-		tree.setInRange(squareDistance < BigGlobeMath.squareD(this.renderState.frustum.farClippingPlane));
-		double idealQuality = this.computeIdealQuality(squareDistance, tree);
-		if (idealQuality > this.qualityLimit + 0.5D) {
-			tree.merge();
+	//return value:
+	//0 - tree is non-existent (null or has no passes)
+	//1 - tree exists, but at least one child doesn't.
+	//2 - all tree children exist, but at least one grandchild doesn't.
+	//3 - all tree grandchildren exist, but at least one great grandchild doesn't.
+	//etc.
+	public int updateTree(LodQuadTree tree, long time, Boolean frustumVisible) {
+		if (tree == null) {
+			return 0;
 		}
-		else {
-			if (!tree.isQueued() && canSplit) {
-				if (tree.level > this.levelLimit && idealQuality < this.currentQuality) {
+
+		double squareDistance = this.squareDistanceTo(tree);
+		double treeQuality = this.computeTreeQuality(squareDistance, tree);
+		boolean inGenerationRange = squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer);
+		boolean inRenderingRange = squareDistance < BigGlobeMath.squareD(this.renderState.frustum.farClippingPlane);
+		boolean inLoadingRange = squareDistance < BigGlobeMath.squareD(this.loadDistance);
+		boolean awaitingMerge = false;
+		tree.setInRange(inRenderingRange);
+		if (inGenerationRange) {
+			if (treeQuality < this.qualityLimit) {
+				if (treeQuality < this.currentQuality && tree.level > this.levelLimit) {
 					tree.split();
 				}
-				boolean request = false;
-				LoadMode loadMode = null;
-				if (tree.passes == null && squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer)) {
-					request = true;
-					loadMode = squareDistance < BigGlobeMath.squareD(this.loadDistance) ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY;
-				}
-				if (time > tree.rebuildTime && squareDistance < BigGlobeMath.squareD(this.loadDistance)) {
-					request = true;
-					loadMode = tree.passes == null ? LoadMode.LOAD_OR_GENERATE : LoadMode.LOAD_ONLY;
-				}
-				if (request) {
-					this.generator.request(tree, loadMode);
-				}
 			}
-			if (tree.level > LodQuadTree.MIN_LEVEL) {
-				if (tree.x0z0 != null) this.makeRequests(tree.x1z1, time, canSplit);
-				if (tree.x0z1 != null) this.makeRequests(tree.x0z1, time, canSplit);
-				if (tree.x1z0 != null) this.makeRequests(tree.x1z0, time, canSplit);
-				if (tree.x1z1 != null) this.makeRequests(tree.x0z0, time, canSplit);
+			else {
+				if (tree.passes != null) {
+					tree.mergeChildren();
+				}
+				else if (!tree.isQueued()) {
+					this.generator.request(tree, inLoadingRange ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY);
+				}
+				awaitingMerge = true;
 			}
 		}
+		else {
+			tree.merge();
+		}
+
+		if (tree.level > LodQuadTree.MIN_LEVEL) {
+			if (frustumVisible == null) {
+				frustumVisible = this.renderState.frustum.test(
+					tree.minX(),
+					this.generator.generatorParams.minY,
+					tree.minZ(),
+					tree.maxX(),
+					this.generator.generatorParams.maxY,
+					tree.maxZ()
+				);
+			}
+			int depth = min4(
+				this.updateTree(tree.x0z0, time, frustumVisible),
+				this.updateTree(tree.x0z1, time, frustumVisible),
+				this.updateTree(tree.x1z0, time, frustumVisible),
+				this.updateTree(tree.x1z1, time, frustumVisible)
+			);
+			//nothing exists: 0
+			//only this tree exists: 1
+			//all 4 children exist: child depth + 1
+			//tree and children exist: child depth + 1
+			if (depth > 0 || tree.passes != null || !inRenderingRange) {
+				depth++;
+			}
+			tree.setAncestorDepth(depth);
+		}
+		else {
+			tree.setAncestorDepth(tree.passes != null ? 1 : 0);
+		}
+
+		switch (tree.getAncestorDepth()) {
+			case 0 -> {
+				if (inGenerationRange && !tree.isQueued()) {
+					this.generator.request(tree, inLoadingRange ? LoadMode.LOAD_OR_GENERATE : LoadMode.GENERATE_ONLY);
+				}
+			}
+			case 1 -> {
+				if (inLoadingRange && time > tree.rebuildTime && !tree.isQueued()) {
+					this.generator.request(tree, LoadMode.LOAD_ONLY);
+				}
+			}
+			default -> {
+				if (!awaitingMerge) {
+					tree.unload();
+				}
+			}
+		}
+
+		tree.setInFrustum(frustumVisible != Boolean.FALSE);
+		return tree.getAncestorDepth();
+	}
+
+	public static int min4(int a, int b, int c, int d) {
+		return Math.min(Math.min(a, b), Math.min(c, d));
 	}
 
 	public double squareDistanceTo(LodQuadTree tree) {
@@ -464,7 +527,7 @@ public class LodSystem implements SafeCloseable {
 		return BigGlobeMath.squareD(closestX - frustum.x, closestY - frustum.y, closestZ - frustum.z);
 	}
 
-	public double computeIdealQuality(double squareDistance, LodQuadTree tree) {
+	public double computeTreeQuality(double squareDistance, LodQuadTree tree) {
 		return FastMath.Log.fastLog2(squareDistance) * 0.5D - tree.level;
 	}
 
