@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.versions.GameProfileVersions;
 
 /**
@@ -22,7 +23,8 @@ public record SyncedWaypointData(
 	boolean owned,
 	PackedWorldPos destinationPosition,
 	PackedWorldPos displayedPosition,
-	@Nullable Text name
+	@Nullable Text name,
+	CloudColor color
 ) {
 
 	public PlayerWaypointData resolve(PlayerEntity player) {
@@ -32,7 +34,8 @@ public record SyncedWaypointData(
 				this.entityId,
 				this.owned ? GameProfileVersions.getUUID(player.getGameProfile()) : null,
 				this.destinationPosition,
-				this.name
+				this.name,
+				this.color
 			),
 			this.displayedPosition
 		);

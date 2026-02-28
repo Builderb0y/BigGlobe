@@ -20,6 +20,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
@@ -94,6 +95,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 			waypoint.destinationPosition().writeBulk(buffer, worlds);
 			if (isHyperspace) waypoint.displayPosition().writePositionOnly(buffer);
 			if (nbtName != null) NbtIo2.write(buffer, nbtName);
+			buffer.writeByte(waypoint.destination().color().ordinal());
 		}
 
 		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
@@ -119,7 +121,8 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 			PackedWorldPos destination = PackedWorldPos.readBulk(buffer, worlds);
 			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readPositionOnly(buffer, HyperspaceConstants.WORLD_KEY) : destination;
 			Text name = hasName ? TextCoding.read(buffer) : null;
-			waypoints.add(new SyncedWaypointData(id, entityID, owned, destination, displayPosition, name));
+			CloudColor color = CloudColor.VALUES[buffer.readUnsignedByte()];
+			waypoints.add(new SyncedWaypointData(id, entityID, owned, destination, displayPosition, name, color));
 		}
 		return waypoints;
 	}

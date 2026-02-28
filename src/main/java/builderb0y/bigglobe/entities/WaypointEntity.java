@@ -27,8 +27,10 @@ import net.minecraft.world.World;
 
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
+import builderb0y.bigglobe.items.AuraBottleItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.networking.packets.UseWaypointPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRemoveC2SPacket;
 import builderb0y.bigglobe.networking.packets.WaypointRenameC2SPacket;
@@ -64,8 +66,10 @@ public class WaypointEntity extends Entity {
 			if (
 				entity instanceof WaypointEntity waypoint &&
 				waypoint.isFake &&
-				waypoint.data != null &&
-				player.getStackInHand(hand).getItem() == Items.NAME_TAG
+				waypoint.data != null && (
+					player.getStackInHand(hand).getItem() == Items.NAME_TAG ||
+					player.getStackInHand(hand).getItem() instanceof AuraBottleItem
+				)
 			) {
 				if (!player.isSpectator()) {
 					WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
@@ -82,6 +86,7 @@ public class WaypointEntity extends Entity {
 	/** true if this entity is client-side only and does not exist on the server. */
 	public boolean isFake;
 	public float health;
+	public CloudColor color = CloudColor.BLANK;
 	public Orbit[] orbits;
 
 	public WaypointEntity(EntityType<?> type, World world) {
@@ -89,9 +94,35 @@ public class WaypointEntity extends Entity {
 		if (world.isClient()) {
 			this.orbits = new Orbit[16];
 			Permuter permuter = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
-			float circularHue = permuter.nextFloat();
 			for (int index = 0; index < this.orbits.length; index++) {
-				this.orbits[index] = new Orbit(permuter, circularHue, ((float)(index)) / ((float)(this.orbits.length)) + 0.5F);
+				this.orbits[index] = new Orbit(permuter, ((float)(index)) / ((float)(this.orbits.length)) + 0.5F);
+			}
+		}
+	}
+
+	public void setColor(CloudColor color) {
+		this.color = color;
+		if (this.orbits != null) {
+			Permuter permuter = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
+			switch (color) {
+				case BLANK -> {
+					double initial = permuter.nextDouble();
+					for (Orbit orbit : this.orbits) {
+						double variation = permuter.nextDouble(-0.0625D, +0.0625D);
+						orbit.setColor(initial + variation);
+					}
+				}
+				case RAINBOW -> {
+					for (Orbit orbit : this.orbits) {
+						orbit.setColor(permuter.nextDouble());
+					}
+				}
+				default -> {
+					for (Orbit orbit : this.orbits) {
+						double variation = permuter.nextDouble(-0.0625D, +0.0625D);
+						orbit.setColor(color.hueFraction + variation);
+					}
+				}
 			}
 		}
 	}
@@ -269,7 +300,7 @@ public class WaypointEntity extends Entity {
 			return to;
 		}
 
-		public static Orbit[] copy(Orbit[] from, Orbit @Nullable [] to) {
+		public static Orbit[] copy(Orbit[] from, @Nullable Orbit @Nullable [] to) {
 			int length = from.length;
 			if (to == null) {
 				to = new Orbit[length];
@@ -285,12 +316,7 @@ public class WaypointEntity extends Entity {
 
 		public Orbit() {}
 
-		public Orbit(RandomGenerator random, float baseHue, float radius) {
-			Vector3d color = CloudColor.smoothHue(baseHue + random.nextFloat(0.25F));
-			this.r = (float)(color.x);
-			this.g = (float)(color.y);
-			this.b = (float)(color.z);
-
+		public Orbit(RandomGenerator random, float radius) {
 			Vector3f scratch = new Vector3f();
 			Vectors.setOnSphere(scratch, random, 1.0F);
 			this.x1 = scratch.x;
@@ -317,14 +343,21 @@ public class WaypointEntity extends Entity {
 			this.speed = 0.25F / BigGlobeMath.squareF(this.radius);
 		}
 
+		public void setColor(double hue) {
+			Vector3d color = CloudColor.smoothHue(hue);
+			this.r = (float)(color.x);
+			this.g = (float)(color.y);
+			this.b = (float)(color.z);
+		}
+
 		public void tick() {
 			this.currentAngle = BigGlobeMath.modulus_BP(this.currentAngle + this.speed, (float)(BigGlobeMath.TAU));
 		}
 
 		public void getPositionAndVelocity(Vector3f pos, Vector3f velocity, float history, float partialTicks) {
 			float angle = this.currentAngle + partialTicks * this.speed - history * 2.0F;
-			float sin = (float)(Math.sin(angle));
-			float cos = (float)(Math.cos(angle));
+			float sin = (float)(FastMath.Trig.fastSin(angle));
+			float cos = (float)(FastMath.Trig.fastCos(angle));
 			pos.set(
 				(this.x1 * cos + this.x2 * sin) * this.radius,
 				(this.y1 * cos + this.y2 * sin) * this.radius,

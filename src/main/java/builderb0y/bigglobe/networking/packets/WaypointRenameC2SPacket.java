@@ -15,6 +15,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
+import builderb0y.bigglobe.items.AuraBottleItem;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
@@ -64,28 +65,38 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 									manager.addWaypoint(waypoint.withName(name), true);
 								}
 							}
+							else if (heldItem.getItem() instanceof AuraBottleItem bottle) {
+								if (waypoint.color() != bottle.color) {
+									if (!player.isCreative()) {
+										heldItem.decrement(1);
+									}
+									player.swingHand(data.hand);
+									manager.removeWaypoint(data.id, true);
+									manager.addWaypoint(waypoint.withColor(bottle.color), true);
+								}
+							}
 							else {
-								BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint without holding a nametag.");
+								BigGlobeMod.LOGGER.warn(player + " attempted to modify a waypoint without holding an item that can modify waypoints.");
 							}
 						}
 						else {
-							BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint without being near it: " + waypoint);
+							BigGlobeMod.LOGGER.warn(player + " attempted to modify a waypoint without being near it: " + waypoint);
 						}
 					}
 					else {
-						BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint which doesn't belong to them: " + waypoint);
+						BigGlobeMod.LOGGER.warn(player + " attempted to modify a waypoint which doesn't belong to them: " + waypoint);
 					}
 				}
 				else {
-					BigGlobeMod.LOGGER.warn(player + " attempted to rename a non-existent waypoint with ID " + data.id);
+					BigGlobeMod.LOGGER.warn(player + " attempted to modify a non-existent waypoint with ID " + data.id);
 				}
 			}
 			else {
-				BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint while hyperspace is disabled.");
+				BigGlobeMod.LOGGER.warn(player + " attempted to modify a waypoint while hyperspace is disabled.");
 			}
 		}
 		else {
-			BigGlobeMod.LOGGER.warn(player + " attempted to rename a waypoint while in spectator mode.");
+			BigGlobeMod.LOGGER.warn(player + " attempted to modify a waypoint while in spectator mode.");
 		}
 	}
 

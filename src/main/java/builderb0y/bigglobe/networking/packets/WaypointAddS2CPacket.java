@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
@@ -62,6 +63,7 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 		waypoint.destinationPosition().write(buffer);
 		if (manager.entrance != null) waypoint.displayedPosition().writePositionOnly(buffer);
 		if (name != null) NbtIo2.write(buffer, name);
+		buffer.writeByte(waypoint.color().ordinal());
 
 		BigGlobeNetwork.INSTANCE.sendToPlayer(manager.serverPlayer(), buffer);
 	}
@@ -78,7 +80,8 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 		PackedWorldPos destination = PackedWorldPos.read(buffer);
 		PackedWorldPos displayedPosition = hasDisplayedPosition ? PackedWorldPos.readPositionOnly(buffer, HyperspaceConstants.WORLD_KEY) : destination;
 		Text name = hasName ? TextCoding.read(buffer) : null;
-		return new SyncedWaypointData(id, entityID, owned, destination, displayedPosition, name);
+		CloudColor color = CloudColor.VALUES[buffer.readUnsignedByte()];
+		return new SyncedWaypointData(id, entityID, owned, destination, displayedPosition, name, color);
 	}
 
 	@Override

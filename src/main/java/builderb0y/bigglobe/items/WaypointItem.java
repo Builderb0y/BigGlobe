@@ -8,6 +8,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Direction;
 
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.PackedWorldPos;
@@ -45,6 +46,8 @@ public class WaypointItem extends Item {
 		}
 		Direction side = context.getSide();
 		ServerWaypointManager manager = ServerWaypointManager.get(serverWorld);
+		//it's not constant.
+		//noinspection ConstantValue
 		if (
 			manager != null &&
 			manager.addWaypoint(
@@ -63,7 +66,8 @@ public class WaypointItem extends Item {
 						context.getBlockPos().getZ() + (side.getOffsetZ() << 1) + 0.5D
 					),
 
-					ItemStackVersions.getCustomName(context.getStack())
+					ItemStackVersions.getCustomName(context.getStack()),
+					CloudColor.BLANK
 				),
 				true
 			)

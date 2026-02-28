@@ -4,9 +4,12 @@ import java.util.UUID;
 
 import net.minecraft.text.Text;
 
+import builderb0y.autocodec.annotations.DefaultObject;
+import builderb0y.autocodec.annotations.DefaultObject.DefaultObjectMode;
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
 
@@ -20,7 +23,8 @@ public record ServerWaypointData(
 	@Hidden int entityId,
 	@VerifyNullable UUID owner,
 	@EncodeInline PackedWorldPos pos,
-	@VerifyNullable Text name
+	@VerifyNullable Text name,
+	@DefaultObject(name = "BLANK", in = CloudColor.class, mode = DefaultObjectMode.FIELD) CloudColor color
 )
 implements WaypointData {
 
@@ -28,9 +32,10 @@ implements WaypointData {
 		int id,
 		@VerifyNullable UUID owner,
 		PackedWorldPos pos,
-		@VerifyNullable Text name
+		@VerifyNullable Text name,
+		CloudColor color
 	) {
-		this(id, Entity_CurrentIdGetter.bigglobe_getCurrentID().incrementAndGet(), owner, pos, name);
+		this(id, Entity_CurrentIdGetter.bigglobe_getCurrentID().incrementAndGet(), owner, pos, name, color);
 	}
 
 	@Override
@@ -44,7 +49,11 @@ implements WaypointData {
 	}
 
 	public ServerWaypointData withName(Text name) {
-		return new ServerWaypointData(this.id, this.entityId, this.owner, this.pos, name);
+		return new ServerWaypointData(this.id, this.entityId, this.owner, this.pos, name, this.color);
+	}
+
+	public ServerWaypointData withColor(CloudColor color) {
+		return new ServerWaypointData(this.id, this.entityId, this.owner, this.pos, this.name, color);
 	}
 
 	public PlayerWaypointData relativize(PackedPos entrance) {

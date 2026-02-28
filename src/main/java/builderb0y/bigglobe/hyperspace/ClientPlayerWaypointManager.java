@@ -64,6 +64,7 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 					entity.data = waypoint.destination();
 					entity.setId(waypoint.destination().entityId());
 					entity.setCustomName(waypoint.destination().name());
+					entity.setColor(waypoint.destination().color());
 					world.addEntity(#if MC_VERSION < MC_1_20_2 entity.getId(), #endif entity);
 				}
 			}
