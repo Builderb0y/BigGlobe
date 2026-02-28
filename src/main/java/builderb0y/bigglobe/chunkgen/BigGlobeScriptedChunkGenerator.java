@@ -61,6 +61,7 @@ import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.DefaultObject.DefaultObjectMode;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.coders.RecordCoder;
@@ -217,6 +218,25 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		RegistryKey<World> time_reference
 	) {}
 	public final @VerifyNullable CreakingOverrides creaking_overrides;
+	public static record LodOverrides(
+		@DefaultBoolean(true) boolean lod_rendering_enabled,
+		@DefaultBoolean(true) boolean can_chunkload,
+		@DefaultFloat  (1.0F) float   view_distance_multiplier,
+		@DefaultFloat  (1.0F) float   fog_density_multiplier,
+		@VerifyNullable       Float   fog_height_scale,
+		@VerifyNullable       Double  fog_base_height
+	) {
+
+		public static final LodOverrides DEFAULT = new LodOverrides(
+			true,
+			true,
+			1.0F,
+			1.0F,
+			null,
+			null
+		);
+	}
+	public final @DefaultObject(name = "DEFAULT", in = LodOverrides.class, mode = DefaultObjectMode.FIELD) LodOverrides lod_overrides;
 
 	public final @VerifyNullable Identifier world_traits;
 	public transient Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
@@ -248,6 +268,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable NetherOverrides nether_overrides,
 		@VerifyNullable EndOverrides end_overrides,
 		@VerifyNullable CreakingOverrides creaking_overrides,
+		LodOverrides lod_overrides,
 		@VerifyNullable Identifier world_traits,
 		BetterRegistry<ExtraSpawn> extraSpawnRegistry
 	)
@@ -268,6 +289,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.nether_overrides       = nether_overrides;
 		this.end_overrides          = end_overrides;
 		this.creaking_overrides     = creaking_overrides;
+		this.lod_overrides          = lod_overrides;
 		this.world_traits           = world_traits;
 		this.extraSpawnRegistry     = extraSpawnRegistry;
 		this.loadedWorldTraits      = TraitLoader.load(world_traits, decodeContext);
@@ -291,6 +313,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.nether_overrides       = from.nether_overrides;
 		this.end_overrides          = from.end_overrides;
 		this.creaking_overrides     = from.creaking_overrides;
+		this.lod_overrides          = from.lod_overrides;
 		this.world_traits           = from.world_traits;
 		this.loadedWorldTraits      = from.loadedWorldTraits;
 		this.compiledWorldTraits    = from.compiledWorldTraits;
