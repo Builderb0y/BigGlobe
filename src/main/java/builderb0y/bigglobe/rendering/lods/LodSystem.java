@@ -351,14 +351,14 @@ public class LodSystem implements SafeCloseable {
 		if (tree == null) {
 			return false;
 		}
-		boolean haveAllChildren = (
-			this.verifyTree(tree.x0z0) &
-			this.verifyTree(tree.x0z1) &
-			this.verifyTree(tree.x1z0) &
-			this.verifyTree(tree.x1z1)
-		);
-		if (haveAllChildren && tree.passes != null) {
-			System.err.println(tree + " has meshes and children with meshes.");
+		boolean x0z0Children = this.verifyTree(tree.x0z0);
+		boolean x0z1Children = this.verifyTree(tree.x0z1);
+		boolean x1z0Children = this.verifyTree(tree.x1z0);
+		boolean x1z1Children = this.verifyTree(tree.x1z1);
+		boolean haveAnyChildren = x0z0Children | x0z1Children | x1z0Children | x1z1Children;
+		boolean haveAllChildren = x0z0Children & x0z1Children & x1z0Children & x1z1Children;
+		if (haveAnyChildren && tree.passes != null) {
+			System.err.println(tree + " has meshes and " + (haveAllChildren ? "all children" : "at least one child") + " with meshes.");
 		}
 		double squareDistance = this.squareDistanceTo(tree);
 		boolean inGenerationRange = squareDistance < BigGlobeMath.squareD(this.renderState.frustum.generationBuffer);
@@ -434,12 +434,14 @@ public class LodSystem implements SafeCloseable {
 		}
 	}
 
-	//return value:
-	//0 - tree is non-existent (null or has no passes)
-	//1 - tree exists, but at least one child doesn't.
-	//2 - all tree children exist, but at least one grandchild doesn't.
-	//3 - all tree grandchildren exist, but at least one great grandchild doesn't.
-	//etc.
+	/**
+	return value:
+	0 - tree is non-existent (null or has no passes)
+	1 - tree exists, but at least one child doesn't.
+	2 - all tree children exist, but at least one grandchild doesn't.
+	3 - all tree grandchildren exist, but at least one great grandchild doesn't.
+	etc.
+	*/
 	public int updateTree(LodQuadTree tree, long time, Boolean frustumVisible) {
 		if (tree == null) {
 			return 0;
