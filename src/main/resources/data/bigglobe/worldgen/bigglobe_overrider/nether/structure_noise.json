@@ -29,8 +29,10 @@
 		")"
 	],
 	"structure_filter": {
-		"structure": "minecraft:bastion_remnant",
-		"structure_type": "minecraft:fortress",
+		"structure": [
+			"minecraft:fortress",
+			"minecraft:bastion_remnant"
+		],
 		"radius_in_chunks": 1
 	}
 }

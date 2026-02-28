@@ -18,7 +18,7 @@
 		]
 	},
 	"structure_filter": {
-		"structure_type": "minecraft:igloo",
+		"structure": "minecraft:igloo",
 		"radius_in_chunks": 1
 	}
 }

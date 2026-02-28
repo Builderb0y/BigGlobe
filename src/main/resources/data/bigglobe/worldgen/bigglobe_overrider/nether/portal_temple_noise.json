@@ -27,7 +27,7 @@
 		")"
 	],
 	"structure_filter": {
-		"structure_type": "bigglobe:portal_temple",
+		"structure": "bigglobe:portal_temple",
 		"radius_in_chunks": 1
 	}
 }

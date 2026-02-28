@@ -13,7 +13,7 @@
 		]
 	},
 	"structure_filter": {
-		"structure_type": "minecraft:ocean_monument",
+		"structure": "minecraft:monument",
 		"radius_in_chunks": 4
 	}
 }

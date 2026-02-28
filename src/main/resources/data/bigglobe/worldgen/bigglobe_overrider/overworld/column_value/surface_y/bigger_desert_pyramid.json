@@ -13,7 +13,7 @@
 		]
 	},
 	"structure_filter": {
-		"structure_type": "bigglobe:bigger_desert_pyramid",
+		"structure": "bigglobe:bigger_desert_pyramid",
 		"radius_in_chunks": 2
 	}
 }

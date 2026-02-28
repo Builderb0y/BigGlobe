@@ -13,7 +13,7 @@
 		]
 	},
 	"structure_filter": {
-		"structure_type": "minecraft:woodland_mansion",
+		"structure": "minecraft:mansion",
 		"radius_in_chunks": 4
 	}
 }

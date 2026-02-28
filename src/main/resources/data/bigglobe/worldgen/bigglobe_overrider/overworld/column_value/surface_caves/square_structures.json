@@ -17,12 +17,10 @@
 		"structure": [
 			"bigglobe:medium_house",
 			"bigglobe:large_house",
-			"bigglobe:log_cabin"
-		],
-		"structure_type": [
+			"bigglobe:log_cabin",
 			"minecraft:desert_pyramid",
 			"bigglobe:bigger_desert_pyramid",
-			"minecraft:woodland_mansion"
+			"minecraft:mansion"
 		],
 		"radius_in_chunks": 1
 	}
