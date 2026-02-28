@@ -39,6 +39,7 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.LodOverrides;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -438,6 +439,7 @@ public class ClientState {
 		public final ColorScript.@VerifyNullable Holder grassColor;
 		public final ColorScript.@VerifyNullable Holder foliageColor;
 		public final ColorScript.@VerifyNullable Holder waterColor;
+		public final LodOverrides generatorLodOverrides;
 		public final Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits;
 		public final @VerifyNullable RegistryEntry<Layer> layer;
 		public transient ColumnEntryRegistry columnEntryRegistry;
@@ -452,31 +454,34 @@ public class ClientState {
 			ColorScript.@VerifyNullable Holder grassColor,
 			ColorScript.@VerifyNullable Holder foliageColor,
 			ColorScript.@VerifyNullable Holder waterColor,
+			LodOverrides generatorLodOverrides,
 			Map<RegistryEntry<WorldTrait>, WorldTraitProvider> worldTraits,
 			@VerifyNullable RegistryEntry<Layer> layer
 		) {
-			this.minY         = minY;
-			this.maxY         = maxY;
-			this.seaLevel     = seaLevel;
-			this.columnSeed   = columnSeed;
-			this.grassColor   = grassColor;
-			this.foliageColor = foliageColor;
-			this.waterColor   = waterColor;
-			this.worldTraits  = worldTraits;
-			this.layer        = layer;
-			this.column       = ThreadLocal.withInitial(this::createColumn);
+			this.minY                  = minY;
+			this.maxY                  = maxY;
+			this.seaLevel              = seaLevel;
+			this.columnSeed            = columnSeed;
+			this.grassColor            = grassColor;
+			this.foliageColor          = foliageColor;
+			this.waterColor            = waterColor;
+			this.generatorLodOverrides = generatorLodOverrides;
+			this.worldTraits           = worldTraits;
+			this.layer                 = layer;
+			this.column                = ThreadLocal.withInitial(this::createColumn);
 		}
 
 		@Hidden //we want AutoCodec to target the other constructor.
 		public ClientGeneratorParams(BigGlobeScriptedChunkGenerator generator, Syncing syncing) {
-			this.minY         = generator.height.min_y();
-			this.maxY         = generator.height.max_y();
-			this.seaLevel     = generator.height.sea_level();
-			this.columnSeed   = generator.columnSeed;
-			this.grassColor   = generator.colors != null ? generator.colors.grass() : null;
-			this.foliageColor = generator.colors != null ? generator.colors.foliage() : null;
-			this.waterColor   = generator.colors != null ? generator.colors.water() : null;
-			this.worldTraits  = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
+			this.minY                  = generator.height.min_y();
+			this.maxY                  = generator.height.max_y();
+			this.seaLevel              = generator.height.sea_level();
+			this.columnSeed            = generator.columnSeed;
+			this.grassColor            = generator.colors != null ? generator.colors.grass() : null;
+			this.foliageColor          = generator.colors != null ? generator.colors.foliage() : null;
+			this.waterColor            = generator.colors != null ? generator.colors.water() : null;
+			this.generatorLodOverrides = generator.lod_overrides;
+			this.worldTraits           = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
 			if (generator.world_traits != null) {
 				for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : generator.loadedWorldTraits.entrySet()) {
 					if (syncing.worldTraits.containsKey(UnregisteredObjectException.getID(entry.getKey()))) {

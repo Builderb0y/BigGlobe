@@ -36,11 +36,15 @@ public interface LodRenderer extends SafeCloseable {
 		public ClientState
 			clientState;
 		public LodFrustum
-			frustum = new LodFrustum();
+			frustum;
 
 		#if MC_VERSION < MC_1_21_2
 			public Profiler profiler;
 		#endif
+
+		public LodRenderState(LodSystem system) {
+			this.frustum = new LodFrustum(system);
+		}
 
 		public void setup(
 			#if MC_VERSION >= MC_1_21_9

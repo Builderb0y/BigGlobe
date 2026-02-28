@@ -19,6 +19,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.LodOverrides;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.rendering.GLException;
@@ -75,6 +76,7 @@ public class LodSystem implements SafeCloseable {
 		return !(camera.getFocusedEntity() instanceof LivingEntity entity && (entity.hasStatusEffect(StatusEffects.BLINDNESS) || entity.hasStatusEffect(StatusEffects.DARKNESS)));
 	}
 
+	public LodOverrides overrides;
 	public ClientWorld world;
 	public LodGenerator generator;
 	public LodQuadTree tree;
@@ -90,6 +92,7 @@ public class LodSystem implements SafeCloseable {
 	}
 
 	public LodSystem(ClientWorld world, ClientGeneratorParams generator) {
+		this.overrides = generator.generatorLodOverrides;
 		String message = GLException.checkMessage();
 		if (message != null) BigGlobeMod.LOGGER.warn("A GL exception occurred just before LOD system initialization: " + message);
 		try {
@@ -98,7 +101,7 @@ public class LodSystem implements SafeCloseable {
 			this.renderer = BigGlobeConfig.INSTANCE.get().lodRendering.createRendererBackend();
 			this.generator = new LodGenerator(this, generator);
 			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
-			this.renderState = new LodRenderState();
+			this.renderState = new LodRenderState(this);
 			GLException.check();
 			this.generator.start();
 		}
@@ -119,7 +122,13 @@ public class LodSystem implements SafeCloseable {
 			system.close();
 			holder.bigglobe_setLodSystem(null);
 		}
-		if (world != null && params != null && params.layer != null && BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled()) {
+		if (
+			world != null &&
+			params != null &&
+			params.layer != null &&
+			params.generatorLodOverrides.lod_rendering_enabled() &&
+			BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled()
+		) {
 			try {
 				holder.bigglobe_setLodSystem(new LodSystem(world, params));
 			}
@@ -212,7 +221,7 @@ public class LodSystem implements SafeCloseable {
 		if (existingMessage != null) {
 			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before LOD rendering: " + existingMessage);
 		}
-		if ((this.levelLimit > LodQuadTree.MIN_LEVEL || this.currentQuality == -3.0D) && BigGlobeConfig.INSTANCE.get().lodRendering.showProgress) {
+		if (this.levelLimit > LodQuadTree.MIN_LEVEL && BigGlobeConfig.INSTANCE.get().lodRendering.showProgress) {
 			ClientPlayerEntity player = MinecraftClient.getInstance().player;
 			if (player != null) {
 				int percent = 100 - (this.levelLimit - LodQuadTree.MIN_LEVEL) * 100 / (LodQuadTree.MAX_LEVEL - LodQuadTree.MIN_LEVEL);
@@ -379,7 +388,7 @@ public class LodSystem implements SafeCloseable {
 		}
 		//using previous frame data is fine here.
 		LodQuadTree atPlayer = this.tree;
-		while (atPlayer.getAncestorDepth() > 1) {
+		while (atPlayer.getAncestorDepth() != 1) {
 			LodQuadTree next;
 			if (frustum.x >= atPlayer.midX()) {
 				if (frustum.z >= atPlayer.midZ()) {

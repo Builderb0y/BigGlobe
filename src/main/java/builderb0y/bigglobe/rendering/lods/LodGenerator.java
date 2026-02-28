@@ -155,11 +155,13 @@ public class LodGenerator implements SafeCloseable {
 		this.thread = new Thread(this::runLoop, "Big Globe LOD generator thread");
 
 		LodChunkCache chunkCache = null;
-		IntegratedServer server = MinecraftClient.getInstance().getServer();
-		if (server != null) {
-			ServerWorld serverWorld = server.getWorld(this.system.world.getRegistryKey());
-			if (serverWorld != null) {
-				chunkCache = new LodChunkCache(this, serverWorld);
+		if (system.overrides.can_chunkload()) {
+			IntegratedServer server = MinecraftClient.getInstance().getServer();
+			if (server != null) {
+				ServerWorld serverWorld = server.getWorld(this.system.world.getRegistryKey());
+				if (serverWorld != null) {
+					chunkCache = new LodChunkCache(this, serverWorld);
+				}
 			}
 		}
 		this.chunkCache = chunkCache;

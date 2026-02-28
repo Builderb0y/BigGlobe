@@ -13,6 +13,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.LodOverrides;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.rendering.*;
@@ -102,17 +103,23 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 		glUniform3f(shader.fogColor, state.fogR, state.fogG, state.fogB);
 		float globalFogDensity = BigGlobeConfig.INSTANCE.get().lodRendering.fogDensity;
 		float fogHeightScale = BigGlobeConfig.INSTANCE.get().lodRendering.fogHeightScale;
-		ClientGeneratorParams params;
-		if (
-			state.clientState != null &&
-			(params = state.clientState.generatorParams) != null &&
-			params.seaLevel != null &&
-			fogHeightScale != 0.0F
-		) {
+		ClientGeneratorParams params = state.clientState != null ? state.clientState.generatorParams : null;
+		Number baseHeight;
+		if (params != null) {
+			globalFogDensity *= params.generatorLodOverrides.fog_density_multiplier();
+			Float scale = params.generatorLodOverrides.fog_height_scale();
+			if (scale != null) fogHeightScale = scale;
+			baseHeight = params.generatorLodOverrides.fog_base_height();
+			if (baseHeight == null) baseHeight = params.seaLevel;
+		}
+		else {
+			baseHeight = null;
+		}
+		if (baseHeight != null && fogHeightScale != 0.0F) {
 			glUniform3f(
 				shader.fogParams,
-				(float)(state.frustum.y - params.seaLevel.doubleValue()),
-				-fogHeightScale / ((float)(state.worldMaxY - params.seaLevel)),
+				(float)(state.frustum.y - baseHeight.doubleValue()),
+				-fogHeightScale / ((float)(state.worldMaxY - baseHeight.doubleValue())),
 				Interpolator.mixSmoothUnchecked(
 					-1.0F,
 					Interpolator.mixSmoothUnchecked(-2.0F, -4.0F, state.thunderStrength),

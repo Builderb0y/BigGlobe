@@ -103,7 +103,11 @@
 					"script": "`bigglobe:nether/bubble`.biome",
 					"all_possible_biomes": "#bigglobe:nether"
 				},
-				"overriders": "#bigglobe:nether"
+				"overriders": "#bigglobe:nether",
+				"lod_overrides": {
+					"view_distance_multiplier": 0.0625,
+					"fog_density_multiplier": 0.0625
+				}
 			}
 		},
 

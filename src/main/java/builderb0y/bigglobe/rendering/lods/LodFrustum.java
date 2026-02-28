@@ -15,6 +15,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 @Environment(EnvType.CLIENT)
 public class LodFrustum {
 
+	public LodSystem system;
 	public FrustumIntersection
 		jomlFrustum = new FrustumIntersection();
 	public double
@@ -27,6 +28,10 @@ public class LodFrustum {
 		modelViewMatrix           = new Matrix4f(),
 		projectionMatrix          = new Matrix4f(),
 		modelViewProjectionMatrix = new Matrix4f();
+
+	public LodFrustum(LodSystem system) {
+		this.system = system;
+	}
 
 	public void setup(
 		#if MC_VERSION >= MC_1_21_9
@@ -59,7 +64,7 @@ public class LodFrustum {
 		if (aboveDifference > 0.0F) {
 			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.5F);
 		}
-
+		vanillaViewDistance *= this.system.overrides.view_distance_multiplier();
 		this.projectionMatrix.set(RenderVersions.projectionMatrix(context));
 		this.changeNearFar(
 			this.projectionMatrix,
