@@ -107,3 +107,12 @@ Chunk generators of type `bigglobe:scripted` allow data pack makers to place blo
 			* BaseColumnScriptEnvironment
 			* ColumnEntryRegistry (x and z are hard-coded at the position being tested)
 			* ColorScriptEnvironment
+* `lod_overrides` (upcoming) (optional) - has the following properties:
+	* `lod_rendering_enabled` (optional) - can be set to false to disable LOD rendering in this dimension. Defaults to true.
+	* `can_chunkload` (optional) - can be set to false to prevent loading LOD data from real chunks. Defaults to true.
+	* `view_distance_multiplier` (optional) - can be used to modify the LOD view distance. Defaults to 1.0.
+		* Big Globe uses this to reduce the view distance in the nether. Partially because the player can't see further than one bubble anyway, and partially because there are real performance problems with rendering more distance than that.
+	* `fog_density_multiplier` (optional) - can be used to modify the LOD fog density. Defaults to 1.0.
+		* Note that fog density is, by default, divided by your view distance, so if you modify the view distance with `view_distance_multiplier`, then you should adjust the fog density too.
+	* `fog_height_scale` (optional) - can be used to override the LOD fog height scale. When absent, the fog height scale in the config file is used instead.
+	* `fog_base_height` (optional) - can be used to change the reference point for what the fog height scale is relative to. Should be less than `height > max_y`. When absent, uses `height > sea_level` instead. If that's absent too, then the fog density will not depend on Y level.
