@@ -8,37 +8,39 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 
 public enum CloudColor {
-	RED         (         "red_aura_infused_cloud",          "red_aura_infused_void_cloud",          "red_bottled_aura", smoothHue( 0.0D / 12.0D)),
-	ORANGE      (      "orange_aura_infused_cloud",       "orange_aura_infused_void_cloud",       "orange_bottled_aura", smoothHue( 1.0D / 12.0D)),
-	YELLOW      (      "yellow_aura_infused_cloud",       "yellow_aura_infused_void_cloud",       "yellow_bottled_aura", smoothHue( 2.0D / 12.0D)),
-	YELLOW_GREEN("yellow_green_aura_infused_cloud", "yellow_green_aura_infused_void_cloud", "yellow_green_bottled_aura", smoothHue( 3.0D / 12.0D)),
-	GREEN       (       "green_aura_infused_cloud",        "green_aura_infused_void_cloud",        "green_bottled_aura", smoothHue( 4.0D / 12.0D)),
-	CYAN_GREEN  (  "cyan_green_aura_infused_cloud",   "cyan_green_aura_infused_void_cloud",   "cyan_green_bottled_aura", smoothHue( 5.0D / 12.0D)),
-	CYAN        (        "cyan_aura_infused_cloud",         "cyan_aura_infused_void_cloud",         "cyan_bottled_aura", smoothHue( 6.0D / 12.0D)),
-	CYAN_BLUE   (   "cyan_blue_aura_infused_cloud",    "cyan_blue_aura_infused_void_cloud",    "cyan_blue_bottled_aura", smoothHue( 7.0D / 12.0D)),
-	BLUE        (        "blue_aura_infused_cloud",         "blue_aura_infused_void_cloud",         "blue_bottled_aura", smoothHue( 8.0D / 12.0D)),
-	PURPLE      (      "purple_aura_infused_cloud",       "purple_aura_infused_void_cloud",       "purple_bottled_aura", smoothHue( 9.0D / 12.0D)),
-	MAGENTA     (     "magenta_aura_infused_cloud",      "magenta_aura_infused_void_cloud",      "magenta_bottled_aura", smoothHue(10.0D / 12.0D)),
-	MAGENTA_RED ( "magenta_red_aura_infused_cloud",  "magenta_red_aura_infused_void_cloud",  "magenta_red_bottled_aura", smoothHue(11.0D / 12.0D)),
-	RAINBOW     (        "omni_aura_infused_cloud",         "omni_aura_infused_void_cloud",         "omni_bottled_aura", null) {
+	RED         (         "red_aura_infused_cloud",          "red_aura_infused_void_cloud",          "red_bottled_aura",  0.0D / 12.0D),
+	ORANGE      (      "orange_aura_infused_cloud",       "orange_aura_infused_void_cloud",       "orange_bottled_aura",  1.0D / 12.0D),
+	YELLOW      (      "yellow_aura_infused_cloud",       "yellow_aura_infused_void_cloud",       "yellow_bottled_aura",  2.0D / 12.0D),
+	YELLOW_GREEN("yellow_green_aura_infused_cloud", "yellow_green_aura_infused_void_cloud", "yellow_green_bottled_aura",  3.0D / 12.0D),
+	GREEN       (       "green_aura_infused_cloud",        "green_aura_infused_void_cloud",        "green_bottled_aura",  4.0D / 12.0D),
+	CYAN_GREEN  (  "cyan_green_aura_infused_cloud",   "cyan_green_aura_infused_void_cloud",   "cyan_green_bottled_aura",  5.0D / 12.0D),
+	CYAN        (        "cyan_aura_infused_cloud",         "cyan_aura_infused_void_cloud",         "cyan_bottled_aura",  6.0D / 12.0D),
+	CYAN_BLUE   (   "cyan_blue_aura_infused_cloud",    "cyan_blue_aura_infused_void_cloud",    "cyan_blue_bottled_aura",  7.0D / 12.0D),
+	BLUE        (        "blue_aura_infused_cloud",         "blue_aura_infused_void_cloud",         "blue_bottled_aura",  8.0D / 12.0D),
+	PURPLE      (      "purple_aura_infused_cloud",       "purple_aura_infused_void_cloud",       "purple_bottled_aura",  9.0D / 12.0D),
+	MAGENTA     (     "magenta_aura_infused_cloud",      "magenta_aura_infused_void_cloud",      "magenta_bottled_aura", 10.0D / 12.0D),
+	MAGENTA_RED ( "magenta_red_aura_infused_cloud",  "magenta_red_aura_infused_void_cloud",  "magenta_red_bottled_aura", 11.0D / 12.0D),
+	RAINBOW     (        "omni_aura_infused_cloud",         "omni_aura_infused_void_cloud",         "omni_bottled_aura", Double.NaN) {
 
 		@Override
 		public Vector3dc getColor(double timeFraction) {
 			return smoothHue(timeFraction);
 		}
 	},
-	BLANK       (                          "cloud",                           "void_cloud", null, null);
+	BLANK       (                          "cloud",                           "void_cloud", null, Double.NaN);
 
 	public static final CloudColor[] VALUES = values();
 
 	public final String normalName, voidName, bottleName;
+	public final double hueFraction;
 	public final @Nullable Vector3dc color;
 
-	CloudColor(String normalName, String voidName, String bottleName, @Nullable Vector3dc color) {
-		this.normalName = normalName;
-		this.  voidName =   voidName;
-		this.bottleName = bottleName;
-		this.     color =      color;
+	CloudColor(String normalName, String voidName, String bottleName, double hue) {
+		this. normalName = normalName;
+		this.   voidName =   voidName;
+		this. bottleName = bottleName;
+		this.hueFraction = hue;
+		this.color = Double.isNaN(hue) ? null : smoothHue(hue);
 	}
 
 	public @Nullable Vector3dc getColor(double timeFraction) {
@@ -46,6 +48,10 @@ public enum CloudColor {
 	}
 
 	public static Vector3d smoothHue(double hue) {
+		return smoothHue(hue, new Vector3d());
+	}
+
+	public static Vector3d smoothHue(double hue, Vector3d out) {
 		hue *= BigGlobeMath.TAU;
 		//coefficients.
 		double red   = hue;
@@ -69,7 +75,7 @@ public enum CloudColor {
 		green = Math.sqrt(green);
 		blue  = Math.sqrt(blue);
 		//done.
-		return new Vector3d(red, green, blue);
+		return out.set(red, green, blue);
 	}
 
 	public static int packARGB(Vector3dc color) {
