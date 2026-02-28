@@ -294,12 +294,12 @@ public class BigGlobeConfig {
 		@Tooltip(count = 3)
 		@UseName("Fog Density")
 		@DefaultIgnore
-		public float fogDensity = 16.0F;
+		public float fogDensity = 32.0F;
 
 		@Tooltip(count = 3)
 		@UseName("Fog Height Scale")
 		@DefaultIgnore
-		public float fogHeightScale = 4.0F;
+		public float fogHeightScale = 6.0F;
 
 		@Tooltip(count = 5)
 		@UseName("Underground Mode")
