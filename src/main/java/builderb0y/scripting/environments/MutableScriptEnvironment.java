@@ -82,6 +82,16 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				});
 			}),
 
+			this.qualifiedVariables.entrySet().stream().map((Map.Entry<NamedType, VariableHandler.Named> entry) -> {
+				return prefix("Qualified variable", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+			}),
+
+			this.qualifiedFunctions.entrySet().stream().flatMap((Map.Entry<NamedType, List<FunctionHandler.Named>> entry) -> {
+				return entry.getValue().stream().map((FunctionHandler.Named handler) -> {
+					return prefix("Qualified function", entry.getKey().name, entry.getKey().toString(), handler);
+				});
+			}),
+
 			this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
 				return prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
 			}),
