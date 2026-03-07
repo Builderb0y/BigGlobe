@@ -105,7 +105,7 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 				
 				vec4 voronoise(vec3 coord) {
 					vec4 closest = vec4(0.0);
-					for (int index = 0; index < 64; index++) {
+					for (int index = 1; index <= 64; index++) {
 						vec3 point = unitVec(float(index));
 						float dotProduct = dot(coord, point);
 						if (dotProduct > closest.w) {
@@ -113,11 +113,13 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 						}
 					}
 					closest.w = 0.0;
-					for (int index = 0; index < 64; index++) {
+					for (int index = 1; index <= 64; index++) {
 						vec3 point = unitVec(float(index));
 						vec3 cellOffset = point - closest.xyz;
+						float denominator = dot(cellOffset, cellOffset);
+						if (denominator < 0.0001) continue; //ignore same point.
 						vec3 coordOffset = coord - closest.xyz;
-						closest.w = max(closest.w, dot(cellOffset, coordOffset) / dot(cellOffset, cellOffset));
+						closest.w = max(closest.w, dot(cellOffset, coordOffset) / denominator);
 					}
 					closest.w *= 2.0;
 					return closest;
