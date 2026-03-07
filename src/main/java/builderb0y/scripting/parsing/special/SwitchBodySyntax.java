@@ -43,13 +43,16 @@ public record SwitchBodySyntax(InsnTree value, Int2ObjectSortedMap<InsnTree> cas
 				parser.environment.user().push();
 				do {
 					if (parser.input.hasIdentifierAfterWhitespace("range")) {
+						if (enumClass != null) {
+							throw new ScriptParsingException("Cannot use ranges for enum switch case", parser.input);
+						}
 						boolean lowerBoundInclusive;
 						if (parser.input.hasAfterWhitespace("[")) lowerBoundInclusive = true;
 						else if (parser.input.hasAfterWhitespace("(")) lowerBoundInclusive = false;
 						else throw new ScriptParsingException("Expected '[' or '('", parser.input);
-						long lowerBound = nextConstantInt(parser, enumClass);
+						long lowerBound = nextConstantInt(parser, null);
 						parser.input.expectOperatorAfterWhitespace(",");
-						long upperBound = nextConstantInt(parser, enumClass);
+						long upperBound = nextConstantInt(parser, null);
 						boolean upperBoundInclusive;
 						if (parser.input.hasAfterWhitespace("]")) upperBoundInclusive = true;
 						else if (parser.input.hasAfterWhitespace(")")) upperBoundInclusive = false;
