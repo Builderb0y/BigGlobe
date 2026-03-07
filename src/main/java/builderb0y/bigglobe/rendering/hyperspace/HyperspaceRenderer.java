@@ -33,6 +33,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 	public static void debug_reload() {
 		if (INSTANCE != null) {
 			INSTANCE.close();
+			INSTANCE = null;
 		}
 		try {
 			INSTANCE = new HyperspaceRenderer();

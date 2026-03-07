@@ -225,6 +225,9 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 						vec3 axis2 = unitVec(-float(planeIndex));
 						axis2 = normalize(axis2 - axis1 * dot(axis1, axis2));
 						vec2 planePos = vec2(dot(norm, axis1), dot(norm, axis2));
+						float rotation = time * 0.015625;
+						vec2 cs = vec2(cos(rotation), sin(rotation));
+						planePos *= mat2(cs.x, cs.y, -cs.y, cs.x);
 						float planeIntensity = 1.0 - dot(planePos, planePos);
 						vec2 scaledPlanePos = planePos * 16.0;
 						vec2 fractPos = fract(scaledPlanePos);
@@ -236,6 +239,21 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 						starIntensity *= sin(time + starData.w * TAU) * 0.5 + 0.5;
 						vec3 starColor = exp2((starData.z * 8.0 - 7.0) * (vec3(1.0, 2.0, 4.0) / 4.0));
 						starSum += starColor * starIntensity * planeIntensity;
+
+						//rest in peace, Nameless.
+						//I wish I could show this to you now.
+						float t = time * (PI / 256.0) + float(planeIndex) * (PI / 16.0);
+						vec2 z = planePos * 4.0;
+						vec2 c = vec2(cos(t), sin(t)) * (cos(t) * -0.375 + 0.5) + vec2(0.125, 0.0);
+						int fractalIterations = 0;
+						for (int iteration = 0; iteration <= 32; iteration++) {
+							z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
+							if (dot(z, z) >= 4.0) {
+								fractalIterations = iteration;
+								break;
+							}
+						}
+						starSum = mix(starSum, vec3(1.0), float(fractalIterations) * 0.03125);
 					}
 					starSum *= noise.x;
 
