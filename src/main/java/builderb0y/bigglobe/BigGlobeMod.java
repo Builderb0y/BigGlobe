@@ -52,6 +52,7 @@ import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
+import builderb0y.bigglobe.hyperspace.HyperspaceCollapseTicketType;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
@@ -114,6 +115,7 @@ public class BigGlobeMod implements ModInitializer {
 		BigGlobeRecipeSerializers.init();
 		ExpressionParser.clinit();
 		BigGlobeParticles.init();
+		HyperspaceCollapseTicketType.init();
 
 		DistantHorizonsCompat.init();
 

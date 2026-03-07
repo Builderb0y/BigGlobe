@@ -2,9 +2,6 @@ package builderb0y.bigglobe.hyperspace;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -13,7 +10,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.versions.EntityVersions;
 
