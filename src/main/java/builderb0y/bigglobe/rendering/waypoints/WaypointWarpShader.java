@@ -161,6 +161,9 @@ public class WaypointWarpShader extends ScreenTriangleShader {
 							vec3 axis2 = unitVec(-float(planeIndex));
 							axis2 = normalize(axis2 - axis1 * dot(axis1, axis2));
 							vec2 planePos = vec2(dot(playerDir, axis1), dot(playerDir, axis2));
+							float rotation = time * 0.015625;
+							vec2 cs = vec2(cos(rotation), sin(rotation));
+							planePos *= mat2(cs.x, cs.y, -cs.y, cs.x);
 							float planeIntensity = 1.0 - dot(planePos, planePos);
 							vec2 scaledPlanePos = planePos * 16.0;
 							vec2 fractPos = fract(scaledPlanePos);
