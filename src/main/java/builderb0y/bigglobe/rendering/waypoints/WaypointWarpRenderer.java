@@ -16,6 +16,7 @@ import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.entities.WaypointEntityRenderer;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering.*;
+import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
@@ -66,6 +67,19 @@ public class WaypointWarpRenderer implements SafeCloseable {
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Waypoint warp renderer unavailable:", exception);
+		}
+	}
+
+	public static void debug_reload() {
+		if (INSTANCE != null) {
+			INSTANCE.close();
+			INSTANCE = null;
+		}
+		try {
+			INSTANCE = new WaypointWarpRenderer();
+		}
+		catch (Exception exception) {
+			BigGlobeMod.LOGGER.error("Waypoint warp reload failed:", exception);
 		}
 	}
 

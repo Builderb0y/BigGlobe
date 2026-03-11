@@ -153,7 +153,7 @@ public class WaypointWarpShader extends ScreenTriangleShader {
 						noise += backgroundNoise(playerDir * 32.0) * 0.03125;
 						noise += backgroundNoise(playerDir * 64.0) * 0.015625;
 				
-						vec3 color = mix(smoothHue(noise.y * 0.5 + 0.375), vec3(1.0), noise.x) * noise.x;
+						vec3 color = noise.x * mix(vec3(noise.x), vec3(2.0 - noise.x), smoothHue(noise.y * 0.5 + 0.375));
 						vec3 starSum = vec3(0.0);
 				
 						for (int planeIndex = 1; planeIndex <= 16; planeIndex++) {
