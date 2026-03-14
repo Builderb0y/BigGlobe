@@ -16,7 +16,6 @@ import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.entities.WaypointEntityRenderer;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering.*;
-import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 

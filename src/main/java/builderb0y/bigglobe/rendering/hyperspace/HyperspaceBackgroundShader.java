@@ -26,6 +26,7 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 				uniform vec3 cameraPosition;
 				uniform float collapse;
 				uniform float time;
+				uniform sampler2D previousPass;
 
 				in vec2 texcoord;
 
@@ -65,16 +66,8 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					return fract(p);
 				}
 
-				float noise11(float coord) {
-					float  fractCoord = fract(coord);
-					float  floorCoord = coord - fractCoord;
-					float   ceilCoord = floorCoord + 1.0;
-					float smoothCoord = smoothify(fractCoord);
-					return mix(hash11(floorCoord), hash11(ceilCoord), smoothCoord);
-				}
-
 				vec2 hash21(float p) {
-					vec3 p3 = fract(vec3(p) * vec3(0.1031, 0.1030, 0.0973));
+					vec3 p3 = fract(vec3(p) * vec3(0.1031, 0.1013, 0.0973));
 					p3 += dot(p3, p3.yzx + 33.33);
 					return fract((p3.xx + p3.yz) * p3.zy);
 				}
@@ -93,24 +86,6 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					p3 = fract(p3 * 0.1031);
 					p3 += dot(p3, p3.zyx + 31.32);
 					return fract((p3.x + p3.y) * p3.z);
-				}
-
-				vec2 hash23(vec3 p3) {
-					p3 = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
-					p3 += dot(p3, p3.yzx + 33.33);
-					return fract((p3.xx + p3.yz) * p3.zy);
-				}
-
-				vec3 hash33(vec3 p3) {
-					p3 = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
-					p3 += dot(p3, p3.yxz + 33.33);
-					return fract((p3.xxy + p3.yxx) * p3.zyx);
-				}
-
-				vec3 hash31(float p) {
-					vec3 p3 = fract(vec3(p) * vec3(0.1031, 0.1030, 0.0973));
-					p3 += dot(p3, p3.yzx + 33.33);
-					return fract((p3.xxy + p3.yzz) * p3.zyx);
 				}
 
 				const vec3[] starPlanes = vec3[](
@@ -144,98 +119,47 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					return result;
 				}
 
-				vec3 getStarPlaneAxis(vec3 coord) {
-					vec4 result = vec4(0.0);
-					for (int index = 0; index < starPlanes.length(); index++) {
+				int getStarPlaneIndex(vec3 coord) {
+					int result = 0;
+					float bestDotProduct = abs(dot(coord, starPlanes[0]));
+					for (int index = 1; index < starPlanes.length(); index++) {
 						vec3 point = starPlanes[index];
 						float dotProduct = abs(dot(coord, point));
-						if (dotProduct > result.w) {
-							result = vec4(point, dotProduct);
-						}
-					}
-					return result.xyz;
-				}
-
-				vec2 noise23(vec3 coord) {
-					vec3  fractCoord = fract(coord);
-					vec3  floorCoord = coord - fractCoord;
-					vec3   ceilCoord = floorCoord + vec3(1.0);
-					vec3 smoothCoord = smoothify(fractCoord);
-
-					return mix(
-						mix(
-							mix(
-								hash23(vec3(floorCoord.x, floorCoord.y, floorCoord.z)),
-								hash23(vec3(floorCoord.x, floorCoord.y,  ceilCoord.z)),
-								smoothCoord.z
-							),
-							mix(
-								hash23(vec3(floorCoord.x,  ceilCoord.y, floorCoord.z)),
-								hash23(vec3(floorCoord.x,  ceilCoord.y,  ceilCoord.z)),
-								smoothCoord.z
-							),
-							smoothCoord.y
-						),
-						mix(
-							mix(
-								hash23(vec3( ceilCoord.x, floorCoord.y, floorCoord.z)),
-								hash23(vec3( ceilCoord.x, floorCoord.y,  ceilCoord.z)),
-								smoothCoord.z
-							),
-							mix(
-								hash23(vec3( ceilCoord.x,  ceilCoord.y, floorCoord.z)),
-								hash23(vec3( ceilCoord.x,  ceilCoord.y,  ceilCoord.z)),
-								smoothCoord.z
-							),
-							smoothCoord.y
-						),
-						smoothCoord.x
-					);
-				}
-
-				vec2 backgroundNoise(vec3 norm) {
-					vec2 noise = noise23(norm);
-					return vec2(abs(noise.x - 0.5), noise.y);
-				}
-
-				vec3 smoothHue(float h) {
-					return sqrt(normalize(square(cos(h * TAU - vec3(0.0, 1.0, 2.0) * (TAU / 3.0)) * 0.5 + 0.5)));
-				}
-
-				vec4 hash42(vec2 p) {
-					vec4 p4 = fract(p.xyxy * vec4(0.1031, 0.1030, 0.0973, 0.1099));
-					p4 += dot(p4, p4.wzxy + 33.33);
-					return fract((p4.xxyz + p4.yzzw) * p4.zywx);
-				}
-
-				vec4 hash43(vec3 p) {
-					vec4 p4 = fract(p.xyzx * vec4(0.1031, 0.1030, 0.0973, 0.1099));
-					p4 += dot(p4, p4.wzxy + 33.33);
-					return fract((p4.xxyz + p4.yzzw) * p4.zywx);
-				}
-
-				float julia(vec2 z, vec2 c) {
-					float result = 0.0;
-					for (int iteration = 0; iteration <= 64; iteration++) {
-						z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
-						float z2 = dot(z, z);
-						//running a constant number of iterations instead of returning when the
-						//point becomes sufficiently far from the origin fixes issues on mesa.
-						//maybe loop unrolling fails with break/return in the middle? idk.
-						//also for whatever reason, using 256^2 and +4 gives a
-						//vastly wronger result than 256 and +3 and I have no idea why.
-						if (z2 > 256.0 && result == 0.0) {
-							//https://iquilezles.org/articles/msetsmooth/
-							result = float(iteration) - log2(log2(z2)) + 3.0;
+						if (dotProduct > bestDotProduct) {
+							result = index;
+							bestDotProduct = dotProduct;
 						}
 					}
 					return result;
 				}
 
+				vec2 hash23(vec3 p3) {
+					p3 = fract(p3 * vec3(0.1031, 0.1013, 0.0973));
+					p3 += dot(p3, p3.yzx + 33.33);
+					return fract((p3.xx + p3.yz) * p3.zy);
+				}
+
+				vec4 hash43(vec3 p) {
+					vec4 p4 = fract(p.xyzx * vec4(0.1031, 0.1013, 0.0973, 0.1099));
+					p4 += dot(p4, p4.wzxy + 33.33);
+					return fract((p4.xxyz + p4.yzzw) * p4.zywx);
+				}
+
+				float julia(vec2 z, vec2 c) {
+					for (int iteration = 0; iteration <= 64; iteration++) {
+						z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
+						float z2 = dot(z, z);
+						if (z2 > 256.0 * 256.0) {
+							//https://iquilezles.org/articles/msetsmooth/
+							return float(iteration) - log2(log2(z2)) + 4.0;
+						}
+					}
+					return 0.0;
+				}
+
 				void main() {
 					vec4 tmp = inverseProjection * vec4(texcoord * 2.0 - 1.0, 1.0, 1.0);
 					vec3 norm = normalize(mat3(inverseModelView) * tmp.xyz);
-					vec3 offsetNorm;
 					float flash;
 					if (collapse > 0.0) {
 						Voronoise voronoi = voronoise(norm);
@@ -252,27 +176,15 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 							fragColor.rgb += flash * exp2((voronoi.ringDist - threshold) * 64.0);
 							return;
 						}
-						else {
-							vec3 collapseOffset = (hash31(float(voronoi.discriminator)) * 4.0 - 2.0) * (collapse * collapse);
-							norm += collapseOffset;
-							offsetNorm = norm + cameraPosition * 0.015625;
-							norm = normalize(norm);
-						}
 					}
 					else {
-						offsetNorm = norm + cameraPosition * 0.015625;
 						flash = 0.0;
 					}
-					vec2 noise = vec2(0.0);
-					noise += backgroundNoise(offsetNorm *  2.0) * 0.5;
-					noise += backgroundNoise(offsetNorm *  4.0) * 0.25;
-					noise += backgroundNoise(offsetNorm *  8.0) * 0.125;
-					noise += backgroundNoise(offsetNorm * 16.0) * 0.0625;
-					noise += backgroundNoise(offsetNorm * 32.0) * 0.03125;
-					noise += backgroundNoise(offsetNorm * 64.0) * 0.015625;
-					vec3 color = noise.x * mix(vec3(noise.x), vec3(2.0 - noise.x), smoothHue(noise.y * 0.5 + 0.375));
 
-					vec3 axis  = getStarPlaneAxis(norm);
+					vec3 color = texture(previousPass, texcoord).rgb;
+
+					int starIndex = getStarPlaneIndex(norm);
+					vec3 axis  = starPlanes[starIndex];
 					vec3 axis1 = unitVec(hash23(axis));
 					axis1 = normalize(axis1 - axis * dot(axis, axis1));
 					vec3 axis2 = cross(axis, axis1);
@@ -280,7 +192,7 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 
 					//rest in peace, Nameless.
 					//I wish I could show this to you now.
-					float h = hash13(axis);
+					float h = float(starIndex) / 7.0;
 					float t = time * (PI / 128.0) + h * TAU;
 					vec2  z = planePos.xy * 4.5;
 					vec2  c = vec2(cos(t), sin(t)) * (cos(t) * -0.375 + 0.5) * exp2(square(max(collapse * 8.0 - h, 0.0))) + vec2(0.125, 0.0);
@@ -304,8 +216,8 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 						color = mix(color, vec3(1.0), 1.0 / (exp2(6.0 - j) + 1.0));
 					}
 					color += flash;
-					float distanceFromOrigin = length(cameraPosition);
-					color *= exp2((dot(norm, cameraPosition) / distanceFromOrigin * -0.5 - 0.5) * distanceFromOrigin * 0.03125);
+					//float distanceFromOrigin = length(cameraPosition);
+					//color *= exp2((dot(norm, cameraPosition) / distanceFromOrigin * -0.5 - 0.5) * distanceFromOrigin * 0.03125);
 
 					fragColor = vec4(color, 1.0);
 				}

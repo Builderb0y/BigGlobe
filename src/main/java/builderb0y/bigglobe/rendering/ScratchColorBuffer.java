@@ -1,7 +1,6 @@
-package builderb0y.bigglobe.rendering.waypoints;
+package builderb0y.bigglobe.rendering;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL32C.*;
@@ -64,6 +63,8 @@ public class ScratchColorBuffer implements SafeCloseable {
 				glBindTexture(GL_TEXTURE_2D, this.colorTex);
 				GLException.check();
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0L);
+				GLException.check();
+				glGenerateMipmap(GL_TEXTURE_2D);
 				GLException.check();
 			}
 			finally {
