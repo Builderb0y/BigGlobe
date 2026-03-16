@@ -4,6 +4,7 @@
 		"source": [
 			"for (StructureStart start in structures:",
 				"if (start.structure.generationStep == 'surface_structures' && start.structure.terrainAdaptation != 'none':",
+					"double minDistance = 0.0",
 					"for (StructurePiece piece in start.pieces:",
 						"if (piece.hasPreferredTerrainHeight:",
 							"int diameter = max(piece.sizeX, piece.sizeZ)",
@@ -11,17 +12,19 @@
 							"double distance = distanceToCircle(piece, radius)",
 							"double mixLevel = smooth(distance / clamp(4.0L, 16.0L, radius))",
 							"double newY = piece.preferredTerrainHeight - 0.5L",
-							"setSurfaceY(newY, mixLevel, setSnow)",
+							"setSurfaceY(newY, mixLevel, keepSnow)",
+							"minDistance += fastExp2(-distance)",
 						")",
 						"else (",
 							"double distance = distanceToSquare(piece)",
-							"double mixLevel = smooth(distance * 0.125L)",
-							"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) - 1.0L, mixLevel)",
+							"minDistance += fastExp2(-distance)",
 						")",
 						"if (double*(distance := distanceToSquare(piece)) < 16.0L:",
 							"setSurfaceFoliage(piece.minY, smooth(distance * 0.0625L))",
 						")",
 					")",
+					"minDistance = -fastLog2(minDistance)",
+					"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(start.minY), smooth(minDistance * 0.03125L))",
 				")",
 			")"
 		],
@@ -31,6 +34,6 @@
 	},
 	"structure_filter": {
 		"structure_type": "minecraft:jigsaw",
-		"radius_in_chunks": 1
+		"radius_in_chunks": 3
 	}
 }

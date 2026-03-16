@@ -3,13 +3,13 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
-				"if (double*(distance := distanceToSquare(start)) < 16.0L:",
-					"double mixLevel = smooth(distance * 0.0625L)",
-					"int minY = start.minY",
-					"if (start.structure ==. 'bigglobe:log_cabin': ++minY)",
-					"setSurfaceY(minY - 0.5L, mixLevel, setSnow)",
-					"setSurfaceFoliage(minY, mixLevel)",
-				")",
+				"double distance = distanceToSquare(start)",
+				"int minY = start.minY",
+				"if (start.structure ==. 'bigglobe:log_cabin': ++minY)",
+				"double mixLevel = smooth(distance * 0.0625)",
+				"setSurfaceY(minY - 0.5L, mixLevel, keepSnow)",
+				"setSurfaceFoliage(minY, mixLevel)",
+				"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(start.minY), smooth(distance * 0.03125L))",
 			")"
 		],
 		"includes": [
@@ -22,6 +22,6 @@
 			"bigglobe:large_house",
 			"bigglobe:log_cabin"
 		],
-		"radius_in_chunks": 1
+		"radius_in_chunks": 3
 	}
 }

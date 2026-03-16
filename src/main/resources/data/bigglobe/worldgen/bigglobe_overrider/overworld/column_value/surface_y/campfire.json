@@ -3,17 +3,21 @@
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
+				"double minDistance = 0.0",
 				";don't include tent interior if present.",
 				"for (int index in range[0, min(2, start.pieces.size)):",
 					"StructurePiece piece = start.pieces.(index)",
 					"double distance = distanceToCircle(piece, 4.0L)",
+					"minDistance += fastExp2(-distance)",
 					"if (distance < 8.0L:",
 						"double mixLevel = smooth(distance :* 0.125)",
 						"int targetY = index == 0 ? piece.maxY : piece.minY",
-						"setSurfaceY(targetY - 0.5L, mixLevel, setSnow)",
+						"setSurfaceY(targetY - 0.5L, mixLevel, keepSnow)",
 						"setSurfaceFoliage(targetY, mixLevel)",
 					")",
 				")",
+				"minDistance = -fastLog2(minDistance)",
+				"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(start.minY), smooth(minDistance * 0.03125L))",
 			")"
 		],
 		"includes": [
@@ -22,6 +26,6 @@
 	},
 	"structure_filter": {
 		"structure": "bigglobe:campfire",
-		"radius_in_chunks": 1
+		"radius_in_chunks": 3
 	}
 }

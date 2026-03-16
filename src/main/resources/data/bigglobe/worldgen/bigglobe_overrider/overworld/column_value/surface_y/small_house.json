@@ -5,20 +5,24 @@
 			"for (StructureStart start in structures:",
 				"StructurePiece piece = start.pieces.(0)",
 				"double distance = distanceToCircle(piece, 4.0L)",
+				"double minDistance = fastExp2(-distance)",
 				"if (distance < 16.0L:",
 					"double mixLevel = smooth(distance * 0.0625L)",
-					"setSurfaceY(piece.minY - 0.5L, mixLevel, setSnow)",
+					"setSurfaceY(piece.minY - 0.5L, mixLevel, keepSnow)",
 					"setSurfaceFoliage(piece.minY, mixLevel)",
 				")",
 				"if (start.pieces.size > 1:",
 					"piece = start.pieces.(1)",
 					"distance = distanceToSquare(piece)",
+					"minDistance += fastExp2(-distance)",
 					"if (distance < 16.0L:",
 						"double mixLevel = smooth(distance * 0.0625L)",
-						"setSurfaceY(piece.minY + 0.5L, mixLevel, setSnow)",
+						"setSurfaceY(piece.minY + 0.5L, mixLevel, keepSnow)",
 						"setSurfaceFoliage(piece.minY, mixLevel)",
 					")",
 				")",
+				"minDistance = -fastLog2(minDistance)",
+				"setSnowY(world_traits.`bigglobe:automatic_exact_surface_y`(start.minY), smooth(minDistance * 0.03125L))",
 			")"
 		],
 		"includes": [
@@ -27,6 +31,6 @@
 	},
 	"structure_filter": {
 		"structure": "bigglobe:small_house",
-		"radius_in_chunks": 1
+		"radius_in_chunks": 3
 	}
 }
