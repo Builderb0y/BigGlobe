@@ -93,7 +93,7 @@ public class LodSystem implements SafeCloseable {
 
 	public LodSystem(ClientWorld world, ClientGeneratorParams generator) {
 		this.overrides = generator.generatorLodOverrides;
-		String message = GLException.checkMessage();
+		String message = GLException.forceCheckMessage();
 		if (message != null) BigGlobeMod.LOGGER.warn("A GL exception occurred just before LOD system initialization: " + message);
 		try {
 			this.world = world;
@@ -102,7 +102,7 @@ public class LodSystem implements SafeCloseable {
 			this.generator = new LodGenerator(this, generator);
 			this.tree = new LodQuadTree(-(1 << (LodQuadTree.MAX_LEVEL - 1)), -(1 << (LodQuadTree.MAX_LEVEL - 1)), LodQuadTree.MAX_LEVEL);
 			this.renderState = new LodRenderState(this);
-			GLException.check();
+			GLException.forceCheck();
 			this.generator.start();
 		}
 		catch (Throwable throwable) {

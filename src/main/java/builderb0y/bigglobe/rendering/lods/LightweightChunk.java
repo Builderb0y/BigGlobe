@@ -184,7 +184,7 @@ public class LightweightChunk {
 										}
 									}
 								}
-								this.addSegment(list, startY, endY, state, Math.max(topLightLevel - state.getOpacity(), 0));
+								this.addSegment(list, startY, endY, state, Math.max(topLightLevel - BlockStateVersions.getOpacity(state, EmptyBlockView.INSTANCE, BlockPos.ORIGIN), 0));
 								if (cullingData != null) {
 									this.cull(list, cullingData[columnIndex_]);
 								}

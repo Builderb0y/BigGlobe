@@ -14,7 +14,9 @@ public class ScratchColorBuffer implements SafeCloseable {
 	public ScratchColorBuffer() {
 		try {
 			this.fbo = glGenFramebuffers();
+			GLException.check();
 			this.colorTex = glGenTextures();
+			GLException.check();
 			int oldFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
 			try {
 				int oldTexture = glGetInteger(GL_TEXTURE_BINDING_2D);

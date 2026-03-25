@@ -8,7 +8,6 @@ import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.text.ClickEvent;
-import net.minecraft.text.ClickEvent.SuggestCommand;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -102,9 +101,15 @@ public class LocateStructuresCommand extends AsyncCommand {
 								)
 							)
 							.styled((Style style) -> (
-								style
-								.withHoverEvent(new HoverEvent.ShowText(Text.translatable("commands.bigglobe.locate.clickToTeleport")))
-								.withClickEvent(new SuggestCommand("/tp @s " + center.getX() + " " + center.getY() + " " + center.getZ()))
+								#if MC_VERSION >= MC_1_21_5
+									style
+									.withHoverEvent(new HoverEvent.ShowText(Text.translatable("commands.bigglobe.locate.clickToTeleport")))
+									.withClickEvent(new ClickEvent.SuggestCommand("/tp @s " + center.getX() + " " + center.getY() + " " + center.getZ()))
+								#else
+									style
+									.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("commands.bigglobe.locate.clickToTeleport")))
+									.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + center.getX() + " " + center.getY() + " " + center.getZ()))
+								#endif
 							));
 						}, false);
 					});

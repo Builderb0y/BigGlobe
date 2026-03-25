@@ -58,3 +58,8 @@ accessible field net/minecraft/client/render/WorldRenderer renderedEntities Ljav
 
 #used by mixin.
 accessible class net/minecraft/registry/tag/TagGroupLoader$TagDependencies
+
+#used by /bigglobe:locate structures.
+#not to be confused with the vanilla counterpart, mine allows you to specify the radius.
+accessible field net/minecraft/server/command/LocateCommand STRUCTURE_INVALID_EXCEPTION Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+accessible method net/minecraft/server/command/LocateCommand getStructureListForPredicate (Lnet/minecraft/command/argument/RegistryPredicateArgumentType$RegistryPredicate;Lnet/minecraft/registry/Registry;)Ljava/util/Optional;

@@ -268,22 +268,30 @@ public class HyperspaceVolumetricNoiseShader extends ScreenTriangleShader {
 						cameraEntity.getY() - this.pendingY,
 						cameraEntity.getZ() - this.pendingZ
 					);
-					MinecraftClient.getInstance().getSoundManager().play(
-						new PositionedSoundInstance(
-							SoundEvents.ENTITY_BREEZE_IDLE_GROUND.id(),
-							SoundCategory.AMBIENT,
-							1.0F,
-							(float)(FastMath.Exp.fastExp2(2.0D / (distanceSquared * (1.0D / 65536.0D) + 1.0D) - 1.0D)),
-							Random.create(),
-							false,
-							0,
-							SoundInstance.AttenuationType.NONE,
-							this.pendingX,
-							this.pendingY,
-							this.pendingZ,
-							false
-						)
-					);
+					//trial chambers and breezes did not exist in MC 1.20.2 and earlier,
+					//so the sound I want to use does not exist there.
+					#if MC_VERSION >= MC_1_20_3
+						MinecraftClient.getInstance().getSoundManager().play(
+							new PositionedSoundInstance(
+								#if MC_VERSION >= MC_1_21_2
+									SoundEvents.ENTITY_BREEZE_IDLE_GROUND.id(),
+								#else
+									SoundEvents.ENTITY_BREEZE_IDLE_GROUND.getId(),
+								#endif
+								SoundCategory.AMBIENT,
+								1.0F,
+								(float)(FastMath.Exp.fastExp2(2.0D / (distanceSquared * (1.0D / 65536.0D) + 1.0D) - 1.0D)),
+								Random.create(),
+								false,
+								0,
+								SoundInstance.AttenuationType.NONE,
+								this.pendingX,
+								this.pendingY,
+								this.pendingZ,
+								false
+							)
+						);
+					#endif
 				}
 			}
 		}

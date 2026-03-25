@@ -53,23 +53,30 @@ to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
+	replace texture buffer with ordinary texture.
 
 high priority:
 	document extra spawn system.
 	document terrainAdaptation.
 	document scripted structures in general.
-	incorrect world height detection code doesn't work correctly for bclib.
 	unit tests for assignment-as-an-expression type inference.
+	replace GLException with debug callback?
+		which should also be disabled in production.
+	figure out how there are colliding structures at /tp @s 25129.58 52.51 11294.24 1163.70 57.72
+		1.21.11 world, not V6.
+	whitelist which blocks exposed dungeons and spider pits are allowed to spawn on top of.
+	mark bclib as fully incompatible.
+	make slingshots able to throw splash/lingering potions.
 
 V6:
 	add new json classes.
 	LOD renderer improvements:
 		make ingesting work in multiplayer.
-		config option for ingest delay?
+		add visualizer for used geometry buffer?
 	revert old tree density and threshold.
 		maybe figure out how to make acacia trees work differently?
 	islands world type:
-		larger scale?
+		add glaciers.
 	fix Data mutability paradigm in AutoCodec.
 	dynamic block segment types?
 	random.between[low, high).
@@ -77,17 +84,61 @@ V6:
 		this will probably require some hacks for dragon flight logic.
 		also end crystal spike generation.
 	new "rock layers" for nether too?
-	reduce rock layer amplitude offset based on mountainness.
+	alternate rock system that's not layered:
+		stone - constant high bias.
+		deepslate - y level.
+		granite - mountainness.
+		diorite - high foliage.
+		andesite - low temperature.
+		calcite - constant low bias.
+		tuff - low foliage.
+		dripstone - ocean.
 	make nether surface depth a bubble property.
 	structure dispatchers?
 		2D and 3D variants.
 	remove all but one biome?
+		probably need at least 3 for rain vs. snow vs. no weather rendering.
+		structures will need dispatchers.
+		mob spawning will need to become scripted somehow.
 	make nether fortresses spawn exclusively in the upper part of the nether,
-		and bastion remnants exclusively in the lower part.
-			ideally on the lava surface.
-			maybe remove column value overrider for them.
-	clean up dimensional overrides in scripted chunk generator.
+		split up structure sets for them.
+	clean up dimensional overrides in ScriptedChunkGenerator.
+		there's no reason to have it broken up into so many records.
+		also have on record for "game_mechanics" which contains all the others.
 	fix registry namespaces (right now all my custom ones are in the "minecraft" namespace).
+	slopes biome.
+		pine trees?
+			green-ish bark, birch-ish inside. desaturated.
+			spawns on sloped surfaces like mountains.
+				only tree that can spawn on stone.
+			also requires temperate-ish temperatures.
+			shaped like new plans for spruce, but with more sparse branches.
+		goats.
+	half (16-bit float) storage mode in NumberArray.
+	rename scripted structure placements (either of them).
+	prevent mushrooms from spawning inside and on top of obelisks.
+	caves don't seem to be able to carve through sand, for some reason.
+		maybe bug in layered terracotta script.
+	vanilla #dirt tag changed to #substrate_overworld
+	add to guidelines: please don't make data packs designed to remove functionality from big globe.
+	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
+		add setFluidState() to WorldWrapper which modifies waterlogged property.
+		ideally block states and fluid states should be completely separate.
+	test and ensure mangrove trees (and any other trees that can spawn on mud) can't spawn in lakes.
+	snow chance column value which does NOT take rivers into account.
+		use for snow on trees.
+	change syntax of weighted random switches:
+		random.switch (
+			weight(1.0: body)
+			weight(0.5: body)
+			weight(0.25: body)
+			default(body)
+		)
+		leave uniform weights alone.
+	minecraft added #can_spawn_from_bone_meal configured feature tag.
+		this negates the need for my mixin and overrider field on scripted chunk generators.
+	minecraft can now set the rate of the day/night cycle.
+		this negates the need for my gamerule.
 
 LODs:
 	shader support.
@@ -99,8 +150,6 @@ json classes:
 			* classes implementing multiple interfaces.
 		* json-defined enums.
 			* tag controlling the enum values.
-			* "weighted" enum interface, allowing scripts to choose a random element from the enum values.
-				* polymorphic signature for weight methods, so that Y level can be taken into account.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
@@ -108,6 +157,27 @@ json classes:
 		merge stuff.
 
 changelog:
+	# For normal users:
+	* You can now right click a waypoint with a bottle of aura to change the color of the waypoint.
+	* Re-designed the hyperspace background.
+	* Ancient Automata now activates when punched or landed on.
+		* Player-crafted Automata block remains unchanged.
+	* Obelisk interior floor is now made of ancient automata blocks.
+		* The rest of the obelisk is still made of deepslate.
+	* Added advancement for finding an obelisk.
+	* Fixed TagGroupLoader mixin on MC 1.21.1 and earlier.
+	* Miscellaneous tweaks and improvements to LOD renderer.
+	* Tweaked some of the default LOD config values.
+		* This change applies retroactively.
+	* Added new command: `/bigglobe:locate structures <radius> <structures>`. Similar to the vanilla command, but the radius is configurable, and it also locates *every* structure in range, not just the closest one. Only works in Big Globe worlds though.
+	* Added recipes for custom wildflowers -> dye to older MC versions.
+	# For data pack developers:
+	* Added new property on scripted chunk generators to tweak some of the LOD parameters.
+		* Currently used in the nether to reduce the LOD view distance.
+	* Added new `core_chance` property to ores.
+		* Coal and emerald now have a constant core chance of 0.25. Their chance of spawning outside the core has not changed.
+	* Fixed scripted structure placements not being able to query column values properly.
+	* Fixed scripted terrain layers.
 
 alternate world presets:
 	paradise.
@@ -136,9 +206,6 @@ breaking changes I want to make:
 	better error messages for referencing a column value which is enabled by a different voronoi settings,
 		or any voronoi settings in a root column context.
 	remove BoundInfo.
-	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
-		add setFluidState() to WorldWrapper which modifies waterlogged property.
-		ideally block states and fluid states should be completely separate.
 	allow scripts to declare variables with generic types?
 
 AutoCodec:
@@ -247,10 +314,36 @@ features:
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
+		darkslate:
+			darkslate.
+			infested darkslate.
+			cobbled darkslate.
+				slab.
+				stairs.
+				wall.
+			polished darkslate.
+				slab.
+				stairs.
+				wall.
+			darkslate bricks.
+				cracked.
+				slab.
+				stairs.
+				wall.
+			darkslate tiles.
+				cracked.
+				slab.
+				stairs.
+				wall.
+			chiseled darkslate.
+		ores that mimic the textures of surrounding blocks.
 		make overgrown podzol decay to dirt when there's a block on top of it?
 		big canyons?
 		deep ocean hydrothermal vents?
 			new biome for extremely deep oceans: the abyss.
+		large kelp structure/feature.
+			need a solid kelp block for this.
+		large coral feature?
 		overrider to ensure that the deep dark doesn't break the surface in the abyss.
 		desert fossils.
 		fallen logs.

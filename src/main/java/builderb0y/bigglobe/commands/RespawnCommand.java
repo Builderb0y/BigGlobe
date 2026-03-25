@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
@@ -144,7 +143,8 @@ public class RespawnCommand {
 
 		;
 
-		public static final Codec<RespawnMode> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RespawnMode.class);
+		//why is there a class named Codec in StringIdentifiable?
+		public static final com.mojang.serialization.Codec<RespawnMode> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RespawnMode.class);
 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 

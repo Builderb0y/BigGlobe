@@ -87,7 +87,7 @@ public class AutomataBlock extends Block {
 	}
 
 	@Override
-	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, #if MC_VERSION >= MC_1_21_5 double #else float #endif fallDistance) {
 		super.onLandedUpon(world, state, pos, entity, fallDistance);
 		if (this.natural && world instanceof ServerWorld serverWorld && !entity.bypassesLandingEffects()) {
 			this.activate(serverWorld, pos, new BlockPos.Mutable());

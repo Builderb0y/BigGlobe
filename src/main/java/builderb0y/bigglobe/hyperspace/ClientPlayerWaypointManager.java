@@ -3,6 +3,7 @@ package builderb0y.bigglobe.hyperspace;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -35,8 +36,8 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 	@Override
 	public void tick() {
 		super.tick();
-		if (this.collapseProgress == 0 && this.getAllWaypoints().isEmpty() && this.player.getEntityWorld().getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			EntityVersions.getClientWorld(this.clientPlayer()).playSoundClient(SoundEvents.ENTITY_ENDER_DRAGON_DEATH, SoundCategory.AMBIENT, 1.0F, 0.5F);
+		if (this.collapseProgress == 0 && this.getAllWaypoints().isEmpty() && EntityVersions.getWorld(this.player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+			EntityVersions.getClientWorld(this.clientPlayer()).playSoundFromEntity(MinecraftClient.getInstance().player, MinecraftClient.getInstance().player, SoundEvents.ENTITY_ENDER_DRAGON_DEATH, SoundCategory.AMBIENT, 1.0F, 0.5F);
 		}
 	}
 

@@ -47,10 +47,12 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 					this.ejectZ = BigGlobeMath.floorI(Permuter.nextBoundedDouble(this.player.getRandom().nextLong(), -radius, radius));
 					MinecraftServer server = EntityVersions.getServerWorld(this.serverPlayer()).getServer();
 					ServerWorld overworld = server.getOverworld();
+					ChunkPos pos = new ChunkPos(this.ejectX >> 4, this.ejectZ >> 4);
 					overworld.getChunkManager().addTicket(
 						HyperspaceCollapseTicketType.TYPE,
-						new ChunkPos(this.ejectX >> 4, this.ejectZ >> 4),
+						pos,
 						server.getPlayerManager().getViewDistance()
+						#if MC_VERSION < MC_1_21_5 , pos #endif
 					);
 				}
 			}
@@ -73,7 +75,13 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 
 	public void reducePlayerHealthTo(float targetHealth) {
 		if (this.player.getHealth() > targetHealth) {
-			this.player.damage(EntityVersions.getServerWorld(this.serverPlayer()), this.player.getDamageSources().outOfWorld(), this.player.getHealth() - targetHealth);
+			this.player.damage(
+				#if MC_VERSION >= MC_1_21_2
+					EntityVersions.getServerWorld(this.serverPlayer()),
+				#endif
+				this.player.getDamageSources().outOfWorld(),
+				this.player.getHealth() - targetHealth
+			);
 		}
 	}
 

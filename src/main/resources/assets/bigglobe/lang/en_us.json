@@ -397,7 +397,7 @@
 	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[3]": "SIMPLE_SEPARATE: uses one glDrawElements() call for each LOD node.",
 	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[4]": "SIDED_SEPARATE: groups faces by normal vector, and for each LOD node, issues a glMultiDrawElements() call for all faces which are facing towards the player.",
 	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[5]": "SIDED_COMBINED: groups faces by normal vector, and at the end of rendering, issues a single glMultiDrawElements() call for all visible geometry.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[6]": "AUTO: uses SIDED_COMBINED if GL_ARB_shader_draw_parameters is available, and SIDED_SEPARATE otherwise.",
+	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[6]": "AUTO: uses SIDED_SEPARATE, since it seems to be the most stable across different hardware and drivers.",
 
 	"text.autoconfig.bigglobe.option.lodRendering.maxQuads": "Max Quads",
 	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[0]": "The number of quads Big Globe will allow itself to render.",

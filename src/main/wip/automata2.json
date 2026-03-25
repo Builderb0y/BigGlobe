@@ -1,8 +1,35 @@
 {
-	"version": 9,
+	"version": 12,
+	"parameter_sets": {
+		"groups": [
+			{
+				"name": "Global",
+				"selected": "Default",
+				"variations": [
+					"Default"
+				]
+			},
+			{
+				"name": "Convolve Shape",
+				"selected": "Small",
+				"variations": [
+					"Small",
+					"Large"
+				]
+			},
+			{
+				"name": "Color",
+				"selected": "Natural",
+				"variations": [
+					"Natural",
+					"Artificial"
+				]
+			}
+		]
+	},
 	"layer_graph": {
-		"showing_layer": "naturalColor1",
-		"selected_layer": "convolve1",
+		"showing_layer": "colorize",
+		"selected_layer": "colorize",
 		"layers": [
 			{
 				"name": "New image",
@@ -12,239 +39,259 @@
 				"height": 16,
 				"sources": {
 					"type": "derived",
-					"clampRGB": false,
-					"clampA": false,
-					"code": [
-						"float ign = ign(UV);",
-						"float bayer = reverseBits(UV.x) >>> 28 == UV.y ? 2.0 : 0.0625;",
-						"float combined = ign * bayer;",
-						"combined = combined / sqrt(combined ^ 2 + 1.0);",
-						"return float4(...float3(combined * 2.0), 1.0);"
-					],
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"code": {
+						"group": "Global",
+						"variations": {
+							"Default": [
+								"float ign = ign(UV);",
+								"float bayer = reverseBits(UV.x) >>> 28 == UV.y ? 2.0 : 0.0625;",
+								"float combined = ign * bayer;",
+								"combined = combined / sqrt(combined ^ 2 + 1.0);",
+								"return float4(...float3(combined * 2.0), 1.0);"
+							]
+						}
+					},
 					"dependencies": {}
 				},
 				"views": {
 					"type": "flat_tiling",
-					"draw_outline": true,
-					"darken_exterior": true,
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"darken_exterior": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
 					"dependencies": {}
 				}
 			},
 			{
-				"name": "convolve1",
+				"name": "convolve",
 				"gridX": 1,
 				"gridY": 0,
 				"width": 16,
 				"height": 16,
 				"sources": {
 					"type": "convolve",
-					"clampRGB": true,
-					"clampA": true,
-					"linear": false,
-					"shape": "SQUARE",
-					"weight_type": "CUSTOM",
-					"radius": 1,
-					"normalize": true,
-					"dependencies": {
-						"main": {
-							"type": "layer",
-							"layer": "New image"
-						},
-						"mask": {
-							"type": "color",
-							"color": [
-								1.0,
-								1.0,
-								1.0,
-								1.0
-							]
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
 						}
 					},
-					"custom_weights": [
-						1.0,
-						1.0,
-						1.0,
-						1.0,
-						8.0,
-						1.0,
-						1.0,
-						1.0,
-						1.0
-					]
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"linear": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"normalize": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"weights": {
+						"group": "Convolve Shape",
+						"variations": {
+							"Small": {
+								"shape": "SQUARE",
+								"preset": "MANUAL",
+								"radius": 1,
+								"weights": [
+									{ "x": -1, "y": -1, "weight": 1.0 },
+									{ "x": 0, "y": -1, "weight": 1.0 },
+									{ "x": 1, "y": -1, "weight": 1.0 },
+									{ "x": -1, "y": 0, "weight": 1.0 },
+									{ "x": 0, "y": 0, "weight": 8.0 },
+									{ "x": 1, "y": 0, "weight": 1.0 },
+									{ "x": -1, "y": 1, "weight": 1.0 },
+									{ "x": 0, "y": 1, "weight": 1.0 },
+									{ "x": 1, "y": 1, "weight": 1.0 }
+								]
+							},
+							"Large": {
+								"shape": "SQUARE",
+								"preset": "MANUAL",
+								"radius": 2,
+								"weights": [
+									{ "x": -2, "y": -2, "weight": 1.0 },
+									{ "x": -1, "y": -2, "weight": 1.0 },
+									{ "x": 0, "y": -2, "weight": 1.0 },
+									{ "x": 1, "y": -2, "weight": 1.0 },
+									{ "x": 2, "y": -2, "weight": 1.0 },
+									{ "x": -2, "y": -1, "weight": 1.0 },
+									{ "x": 2, "y": -1, "weight": 1.0 },
+									{ "x": -2, "y": 0, "weight": 1.0 },
+									{ "x": 0, "y": 0, "weight": 4.0 },
+									{ "x": 2, "y": 0, "weight": 1.0 },
+									{ "x": -2, "y": 1, "weight": 1.0 },
+									{ "x": 2, "y": 1, "weight": 1.0 },
+									{ "x": -2, "y": 2, "weight": 1.0 },
+									{ "x": -1, "y": 2, "weight": 1.0 },
+									{ "x": 0, "y": 2, "weight": 1.0 },
+									{ "x": 1, "y": 2, "weight": 1.0 },
+									{ "x": 2, "y": 2, "weight": 1.0 }
+								]
+							}
+						}
+					},
+					"dependencies": {
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "New image"
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
 				},
 				"views": {
 					"type": "flat_tiling",
-					"draw_outline": false,
-					"darken_exterior": false,
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"darken_exterior": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
 					"dependencies": {}
 				}
 			},
 			{
-				"name": "convolve2",
-				"gridX": 1,
-				"gridY": 1,
-				"width": 16,
-				"height": 16,
-				"sources": {
-					"type": "convolve",
-					"clampRGB": true,
-					"clampA": true,
-					"linear": false,
-					"shape": "SQUARE",
-					"weight_type": "CUSTOM",
-					"radius": 2,
-					"normalize": true,
-					"dependencies": {
-						"main": {
-							"type": "layer",
-							"layer": "New image"
-						},
-						"mask": {
-							"type": "color",
-							"color": [
-								1.0,
-								1.0,
-								1.0,
-								1.0
-							]
-						}
-					},
-					"custom_weights": [
-						1.0,
-						1.0,
-						1.0,
-						1.0,
-						1.0,
-						1.0,
-						0.0,
-						0.0,
-						0.0,
-						1.0,
-						1.0,
-						0.0,
-						4.0,
-						0.0,
-						1.0,
-						1.0,
-						0.0,
-						0.0,
-						0.0,
-						1.0,
-						1.0,
-						1.0,
-						1.0,
-						1.0,
-						1.0
-					]
-				},
-				"views": {
-					"type": "flat_tiling",
-					"draw_outline": false,
-					"darken_exterior": false,
-					"dependencies": {}
-				}
-			},
-			{
-				"name": "naturalColor1",
+				"name": "colorize",
 				"gridX": 2,
 				"gridY": 0,
 				"width": 16,
 				"height": 16,
 				"sources": {
 					"type": "cliff",
-					"clampRGB": true,
-					"clampA": true,
-					"dual": false,
-					"linear": true,
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dual": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"linear": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
 					"dependencies": {
 						"strength": {
-							"type": "color",
-							"color": [
-								0.25,
-								0.5,
-								0.75,
-								0.5
-							]
+							"input": {
+								"group": "Color",
+								"variations": {
+									"Artificial": {
+										"type": "color",
+										"color": [ 0.625, 0.25, 0.125, 0.5 ]
+									},
+									"Natural": {
+										"type": "color",
+										"color": [ 0.25, 0.5, 0.75, 0.5 ]
+									}
+								}
+							}
 						},
 						"midpoint": {
-							"type": "color",
-							"color": [
-								0.5,
-								0.5,
-								0.5,
-								0.5
-							]
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.5, 0.5, 0.5, 0.5 ]
+									}
+								}
+							}
 						},
 						"main": {
-							"type": "layer",
-							"layer": "convolve1"
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "convolve"
+									}
+								}
+							}
 						},
 						"mask": {
-							"type": "color",
-							"color": [
-								1.0,
-								1.0,
-								1.0,
-								1.0
-							]
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
 						}
 					}
 				},
 				"views": {
 					"type": "flat_clamped",
-					"draw_outline": true,
-					"dependencies": {}
-				}
-			},
-			{
-				"name": "artificialColor1",
-				"gridX": 2,
-				"gridY": 1,
-				"width": 16,
-				"height": 16,
-				"sources": {
-					"type": "cliff",
-					"clampRGB": true,
-					"clampA": true,
-					"dual": false,
-					"linear": true,
-					"dependencies": {
-						"strength": {
-							"type": "color",
-							"color": [
-								0.625,
-								0.375,
-								0.125,
-								0.5
-							]
-						},
-						"midpoint": {
-							"type": "color",
-							"color": [
-								0.5,
-								0.5,
-								0.5,
-								0.5
-							]
-						},
-						"main": {
-							"type": "layer",
-							"layer": "convolve1"
-						},
-						"mask": {
-							"type": "color",
-							"color": [
-								1.0,
-								1.0,
-								1.0,
-								1.0
-							]
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
 						}
-					}
-				},
-				"views": {
-					"type": "flat_clamped",
-					"draw_outline": true,
+					},
 					"dependencies": {}
 				}
 			}

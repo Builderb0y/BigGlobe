@@ -77,7 +77,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 	}
 
 	public HyperspaceRenderer() {
-		String message = GLException.checkMessage();
+		String message = GLException.forceCheckMessage();
 		if (message != null) BigGlobeMod.LOGGER.warn("A GLException occurred just before setting up the hyperspace renderer: " + message);
 		try {
 			this.noiseShader = new HyperspaceVolumetricNoiseShader();
@@ -88,6 +88,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 			this.vertices = new EmptyVertexArray();
 			this.matrices = new MatrixStorageWorkaround();
 			this.glState = new HyperspaceGlState();
+			GLException.forceCheck();
 		}
 		catch (Throwable throwable) {
 			this.close();

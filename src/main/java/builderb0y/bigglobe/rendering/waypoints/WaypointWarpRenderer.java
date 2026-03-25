@@ -96,7 +96,7 @@ public class WaypointWarpRenderer implements SafeCloseable {
 	}
 
 	public WaypointWarpRenderer() {
-		String message = GLException.checkMessage();
+		String message = GLException.forceCheckMessage();
 		if (message != null) BigGlobeMod.LOGGER.warn("A GLException occurred just before setting up the waypoint warp renderer: " + message);
 		try {
 			this.framebuffer = new ScratchColorBuffer();
@@ -106,6 +106,7 @@ public class WaypointWarpRenderer implements SafeCloseable {
 			this.waypointData = new NativeMemory(16 * 4 * Float.BYTES);
 			this.glState = new WaypointWarpGlState();
 			this.visibleWaypoints = new TreeSet<>();
+			GLException.forceCheck();
 		}
 		catch (Throwable throwable) {
 			this.close();

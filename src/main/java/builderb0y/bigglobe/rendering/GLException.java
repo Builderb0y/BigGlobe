@@ -30,7 +30,10 @@ public class GLException extends RuntimeException {
 	}
 
 	public static @Nullable String checkMessage() {
-		if (!ENABLED) return null;
+		return ENABLED ? forceCheckMessage() : null;
+	}
+
+	public static @Nullable String forceCheckMessage() {
 		int error = glGetError();
 		return error != GL_NO_ERROR ? message(error) : null;
 	}

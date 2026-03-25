@@ -30,6 +30,7 @@ import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.structures.ActiveStructureManager;
 import builderb0y.bigglobe.versions.CommandVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.SourceScriptUsage;
 
@@ -142,7 +143,7 @@ public class BigGlobeLocateCommand {
 								}
 								int range = context.getArgument("range", Integer.class);
 								RegistryPredicate<Structure> predicate = RegistryPredicateArgumentType.getPredicate(context, "structure", RegistryKeys.STRUCTURE, LocateCommand.STRUCTURE_INVALID_EXCEPTION);
-								Registry<Structure> registry = context.getSource().getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
+								Registry<Structure> registry = RegistryVersions.getRegistry(context.getSource().getRegistryManager(), RegistryKeys.STRUCTURE);
 								RegistryEntryList<Structure> tag = LocateCommand.getStructureListForPredicate(predicate, registry).orElse(null);
 								StructurePlacementCalculator calculator = context.getSource().getWorld().getChunkManager().getStructurePlacementCalculator();
 								Vec3d position = context.getSource().getPosition();
