@@ -53,6 +53,7 @@ public abstract class BasePropertySpec extends MemberSpec implements SetBasedMut
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
 		super.verify(hierarchy, owner);
+		owner.checkProperty(hierarchy, this);
 		if (asType(this.getPropertyType()).getTypeInfo().isVoid()) {
 			throw new CustomClassFormatException("Void-typed property: " + this);
 		}

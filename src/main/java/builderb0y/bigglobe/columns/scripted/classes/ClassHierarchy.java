@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.classes.TypeSpec.CompileStep;
@@ -75,5 +76,9 @@ public class ClassHierarchy {
 
 	public RegistryEntry<ElementSpec> entryOf(ElementSpec spec) {
 		return this.elements.get(spec);
+	}
+
+	public Identifier idOf(ElementSpec spec) {
+		return UnregisteredObjectException.getID(this.entryOf(spec));
 	}
 }

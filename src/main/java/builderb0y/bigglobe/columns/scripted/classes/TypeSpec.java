@@ -43,13 +43,11 @@ public abstract class TypeSpec extends ElementSpec {
 		}
 	}
 
-	public abstract InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn);
+	public abstract InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) throws ConstantFormatException;
 
 	public abstract TypeInfo getTypeInfo();
 
 	public abstract boolean isFinal();
-
-	public abstract boolean isAbstract();
 
 	public abstract @Nullable OverrideTracker getOverrideTracker();
 

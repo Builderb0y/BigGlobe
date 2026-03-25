@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.data.Data;
+import builderb0y.bigglobe.columns.scripted.classes.ConstantFormatException;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
@@ -47,7 +48,12 @@ public class ConstantColumnEntry extends ColumnEntry {
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ColumnValueException, ScriptParsingException {
 		ColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
-		ElementSpec.asType(this.params.type()).parseConstant(registry.classHierarchy, this.value, load("this", registry.columnCompileContext.columnTypeInfo())).emitBytecode(context.mainGetter);
+		try {
+			ElementSpec.asType(this.params.type()).parseConstant(registry.classHierarchy, this.value, load("this", registry.columnCompileContext.columnTypeInfo())).emitBytecode(context.mainGetter);
+		}
+		catch (ConstantFormatException exception) {
+			throw new ColumnValueException(exception);
+		}
 		context.mainGetter.endCode();
 	}
 

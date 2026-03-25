@@ -12,6 +12,7 @@ import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -36,8 +37,7 @@ public class ClassSpec extends BaseClassSpec {
 		this.primaryConstructor = this.classCompileContext.newMethod(
 			ACC_PUBLIC,
 			"<init>",
-			TypeInfos.VOID,
-			ObjectBase.CONSTRUCTOR_INFO.parameterVarInfos
+			TypeInfos.VOID
 		);
 		invokeInstance(
 			load("this", this.getTypeInfo()),
@@ -45,26 +45,24 @@ public class ClassSpec extends BaseClassSpec {
 				ACC_PUBLIC,
 				this.parent != null
 				? asType(this.parent).getTypeInfo()
-				: ObjectBase.INFO.type,
+				: this.defaultSuperClass(),
 				"<init>",
-				TypeInfos.VOID,
-				ObjectBase.CONSTRUCTOR_INFO.parameterTypeInfos
-			),
-			ObjectBase.CONSTRUCTOR_INFO.loaders
+				TypeInfos.VOID
+			)
 		)
 		.emitBytecode(this.primaryConstructor);
 	}
 
 	@Override
 	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {
-		this.applyDefaultFields(hierarchy, load("this", this.getTypeInfo()), load("column", ScriptedColumn.INFO.type));
+		this.applyDefaultFields(hierarchy, load("this", this.getTypeInfo()));
 		this.primaryConstructor.node.visitInsn(RETURN);
 		this.primaryConstructor.endCode();
 		super.compileMembers(hierarchy);
 	}
 
 	@Override
-	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) {
+	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) throws ConstantFormatException {
 		if (this.isAbstract) {
 			throw new IllegalArgumentException("Can't create constant for abstract class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)));
 		}
@@ -78,8 +76,8 @@ public class ClassSpec extends BaseClassSpec {
 	}
 
 	@Override
-	public FieldInfo baseColumnField() {
-		return ObjectBase.INFO.column;
+	public TypeInfo defaultSuperClass() {
+		return ScriptObject.TYPE;
 	}
 
 	@Override

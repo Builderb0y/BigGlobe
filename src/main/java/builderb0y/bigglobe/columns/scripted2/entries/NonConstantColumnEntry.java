@@ -10,10 +10,12 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.data.EmptyData;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
+import builderb0y.bigglobe.columns.scripted.classes.ConstantFormatException;
 import builderb0y.bigglobe.columns.scripted.classes.MemberSpec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
@@ -73,6 +75,11 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 		LazyVarInfo[] maybeY = this.params.is_3d() ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty();
 		TypeInfo valueType = ElementSpec.asType(this.params.type()).getTypeInfo();
 		context.mainGetter = clazz.newMethod(ACC_PUBLIC, "get_" + context.internalName, valueType, maybeY);
+		this.populateContextFieldAndSetter(context, clazz, valueType, maybeY);
+		registry.columnCompileContext.setCompileContext(this, context);
+	}
+
+	public void populateContextFieldAndSetter(NonConstantColumnEntryContext context, ClassCompileContext clazz, TypeInfo valueType, LazyVarInfo[] maybeY) {
 		if (this.hasFieldSetterAndFlag()) {
 			context.valueField = clazz.newField(
 				this.params.is_3d() ? ACC_PUBLIC | ACC_FINAL : ACC_PUBLIC,
@@ -92,7 +99,6 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 				ObjectArrays.concat(maybeY, new LazyVarInfo("value", valueType))
 			);
 		}
-		registry.columnCompileContext.setCompileContext(this, context);
 	}
 
 	@Override
@@ -109,7 +115,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 		}
 	}
 
-	public void compile2D(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
+	public void compile2D(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
 		TypeSpec valueType = ElementSpec.asType(this.params.type());
 		TypeInfo valueTypeInfo = valueType.getTypeInfo();
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
@@ -119,12 +125,19 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 			/**
 			validWhere() ? <computer> : fallback
 			*/
+			InsnTree fallback;
+			try {
+				fallback = valueType.parseConstant(registry.classHierarchy, this.valid.fallback(), loadColumn);
+			}
+			catch (ConstantFormatException exception) {
+				throw new ColumnValueException(exception);
+			}
 			computer = new IfElseInsnTree(
 				new BooleanToConditionTree(
 					this.makeCaller(registry, "validWhere", this.valid.where(), TypeInfos.BOOLEAN)
 				),
 				computer,
-				valueType.parseConstant(registry.classHierarchy, this.valid.fallback(), loadColumn),
+				fallback,
 				valueTypeInfo
 			);
 		}
@@ -335,6 +348,13 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 		)
 		return(fallback)
 		*/
+		InsnTree fallback;
+		try {
+			fallback = valueType.parseConstant(registry.classHierarchy, this.valid != null ? this.valid.fallback() : EmptyData.INSTANCE, loadColumn);
+		}
+		catch (ConstantFormatException exception) {
+			throw new ColumnValueException(exception);
+		}
 		seq(
 			computer,
 			new IfInsnTree(
@@ -371,13 +391,13 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 					)
 				)
 			),
-			return_(valueType.parseConstant(registry.classHierarchy, this.valid.fallback(), loadColumn))
+			return_(fallback)
 		)
 		.emitBytecode(context.mainGetter);
 		context.mainGetter.endCode();
 	}
 
-	public void compile3DUncached(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
+	public void compile3DUncached(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
 		LazyVarInfo y = new LazyVarInfo("y", TypeInfos.INT);
 		TypeSpec valueType = ElementSpec.asType(this.params.type());
 		TypeInfo valueTypeInfo = valueType.getTypeInfo();
@@ -411,16 +431,21 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 			/**
 			validWhere() && y >= validMinY() && y < validMaxY() ? <computer> : fallback
 			*/
-			computer = new IfElseInsnTree(
-				condition,
-				computer,
-				valueType.parseConstant(
-					registry.classHierarchy,
-					this.valid.fallback(),
-					loadColumn
-				),
-				valueTypeInfo
-			);
+			try {
+				computer = new IfElseInsnTree(
+					condition,
+					computer,
+					valueType.parseConstant(
+						registry.classHierarchy,
+						this.valid.fallback(),
+						loadColumn
+					),
+					valueTypeInfo
+				);
+			}
+			catch (ConstantFormatException exception) {
+				throw new ColumnValueException(exception);
+			}
 		}
 		return_(computer).emitBytecode(context.mainGetter);
 		context.mainGetter.endCode();

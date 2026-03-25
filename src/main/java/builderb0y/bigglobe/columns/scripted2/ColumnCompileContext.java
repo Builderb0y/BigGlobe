@@ -31,7 +31,7 @@ public class ColumnCompileContext {
 		this.registry = registry;
 		this.memberContexts = new Reference2ReferenceOpenHashMap<>();
 		this.clazz = new ClassCompileContext(
-			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC,
+			ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 			ClassType.CLASS,
 			Type.getInternalName(ScriptedColumn.class) + "$Generated_" + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(ScriptedColumn.class),

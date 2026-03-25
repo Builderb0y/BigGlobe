@@ -5,6 +5,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.classes.ClassHierarchy;
+import builderb0y.bigglobe.columns.scripted.classes.ConstantFormatException;
 import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
 import builderb0y.bigglobe.columns.scripted.classes.TypeSpec;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -26,7 +27,12 @@ public record Valid(
 	}
 
 	public InsnTree getFallback(ClassHierarchy hierarchy, TypeSpec type, InsnTree loadColumn) {
-		return type.parseConstant(hierarchy, this.fallback, loadColumn);
+		try {
+			return type.parseConstant(hierarchy, this.fallback, loadColumn);
+		}
+		catch (ConstantFormatException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public InsnTree getFallback(ClassHierarchy hierarchy, RegistryEntry<ElementSpec> type, InsnTree loadColumn) {

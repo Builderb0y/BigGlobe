@@ -9,14 +9,13 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.state.property.Property;
 import net.minecraft.util.StringIdentifiable;
 
 import builderb0y.autocodec.data.*;
-import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
-import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -27,7 +26,6 @@ import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.bigglobe.scripting.wrappers.tags.*;
 import builderb0y.bigglobe.util.DelayedEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -39,24 +37,34 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class BuiltinTypeSpec extends TypeSpec {
 
 	public final BuiltinJavaType java_type;
+	public TypeInfo columnType;
 
 	public BuiltinTypeSpec(BuiltinJavaType java_type) {
 		this.java_type = java_type;
 	}
 
 	@Override
+	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<RegistryEntry<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
+		super.createTypeInfo(hierarchy, cyclicDetector);
+		this.columnType = hierarchy.registry.columnCompileContext.columnTypeInfo();
+	}
+
+	@Override
 	public TypeInfo getTypeInfo() {
+		if (this.columnType == null) {
+			throw new IllegalStateException("Haven't created scripted column type info yet!");
+		}
+		if (this.java_type == BuiltinJavaType.COLUMN) {
+			return this.columnType;
+		}
 		return this.java_type.typeInfo;
 	}
 
 	@Override
 	public boolean isFinal() {
+		//prevent custom classes extending builtin classes,
+		//even if that class isn't actually final.
 		return true;
-	}
-
-	@Override
-	public boolean isAbstract() {
-		return false;
 	}
 
 	@Override
@@ -75,7 +83,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 	}
 
 	@Override
-	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) {
+	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) throws ConstantFormatException {
 		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
 		return switch (this.java_type) {
 			case BYTE -> ldc(asNumber(data).byteValue());
@@ -96,33 +104,33 @@ public class BuiltinTypeSpec extends TypeSpec {
 			case WOOD_PALETTE -> ldc(new WoodPaletteEntry(registry(hierarchy, data, BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)), WoodPaletteEntry.INFO.type);
 			case WOOD_PALETTE_TAG -> ldc(new WoodPaletteTag(tag(hierarchy, data, BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)), WoodPaletteTag.TYPE);
 
-			default -> throw new IllegalArgumentException("Can't create a constant of type " + this.java_type.lowerCaseName);
+			default -> throw new ConstantFormatException("Can't create a constant of type " + this.java_type.lowerCaseName);
 		};
 	}
 
-	public static AbstractNumberData asNumber(Data data) {
+	public static AbstractNumberData asNumber(Data data) throws ConstantFormatException {
 		AbstractNumberData number = data.tryAsNumber();
 		if (number != null) return number;
-		else throw new ClassCastException("Not a number: " + data);
+		else throw new ConstantFormatException("Not a number: " + data);
 	}
 
-	public static BooleanData asBoolean(Data data) {
+	public static BooleanData asBoolean(Data data) throws ConstantFormatException {
 		BooleanData result = data.tryAsBoolean();
 		if (result != null) return result;
-		else throw new ClassCastException("Not a boolean: " + data);
+		else throw new ConstantFormatException("Not a boolean: " + data);
 	}
 
-	public static StringData asString(Data data) {
+	public static StringData asString(Data data) throws ConstantFormatException {
 		StringData result = data.tryAsString();
 		if (result != null) return result;
-		else throw new ClassCastException("Not a string: " + data);
+		else throw new ConstantFormatException("Not a string: " + data);
 	}
 
-	public static <T> RegistryEntry<T> registry(ClassHierarchy hierarchy, Data data, RegistryKey<Registry<T>> registryKey) {
+	public static <T> RegistryEntry<T> registry(ClassHierarchy hierarchy, Data data, RegistryKey<Registry<T>> registryKey) throws ConstantFormatException {
 		return hierarchy.registry.registries.getRegistry(registryKey).getEntry(RegistryKey.of(registryKey, IdentifierVersions.create(asString(data).value)));
 	}
 
-	public static <T> DelayedEntryList<T> tag(ClassHierarchy hierarchy, Data data, RegistryKey<Registry<T>> registryKey) {
+	public static <T> DelayedEntryList<T> tag(ClassHierarchy hierarchy, Data data, RegistryKey<Registry<T>> registryKey) throws ConstantFormatException {
 		ListData list = data.tryAsList();
 		DelayedEntryList<T> result;
 		if (list != null) {
@@ -131,7 +139,14 @@ public class BuiltinTypeSpec extends TypeSpec {
 				list
 				.value
 				.stream()
-				.map(BuiltinTypeSpec::asString)
+				.map((Data data_) -> {
+					try {
+						return asString(data_);
+					}
+					catch (ConstantFormatException exception) {
+						throw AutoCodecUtil.rethrow(exception);
+					}
+				})
 				.map((StringData string) -> string.value)
 				.map(DelayedEntry::new)
 				.toList()
@@ -147,7 +162,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 		return result;
 	}
 
-	public static BlockState blockState(ClassHierarchy hierarchy, Data data) {
+	public static BlockState blockState(ClassHierarchy hierarchy, Data data) throws ConstantFormatException {
 		return (
 			BlockStateCoder.decodeStateWithMissingErrors(hierarchy.registry.registries.getRegistry(RegistryKeys.BLOCK), asString(data).value)
 			.unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new)
@@ -209,6 +224,10 @@ public class BuiltinTypeSpec extends TypeSpec {
 		WOOD_PALETTE(WoodPaletteEntry.INFO.type),
 		WOOD_PALETTE_TAG(WoodPaletteTag.TYPE),
 		TAG(TagWrapper.TYPE),
+
+		//columns
+		COLUMN(ScriptedColumn.INFO.type),
+		VORONOI(VoronoiSampler.INFO.type),
 		;
 
 		public static final BuiltinJavaType[] VALUES = values();

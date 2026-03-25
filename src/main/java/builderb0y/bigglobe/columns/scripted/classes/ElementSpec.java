@@ -12,12 +12,13 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 @UseCoder(name = "REGISTRY", in = ElementSpec.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class ElementSpec implements Named, CoderRegistryTyped<ElementSpec> {
 
-	public static final CoderRegistry<ElementSpec> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("custom_classes"));
+	public static final CoderRegistry<ElementSpec> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("custom_classes"), "element_type");
 	static {
 		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_BUILTIN     ),      BuiltinTypeSpec.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_NORMAL      ),            ClassSpec.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_VORONOI     ),     VoronoiClassSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CLASS_ENUM        ),        EnumClassSpec.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.FIELD_NORMAL      ),            FieldSpec.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.FIELD_ENUM        ),        EnumValueSpec.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.CONSTRUCTOR_NORMAL),      ConstructorSpec.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_NORMAL     ),     NormalMethodSpec.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID(ElementSpecTypes.METHOD_OVERRIDE   ),   OverrideMethodSpec.class);

@@ -10,9 +10,13 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -40,6 +44,8 @@ public class FieldSpec extends MemberSpec {
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
+		super.verify(hierarchy, owner);
+		owner.checkField(hierarchy, this);
 		if (asType(this.field_type).getTypeInfo().isVoid()) {
 			throw new CustomClassFormatException("Void-typed field: " + this);
 		}
@@ -51,9 +57,11 @@ public class FieldSpec extends MemberSpec {
 		owner.setCompileContext(
 			this,
 			owner.classCompileContext.newField(
-				ACC_PUBLIC,
+				owner instanceof EnumClassSpec
+				? ACC_PUBLIC | ACC_FINAL
+				: ACC_PUBLIC,
 				this.name,
-				((TypeSpec)(this.field_type.value())).getTypeInfo()
+				asType(this.field_type).getTypeInfo()
 			)
 		);
 	}
@@ -71,8 +79,6 @@ public class FieldSpec extends MemberSpec {
 	public String name() {
 		return this.name;
 	}
-
-	public void compile(ClassHierarchy hierarchy) {}
 
 	@Override
 	public String toString() {

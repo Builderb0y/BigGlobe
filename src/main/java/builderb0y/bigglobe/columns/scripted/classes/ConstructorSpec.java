@@ -51,12 +51,8 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
-		if (owner.isAbstract) {
-			throw new CustomClassFormatException("Can't add constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " to abstract class " + UnregisteredObjectException.getID(hierarchy.entryOf(owner)));
-		}
-		if (owner instanceof VoronoiClassSpec) {
-			throw new CustomClassFormatException("Can't add constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " to voronoi class " + UnregisteredObjectException.getID(hierarchy.entryOf(owner)));
-		}
+		super.verify(hierarchy, owner);
+		owner.checkConstructor(hierarchy, this);
 		ConstructorContext context = new ConstructorContext();
 		context.resolvedParameters = this.values.stream().map((String name) -> {
 			TrackedField field = owner.overrideTracker.fields.get(name);

@@ -7,13 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
-import static builderb0y.scripting.bytecode.InsnTrees.load;
 
 public abstract class MemberSpec extends ElementSpec {
 
@@ -40,6 +38,8 @@ public abstract class MemberSpec extends ElementSpec {
 		hierarchy.registry.setMethodCode(
 			methodContext,
 			code,
+			null,
+			/*
 			new DirectCastInsnTree(
 				getField(
 					load("this", owner.getTypeInfo()),
@@ -48,6 +48,7 @@ public abstract class MemberSpec extends ElementSpec {
 				hierarchy.registry.columnCompileContext.columnTypeInfo(),
 				false
 			),
+			*/
 			loadY,
 			load("this", owner.getTypeInfo()),
 			dependencies,

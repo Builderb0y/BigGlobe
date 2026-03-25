@@ -21,6 +21,7 @@ public class OverrideTracker {
 	public final Object2ObjectOpenHashMap<String, TrackedField> fields = new Object2ObjectOpenHashMap<>();
 	public final Object2ObjectOpenHashMap<MethodSpecDesc, TrackedMethod> methods = new Object2ObjectOpenHashMap<>();
 	public final Object2ObjectOpenHashMap<String, TrackedProperty> properties = new Object2ObjectOpenHashMap<>();
+	public final Object2ObjectOpenHashMap<String, TrackedEnumValue> enumValues = new Object2ObjectOpenHashMap<>();
 
 	public OverrideTracker(ClassHierarchy hierarchy, RegistryEntry<ElementSpec> owner) {
 		this.hierarchy = hierarchy;
@@ -78,11 +79,30 @@ public class OverrideTracker {
 				throw new CustomClassFormatException("Multiple fields named " + field.name + " in class " + getID(this.owner));
 			}
 			else {
-				throw new CustomClassFormatException("Field " + field.name + " in class " + getID(this.owner) + " shadows another field with the same name in a class being extended.");
+				throw new CustomClassFormatException("Field " + field.name + " in class " + getID(this.owner) + " shadows another field with the same name in class " + getID(existing.owner));
 			}
 		}
 
 		this.fields.put(field.name, new TrackedField(this.owner, entry, TrackedField.Type.NORMAL));
+	}
+
+	public void addEnumField(EnumValueSpec value) throws CustomClassFormatException {
+		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(value);
+		TrackedField existingField = this.fields.get(value.name);
+		if (existingField != null) {
+			throw new CustomClassFormatException("Enum field " + getID(entry) + " in class " + getID(this.owner) + " conflicts with field " + getID(existingField.declaration) + " in class " + getID(existingField.owner));
+		}
+		TrackedEnumValue existingValue = this.enumValues.get(value.name);
+		if (existingValue != null) {
+			if (existingValue.owner == this.owner) {
+				throw new CustomClassFormatException("Multiple enum values named " + value.name + " in class " + getID(this.owner));
+			}
+			else {
+				throw new CustomClassFormatException("Enum value " + value.name + " in class " + getID(this.owner) + " shadows another field with the same name in class " + existingValue.owner);
+			}
+		}
+
+		this.enumValues.put(value.name, new TrackedEnumValue(this.owner, entry));
 	}
 
 	public void checkPropertyConflicts(BasePropertySpec property) throws CustomClassFormatException {
@@ -301,4 +321,9 @@ public class OverrideTracker {
 			//reservation is handled by the backing getter and setter methods, along with the field name.
 		}
 	}
+
+	public static record TrackedEnumValue(
+		RegistryEntry<ElementSpec> owner,
+		RegistryEntry<ElementSpec> declaration
+	) {}
 }

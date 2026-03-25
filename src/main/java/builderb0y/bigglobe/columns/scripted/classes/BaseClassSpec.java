@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
@@ -71,6 +72,22 @@ public abstract class BaseClassSpec extends TypeSpec {
 		this.primaryConstructorDependencies = (SetBasedMutableDependencyView)(() -> primaryConstructorDependencies);
 	}
 
+	public void checkField(ClassHierarchy hierarchy, FieldSpec spec) throws CustomClassFormatException {}
+
+	public void checkProperty(ClassHierarchy hierarchy, BasePropertySpec spec) throws CustomClassFormatException {}
+
+	public void checkMethod(ClassHierarchy hierarchy, BaseMethodSpec spec) throws CustomClassFormatException {}
+
+	public void checkConstructor(ClassHierarchy hierarchy, ConstructorSpec spec) throws CustomClassFormatException {
+		if (this.isAbstract) {
+			throw new CustomClassFormatException("Can't add constructor " + hierarchy.idOf(spec) + " to abstract class " + hierarchy.idOf(this));
+		}
+	}
+
+	public void checkEnumField(ClassHierarchy hierarchy, EnumValueSpec spec) throws CustomClassFormatException {
+		throw new CustomClassFormatException("Can't add enum field " + hierarchy.idOf(spec) + " to class " + hierarchy.idOf(this));
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> T getCompileContext(MemberSpec spec) {
 		return (T)(this.memberCompileContexts.get(spec));
@@ -80,7 +97,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 		this.memberCompileContexts.put(spec, value);
 	}
 
-	public void applyDefaultFields(ClassHierarchy hierarchy, LoadInsnTree loadSelf, LoadInsnTree loadColumn) throws ScriptParsingException {
+	public void applyDefaultFields(ClassHierarchy hierarchy, LoadInsnTree loadSelf) throws ScriptParsingException {
 		for (TrackedField trackedField : this.overrideTracker.fields.values()) {
 			FieldSpec fieldSpec = (FieldSpec)(trackedField.declaration().value());
 			if (fieldSpec.defaultValue != null) {
@@ -91,7 +108,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 						hierarchy.registry.parseCode(
 							this.primaryConstructor,
 							fieldSpec.defaultValue,
-							loadColumn,
+							null,
 							null,
 							loadSelf,
 							this.primaryConstructorDependencies,
@@ -104,7 +121,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 		}
 	}
 
-	public InsnTree applyFields(ClassHierarchy hierarchy, InsnTree loadColumn, MapData map, InsnTree result) {
+	public InsnTree applyFields(ClassHierarchy hierarchy, InsnTree loadColumn, MapData map, InsnTree result) throws ConstantFormatException {
 		for (Map.Entry<Data, Data> entry : map.value.entrySet()) {
 			StringData name = entry.getKey().tryAsString();
 			if (name == null) throw new IllegalArgumentException("Field or property name is non-string: " + entry.getKey());
@@ -127,7 +144,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 			if (property != null) {
 				BasePropertySpec propertySpec = (BasePropertySpec)(property.declaration().value());
 				if (!propertySpec.isSettable()) {
-					throw new IllegalArgumentException("Property " + name.value + " is non-settable");
+					throw new IllegalArgumentException("Property " + name.value + " is not settable");
 				}
 				PropertyCompileContext context = this.getCompileContext(propertySpec);
 				InsnTree propertyConstant = asType(propertySpec.getPropertyType()).parseConstant(hierarchy, entry.getValue(), loadColumn);
@@ -142,7 +159,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 				);
 				continue;
 			}
-			throw new IllegalArgumentException("Can't find field named " + name.value + " in class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)));
+			throw new IllegalArgumentException("Can't find field or property named " + name.value + " in class " + hierarchy.idOf(this));
 		}
 		return result;
 	}
@@ -156,7 +173,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 	}
 
 	@Override
-	public @Nullable OverrideTracker getOverrideTracker() {
+	public @NotNull OverrideTracker getOverrideTracker() {
 		if (this.overrideTracker == null) {
 			throw new IllegalStateException("Must progress to CREATE_TYPE_INFO before override tracker can be queried!");
 		}
@@ -169,20 +186,11 @@ public abstract class BaseClassSpec extends TypeSpec {
 	}
 
 	@Override
-	public boolean isAbstract() {
-		return this.isAbstract;
-	}
-
-	@Override
 	public String name() {
 		return this.name;
 	}
 
-	public abstract FieldInfo baseColumnField();
-
-	public TypeInfo defaultSuperClass() {
-		return this.baseColumnField().owner;
-	}
+	public abstract TypeInfo defaultSuperClass();
 
 	@MustBeInvokedByOverriders
 	public void addReservedMembers() {
@@ -215,7 +223,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 				this.addReservedMembers();
 			}
 			this.typeInfo = TypeInfo.makeClass(
-				Type.getObjectType(ObjectBase.INFO.type.getInternalName() + '$' + this.name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement()),
+				Type.getObjectType(ScriptObject.TYPE.getInternalName() + '$' + this.name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement()),
 				superClass,
 				TypeInfo.ARRAY_FACTORY.empty(),
 				false
@@ -232,7 +240,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 	@Override
 	public void verify(ClassHierarchy hierarchy) throws CustomClassFormatException {
 		if (this.parent != null && asType(this.parent).isFinal()) {
-			throw new CustomClassFormatException("Class " + UnregisteredObjectException.getID(this.parent) + " cannot be extended.");
+			throw new CustomClassFormatException("Class " + hierarchy.idOf(this) + " cannot extend " + UnregisteredObjectException.getID(this.parent));
 		}
 		for (RegistryEntry<ElementSpec> element : this.members.entryList()) {
 			MemberSpec member = asMember(element);
@@ -241,17 +249,17 @@ public abstract class BaseClassSpec extends TypeSpec {
 		}
 		boolean isAbstract = this.overrideTracker.hasAnyAbstractMethods();
 		if (this.isAbstract && !isAbstract) {
-			BigGlobeMod.LOGGER.warn("Custom class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " is marked as abstract, but has no abstract methods. This may be a mistake.");
+			BigGlobeMod.LOGGER.warn("Custom class " + hierarchy.idOf(this) + " is marked as abstract, but has no abstract methods. This may be a mistake.");
 		}
 		else if (!this.isAbstract && isAbstract) {
-			throw new CustomClassFormatException("Custom class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " is not marked as abstract, but contains or inherits abstract members: " + this.overrideTracker.getAbstractMembers().map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(", ", "[", "]")));
+			throw new CustomClassFormatException("Custom class " + hierarchy.idOf(this) + " is not marked as abstract, but contains or inherits abstract members: " + this.overrideTracker.getAbstractMembers().map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(", ", "[", "]")));
 		}
 	}
 
 	@Override
 	public void createClass(ClassHierarchy hierarchy) {
 		this.classCompileContext = new ClassCompileContext(
-			this.isAbstract ? ACC_PUBLIC | ACC_ABSTRACT : ACC_PUBLIC,
+			this.isAbstract ? ACC_PUBLIC | ACC_ABSTRACT | ACC_SUPER : ACC_PUBLIC | ACC_SUPER,
 			this.getTypeInfo()
 		);
 	}

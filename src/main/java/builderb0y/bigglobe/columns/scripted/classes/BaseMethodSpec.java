@@ -52,6 +52,7 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 	@Override
 	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
 		super.verify(hierarchy, owner);
+		owner.checkMethod(hierarchy, this);
 		Set<String> parameters = new ObjectOpenHashSet<>(this.getParameters().length);
 		for (ParameterSpec parameter : this.getParameters()) {
 			parameter.verify();
