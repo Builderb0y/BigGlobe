@@ -37,7 +37,8 @@
 			"minecraft:dirt":            "minecraft:dirt",
 			"minecraft:coarse_dirt":     "minecraft:coarse_dirt",
 			"minecraft:rooted_dirt":     "minecraft:rooted_dirt",
-			"minecraft:mud":             "minecraft:mud"
+			"minecraft:mud":             "minecraft:mud",
+			"minecraft:packed_mud":      "minecraft:packed_mud"
 		}
 	}
 }
