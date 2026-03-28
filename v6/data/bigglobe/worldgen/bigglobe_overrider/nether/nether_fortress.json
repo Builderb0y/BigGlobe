@@ -1,0 +1,14 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure.type ==. 'minecraft:fortress':",
+			"int midX = start.midX",
+			"int midZ = start.midZ",
+			"NetherBubble bubble = `bigglobe:nether/bubble`(midX, midZ)",
+			"int minY = `bigglobe:nether/mid_y`(midX, midZ) + 64",
+			"int maxY = `bigglobe:nether/max_y`(midX, midZ) - 64",
+			"return(start.moveToRange(minY, maxY))",
+		")",
+		"return(true)"
+	]
+}

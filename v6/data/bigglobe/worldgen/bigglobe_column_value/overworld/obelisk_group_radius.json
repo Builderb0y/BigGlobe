@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "int",
+		"is_3d": false
+	},
+	"script": [
+		"return(obelisk_group_count <= 1 ? 0 : obelisk_group_count * 128)"
+	],
+	"cache": false
+}

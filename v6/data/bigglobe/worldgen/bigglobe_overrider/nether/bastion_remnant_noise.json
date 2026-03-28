@@ -1,0 +1,37 @@
+{
+	"type": "column_value",
+	"script": [
+		"float unmixSmoothD2F(int low, int high, int y:",
+			"unmixSmooth(double(low), double(high), double(y)).as(float)",
+		")",
+		"for (StructureStart start in structures:",
+			"for (StructurePiece piece in start.pieces:",
+				"float horizontalDistance = distanceToSquare(piece).as(float)",
+				"int minY = `bigglobe:nether/min_y` + 16",
+				"int maxY = start.minY",
+				"for (int y in range[minY, maxY):",
+					"float fraction = unmixLinear(double(maxY), double(minY), double(y)).as(float)",
+					"float factor = mixLinear(16.0I, 64.0I, fraction ^ 2)",
+					"float adjusted = max(1.0I - horizontalDistance / factor, 0.0I) ^ 2",
+					"`bigglobe:nether/bubble`.noise(y) += adjusted * 0.5I",
+				")",
+				"float horizontalFactor = smooth(horizontalDistance / 16.0I)",
+				"for (int y in range[maxY, start.maxY]:",
+					"`bigglobe:nether/bubble`.noise(y) *= horizontalFactor",
+				")",
+				"horizontalFactor = horizontalDistance ^ 2",
+				"minY = start.maxY",
+				"maxY = start.maxY + 16",
+				"for (int y in range(minY, maxY):",
+					"float verticalFactor = horizontalFactor + (y - minY) ^ 2",
+					"float factor = smooth(sqrt(verticalFactor).as(float) / 16.0I)",
+					"`bigglobe:nether/bubble`.noise(y) *= factor",
+				")",
+			")",
+		")"
+	],
+	"structure_filter": {
+		"structure": "minecraft:bastion_remnant",
+		"radius_in_chunks": 4
+	}
+}

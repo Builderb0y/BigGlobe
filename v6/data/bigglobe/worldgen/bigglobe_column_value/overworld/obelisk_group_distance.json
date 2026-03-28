@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"sqrt(long(x - obelisk_group_center_x) ^ 2 + long(z - obelisk_group_center_z) ^ 2)"
+	]
+}

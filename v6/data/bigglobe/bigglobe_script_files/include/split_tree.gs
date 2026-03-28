@@ -37,9 +37,16 @@ void branch(double*(x1, y1, z1, r1, x2, y2, z2, r2), WoodPalette woodPalette, in
 				threshold = mixLinear(r1, r2, dot) ^ 2
 			)
 			BlockState state = getBlockState(x, y, z)
-			if (state.isReplaceable() || state.isIn('#bigglobe:tree_trunk_replaceables'):
+			if (
+				state.isReplaceable() ||
+				state.isIn('#bigglobe:tree_trunk_replaceables') ||
+				(
+					state.isIn('#minecraft:logs') &&
+					groundReplacements.(getBlockState(x, y - 1, z).getBlock()) != null
+				)
+			:
 				placedPreviously = (projDist < threshold).if (
-					positions.(Pos.new(x, y, z)) = woodPalette.woodState(random, axis: y)
+					positions.(Pos.new(x, y, z)) = woodPalette.woodState(random, axis: 'y')
 				)
 			)
 			else (
@@ -105,7 +112,7 @@ void tree(
 			dx dy dz
 			ox oy oz
 			=
-			ux            uy            uz
+			ux           -uy            uz
 			   dy dz   dx    dz   dx dy
 			   oy oz   ox    oz   ox oy
 		)
@@ -152,7 +159,7 @@ void tree(
 void placeTree(:
 	for (Pos pos, BlockState state in positions:
 		setBlockState(pos.x, pos.y, pos.z, state)
-		if (random.nextBoolean(world_traits.`bigglobe:snow_chance_at`(pos.x, pos.y + 1, pos.z)):
+		if (!state.isAir() && random.nextBoolean(world_traits.`bigglobe:snow_chance_at`(pos.x, pos.y + 1, pos.z)):
 			if (getBlockState(pos.x, pos.y + 1, pos.z).isAir():
 				setBlockState(pos.x, pos.y + 1, pos.z, 'minecraft:snow[layers=1]')
 			)
@@ -167,4 +174,26 @@ void placeDecorations(:
 			placeFeature(pos.x, pos.y, pos.z, decoration)
 		)
 	)
+)
+
+void generateAndPlaceArtificialTree(double*(centerX, centerZ, baseRadius), WoodPalette woodPalette:
+	double trunkHeight = baseRadius * 4.0L
+	double*(
+		slantAngle = random.nextDouble(tau)
+		slantRadius = random.nextDouble(0.25L)
+		topX = centerX + trunkHeight * cos(slantAngle) * slantRadius
+		topY = originY + trunkHeight
+		topZ = centerZ + trunkHeight * sin(slantAngle) * slantRadius
+	)
+	tree(
+		centerX, originY, centerZ, baseRadius,
+		topX, topY, topZ, baseRadius * 0.75L + 0.25L,
+		palette,
+		;2.0 controls the max radius,
+		;and 0.6 ensures that baseRadius = 1 maps to foliageRadius = 1.25.
+		2.0L * baseRadius / (baseRadius + 0.6L),
+		0
+	)
+	placeTree()
+	if (!decorations.isEmpty(): placeDecorations())
 )

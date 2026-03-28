@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"long regionSeed = (worldSeed # 16x2765F279400E0986UL).newSeed(obelisk_group_region_x, obelisk_group_region_z)",
+		"return(regionSeed.nextDouble(tau))"
+	]
+}

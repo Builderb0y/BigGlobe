@@ -1,0 +1,9 @@
+{
+	"type": "root",
+	"state": [
+		"`bigglobe:nether/is_center` ? `bigglobe:nether/bubble`.filler : 'minecraft:netherrack'"
+	],
+	"children": [
+		"bigglobe:nether/bubble_carver"
+	]
+}

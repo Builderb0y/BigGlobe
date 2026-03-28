@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "boolean",
+		"is_3d": false
+	},
+	"script": [
+		"columnSeed(16x5886730FF06DD365UL).nextBoolean(unmixSmoother(1.0L, 0.875L, `bigglobe:nether/bubble`.soft_distance))"
+	]
+}

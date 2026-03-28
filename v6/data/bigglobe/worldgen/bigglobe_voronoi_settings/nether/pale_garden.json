@@ -1,0 +1,23 @@
+{
+	"weight": 0.75,
+	"owner": "bigglobe:nether/bubble",
+	"enables": [
+		"bigglobe:nether/bubble/biome_pale_garden",
+		"bigglobe:nether/bubble/cavern_noise_forest",
+		"bigglobe:nether/bubble/filler_netherrack",
+		"bigglobe:nether/bubble/fluid_lava",
+		"bigglobe:nether/bubble/lava_level_normal",
+		"bigglobe:nether/bubble/noise_forest",
+		"bigglobe:nether/bubble/surface_state_pale_netherrack",
+		"bigglobe:nether/bubble/decorator_pale_garden"
+	],
+	"exports": {
+		"biome": "bigglobe:nether/bubble/biome_pale_garden",
+		"filler": "bigglobe:nether/bubble/filler_netherrack",
+		"lava_level": "bigglobe:nether/bubble/lava_level_normal",
+		"lava_fluid": "bigglobe:nether/bubble/fluid_lava",
+		"noise": "bigglobe:nether/bubble/noise_forest",
+		"surface_state": "bigglobe:nether/bubble/surface_state_pale_netherrack",
+		"decorator": "bigglobe:nether/bubble/decorator_pale_garden"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "int",
+		"is_3d": false
+	},
+	"script": "z / 8192",
+	"cache": false
+}

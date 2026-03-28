@@ -1,0 +1,51 @@
+{
+	"type": "scripted",
+	"script": [
+		"BlockState getState(int fakeY:",
+			"BlockState state = 'minecraft:stone'",
+			"float bestWeight = `bigglobe:overworld/rocks/stone`(fakeY)",
+			"float weight = 0.0I",
+			"if ((weight := `bigglobe:overworld/rocks/andesite` (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:andesite'         )",
+			"if ((weight := `bigglobe:overworld/rocks/calcite`  (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:calcite'          )",
+			"if ((weight := `bigglobe:overworld/rocks/deepslate`(fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:deepslate[axis=y]')",
+			"if ((weight := `bigglobe:overworld/rocks/diorite`  (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:diorite'          )",
+			"if ((weight := `bigglobe:overworld/rocks/dripstone`(fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:dripstone_block'  )",
+			"if ((weight := `bigglobe:overworld/rocks/granite`  (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:granite'          )",
+			"if ((weight := `bigglobe:overworld/rocks/tuff`     (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:tuff'             )",
+			"return(state)",
+		")",
+		"int minFillY = world_traits.`bigglobe:core_max_y`",
+		"int maxFillY = world_traits.`bigglobe:y_level_on_surface`",
+		"if (hints.isLod:",
+			"BlockState state = getState(world_traits.`bigglobe:y_level_in_surface`)",
+			"setBlockStates(minFillY, maxFillY, state)",
+		")",
+		"else (",
+			"BlockState prevState = getState(minFillY)",
+			"int prevY = minFillY",
+			"for (int y in range(minFillY, maxFillY):",
+				"BlockState nextState = getState(y)",
+				"if (nextState != prevState:",
+					"setBlockStates(prevY, y, prevState)",
+					"prevY = y",
+					"prevState = nextState",
+				")",
+			")",
+			"setBlockStates(prevY, maxFillY, prevState)",
+		")"
+	],
+	"before_children": {
+		"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
+	},
+	"after_children": {
+		"file": "bigglobe:world_preset/overworld_surface_placement",
+		"includes": [
+			"bigglobe:include/generate_snow"
+		]
+	},
+	"valid": {
+		"where": "hints.usage !=. 'heightmap'",
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
+		"min_y": "world_traits.`bigglobe:core_max_y`"
+	}
+}

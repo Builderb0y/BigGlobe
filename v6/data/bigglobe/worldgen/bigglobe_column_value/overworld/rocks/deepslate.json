@@ -1,0 +1,16 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"deepslate_noise + unmixLinear(",
+			"world_traits.`bigglobe:approximate_surface_y` - 128.0L,",
+			"world_traits.`bigglobe:approximate_surface_y` - 384.0L,",
+			"double(y)",
+		")",
+		".as(float)"
+	],
+	"cache": false
+}

@@ -1,0 +1,13 @@
+{
+	"type": "script",
+	"params": {
+		"type": "int",
+		"is_3d": false
+	},
+	"script": [
+		"long regionSeed = (worldSeed # 16x44A6118C55C853AAUL).newSeed(obelisk_group_region_x, obelisk_group_region_z)",
+		"int count = regionSeed.nextInt()",
+		"count &= count >>> 16",
+		"return(min(numberOfTrailingZeros(count), 12))"
+	]
+}

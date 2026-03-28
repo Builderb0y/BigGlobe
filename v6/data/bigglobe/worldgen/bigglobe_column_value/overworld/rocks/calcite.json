@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "-stone_calcite_noise - 0.25I",
+	"cache": false
+}

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "granite_noise + `bigglobe:overworld/raw/mountainness`.as(float)",
+	"cache": false
+}

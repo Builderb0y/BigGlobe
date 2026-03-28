@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "int",
+		"is_3d": false
+	},
+	"script": [
+		"hints.isLod ? world_traits.`bigglobe:y_level_in_surface` : world_traits.`bigglobe:core_max_y`"
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"result": {
+		"type": "constant",
+		"value": {
+			"surfaceState": "minecraft:packed_mud",
+			"subsurfaceState": "minecraft:packed_mud"
+		}
+	}
+}

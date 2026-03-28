@@ -5,6 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"mountainness * 768.0L + flat_river_elevation"
+		"mountainness * 768.0L * `bigglobe:overworld/obelisk_terrain_suppression` + flat_river_elevation"
 	]
 }

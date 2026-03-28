@@ -1,0 +1,10 @@
+{
+	"type": "column_value",
+	"script": [
+		"noop"
+	],
+	"structure_filter": {
+		"structure": [],
+		"radius_in_chunks": 0
+	}
+}

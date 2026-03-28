@@ -1,0 +1,12 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"if (obelisk_group_count == 0: return(1.0))",
+		"double radius = obelisk_group_radius",
+		"unmixSmoother(radius + 256.0L, radius + 768.0L, obelisk_group_distance)"
+	]
+}
