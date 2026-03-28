@@ -1,0 +1,31 @@
+package builderb0y.bigglobe.trees.decoration;
+
+import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.randomLists.RandomList;
+import builderb0y.bigglobe.trees.TreeGenerator;
+import builderb0y.bigglobe.util.Directions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class RandomWalkLeafDecorator extends ConfiguredLeafDecorator {
+
+	public RandomWalkLeafDecorator(boolean is_trunk, @VerifyNullable RandomList<BlockState> leaf_states) {
+		super(is_trunk, leaf_states);
+	}
+
+	@Override
+	public void decorate(TreeGenerator generator, BlockPos branchPos, BlockState branchState) {
+		if (this.is_trunk && generator.trunk.currentFracY != 1.0D) return;
+		double radius = generator.trunk.currentRadius * 0.5D + 2.0D;
+		int walks = Permuter.roundRandomlyI(generator.random, radius * radius * radius);
+		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+		for (int walk = 1; walk <= walks; walk++) {
+			mutablePos.set(branchPos);
+			int steps = Permuter.roundRandomlyI(generator.random, radius);
+			for (int step = 1; step <= steps; step++) {
+				this.placeAt(generator, mutablePos.move(Permuter.choose(generator.random, Directions.ALL)), step);
+			}
+		}
+	}
+}

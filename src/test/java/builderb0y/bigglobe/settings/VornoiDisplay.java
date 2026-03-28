@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.stream.IntStream;
 import javax.swing.*;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D.Cell;
@@ -145,12 +145,12 @@ public class VornoiDisplay {
 				Derivative2D derivative = new Derivative2D();
 				cell.derivativeProgressToEdgeSquaredD(derivative, realX, realY);
 				double mul = 128.0D / Math.sqrt(BigGlobeMath.squareD(derivative.dx, derivative.dy));
-				int red   = MathHelper.clamp((int)(derivative.dx * mul + 128.0D), 0, 255);
-				int green = MathHelper.clamp((int)(derivative.dy * mul + 128.0D), 0, 255);
-				int blue  = 0; //MathHelper.clamp((int)(derivative.value *   256.0D         ), 0, 255);
+				int red   = Mth.clamp((int)(derivative.dx * mul + 128.0D), 0, 255);
+				int green = Mth.clamp((int)(derivative.dy * mul + 128.0D), 0, 255);
+				int blue  = 0; //Mth.clamp((int)(derivative.value *   256.0D         ), 0, 255);
 				color = (red << 16) | (green << 8) | blue;
 				/*
-				int brightness = MathHelper.floor(cell.progressToEdgeD(realX, realY) * 255.0D + 0.5D);
+				int brightness = Mth.floor(cell.progressToEdgeD(realX, realY) * 255.0D + 0.5D);
 				if (cell.center.cellEquals(this.clickedCell.center)) {
 					color = brightness << 16;
 				}
@@ -170,10 +170,10 @@ public class VornoiDisplay {
 		}
 
 		public void repaintArea(int minX, int maxX, int minY, int maxY) {
-			final int clampedMinX = MathHelper.clamp(minX, 0, this.getWidth());
-			final int clampedMaxX = MathHelper.clamp(maxX, 0, this.getWidth());
-			final int clampedMinY = MathHelper.clamp(minY, 0, this.getHeight());
-			final int clampedMaxY = MathHelper.clamp(maxY, 0, this.getHeight());
+			final int clampedMinX = Mth.clamp(minX, 0, this.getWidth());
+			final int clampedMaxX = Mth.clamp(maxX, 0, this.getWidth());
+			final int clampedMinY = Mth.clamp(minY, 0, this.getHeight());
+			final int clampedMaxY = Mth.clamp(maxY, 0, this.getHeight());
 			if (clampedMaxX > clampedMinX && clampedMaxY > clampedMinY) {
 				IntStream.range(clampedMinX, clampedMaxX).parallel().forEach(x -> {
 					IntStream.range(clampedMinY, clampedMaxY).parallel().forEach(y -> {

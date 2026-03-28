@@ -140,6 +140,8 @@ V6:
 		this might negate the need for my mixin and overrider field on scripted chunk generators.
 	minecraft can now set the rate of the day/night cycle.
 		this negates the need for my gamerule.
+	update recipes to modern schemas, remove JsonDataLoader_BackwardsCompatibleRecipes mixin.
+	remove BigGlobeEntityRenderer.
 
 LODs:
 	shader support.

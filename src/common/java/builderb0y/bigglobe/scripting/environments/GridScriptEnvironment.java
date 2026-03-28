@@ -1,0 +1,299 @@
+package builderb0y.bigglobe.scripting.environments;
+
+import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
+import net.minecraft.core.Holder;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.noise.*;
+import builderb0y.bigglobe.noise.source.ConstantGrid1D;
+import builderb0y.bigglobe.noise.source.ConstantGrid2D;
+import builderb0y.bigglobe.noise.source.ConstantGrid3D;
+import builderb0y.scripting.bytecode.ConstantFactory;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.update.ArgumentedObjectUpdateInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.update.ArgumentedObjectUpdateInsnTree.ArgumentedObjectUpdateEmitters;
+import builderb0y.scripting.environments.Handlers;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.parsing.ExpressionParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.util.TypeInfos;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
+public class GridScriptEnvironment {
+
+	public static final ConstantFactory GRID = new ConstantFactory(GridScriptEnvironment.class, "getGrid", String.class, Grid.class);
+	public static final ConstantFactory GRID_1D = new ConstantFactory(GridScriptEnvironment.class, "getGrid1D", String.class, Grid1D.class);
+	public static final ConstantFactory GRID_2D = new ConstantFactory(GridScriptEnvironment.class, "getGrid2D", String.class, Grid2D.class);
+	public static final ConstantFactory GRID_3D = new ConstantFactory(GridScriptEnvironment.class, "getGrid3D", String.class, Grid3D.class);
+
+	public static final Grid EMPTY_GRID = new Grid() {
+
+		@Override
+		public double minValue() {
+			return 0.0D;
+		}
+
+		@Override
+		public double maxValue() {
+			return 0.0D;
+		}
+
+		@Override
+		public int getDimensions() {
+			return 0;
+		}
+	};
+	public static final Grid1D EMPTY_GRID_1D = new ConstantGrid1D(0.0D);
+	public static final Grid2D EMPTY_GRID_2D = new ConstantGrid2D(0.0D);
+	public static final Grid3D EMPTY_GRID_3D = new ConstantGrid3D(0.0D);
+
+	public static final MutableScriptEnvironment BASE = (
+		new MutableScriptEnvironment()
+
+			.addType("Grid", Grid.class)
+			.addType("Grid1D", Grid1D.class)
+			.addType("Grid2D", Grid2D.class)
+			.addType("Grid3D", Grid3D.class)
+
+			.addCastConstant(GRID, true)
+			.addCastConstant(GRID_1D, true)
+			.addCastConstant(GRID_2D, true)
+			.addCastConstant(GRID_3D, true)
+
+			.addFieldInvoke("minValue", Grid.INFO.minValue)
+			.addFieldInvoke("maxValue", Grid.INFO.maxValue)
+			.addFieldInvoke("dimensions", Grid.INFO.getDimensions)
+
+			.addMethodInvoke("getValue", Grid1D.INFO.getValue)
+			.addMethodInvoke("getValuesX", Grid1D.INFO.getBulkX)
+
+			.addMethodInvoke("getValue", Grid2D.INFO.getValue)
+			.addMethodInvoke("getValuesX", Grid2D.INFO.getBulkX)
+			.addMethodInvoke("getValuesY", Grid2D.INFO.getBulkY)
+
+			.addMethodInvoke("getValue", Grid3D.INFO.getValue)
+			.addMethodInvoke("getValuesX", Grid3D.INFO.getBulkX)
+			.addMethodInvoke("getValuesY", Grid3D.INFO.getBulkY)
+			.addMethodInvoke("getValuesZ", Grid3D.INFO.getBulkZ)
+
+			.addType("NumberArray", NumberArray.class)
+
+			.addFunctionInvokeStatic("newBooleanArray", NumberArray.INFO.allocateBooleansDirectZero)
+			.addFunctionInvokeStatic("newByteArray", NumberArray.INFO.allocateBytesDirectZero)
+			.addFunctionInvokeStatic("newShortArray", NumberArray.INFO.allocateShortsDirectZero)
+			.addFunctionInvokeStatic("newIntArray", NumberArray.INFO.allocateIntsDirectZero)
+			.addFunctionInvokeStatic("newLongArray", NumberArray.INFO.allocateLongsDirectZero)
+			.addFunctionInvokeStatic("newFloatArray", NumberArray.INFO.allocateFloatsDirectZero)
+			.addFunctionInvokeStatic("newDoubleArray", NumberArray.INFO.allocateDoublesDirectZero)
+
+			.addMethodInvoke("getBoolean", NumberArray.INFO.getZ)
+			.addMethodInvoke("getByte", NumberArray.INFO.getB)
+			.addMethodInvoke("getShort", NumberArray.INFO.getS)
+			.addMethodInvoke("getInt", NumberArray.INFO.getI)
+			.addMethodInvoke("getLong", NumberArray.INFO.getL)
+			.addMethodInvoke("getFloat", NumberArray.INFO.getF)
+			.addMethodInvoke("getDouble", NumberArray.INFO.getD)
+
+			.addMethodInvoke("setBoolean", NumberArray.INFO.setZ)
+			.addMethodInvoke("setByte", NumberArray.INFO.setB)
+			.addMethodInvoke("setShort", NumberArray.INFO.setS)
+			.addMethodInvoke("setInt", NumberArray.INFO.setI)
+			.addMethodInvoke("setLong", NumberArray.INFO.setL)
+			.addMethodInvoke("setFloat", NumberArray.INFO.setF)
+			.addMethodInvoke("setDouble", NumberArray.INFO.setD)
+
+			.addMethodInvoke("fillBoolean", NumberArray.INFO.fillZ)
+			.addMethodInvoke("fillByte", NumberArray.INFO.fillB)
+			.addMethodInvoke("fillShort", NumberArray.INFO.fillS)
+			.addMethodInvoke("fillInt", NumberArray.INFO.fillI)
+			.addMethodInvoke("fillLong", NumberArray.INFO.fillL)
+			.addMethodInvoke("fillFloat", NumberArray.INFO.fillF)
+			.addMethodInvoke("fillDouble", NumberArray.INFO.fillD)
+
+			.addMethodInvoke("fillBoolean", NumberArray.INFO.fillFromToZ)
+			.addMethodInvoke("fillByte", NumberArray.INFO.fillFromToB)
+			.addMethodInvoke("fillShort", NumberArray.INFO.fillFromToS)
+			.addMethodInvoke("fillInt", NumberArray.INFO.fillFromToI)
+			.addMethodInvoke("fillLong", NumberArray.INFO.fillFromToL)
+			.addMethodInvoke("fillFloat", NumberArray.INFO.fillFromToF)
+			.addMethodInvoke("fillDouble", NumberArray.INFO.fillFromToD)
+
+			.addMethod(
+				type(NumberArray.class), "", new MethodHandler.Named(
+					"Automatic-precision getter and setter for NumberArray",
+					(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						InsnTree castArgument = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
+						return new CastResult(new NumberArrayGetterInsnTree(receiver, castArgument, TypeInfos.DOUBLE), castArgument != arguments[0]);
+					}
+				)
+			)
+
+			.addFieldInvoke("length", NumberArray.INFO.length)
+			.addMethodInvoke("prefix", NumberArray.INFO.prefix)
+			.addMethodInvoke("sliceFromTo", NumberArray.INFO.sliceFromTo)
+			.addMethodInvoke("sliceOffsetLength", NumberArray.INFO.sliceOffsetLength)
+	);
+
+	public static Consumer<MutableScriptEnvironment> create() {
+		return (MutableScriptEnvironment environment) -> environment.addAll(BASE);
+	}
+
+	public static Consumer<MutableScriptEnvironment> createWithSeed(InsnTree loadSeed) {
+		return (MutableScriptEnvironment environment) -> {
+			environment
+				.configure(create())
+
+				.addMethod(type(Grid1D.class), "getValue", Handlers.builder(Grid1D.class, "getValue").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I').buildMethod())
+				.addMethod(type(Grid1D.class), "getValuesX", Handlers.builder(Grid1D.class, "getBulkX").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I', NumberArray.class).buildMethod())
+
+				.addMethod(type(Grid2D.class), "getValue", Handlers.builder(Grid2D.class, "getValue").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II").buildMethod())
+				.addMethod(type(Grid2D.class), "getValuesX", Handlers.builder(Grid2D.class, "getBulkX").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II", NumberArray.class).buildMethod())
+				.addMethod(type(Grid2D.class), "getValuesY", Handlers.builder(Grid2D.class, "getBulkY").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II", NumberArray.class).buildMethod())
+
+				.addMethod(type(Grid3D.class), "getValue", Handlers.builder(Grid3D.class, "getValue").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III").buildMethod())
+				.addMethod(type(Grid3D.class), "getValuesX", Handlers.builder(Grid3D.class, "getBulkX").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
+				.addMethod(type(Grid3D.class), "getValuesY", Handlers.builder(Grid3D.class, "getBulkY").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
+				.addMethod(type(Grid3D.class), "getValuesZ", Handlers.builder(Grid3D.class, "getBulkZ").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
+			;
+		};
+	}
+
+	public static String precision(NumberArray array) {
+		return switch (array.type) {
+			case NumberArray.BYTE_TYPE -> "byte";
+			case NumberArray.SHORT_TYPE -> "short";
+			case NumberArray.INT_TYPE -> "int";
+			case NumberArray.LONG_TYPE -> "long";
+			case NumberArray.FLOAT_TYPE -> "float";
+			case NumberArray.DOUBLE_TYPE -> "double";
+			case NumberArray.BOOLEAN_TYPE -> "boolean";
+			default -> throw new IllegalStateException("Invalid type: " + array.type);
+		};
+	}
+
+	public static Grid1D getGrid1D(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid1D(id, flags);
+	}
+
+	public static Grid1D getGrid1D(String id, int flags) {
+		Grid grid = getGrid(id, flags);
+		return grid == EMPTY_GRID ? EMPTY_GRID_1D : (Grid1D)(grid);
+	}
+
+	public static Grid2D getGrid2D(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid2D(id, flags);
+	}
+
+	public static Grid2D getGrid2D(String id, int flags) {
+		Grid grid = getGrid(id, flags);
+		return grid == EMPTY_GRID ? EMPTY_GRID_2D : (Grid2D)(grid);
+	}
+
+	public static Grid3D getGrid3D(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid3D(id, flags);
+	}
+
+	public static Grid3D getGrid3D(String id, int flags) {
+		Grid grid = getGrid(id, flags);
+		return grid == EMPTY_GRID ? EMPTY_GRID_3D : (Grid3D)(grid);
+	}
+
+	public static Grid getGrid(MethodHandles.Lookup caller, String name, Class<?> type, String id, int flags) {
+		return getGrid(id, flags);
+	}
+
+	public static Grid getGrid(String id, int flags) {
+		Holder<Grid> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY, id, flags, EMPTY_GRID);
+		return entry != null ? entry.value() : null;
+	}
+
+	public static class NumberArrayGetterInsnTree implements InsnTree {
+
+		public final InsnTree loadArray, loadIndex;
+		public final TypeInfo type;
+
+		public NumberArrayGetterInsnTree(InsnTree loadArray, InsnTree loadIndex, TypeInfo type) {
+			this.loadArray = loadArray;
+			this.loadIndex = loadIndex;
+			this.type = type;
+		}
+
+		public static MethodInfo getter(TypeInfo type) {
+			return switch (type.getSort()) {
+				case BYTE -> NumberArray.INFO.getB;
+				case SHORT -> NumberArray.INFO.getS;
+				case INT -> NumberArray.INFO.getI;
+				case LONG -> NumberArray.INFO.getL;
+				case FLOAT -> NumberArray.INFO.getF;
+				case DOUBLE -> NumberArray.INFO.getD;
+				case BOOLEAN -> NumberArray.INFO.getZ;
+				case CHAR, VOID, OBJECT, ARRAY -> throw new IllegalStateException("Invalid NumberArray type: " + type);
+			};
+		}
+
+		public static MethodInfo setter(TypeInfo type) {
+			return switch (type.getSort()) {
+				case BYTE -> NumberArray.INFO.setB;
+				case SHORT -> NumberArray.INFO.setS;
+				case INT -> NumberArray.INFO.setI;
+				case LONG -> NumberArray.INFO.setL;
+				case FLOAT -> NumberArray.INFO.setF;
+				case DOUBLE -> NumberArray.INFO.setD;
+				case BOOLEAN -> NumberArray.INFO.setZ;
+				case CHAR, VOID, OBJECT, ARRAY -> throw new IllegalStateException("Invalid NumberArray type: " + type);
+			};
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			this.loadArray.emitBytecode(method);
+			this.loadIndex.emitBytecode(method);
+			getter(this.type).emitBytecode(method);
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.type;
+		}
+
+		@Override
+		public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
+			if (type.isNumber() || type.getSort() == Sort.BOOLEAN) {
+				return new NumberArrayGetterInsnTree(this.loadArray, this.loadIndex, type);
+			}
+			else {
+				throw new ClassCastException("Cannot cast NumberArray element to " + type);
+			}
+		}
+
+		@Override
+		public InsnTree update(ExpressionParser parser, UpdateOp op, UpdateOrder order, InsnTree rightValue) throws ScriptParsingException {
+			if (rightValue.getTypeInfo().isNumber() || rightValue.getTypeInfo().getSort() == Sort.BOOLEAN) {
+				return new ArgumentedObjectUpdateInsnTree(
+					order,
+					op == UpdateOp.ASSIGN,
+					ArgumentedObjectUpdateEmitters.forGetterSetter(
+						this.loadArray,
+						this.loadIndex,
+						getter(rightValue.getTypeInfo()),
+						setter(rightValue.getTypeInfo()),
+						rightValue
+					)
+				);
+			}
+			else {
+				throw new ScriptParsingException("Can't store " + rightValue.getTypeInfo() + " in NumberArray", parser.input);
+			}
+		}
+	}
+}

@@ -1,0 +1,39 @@
+package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
+
+import org.jetbrains.annotations.Nullable;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
+import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.input.ScriptUsage;
+import builderb0y.scripting.util.TypeInfos;
+import net.minecraft.core.Holder;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
+public class ScriptDecisionTreeCondition extends DecisionTreeCondition.Impl {
+
+	public final ScriptUsage script;
+
+	public ScriptDecisionTreeCondition(ScriptUsage script) {
+		this.script = script;
+		this.addAllDependencies(script);
+	}
+
+	@Override
+	public ConditionTree createCondition(Holder<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+		MethodCompileContext decisionTreeMethod = context.mainClass.newMethod(
+			ACC_PUBLIC,
+			"decision_tree_condition_" + DataCompileContext.internalName(UnregisteredObjectException.getID(selfEntry), context.mainClass.memberUniquifier++),
+			TypeInfos.BOOLEAN,
+			loadY != null ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty()
+		);
+		context.setMethodCode(decisionTreeMethod, this.script, loadY != null, this, null, context.root().registry.parserFlags());
+		return new BooleanToConditionTree(invokeInstance(context.loadSelf(), decisionTreeMethod.info, loadY != null ? new InsnTree[] { loadY } : InsnTree.ARRAY_FACTORY.empty()));
+	}
+}

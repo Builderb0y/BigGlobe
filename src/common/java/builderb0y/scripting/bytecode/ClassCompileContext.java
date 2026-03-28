@@ -1,0 +1,202 @@
+package builderb0y.scripting.bytecode;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.TraceClassVisitor;
+
+import builderb0y.autocodec.util.ObjectArrayFactory;
+import builderb0y.scripting.bytecode.tree.ConstantValue;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.util.CollectionTransformer;
+import builderb0y.scripting.util.TypeInfos;
+import builderb0y.scripting.util.TypeMerger;
+import builderb0y.scripting.util.VariableNameTextifier;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
+public class ClassCompileContext {
+
+	public static final ObjectArrayFactory<String> STRING_ARRAY_FACTORY = new ObjectArrayFactory<>(String.class);
+
+	public ClassNode node;
+	public TypeInfo info;
+	public Map<String, TypeInfo> definedClasses;
+	public List<ClassCompileContext> innerClasses;
+	public List<MethodCompileContext> innerMethods;
+	public int memberUniquifier;
+	public List<Object> constants = new ArrayList<>();
+
+	public ClassCompileContext(int access, TypeInfo info) {
+		String name = info.getInternalName();
+		int has = 0;
+		for (int index = 0, length = name.length(); index < length; index++) {
+			switch (name.charAt(index)) {
+				case '/' -> has |= 1;
+				case '_' -> has |= 2;
+				case '$' -> has |= 4;
+				case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> has |= 8;
+			}
+		}
+		if (has != 15) {
+			throw new IllegalStateException("For security reasons, your class name must contain a slash, an underscore, a dollar sign, and a number. (was '" + name + "')");
+		}
+		this.node = new ClassNode();
+		this.info = info;
+		this.definedClasses = new HashMap<>(2);
+		this.definedClasses.put(info.getInternalName(), info);
+		this.node.visit(
+			V17,
+			access,
+			info.getInternalName(),
+			null,
+			info.superClass.getInternalName(),
+			CollectionTransformer.convertArray(info.superInterfaces, STRING_ARRAY_FACTORY, TypeInfo::getInternalName)
+		);
+		this.node.visitSource("Script", null);
+		this.innerClasses = new ArrayList<>(2);
+		this.innerMethods = new ArrayList<>(8);
+	}
+
+	public ClassCompileContext(ClassCompileContext parent, int access, TypeInfo info) {
+		this.node = new ClassNode();
+		this.info = info;
+		this.definedClasses = parent.definedClasses;
+		this.definedClasses.put(info.getInternalName(), info);
+		this.node.visit(
+			V17,
+			access,
+			info.getInternalName(),
+			null,
+			info.superClass.getInternalName(),
+			CollectionTransformer.convertArray(info.superInterfaces, STRING_ARRAY_FACTORY, TypeInfo::getInternalName)
+		);
+		this.node.visitSource(info.getSimpleName(), null);
+		this.innerClasses = new ArrayList<>(0);
+		this.innerMethods = new ArrayList<>(8);
+	}
+
+	public ClassCompileContext(
+		int access,
+		ClassType type,
+		Type name,
+		TypeInfo superClass,
+		TypeInfo[] superInterfaces
+	) {
+		this(access, new TypeInfo(type, name, superClass, superInterfaces, null, false, (access & ACC_FINAL) != 0));
+	}
+
+	public ClassCompileContext(
+		int access,
+		ClassType type,
+		String name,
+		TypeInfo superClass,
+		TypeInfo[] superInterfaces
+	) {
+		this(access, new TypeInfo(type, Type.getObjectType(name), superClass, superInterfaces, null, false, (access & ACC_FINAL) != 0));
+	}
+
+	public ConstantValue newConstant(Object value, TypeInfo type) {
+		int which = this.constants.indexOf(value);
+		if (which < 0) {
+			which = this.constants.size();
+			this.constants.add(value);
+		}
+		return ConstantValue.dynamic(
+			type,
+			ScriptClassLoader.GET_CONSTANT,
+			ConstantValue.of(which)
+		);
+	}
+
+	public byte[] toByteArray() {
+		for (MethodCompileContext method : this.innerMethods) {
+			if (!method.scopes.stack.isEmpty()) {
+				throw new IllegalStateException(this.node.name + '.' + method.node.name + "() has not had its scope fully popped yet!");
+			}
+		}
+		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS) {
+
+			@Override
+			public String getCommonSuperClass(String type1, String type2) {
+				TypeInfo info1 = ClassCompileContext.this.definedClasses.get(type1);
+				TypeInfo info2 = ClassCompileContext.this.definedClasses.get(type2);
+				if (info1 == null) info1 = TypeInfo.parseInternalName(type1, 0, type1.length());
+				if (info2 == null) info2 = TypeInfo.parseInternalName(type2, 0, type2.length());
+				return TypeMerger.computeMostSpecificType(info1, info2).getInternalName();
+			}
+		};
+		this.node.accept(writer);
+		return writer.toByteArray();
+	}
+
+	public String dump() {
+		StringWriter writer = new StringWriter(8192);
+		this.node.accept(new TraceClassVisitor(null, new VariableNameTextifier(), new PrintWriter(writer)));
+		return writer.toString();
+	}
+
+	public void addNoArgConstructor(int access) {
+		MethodCompileContext constructor = this.newMethod(access, "<init>", TypeInfos.VOID);
+		LazyVarInfo self = new LazyVarInfo("this", constructor.clazz.info);
+		return_(
+			invokeInstance(
+				load(self),
+				//super constructor access doesn't actually matter for this use case.
+				new MethodInfo(ACC_PUBLIC, this.info.superClass, "<init>", TypeInfos.VOID)
+			)
+		)
+			.emitBytecode(constructor);
+		constructor.endCode();
+	}
+
+	public void addToString(String string) {
+		MethodCompileContext toString = this.newMethod(ACC_PUBLIC, "toString", TypeInfos.STRING);
+		return_(ldc(string)).emitBytecode(toString);
+		toString.endCode();
+	}
+
+	public MethodCompileContext newMethod(int access, String name, TypeInfo returnType, LazyVarInfo... parameters) {
+		access |= this.node.access & ACC_INTERFACE;
+		MethodInfo info = new MethodInfo(access, this.info, name, returnType, CollectionTransformer.convertArray(parameters, TypeInfo[]::new, LazyVarInfo::type));
+		MethodNode methodNode = new MethodNode(info.access(), info.name, info.getDescriptor(), null, null);
+		this.node.methods.add(methodNode);
+		MethodCompileContext methodCompileContext = new MethodCompileContext(this, methodNode, info, CollectionTransformer.convertArray(parameters, String[]::new, LazyVarInfo::name));
+		this.innerMethods.add(methodCompileContext);
+		return methodCompileContext;
+	}
+
+	public FieldCompileContext newField(FieldInfo info) {
+		return this.newField(info.access, info.name, info.type);
+	}
+
+	public FieldCompileContext newField(int access, String name, TypeInfo type) {
+		FieldCompileContext field = new FieldCompileContext(this, access, name, type);
+		this.node.fields.add(field.node);
+		return field;
+	}
+
+	public String innerClassName(String simpleName) {
+		return this.info.getInternalName() + '$' + simpleName + '_' + this.innerClasses.size();
+	}
+
+	public ClassCompileContext newInnerClass(int access, String name, TypeInfo superClass, TypeInfo[] superInterfaces) {
+		return this.newInnerClass(access, TypeInfo.makeClass(Type.getObjectType(name), superClass, superInterfaces, (access & ACC_FINAL) != 0));
+	}
+
+	public ClassCompileContext newInnerClass(int access, TypeInfo type) {
+		ClassCompileContext inner = new ClassCompileContext(this, access, type);
+		this.innerClasses.add(inner);
+		this.node.visitInnerClass(type.getInternalName(), this.info.getInternalName(), type.getSimpleName(), access);
+		inner.node.visitOuterClass(this.info.getInternalName(), null, null);
+		return inner;
+	}
+}
