@@ -35,6 +35,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
+
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderingRegistry;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -300,8 +302,8 @@ public class LodGenerator implements SafeCloseable {
 				ColumnUsage.HEIGHTMAP.builtinLodHints(0),
 				this.generatorParams.compiledWorldTraits
 			);
-			int minX = chunkPos.x << 4;
-			int minZ = chunkPos.z << 4;
+			int minX = chunkPos.x() << 4;
+			int minZ = chunkPos.z() << 4;
 			try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 				for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
 					final int offsetZ_ = offsetZ;
@@ -747,7 +749,7 @@ public class LodGenerator implements SafeCloseable {
 
 								FluidState fluidState = centerSegment.value.getFluidState();
 								if (!fluidState.isEmpty()) {
-									FluidRenderHandler fabricHandler = FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getType());
+									FluidRenderHandler fabricHandler = FluidRenderingRegistry.get(fluidState.getType());
 									if (fabricHandler != null) {
 										fabricHandler.renderFluid(
 											pos,

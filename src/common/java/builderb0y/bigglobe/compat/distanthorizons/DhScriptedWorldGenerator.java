@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.compat.dhChunkGen;
+package builderb0y.bigglobe.compat.distanthorizons;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +24,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
+import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat.DHCode;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.RegistryVersions;

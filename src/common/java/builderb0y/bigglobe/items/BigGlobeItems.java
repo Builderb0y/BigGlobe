@@ -7,13 +7,13 @@ import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableSource;
-import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents.Context;
+import net.fabricmc.fabric.api.registry.CompostableRegistry;
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
@@ -324,8 +324,7 @@ public class BigGlobeItems {
 	}
 
 	public static void init() {
-
-		FuelRegistryEvents.BUILD.register((FuelValues.Builder builder, Context context) -> {
+		FuelValueEvents.BUILD.register((FuelValues.Builder builder, FuelValueEvents.Context context) -> {
 			int baseTime = context.baseSmeltTime();
 			builder.add(SOUL_LAVA_BUCKET, baseTime * 100);
 			builder.add(SULFUR, baseTime * 6);
@@ -334,122 +333,114 @@ public class BigGlobeItems {
 
 		LootTableEvents.MODIFY.register(
 			(
-
 				ResourceKey<LootTable> id,
-
 				LootTable.Builder tableBuilder,
-				LootTableSource source
-
-				, HolderLookup.Provider registries
-
+				LootTableSource source,
+				HolderLookup.Provider registries
 			)
-				-> {
+			-> {
 				if (source.isBuiltin() && BuiltInLootTables.END_CITY_TREASURE.equals(id)) {
 					tableBuilder.withPool(
-							LootPool.lootPool().add(
-								TagEntry
-									.expandTag(BigGlobeItemTags.AURA_BOTTLES)
-									.setWeight(100)
-									.setQuality(1)
+						LootPool.lootPool().add(
+							TagEntry
+							.expandTag(BigGlobeItemTags.AURA_BOTTLES)
+							.setWeight(100)
+							.setQuality(1)
+						)
+					)
+					.withPool(
+						LootPool.lootPool().add(
+							LootItem
+							.lootTableItem(VOIDMETAL_UPGRADE)
+							.setWeight(100)
+							.when(
+								LootItemRandomChanceCondition.randomChance(0.25F)
 							)
 						)
-						.withPool(
-							LootPool.lootPool().add(
-								LootItem
-									.lootTableItem(VOIDMETAL_UPGRADE)
-									.setWeight(100)
-									.when(
-										LootItemRandomChanceCondition.randomChance(0.25F)
-									)
-							)
-						);
+					);
 				}
 			}
 		);
-		CompostingChanceRegistry.INSTANCE.add(
+		CompostableRegistry.INSTANCE.add(
 			SHORT_GRASS,
-			CompostingChanceRegistry.INSTANCE.get(
-
+			CompostableRegistry.INSTANCE.get(
 				Items.SHORT_GRASS
-
 			)
 			* 0.5F
 		);
-		Float wildflowerChance = CompostingChanceRegistry.INSTANCE.get(Items.PINK_PETALS);
-		CompostingChanceRegistry.INSTANCE.add(RED_WILDFLOWERS, wildflowerChance);
-		CompostingChanceRegistry.INSTANCE.add(VIOLETS, wildflowerChance);
-		CompostingChanceRegistry.INSTANCE.add(BLUEBONNETS, wildflowerChance);
+		Float wildflowerChance = CompostableRegistry.INSTANCE.get(Items.PINK_PETALS);
+		CompostableRegistry.INSTANCE.add(RED_WILDFLOWERS, wildflowerChance);
+		CompostableRegistry.INSTANCE.add(VIOLETS, wildflowerChance);
+		CompostableRegistry.INSTANCE.add(BLUEBONNETS, wildflowerChance);
 	}
 
 	@Environment(EnvType.CLIENT)
-	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
-
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
-			entries.addAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB);
-			entries.addBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
-			entries.addAfter(Items.NETHERITE_BLOCK, VOIDMETAL_BLOCK);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
+			entries.insertAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB);
+			entries.insertBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
+			entries.insertAfter(Items.NETHERITE_BLOCK, VOIDMETAL_BLOCK);
 		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
-			entries.addBefore(Items.SAND, OVERGROWN_SAND);
-			entries.addAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
-			entries.addBefore(Items.MAGMA_BLOCK, MOLTEN_ROCKS);
-			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK, PALE_NETHERRACK);
-			entries.addAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
-			entries.addAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
-			entries.addAfter(Items.WARPED_STEM, CHARRED_LOG);
-			entries.addAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
-			entries.addAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
-			entries.addBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
-			entries.addBefore(Items.SHORT_GRASS, SHORT_GRASS);
-			entries.addAfter(Items.DEAD_BUSH, CHARRED_GRASS);
-			entries.addAfter(Items.DANDELION, ROSE);
-			entries.addAfter(Items.OPEN_EYEBLOSSOM, BLAZING_BLOSSOM, SOUL_SILVERPETAL, GLOWING_GOLDENROD);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
+			entries.insertBefore(Items.SAND, OVERGROWN_SAND);
+			entries.insertAfter(Items.PRISMARINE, CRYSTALLINE_PRISMARINE, SLATED_PRISMARINE);
+			entries.insertBefore(Items.MAGMA_BLOCK, MOLTEN_ROCKS);
+			entries.insertAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
+			entries.insertAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK, PALE_NETHERRACK);
+			entries.insertAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
+			entries.insertAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
+			entries.insertAfter(Items.WARPED_STEM, CHARRED_LOG);
+			entries.insertAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
+			entries.insertAfter(Items.FLOWERING_AZALEA, CHARRED_SAPLING);
+			entries.insertBefore(Items.BROWN_MUSHROOM, MUSHROOM_SPORES);
+			entries.insertBefore(Items.SHORT_GRASS, SHORT_GRASS);
+			entries.insertAfter(Items.DEAD_BUSH, CHARRED_GRASS);
+			entries.insertAfter(Items.DANDELION, ROSE);
+			entries.insertAfter(Items.OPEN_EYEBLOSSOM, BLAZING_BLOSSOM, SOUL_SILVERPETAL, GLOWING_GOLDENROD);
 
-			entries.addAfter(Items.WILDFLOWERS, RED_WILDFLOWERS, BLUEBONNETS, VIOLETS);
+			entries.insertAfter(Items.WILDFLOWERS, RED_WILDFLOWERS, BLUEBONNETS, VIOLETS);
 
-			entries.addBefore(Items.CRIMSON_ROOTS, WART_WEED);
-			entries.addAfter(Items.STONE, ROCK);
-			entries.addAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
-			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
-			entries.addBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
+			entries.insertBefore(Items.CRIMSON_ROOTS, WART_WEED);
+			entries.insertAfter(Items.STONE, ROCK);
+			entries.insertAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
+			entries.insertAfter(Items.NETHER_WART, CHORUS_SPORE);
+			entries.insertBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
 			CLOUDS.values().stream().map(BlockItem::getDefaultInstance).forEachOrdered(entries::accept);
 			VOID_CLOUDS.values().stream().map(BlockItem::getDefaultInstance).forEachOrdered(entries::accept);
 		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.COPPER_CHAIN.waxedOxidized(), ROPE_ANCHOR, SPELUNKING_ROPE);
-			entries.addAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
-			entries.addAfter(Items.WARPED_HANGING_SIGN, CHARRED_SIGN, CHARRED_HANGING_SIGN);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertAfter(Items.COPPER_CHAIN.waxedOxidized(), ROPE_ANCHOR, SPELUNKING_ROPE);
+			entries.insertAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
+			entries.insertAfter(Items.WARPED_HANGING_SIGN, CHARRED_SIGN, CHARRED_HANGING_SIGN);
 
-			entries.addAfter(Items.WARPED_SHELF, CHARRED_SHELF);
+			entries.insertAfter(Items.WARPED_SHELF, CHARRED_SHELF);
 		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.REDSTONE_ORE, ANCIENT_AUTOMATA, AUTOMATA);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertAfter(Items.REDSTONE_ORE, ANCIENT_AUTOMATA, AUTOMATA);
 		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register((FabricItemGroupEntries entries) -> {
-			entries.addBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
-			entries.addAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
-			entries.addAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
-			entries.addAfter(Items.LEAD, string(16), string(64), string(256));
-			if (PRIVATE_WAYPOINT != null) entries.addAfter(Items.ENDER_EYE, PRIVATE_WAYPOINT);
-			if (PUBLIC_WAYPOINT != null) entries.addAfter(Items.ENDER_EYE, PUBLIC_WAYPOINT);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertBefore(Items.BUCKET, PERCUSSIVE_HAMMER);
+			entries.insertAfter(Items.LAVA_BUCKET, SOUL_LAVA_BUCKET);
+			entries.insertAfter(Items.FISHING_ROD, ROPE_ANCHOR, SPELUNKING_ROPE, TORCH_ARROW);
+			entries.insertAfter(Items.LEAD, string(16), string(64), string(256));
+			entries.insertAfter(Items.ENDER_EYE, PRIVATE_WAYPOINT);
+			entries.insertAfter(Items.ENDER_EYE, PUBLIC_WAYPOINT);
 		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
-			entries.addAfter(Items.NETHERITE_BOOTS, VOIDMETAL_HELMET, VOIDMETAL_CHESTPLATE, VOIDMETAL_LEGGINGS, VOIDMETAL_BOOTS);
-			entries.addAfter(Items.CROSSBOW, SLINGSHOT);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertAfter(Items.SPECTRAL_ARROW, TORCH_ARROW);
+			entries.insertAfter(Items.NETHERITE_BOOTS, VOIDMETAL_HELMET, VOIDMETAL_CHESTPLATE, VOIDMETAL_LEGGINGS, VOIDMETAL_BOOTS);
+			entries.insertAfter(Items.CROSSBOW, SLINGSHOT);
 		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register((FabricItemGroupEntries entries) -> {
-			entries.addAfter(Items.CHARCOAL, SULFUR);
-			entries.addAfter(Items.GUNPOWDER, ASH);
-			entries.addAfter(Items.FLINT, ROCK);
-			entries.addAfter(Items.NETHER_WART, CHORUS_SPORE);
-			entries.addAfter(Items.EXPERIENCE_BOTTLE, AURA_BOTTLES.values().toArray(Item[]::new));
-			entries.addAfter(Items.NETHERITE_INGOT, VOIDMETAL_INGOT);
-			entries.addAfter(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, VOIDMETAL_UPGRADE);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register((FabricCreativeModeTabOutput entries) -> {
+			entries.insertAfter(Items.CHARCOAL, SULFUR);
+			entries.insertAfter(Items.GUNPOWDER, ASH);
+			entries.insertAfter(Items.FLINT, ROCK);
+			entries.insertAfter(Items.NETHER_WART, CHORUS_SPORE);
+			entries.insertAfter(Items.EXPERIENCE_BOTTLE, AURA_BOTTLES.values().toArray(Item[]::new));
+			entries.insertAfter(Items.NETHERITE_INGOT, VOIDMETAL_INGOT);
+			entries.insertAfter(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, VOIDMETAL_UPGRADE);
 		});
 	}
 

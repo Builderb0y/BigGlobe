@@ -10,8 +10,9 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
+import net.minecraft.world.level.storage.SavedDataStorage;
+
 import com.mojang.datafixers.DataFixer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,14 +35,14 @@ public class ServerChunkLoadingManager_InitStructureManager {
 		LightChunkGetter chunkProvider,
 		ChunkGenerator chunkGenerator,
 		ChunkStatusUpdateListener chunkStatusChangeListener,
-		Supplier<DimensionDataStorage> persistentStateManagerFactory,
+		Supplier<SavedDataStorage> persistentStateManagerFactory,
 		TicketStorage ticketManager,
 		int viewDistance,
 		boolean dsync,
 		CallbackInfo callback
 	) {
 		if (chunkGenerator instanceof BigGlobeScriptedChunkGenerator generator) {
-			generator.initStructureManager(world.getServer().getWorldData().worldGenOptions().generateStructures());
+			generator.initStructureManager(world.getServer().getWorldGenSettings().options().generateStructures());
 		}
 	}
 }

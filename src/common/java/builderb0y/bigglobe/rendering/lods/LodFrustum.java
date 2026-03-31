@@ -2,7 +2,7 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.FrustumIntersection;
@@ -32,11 +32,7 @@ public class LodFrustum {
 		this.system = system;
 	}
 
-	public void setup(
-
-		WorldExtractionContext context
-
-	) {
+	public void setup(LevelExtractionContext context) {
 
 		this.modelViewMatrix.set(context.viewMatrix());
 
@@ -49,7 +45,7 @@ public class LodFrustum {
 
 		float vanillaViewDistance = renderer.getRenderDistance();
 
-		float aboveDifference = (float)(this.y - HeightLimitViewVersions.getMaxY(context.world()));
+		float aboveDifference = (float)(this.y - HeightLimitViewVersions.getMaxY(context.level()));
 		if (aboveDifference > 0.0F) {
 			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.5F);
 		}

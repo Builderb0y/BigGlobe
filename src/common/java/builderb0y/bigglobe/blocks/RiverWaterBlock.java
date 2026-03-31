@@ -30,6 +30,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.autocodec.annotations.AddPseudoField;
@@ -103,9 +104,9 @@ public class RiverWaterBlock extends LiquidBlock {
 			//so, why do I still add it to itself anyway?
 			//it's so that the change to velocity is slightly smoother.
 			entity.push(
-				world.random.triangle((velocity.x + entity.getDeltaMovement().x) * 0.125D, 0.125D),
-				world.random.triangle((velocity.y + entity.getDeltaMovement().y) * 0.125D, 0.25D),
-				world.random.triangle((velocity.z + entity.getDeltaMovement().z) * 0.125D, 0.125D)
+				world.getRandom().triangle((velocity.x + entity.getDeltaMovement().x) * 0.125D, 0.125D),
+				world.getRandom().triangle((velocity.y + entity.getDeltaMovement().y) * 0.125D, 0.25D),
+				world.getRandom().triangle((velocity.z + entity.getDeltaMovement().z) * 0.125D, 0.125D)
 			);
 		}
 	}
@@ -141,13 +142,21 @@ public class RiverWaterBlock extends LiquidBlock {
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return (
-			context.isAbove(SHAPE_STABLE, pos, true) &&
-			context.canStandOnFluid(world.getFluidState(pos.above()), state.getFluidState())
-				? SHAPE_STABLE
-				: Shapes.empty()
-		);
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		if (
+			state.getValue(LEVEL) == 0 &&
+			context instanceof EntityCollisionContext entityContext &&
+			entityContext.getEntity() instanceof LivingEntity livingEntity
+		) {
+			VoxelShape shape = livingEntity.getLiquidCollisionShape();
+			if (
+				context.isAbove(shape, pos, true) &&
+				context.canStandOnFluid(level.getFluidState(pos.above()), state.getFluidState())
+			) {
+				return shape;
+			}
+		}
+		return Shapes.empty();
 	}
 
 	@Override

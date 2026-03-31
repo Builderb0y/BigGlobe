@@ -39,7 +39,7 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 		int maxSection,
 		Config config
 	) {
-		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x, chunk.getPos().z);
+		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x(), chunk.getPos().z());
 		Async.loop(
 			BigGlobeThreadPool.autoExecutor(), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int yCoord) -> {
 				LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(yCoord));

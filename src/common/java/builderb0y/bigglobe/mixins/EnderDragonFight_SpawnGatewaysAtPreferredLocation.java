@@ -7,9 +7,9 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.dimension.end.EndDragonFight;
+import net.minecraft.world.level.dimension.end.EnderDragonFight;
 
-@Mixin(EndDragonFight.class)
+@Mixin(EnderDragonFight.class)
 public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 
 	@Shadow

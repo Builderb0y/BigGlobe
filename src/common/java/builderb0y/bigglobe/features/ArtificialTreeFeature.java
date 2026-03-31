@@ -70,7 +70,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		Config config = context.config();
 		IRandomList<Holder<Block>> saplingBlocks = config.palette.value().saplingBlocks();
 		BlockPos origin = context.origin();
-		if (!saplingBlocks.contains(world.getBlockState(origin).getBlockHolder())) return false;
+		if (!saplingBlocks.contains(world.getBlockState(origin).typeHolder())) return false;
 		Permuter permuter = Permuter.from(context.random());
 		ScriptedColumn column = generator.newColumn(world, origin.getX(), origin.getZ(), ColumnUsage.GENERIC.normalHints());
 		int maxSaplingCount = config.max_saplings != null ? config.max_saplings.get(column, permuter, origin.getY()) : 64;
@@ -86,7 +86,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		for (BlockPos pos; (pos = toCheck.pollFirst()) != null; ) {
 			for (Direction direction : Directions.HORIZONTAL) {
 				BlockPos offset = pos.relative(direction);
-				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).getBlockHolder())) {
+				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).typeHolder())) {
 					blockQueue.queueBlock(offset, BlockStates.AIR);
 					centerX += offset.getX();
 					centerZ += offset.getZ();

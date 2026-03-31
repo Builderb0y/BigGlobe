@@ -4,7 +4,9 @@ import java.util.TreeSet;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.jetbrains.annotations.NotNull;
@@ -27,18 +29,17 @@ public class WaypointWarpRenderer implements SafeCloseable {
 	public static void init() {
 		try {
 			INSTANCE = new WaypointWarpRenderer();
-
-			WorldRenderEvents.END_EXTRACTION.register(context -> {
+			LevelRenderEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
 				WaypointWarpRenderer renderer = INSTANCE;
 				if (renderer != null) {
-					for (EntityRenderState entity : context.worldState().entityRenderStates) {
+					for (EntityRenderState entity : context.levelState().entityRenderStates) {
 						if (entity instanceof WaypointEntityRenderer.State waypoint) {
 							renderer.markWaypointVisible(waypoint.x, waypoint.y, waypoint.z, waypoint.ageInTicks, waypoint.health);
 						}
 					}
 				}
 			});
-			WorldRenderEvents.END_MAIN.register(context -> {
+			LevelRenderEvents.END_MAIN.register((LevelRenderContext context) -> {
 				WaypointWarpRenderer renderer = INSTANCE;
 				if (renderer != null) {
 					renderer.draw();

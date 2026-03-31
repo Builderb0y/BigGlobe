@@ -26,7 +26,7 @@ public class Derivative1D implements Cloneable {
 		this.dx = that.dx;
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	public Derivative1D set(double value) {
 		return this.set(value, 0.0D);
@@ -42,7 +42,7 @@ public class Derivative1D implements Cloneable {
 		return this.set(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	public Derivative1D add(double value) {
 		this.value += value;
@@ -57,7 +57,7 @@ public class Derivative1D implements Cloneable {
 		return this.add(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// sub ////////////////////////////////
+	//////////////////////////////// sub ////////////////////////////////
 
 	public Derivative1D sub(double value) {
 		this.value -= value;
@@ -72,7 +72,7 @@ public class Derivative1D implements Cloneable {
 		return this.sub(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// subRev ////////////////////////////////
+	//////////////////////////////// subRev ////////////////////////////////
 
 	public Derivative1D subRev(double value) {
 		return this.set(value - this.value, -this.dx);
@@ -86,7 +86,7 @@ public class Derivative1D implements Cloneable {
 		return this.subRev(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// mul ////////////////////////////////
+	//////////////////////////////// mul ////////////////////////////////
 
 	public Derivative1D mul(double value) {
 		return this.set(this.value * value, this.dx * value);
@@ -103,7 +103,7 @@ public class Derivative1D implements Cloneable {
 		return this.mul(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// div ////////////////////////////////
+	//////////////////////////////// div ////////////////////////////////
 
 	public Derivative1D div(double value) {
 		return this.set(this.value / value, this.dx / value);
@@ -121,7 +121,7 @@ public class Derivative1D implements Cloneable {
 		return this.div(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// divRev ////////////////////////////////
+	//////////////////////////////// divRev ////////////////////////////////
 
 	public Derivative1D divRev(double value) {
 		double minusValueSquared = -BigGlobeMath.squareD(this.value);
@@ -143,7 +143,7 @@ public class Derivative1D implements Cloneable {
 		return this.divRev(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// pos ////////////////////////////////
+	//////////////////////////////// pos ////////////////////////////////
 
 	public Derivative1D pow(double exponent) {
 		double chain = exponent * Math.pow(this.value, exponent - 1.0D);
@@ -167,13 +167,13 @@ public class Derivative1D implements Cloneable {
 		return this.pow(that.value, that.dx);
 	}
 
-	/// ///////////////////////////// unary ////////////////////////////////
+	//////////////////////////////// unary ////////////////////////////////
 
 	public Derivative1D negate() {
 		return this.set(-this.value, -this.dx);
 	}
 
-	/// ///////////////////////////// simple powers ////////////////////////////////
+	//////////////////////////////// simple powers ////////////////////////////////
 
 	public Derivative1D rcp() {
 		double minusValueSquared = -BigGlobeMath.squareD(this.value);
@@ -200,7 +200,7 @@ public class Derivative1D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// exponentials ////////////////////////////////
+	//////////////////////////////// exponentials ////////////////////////////////
 
 	public Derivative1D exp() {
 		double expValue = Math.exp(this.value);
@@ -217,7 +217,7 @@ public class Derivative1D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// trig ////////////////////////////////
+	//////////////////////////////// trig ////////////////////////////////
 
 	public Derivative1D sin() {
 		double chain = Math.cos(this.value);
@@ -243,7 +243,7 @@ public class Derivative1D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// hyperbolic trig ////////////////////////////////
+	//////////////////////////////// hyperbolic trig ////////////////////////////////
 
 	public Derivative1D sinh() {
 		double chain = Math.cosh(this.value);
@@ -269,7 +269,7 @@ public class Derivative1D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// inverse trig ////////////////////////////////
+	//////////////////////////////// inverse trig ////////////////////////////////
 
 	public Derivative1D asin() {
 		double chain = 1.0D / Math.sqrt(1.0D - BigGlobeMath.squareD(this.value));
@@ -295,7 +295,7 @@ public class Derivative1D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// inverse hyperbolic trig ////////////////////////////////
+	//////////////////////////////// inverse hyperbolic trig ////////////////////////////////
 
 	public Derivative1D asinh() {
 		double chain = 1.0D / Math.sqrt(BigGlobeMath.squareD(this.value) + 1.0D);
@@ -321,7 +321,7 @@ public class Derivative1D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// misc ////////////////////////////////
+	//////////////////////////////// misc ////////////////////////////////
 
 	public Derivative1D chain(DoubleUnaryOperator function, DoubleUnaryOperator derivative) {
 		double chain = derivative.applyAsDouble(this.value);

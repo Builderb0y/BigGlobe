@@ -22,7 +22,7 @@ public class ItemStackWrapper {
 	public static final ItemStack EMPTY = ItemStack.EMPTY;
 	public static final TagParser TAG_PARSER = new TagParser("ItemTag", ItemTag.class, "ItemStack", MethodInfo.inCaller("isIn"));
 
-	/// ///////////////////////////// creating stacks ////////////////////////////////
+	//////////////////////////////// creating stacks ////////////////////////////////
 
 	public static ItemStack create(Item item) {
 		return new ItemStack(item);
@@ -70,7 +70,7 @@ public class ItemStackWrapper {
 		return stack.getItem();
 	}
 
-	/// ///////////////////////////// count ////////////////////////////////
+	//////////////////////////////// count ////////////////////////////////
 
 	public static boolean empty(ItemStack stack) {
 		return stack.isEmpty();
@@ -88,7 +88,7 @@ public class ItemStackWrapper {
 		return stack.getCount();
 	}
 
-	/// ///////////////////////////// damage ////////////////////////////////
+	//////////////////////////////// damage ////////////////////////////////
 
 	public static int maxDamage(ItemStack stack) {
 		return stack.getMaxDamage();
@@ -102,15 +102,15 @@ public class ItemStackWrapper {
 		return stack.getDamageValue();
 	}
 
-	/// ///////////////////////////// nbt ////////////////////////////////
+	//////////////////////////////// nbt ////////////////////////////////
 
 	public static CompoundTag nbt(ItemStack stack) {
 		return ItemStackVersions.toNbt(stack);
 	}
 
-	/// ///////////////////////////// other ////////////////////////////////
+	//////////////////////////////// other ////////////////////////////////
 
 	public static boolean isIn(ItemStack stack, ItemTag tag) {
-		return tag.list.contains(stack.getItemHolder());
+		return tag.list.contains(stack.typeHolder());
 	}
 }

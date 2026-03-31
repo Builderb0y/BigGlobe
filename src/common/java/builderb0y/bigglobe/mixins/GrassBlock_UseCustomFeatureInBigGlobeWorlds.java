@@ -17,7 +17,7 @@ public class GrassBlock_UseCustomFeatureInBigGlobeWorlds {
 	@Inject(method = "performBonemeal", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_useCustomFeatureInBigGlobeWorlds(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, CallbackInfo callback) {
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.grass_bonemeal_feature != null) {
-			generator.grass_bonemeal_feature.value().place(world, generator, world.random, pos);
+			generator.grass_bonemeal_feature.value().place(world, generator, world.getRandom(), pos);
 			callback.cancel();
 		}
 	}

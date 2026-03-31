@@ -40,7 +40,7 @@ public class UseWaypointPacket implements C2SPlayPacketHandler<Integer> {
 			return;
 		}
 		if (!BigGlobeConfig.INSTANCE.get().hyperspaceEnabled && EntityVersions.getWorld(player).dimension() != HyperspaceConstants.WORLD_KEY) {
-			player.displayClientMessage(Component.translatable("bigglobe.hyperspace.disabled").withStyle(ChatFormatting.RED), true);
+			player.sendOverlayMessage(Component.translatable("bigglobe.hyperspace.disabled").withStyle(ChatFormatting.RED));
 			return;
 		}
 		PlayerWaypointManager manager = PlayerWaypointManager.get(player);

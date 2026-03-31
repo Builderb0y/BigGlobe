@@ -60,8 +60,8 @@ public interface StreamableStructurePlacement {
 
 	public static int distance(ChunkPos chunkPos, int centerChunkX, int centerChunkZ) {
 		return Math.max(
-			Math.abs(chunkPos.x - centerChunkX),
-			Math.abs(chunkPos.z - centerChunkZ)
+			Math.abs(chunkPos.x() - centerChunkX),
+			Math.abs(chunkPos.z() - centerChunkZ)
 		);
 	}
 

@@ -39,7 +39,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 	@Unique
 	private static final ThreadLocal<Identifier> CURRENT_TAG_ID = new ThreadLocal<>();
 
-	@WrapMethod(method = "method_51476")
+	@WrapMethod(method = "lambda$build$1")
 	private void bigglobe_storeCurrentTagId(
 		Lookup valueGetter,
 		Map map,

@@ -168,8 +168,8 @@ public class BigGlobeLocateCommand {
 			centerZ - range,
 			centerX + range,
 			centerZ + range,
-			source.getLevel().random.nextDouble(),
-			source.getLevel().random.nextDouble()
+			source.getLevel().getRandom().nextDouble(),
+			source.getLevel().getRandom().nextDouble()
 		);
 	}
 

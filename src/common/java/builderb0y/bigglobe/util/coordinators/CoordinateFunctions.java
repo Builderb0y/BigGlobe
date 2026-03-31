@@ -114,7 +114,7 @@ public class CoordinateFunctions {
 
 		public abstract void run(Coordinator coordinator, int x, int y, int z, T arg);
 
-		/// ///////////////////////////// internal helper methods ////////////////////////////////
+		//////////////////////////////// internal helper methods ////////////////////////////////
 
 		public static CoordinatorConsumer<CoordinateRunnable> getCoordinates() {
 			return Coordinator::getCoordinates;
@@ -196,7 +196,7 @@ public class CoordinateFunctions {
 
 		public abstract void run(Coordinator coordinator, int x, int y, int z, int index, T arg);
 
-		/// ///////////////////////////// internal helper methods ////////////////////////////////
+		//////////////////////////////// internal helper methods ////////////////////////////////
 
 		public static LineConsumer<CoordinateRunnable> getCoordinates() {
 			return (Coordinator coordinator, int x, int y, int z, int index, CoordinateRunnable action) -> coordinator.getCoordinates(x, y, z, action);

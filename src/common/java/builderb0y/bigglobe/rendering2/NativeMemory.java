@@ -1,9 +1,12 @@
-package builderb0y.bigglobe.rendering;
+package builderb0y.bigglobe.rendering2;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Objects;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.lwjgl.system.*;
 
 import builderb0y.bigglobe.util.SafeCloseable;
 
@@ -16,8 +19,7 @@ public class NativeMemory implements SafeCloseable {
 	public long capacity;
 	public long used;
 
-	public NativeMemory() {
-	}
+	public NativeMemory() {}
 
 	public NativeMemory(long capacity) {
 		this.address = nmemAllocChecked(capacity);
@@ -84,76 +86,56 @@ public class NativeMemory implements SafeCloseable {
 		return address;
 	}
 
-	public void appendByte(byte value) {
+	public NativeMemory appendByte(byte value) {
 		memPutByte(this.addressForAppending(Byte.BYTES), value);
+		return this;
 	}
 
-	public void appendShort(short value) {
-		memPutShort(this.addressForAppending(Short.BYTES), value);
+	public NativeMemory appendShort(short value, ByteOrder order) {
+		memPutShort(this.addressForAppending(Short.BYTES), order == ByteOrder.nativeOrder() ? value : Short.reverseBytes(value));
+		return this;
 	}
 
-	public void appendInt(int value) {
-		memPutInt(this.addressForAppending(Integer.BYTES), value);
+	public NativeMemory appendInt(int value, ByteOrder order) {
+		memPutInt(this.addressForAppending(Integer.BYTES), order == ByteOrder.nativeOrder() ? value : Integer.reverseBytes(value));
+		return this;
 	}
 
-	public void appendLong(long value) {
-		memPutLong(this.addressForAppending(Long.BYTES), value);
+	public NativeMemory appendLong(long value, ByteOrder order) {
+		memPutLong(this.addressForAppending(Long.BYTES), order == ByteOrder.nativeOrder() ? value : Long.reverseBytes(value));
+		return this;
 	}
 
-	public void appendFloat(float value) {
-		memPutFloat(this.addressForAppending(Float.BYTES), value);
+	public NativeMemory appendFloat(float value, ByteOrder order) {
+		memPutInt(this.addressForAppending(Float.BYTES), order == ByteOrder.nativeOrder() ? Float.floatToRawIntBits(value) : Integer.reverseBytes(Float.floatToRawIntBits(value)));
+		return this;
 	}
 
-	public void appendDouble(double value) {
-		memPutDouble(this.addressForAppending(Double.BYTES), value);
+	public NativeMemory appendDouble(double value, ByteOrder order) {
+		memPutLong(this.addressForAppending(Double.BYTES), order == ByteOrder.nativeOrder() ? Double.doubleToRawLongBits(value) : Long.reverseBytes(Double.doubleToRawLongBits(value)));
+		return this;
 	}
 
-	public void appendBytes(byte... values) {
-		long address = this.addressForAppending(values.length);
-		for (byte value : values) {
-			memPutByte(address, value);
-			address += Byte.BYTES;
+	public int intUsed() {
+		if (this.used <= Integer.MAX_VALUE) {
+			return (int)(this.used);
+		}
+		else {
+			throw new IllegalStateException("NativeMemory too big: " + this.used + " / " + this.capacity + " bytes used.");
 		}
 	}
 
-	public void appendShorts(short... values) {
-		long address = this.addressForAppending(Math.multiplyExact(values.length, Short.BYTES));
-		for (short value : values) {
-			memPutShort(address, value);
-			address += Byte.BYTES;
+	public int intCapacity() {
+		if (this.capacity <= Integer.MAX_VALUE) {
+			return (int)(this.capacity);
+		}
+		else {
+			throw new IllegalStateException("NativeMemory too big: " + this.used + " / " + this.capacity + " bytes used.");
 		}
 	}
 
-	public void appendInts(int... values) {
-		long address = this.addressForAppending(Math.multiplyExact(values.length, Integer.BYTES));
-		for (int value : values) {
-			memPutInt(address, value);
-			address += Byte.BYTES;
-		}
-	}
-
-	public void appendLongs(long... values) {
-		long address = this.addressForAppending(Math.multiplyExact(values.length, Long.BYTES));
-		for (long value : values) {
-			memPutLong(address, value);
-			address += Byte.BYTES;
-		}
-	}
-
-	public void appendFloats(float... values) {
-		long address = this.addressForAppending(Math.multiplyExact(values.length, Float.BYTES));
-		for (float value : values) {
-			memPutFloat(address, value);
-			address += Byte.BYTES;
-		}
-	}
-
-	public void appendDoubles(double... values) {
-		long address = this.addressForAppending(Math.multiplyExact(values.length, Double.BYTES));
-		for (double value : values) {
-			memPutDouble(address, value);
-			address += Byte.BYTES;
-		}
+	public ByteBuffer toByteBuffer() {
+		return MemoryUtil.memByteBuffer(this.address, this.intUsed());
 	}
 
 	@Override

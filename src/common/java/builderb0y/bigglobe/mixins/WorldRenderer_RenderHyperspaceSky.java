@@ -1,22 +1,13 @@
 package builderb0y.bigglobe.mixins;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
-import com.mojang.blaze3d.framegraph.FramePass;
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.client.Camera;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LevelTargetBundle;
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
 
 @Mixin(LevelRenderer.class)
 public abstract class WorldRenderer_RenderHyperspaceSky {
@@ -27,7 +18,9 @@ public abstract class WorldRenderer_RenderHyperspaceSky {
 	@Final
 	private LevelTargetBundle targets;
 
-	@Inject(method = "addSkyPass", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/state/SkyRenderState;skybox:Lnet/minecraft/world/level/dimension/DimensionType$Skybox;", opcode = Opcodes.GETFIELD), cancellable = true)
+	//todo: re-enable once rendering is re-written.
+	/*
+   	@Inject(method = "addSkyPass", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/state/SkyRenderState;skybox:Lnet/minecraft/world/level/dimension/DimensionType$Skybox;", opcode = Opcodes.GETFIELD), cancellable = true)
 	private void bigglobe_renderHyperspaceSky(
 		FrameGraphBuilder frameGraphBuilder,
 		Camera camera,
@@ -41,4 +34,5 @@ public abstract class WorldRenderer_RenderHyperspaceSky {
 			callback.cancel();
 		}
 	}
+	*/
 }

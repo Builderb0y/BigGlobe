@@ -24,7 +24,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		return (EmptyRandomList<E>)(INSTANCE);
 	}
 
-	/// ///////////////////////////// get ////////////////////////////////
+	//////////////////////////////// get ////////////////////////////////
 
 	@Override
 	public E get(int index) {
@@ -51,7 +51,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		throw new NoSuchElementException();
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	@Override
 	public E set(int index, E element) {
@@ -80,7 +80,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		//no-op
 	}
 
-	/// ///////////////////////////// contains ////////////////////////////////
+	//////////////////////////////// contains ////////////////////////////////
 
 	@Override
 	public boolean contains(Object o) {
@@ -102,7 +102,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		return -1;
 	}
 
-	/// ///////////////////////////// size/empty ////////////////////////////////
+	//////////////////////////////// size/empty ////////////////////////////////
 
 	@Override
 	public int size() {
@@ -124,7 +124,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		return true;
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	@Override
 	public boolean add(E e) {
@@ -156,7 +156,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		throw new UnsupportedOperationException();
 	}
 
-	/// ///////////////////////////// remove ////////////////////////////////
+	//////////////////////////////// remove ////////////////////////////////
 
 	@Override
 	public E remove(int index) {
@@ -189,7 +189,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		//no-op
 	}
 
-	/// ///////////////////////////// iterators ////////////////////////////////
+	//////////////////////////////// iterators ////////////////////////////////
 
 	@Override
 	public WeightedIterator<E> iterator() {
@@ -228,7 +228,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		//no-op.
 	}
 
-	/// ///////////////////////////// view ////////////////////////////////
+	//////////////////////////////// view ////////////////////////////////
 
 	@Override
 	public Object[] toArray() {
@@ -254,7 +254,7 @@ public class EmptyRandomList<E> implements RandomAccessKnownTotalWeightRandomLis
 		return this;
 	}
 
-	/// ///////////////////////////// other ////////////////////////////////
+	//////////////////////////////// other ////////////////////////////////
 
 	@Override
 	public void sort(Comparator<? super E> comparator) {

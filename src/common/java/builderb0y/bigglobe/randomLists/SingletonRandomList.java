@@ -21,7 +21,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		this.weight = weight;
 	}
 
-	/// ///////////////////////////// get ////////////////////////////////
+	//////////////////////////////// get ////////////////////////////////
 
 	@Override
 	public E get(int index) {
@@ -50,7 +50,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		return this.weight > 0.0D ? 0 : -1;
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	@Override
 	public E set(int index, E element) {
@@ -87,7 +87,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		this.weight = operator.applyAsDouble(this.element);
 	}
 
-	/// ///////////////////////////// contains ////////////////////////////////
+	//////////////////////////////// contains ////////////////////////////////
 
 	@Override
 	public boolean contains(Object o) {
@@ -122,7 +122,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		return Objects.equals(o, this.element) ? 0 : -1;
 	}
 
-	/// ///////////////////////////// size/empty ////////////////////////////////
+	//////////////////////////////// size/empty ////////////////////////////////
 
 	@Override
 	public int size() {
@@ -139,7 +139,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		return this.isWeightless(); //isEmpty() is always false.
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	@Override
 	public boolean add(E e) {
@@ -171,7 +171,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		throw new UnsupportedOperationException();
 	}
 
-	/// ///////////////////////////// remove ////////////////////////////////
+	//////////////////////////////// remove ////////////////////////////////
 
 	@Override
 	public E remove(int index) {
@@ -203,7 +203,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		throw new UnsupportedOperationException();
 	}
 
-	/// ///////////////////////////// iterators ////////////////////////////////
+	//////////////////////////////// iterators ////////////////////////////////
 
 	@Override
 	public WeightedIterator<E> iterator() {
@@ -243,7 +243,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		action.accept(this.element);
 	}
 
-	/// ///////////////////////////// view ////////////////////////////////
+	//////////////////////////////// view ////////////////////////////////
 
 	@Override
 	public Object[] toArray() {
@@ -272,7 +272,7 @@ public class SingletonRandomList<E> implements RandomAccessKnownTotalWeightRando
 		return this;
 	}
 
-	/// ///////////////////////////// other ////////////////////////////////
+	//////////////////////////////// other ////////////////////////////////
 
 	@Override
 	public void sort(Comparator<? super E> c) {

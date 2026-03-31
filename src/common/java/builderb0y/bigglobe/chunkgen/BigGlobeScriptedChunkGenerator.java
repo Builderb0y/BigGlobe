@@ -125,7 +125,7 @@ import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
@@ -185,15 +185,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public final @VerifyNullable String reload_preset;
 	public final @VerifyNullable String reload_dimension;
-
 	public static record Height(
 		@VerifyDivisibleBy16 int min_y,
 		@VerifyDivisibleBy16 @VerifySorted(greaterThan = "min_y") int max_y,
 		@VerifyNullable Integer sea_level
-	) {
-
-	}
-
+	) {}
 	public final Height height;
 	public final Holder<Layer> layer;
 	public final FeatureDispatchers feature_dispatcher;
@@ -204,9 +200,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		ColorScript.@VerifyNullable Holder grass,
 		ColorScript.@VerifyNullable Holder foliage,
 		ColorScript.@VerifyNullable Holder water
-	) {
-
-	}
+	) {}
 
 	public final @VerifyNullable ColorOverrides colors;
 	public final @VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature;
@@ -214,9 +208,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public static record NetherOverrides(
 		boolean place_portal_at_high_y_level,
 		boolean prevent_roof_exploration
-	) {
-
-	}
+	) {}
 
 	public final @VerifyNullable NetherOverrides nether_overrides;
 
@@ -254,9 +246,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public static record CreakingOverrides(
 		ResourceKey<Level> time_reference
-	) {
-
-	}
+	) {}
 
 	public final @VerifyNullable CreakingOverrides creaking_overrides;
 
@@ -287,9 +277,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient ColumnEntryRegistry columnEntryRegistry;
 	public final BetterRegistry<ExtraSpawn> extraSpawnRegistry;
 
-	public static record BiomeSpawnGroup(Holder<Biome> biome, MobCategory spawnGroup) {
-
-	}
+	public static record BiomeSpawnGroup(Holder<Biome> biome, MobCategory spawnGroup) {}
 
 	public final transient Map<BiomeSpawnGroup, WeightedList<SpawnerData>> extraSpawns;
 
@@ -638,20 +626,20 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, net.minecraft.world.level.StructureManager accessor, MobCategory group, BlockPos pos) {
 		return (
 			accessor
-				.startsForStructure(new ChunkPos(pos), Predicates.alwaysTrue())
-				.stream()
-				.map((StructureStart start) -> {
-					if (!start.getBoundingBox().isInside(pos)) return null;
-					StructureSpawnOverride spawns = start.getStructure().spawnOverrides().get(group);
-					if (spawns == null) return null;
-					if (spawns.boundingBox() == BoundingBoxType.PIECE) {
-						return start.getPieces().stream().map(StructurePiece::getBoundingBox).anyMatch(box -> box.isInside(pos)) ? spawns.spawns() : null;
-					}
-					return spawns.spawns();
-				})
-				.filter(Objects::nonNull)
-				.findAny()
-				.orElseGet(() -> this.getSpawnEntries(biome, group))
+			.startsForStructure(ChunkPos.containing(pos), Predicates.alwaysTrue())
+			.stream()
+			.map((StructureStart start) -> {
+				if (!start.getBoundingBox().isInside(pos)) return null;
+				StructureSpawnOverride spawns = start.getStructure().spawnOverrides().get(group);
+				if (spawns == null) return null;
+				if (spawns.boundingBox() == BoundingBoxType.PIECE) {
+					return start.getPieces().stream().map(StructurePiece::getBoundingBox).anyMatch(box -> box.isInside(pos)) ? spawns.spawns() : null;
+				}
+				return spawns.spawns();
+			})
+			.filter(Objects::nonNull)
+			.findAny()
+			.orElseGet(() -> this.getSpawnEntries(biome, group))
 		);
 	}
 
@@ -701,10 +689,16 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 								float f = type(spawnEntry).getWidth();
 								double d = Mth.clamp((double)l, (double)i + (double)f, (double)i + 16.0 - (double)f);
 								double e = Mth.clamp((double)m, (double)j + (double)f, (double)j + 16.0 - (double)f);
-								if (!region.noCollision(type(spawnEntry).getSpawnAABB(d, (double)blockPos.getY(), e))
-								|| !SpawnPlacements.checkSpawnRules(
-									type(spawnEntry), region, EntitySpawnReason.CHUNK_GENERATION, BlockPos.containing(d, (double)blockPos.getY(), e), region.getRandom()
-								)) {
+								if (
+									!region.noCollision(type(spawnEntry).getSpawnAABB(d, (double)blockPos.getY(), e))
+									|| !SpawnPlacements.checkSpawnRules(
+										type(spawnEntry),
+										region,
+										EntitySpawnReason.CHUNK_GENERATION,
+										BlockPos.containing(d, (double)blockPos.getY(), e),
+										region.getRandom()
+									)
+								) {
 									continue;
 								}
 
@@ -757,7 +751,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
 			return CompletableFuture.completedFuture(chunk);
 		}
-		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) {
+		if (WORLD_SLICES && (chunk.getPos().x() & 3) != 0) {
 			return CompletableFuture.completedFuture(chunk);
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
@@ -780,193 +774,191 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			this.compiledWorldTraits
 		);
 		return CompletableFuture.runAsync(
-				() -> {
-					int startX = chunk.getPos().getMinBlockX();
-					int startZ = chunk.getPos().getMinBlockZ();
-					int chunkMinY = HeightLimitViewVersions.getMinY(chunk);
-					int chunkMaxY = HeightLimitViewVersions.getMaxY(chunk);
-					ScriptedColumn[] columns;
-					try {
-						columns = this.columnEntryRegistry.chunkReuseColumns.take();
-					}
-					catch (InterruptedException exception) {
-						BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
-						return;
-					}
-					try {
+			() -> {
+				int startX = chunk.getPos().getMinBlockX();
+				int startZ = chunk.getPos().getMinBlockZ();
+				int chunkMinY = HeightLimitViewVersions.getMinY(chunk);
+				int chunkMaxY = HeightLimitViewVersions.getMaxY(chunk);
+				ScriptedColumn[] columns;
+				try {
+					columns = this.columnEntryRegistry.chunkReuseColumns.take();
+				}
+				catch (InterruptedException exception) {
+					BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
+					return;
+				}
+				try {
 
-						//////////////////////////////// layers ////////////////////////////////
+					//////////////////////////////// layers ////////////////////////////////
 
-						BlockSegmentList[] lists = new BlockSegmentList[256];
-						try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
-							for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
-								final int offsetZ_ = offsetZ;
-								for (int offsetX = 0; offsetX < 16; offsetX += 2) {
-									final int offsetX_ = offsetX;
-									async.submit(() -> {
-										boolean trace = TracyWrapper.ENABLED && TRACE_OPERATION.compareAndSet(true, false);
-										try (ZoneWrapper generateQuad = trace ? TracyWrapper.beginZone("generateQuad") : null) {
-											int baseIndex = (offsetZ_ << 4) | offsetX_;
-											int quadX = startX | offsetX_;
-											int quadZ = startZ | offsetZ_;
-											QuadColumn quadColumn = new QuadColumn();
-											quadColumn.loadFromArray(columns, baseIndex, 16);
-											quadColumn.at(params, quadX, quadZ, 1);
-											try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
-												for (String name : this.getOverriders().rawColumnValueDependencies)
-													try {
-														try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
-															quadColumn.preComputeColumnValue(name);
-														}
-													}
-													catch (Throwable throwable) {
-														BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
-													}
-											}
-											try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
-												for (int index = 0; index < structures.length; index++) {
-													try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overriders[index])::toString) : null) {
-														quadColumn.override(overriders[index].value().script, structures[index]);
+					BlockSegmentList[] lists = new BlockSegmentList[256];
+					try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
+						for (int offsetZ = 0; offsetZ < 16; offsetZ += 2) {
+							final int offsetZ_ = offsetZ;
+							for (int offsetX = 0; offsetX < 16; offsetX += 2) {
+								final int offsetX_ = offsetX;
+								async.submit(() -> {
+									boolean trace = TracyWrapper.ENABLED && TRACE_OPERATION.compareAndSet(true, false);
+									try (ZoneWrapper generateQuad = trace ? TracyWrapper.beginZone("generateQuad") : null) {
+										int baseIndex = (offsetZ_ << 4) | offsetX_;
+										int quadX = startX | offsetX_;
+										int quadZ = startZ | offsetZ_;
+										QuadColumn quadColumn = new QuadColumn();
+										quadColumn.loadFromArray(columns, baseIndex, 16);
+										quadColumn.at(params, quadX, quadZ, 1);
+										try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
+											for (String name : this.getOverriders().rawColumnValueDependencies)
+												try {
+													try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
+														quadColumn.preComputeColumnValue(name);
 													}
 												}
-											}
-											QuadList quadList = new QuadList();
-											quadList.createNew(chunkMinY, chunkMaxY);
-											Layer layer = this.layer.value();
-											try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
-												QuadHolder.generate(quadColumn, quadList, layer);
-											}
-											quadList.storeInArray(lists, baseIndex, 16);
+												catch (Throwable throwable) {
+													BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+												}
 										}
-									});
-								}
-							}
-						}
-
-						//////////////////////////////// compute sections to populate ////////////////////////////////
-
-						int minFilledSectionY = Integer.MAX_VALUE;
-						int maxFilledSectionY = Integer.MIN_VALUE;
-						for (BlockSegmentList list : lists) {
-							int size = list.size();
-							for (int index = 0; index < size; index++) {
-								LitSegment segment = list.get(index);
-								if (!segment.value.isAir()) {
-									minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
-									break;
-								}
-							}
-							for (int index = size; --index >= 0; ) {
-								LitSegment segment = list.get(index);
-								if (!segment.value.isAir()) {
-									maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
-									break;
-								}
-							}
-						}
-						minFilledSectionY >>= 4;
-						maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
-
-						//////////////////////////////// populate sections ////////////////////////////////
-
-						Async.loop(
-							BigGlobeThreadPool.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
-								LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(coord));
-								int baseY = coord << 4;
-								SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
-								BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
-								if (centerState != null) context.setAllStates(centerState, distantHorizons);
-								for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-									BlockSegmentList list = lists[horizontalIndex];
-									int size = list.size();
-									int yIndex = list.getSegmentIndex(baseY, false);
-									while (yIndex < size) {
-										LitSegment segment = list.get(yIndex);
-										int segmentMinY = Math.max(segment.minY - baseY, 0);
-										int segmentMaxY = Math.min(segment.maxY - baseY, 15);
-										if (segmentMaxY >= segmentMinY) {
-											int id = context.id(segment.value);
-											BitStorage storage = context.storage();
-											for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
-												storage.set((blockY << 8) | horizontalIndex, id);
+										try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
+											for (int index = 0; index < structures.length; index++) {
+												try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overriders[index])::toString) : null) {
+													quadColumn.override(overriders[index].value().script, structures[index]);
+												}
 											}
 										}
-										yIndex++;
+										QuadList quadList = new QuadList();
+										quadList.createNew(chunkMinY, chunkMaxY);
+										Layer layer = this.layer.value();
+										try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
+											QuadHolder.generate(quadColumn, quadList, layer);
+										}
+										quadList.storeInArray(lists, baseIndex, 16);
 									}
-								}
+								});
 							}
-						);
+						}
+					}
 
-						//////////////////////////////// heightmaps ////////////////////////////////
+					//////////////////////////////// compute sections to populate ////////////////////////////////
 
-						for (Heightmap.Types type : chunk.getPersistedStatus().heightmapsAfter()) {
-							Heightmap heightmap = chunk.getOrCreateHeightmapUnprimed(type);
-							@SuppressWarnings("CastToIncompatibleInterface")
-							BitStorage heightmapStorage = ((Heightmap_StorageAccess)(heightmap)).bigglobe_getStorage();
+					int minFilledSectionY = Integer.MAX_VALUE;
+					int maxFilledSectionY = Integer.MIN_VALUE;
+					for (BlockSegmentList list : lists) {
+						int size = list.size();
+						for (int index = 0; index < size; index++) {
+							LitSegment segment = list.get(index);
+							if (!segment.value.isAir()) {
+								minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
+								break;
+							}
+						}
+						for (int index = size; --index >= 0; ) {
+							LitSegment segment = list.get(index);
+							if (!segment.value.isAir()) {
+								maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
+								break;
+							}
+						}
+					}
+					minFilledSectionY >>= 4;
+					maxFilledSectionY = (maxFilledSectionY >> 4) + 1;
+
+					//////////////////////////////// populate sections ////////////////////////////////
+
+					Async.loop(
+						BigGlobeThreadPool.executor(distantHorizons), minFilledSectionY, maxFilledSectionY, 1, (int coord) -> {
+							LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(coord));
+							int baseY = coord << 4;
+							SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
+							BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
+							if (centerState != null) context.setAllStates(centerState, distantHorizons);
 							for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 								BlockSegmentList list = lists[horizontalIndex];
-								if (!list.isEmpty()) {
-									int height = getHeight(list, type);
-									height = Mth.clamp(height - HeightLimitViewVersions.getMinY(chunk), 0, HeightLimitViewVersions.getHeight(chunk));
-									heightmapStorage.set(horizontalIndex, height);
+								int size = list.size();
+								int yIndex = list.getSegmentIndex(baseY, false);
+								while (yIndex < size) {
+									LitSegment segment = list.get(yIndex);
+									int segmentMinY = Math.max(segment.minY - baseY, 0);
+									int segmentMaxY = Math.min(segment.maxY - baseY, 15);
+									if (segmentMaxY >= segmentMinY) {
+										int id = context.id(segment.value);
+										BitStorage storage = context.storage();
+										for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
+											storage.set((blockY << 8) | horizontalIndex, id);
+										}
+									}
+									yIndex++;
 								}
 							}
 						}
+					);
 
-						//////////////////////////////// raw feature dispatchers ////////////////////////////////
+					//////////////////////////////// heightmaps ////////////////////////////////
 
-						WorldWrapper worldWrapper = new WorldWrapper(
-							new ChunkDelegator(chunk, this.columnSeed),
-							this,
-							new Permuter(Permuter.permute(this.columnSeed, chunk.getPos())),
-							new Coordination(
-								SymmetricOffset.IDENTITY,
-								WorldUtil.chunkBox(chunk),
-								WorldUtil.chunkBox(chunk)
-							),
-							hints
-						);
-						worldWrapper.overriders = new AutoOverride(
-							structures,
-							this.getOverriders().rawColumnValues.overriders(),
-							this.getOverriders().rawColumnValueDependencies
-						);
-						for (ScriptedColumn column : columns) {
-							worldWrapper.columns.put(ColumnPos.asLong(column.x(), column.z()), column);
-						}
-						int minFilledSectionY_ = minFilledSectionY;
-						int maxFilledSectionY_ = maxFilledSectionY;
-						ScriptedColumnLookup.GLOBAL.run(
-							worldWrapper, () -> {
-								if (!distantHorizons) {
-									for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
-										replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
-									}
-								}
-								Async.loop(
-									BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int coord) -> {
-										chunk.getSection(chunk.getSectionIndexFromSectionY(coord)).recalcBlockCounts();
-									}
-								);
-								this.generateRawStructures(chunk, structureAccessor, worldWrapper);
-								this.feature_dispatcher.generateRaw(worldWrapper);
+					for (Heightmap.Types type : chunk.getPersistedStatus().heightmapsAfter()) {
+						Heightmap heightmap = chunk.getOrCreateHeightmapUnprimed(type);
+						@SuppressWarnings("CastToIncompatibleInterface")
+						BitStorage heightmapStorage = ((Heightmap_StorageAccess)(heightmap)).bigglobe_getStorage();
+						for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+							BlockSegmentList list = lists[horizontalIndex];
+							if (!list.isEmpty()) {
+								int height = getHeight(list, type);
+								height = Mth.clamp(height - HeightLimitViewVersions.getMinY(chunk), 0, HeightLimitViewVersions.getHeight(chunk));
+								heightmapStorage.set(horizontalIndex, height);
 							}
-						);
+						}
 					}
-					finally {
-						this.columnEntryRegistry.chunkReuseColumns.add(columns);
-					}
-				},
 
-				Util.backgroundExecutor()
+					//////////////////////////////// raw feature dispatchers ////////////////////////////////
 
-			)
-				.handle((Void result, Throwable throwable) -> {
-					if (throwable != null) {
-						BigGlobeMod.LOGGER.error("Exception populating noise", throwable);
+					WorldWrapper worldWrapper = new WorldWrapper(
+						new ChunkDelegator(chunk, this.columnSeed),
+						this,
+						new Permuter(Permuter.permute(this.columnSeed, chunk.getPos())),
+						new Coordination(
+							SymmetricOffset.IDENTITY,
+							WorldUtil.chunkBox(chunk),
+							WorldUtil.chunkBox(chunk)
+						),
+						hints
+					);
+					worldWrapper.overriders = new AutoOverride(
+						structures,
+						this.getOverriders().rawColumnValues.overriders(),
+						this.getOverriders().rawColumnValueDependencies
+					);
+					for (ScriptedColumn column : columns) {
+						worldWrapper.columns.put(ColumnPos.asLong(column.x(), column.z()), column);
 					}
-					return chunk;
-				});
+					int minFilledSectionY_ = minFilledSectionY;
+					int maxFilledSectionY_ = maxFilledSectionY;
+					ScriptedColumnLookup.GLOBAL.run(
+						worldWrapper, () -> {
+							if (!distantHorizons) {
+								for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
+									replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
+								}
+							}
+							Async.loop(
+								BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int coord) -> {
+									chunk.getSection(chunk.getSectionIndexFromSectionY(coord)).recalcBlockCounts();
+								}
+							);
+							this.generateRawStructures(chunk, structureAccessor, worldWrapper);
+							this.feature_dispatcher.generateRaw(worldWrapper);
+						}
+					);
+				}
+				finally {
+					this.columnEntryRegistry.chunkReuseColumns.add(columns);
+				}
+			},
+			Util.backgroundExecutor()
+		)
+		.handle((Void result, Throwable throwable) -> {
+			if (throwable != null) {
+				BigGlobeMod.LOGGER.error("Exception populating noise", throwable);
+			}
+			return chunk;
+		});
 	}
 
 	@Override
@@ -974,7 +966,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
 			return;
 		}
-		if (WORLD_SLICES && (chunk.getPos().x & 3) != 0) {
+		if (WORLD_SLICES && (chunk.getPos().x() & 3) != 0) {
 			return;
 		}
 		this.generateStructures(world, chunk, structureAccessor);
@@ -1128,7 +1120,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	public static long getStructureSeed(long worldSeed, Identifier structureID, StructureStart start) {
-		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, structureID.hashCode(), start.getChunkPos().x, start.getChunkPos().z);
+		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, structureID.hashCode(), start.getChunkPos().x(), start.getChunkPos().z());
 	}
 
 	@Override
@@ -1137,8 +1129,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		ChunkGeneratorStructureState placementCalculator,
 		net.minecraft.world.level.StructureManager structureAccessor,
 		ChunkAccess chunk,
-		StructureTemplateManager structureTemplateManager
-		, ResourceKey<Level> dimension
+		StructureTemplateManager structureTemplateManager,
+		ResourceKey<Level> dimension
 	) {
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		FinalStructures starts = this.structureManager.getFinalStructures(
@@ -1166,11 +1158,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						0,
 						new PiecesContainer(
 							Stream
-								.concat(
-									start1.getPieces().stream(),
-									start2.getPieces().stream()
-								)
-								.toList()
+							.concat(
+								start1.getPieces().stream(),
+								start2.getPieces().stream()
+							)
+							.toList()
 						)
 					);
 				}
@@ -1195,8 +1187,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			)
 		);
 		for (StructureStart start : intersecting) {
-			if (StreamableStructurePlacement.distance(start.getChunkPos(), chunk.getPos().x, chunk.getPos().z) <= 8) {
-				chunk.addReferenceForStructure(start.getStructure(), start.getChunkPos().toLong());
+			if (StreamableStructurePlacement.distance(start.getChunkPos(), chunk.getPos().x(), chunk.getPos().z()) <= 8) {
+				chunk.addReferenceForStructure(start.getStructure(), start.getChunkPos().pack());
 			}
 		}
 	}
@@ -1220,7 +1212,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					return ((StreamableStructurePlacement)(placement)).bigglobe_getNearbyStartChunks(this, calculator, centerX, centerZ, radius);
 				})
 				.sorted(StreamableStructurePlacement.distanceComparator(centerX, centerZ))
-				.map((ChunkPos chunkPos) -> this.getStructure(world, structures, chunkPos.x, chunkPos.z))
+				.map((ChunkPos chunkPos) -> this.getStructure(world, structures, chunkPos.x(), chunkPos.z()))
 				.filter(Objects::nonNull)
 				.findFirst()
 				.orElse(null);
@@ -1270,32 +1262,30 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		return CompletableFuture.runAsync(
-				() -> {
-					int bottomY = HeightLimitViewVersions.getMinY(chunk);
-					int topY = HeightLimitViewVersions.getMaxY(chunk);
-					ScriptedColumn column = this.newColumn(chunk, 0, 0, ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
-					for (int z = 0; z < 16; z += 4) {
-						for (int x = 0; x < 16; x += 4) {
-							column.setParamsUnchecked(column.params.at(chunk.getPos().getMinBlockX() | x, chunk.getPos().getMinBlockZ() | z));
-							for (int y = bottomY; y < topY; y += 4) {
-								LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
-								PalettedContainer<Holder<Biome>> container = (PalettedContainer<Holder<Biome>>)(section.getBiomes());
-								int newID = SectionUtil.id(container, source.script.get(column, y).entry);
-								SectionUtil.storage(container).set(((y & 0b1100) << 2) | z | (x >>> 2), newID);
-							}
+			() -> {
+				int bottomY = HeightLimitViewVersions.getMinY(chunk);
+				int topY = HeightLimitViewVersions.getMaxY(chunk);
+				ScriptedColumn column = this.newColumn(chunk, 0, 0, ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
+				for (int z = 0; z < 16; z += 4) {
+					for (int x = 0; x < 16; x += 4) {
+						column.setParamsUnchecked(column.params.at(chunk.getPos().getMinBlockX() | x, chunk.getPos().getMinBlockZ() | z));
+						for (int y = bottomY; y < topY; y += 4) {
+							LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
+							PalettedContainer<Holder<Biome>> container = (PalettedContainer<Holder<Biome>>)(section.getBiomes());
+							int newID = SectionUtil.id(container, source.script.get(column, y).entry);
+							SectionUtil.storage(container).set(((y & 0b1100) << 2) | z | (x >>> 2), newID);
 						}
 					}
-				},
-
-				Util.backgroundExecutor()
-
-			)
-				.handle((Void result, Throwable throwable) -> {
-					if (throwable != null) {
-						BigGlobeMod.LOGGER.error("Exception populating chunk biomes", throwable);
-					}
-					return chunk;
-				});
+				}
+			},
+			Util.backgroundExecutor()
+		)
+		.handle((Void result, Throwable throwable) -> {
+			if (throwable != null) {
+				BigGlobeMod.LOGGER.error("Exception populating chunk biomes", throwable);
+			}
+			return chunk;
+		});
 	}
 
 	@Override

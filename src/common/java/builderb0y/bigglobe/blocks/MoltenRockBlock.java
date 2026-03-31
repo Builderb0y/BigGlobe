@@ -67,10 +67,10 @@ public class MoltenRockBlock extends Block {
 			serverWorld.levelEvent(LevelEvent.LAVA_FIZZ, pos, 0);
 			if (
 				serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
-				serverWorld.random.nextFloat() < BigGlobeConfig.INSTANCE.get().moltenRockOreificationChance &&
-				serverWorld.random.nextInt(8) < this.heat
+				serverWorld.getRandom().nextFloat() < BigGlobeConfig.INSTANCE.get().moltenRockOreificationChance &&
+				serverWorld.getRandom().nextInt(8) < this.heat
 			) {
-				RandomSelector<BlockState> selector = new RandomSelector<>(new Permuter(serverWorld.random.nextLong()));
+				RandomSelector<BlockState> selector = new RandomSelector<>(new Permuter(serverWorld.getRandom().nextLong()));
 				ScriptedColumn column = generator.newColumn(world, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints());
 				for (ConfiguredRockReplacerFeature<?> feature : generator.feature_dispatcher.getFlattenedRockReplacers()) {
 					if (feature.config() instanceof AbstractOreFeature.Config config) {
@@ -85,12 +85,12 @@ public class MoltenRockBlock extends Block {
 								pos.getX(),
 								pos.getY(),
 								pos.getZ(),
-								serverWorld.random.nextLong(),
+								serverWorld.getRandom().nextLong(),
 								pos.getX(),
 								pos.getY(),
 								pos.getZ(),
 								1.0D,
-								serverWorld.random.nextDouble()
+								serverWorld.getRandom().nextDouble()
 							);
 							if (newState != null) selector.accept(newState, scriptedConfig.getCoreChance().get(column, pos.getY()));
 						}
@@ -108,9 +108,8 @@ public class MoltenRockBlock extends Block {
 		super.stepOn(world, pos, state, entity);
 		if (
 			world instanceof ServerLevel serverWorld &&
-			entity instanceof LivingEntity living &&
-
-			world.random.nextInt((10 - this.heat) * 10) == 0
+			entity instanceof LivingEntity &&
+			world.getRandom().nextInt((10 - this.heat) * 10) == 0
 		) {
 			entity.hurtServer(serverWorld, world.damageSources().hotFloor(), this.heat * 0.5F);
 		}

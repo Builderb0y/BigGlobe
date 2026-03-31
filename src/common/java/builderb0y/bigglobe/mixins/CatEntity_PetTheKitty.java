@@ -37,7 +37,7 @@ public abstract class CatEntity_PetTheKitty extends TamableAnimal {
 					this.getX(),
 					this.getY(),
 					this.getZ(),
-					SoundEvents.CAT_PURR,
+					SoundEvents.CAT_PURR_BABY,
 					this.getSoundSource(),
 					this.getSoundVolume(),
 					this.getVoicePitch()

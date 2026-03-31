@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.compat.DistantHorizonsCompat;
+import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
@@ -109,12 +109,12 @@ public class WorldUtil {
 
 	public static BoundingBox surroundingChunkBox(ChunkPos pos, LevelHeightAccessor height) {
 		return new BoundingBox(
-			(pos.x - 1) << 4,
+			(pos.x() - 1) << 4,
 			HeightLimitViewVersions.getMinY(height),
-			(pos.z - 1) << 4,
-			((pos.x + 1) << 4) | 15,
+			(pos.z() - 1) << 4,
+			((pos.x() + 1) << 4) | 15,
 			HeightLimitViewVersions.getMaxY(height) - 1,
-			((pos.z + 1) << 4) | 15
+			((pos.z() + 1) << 4) | 15
 		);
 	}
 

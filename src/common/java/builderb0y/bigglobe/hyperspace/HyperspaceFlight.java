@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.hyperspace;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,7 +11,7 @@ import builderb0y.bigglobe.versions.EntityVersions;
 public class HyperspaceFlight {
 
 	static {
-		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(HyperspaceFlight::onPlayerChangedDimension);
+		ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register(HyperspaceFlight::onPlayerChangedDimension);
 	}
 
 	public static void onPlayerTick(Player player) {
@@ -36,6 +36,5 @@ public class HyperspaceFlight {
 		}
 	}
 
-	public static void init() {
-	}
+	public static void init() {}
 }

@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
-import builderb0y.bigglobe.rendering.SoulLavaFogHandler;
+import builderb0y.bigglobe.rendering2.SoulLavaFogHandler;
 
 @Mixin(Camera.class)
 @Environment(EnvType.CLIENT)

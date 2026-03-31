@@ -124,7 +124,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		throw new IllegalArgumentException("weight must be greater than or equal to 0.0.");
 	}
 
-	/// ///////////////////////////// get ////////////////////////////////
+	//////////////////////////////// get ////////////////////////////////
 
 	@Override
 	public E get(int index) {
@@ -153,7 +153,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return this.totalWeight;
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	@Override
 	public E set(int index, E element) {
@@ -213,7 +213,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 	}
 
-	/// ///////////////////////////// contains ////////////////////////////////
+	//////////////////////////////// contains ////////////////////////////////
 
 	@Override
 	public int indexOf(Object element) {
@@ -247,14 +247,14 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return -1;
 	}
 
-	/// ///////////////////////////// size/empty ////////////////////////////////
+	//////////////////////////////// size/empty ////////////////////////////////
 
 	@Override
 	public int size() {
 		return this.size;
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	@Override
 	@Deprecated
@@ -357,7 +357,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return true;
 	}
 
-	/// ///////////////////////////// remove ////////////////////////////////
+	//////////////////////////////// remove ////////////////////////////////
 
 	@Override
 	public E remove(int index) {
@@ -413,7 +413,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		this.totalWeight = 0.0D;
 	}
 
-	/// ///////////////////////////// iterators ////////////////////////////////
+	//////////////////////////////// iterators ////////////////////////////////
 
 	@Override
 	public Spliterator<E> spliterator() {
@@ -430,7 +430,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 	}
 
-	/// ///////////////////////////// view ////////////////////////////////
+	//////////////////////////////// view ////////////////////////////////
 
 	@Override
 	public Object[] toArray() {
@@ -447,7 +447,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return a;
 	}
 
-	/// ///////////////////////////// other ////////////////////////////////
+	//////////////////////////////// other ////////////////////////////////
 
 	public void ensureCapacity(int minCapacity) {
 		if (minCapacity <= this.elements.length) return;
@@ -527,7 +527,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 	}
 
-	/// ///////////////////////////// coding ////////////////////////////////
+	//////////////////////////////// coding ////////////////////////////////
 
 	public static @Nullable String elementName(ReifiedType<?> elementType) {
 		UseName useName = elementType.getAnnotations().getFirst(UseName.class);

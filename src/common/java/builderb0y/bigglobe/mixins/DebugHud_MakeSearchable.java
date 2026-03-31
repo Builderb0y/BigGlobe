@@ -3,7 +3,7 @@ package builderb0y.bigglobe.mixins;
 import java.util.List;
 import java.util.regex.Pattern;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -28,8 +28,8 @@ public class DebugHud_MakeSearchable implements SearchableDebugHud {
 		this.bigglobe_pattern = pattern;
 	}
 
-	@Inject(method = "renderLines", at = @At("HEAD"))
-	private void bigglobe_searchText(GuiGraphics context, List<String> lines, boolean left, CallbackInfo callback) {
+	@Inject(method = "extractLines", at = @At("HEAD"))
+	private void bigglobe_searchText(GuiGraphicsExtractor context, List<String> lines, boolean left, CallbackInfo callback) {
 		Pattern pattern = this.bigglobe_pattern;
 		if (pattern != null) {
 			lines.replaceAll((String text) -> pattern.matcher(text).find() ? ChatFormatting.GREEN + text : text);

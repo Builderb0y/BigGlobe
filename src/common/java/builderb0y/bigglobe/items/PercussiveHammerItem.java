@@ -4,10 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -25,8 +26,8 @@ public class PercussiveHammerItem extends Item {
 	public static final List<SoundPulse> pulses = new LinkedList<>();
 
 	static {
-		ServerTickEvents.END_WORLD_TICK.register(PercussiveHammerItem::tick);
-		ServerWorldEvents.UNLOAD.register((server, world) -> unload(world));
+		ServerTickEvents.END_LEVEL_TICK.register(PercussiveHammerItem::tick);
+		ServerLevelEvents.UNLOAD.register((MinecraftServer server, ServerLevel world) -> unload(world));
 	}
 
 	public PercussiveHammerItem(Properties settings) {
@@ -55,7 +56,7 @@ public class PercussiveHammerItem extends Item {
 
 	public static void tick(ServerLevel world) {
 		if (!pulses.isEmpty()) {
-			pulses.removeIf(pulse -> {
+			pulses.removeIf((SoundPulse pulse) -> {
 				if (pulse.world == world.dimension()) {
 					if (++pulse.distance > 32) return true;
 					BlockPos.MutableBlockPos pos = pulse.position.move(pulse.direction);
@@ -73,7 +74,7 @@ public class PercussiveHammerItem extends Item {
 	public static void unload(ServerLevel world) {
 		if (!pulses.isEmpty()) {
 			ResourceKey<Level> key = world.dimension();
-			pulses.removeIf(pulse -> pulse.world == key);
+			pulses.removeIf((SoundPulse pulse) -> pulse.world == key);
 		}
 	}
 

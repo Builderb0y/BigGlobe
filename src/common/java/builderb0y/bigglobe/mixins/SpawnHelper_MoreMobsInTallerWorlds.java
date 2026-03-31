@@ -36,7 +36,7 @@ public class SpawnHelper_MoreMobsInTallerWorlds {
 		NaturalSpawner.AfterSpawnCallback runner
 	) {
 		for (int baseY = HeightLimitViewVersions.getMinY(world), topY = HeightLimitViewVersions.getMaxY(world); baseY < topY; baseY += 128) {
-			int rng = world.random.nextInt();
+			int rng = world.getRandom().nextInt();
 			int x = chunk.getPos().getMinBlockX() | (rng & 15);
 			int z = chunk.getPos().getMinBlockZ() | ((rng >>> 4) & 15);
 			int y = baseY | ((rng >>> 8) & 127);

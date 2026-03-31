@@ -47,7 +47,7 @@ public abstract class RandomSpreadStructurePlacement_ImplementStreamableStructur
 			});
 		})
 		.flatMap(Function.identity())
-		.filter((ChunkPos chunkPos) -> this.isStructureChunk(calculator, chunkPos.x, chunkPos.z))
+		.filter((ChunkPos chunkPos) -> this.isStructureChunk(calculator, chunkPos.x(), chunkPos.z()))
 		;
 	}
 }

@@ -692,7 +692,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 	}
 
-	/// ///////////// Removing nodes ////////////////
+	//////////////// Removing nodes ////////////////
 
 	public Node<T> removeFirstNode() {
 		Node<T> node = this.getFirstNode();
@@ -907,7 +907,7 @@ public class LinkedArrayList<T> implements Cloneable {
 	nodes nor the comparator is modified during sorting.
 	to sort in descending order instead, reverse the comparator
 	before passing it into this method {@link Comparator#reversed()}.
-	<p>
+
 	if the provided comparator is null, the nodes will be sorted according to their natural order.
 	note however that at the time of writing this, {@link Node} does not
 	implement {@link Comparable}, and thus does not have a natural order.
@@ -915,9 +915,9 @@ public class LinkedArrayList<T> implements Cloneable {
 	with a {@link ClassCastException} unless the list is empty.
 	or unless you're doing something very weird by subclassing {@link Node}.
 	or mixing into it, I guess.
-	<p>
+
 	to sort the *elements* in this list, use {@link #sortElements(Comparator)} instead.
-	<p>
+
 	if the comparator throws an exception from its {@link Comparator#compare(Object, Object)}
 	method, the list will be left in an undefined order,
 	but will otherwise have a valid internal structure.
@@ -960,13 +960,13 @@ public class LinkedArrayList<T> implements Cloneable {
 	elements nor the comparator is modified during sorting.
 	to sort in descending order instead, reverse the comparator
 	before passing it into this method {@link Comparator#reversed()}.
-	 <p>
+
 	 if the provided comparator is null, the elements will be sorted according to their natural order.
 	 as such, if the elements do not implement {@link Comparable}, then a null
 	 comparator will fail with a {@link ClassCastException} unless the list is empty.
-	 <p>
+
 	 to sort the *nodes* in this list, use {@link #sortNodes(Comparator)} instead.
-	 <p>
+
 	 if the comparator throws an exception from its {@link Comparator#compare(Object, Object)}
 	 method, the list will be left in an undefined order,
 	 but will otherwise have a valid internal structure.
@@ -988,7 +988,7 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	//////////////////////////////// Utility methods ////////////////////////////////
 
-	/// ///////////// Iterators ////////////////
+	//////////////// Iterators ////////////////
 
 	public static <T> Iterator<Node<T>> nodeIteratorStartingAt(Node<T> start) {
 		NodeIterator<T> iterator = new NodeIterator<>();
@@ -1014,7 +1014,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		return iterator;
 	}
 
-	/// ///////////// Spliterators ////////////////
+	//////////////// Spliterators ////////////////
 
 	public static <T> Spliterator<Node<T>> nodeSpliteratorStartingAt(Node<T> start) {
 		return Spliterators.spliteratorUnknownSize(nodeIteratorStartingAt(start), Spliterator.ORDERED);
@@ -1032,7 +1032,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		return Spliterators.spliteratorUnknownSize(elementIteratorEndingAt(end), Spliterator.ORDERED);
 	}
 
-	/// ///////////// Streams ////////////////
+	//////////////// Streams ////////////////
 
 	public static <T> Stream<Node<T>> nodeStreamStartingAt(Node<T> start) {
 		return StreamSupport.stream(nodeSpliteratorStartingAt(start), false);
@@ -1061,7 +1061,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// Internal methods ////////////////////////////////
+	//////////////////////////////// Internal methods ////////////////////////////////
 
 	@SuppressWarnings({ "AssertWithSideEffects", "ConstantConditions" })
 	public static void checkAssertsEnabled() {
@@ -1150,7 +1150,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 	}
 
-	/// ///////////////////////////// Wrappers for java collections ////////////////////////////////
+	//////////////////////////////// Wrappers for java collections ////////////////////////////////
 
 	public class NodeList extends AbstractList<Node<T>> implements Deque<Node<T>>, Cloneable {
 
@@ -2342,7 +2342,7 @@ public class LinkedArrayList<T> implements Cloneable {
 			}
 		}
 
-		/// ///////////////////////////// Utility methods for LinkedArrayList ////////////////////////////////
+		//////////////////////////////// Utility methods for LinkedArrayList ////////////////////////////////
 
 		public boolean isInList() {
 			return this.index != NOT_IN_LIST;

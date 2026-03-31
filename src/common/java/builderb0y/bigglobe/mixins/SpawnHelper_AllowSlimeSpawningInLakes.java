@@ -49,8 +49,8 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 				.isValid()
 			)
 			//vanilla logic.
-			&& world.random.nextFloat() < world.getMoonBrightness(pos)
-			&& world.getMaxLocalRawBrightness(pos) <= world.random.nextInt(8)
+			&& world.getRandom().nextFloat() < world.getMoonBrightness(pos)
+			&& world.getMaxLocalRawBrightness(pos) <= world.getRandom().nextInt(8)
 		) {
 			callback.setReturnValue(
 				//also vanilla logic.

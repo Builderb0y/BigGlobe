@@ -57,7 +57,7 @@ public class TypeMerger {
 		return tryObjects(types);
 	}
 
-	/// ///////////////////////////// internal logic ////////////////////////////////
+	//////////////////////////////// internal logic ////////////////////////////////
 
 	public static final Object2IntMap<TypeInfo> PRIMITIVE_WIDENING = new Object2IntOpenHashMap<>(8);
 

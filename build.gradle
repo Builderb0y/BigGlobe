@@ -3,9 +3,10 @@ import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
 
 plugins() {
-	id('fabric-loom') version('1.14-SNAPSHOT')
+	id('net.fabricmc.fabric-loom') version('1.14-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -68,11 +69,23 @@ repositories() {
 }
 
 static void extractNestedJars(File dependenciesFolder, File toUnpack) {
-	try (JarFile jar = new JarFile(toUnpack)) {
+	ByteArrayOutputStream baos = new ByteArrayOutputStream(toUnpack.length() as int)
+	try (
+		JarFile jar = new JarFile(toUnpack)
+		JarOutputStream zip = new JarOutputStream(baos)
+	) {
 		Enumeration<JarEntry> entries = jar.entries()
 		while (entries.hasMoreElements()) {
 			JarEntry entry = entries.nextElement()
 			String name = entry.getName()
+			//DH includes sources in the API jar.
+			//for whatever dumb reason, this gives me an error on compile that says
+			//"[...] is a public class, so it should be in a file named [...].java".
+			//this issue doesn't happen when the .java files are stripped out of the jar.
+			if (!name.endsWith('.java')) {
+				zip.putNextEntry(entry)
+				jar.getInputStream(entry).transferTo(zip)
+			}
 			if (name.startsWith('META-INF/jars/') && name.endsWith('.jar') && !name.regionMatches(false, 'META-inf/jars/'.length(), 'fabric-', 0, 'fabric-'.length())) {
 				name = name.substring('META-INF/jars/'.length())
 				File unpackDir = new File(dependenciesFolder, name.substring(0, name.length() - '.jar'.length()))
@@ -85,6 +98,7 @@ static void extractNestedJars(File dependenciesFolder, File toUnpack) {
 			}
 		}
 	}
+	toUnpack.bytes = baos.toByteArray()
 }
 
 void extractDependencies() {
@@ -109,9 +123,8 @@ void extractDependencies() {
 
 dependencies() {
 	minecraft("com.mojang:minecraft:${ project.minecraft_version }")
-	mappings(loom.officialMojangMappings())
-	modImplementation("net.fabricmc:fabric-loader:${ project.loader_version }")
-	modImplementation("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
+	implementation("net.fabricmc:fabric-loader:${ project.loader_version }")
+	implementation("net.fabricmc.fabric-api:fabric-api:${ project.fabric_version }")
 
 	testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
 	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
@@ -127,9 +140,9 @@ dependencies() {
 	if (!Boolean.getBoolean('skipJIJExtraction')) {
 		extractDependencies()
 	}
-	modImplementation(fileTree(new File('jijDependencies/implementation')))
-	modCompileOnly   (fileTree(new File('jijDependencies/compileOnly')))
-	modRuntimeOnly   (fileTree(new File('jijDependencies/runtimeOnly')))
+	implementation(fileTree(new File('jijDependencies/implementation')))
+	compileOnly   (fileTree(new File('jijDependencies/compileOnly')))
+	runtimeOnly   (fileTree(new File('jijDependencies/runtimeOnly')))
 }
 
 compileJava() {
@@ -150,20 +163,7 @@ loom() {
 	accessWidenerPath = file("src/${project.minecraft_version}/resources/bigglobe.accesswidener")
 }
 
-static int compareVersions(String versionA, String versionB) {
-	String[] splitA = versionA.split('\\.')
-	String[] splitB = versionB.split('\\.')
-	for (int index = 0; index < 3; index++) {
-		int compare = Integer.compare(
-			Integer.parseInt(splitA[index]),
-			Integer.parseInt(splitB[index])
-		)
-		if (compare != 0) return compare
-	}
-	return 0
-}
-
-def targetJavaVersion = compareVersions(project.minecraft_version, '1.20.5') >= 0 ? 21 : 17
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach() {
 	//ensure that the encoding is set to UTF-8, no matter what the system default is
 	//this fixes some edge cases with special characters not displaying correctly
@@ -193,7 +193,7 @@ jar() {
 }
 
 tasks.register('copyToReleases', Copy) {
-	dependsOn(remapJar)
+	dependsOn(jar)
 	from("$projectDir/build/libs") {
 		include("$project.archives_base_name-${project.version}.jar")
 		rename() {
@@ -288,24 +288,24 @@ tasks.register('checkIfMyCodeCompiles') {
 
 class Version {
 
-	int major
-	int minor
+	int year, drop, fix
 
-	Version(int major, int minor) {
-		this.major = major
-		this.minor = minor
+	Version(int year, int drop, int fix) {
+		this.year = year
+		this.drop = drop
+		this.fix = fix
 	}
 
 	static String pad(int number) {
-		return number < 10 ? "0$number" : Integer.toString(number)
+		return number < 10 ? "0$number" : number.toString()
 	}
 
 	String shorthand() {
-		return "1${pad(major)}${pad(minor)}"
+		return "${year}${pad(drop)}${pad(fix)}"
 	}
 
 	String longhand() {
-		return "1.${major}.${minor}"
+		return this.fix == 0 ? "${year}.${drop}" : "${year}.${drop}.${fix}"
 	}
 }
 
@@ -336,7 +336,7 @@ tasks.register("Currently V$project.version for MC $project.minecraft_version") 
 }
 
 for (Version version in [
-	new Version(21, 11),
+	new Version(26, 1, 0),
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -347,6 +347,7 @@ for (Version version in [
 		doLast() {
 			file('build.properties').text = (
 """#This file was automatically generated by gradle. Do not touch!
+MC_26_1_0=260100
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

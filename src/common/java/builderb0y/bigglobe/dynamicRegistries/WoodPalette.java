@@ -62,7 +62,7 @@ public class WoodPalette {
 		return this.features.get("sapling_grow");
 	}
 
-	/// ///////////////////////////// block ////////////////////////////////
+	//////////////////////////////// block ////////////////////////////////
 
 	public Block getBlock(RandomGenerator random, WoodPaletteType type) {
 		Holder<Block> block = this.getBlocks(type).getRandomElement(random);
@@ -236,7 +236,7 @@ public class WoodPalette {
 		return this.getBlock(seed, WoodPaletteType.WALL_HANGING_SIGN);
 	}
 
-	/// ///////////////////////////// blocks ////////////////////////////////
+	//////////////////////////////// blocks ////////////////////////////////
 
 	public IRandomList<Holder<Block>> getBlocks(WoodPaletteType type) {
 		IRandomList<Holder<Block>> block = this.blocks.get(type);
@@ -324,7 +324,7 @@ public class WoodPalette {
 		return this.getBlocks(WoodPaletteType.WALL_HANGING_SIGN);
 	}
 
-	/// ///////////////////////////// states ////////////////////////////////
+	//////////////////////////////// states ////////////////////////////////
 
 	public BlockState getState(RandomGenerator random, WoodPaletteType type) {
 		return this.getBlock(random, type).defaultBlockState();
@@ -437,7 +437,7 @@ public class WoodPalette {
 		return this.getState(random, WoodPaletteType.POTTED_SAPLING);
 	}
 
-	/// ///////////////////////////// types ////////////////////////////////
+	//////////////////////////////// types ////////////////////////////////
 
 	public static enum WoodPaletteType implements StringRepresentable {
 		LOG,

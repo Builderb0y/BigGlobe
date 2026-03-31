@@ -129,8 +129,8 @@ public class BigGlobeNetwork implements
 	public static void init() {
 		LOGGER.debug("Initializing common network...");
 
-		PayloadTypeRegistry.playC2S().register(BigGlobePayload.ID, BigGlobePayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(BigGlobePayload.ID, BigGlobePayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(BigGlobePayload.ID, BigGlobePayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(BigGlobePayload.ID, BigGlobePayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(BigGlobePayload.ID, INSTANCE);
 		LOGGER.debug("Done initializing common network.");

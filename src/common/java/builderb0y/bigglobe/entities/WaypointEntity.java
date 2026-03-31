@@ -73,6 +73,7 @@ public class WaypointEntity extends Entity {
 			) {
 				if (!player.isSpectator()) {
 					WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
+					player.swing(hand, false);
 				}
 				return InteractionResult.FAIL;
 			}

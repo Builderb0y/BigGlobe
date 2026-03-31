@@ -96,7 +96,7 @@ public interface Coordinator {
 		return DropCoordinator.INSTANCE;
 	}
 
-	/// ///////////////////////////// actions ////////////////////////////////
+	//////////////////////////////// actions ////////////////////////////////
 
 	public abstract void genericPos(int x, int y, int z, CoordinatorRunnable callback);
 
@@ -414,7 +414,7 @@ public interface Coordinator {
 	then, if a BlockEntity which is an instance of B
 	was created as a result of setting the BlockState,
 	the provided action will be invoked on it.
-	<p>
+
 	this method is a shortcut to calling
 	setBlockState() followed by getBlockEntity().
 	however, if the provided BlockState is null,
@@ -445,7 +445,7 @@ public interface Coordinator {
 	then, if a BlockEntity which is an instance of B
 	was created as a result of setting the BlockState,
 	the provided action will be invoked on it.
-	<p>
+
 	this method is a shortcut to calling
 	setBlockState() followed by getBlockEntity().
 	however, if the provided BlockState is null,

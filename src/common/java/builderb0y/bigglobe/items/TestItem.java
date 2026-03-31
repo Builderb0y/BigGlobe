@@ -44,22 +44,22 @@ public class TestItem extends Item {
 
 	public void placeStructure(ServerLevel world, BlockPos pos, Structure structure) {
 		System.out.println("spawning structure");
-		ChunkPos chunkPos = new ChunkPos(pos);
+		ChunkPos chunkPos = ChunkPos.containing(pos);
 		GenerationStub position = (
 			structure.findValidGenerationPoint(
-					new Structure.GenerationContext(
-						world.registryAccess(),
-						world.getChunkSource().getGenerator(),
-						world.getChunkSource().getGenerator().getBiomeSource(),
-						world.getChunkSource().randomState(),
-						world.getStructureManager(),
-						world.getSeed(),
-						chunkPos,
-						world,
-						Predicates.alwaysTrue()
-					)
+				new Structure.GenerationContext(
+					world.registryAccess(),
+					world.getChunkSource().getGenerator(),
+					world.getChunkSource().getGenerator().getBiomeSource(),
+					world.getChunkSource().randomState(),
+					world.getStructureManager(),
+					world.getSeed(),
+					chunkPos,
+					world,
+					Predicates.alwaysTrue()
 				)
-				.orElse(null)
+			)
+			.orElse(null)
 		);
 		if (position != null) {
 			PiecesContainer pieces = position.getPiecesBuilder().build();
@@ -74,7 +74,7 @@ public class TestItem extends Item {
 					world,
 					world.structureManager(),
 					world.getChunkSource().getGenerator(),
-					world.random,
+					world.getRandom(),
 					infiniteBox,
 					chunkPos,
 					pivot

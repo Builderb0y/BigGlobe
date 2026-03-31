@@ -6,9 +6,7 @@ import builderb0y.bigglobe.util.SafeCloseable;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 @Environment(EnvType.CLIENT)
-public abstract class VersionedVertexConsumer
-
-	implements VertexConsumer, SafeCloseable {
+public abstract class VersionedVertexConsumer implements VertexConsumer, SafeCloseable {
 
 	public final int allFlags;
 	public int flags;
@@ -67,17 +65,17 @@ public abstract class VersionedVertexConsumer
 
 	public abstract void handleNormal(float nx, float ny, float nz);
 
+	@Override
 	public VertexConsumer setLineWidth(float width) {
 		return this;
 	}
 
-	//@Override
+	@Override
 	public VertexConsumer addVertex(float x, float y, float z) {
 		if (this.setFlag(CompactVertexFormat.FLAG_POSITION)) {
 			this.handlePosition(x, y, z);
 			this.checkEnd();
 		}
-
 		return this;
 	}
 

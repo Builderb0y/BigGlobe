@@ -31,7 +31,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 
 	//////////////////////////////// get ////////////////////////////////
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	@Override
 	public E set(int index, E element, double weight) {
@@ -47,7 +47,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 
 	//////////////////////////////// size/empty ////////////////////////////////
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	@Override
 	public boolean add(E element, double weight) {
@@ -61,7 +61,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 
 	//////////////////////////////// remove ////////////////////////////////
 
-	/// ///////////////////////////// iterators ////////////////////////////////
+	//////////////////////////////// iterators ////////////////////////////////
 
 	@Override
 	public WeightedIterator<E> iterator() {
@@ -79,7 +79,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 		return this.new ListItr(index);
 	}
 
-	/// ///////////////////////////// view ////////////////////////////////
+	//////////////////////////////// view ////////////////////////////////
 
 	@Override
 	public IRandomList<E> subList(int fromIndex, int toIndex) {
@@ -91,7 +91,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 		);
 	}
 
-	/// ///////////////////////////// other ////////////////////////////////
+	//////////////////////////////// other ////////////////////////////////
 
 	@Override
 	public String toString() {
@@ -297,7 +297,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			this.modCount = AbstractRandomList.this.modCount;
 		}
 
-		/// ///////////////////////////// get ////////////////////////////////
+		//////////////////////////////// get ////////////////////////////////
 
 		@Override
 		public E get(int index) {
@@ -313,7 +313,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			return AbstractRandomList.this.getWeight(index + this.offset);
 		}
 
-		/// ///////////////////////////// set ////////////////////////////////
+		//////////////////////////////// set ////////////////////////////////
 
 		@Override
 		public E set(int index, E element) {
@@ -338,7 +338,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 
 		//////////////////////////////// contains ////////////////////////////////
 
-		/// ///////////////////////////// size/empty ////////////////////////////////
+		//////////////////////////////// size/empty ////////////////////////////////
 
 		@Override
 		public int size() {
@@ -346,7 +346,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			return this.size;
 		}
 
-		/// ///////////////////////////// add ////////////////////////////////
+		//////////////////////////////// add ////////////////////////////////
 
 		@Override
 		public void add(int index, E element) {
@@ -389,7 +389,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			return true;
 		}
 
-		/// ///////////////////////////// remove ////////////////////////////////
+		//////////////////////////////// remove ////////////////////////////////
 
 		@Override
 		public E remove(int index) {
@@ -409,7 +409,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			this.size -= (toIndex - fromIndex);
 		}
 
-		/// ///////////////////////////// iterators ////////////////////////////////
+		//////////////////////////////// iterators ////////////////////////////////
 
 		@Override
 		public WeightedIterator<E> iterator() {
@@ -486,7 +486,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			};
 		}
 
-		/// ///////////////////////////// view ////////////////////////////////
+		//////////////////////////////// view ////////////////////////////////
 
 		@Override
 		public IRandomList<E> subList(int fromIndex, int toIndex) {
@@ -494,7 +494,7 @@ public abstract class AbstractRandomList<E> extends AbstractList<E> implements I
 			return AbstractRandomList.this.subList(this.offset + fromIndex, this.offset + toIndex);
 		}
 
-		/// ///////////////////////////// other ////////////////////////////////
+		//////////////////////////////// other ////////////////////////////////
 
 		public void checkForComodification() {
 			if (this.modCount != AbstractRandomList.this.modCount) {

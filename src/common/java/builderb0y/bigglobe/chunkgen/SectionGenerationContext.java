@@ -68,7 +68,7 @@ public class SectionGenerationContext {
 	}
 
 	public int sectionX() {
-		return this.chunkPos().x;
+		return this.chunkPos().x();
 	}
 
 	public int sectionY() {
@@ -76,7 +76,7 @@ public class SectionGenerationContext {
 	}
 
 	public int sectionZ() {
-		return this.chunkPos().z;
+		return this.chunkPos().z();
 	}
 
 	public int startX() {

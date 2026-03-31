@@ -16,7 +16,7 @@ simple methods for reading and writing {@link Tag}'s.
 */
 public class NbtIo2 {
 
-	/// ///////////////////////////// writing ////////////////////////////////
+	//////////////////////////////// writing ////////////////////////////////
 
 	public static void write(OutputStream stream, Tag element) throws IOException {
 		if (element == null) element = EndTag.INSTANCE;
@@ -52,7 +52,7 @@ public class NbtIo2 {
 		}
 	}
 
-	/// ///////////////////////////// reading ////////////////////////////////
+	//////////////////////////////// reading ////////////////////////////////
 
 	public static Tag read(InputStream stream, long limit) throws IOException {
 		DataInputStream data = new DataInputStream(stream);

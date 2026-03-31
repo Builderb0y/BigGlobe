@@ -33,13 +33,13 @@ public class WaypointItem extends Item {
 		}
 		if (!BigGlobeConfig.INSTANCE.get().hyperspaceEnabled) {
 			if (context.getPlayer() != null) {
-				context.getPlayer().displayClientMessage(Component.translatable("bigglobe.hyperspace.disabled").withStyle(ChatFormatting.RED), true);
+				context.getPlayer().sendOverlayMessage(Component.translatable("bigglobe.hyperspace.disabled").withStyle(ChatFormatting.RED));
 			}
 			return InteractionResult.SUCCESS;
 		}
 		if (context.getLevel().dimension() == HyperspaceConstants.WORLD_KEY) {
 			if (context.getPlayer() != null) {
-				context.getPlayer().displayClientMessage(Component.translatable("bigglobe.hyperspace.cant_place_waypoint_here").withStyle(ChatFormatting.RED), true);
+				context.getPlayer().sendOverlayMessage(Component.translatable("bigglobe.hyperspace.cant_place_waypoint_here").withStyle(ChatFormatting.RED));
 			}
 			return InteractionResult.SUCCESS;
 		}

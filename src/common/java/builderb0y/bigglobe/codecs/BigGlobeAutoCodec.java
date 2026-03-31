@@ -337,17 +337,7 @@ public class BigGlobeAutoCodec {
 
 				static {
 					try {
-						BLOCK_SETTINGS_GETTER = BlockBehaviour.class.getDeclaredMethod(
-							FabricLoader
-								.getInstance()
-								.getMappingResolver()
-								.mapMethodName(
-									"intermediary",
-									"net.minecraft.class_4970",
-									"method_54095",
-									"()Lnet/minecraft/class_4970$class_2251;"
-								)
-						);
+						BLOCK_SETTINGS_GETTER = BlockBehaviour.class.getDeclaredMethod("properties");
 					}
 					catch (NoSuchMethodException exception) {
 						throw AutoCodecUtil.rethrow(exception);

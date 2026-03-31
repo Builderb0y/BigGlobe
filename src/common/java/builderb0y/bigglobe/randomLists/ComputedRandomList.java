@@ -47,7 +47,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 
 	public abstract double getWeightOfElement(E element);
 
-	/// ///////////////////////////// get ////////////////////////////////
+	//////////////////////////////// get ////////////////////////////////
 
 	@Override
 	public E get(int index) {
@@ -70,7 +70,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		return RandomAccessRandomList.super.getRandomIndex(seed);
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	@Override
 	public E set(int index, E element) {
@@ -105,7 +105,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		throw new UnsupportedOperationException();
 	}
 
-	/// ///////////////////////////// contains ////////////////////////////////
+	//////////////////////////////// contains ////////////////////////////////
 
 	@Override
 	public int indexOf(Object element) {
@@ -139,14 +139,14 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		return -1;
 	}
 
-	/// ///////////////////////////// size/empty ////////////////////////////////
+	//////////////////////////////// size/empty ////////////////////////////////
 
 	@Override
 	public int size() {
 		return this.size;
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	@Override
 	public boolean add(E e) {
@@ -208,7 +208,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		return true;
 	}
 
-	/// ///////////////////////////// remove ////////////////////////////////
+	//////////////////////////////// remove ////////////////////////////////
 
 	@Override
 	public E remove(int index) {
@@ -279,7 +279,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		this.size = 0;
 	}
 
-	/// ///////////////////////////// iterators ////////////////////////////////
+	//////////////////////////////// iterators ////////////////////////////////
 
 	@Override
 	public Spliterator<E> spliterator() {
@@ -296,7 +296,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		}
 	}
 
-	/// ///////////////////////////// view ////////////////////////////////
+	//////////////////////////////// view ////////////////////////////////
 
 	@Override
 	public Object[] toArray() {
@@ -313,7 +313,7 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 		return a;
 	}
 
-	/// ///////////////////////////// other ////////////////////////////////
+	//////////////////////////////// other ////////////////////////////////
 
 	@Override
 	public void sort(Comparator<? super E> c) {

@@ -15,19 +15,19 @@ public interface ConditionTree extends Opcodes {
 	/**
 	if both labels are non-null, jumps to ifTrue if our condition evaluates to true,
 	and jumps to ifFalse if our condition evaluates to false.
-	<p>
+
 	if ifTrue is non-null and ifFalse is null,
 	jumps to ifTrue if our condition evaluates to true,
 	but does not jump if our condition evaluates to false.
 	in other words, if our condition evaluates to false,
 	code will continue executing at the next available instruction after the condition.
-	<p>
+
 	if ifTrue is null and ifFalse is non-null,
 	jumps to ifFalse if our condition evaluates to false,
 	but does not jump if our condition evaluates to true.
 	in other words, if our condition evaluates to true,
 	code will continue executing at the next available instruction after the condition.
-	<p>
+
 	if ifTrue and ifFalse are the same label (including the case where both labels are null),
 	throws {@link IllegalArgumentException}. see also: {@link #checkLabels(Label, Label)}.
 	*/

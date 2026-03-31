@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.recipes;
 
 import java.util.stream.IntStream;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -18,7 +17,7 @@ public class ScriptedRecipe extends CustomRecipe {
 	public final ScriptedRecipeData value;
 
 	public ScriptedRecipe(ScriptedRecipeData value) {
-		super(value.category());
+		super();
 		this.value = value;
 	}
 
@@ -33,11 +32,11 @@ public class ScriptedRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput inventory, Provider lookup) {
+	public ItemStack assemble(CraftingInput input) {
 		return this.value.output().output(new CraftingGrid(
-			inventory.items().stream(),
-			inventory.width(),
-			inventory.height(),
+			input.items().stream(),
+			input.width(),
+			input.height(),
 			false
 		));
 	}
@@ -58,9 +57,7 @@ public class ScriptedRecipe extends CustomRecipe {
 				true
 			);
 			this.value.remainder().remainder(input, output);
-			return new NonNullList<>(output, ItemStack.EMPTY) {
-
-			};
+			return new NonNullList<>(output, ItemStack.EMPTY) {};
 		}
 		else {
 			return super.getRemainingItems(inventory);

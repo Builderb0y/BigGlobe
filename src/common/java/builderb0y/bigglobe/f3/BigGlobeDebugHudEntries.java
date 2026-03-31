@@ -2,17 +2,12 @@ package builderb0y.bigglobe.f3;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
+
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 @Environment(EnvType.CLIENT)
 public class BigGlobeDebugHudEntries {
@@ -20,6 +15,8 @@ public class BigGlobeDebugHudEntries {
 	public static final Identifier LOD_SECTION = BigGlobeMod.modID("lods");
 
 	public static void init() {
+		/*
+		//todo: re-enable once rendering is re-written.
 		register(
 			"lod_backend", (DebugScreenDisplayer lines, Level world, LevelChunk clientChunk, LevelChunk chunk) -> {
 				LodSystem system = lodSystem();
@@ -70,11 +67,15 @@ public class BigGlobeDebugHudEntries {
 				}
 			}
 		);
+		*/
 	}
 
+	/*
+	//todo: re-enable once rendering is re-written.
 	public static LodSystem lodSystem() {
 		return LodSystemHolder.of(Minecraft.getInstance().levelRenderer).bigglobe_getLodSystem();
 	}
+	*/
 
 	public static void register(String id, BigGlobeDebugHudEntry entry) {
 		DebugScreenEntries.register(BigGlobeMod.modID(id), entry);

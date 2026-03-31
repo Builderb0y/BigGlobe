@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.networking.base;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.minecraft.network.FriendlyByteBuf;
 
 public interface PacketHandler {
@@ -10,7 +10,7 @@ public interface PacketHandler {
 	}
 
 	public default FriendlyByteBuf buffer() {
-		FriendlyByteBuf buffer = PacketByteBufs.create();
+		FriendlyByteBuf buffer = FriendlyByteBufs.create();
 		buffer.writeByte(this.getId());
 		return buffer;
 	}

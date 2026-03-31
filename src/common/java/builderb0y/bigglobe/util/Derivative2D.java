@@ -28,7 +28,7 @@ public class Derivative2D implements Cloneable {
 		this.dy = that.dy;
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	public Derivative2D set(double value) {
 		return this.set(value, 0.0D, 0.0D);
@@ -45,7 +45,7 @@ public class Derivative2D implements Cloneable {
 		return this.set(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	public Derivative2D add(double value) {
 		this.value += value;
@@ -60,7 +60,7 @@ public class Derivative2D implements Cloneable {
 		return this.add(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// sub ////////////////////////////////
+	//////////////////////////////// sub ////////////////////////////////
 
 	public Derivative2D sub(double value) {
 		this.value -= value;
@@ -75,7 +75,7 @@ public class Derivative2D implements Cloneable {
 		return this.sub(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// subRev ////////////////////////////////
+	//////////////////////////////// subRev ////////////////////////////////
 
 	public Derivative2D subRev(double value) {
 		return this.set(value - this.value, -this.dx, -this.dy);
@@ -89,7 +89,7 @@ public class Derivative2D implements Cloneable {
 		return this.subRev(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// mul ////////////////////////////////
+	//////////////////////////////// mul ////////////////////////////////
 
 	public Derivative2D mul(double value) {
 		return this.set(this.value * value, this.dx * value, this.dy * value);
@@ -107,7 +107,7 @@ public class Derivative2D implements Cloneable {
 		return this.mul(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// div ////////////////////////////////
+	//////////////////////////////// div ////////////////////////////////
 
 	public Derivative2D div(double value) {
 		return this.set(this.value / value, this.dx / value, this.dy / value);
@@ -126,7 +126,7 @@ public class Derivative2D implements Cloneable {
 		return this.div(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// divRev ////////////////////////////////
+	//////////////////////////////// divRev ////////////////////////////////
 
 	public Derivative2D divRev(double value) {
 		double minusValueSquared = -BigGlobeMath.squareD(this.value);
@@ -150,7 +150,7 @@ public class Derivative2D implements Cloneable {
 		return this.divRev(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// pos ////////////////////////////////
+	//////////////////////////////// pos ////////////////////////////////
 
 	public Derivative2D pow(double exponent) {
 		double common = exponent * Math.pow(this.value, exponent - 1.0D);
@@ -176,13 +176,13 @@ public class Derivative2D implements Cloneable {
 		return this.pow(that.value, that.dx, that.dy);
 	}
 
-	/// ///////////////////////////// unary ////////////////////////////////
+	//////////////////////////////// unary ////////////////////////////////
 
 	public Derivative2D negate() {
 		return this.set(-this.value, -this.dx, -this.dy);
 	}
 
-	/// ///////////////////////////// simple powers ////////////////////////////////
+	//////////////////////////////// simple powers ////////////////////////////////
 
 	public Derivative2D rcp() {
 		double minusValueSquared = -BigGlobeMath.squareD(this.value);
@@ -212,7 +212,7 @@ public class Derivative2D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// exponentials ////////////////////////////////
+	//////////////////////////////// exponentials ////////////////////////////////
 
 	public Derivative2D exp() {
 		double expValue = Math.exp(this.value);
@@ -231,7 +231,7 @@ public class Derivative2D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// trig ////////////////////////////////
+	//////////////////////////////// trig ////////////////////////////////
 
 	public Derivative2D sin() {
 		double chain = Math.cos(this.value);
@@ -260,7 +260,7 @@ public class Derivative2D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// hyperbolic trig ////////////////////////////////
+	//////////////////////////////// hyperbolic trig ////////////////////////////////
 
 	public Derivative2D sinh() {
 		double chain = Math.cosh(this.value);
@@ -289,7 +289,7 @@ public class Derivative2D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// inverse trig ////////////////////////////////
+	//////////////////////////////// inverse trig ////////////////////////////////
 
 	public Derivative2D asin() {
 		double chain = 1.0D / Math.sqrt(1.0D - BigGlobeMath.squareD(this.value));
@@ -318,7 +318,7 @@ public class Derivative2D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// inverse hyperbolic trig ////////////////////////////////
+	//////////////////////////////// inverse hyperbolic trig ////////////////////////////////
 
 	public Derivative2D asinh() {
 		double chain = 1.0D / Math.sqrt(BigGlobeMath.squareD(this.value) + 1.0D);
@@ -347,7 +347,7 @@ public class Derivative2D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// misc ////////////////////////////////
+	//////////////////////////////// misc ////////////////////////////////
 
 	public Derivative2D chain(DoubleUnaryOperator function, DoubleUnaryOperator derivative) {
 		double chain = derivative.applyAsDouble(this.value);

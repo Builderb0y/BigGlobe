@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.DynamicOps;
@@ -275,7 +276,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 
 		public BlockProperties(BlockState state) {
-			this(UnregisteredObjectException.getID(state.getBlockHolder()), state.getBlock(), state, state.getValues(), isEnabled(state.getBlock()));
+			this(UnregisteredObjectException.getID(state.typeHolder()), state.getBlock(), state, state.getValues().collect(Collectors.toMap(Property.Value::property, Property.Value::value)), isEnabled(state.getBlock()));
 		}
 
 		public Set<Property<?>> missing() {
@@ -531,7 +532,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static String encodeState(BlockState state) {
 		StringBuilder builder = new StringBuilder(64);
-		Optional<ResourceKey<Block>> key = state.getBlockHolder().unwrapKey();
+		Optional<ResourceKey<Block>> key = state.typeHolder().unwrapKey();
 		if (key.isPresent()) builder.append(key.get().identifier());
 		else throw new EncodeException(() -> "Unregistered block: " + state);
 		Collection<Property<?>> properties = state.getProperties();

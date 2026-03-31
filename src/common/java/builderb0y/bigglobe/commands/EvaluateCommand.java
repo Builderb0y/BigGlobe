@@ -68,7 +68,7 @@ public class EvaluateCommand {
 							WorldWrapper world = new WorldWrapper(
 								new WorldDelegator(actualWorld),
 								generator,
-								Permuter.from(actualWorld.random),
+								Permuter.from(actualWorld.getRandom()),
 								new Coordination(SymmetricOffset.IDENTITY, area, area),
 								ColumnUsage.GENERIC.normalHints()
 							);

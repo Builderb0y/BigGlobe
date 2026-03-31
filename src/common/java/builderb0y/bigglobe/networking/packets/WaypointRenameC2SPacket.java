@@ -10,9 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
-import builderb0y.bigglobe.hyperspace.ServerWaypointData;
-import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
+import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.items.AuraBottleItem;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
@@ -36,6 +34,21 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 		return new Data(buffer.readVarInt(), buffer.readEnum(InteractionHand.class));
 	}
 
+	public static boolean isInRange(ServerPlayer player, ServerWaypointData waypoint) {
+		if (EntityVersions.getWorld(player).dimension() == HyperspaceConstants.WORLD_KEY) {
+			PlayerWaypointManager manager = ServerPlayerWaypointManager.get(player);
+			if (manager == null || manager.entrance == null) return false; //shouldn't ever be null, but handle sanely anyway.
+			PackedPos relative = waypoint.relativizePosition(manager.entrance.pos());
+			return player.getEyePosition().distanceToSqr(relative.x(), relative.y(), relative.z()) <= EntityVersions.getEntityReachDistanceSquared(player);
+		}
+		else if (EntityVersions.getWorld(player).dimension() == waypoint.pos().world()) {
+			return player.getEyePosition().distanceToSqr(waypoint.pos().x(), waypoint.pos().y(), waypoint.pos().z()) <= EntityVersions.getEntityReachDistanceSquared(player);
+		}
+		else {
+			return false;
+		}
+	}
+
 	@Override
 	public void process(ServerPlayer player, Data data, PacketSender responseSender) {
 		if (!player.isSpectator()) {
@@ -44,13 +57,7 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 				ServerWaypointData waypoint = manager.getWaypoint(data.id);
 				if (waypoint != null) {
 					if (waypoint.owner() == null || waypoint.owner().equals(GameProfileVersions.getUUID(player.getGameProfile()))) {
-						if (
-							(
-								EntityVersions.getWorld(player).dimension() == HyperspaceConstants.WORLD_KEY ||
-								EntityVersions.getWorld(player).dimension() == waypoint.pos().world()
-							)
-							&& player.getEyePosition().distanceToSqr(waypoint.pos().x(), waypoint.pos().y(), waypoint.pos().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
-						) {
+						if (isInRange(player, waypoint)) {
 							ItemStack heldItem = player.getItemInHand(data.hand);
 							if (heldItem.getItem() == Items.NAME_TAG) {
 								Component name = ItemStackVersions.getCustomName(heldItem);

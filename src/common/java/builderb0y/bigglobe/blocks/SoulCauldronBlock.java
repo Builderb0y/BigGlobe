@@ -5,29 +5,31 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.core.cauldron.CauldronInteraction.InteractionMap;
+import net.minecraft.core.cauldron.CauldronInteraction.Dispatcher;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
 public class SoulCauldronBlock extends AbstractCauldronBlock {
 
-	public static final InteractionMap BEHAVIOR_MAP = CauldronInteraction.newInteractionMap(BigGlobeMod.MODID + ":soul_cauldron");
+	public static final CauldronInteraction.Dispatcher BEHAVIOR_MAP = new Dispatcher();
 
 	public static final CauldronInteraction
-		FILL_WITH_SOUL_LAVA = (state, world, pos, player, hand, stack) -> {
-		return CauldronInteraction.emptyBucket(world, pos, player, hand, stack, BigGlobeBlocks.SOUL_CAULDRON.defaultBlockState(), SoundEvents.BUCKET_EMPTY_LAVA);
-	},
-		EMPTY_SOUL_LAVA_CAULDRON = (state, world, pos, player, hand, stack) -> {
-			return CauldronInteraction.fillBucket(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.BUCKET_FILL_LAVA);
+		FILL_WITH_SOUL_LAVA = (BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) -> {
+			return CauldronInteractions.emptyBucket(world, pos, player, hand, stack, BigGlobeBlocks.SOUL_CAULDRON.defaultBlockState(), SoundEvents.BUCKET_EMPTY_LAVA);
+		},
+		EMPTY_SOUL_LAVA_CAULDRON = (BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) -> {
+			return CauldronInteractions.fillBucket(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.BUCKET_FILL_LAVA);
 		};
 
 	public static final MapCodec<SoulCauldronBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulCauldronBlock.class);
@@ -43,9 +45,8 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 	}
 
 	public static void init() {
-
-		CauldronInteraction.EMPTY.map().put(BigGlobeItems.SOUL_LAVA_BUCKET, FILL_WITH_SOUL_LAVA);
-		BEHAVIOR_MAP.map().put(Items.BUCKET, EMPTY_SOUL_LAVA_CAULDRON);
+		CauldronInteractions.EMPTY.put(BigGlobeItems.SOUL_LAVA_BUCKET, FILL_WITH_SOUL_LAVA);
+		BEHAVIOR_MAP.put(Items.BUCKET, EMPTY_SOUL_LAVA_CAULDRON);
 	}
 
 	@Override
@@ -64,19 +65,18 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 		BlockState state,
 		Level world,
 		BlockPos pos,
-		Entity entity
-		, InsideBlockEffectApplier handler
-		, boolean movingFastOrBlockPosIsInsideDestinationBox
+		Entity entity,
+		InsideBlockEffectApplier handler,
+		boolean movingFastOrBlockPosIsInsideDestinationBox
 	) {
 		super.entityInside(
 			state,
 			world,
 			pos,
-			entity
-			, handler
-			, movingFastOrBlockPosIsInsideDestinationBox
+			entity,
+			handler,
+			movingFastOrBlockPosIsInsideDestinationBox
 		);
-
 		entity.lavaHurt();
 	}
 

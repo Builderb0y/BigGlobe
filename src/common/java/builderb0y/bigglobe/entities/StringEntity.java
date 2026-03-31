@@ -74,7 +74,7 @@ public class StringEntity extends Entity {
 	public static final WeakHashMap<Level, ArrayList<StringEntity>> TO_TICK = new WeakHashMap<>();
 
 	static {
-		ServerTickEvents.END_WORLD_TICK.register(StringEntity::onWorldTickEnd);
+		ServerTickEvents.END_LEVEL_TICK.register(StringEntity::onWorldTickEnd);
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			initClient();
 		}
@@ -83,8 +83,8 @@ public class StringEntity extends Entity {
 	//apparently lambda methods don't get removed when their enclosing method is of
 	//the wrong side, and apparently some JVMs preload lambda method parameter types.
 	//so, I have to use an anonymous class instead of a lambda to prevent crashes.
-	@SuppressWarnings("Convert2Lambda")
 	@Environment(EnvType.CLIENT)
+	@SuppressWarnings("Convert2Lambda")
 	public static void initClient() {
 		ClientTickEvents.END_CLIENT_TICK.register(new EndTick() {
 
@@ -152,29 +152,23 @@ public class StringEntity extends Entity {
 
 	public void dropString(ServerLevel world, DamageSource damageSource) {
 		world
-			.getServer()
-
-			.reloadableRegistries()
-			.getLootTable(LOOT_TABLE_KEY)
-
-			.getRandomItems(
-
-				new LootParams.Builder(world)
-
-					.withParameter(LootContextParams.THIS_ENTITY, this)
-					.withParameter(LootContextParams.ORIGIN, EntityVersions.getPos(this))
-					.withParameter(LootContextParams.DAMAGE_SOURCE, damageSource)
-
-					.withOptionalParameter(LootContextParams.ATTACKING_ENTITY, damageSource.getEntity())
-					.withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, damageSource.getDirectEntity())
-
-					.create(LootContextParamSets.ENTITY),
-				(ItemStack stack) -> this.spawnAtLocation(world, stack)
-			);
+		.getServer()
+		.reloadableRegistries()
+		.getLootTable(LOOT_TABLE_KEY)
+		.getRandomItems(
+			new LootParams.Builder(world)
+			.withParameter(LootContextParams.THIS_ENTITY, this)
+			.withParameter(LootContextParams.ORIGIN, EntityVersions.getPos(this))
+			.withParameter(LootContextParams.DAMAGE_SOURCE, damageSource)
+			.withOptionalParameter(LootContextParams.ATTACKING_ENTITY, damageSource.getEntity())
+			.withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, damageSource.getDirectEntity())
+			.create(LootContextParamSets.ENTITY),
+			(ItemStack stack) -> this.spawnAtLocation(world, stack)
+		);
 	}
 
 	@Override
-	public InteractionResult interact(Player player, InteractionHand hand) {
+	public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
 		if (player.getItemInHand(hand).getItem() == BigGlobeItems.BALL_OF_STRING && this.getNextEntity() == null) {
 			this.setNextEntity(player);
 			return InteractionResult.SUCCESS;

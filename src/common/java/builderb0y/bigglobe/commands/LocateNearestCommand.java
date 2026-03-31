@@ -21,7 +21,7 @@ public class LocateNearestCommand extends AsyncCommand {
 			source.getPosition().x,
 			source.getPosition().z,
 			4.0D,
-			source.getLevel().random.nextDouble() * (Math.PI * 2.0D)
+			source.getLevel().getRandom().nextDouble() * (Math.PI * 2.0D)
 		);
 	}
 

@@ -24,7 +24,7 @@ public record ServerWaypointData(
 	@VerifyNullable Component name,
 	@DefaultObject(name = "BLANK", in = CloudColor.class, mode = DefaultObjectMode.FIELD) CloudColor color
 )
-	implements WaypointData {
+implements WaypointData {
 
 	public ServerWaypointData(
 		int id,
@@ -54,7 +54,7 @@ public record ServerWaypointData(
 		return new ServerWaypointData(this.id, this.entityId, this.owner, this.pos, this.name, color);
 	}
 
-	public PlayerWaypointData relativize(PackedPos entrance) {
+	public PackedPos relativizePosition(PackedPos entrance) {
 		double x = this.pos.x() - entrance.x();
 		double y = this.pos.y() - entrance.y();
 		double z = this.pos.z() - entrance.z();
@@ -64,7 +64,17 @@ public record ServerWaypointData(
 			y *= scalar;
 			z *= scalar;
 		}
-		return new PlayerWaypointData(this, new PackedWorldPos(HyperspaceConstants.WORLD_KEY, x, y, z));
+		return new PackedPos(x, y, z);
+	}
+
+	public PlayerWaypointData relativize(PackedPos entrance) {
+		return new PlayerWaypointData(
+			this,
+			new PackedWorldPos(
+				HyperspaceConstants.WORLD_KEY,
+				this.relativizePosition(entrance)
+			)
+		);
 	}
 
 	public PlayerWaypointData absolutize() {

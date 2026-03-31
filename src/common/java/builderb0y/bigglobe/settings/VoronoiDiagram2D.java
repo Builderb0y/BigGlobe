@@ -167,7 +167,7 @@ public class VoronoiDiagram2D {
 	as such, the act of removing a point from the list
 	will also mean that its neighbors have a new neighbor.
 	so, they are tested again to see if they now need to be removed too.
-	<p>
+
 	example:
 	A -> B -> C -> D -> E
 	after C is removed, the list looks like this:
@@ -177,16 +177,16 @@ public class VoronoiDiagram2D {
 	it is entirely possible for isInsideCircumCircle(A, B, C) to
 	return true while isInsideCircumCircle(A, B, D) returns false.
 	that's why B and D need to be re-tested to see if they still belong in the list.
-	<p>
+
 	after EVERY point passes the isInsideCircumCircle() check with
 	its neighbors, the list is converted to a Cell, and returned.
 	oh, and the list is also cyclic, so the point "before the first point" is
 	the last point, and the point "after the last point" is the first point.
-	<p>
+
 	things I've tried which don't work:
-	<p>
+
 	just add the points that belong, so there's nothing to remove later.
-	<p>
+
 	well, first you'll need to keep the list sorted every time
 	it's modified. that's easy to do with a TreeSet or similar,
 	but then access time becomes O(log(N)) instead of O(1), so it's
@@ -197,10 +197,10 @@ public class VoronoiDiagram2D {
 	return true while isInsideCircumCircle(A, B, C) returns false.
 	in other words, adding C *could* invalidate B and D.
 	so there's ALWAYS something to remove at the end.
-	<p>
+
 	well, maybe keep the removal stage, but now it's faster cause
 	there's less points in the list which need to be tested, right?
-	<p>
+
 	well, maybe, but there are still more edge cases. for example:
 	start with A -> C.
 	try to add B. assume this fails because isInsideCircumCircle(A, B, C) returns false.

@@ -1,30 +1,17 @@
 {
-	"type": "minecraft:random_patch",
+	"type": "bigglobe:script",
 	"config": {
-		"feature": {
-			"feature": {
-				"type": "minecraft:simple_block",
-				"config": {
-					"to_place": {
-						"type": "minecraft:simple_state_provider",
-						"state": {
-							"Name": "bigglobe:charred_grass"
-						}
-					}
-				}
-			},
-			"placement": [
-				{
-					"type": "minecraft:block_predicate_filter",
-					"predicate": {
-						"type": "minecraft:matching_blocks",
-						"blocks": "minecraft:air"
-					}
-				}
-			]
-		},
-		"tries": 32,
-		"xz_spread": 7,
-		"y_spread": 3
+		"script": [
+			"boolean placedAny = false",
+			"repeat (32:",
+				"placedAny |= placeBlockState(",
+					"originX + random.nextInt(7) - random.nextInt(7),",
+					"originY + random.nextInt(3) - random.nextInt(3),",
+					"originZ + random.nextInt(7) - random.nextInt(7),",
+					"'bigglobe:charred_grass'",
+				")",
+			")",
+			"return(placedAny)"
+		]
 	}
 }

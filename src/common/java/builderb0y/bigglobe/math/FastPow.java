@@ -153,7 +153,7 @@ public class FastPow {
 		}
 	}
 
-	/// ///////////////////////////// default handling ////////////////////////////////
+	//////////////////////////////// default handling ////////////////////////////////
 
 	public static int pow(int a, int b) {
 		if (b > 0) {
@@ -235,7 +235,7 @@ public class FastPow {
 		return (float)(Math.exp((double)(x)));
 	}
 
-	/// ///////////////////////////// special cases ////////////////////////////////
+	//////////////////////////////// special cases ////////////////////////////////
 
 	public static int negativeEven(int operand) {
 		if (operand == 1) return 1;
@@ -265,7 +265,7 @@ public class FastPow {
 		return 0L;
 	}
 
-	/// ///////////////////////////// bytecode generation ////////////////////////////////
+	//////////////////////////////// bytecode generation ////////////////////////////////
 
 	//only used when synchronized on CACHE, so it's safe to have this be non-atomic.
 	public static int counter;

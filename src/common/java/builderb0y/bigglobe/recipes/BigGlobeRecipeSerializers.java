@@ -7,10 +7,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class BigGlobeRecipeSerializers {
 
-	public static final RecipeSerializer<ScriptedRecipe> SCRIPTED = register("scripted", new ScriptedRecipeSerializer());
+	public static final RecipeSerializer<ScriptedRecipe> SCRIPTED = register("scripted", ScriptedRecipeSerializer.INSTANCE);
 
-	public static void init() {
-	}
+	public static void init() {}
 
 	public static <T extends RecipeSerializer<?>> T register(String name, T serializer) {
 		return Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, BigGlobeMod.modID(name), serializer);

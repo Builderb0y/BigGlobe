@@ -76,7 +76,7 @@ public class TorchArrowEntity extends AbstractArrow {
 			//secondary action: bounce off the block.
 			//this action is most likely to fail when we hit the block face directly,
 			//and most likely to succeed when we hit the block at a glancing angle.
-			if (world.random.nextDouble() >= this.getBounceFailChance(blockHitResult)) {
+			if (world.getRandom().nextDouble() >= this.getBounceFailChance(blockHitResult)) {
 				Vec3 velocity = this.getDeltaMovement();
 				Axis axis = blockHitResult.getDirection().getAxis();
 				this.setDeltaMovement(

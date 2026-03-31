@@ -1,27 +1,15 @@
 package builderb0y.bigglobe.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.fog.FogData;
-import net.minecraft.client.renderer.fog.FogRenderer;
-import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering.lods.LodSystem;
+
+import net.minecraft.client.renderer.fog.FogRenderer;
 
 @Mixin(FogRenderer.class)
-
 public abstract class BackgroundRenderer_NoFogWithLods {
 
+	/*
+	//todo: re-enable once rendering is re-written.
 	@Inject(method = "setupFog(Lnet/minecraft/client/Camera;ILnet/minecraft/client/DeltaTracker;FLnet/minecraft/client/multiplayer/ClientLevel;)Lorg/joml/Vector4f;", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getDevice()Lcom/mojang/blaze3d/systems/GpuDevice;", remap = false))
-
 	private void bigglobe_disableFogWhenRenderingLods(
 		Camera camera,
 		int viewDistance,
@@ -50,4 +38,5 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 		}
 		return original;
 	}
+	*/
 }

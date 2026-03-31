@@ -82,14 +82,14 @@ public class ActiveStructureManager extends StructureManager {
 					set,
 					(Holder<StructureSet> set_) -> (
 						set_
-							.value()
-							.structures()
-							.stream()
-							.map(StructureSelectionEntry::structure)
-							.map(Holder<Structure>::value)
-							.map(SizedStructure.class::cast)
-							.mapToInt(SizedStructure::bigglobe_getMaxRadiusInChunks)
-							.max()
+						.value()
+						.structures()
+						.stream()
+						.map(StructureSelectionEntry::structure)
+						.map(Holder<Structure>::value)
+						.map(SizedStructure.class::cast)
+						.mapToInt(SizedStructure::bigglobe_getMaxRadiusInChunks)
+						.max()
 					)
 				);
 			}
@@ -107,15 +107,15 @@ public class ActiveStructureManager extends StructureManager {
 					set.value().placement()
 				)
 			)
-				.bigglobe_getFilteredStartChunks(
-					params.generator(),
-					params.structurePlacementCalculator(),
-					params.chunkPos().x,
-					params.chunkPos().z,
-					radius
-				)
+			.bigglobe_getFilteredStartChunks(
+				params.generator(),
+				params.structurePlacementCalculator(),
+				params.chunkPos().x(),
+				params.chunkPos().z(),
+				radius
+			)
 		)
-				.map((ChunkPos chunkPos) -> new StructureKey(chunkPos.x, chunkPos.z, set));
+		.map((ChunkPos chunkPos) -> new StructureKey(chunkPos.x(), chunkPos.z(), set));
 	}
 
 	@Override
@@ -131,28 +131,28 @@ public class ActiveStructureManager extends StructureManager {
 		return (
 			maybeParallel(
 				params
-					.structurePlacementCalculator()
-					.possibleStructureSets()
-					.stream()
+				.structurePlacementCalculator()
+				.possibleStructureSets()
+				.stream()
 			)
-				.flatMap((Holder<StructureSet> set) -> {
-					return this.maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
-				})
-				.map(StructureKey::chunkPos)
-				.distinct()
-				.flatMap((ChunkPos pos) -> maybeParallel(this.getFinalStructures(params.at(pos)).stream()))
-				.filter((StructureStart start) -> (
-					params.chunkPos().x >= start.getBoundingBox().minX() >> 4 &&
-					params.chunkPos().z >= start.getBoundingBox().minZ() >> 4 &&
-					params.chunkPos().x <= start.getBoundingBox().maxX() >> 4 &&
-					params.chunkPos().z <= start.getBoundingBox().maxZ() >> 4
-				))
-				.sorted(
-					Comparator
-						.comparing((StructureStart start) -> start.getStructure().step())
-						.thenComparing((StructureStart start) -> structureID(start.getStructure()))
-				)
-				.collect(Collectors.toCollection(FinalStructures::new))
+			.flatMap((Holder<StructureSet> set) -> {
+				return this.maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
+			})
+			.map(StructureKey::chunkPos)
+			.distinct()
+			.flatMap((ChunkPos pos) -> maybeParallel(this.getFinalStructures(params.at(pos)).stream()))
+			.filter((StructureStart start) -> (
+				params.chunkPos().x() >= start.getBoundingBox().minX() >> 4 &&
+				params.chunkPos().z() >= start.getBoundingBox().minZ() >> 4 &&
+				params.chunkPos().x() <= start.getBoundingBox().maxX() >> 4 &&
+				params.chunkPos().z() <= start.getBoundingBox().maxZ() >> 4
+			))
+			.sorted(
+				Comparator
+				.comparing((StructureStart start) -> start.getStructure().step())
+				.thenComparing((StructureStart start) -> structureID(start.getStructure()))
+			)
+			.collect(Collectors.toCollection(FinalStructures::new))
 		);
 	}
 
@@ -167,57 +167,57 @@ public class ActiveStructureManager extends StructureManager {
 		@SuppressWarnings("unchecked")
 		@Nullable List<@NotNull StructureStartWrapper> @NotNull [] intermediate = new List[overriders.overriders().length];
 		params
-			.structurePlacementCalculator()
-			.possibleStructureSets()
-			.stream()
-			.flatMap((Holder<StructureSet> set) -> {
-				OptionalInt size = this.maxSize(set);
-				if (size.isEmpty()) return Stream.empty();
-				int extra = overriders.getSearchRadius(set);
-				if (extra < 0) return Stream.empty();
-				return getFilteredStartChunks(params, set, size.getAsInt() + extra);
-			})
-			.map(StructureKey::chunkPos)
-			.distinct()
-			.flatMap((ChunkPos pos) -> this.getFinalStructures(params.at(pos)).stream())
-			.sorted(
-				Comparator
-					.comparing((StructureStart start) -> start.getStructure().step())
-					.thenComparing((StructureStart start) -> structureID(start.getStructure()))
-			)
-			.forEachOrdered((StructureStart start) -> {
-				for (int index : overriders.getIndices(start.getStructure())) {
-					List<StructureStartWrapper> structures = intermediate[index];
-					if (structures == null) {
-						structures = intermediate[index] = new ArrayList<>();
-					}
-					ColumnValueOverrider.Entry overrider = overriders.overriders()[index].value();
-					int extra = overrider.getSearchRadius(start.getStructure());
-					if (
-						(start.getBoundingBox().minX() >> 4) - extra <= params.chunkPos().x &&
-						(start.getBoundingBox().minZ() >> 4) - extra <= params.chunkPos().z &&
-						(start.getBoundingBox().maxX() >> 4) + extra >= params.chunkPos().x &&
-						(start.getBoundingBox().maxZ() >> 4) + extra >= params.chunkPos().z
-					) {
-						structures.add(
-							StructureStartWrapper.of(
-								RegistryVersions.getEntry(
-									structureRegistry,
-									start.getStructure()
-								),
-								start
-							)
-						);
-					}
+		.structurePlacementCalculator()
+		.possibleStructureSets()
+		.stream()
+		.flatMap((Holder<StructureSet> set) -> {
+			OptionalInt size = this.maxSize(set);
+			if (size.isEmpty()) return Stream.empty();
+			int extra = overriders.getSearchRadius(set);
+			if (extra < 0) return Stream.empty();
+			return getFilteredStartChunks(params, set, size.getAsInt() + extra);
+		})
+		.map(StructureKey::chunkPos)
+		.distinct()
+		.flatMap((ChunkPos pos) -> this.getFinalStructures(params.at(pos)).stream())
+		.sorted(
+			Comparator
+			.comparing((StructureStart start) -> start.getStructure().step())
+			.thenComparing((StructureStart start) -> structureID(start.getStructure()))
+		)
+		.forEachOrdered((StructureStart start) -> {
+			for (int index : overriders.getIndices(start.getStructure())) {
+				List<StructureStartWrapper> structures = intermediate[index];
+				if (structures == null) {
+					structures = intermediate[index] = new ArrayList<>();
 				}
-			});
+				ColumnValueOverrider.Entry overrider = overriders.overriders()[index].value();
+				int extra = overrider.getSearchRadius(start.getStructure());
+				if (
+					(start.getBoundingBox().minX() >> 4) - extra <= params.chunkPos().x() &&
+					(start.getBoundingBox().minZ() >> 4) - extra <= params.chunkPos().z() &&
+					(start.getBoundingBox().maxX() >> 4) + extra >= params.chunkPos().x() &&
+					(start.getBoundingBox().maxZ() >> 4) + extra >= params.chunkPos().z()
+				) {
+					structures.add(
+						StructureStartWrapper.of(
+							RegistryVersions.getEntry(
+								structureRegistry,
+								start.getStructure()
+							),
+							start
+						)
+					);
+				}
+			}
+		});
 		return CollectionTransformer.convertArray(
 			intermediate,
 			ScriptStructures[]::new,
 			(List<StructureStartWrapper> wrappers) -> (
 				wrappers == null
-					? ScriptStructures.EMPTY_SCRIPT_STRUCTURES
-					: new ScriptStructures(
+				? ScriptStructures.EMPTY_SCRIPT_STRUCTURES
+				: new ScriptStructures(
 					wrappers.toArray(
 						StructureStartWrapper.ARRAY_FACTORY
 					)
@@ -243,42 +243,42 @@ public class ActiveStructureManager extends StructureManager {
 		//also compute the size of the largest one.
 		maybeParallel(
 			params
-				.structurePlacementCalculator()
-				.possibleStructureSets()
-				.stream()
+			.structurePlacementCalculator()
+			.possibleStructureSets()
+			.stream()
 		)
-			.flatMap((Holder<StructureSet> set) -> {
-				return getFilteredStartChunks(params, set, 0);
-			})
-			.forEach((StructureKey key) -> {
-				SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
-				if (!pieces.isEmpty()) synchronized (starts) {
-					starts.addElementToEnd(pieces);
-					this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
-				}
-			});
+		.flatMap((Holder<StructureSet> set) -> {
+			return getFilteredStartChunks(params, set, 0);
+		})
+		.forEach((StructureKey key) -> {
+			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
+			if (!pieces.isEmpty()) synchronized (starts) {
+				starts.addElementToEnd(pieces);
+				this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
+			}
+		});
 		if (starts.isEmpty()) return new FinalStructures(0);
 
 		//step 2: get all the structures which could potentially collide with anything in the current chunk.
 		maybeParallel(
 			params
-				.structurePlacementCalculator()
-				.possibleStructureSets()
-				.stream()
+			.structurePlacementCalculator()
+			.possibleStructureSets()
+			.stream()
 		)
-			.flatMap((Holder<StructureSet> set) -> {
-				return this.maxSize(set).stream().mapToObj((int radius) -> {
-						return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
-					})
-						.flatMap(Function.identity());
+		.flatMap((Holder<StructureSet> set) -> {
+			return this.maxSize(set).stream().mapToObj((int radius) -> {
+				return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
 			})
-			.filter((StructureKey key) -> key.chunkX() != params.chunkPos().x || key.chunkZ() != params.chunkPos().z)
-			.forEach((StructureKey key) -> {
-				SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
-				if (!pieces.isEmpty()) synchronized (starts) {
-					starts.addElementToEnd(pieces);
-				}
-			});
+			.flatMap(Function.identity());
+		})
+		.filter((StructureKey key) -> key.chunkX() != params.chunkPos().x() || key.chunkZ() != params.chunkPos().z())
+		.forEach((StructureKey key) -> {
+			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
+			if (!pieces.isEmpty()) synchronized (starts) {
+				starts.addElementToEnd(pieces);
+			}
+		});
 
 		//step 3: filter, log, and convert.
 		LinkedArrayList<SectionSortedStructurePieces> filtered = removeIntersections(params, starts);
@@ -326,7 +326,7 @@ public class ActiveStructureManager extends StructureManager {
 
 	public @NotNull SectionSortedStructurePieces getPotentialStructures(StructureGenerationParams params, Holder<StructureSet> set) {
 		return this.potentialStructures.computeIfUnknown(
-			new StructureKey(params.chunkPos().x, params.chunkPos().z, set), (StructureKey chunkPos) -> {
+			new StructureKey(params.chunkPos().x(), params.chunkPos().z(), set), (StructureKey chunkPos) -> {
 				return this.computePotentialStructures(params, set);
 			}
 		);
@@ -344,7 +344,7 @@ public class ActiveStructureManager extends StructureManager {
 
 	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, Holder<StructureSet> set) {
 		Permuter structureChooser = new Permuter(0L);
-		long chunkSeed = Permuter.permute(params.columnSeed() ^ 0x767DB826EDD5532EL, params.chunkPos().x, params.chunkPos().z);
+		long chunkSeed = Permuter.permute(params.columnSeed() ^ 0x767DB826EDD5532EL, params.chunkPos().x(), params.chunkPos().z());
 		structureChooser.setSeed(Permuter.permute(chunkSeed, UnregisteredObjectException.getID(set).hashCode()));
 		List<StructureSelectionEntry> possibilities = new ArrayList<>(set.value().structures());
 		int totalWeight = getTotalWeight(possibilities);
@@ -463,8 +463,8 @@ public class ActiveStructureManager extends StructureManager {
 						params.columnSeed() ^ 0xD59E69D9AB0D41BAL,
 						//String.hashCode() will be cached, which means faster permutation times.
 						UnregisteredObjectException.getID(weightedEntry.structure()).hashCode(),
-						params.chunkPos().x,
-						params.chunkPos().z
+						params.chunkPos().x(),
+						params.chunkPos().z()
 					)
 				)
 			)
@@ -512,10 +512,10 @@ public class ActiveStructureManager extends StructureManager {
 						start.getBoundingBox().getCenter() +
 						" because overrider " +
 						RegistryVersions.getRegistry(
-								BigGlobeMod.getCurrentServer().registryAccess(),
-								BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
-							)
-							.getKey(overrider) +
+							BigGlobeMod.getCurrentServer().registryAccess(),
+							BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
+						)
+						.getKey(overrider) +
 						" said no."
 					);
 				}

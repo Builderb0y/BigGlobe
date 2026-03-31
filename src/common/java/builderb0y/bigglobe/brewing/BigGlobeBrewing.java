@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.brewing;
 
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,20 +26,13 @@ public class BigGlobeBrewing {
 	public static final Holder<MobEffect>
 		SOUL_SIPHON = registerEffect(
 		"soul_siphon",
-		new MobEffect(MobEffectCategory.HARMFUL, 0x00FFFF) {
-
-		}
-			.addAttributeModifier(
-
-				Attributes.MAX_HEALTH,
-
-				BigGlobeMod.modID("effect.soul_siphon"),
-
-				-4.0D,
-
-				Operation.ADD_VALUE
-
-			)
+		new MobEffect(MobEffectCategory.HARMFUL, 0x00FFFF) {}
+		.addAttributeModifier(
+			Attributes.MAX_HEALTH,
+			BigGlobeMod.modID("effect.soul_siphon"),
+			-4.0D,
+			Operation.ADD_VALUE
+		)
 	);
 
 	public static final Holder<Potion>
@@ -52,8 +45,7 @@ public class BigGlobeBrewing {
 	}
 
 	public static void init() {
-
-		FabricBrewingRecipeRegistryBuilder.BUILD.register((PotionBrewing.Builder builder) -> {
+		FabricPotionBrewingBuilder.BUILD.register((PotionBrewing.Builder builder) -> {
 			BigGlobeMod.LOGGER.debug("Registering potion recipes...");
 			builder.addMix(Potions.AWKWARD, BigGlobeItems.ASH, WITHER);
 			builder.addMix(WITHER, Items.REDSTONE, LONG_WITHER);

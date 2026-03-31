@@ -268,7 +268,7 @@ public class RespawnCommand {
 
 		public static @Nullable Component tryRespawnNew(ServerPlayer player) {
 			if (EntityVersions.getServerWorld(player).getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(EntityVersions.getServerWorld(player), generator, EntityVersions.getServerWorld(player).random.nextLong());
+				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(EntityVersions.getServerWorld(player), generator, EntityVersions.getServerWorld(player).getRandom().nextLong());
 				if (spawnPoint != null) {
 					EntityVersions.teleport(
 						player,

@@ -23,22 +23,22 @@ public class BigGlobeStructures {
 		BigGlobeMod.LOGGER.debug("Registering structures...");
 	}
 
-	/// ///////////// noop ////////////////
+	//////////////// noop ////////////////
 
 	public static final StructureType<NoopStructure>
 		NOOP = registerType("noop", NoopStructure.CODEC);
 
-	/// ///////////// delegating ////////////////
+	//////////////// delegating ////////////////
 
 	public static final StructureType<DelegatingStructure>
 		DELEGATING_TYPE = registerType("delegating", DelegatingStructure.CODEC);
 
-	/// ///////////// common dungeon ////////////////
+	//////////////// common dungeon ////////////////
 
 	public static final BigGlobeStructurePieceType
 		DUNGEON_PIT_TYPE = registerPiece("dungeon_pit", AbstractDungeonStructure.PitDungeonPiece::new);
 
-	/// ///////////// small dungeon ////////////////
+	//////////////// small dungeon ////////////////
 
 	public static final StructureType<SmallDungeonStructure>
 		SMALL_DUNGEON_TYPE = registerType("small_dungeon", SmallDungeonStructure.CODEC);
@@ -49,7 +49,7 @@ public class BigGlobeStructures {
 		SMALL_DUNGEON_CHEST_TYPE = registerPiece("small_dungeon_chest", SmallDungeonStructure.ChestPiece::new),
 		SMALL_DUNGEON_SPAWNER_TYPE = registerPiece("small_dungeon_spawner", SmallDungeonStructure.SpawnerPiece::new);
 
-	/// ///////////// medium dungeon ////////////////
+	//////////////// medium dungeon ////////////////
 
 	public static final StructureType<MediumDungeonStructure>
 		MEDIUM_DUNGEON_TYPE = registerType("medium_dungeon", MediumDungeonStructure.CODEC);
@@ -61,7 +61,7 @@ public class BigGlobeStructures {
 		MEDIUM_DUNGEON_CHEST_TYPE = registerPiece("medium_dungeon_chest", MediumDungeonStructure.ChestPiece::new),
 		MEDIUM_DUNGEON_SPAWNER_TYPE = registerPiece("medium_dungeon_spawner", MediumDungeonStructure.SpawnerPiece::new);
 
-	/// ///////////// large dungeon ////////////////
+	//////////////// large dungeon ////////////////
 
 	public static final StructureType<LargeDungeonStructure>
 		LARGE_DUNGEON_TYPE = registerType("large_dungeon", LargeDungeonStructure.CODEC);
@@ -75,7 +75,7 @@ public class BigGlobeStructures {
 		LARGE_DUNGEON_SPAWNER_TYPE = registerPiece("large_dungeon_spawner", LargeDungeonStructure.SpawnerPiece::new),
 		LARGE_DUNGEON_TRAP_TYPE = registerPiece("large_dungeon_trap", LargeDungeonStructure.TrapPiece::new);
 
-	/// ///////////// geode ////////////////
+	//////////////// geode ////////////////
 
 	public static final StructureType<GeodeStructure>
 		GEODE_TYPE = registerType("geode", GeodeStructure.CODEC);
@@ -83,7 +83,7 @@ public class BigGlobeStructures {
 		GEODE_PIECE_TYPE = registerPiece("geode_piece", GeodeStructure.MainPiece::new),
 		GEODE_SPIKE_PIECE_TYPE = registerPiece("geode_spike", GeodeStructure.SpikePiece::new);
 
-	/// ///////////// bigger desert pyramid ////////////////
+	//////////////// bigger desert pyramid ////////////////
 
 	public static final StructureType<BiggerDesertPyramidStructure>
 		BIGGER_DESERT_PYRAMID_TYPE = registerType("bigger_desert_pyramid", BiggerDesertPyramidStructure.CODEC);
@@ -94,7 +94,7 @@ public class BigGlobeStructures {
 		BIGGER_DESERT_PYRAMID_UNDERGROUND_HALL1_PIECE_TYPE = registerPiece("bigger_desert_pyramid_underground_hall1_piece", BiggerDesertPyramidStructure.UndergroundHall1Piece::new),
 		BIGGER_DESERT_PYRAMID_UNDERGROUND_HALL2_PIECE_TYPE = registerPiece("bigger_desert_pyramid_underground_hall2_piece", BiggerDesertPyramidStructure.UndergroundHall2Piece::new);
 
-	/// ///////////// mega trees ////////////////
+	//////////////// mega trees ////////////////
 
 	public static final StructureType<MegaTreeStructure>
 		MEGA_TREE_TYPE = registerType("mega_tree", MegaTreeStructure.CODEC);
@@ -102,7 +102,7 @@ public class BigGlobeStructures {
 		MEGA_TREE_PIECE_TYPE = registerPiece("mega_tree_piece", MegaTreePiece::new),
 		MEGA_TREE_BALL_TYPE = registerPiece("mega_tree_ball", MegaTreeBall::new);
 
-	/// ///////////// portal temple ////////////////
+	//////////////// portal temple ////////////////
 
 	public static final StructureType<PortalTempleStructure>
 		PORTAL_TEMPLE = registerType("portal_temple", PortalTempleStructure.CODEC);
@@ -115,7 +115,7 @@ public class BigGlobeStructures {
 		PORTAL_TEMPLE_FURNACE = registerPiece("portal_temple_furnace", PortalTempleStructure.FurnacePiece::new),
 		PORTAL_TEMPLE_SPAWNER = registerPiece("portal_temple_spawner", PortalTempleStructure.SpawnerPiece::new);
 
-	/// ///////////// scripted ////////////////
+	//////////////// scripted ////////////////
 
 	public static final StructureType<ScriptedStructure>
 		SCRIPTED = registerType("script", ScriptedStructure.CODEC);

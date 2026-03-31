@@ -30,7 +30,7 @@ public class Derivative3D implements Cloneable {
 		this.dz = that.dz;
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	public Derivative3D set(double value) {
 		return this.set(value, 0.0D, 0.0D, 0.0D);
@@ -48,7 +48,7 @@ public class Derivative3D implements Cloneable {
 		return this.set(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	public Derivative3D add(double value) {
 		this.value += value;
@@ -63,7 +63,7 @@ public class Derivative3D implements Cloneable {
 		return this.add(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// sub ////////////////////////////////
+	//////////////////////////////// sub ////////////////////////////////
 
 	public Derivative3D sub(double value) {
 		this.value -= value;
@@ -78,7 +78,7 @@ public class Derivative3D implements Cloneable {
 		return this.sub(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// subRev ////////////////////////////////
+	//////////////////////////////// subRev ////////////////////////////////
 
 	public Derivative3D subRev(double value) {
 		return this.set(value - this.value, -this.dx, -this.dy, -this.dz);
@@ -92,7 +92,7 @@ public class Derivative3D implements Cloneable {
 		return this.subRev(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// mul ////////////////////////////////
+	//////////////////////////////// mul ////////////////////////////////
 
 	public Derivative3D mul(double value) {
 		return this.set(this.value * value, this.dx * value, this.dy * value, this.dz * value);
@@ -111,7 +111,7 @@ public class Derivative3D implements Cloneable {
 		return this.mul(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// div ////////////////////////////////
+	//////////////////////////////// div ////////////////////////////////
 
 	public Derivative3D div(double value) {
 		return this.set(this.value / value, this.dx / value, this.dy / value, this.dz / value);
@@ -131,7 +131,7 @@ public class Derivative3D implements Cloneable {
 		return this.div(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// divRev ////////////////////////////////
+	//////////////////////////////// divRev ////////////////////////////////
 
 	public Derivative3D divRev(double value) {
 		double minusValueSquared = -BigGlobeMath.squareD(this.value);
@@ -157,7 +157,7 @@ public class Derivative3D implements Cloneable {
 		return this.divRev(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// pos ////////////////////////////////
+	//////////////////////////////// pos ////////////////////////////////
 
 	public Derivative3D pow(double exponent) {
 		double chain = exponent * Math.pow(this.value, exponent - 1.0D);
@@ -185,13 +185,13 @@ public class Derivative3D implements Cloneable {
 		return this.pow(that.value, that.dx, that.dy, that.dz);
 	}
 
-	/// ///////////////////////////// unary ////////////////////////////////
+	//////////////////////////////// unary ////////////////////////////////
 
 	public Derivative3D negate() {
 		return this.set(-this.value, -this.dx, -this.dy, -this.dz);
 	}
 
-	/// ///////////////////////////// simple powers ////////////////////////////////
+	//////////////////////////////// simple powers ////////////////////////////////
 
 	public Derivative3D rcp() {
 		double minusValueSquared = -BigGlobeMath.squareD(this.value);
@@ -224,7 +224,7 @@ public class Derivative3D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// exponentials ////////////////////////////////
+	//////////////////////////////// exponentials ////////////////////////////////
 
 	public Derivative3D exp() {
 		double expValue = Math.exp(this.value);
@@ -245,7 +245,7 @@ public class Derivative3D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// trig ////////////////////////////////
+	//////////////////////////////// trig ////////////////////////////////
 
 	public Derivative3D sin() {
 		double chain = Math.cos(this.value);
@@ -277,7 +277,7 @@ public class Derivative3D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// hyperbolic trig ////////////////////////////////
+	//////////////////////////////// hyperbolic trig ////////////////////////////////
 
 	public Derivative3D sinh() {
 		double chain = Math.cosh(this.value);
@@ -309,7 +309,7 @@ public class Derivative3D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// inverse trig ////////////////////////////////
+	//////////////////////////////// inverse trig ////////////////////////////////
 
 	public Derivative3D asin() {
 		double chain = 1.0D / Math.sqrt(1.0D - BigGlobeMath.squareD(this.value));
@@ -341,7 +341,7 @@ public class Derivative3D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// inverse hyperbolic trig ////////////////////////////////
+	//////////////////////////////// inverse hyperbolic trig ////////////////////////////////
 
 	public Derivative3D asinh() {
 		double chain = 1.0D / Math.sqrt(BigGlobeMath.squareD(this.value) + 1.0D);
@@ -373,7 +373,7 @@ public class Derivative3D implements Cloneable {
 		);
 	}
 
-	/// ///////////////////////////// misc ////////////////////////////////
+	//////////////////////////////// misc ////////////////////////////////
 
 	public Derivative3D chain(DoubleUnaryOperator function, DoubleUnaryOperator derivative) {
 		double chain = derivative.applyAsDouble(this.value);

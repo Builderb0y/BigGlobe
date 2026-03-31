@@ -32,7 +32,7 @@ public class MinecraftServer_InitializeSpawnPoint {
 				if (feature != null) feature.place(
 					world,
 					world.getChunkSource().getGenerator(),
-					world.random,
+					world.getRandom(),
 					WorldPropertiesVersions.getSpawnPos(worldProperties)
 				);
 			}

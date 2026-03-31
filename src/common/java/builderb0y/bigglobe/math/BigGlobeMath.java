@@ -10,7 +10,7 @@ public class BigGlobeMath {
 		GOLDEN_RATIO = 1.618033988749895,
 		GOLDEN_ANGLE = 2.39996322972865332;
 
-	/// ///////////////////////////// square1 ////////////////////////////////
+	//////////////////////////////// square1 ////////////////////////////////
 
 	public static int squareI(int i) {
 		return i * i;
@@ -48,7 +48,7 @@ public class BigGlobeMath {
 		return squareD((double)(f));
 	}
 
-	/// ///////////////////////////// square2 ////////////////////////////////
+	//////////////////////////////// square2 ////////////////////////////////
 
 	public static int squareI(int i1, int i2) {
 		return i1 * i1 + i2 * i2;
@@ -86,7 +86,7 @@ public class BigGlobeMath {
 		return squareD((double)(f1), (double)(f2));
 	}
 
-	/// ///////////////////////////// square3 ////////////////////////////////
+	//////////////////////////////// square3 ////////////////////////////////
 
 	public static int squareI(int i1, int i2, int i3) {
 		return i1 * i1 + i2 * i2 + i3 * i3;
@@ -124,7 +124,7 @@ public class BigGlobeMath {
 		return squareD((double)(f1), (double)(f2), (double)(f3));
 	}
 
-	/// ///////////////////////////// floor, ceil, round ////////////////////////////////
+	//////////////////////////////// floor, ceil, round ////////////////////////////////
 
 	public static int floorI(float number) {
 		int floor = (int)(number);
@@ -406,7 +406,18 @@ public class BigGlobeMath {
 		return Math.log((1.0D + x) / (1.0D - x)) * 0.5D;
 	}
 
-	/// ///////////////////////////// miscellaneous ////////////////////////////////
+	//////////////////////////////// miscellaneous ////////////////////////////////
+
+	public static long smallestEncompassingPowerOfTwo(long value) {
+		value--;
+		value |= value >>>  1;
+		value |= value >>>  2;
+		value |= value >>>  4;
+		value |= value >>>  8;
+		value |= value >>> 16;
+		value |= value >>> 32;
+		return value + 1L;
+	}
 
 	public static float sigmoid01(float value) {
 		return 1.0F / (exp(-4.0F * value) + 1.0F);
@@ -486,48 +497,37 @@ public class BigGlobeMath {
 	public static byte toByteExact(int value) {
 		byte b = (byte)(value);
 		if (value == b) return b;
-		else throw new ArithmeticException("Value too big for a byte: " + value);
+		else throw new ArithmeticException("Value out of range for a byte: " + value);
 	}
 
 	public static short toShortExact(int value) {
 		short s = (short)(value);
 		if (value == s) return s;
-		else throw new ArithmeticException("Value too big for a short: " + value);
+		else throw new ArithmeticException("Value out of range for a short: " + value);
 	}
 
 	public static byte toUnsignedByteExact(int value) {
 		if (value == (value & 0xFF)) return (byte)(value);
-		else throw new ArithmeticException("Value too big for an unsigned byte: " + value);
+		else throw new ArithmeticException("Value out of range for an unsigned byte: " + value);
 	}
 
 	public static short toUnsignedShortExact(int value) {
 		if (value == (value & 0xFFFF)) return (short)(value);
-		else throw new ArithmeticException("Value too big for an unsigned short: " + value);
+		else throw new ArithmeticException("Value out of range for an unsigned short: " + value);
 	}
 
 	public static int toUnsignedIntExact(long value) {
 		if (value == (value & 0xFFFFFFFFL)) return (int)(value);
-		else throw new ArithmeticException("Value too big for an unsigned int: " + value);
+		else throw new ArithmeticException("Value out of range for an unsigned int: " + value);
+	}
+
+	public static int toPositiveIntExact(long value) {
+		if (value == (value & 0x7FFF_FFFFL)) return (int)(value);
+		else throw new ArithmeticException("Value out of range for a positive int: " + value);
 	}
 
 	public static char toCharExact(int value) {
 		if (value == (char)(value)) return (char)(value);
-		else throw new ArithmeticException("Value too big for a char: " + value);
-	}
-
-	public static int positiveProduct(int a, int b) {
-		return a > 0 && b > 0 ? a * b : 0;
-	}
-
-	public static long positiveProduct(long a, long b) {
-		return a > 0L && b > 0L ? a * b : 0L;
-	}
-
-	public static float positiveProduct(float a, float b) {
-		return a > 0.0F && b > 0.0F ? a * b : 0.0F;
-	}
-
-	public static double positiveProduct(double a, double b) {
-		return a > 0.0D && b > 0.0D ? a * b : 0.0D;
+		else throw new ArithmeticException("Value out of range for a char: " + value);
 	}
 }

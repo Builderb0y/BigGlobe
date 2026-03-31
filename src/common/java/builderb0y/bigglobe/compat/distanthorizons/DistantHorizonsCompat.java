@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.compat;
+package builderb0y.bigglobe.compat.distanthorizons;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -16,7 +16,7 @@ import com.seibel.distanthorizons.api.objects.data.DhApiTerrainDataPoint;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.compat.dhChunkGen.DhScriptedWorldGenerator;
+import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
 public class DistantHorizonsCompat {
@@ -25,8 +25,7 @@ public class DistantHorizonsCompat {
 
 	static {
 		MethodHandle handle;
-		got:
-		{
+		got: {
 			//try API
 			try {
 				Class<?> api = Class.forName("com.seibel.distanthorizons.api.DhApi");
@@ -34,8 +33,7 @@ public class DistantHorizonsCompat {
 				BigGlobeMod.LOGGER.info("Distant horizons API compatibility enabled.");
 				break got;
 			}
-			catch (Exception ignored) {
-			}
+			catch (Exception ignored) {}
 			//try 2.0
 			try {
 				Class<?> environment = Class.forName("loaderCommon.fabric.com.seibel.distanthorizons.common.wrappers.worldGeneration.BatchGenerationEnvironment", false, DistantHorizonsCompat.class.getClassLoader());
@@ -43,8 +41,7 @@ public class DistantHorizonsCompat {
 				BigGlobeMod.LOGGER.info("Distant horizons 2.0 compatibility enabled.");
 				break got;
 			}
-			catch (Exception ignored) {
-			}
+			catch (Exception ignored) {}
 			//try 1.6
 			try {
 				Class<?> environment = Class.forName("fabric.com.seibel.lod.common.wrappers.worldGeneration.BatchGenerationEnvironment", false, DistantHorizonsCompat.class.getClassLoader());
@@ -52,8 +49,7 @@ public class DistantHorizonsCompat {
 				BigGlobeMod.LOGGER.info("Distant horizons 1.6 compatibility enabled.");
 				break got;
 			}
-			catch (Exception ignored) {
-			}
+			catch (Exception ignored) {}
 			BigGlobeMod.LOGGER.info("Distant horizons compatibility disabled.");
 			handle = MethodHandles.constant(boolean.class, Boolean.FALSE);
 		}

@@ -16,17 +16,14 @@ public class BlockStateVersions {
 	}
 
 	public static boolean isOpaqueFullCube(BlockState state, BlockGetter world, BlockPos pos) {
-
 		return state.isSolidRender();
 	}
 
 	public static int getOpacity(BlockState state, BlockGetter world, BlockPos pos) {
-
-		return state.getLightBlock();
+		return state.getLightDampening();
 	}
 
 	public static VoxelShape getCullingShape(BlockState state, BlockGetter world, BlockPos pos) {
-
 		return state.getOcclusionShape();
 	}
 }

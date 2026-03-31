@@ -101,7 +101,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 			if (world.getChunkSource() instanceof ServerChunkCache manager && manager.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 				BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 				for (
-					GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.random.nextLong());
+					GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.getRandom().nextLong());
 					iterator.radius <= 64.0D;
 					iterator.next()
 				) {

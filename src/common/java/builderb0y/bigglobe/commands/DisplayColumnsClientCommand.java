@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerLevel;
@@ -18,33 +18,33 @@ public class DisplayColumnsClientCommand {
 
 	public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
 		dispatcher.register(
-			ClientCommandManager
-				.literal(BigGlobeMod.MODID + ":displayColumns")
-				.requires((FabricClientCommandSource source) -> getGenerator(source) != null)
+			ClientCommands
+			.literal(BigGlobeMod.MODID + ":displayColumns")
+			.requires((FabricClientCommandSource source) -> getGenerator(source) != null)
+			.executes((CommandContext<FabricClientCommandSource> context) -> {
+				BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
+				if (generator != null) {
+					generator.setDisplay(null);
+					return 1;
+				}
+				else {
+					return 0;
+				}
+			})
+			.then(
+				ClientCommands
+				.argument("filter", StringArgumentType.greedyString())
 				.executes((CommandContext<FabricClientCommandSource> context) -> {
 					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 					if (generator != null) {
-						generator.setDisplay(null);
+						generator.setDisplay(context.getArgument("filter", String.class));
 						return 1;
 					}
 					else {
 						return 0;
 					}
 				})
-				.then(
-					ClientCommandManager
-						.argument("filter", StringArgumentType.greedyString())
-						.executes((CommandContext<FabricClientCommandSource> context) -> {
-							BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
-							if (generator != null) {
-								generator.setDisplay(context.getArgument("filter", String.class));
-								return 1;
-							}
-							else {
-								return 0;
-							}
-						})
-				)
+			)
 		);
 	}
 

@@ -3,7 +3,7 @@ package builderb0y.bigglobe.particles;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -29,7 +29,7 @@ public class SporeParticles {
 
 	@Environment(EnvType.CLIENT)
 	public static void initClient() {
-		ParticleFactoryRegistry.getInstance().register(Type.INSTANCE, ClientFactory::new);
+		ParticleProviderRegistry.getInstance().register(Type.INSTANCE, ClientFactory::new);
 	}
 
 	public static class Effect implements ParticleOptions {

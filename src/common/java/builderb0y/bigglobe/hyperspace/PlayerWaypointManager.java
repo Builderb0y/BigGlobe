@@ -17,7 +17,7 @@ for example, the player will be able to see all public waypoints,
 and all of their own private waypoints while in hyperspace,
 but in other dimensions their view of waypoints will be filtered to
 not include waypoints that are in a different dimension than them.
-<p>
+
 this class also keeps track of an "entrance" position.
 when the player is in hyperspace, this is the position
 of the waypoint they entered hyperspace from.

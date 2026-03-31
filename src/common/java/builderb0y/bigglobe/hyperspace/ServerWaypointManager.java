@@ -41,7 +41,7 @@ private waypoints created by every player.
 public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	public static final SavedDataType<ServerWaypointManager>
-		TYPE = new SavedDataType<>("bigglobe_hyperspace_waypoints", ServerWaypointManager::new, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ServerWaypointManager.class), null);
+		TYPE = new SavedDataType<>(BigGlobeMod.modID("waypoints"), ServerWaypointManager::new, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ServerWaypointManager.class), null);
 
 	public int nextID;
 

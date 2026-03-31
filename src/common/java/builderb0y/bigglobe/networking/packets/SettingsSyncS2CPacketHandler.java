@@ -27,10 +27,8 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
-import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.util.NbtIo2;
 
 public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<SettingsSyncS2CPacketHandler.Receiving> {
@@ -118,7 +116,8 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 					);
 				}
 			}
-			LodSystem.reload(LodSystemHolder.of(Minecraft.getInstance().levelRenderer), world, data);
+			//todo: re-enable once rendering is re-written.
+			//LodSystem.reload(LodSystemHolder.of(Minecraft.getInstance().levelRenderer), world, data);
 		}
 	}
 

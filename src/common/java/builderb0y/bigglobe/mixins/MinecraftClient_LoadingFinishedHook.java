@@ -5,13 +5,14 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.rendering.Matrices;
-import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
-import builderb0y.bigglobe.rendering.waypoints.WaypointWarpRenderer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
+
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.rendering2.hyperspace.HyperspaceRenderer;
+import builderb0y.bigglobe.rendering2.waypoints.WaypointRenderer;
 
 @Mixin(Minecraft.class)
 public class MinecraftClient_LoadingFinishedHook {
@@ -24,8 +25,7 @@ public class MinecraftClient_LoadingFinishedHook {
 			BigGlobeMod.LOGGER.info("Audit complete.");
 		}
 		ColumnEntryRegistry.Loading.reset(); //fix compatibility with veil.
-		Matrices.init();
+		WaypointRenderer.init();
 		HyperspaceRenderer.init();
-		WaypointWarpRenderer.init();
 	}
 }

@@ -262,7 +262,7 @@ public class NumberArray implements AutoCloseable {
 		if (freeable) manager.used += byteLength;
 	}
 
-	/// ///////////////////////////// allocation ////////////////////////////////
+	//////////////////////////////// allocation ////////////////////////////////
 
 	public static NumberArray allocateBytesHeap(int bytes) {
 		return new Manager(bytes << BYTE_SHIFT).allocateBytesHeap();
@@ -362,7 +362,7 @@ public class NumberArray implements AutoCloseable {
 		return array;
 	}
 
-	/// ///////////////////////////// util ////////////////////////////////
+	//////////////////////////////// util ////////////////////////////////
 
 	public byte[] getBase() {
 		try {
@@ -501,7 +501,7 @@ public class NumberArray implements AutoCloseable {
 		};
 	}
 
-	/// ///////////////////////////// get ////////////////////////////////
+	//////////////////////////////// get ////////////////////////////////
 
 	public byte implGetB(int index) {
 		return (byte)(BYTE_ACCESS.get(this.getBase(), this.byteIndex(index)));
@@ -623,7 +623,7 @@ public class NumberArray implements AutoCloseable {
 		};
 	}
 
-	/// ///////////////////////////// set ////////////////////////////////
+	//////////////////////////////// set ////////////////////////////////
 
 	public void implSetB(int index, byte value) {
 		BYTE_ACCESS.set(this.getBase(), this.byteIndex(index), value);
@@ -751,7 +751,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	/// ///////////////////////////// fill ////////////////////////////////
+	//////////////////////////////// fill ////////////////////////////////
 
 	public void implFillFromTo(int from, int to, byte value) {
 		byte[] base = this.getBase();
@@ -974,7 +974,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	/// ///////////////////////////// add ////////////////////////////////
+	//////////////////////////////// add ////////////////////////////////
 
 	public void implAdd(int index, byte value) {
 		byte[] base = this.getBase();
@@ -1090,7 +1090,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	/// ///////////////////////////// mul ////////////////////////////////
+	//////////////////////////////// mul ////////////////////////////////
 
 	public void implMul(int index, byte value) {
 		byte[] base = this.getBase();
@@ -1206,7 +1206,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	/// ///////////////////////////// min (used by worley noise) ////////////////////////////////
+	//////////////////////////////// min (used by worley noise) ////////////////////////////////
 
 	public void implMin(int index, byte value) {
 		byte[] base = this.getBase();
@@ -1322,7 +1322,7 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	/// ///////////////////////////// misc ////////////////////////////////
+	//////////////////////////////// misc ////////////////////////////////
 
 	public int length() {
 		return this.elementCount;

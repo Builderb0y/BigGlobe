@@ -1,33 +1,36 @@
 package builderb0y.bigglobe.features;
 
 import java.util.List;
+
+import com.google.common.base.Predicates;
+import com.mojang.serialization.Codec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.EndSpikeFeature.EndSpike;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.SpikeFeature.EndSpike;
-import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
-import com.google.common.base.Predicates;
-import com.mojang.serialization.Codec;
+import net.minecraft.world.level.levelgen.feature.configurations.EndSpikeConfiguration;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-public class EndSpikeRespawnFeature extends Feature<SpikeConfiguration> {
+public class EndSpikeRespawnFeature extends Feature<EndSpikeConfiguration> {
 
 	public static final ResourceKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = ResourceKey.create(Registries.CONFIGURED_FEATURE, BigGlobeMod.modID("end/nest_spike"));
 
-	public EndSpikeRespawnFeature(Codec<SpikeConfiguration> configCodec) {
+	public EndSpikeRespawnFeature(Codec<EndSpikeConfiguration> configCodec) {
 		super(configCodec);
 	}
 
 	public EndSpikeRespawnFeature() {
-		this(SpikeConfiguration.CODEC);
+		this(EndSpikeConfiguration.CODEC);
 	}
 
 	public static long getRandomSeed(WorldGenLevel world, int x, int z) {
@@ -35,7 +38,7 @@ public class EndSpikeRespawnFeature extends Feature<SpikeConfiguration> {
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<SpikeConfiguration> context) {
+	public boolean place(FeaturePlaceContext<EndSpikeConfiguration> context) {
 		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.level().registryAccess(), DELEGATE_KEY);
 		if (delegate == null) return false;
 		BlockPos beamTarget = context.config().getCrystalBeamTarget();

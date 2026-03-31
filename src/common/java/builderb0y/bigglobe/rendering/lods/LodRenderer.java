@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import org.lwjgl.opengl.*;
 
 import builderb0y.bigglobe.ClientState;
@@ -41,18 +41,14 @@ public interface LodRenderer extends SafeCloseable {
 			this.frustum = new LodFrustum(system);
 		}
 
-		public void setup(
-
-			WorldExtractionContext context
-
-		) {
-			this.lodSystemHolder = LodSystemHolder.of(context.worldRenderer());
+		public void setup(LevelExtractionContext context) {
+			this.lodSystemHolder = LodSystemHolder.of(context.levelRenderer());
 			this.partialTicks = RenderVersions.partialTicks(context);
-			this.rainStrength = context.world().getRainLevel(this.partialTicks);
-			this.thunderStrength = context.world().getThunderLevel(this.partialTicks);
-			this.worldMinY = HeightLimitViewVersions.getMinY(context.world());
-			this.worldMaxY = HeightLimitViewVersions.getMaxY(context.world());
-			this.clientState = ClientState.get(context.world().dimension());
+			this.rainStrength = context.level().getRainLevel(this.partialTicks);
+			this.thunderStrength = context.level().getThunderLevel(this.partialTicks);
+			this.worldMinY = HeightLimitViewVersions.getMinY(context.level());
+			this.worldMaxY = HeightLimitViewVersions.getMaxY(context.level());
+			this.clientState = ClientState.get(context.level().dimension());
 			this.frustum.setup(context);
 		}
 	}
@@ -145,8 +141,7 @@ public interface LodRenderer extends SafeCloseable {
 	implementors can use this to do any other cleanup
 	action after many meshes are closed in bulk.
 	*/
-	public default void oom() {
-	}
+	public default void oom() {}
 
 	/**
 	called when mesh has been finished
@@ -157,7 +152,7 @@ public interface LodRenderer extends SafeCloseable {
 	previously returned by {@link #beginMeshing()}.
 	the provider may or may not have been used
 	or appended to when this method is called.
-	<p>
+
 	this method will be called on the same
 	thread which called {@link #beginMeshing()}.
 	*/
@@ -177,7 +172,7 @@ public interface LodRenderer extends SafeCloseable {
 	the player quit to the main menu.
 	the player pressed F3 + A.
 	the player changed a config option which reloads LODs.
-	<p>
+
 	override this method to delete any GL
 	resources associated with the shader.
 	if the shader is managed externally and the
@@ -185,6 +180,5 @@ public interface LodRenderer extends SafeCloseable {
 	it is acceptable to do nothing in this method.
 	*/
 	@Override
-	public default void close() {
-	}
+	public default void close() {}
 }

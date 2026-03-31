@@ -53,7 +53,10 @@ to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
-	replace texture buffer with ordinary texture.
+	improve list of features for biomes.
+		currently missing underground biomes.
+		details on how various biomes compare to vanilla counterparts.
+		differences between biomes, where applicable.
 
 high priority:
 	document extra spawn system.
@@ -67,7 +70,6 @@ high priority:
 	whitelist which blocks exposed dungeons and spider pits are allowed to spawn on top of.
 	mark bclib as fully incompatible.
 	make slingshots able to throw splash/lingering potions.
-	fix alignment of rings in hyperspace collapse animation.
 
 V6:
 	add new json classes.
@@ -142,6 +144,12 @@ V6:
 		this negates the need for my gamerule.
 	update recipes to modern schemas, remove JsonDataLoader_BackwardsCompatibleRecipes mixin.
 	remove BigGlobeEntityRenderer.
+	update AutoCodec.
+	migrate structure locating system from center/range to min/max coords.
+	make scripted configured features relative to the placement position.
+		in other words, set originX = originY = originZ = 0,
+		and offset when the script tries to place somewhere.
+	rename StructureManager to something else to avoid name collisions with vanilla.
 
 LODs:
 	shader support.
@@ -160,6 +168,9 @@ json classes:
 		merge stuff.
 
 changelog:
+
+if a V5 backport is made:
+	copy hyperspace ring collapse code.
 
 alternate world presets:
 	paradise.

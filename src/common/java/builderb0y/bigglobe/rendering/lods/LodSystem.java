@@ -2,12 +2,13 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.state.level.CameraEntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.Profiler;
@@ -40,26 +41,24 @@ public class LodSystem implements SafeCloseable {
 	public static final long CHUNK_REBUILD_DELAY = 2000L;
 
 	static {
-
-		WorldRenderEvents.END_EXTRACTION.register(context -> {
-			LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+		LevelRenderEvents.END_EXTRACTION.register(context -> {
+			LodSystem system = LodSystemHolder.of(context.levelRenderer()).bigglobe_getLodSystem();
 			if (system != null) {
 				system.renderState.setup(context);
 				system.renderingThisFrame = shouldRenderLods(context.camera());
 			}
 		});
-		WorldRenderEvents.START_MAIN.register(context -> {
-			LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+		LevelRenderEvents.START_MAIN.register(context -> {
+			LodSystem system = LodSystemHolder.of(context.levelRenderer()).bigglobe_getLodSystem();
 			if (system != null) system.draw();
 		});
 	}
 
-	public static void init() {
-	}
+	public static void init() {}
 
 	/**
-	I would normally use {@link LevelRenderer#doesMobEffectBlockSky(Camera)} for this,
-	but sodium mixes into that to also cancel when the camera is underwater.
+	I would normally use {@link CameraEntityRenderState#doesMobEffectBlockSky} for this,
+	but sodium changes that to also cancel when the camera is underwater.
 	*/
 	public static boolean shouldRenderLods(Camera camera) {
 		return !(camera.entity() instanceof LivingEntity entity && (entity.hasEffect(MobEffects.BLINDNESS) || entity.hasEffect(MobEffects.DARKNESS)));
@@ -175,7 +174,7 @@ public class LodSystem implements SafeCloseable {
 		LocalPlayer player = Minecraft.getInstance().player;
 		Component text = Component.translatable("bigglobe.lod.oom", this.qualityLimit);
 		if (player != null) {
-			player.displayClientMessage(text, false);
+			player.sendSystemMessage(text);
 		}
 		else {
 			BigGlobeMod.LOGGER.warn(text.getString());
@@ -214,7 +213,7 @@ public class LodSystem implements SafeCloseable {
 			LocalPlayer player = Minecraft.getInstance().player;
 			if (player != null) {
 				int percent = 100 - (this.levelLimit - LodQuadTree.MIN_LEVEL) * 100 / (LodQuadTree.MAX_LEVEL - LodQuadTree.MIN_LEVEL);
-				player.displayClientMessage(Component.translatable("bigglobe.lod.generating", percent), true);
+				player.sendOverlayMessage(Component.translatable("bigglobe.lod.generating", percent));
 			}
 		}
 		try {
@@ -534,7 +533,7 @@ public class LodSystem implements SafeCloseable {
 
 	public void invalidateChunkNow(ChunkPos chunkPos) {
 		if (this.tree != null) {
-			this.recursiveInvalidateBlock(this.tree, System.currentTimeMillis() + CHUNK_REBUILD_DELAY, chunkPos.x << 4, chunkPos.z << 4);
+			this.recursiveInvalidateBlock(this.tree, System.currentTimeMillis() + CHUNK_REBUILD_DELAY, chunkPos.x() << 4, chunkPos.z() << 4);
 		}
 	}
 

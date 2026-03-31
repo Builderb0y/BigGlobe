@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.fabricmc.api.EnvType;
@@ -23,19 +24,24 @@ public abstract class ClientWorld_CustomTimeSpeed extends Level {
 		super(null, null, null, null, false, false, 0L, 0);
 	}
 
-	@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;setDayTime(J)V"))
-	private void bigglobe_tickTime(ClientLevelData instance, long timeOfDay, Operation<Void> original) {
+	/**
+	use same strategy as {@link ServerWorld_CustomTimeSpeed},
+	not because it's necessary on clients too, but in case someone
+	else mixes into tickTime() and wants to be notified when the time changes.
+	*/
+	@WrapMethod(method = "tickTime")
+	private void tickTime(Operation<Void> original) {
 		ClientState state = ClientState.get(this.dimension());
 		if (state != null) {
 			this.bigglobe_customTime += state.timeSpeed;
 			int elapsedTicks = (int)(this.bigglobe_customTime);
-			if (elapsedTicks > 0) {
-				this.bigglobe_customTime -= elapsedTicks;
-				original.call(instance, timeOfDay + elapsedTicks - 1L);
+			this.bigglobe_customTime -= elapsedTicks;
+			while (--elapsedTicks >= 0) {
+				original.call();
 			}
 		}
 		else {
-			original.call(instance, timeOfDay);
+			original.call();
 		}
 	}
 }

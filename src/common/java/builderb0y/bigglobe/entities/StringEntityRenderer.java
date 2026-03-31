@@ -5,13 +5,13 @@ import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -44,15 +44,15 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 			public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier) {
 				return this.add(
 					pos, u, v, normal, normalMultiplier,
-					LightTexture.pack(
+					LightCoordsUtil.pack(
 						lerpInt(
-							LightTexture.block(light),
-							LightTexture.block(state.lightC),
+							LightCoordsUtil.block(light),
+							LightCoordsUtil.block(state.lightC),
 							u
 						),
 						lerpInt(
-							LightTexture.sky(light),
-							LightTexture.sky(state.lightC),
+							LightCoordsUtil.sky(light),
+							LightCoordsUtil.sky(state.lightC),
 							u
 						)
 					)

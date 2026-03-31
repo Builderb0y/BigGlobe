@@ -2,8 +2,8 @@ package builderb0y.bigglobe.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -26,15 +26,10 @@ public class Matrices {
 		dayTimeInSeconds;
 
 	public static void init() {
-
-		WorldRenderEvents.END_EXTRACTION.register(Matrices::update);
+		LevelRenderEvents.END_EXTRACTION.register(Matrices::update);
 	}
 
-	public static void update(
-
-		WorldExtractionContext context
-
-	) {
+	public static void update(LevelExtractionContext context) {
 		Vec3 cameraPos = RenderVersions.getCameraPosition(context.camera());
 		cameraX = cameraPos.x;
 		cameraY = cameraPos.y;
@@ -47,7 +42,7 @@ public class Matrices {
 				(
 					(float)(
 						BigGlobeMath.modulus_BP(
-							context.world().getGameTime(),
+							context.level().getGameTime(),
 							24000L
 						)
 					)

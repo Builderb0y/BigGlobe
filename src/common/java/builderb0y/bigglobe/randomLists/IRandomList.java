@@ -437,7 +437,7 @@ public interface IRandomList<E> extends List<E> {
 		}
 	}
 
-	/// ///////////////////////////// coding ////////////////////////////////
+	//////////////////////////////// coding ////////////////////////////////
 
 	public static class IRandomListCoder<T> extends NamedCoder<IRandomList<T>> {
 

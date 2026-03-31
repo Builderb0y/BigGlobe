@@ -5,6 +5,7 @@ import java.util.Set;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryDataLoader;
+import net.minecraft.resources.RegistryValidator;
 import net.minecraft.resources.ResourceKey;
 import com.mojang.serialization.Codec;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -76,7 +77,7 @@ public class BigGlobeDynamicRegistries {
 	}
 
 	public static <T> RegistryDataLoader.RegistryData<T> entry(ResourceKey<Registry<T>> key, Codec<T> codec) {
-		return new RegistryDataLoader.RegistryData<>(key, codec, false);
+		return new RegistryDataLoader.RegistryData<>(key, codec, RegistryValidator.none());
 	}
 
 	public static <T> void addBefore(ResourceKey<? extends Registry<?>> after, ResourceKey<Registry<T>> registryKey, Codec<T> codec) {

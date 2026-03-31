@@ -174,7 +174,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		);
 	}
 
-	/// ///////////////////////////// getters ////////////////////////////////
+	//////////////////////////////// getters ////////////////////////////////
 
 	@Override
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {

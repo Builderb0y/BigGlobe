@@ -38,6 +38,6 @@ public class ValkyrienSkiesCompat {
 	}
 
 	public static boolean isInShipyard(ChunkPos pos) {
-		return isInShipyard(pos.x, pos.z);
+		return isInShipyard(pos.x(), pos.z());
 	}
 }

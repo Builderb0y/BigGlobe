@@ -18,15 +18,14 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.util.Mth;
+
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 import builderb0y.bigglobe.compat.InstalledMods;
-import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering.lods.*;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
 @Config(name = BigGlobeMod.MODID)
@@ -215,6 +214,8 @@ public class BigGlobeConfig {
 			SIDED_SEPARATE,
 			SIDED_COMBINED;
 
+			/*
+			//todo: re-enable once rendering is re-written.
 			@Environment(EnvType.CLIENT)
 			public LodRenderer createRenderer(LodRendering config) {
 				int quads = config.maxQuads;
@@ -225,6 +226,7 @@ public class BigGlobeConfig {
 					case SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
 				};
 			}
+			*/
 		}
 
 		@Tooltip(count = 7)
@@ -235,10 +237,13 @@ public class BigGlobeConfig {
 		@Excluded
 		public static transient RendererBackend previousRendererBackend = RendererBackend.AUTO;
 
+		/*
+		//todo: re-enable once rendering is re-written.
 		@Environment(EnvType.CLIENT)
 		public LodRenderer createRendererBackend() {
 			return this.rendererBackend.createRenderer(this);
 		}
+		*/
 
 		@Tooltip(count = 3)
 		@UseName("Maximum Quad Count")
@@ -331,6 +336,8 @@ public class BigGlobeConfig {
 
 		@Environment(EnvType.CLIENT)
 		public void maybeReloadLODs() {
+			/*
+			//todo: re-enable once rendering is re-written.
 			Minecraft client = Minecraft.getInstance();
 			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.levelRenderer) : null;
 			if (
@@ -357,6 +364,7 @@ public class BigGlobeConfig {
 					system.qualityLimit = this.quality;
 				}
 			}
+			*/
 		}
 	}
 

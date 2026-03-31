@@ -108,7 +108,7 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean isIn(BlockState state, BlockTag tag) {
-		return tag.list.contains(state.getBlockHolder());
+		return tag.list.contains(state.typeHolder());
 	}
 
 	public static Block getBlock(BlockState state) {

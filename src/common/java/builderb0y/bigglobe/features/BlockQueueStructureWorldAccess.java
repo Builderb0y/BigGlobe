@@ -256,11 +256,6 @@ public class BlockQueueStructureWorldAccess implements WorldGenLevel {
 	}
 
 	@Override
-	public float getShade(Direction direction, boolean shaded) {
-		return this.world.getShade(direction, shaded);
-	}
-
-	@Override
 	public LevelLightEngine getLightEngine() {
 		return this.world.getLightEngine();
 	}

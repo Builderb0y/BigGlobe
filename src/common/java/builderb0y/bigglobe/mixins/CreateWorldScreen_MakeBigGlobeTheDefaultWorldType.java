@@ -11,6 +11,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
+
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -29,8 +31,8 @@ public class CreateWorldScreen_MakeBigGlobeTheDefaultWorldType {
 	@Mixin(targets = "net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$WorldTab")
 	static class WorldTab_HandleUnknownWorldTypesSanely {
 
-		@WrapOperation(method = "method_48673", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/CycleButton;active:Z"))
-		private void bigglobe_adjustWorldPreset(CycleButton<?> instance, boolean value, Operation<Void> original) {
+		@WrapOperation(method = "lambda$new$1", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/CycleButton;active:Z", opcode = Opcodes.PUTFIELD))
+		private static void bigglobe_adjustWorldPreset(CycleButton<?> instance, boolean value, Operation<Void> original) {
 			original.call(instance, true);
 		}
 	}

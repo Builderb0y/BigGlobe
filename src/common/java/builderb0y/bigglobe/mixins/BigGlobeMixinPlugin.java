@@ -63,12 +63,8 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".Biome_DontFreezeRiverWater", Boolean.TRUE);
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds", Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium", Boolean.TRUE);
-		defaults.put(mixinPackage + ".BubbleColumnBlock_WorkWithSoulMagma", Boolean.TRUE);
 		defaults.put(mixinPackage + ".Camera_HandleSoulLavaSubmersion", Boolean.TRUE);
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty", Boolean.FALSE);
-		defaults.put(mixinPackage + ".ChorusFlowerBlock_AllowPlacementOnOtherTypesOfEndStones", Boolean.TRUE);
-		defaults.put(mixinPackage + ".ChorusPlantBlock_AllowPlacementOnOtherTypesOfEndStones", Boolean.TRUE);
-		defaults.put(mixinPackage + ".ChorusPlantFeature_AllowPlacementOnOtherTypesOfEndStones", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorld_CustomTimeSpeed", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel", Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreakingHeartBlock_MakeWorkInTheNether", Boolean.TRUE);
@@ -90,11 +86,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".FlowableFluid_DontFlowInRivers", Boolean.TRUE);
 		defaults.put(mixinPackage + ".FluidRenderer_DontHardCodeChunkSectionSizedAreas", Boolean.TRUE);
 		defaults.put(mixinPackage + ".FungusBlock_GrowIntoBigGlobeTree", Boolean.TRUE);
-		defaults.put(mixinPackage + ".GameRenderer_CaptureProjectionMatrix", Boolean.TRUE);
 		defaults.put(mixinPackage + ".GrassBlock_UseCustomFeatureInBigGlobeWorlds", Boolean.TRUE);
 		defaults.put(mixinPackage + ".HuskEntity_AllowSpawningUndergroundInBigGlobeWorlds", Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds", Boolean.TRUE);
-		defaults.put(mixinPackage + ".ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds", Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableFlint", Boolean.TRUE);
 		defaults.put(mixinPackage + ".Items_PlaceableSticks", Boolean.TRUE);
 		defaults.put(mixinPackage + ".MinecraftClient_LoadingFinishedHook", Boolean.TRUE);
@@ -115,7 +109,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".Chunk_NotifyLodSystem", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerWorld_CustomTimeSpeed", Boolean.TRUE);
-		defaults.put(mixinPackage + ".ServerWorld_SpawnEnderDragonInBigGlobeWorlds", Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight", Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner", Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes", Boolean.TRUE);
@@ -371,23 +364,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		return switch (mixinClassName) {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
-			}
-			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
-				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");
-			}
-			case
-				"builderb0y.bigglobe.mixins.Voxy_ContextSelectionSystem_UseGeneratingStorageBackend",
-				"builderb0y.bigglobe.mixins.Voxy_WorldEngine_UseBigGlobeGenerator",
-				"builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter"
-			-> {
-				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.VoxyIntegration") && checkMod(mixinClassName, "voxy");
-			}
-			case
-				"builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning",
-				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion",
-				"builderb0y.bigglobe.mixins.TagGroupLoader_DontLoadMyF___ingTags"
-			-> {
-				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connectormod" /* 1.20.1 name */) && checkNoMod(mixinClassName, "connector" /* 1.21.1 name */);
 			}
 			default -> {
 				yield this.isEnabledInConfig(mixinClassName);

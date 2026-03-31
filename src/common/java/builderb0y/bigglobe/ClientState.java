@@ -70,7 +70,6 @@ import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
-import builderb0y.bigglobe.rendering.lods.LodGenerator;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
@@ -200,7 +199,8 @@ public class ClientState {
 	public static void overrideColor(BlockGetter world, int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
 		//don't intercept for my own drawing code,
 		//since it contains intentionally incorrect coordinates.
-		if (LodGenerator.RENDERING_LODS.get()) return;
+		//TODO: re-enable once rendering has been re-written.
+		//if (LodGenerator.RENDERING_LODS.get()) return;
 		ResourceKey<Level> dimension = ((DimensionalBlockView)(world)).bigglobe_getDimension();
 		if (dimension == null) return;
 		ClientState state = get(dimension);

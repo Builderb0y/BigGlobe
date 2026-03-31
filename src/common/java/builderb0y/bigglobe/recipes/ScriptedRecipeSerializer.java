@@ -6,15 +6,16 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
-public class ScriptedRecipeSerializer implements RecipeSerializer<ScriptedRecipe> {
+public class ScriptedRecipeSerializer {
 
 	public static final AutoCoder<ScriptedRecipe> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(ScriptedRecipe.class);
 	public static final MapCodec<ScriptedRecipe> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CODER);
-	public static final StreamCodec<RegistryFriendlyByteBuf, ScriptedRecipe> PACKET_CODEC = new StreamCodec<RegistryFriendlyByteBuf, ScriptedRecipe>() {
+	public static final StreamCodec<RegistryFriendlyByteBuf, ScriptedRecipe> PACKET_CODEC = new StreamCodec<>() {
 
 		@Override
 		public ScriptedRecipe decode(RegistryFriendlyByteBuf buffer) {
@@ -31,14 +32,5 @@ public class ScriptedRecipeSerializer implements RecipeSerializer<ScriptedRecipe
 			buffer.writeNbt(BigGlobeAutoCodec.AUTO_CODEC.encode(CODER, value, buffer.registryAccess().createSerializationContext(NbtOps.INSTANCE)));
 		}
 	};
-
-	@Override
-	public MapCodec<ScriptedRecipe> codec() {
-		return CODEC;
-	}
-
-	@Override
-	public StreamCodec<RegistryFriendlyByteBuf, ScriptedRecipe> streamCodec() {
-		return PACKET_CODEC;
-	}
+	public static final RecipeSerializer<ScriptedRecipe> INSTANCE = new RecipeSerializer<>(CODEC, PACKET_CODEC);
 }
