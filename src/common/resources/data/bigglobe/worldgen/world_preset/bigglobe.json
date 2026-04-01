@@ -28,43 +28,45 @@
 					"all_possible_biomes": "#bigglobe:overworld_except_volcano"
 				},
 				"overriders": "#bigglobe:overworld",
-				"spawn_point": {
-					"file": "bigglobe:world_preset/overworld_spawn_point"
-				},
-				"colors": {
-					"grass": {
-						"template": "bigglobe:block_color_adjustment",
-						"inputs": {
-							"COLOR": [
-								"getDefaultGrassColor(",
-									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
-									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
-								")"
-							]
+				"game_mechanics": {
+					"spawn_point": {
+						"file": "bigglobe:world_preset/overworld_spawn_point"
+					},
+					"colors": {
+						"grass": {
+							"template": "bigglobe:block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"getDefaultGrassColor(",
+										"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
+										"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
+									")"
+								]
+							}
+						},
+						"foliage": {
+							"template": "bigglobe:block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"getDefaultFoliageColor(",
+										"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
+										"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
+									")"
+								]
+							}
+						},
+						"water": {
+							"template": "bigglobe:block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
+									"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+								]
+							}
 						}
 					},
-					"foliage": {
-						"template": "bigglobe:block_color_adjustment",
-						"inputs": {
-							"COLOR": [
-								"getDefaultFoliageColor(",
-									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
-									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
-								")"
-							]
-						}
-					},
-					"water": {
-						"template": "bigglobe:block_color_adjustment",
-						"inputs": {
-							"COLOR": [
-								"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
-								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
-							]
-						}
-					}
-				},
-				"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
+					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
+				}
 			}
 		},
 
@@ -78,13 +80,6 @@
 				"height": {
 					"min_y": 0,
 					"max_y": 1024
-				},
-				"nether_overrides": {
-					"place_portal_at_high_y_level": true,
-					"prevent_roof_exploration": true
-				},
-				"creaking_overrides": {
-					"time_reference": "minecraft:overworld"
 				},
 				"world_traits": "bigglobe:nether",
 				"layer": "bigglobe:nether/root",
@@ -104,9 +99,16 @@
 					"all_possible_biomes": "#bigglobe:nether"
 				},
 				"overriders": "#bigglobe:nether",
-				"lod_overrides": {
-					"view_distance_multiplier": 0.0625,
-					"fog_density_multiplier": 0.0625
+				"game_mechanics": {
+					"nether": {
+						"place_portal_at_high_y_level": true,
+						"prevent_roof_exploration": true
+					},
+					"creaking_time_reference": "minecraft:overworld",
+					"lods": {
+						"view_distance_multiplier": 0.0625,
+						"fog_density_multiplier": 0.0625
+					}
 				}
 			}
 		},
@@ -138,20 +140,22 @@
 					"all_possible_biomes": "#bigglobe:end"
 				},
 				"overriders": "#bigglobe:end",
-				"end_overrides": {
-					"spawning": {
-						"location": [ 96, 67, 0 ],
-						"obsidian_platform": false
-					},
-					"inner_gateways": {
-						"radius": 84.0,
-						"height": 80
-					},
-					"outer_gateways": {
-						"min_radius": 512,
-						"max_radius": 4096,
-						"step": 32,
-						"condition": "`bigglobe:end/has_mountain`"
+				"game_mechanics": {
+					"end": {
+						"spawning": {
+							"location": [ 96, 67, 0 ],
+							"obsidian_platform": false
+						},
+						"inner_gateways": {
+							"radius": 84.0,
+							"height": 80
+						},
+						"outer_gateways": {
+							"min_radius": 512,
+							"max_radius": 4096,
+							"step": 32,
+							"condition": "`bigglobe:end/has_mountain`"
+						}
 					}
 				}
 			}

@@ -39,8 +39,8 @@ public class PortalForcer_PlaceInNetherCaverns {
 	private void bigglobe_overridePortalLocation(BlockPos pos, Direction.Axis axis, CallbackInfoReturnable<Optional<BlockUtil.FoundRectangle>> callback) {
 		if (
 			this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
-			generator.nether_overrides != null &&
-			generator.nether_overrides.place_portal_at_high_y_level()
+			generator.game_mechanics.nether() != null &&
+			generator.game_mechanics.nether().place_portal_at_high_y_level()
 		) {
 			BigGlobeMod.LOGGER.info("Attempting to find nether portal location at high Y level...");
 			Vec3i size = switch (axis) {

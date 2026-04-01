@@ -29,43 +29,45 @@
 					"normal": "bigglobe:islands/normal_root"
 				},
 				"overriders": "#bigglobe:islands",
-				"spawn_point": {
-					"file": "bigglobe:world_preset/islands_spawn_point"
-				},
-				"colors": {
-					"grass": {
-						"template": "bigglobe:islands_block_color_adjustment",
-						"inputs": {
-							"COLOR": [
-								"getDefaultGrassColor(",
-									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
-									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
-								")"
-							]
+				"game_mechanics": {
+					"spawn_point": {
+						"file": "bigglobe:world_preset/islands_spawn_point"
+					},
+					"colors": {
+						"grass": {
+							"template": "bigglobe:islands_block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"getDefaultGrassColor(",
+										"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
+										"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
+									")"
+								]
+							}
+						},
+						"foliage": {
+							"template": "bigglobe:islands_block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"getDefaultFoliageColor(",
+										"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
+										"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
+									")"
+								]
+							}
+						},
+						"water": {
+							"template": "bigglobe:islands_block_color_adjustment",
+							"inputs": {
+								"COLOR": [
+									"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
+									"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+								]
+							}
 						}
 					},
-					"foliage": {
-						"template": "bigglobe:islands_block_color_adjustment",
-						"inputs": {
-							"COLOR": [
-								"getDefaultFoliageColor(",
-									"1.0L / (fastExp(-6.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
-									"1.0L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
-								")"
-							]
-						}
-					},
-					"water": {
-						"template": "bigglobe:islands_block_color_adjustment",
-						"inputs": {
-							"COLOR": [
-								"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
-								"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
-							]
-						}
-					}
-				},
-				"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
+					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
+				}
 			}
 		},
 

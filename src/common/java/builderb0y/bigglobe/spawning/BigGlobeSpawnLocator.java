@@ -90,7 +90,7 @@ public class BigGlobeSpawnLocator {
 		BigGlobeScriptedChunkGenerator generator,
 		long seed
 	) {
-		if (generator.spawn_point == null) return null;
+		if (generator.game_mechanics.spawn_point() == null) return null;
 		ScriptedColumn column = generator.newColumn(world, 0, 0, ColumnUsage.GENERIC.normalHints());
 		double radius = BigGlobeConfig.INSTANCE.get().playerSpawning.maxSpawnRadius;
 		HaltonIterator2D halton = new HaltonIterator2D(
@@ -107,7 +107,7 @@ public class BigGlobeSpawnLocator {
 		for (int attempt = 0; attempt < 1024; attempt++) {
 			permuter.setSeed(Permuter.permute(seed ^ 0x5E7658F173C1CF0AL, attempt));
 			column.setParamsUnchecked(column.params.at(halton.floorX(), halton.floorY()));
-			if (generator.spawn_point.get(column, permuter)) {
+			if (generator.game_mechanics.spawn_point().get(column, permuter)) {
 				int ground = generator.getFirstFreeHeight(
 					halton.floorX(),
 					halton.floorY(),

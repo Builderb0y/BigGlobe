@@ -18,8 +18,8 @@ public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 
 	@ModifyConstant(method = "spawnNewGateway()V", constant = @Constant(doubleValue = 96.0D))
 	private double bigglobe_overrideRadius(double oldValue) {
-		if (this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
-			return generator.end_overrides.inner_gateways().radius();
+		if (this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
+			return generator.game_mechanics.end().inner_gateways().radius();
 		}
 		else {
 			return oldValue;
@@ -28,8 +28,8 @@ public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 
 	@ModifyConstant(method = "spawnNewGateway()V", constant = @Constant(intValue = 75))
 	private int bigglobe_overrideHeight(int oldValue) {
-		if (this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
-			return generator.end_overrides.inner_gateways().height();
+		if (this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
+			return generator.game_mechanics.end().inner_gateways().height();
 		}
 		else {
 			return oldValue;

@@ -25,8 +25,8 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 	private boolean bigglobe_skipPlatformWhenRequested(ServerLevelAccessor world, BlockPos pos, boolean breakBlocks) {
 		return (
 			!(((ServerLevel)(world)).getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) ||
-			generator.end_overrides == null ||
-			generator.end_overrides.spawning().obsidian_platform()
+			generator.game_mechanics.end() == null ||
+			generator.game_mechanics.end().spawning().obsidian_platform()
 		);
 	}
 
@@ -34,8 +34,8 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 	private BlockPos bigglobe_generatePlatformAtRequestedPosition(BlockPos original, @Local(ordinal = 1) ServerLevel destination, @Share("bigglobe_platformPosition") LocalRef<BlockPos> platformPosition) {
 		int[] position;
 		BlockPos result;
-		if (destination.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
-			position = generator.end_overrides.spawning().location();
+		if (destination.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
+			position = generator.game_mechanics.end().spawning().location();
 			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(position[0], position[1], position[2]);
 			ChunkAccess chunk = destination.getChunk(pos);
 			while (BlockStateVersions.isReplaceable(chunk.getBlockState(pos))) {

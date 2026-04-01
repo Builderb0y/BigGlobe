@@ -13,8 +13,8 @@ public class CreakingHeartBlockEntity_MakeWorkInTheNether {
 
 	@ModifyReceiver(method = "updateCreakingState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;environmentAttributes()Lnet/minecraft/world/attribute/EnvironmentAttributeSystem;"))
 	private static Level bigglobe_makeWorkInNether(Level world) {
-		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.creaking_overrides != null) {
-			ServerLevel replacement = serverWorld.getServer().getLevel(generator.creaking_overrides.time_reference());
+		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.creaking_time_reference() != null) {
+			ServerLevel replacement = serverWorld.getServer().getLevel(generator.game_mechanics.creaking_time_reference());
 			if (replacement != null) return replacement;
 		}
 		return world;
@@ -22,8 +22,8 @@ public class CreakingHeartBlockEntity_MakeWorkInTheNether {
 
 	@ModifyReceiver(method = "serverTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;environmentAttributes()Lnet/minecraft/world/attribute/EnvironmentAttributeSystem;"))
 	private static Level bigglobe_dontKillInNether(Level world) {
-		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.creaking_overrides != null) {
-			ServerLevel replacement = serverWorld.getServer().getLevel(generator.creaking_overrides.time_reference());
+		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.creaking_time_reference() != null) {
+			ServerLevel replacement = serverWorld.getServer().getLevel(generator.game_mechanics.creaking_time_reference());
 			if (replacement != null) return replacement;
 		}
 		return world;

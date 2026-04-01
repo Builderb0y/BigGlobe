@@ -33,7 +33,7 @@ public abstract class ServerPlayerEntity_FixNetherRoofGlitch extends Player {
 		if (
 			EntityVersions.getGameMode((ServerPlayer)(Object)(this)).isSurvival() &&
 			EntityVersions.getServerWorld((ServerPlayer)(Object)(this)).getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
-			generator.nether_overrides != null && generator.nether_overrides.prevent_roof_exploration() &&
+			generator.game_mechanics.nether() != null && generator.game_mechanics.nether().prevent_roof_exploration() &&
 			(moveDown = this.getBoundingBox().maxY - generator.height.max_y()) > 0.0D
 		) {
 			this.setDeltaMovement(Vec3.ZERO);

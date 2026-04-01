@@ -16,7 +16,7 @@ public class EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds {
 
 	@ModifyExpressionValue(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/levelgen/feature/Feature;END_SPIKE:Lnet/minecraft/world/level/levelgen/feature/Feature;", opcode = Opcodes.GETSTATIC))
 	private Feature<EndSpikeConfiguration> bigglobe_redirectSpikeFeature(Feature<EndSpikeConfiguration> oldValue, ServerLevel world) {
-		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
 			return BigGlobeFeatures.END_SPIKE_RESPAWN;
 		}
 		else {

@@ -18,8 +18,8 @@ public class EyeblossomBlock_MakeWorkInTheNether {
 		ServerLevel replacement;
 		return (
 			original.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
-			generator.creaking_overrides != null &&
-			(replacement = original.getServer().getLevel(generator.creaking_overrides.time_reference())) != null
+			generator.game_mechanics.creaking_time_reference() != null &&
+			(replacement = original.getServer().getLevel(generator.game_mechanics.creaking_time_reference())) != null
 			? replacement
 			: original
 		);

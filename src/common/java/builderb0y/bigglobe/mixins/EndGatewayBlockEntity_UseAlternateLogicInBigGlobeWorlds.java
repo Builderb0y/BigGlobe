@@ -46,14 +46,14 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	@Inject(method = "findExitPortalXZPosTentative", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerLevel world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3> callback) {
 		bigglobe_exitPosition = null;
-		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
 			ScriptedColumn column = generator.newColumn(world, 0, 0, ColumnUsage.GENERIC.normalHints());
 			Vector2d direction = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize();
 			Vector2d position = new Vector2d();
-			double minRadius = generator.end_overrides.outer_gateways().min_radius();
-			double maxRadius = generator.end_overrides.outer_gateways().max_radius();
-			double step = generator.end_overrides.outer_gateways().step();
-			ColumnToBooleanScript condition = generator.end_overrides.outer_gateways().condition();
+			double minRadius = generator.game_mechanics.end().outer_gateways().min_radius();
+			double maxRadius = generator.game_mechanics.end().outer_gateways().max_radius();
+			double step = generator.game_mechanics.end().outer_gateways().step();
+			ColumnToBooleanScript condition = generator.game_mechanics.end().outer_gateways().condition();
 			for (double radius = minRadius; radius <= maxRadius; radius += step) {
 				position.set(direction).mul(radius);
 				column.setParamsUnchecked(column.params.at(BigGlobeMath.floorI(position.x), BigGlobeMath.floorI(position.y)));
@@ -98,7 +98,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 		Vector2d basePosition = bigglobe_exitPosition;
 		if (basePosition != null) {
 			bigglobe_exitPosition = null;
-			if (world.getChunkSource() instanceof ServerChunkCache manager && manager.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+			if (world.getChunkSource() instanceof ServerChunkCache manager && manager.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
 				BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 				for (
 					GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.getRandom().nextLong());
@@ -142,7 +142,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	*/
 	@Inject(method = "findTallestBlock", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_useAlternateLogicForHighestYLevelSearch(BlockGetter world, BlockPos pos, int searchRadius, boolean force, CallbackInfoReturnable<BlockPos> callback) {
-		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.end() != null) {
 			BlockPos.MutableBlockPos
 				search = new BlockPos.MutableBlockPos(),
 				found = pos.mutable().setY(HeightLimitViewVersions.getMinY(world));

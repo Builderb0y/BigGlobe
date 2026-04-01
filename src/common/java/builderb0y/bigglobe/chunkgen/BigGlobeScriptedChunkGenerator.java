@@ -101,6 +101,7 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.LodOverrides;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
@@ -194,82 +195,82 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final Holder<Layer> layer;
 	public final FeatureDispatchers feature_dispatcher;
 	public final DelayedEntryList<Overrider> overriders;
-	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
+	public final @DefaultObject(name = "DEFAULT", in = GameMechanics.class, mode = DefaultObjectMode.FIELD) GameMechanics game_mechanics;
 
-	public static record ColorOverrides(
-		ColorScript.@VerifyNullable Holder grass,
-		ColorScript.@VerifyNullable Holder foliage,
-		ColorScript.@VerifyNullable Holder water
-	) {}
-
-	public final @VerifyNullable ColorOverrides colors;
-	public final @VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature;
-
-	public static record NetherOverrides(
-		boolean place_portal_at_high_y_level,
-		boolean prevent_roof_exploration
-	) {}
-
-	public final @VerifyNullable NetherOverrides nether_overrides;
-
-	public static record EndOverrides(
-		Spawning spawning,
-		InnerGateways inner_gateways,
-		OuterGateways outer_gateways
+	public static record GameMechanics(
+		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
+		@VerifyNullable ColorOverrides colors,
+		@VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
+		@VerifyNullable NetherOverrides nether,
+		@VerifyNullable ResourceKey<Level> creaking_time_reference,
+		@VerifyNullable EndOverrides end,
+		@DefaultObject(name = "DEFAULT", in = LodOverrides.class, mode = DefaultObjectMode.FIELD) LodOverrides lods
 	) {
 
-		public static record Spawning(
-			int @VerifySizeRange(min = 3, max = 3) [] location,
-			boolean obsidian_platform
-		) {
-
-		}
-
-		public static record InnerGateways(
-			double radius,
-			int height
-		) {
-
-		}
-
-		public static record OuterGateways(
-			double min_radius,
-			double max_radius,
-			double step,
-			ColumnToBooleanScript.Holder condition
-		) {
-
-		}
-	}
-
-	public final @VerifyNullable EndOverrides end_overrides;
-
-	public static record CreakingOverrides(
-		ResourceKey<Level> time_reference
-	) {}
-
-	public final @VerifyNullable CreakingOverrides creaking_overrides;
-
-	public static record LodOverrides(
-		@DefaultBoolean(true) boolean lod_rendering_enabled,
-		@DefaultBoolean(true) boolean can_chunkload,
-		@DefaultFloat(1.0F) float view_distance_multiplier,
-		@DefaultFloat(1.0F) float fog_density_multiplier,
-		@VerifyNullable Float fog_height_scale,
-		@VerifyNullable Double fog_base_height
-	) {
-
-		public static final LodOverrides DEFAULT = new LodOverrides(
-			true,
-			true,
-			1.0F,
-			1.0F,
+		public static final GameMechanics DEFAULT = new GameMechanics(
 			null,
-			null
+			null,
+			null,
+			null,
+			null,
+			null,
+			LodOverrides.DEFAULT
 		);
-	}
 
-	public final @DefaultObject(name = "DEFAULT", in = LodOverrides.class, mode = DefaultObjectMode.FIELD) LodOverrides lod_overrides;
+		public static record ColorOverrides(
+			ColorScript.@VerifyNullable Holder grass,
+			ColorScript.@VerifyNullable Holder foliage,
+			ColorScript.@VerifyNullable Holder water
+		) {}
+
+		public static record NetherOverrides(
+			boolean place_portal_at_high_y_level,
+			boolean prevent_roof_exploration
+		) {}
+
+		public static record EndOverrides(
+			Spawning spawning,
+			InnerGateways inner_gateways,
+			OuterGateways outer_gateways
+		) {
+
+			public static record Spawning(
+				int @VerifySizeRange(min = 3, max = 3) [] location,
+				boolean obsidian_platform
+			) {}
+
+			public static record InnerGateways(
+				double radius,
+				int height
+			) {}
+
+			public static record OuterGateways(
+				double min_radius,
+				double max_radius,
+				double step,
+				ColumnToBooleanScript.Holder condition
+			) {}
+		}
+
+		public static record LodOverrides(
+			@DefaultBoolean(true) boolean lod_rendering_enabled,
+			@DefaultBoolean(true) boolean can_chunkload,
+			@DefaultFloat(1.0F) float view_distance_multiplier,
+			@DefaultFloat(1.0F) float fog_density_multiplier,
+			@VerifyNullable Float fog_height_scale,
+			@VerifyNullable Double fog_base_height
+		) {
+
+			public static final LodOverrides DEFAULT = new LodOverrides(
+				true,
+				true,
+				1.0F,
+				1.0F,
+				null,
+				null
+			);
+		}
+	}
 
 	public final @VerifyNullable Identifier world_traits;
 	public transient Map<Holder<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
@@ -278,7 +279,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final BetterRegistry<ExtraSpawn> extraSpawnRegistry;
 
 	public static record BiomeSpawnGroup(Holder<Biome> biome, MobCategory spawnGroup) {}
-
 	public final transient Map<BiomeSpawnGroup, WeightedList<SpawnerData>> extraSpawns;
 
 	public transient SortedOverriders actualOverriders;
@@ -289,74 +289,56 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient StructureManager structureManager;
 
 	public BigGlobeScriptedChunkGenerator(
-		DecodeContext<?> decodeContext,
-		@VerifyNullable String reload_preset,
-		@VerifyNullable String reload_dimension,
-		Height height,
-		Holder<Layer> layer,
-		FeatureDispatchers feature_dispatcher,
-		BiomeSource biome_source,
+		DecodeContext<?>            decodeContext,
+		@VerifyNullable String      reload_preset,
+		@VerifyNullable String      reload_dimension,
+		Height                      height,
+		Holder<Layer>               layer,
+		FeatureDispatchers          feature_dispatcher,
+		BiomeSource                 biome_source,
 		DelayedEntryList<Overrider> overriders,
-		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
-		@VerifyNullable ColorOverrides colors,
-		@VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
-		@VerifyNullable NetherOverrides nether_overrides,
-		@VerifyNullable EndOverrides end_overrides,
-		@VerifyNullable CreakingOverrides creaking_overrides,
-		LodOverrides lod_overrides,
-		@VerifyNullable Identifier world_traits,
-		BetterRegistry<ExtraSpawn> extraSpawnRegistry
+		GameMechanics               game_mechanics,
+		@VerifyNullable Identifier  world_traits,
+		BetterRegistry<ExtraSpawn>  extraSpawnRegistry
 	)
-		throws VerifyException {
+	throws VerifyException {
 		super(biome_source);
 		if (biome_source instanceof ScriptedColumnBiomeSource source) {
 			source.generator = this;
 		}
-		this.reload_preset = reload_preset;
-		this.reload_dimension = reload_dimension;
-		this.height = height;
-		this.layer = layer;
+		this.reload_preset      = reload_preset;
+		this.reload_dimension   = reload_dimension;
+		this.height             = height;
+		this.layer              = layer;
 		this.feature_dispatcher = feature_dispatcher;
-		this.overriders = overriders;
-		this.spawn_point = spawn_point;
-		this.colors = colors;
-		this.grass_bonemeal_feature = grass_bonemeal_feature;
-		this.nether_overrides = nether_overrides;
-		this.end_overrides = end_overrides;
-		this.creaking_overrides = creaking_overrides;
-		this.lod_overrides = lod_overrides;
-		this.world_traits = world_traits;
+		this.overriders         = overriders;
+		this.game_mechanics     = game_mechanics;
+		this.world_traits       = world_traits;
 		this.extraSpawnRegistry = extraSpawnRegistry;
-		this.loadedWorldTraits = TraitLoader.load(world_traits, decodeContext);
-		this.rootDebugDisplay = new DisplayEntry(this);
-		this.extraSpawns = Collections.synchronizedMap(new HashMap<>(64));
+		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
+		this.rootDebugDisplay   = new DisplayEntry(this);
+		this.extraSpawns        = Collections.synchronizedMap(new HashMap<>(64));
 	}
 
 	@Hidden //copy constructor.
 	public BigGlobeScriptedChunkGenerator(BigGlobeScriptedChunkGenerator from) {
 		super(copyBiomeSource(from.biomeSource));
-		this.reload_preset = from.reload_preset;
-		this.reload_dimension = from.reload_dimension;
+		this.reload_preset       = from.reload_preset;
+		this.reload_dimension    = from.reload_dimension;
 		this.columnEntryRegistry = from.columnEntryRegistry;
-		this.height = from.height;
-		this.layer = from.layer;
-		this.feature_dispatcher = from.feature_dispatcher;
-		this.overriders = from.overriders;
-		this.spawn_point = from.spawn_point;
-		this.colors = from.colors;
-		this.grass_bonemeal_feature = from.grass_bonemeal_feature;
-		this.nether_overrides = from.nether_overrides;
-		this.end_overrides = from.end_overrides;
-		this.creaking_overrides = from.creaking_overrides;
-		this.lod_overrides = from.lod_overrides;
-		this.world_traits = from.world_traits;
-		this.loadedWorldTraits = from.loadedWorldTraits;
+		this.height              = from.height;
+		this.layer               = from.layer;
+		this.feature_dispatcher  = from.feature_dispatcher;
+		this.overriders          = from.overriders;
+		this.game_mechanics      = from.game_mechanics;
+		this.world_traits        = from.world_traits;
+		this.loadedWorldTraits   = from.loadedWorldTraits;
 		this.compiledWorldTraits = from.compiledWorldTraits;
-		this.extraSpawnRegistry = from.extraSpawnRegistry;
+		this.extraSpawnRegistry  = from.extraSpawnRegistry;
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
-		this.rootDebugDisplay = new DisplayEntry(this);
-		this.structureManager = from.structureManager.copy();
-		this.extraSpawns = from.extraSpawns;
+		this.rootDebugDisplay    = new DisplayEntry(this);
+		this.structureManager    = from.structureManager.copy();
+		this.extraSpawns         = from.extraSpawns;
 	}
 
 	@Override
@@ -368,11 +350,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public void checkCyclicDependencies() {
 		this
-			.columnEntryRegistry
-			.registries
-			.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
-			.streamEntries()
-			.forEach(new CyclicDependencyAnalyzer(this.compiledWorldTraits));
+		.columnEntryRegistry
+		.registries
+		.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
+		.streamEntries()
+		.forEach(new CyclicDependencyAnalyzer(this.compiledWorldTraits));
 	}
 
 	public static BiomeSource copyBiomeSource(BiomeSource source) {

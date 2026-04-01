@@ -42,7 +42,8 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.LodOverrides;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.ColorOverrides;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.LodOverrides;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -262,21 +263,22 @@ public class ClientState {
 		@Hidden
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
 			this(BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
-			if (generator.colors != null || this.containsLayers) {
+			ColorOverrides colors = generator.game_mechanics.colors();
+			if (colors != null || this.containsLayers) {
 				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
-				if (generator.colors != null) {
-					if (generator.colors.grass() != null) generator.colors.grass().streamDirectDependencies().forEach(collector);
-					if (generator.colors.foliage() != null) generator.colors.foliage().streamDirectDependencies().forEach(collector);
-					if (generator.colors.water() != null) generator.colors.water().streamDirectDependencies().forEach(collector);
+				if (colors != null) {
+					if (colors.grass  () != null) colors.grass  ().streamDirectDependencies().forEach(collector);
+					if (colors.foliage() != null) colors.foliage().streamDirectDependencies().forEach(collector);
+					if (colors.water  () != null) colors.water  ().streamDirectDependencies().forEach(collector);
 				}
 				if (this.containsLayers) collector.accept(generator.layer);
 				generator
-					.columnEntryRegistry
-					.registries
-					.getRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY)
-					.streamEntries()
-					.filter((Holder<VoronoiSettings> entry) -> collector.contains(entry.value().owner()))
-					.forEach(collector);
+				.columnEntryRegistry
+				.registries
+				.getRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY)
+				.streamEntries()
+				.filter((Holder<VoronoiSettings> entry) -> collector.contains(entry.value().owner()))
+				.forEach(collector);
 				for (Holder<? extends DependencyView> entry : collector) {
 					if (entry.value() instanceof ResolvedInclude include) {
 						this.includes.put(include.id(), include.source());
@@ -471,10 +473,11 @@ public class ClientState {
 			this.maxY = generator.height.max_y();
 			this.seaLevel = generator.height.sea_level();
 			this.columnSeed = generator.columnSeed;
-			this.grassColor = generator.colors != null ? generator.colors.grass() : null;
-			this.foliageColor = generator.colors != null ? generator.colors.foliage() : null;
-			this.waterColor = generator.colors != null ? generator.colors.water() : null;
-			this.generatorLodOverrides = generator.lod_overrides;
+			ColorOverrides colors = generator.game_mechanics.colors();
+			this.grassColor   = colors != null ? colors.grass  () : null;
+			this.foliageColor = colors != null ? colors.foliage() : null;
+			this.waterColor   = colors != null ? colors.water  () : null;
+			this.generatorLodOverrides = generator.game_mechanics.lods();
 			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
 			if (generator.world_traits != null) {
 				for (Map.Entry<Holder<WorldTrait>, WorldTraitProvider> entry : generator.loadedWorldTraits.entrySet()) {
