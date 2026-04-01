@@ -102,6 +102,8 @@ V6:
 	remove all but one biome?
 		probably need at least 3 for rain vs. snow vs. no weather rendering.
 		structures will need dispatchers.
+			inject structure dispatchers into structure sets,
+			override method in scripted structure set.
 		mob spawning will need to become scripted somehow.
 	make nether fortresses spawn exclusively in the upper part of the nether,
 		split up structure sets for them.
@@ -119,6 +121,7 @@ V6:
 		goats.
 	half (16-bit float) storage mode in NumberArray.
 	rename scripted structure placements (either of them).
+		"scripted structure piece" would be a good name for one of them.
 	prevent mushrooms from spawning inside and on top of obelisks.
 	caves don't seem to be able to carve through sand, for some reason.
 		maybe bug in layered terracotta script.
@@ -150,6 +153,11 @@ V6:
 		in other words, set originX = originY = originZ = 0,
 		and offset when the script tries to place somewhere.
 	rename StructureManager to something else to avoid name collisions with vanilla.
+		StructurePlacementCalculator would be funny.
+	rename script holders to something else to avoid name collisions with vanilla.
+		Catcher?
+	remove script templates?
+		replace with custom classes that just take parameters?
 
 LODs:
 	shader support.

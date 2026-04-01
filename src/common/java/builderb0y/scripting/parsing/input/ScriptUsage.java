@@ -30,9 +30,7 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 
 	public static final TypelessCoderRegistry<ScriptUsage> CODER = new TypelessCoderRegistry<>(ReifiedType.from(ScriptUsage.class), BigGlobeAutoCodec.AUTO_CODEC) {
 
-		public final AutoCoder<@MultiLine String> sourceCoder = this.autoCodec.createCoder(new ReifiedType<@MultiLine String>() {
-
-		});
+		public final AutoCoder<@MultiLine String> sourceCoder = this.autoCodec.createCoder(new ReifiedType<@MultiLine String>() {});
 
 		@Override
 		@OverrideOnly
@@ -54,13 +52,12 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 	};
 
 	static {
-		CODER.register(SourceScriptUsage.class);
-		CODER.register(FileScriptUsage.class);
+		CODER.register(  SourceScriptUsage.class);
+		CODER.register(    FileScriptUsage.class);
 		CODER.register(TemplateScriptUsage.class);
 	}
 
-	public final @VerifyNullable
-	@IdentifierName String debug_name;
+	public final @VerifyNullable @IdentifierName String debug_name;
 	public final @VerifyNullable ResolvedIncludes includes;
 
 	public ScriptUsage(@VerifyNullable @IdentifierName String debug_name, @Nullable ResolvedIncludes includes) {

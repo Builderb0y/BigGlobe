@@ -28,7 +28,7 @@ public class TraitLoader {
 
 	public static <T_Encoded> Map<Holder<WorldTrait>, WorldTraitProvider> load(Identifier generatorID, DecodeContext<T_Encoded> context) {
 		if (generatorID == null) return null;
-		generatorID = Identifier.fromNamespaceAndPath(generatorID.getNamespace(), "worldgen/bigglobe_world_trait_impl/" + generatorID.getPath() + ".json");
+		generatorID = Identifier.fromNamespaceAndPath(generatorID.getNamespace(), "bigglobe/worldgen/world_trait_impl/" + generatorID.getPath() + ".json");
 		List<Resource> resources = BigGlobeMod.getResourceManager().getResourceStack(generatorID);
 		if (resources == null || resources.isEmpty()) {
 			throw new TraitLoadingException(new FileNotFoundException(generatorID.toString()));

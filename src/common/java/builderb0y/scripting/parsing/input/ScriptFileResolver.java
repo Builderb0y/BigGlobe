@@ -53,7 +53,7 @@ public class ScriptFileResolver {
 			if (source != null) return new ResolvedInclude(identifier, source);
 			else throw new IllegalStateException("Missing include " + identifier);
 		}
-		Identifier full = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_script_files/" + identifier.getPath() + ".gs");
+		Identifier full = IdentifierVersions.create(identifier.getNamespace(), "bigglobe/script_file/" + identifier.getPath() + ".gs");
 		try (BufferedReader reader = BigGlobeMod.getResourceManager().openAsReader(full)) {
 			StringWriter writer = new StringWriter(1024);
 			reader.transferTo(writer);
@@ -69,10 +69,10 @@ public class ScriptFileResolver {
 		if (includes == null) return null;
 		return new ResolvedIncludes(
 			Arrays
-				.stream(includes)
-				.map(ScriptFileResolver::resolve)
-				.map(ScriptFileResolver::intern)
-				.toArray(Holder[]::new)
+			.stream(includes)
+			.map(ScriptFileResolver::resolve)
+			.map(ScriptFileResolver::intern)
+			.toArray(Holder[]::new)
 		);
 	}
 
