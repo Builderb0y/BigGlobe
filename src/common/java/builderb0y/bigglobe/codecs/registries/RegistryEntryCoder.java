@@ -55,9 +55,7 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, Holder<T>> {
 
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Inlinable {
-
-	}
+	public static @interface Inlinable {}
 
 	public static class Factory extends NamedCoderFactory {
 

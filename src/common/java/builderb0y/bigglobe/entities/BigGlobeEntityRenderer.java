@@ -51,7 +51,5 @@ public abstract class BigGlobeEntityRenderer<E extends Entity, S extends BigGlob
 		return this.createState();
 	}
 
-	public static class State extends EntityRenderState {
-
-	}
+	public static class State extends EntityRenderState {}
 }

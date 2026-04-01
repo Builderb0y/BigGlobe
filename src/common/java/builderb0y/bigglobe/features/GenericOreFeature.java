@@ -84,7 +84,5 @@ public class GenericOreFeature extends Feature<GenericOreFeature.Config> {
 		BlockState2ObjectMap<BlockState> states,
 		@VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius
 	)
-		implements FeatureConfiguration {
-
-	}
+		implements FeatureConfiguration {}
 }

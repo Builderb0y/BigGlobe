@@ -26,8 +26,7 @@ public class BigGlobeBlockEntityTypes {
 		BigGlobeMod.LOGGER.debug("Done registering block entity types.");
 	}
 
-	public static void init() {
-	} //triggers static class initializers.
+	public static void init() {} //triggers static class initializers.
 
 	public static <B extends BlockEntity> BlockEntityType<B> register(String name, BlockEntitySupplier<B> factory, Block... blocks) {
 		return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, BigGlobeMod.modID(name), new BlockEntityType<>(factory, Set.of(blocks)));

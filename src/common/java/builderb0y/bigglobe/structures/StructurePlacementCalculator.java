@@ -35,7 +35,7 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-public abstract class StructureManager {
+public abstract class StructurePlacementCalculator {
 
 	public static record StructureGenerationParams(
 		BigGlobeScriptedChunkGenerator generator,
@@ -155,7 +155,7 @@ public abstract class StructureManager {
 
 	public abstract FinalStructures getFinalStructures(StructureGenerationParams params);
 
-	public abstract StructureManager copy();
+	public abstract StructurePlacementCalculator copy();
 
 	public static record StructureKey(int chunkX, int chunkZ, Holder<StructureSet> set) {
 
@@ -196,11 +196,11 @@ public abstract class StructureManager {
 					for (int x = minX; x <= maxX; x++) {
 						for (int y = minY; y <= maxY; y++) {
 							this
-								.computeIfAbsent(
-									BlockPos.asLong(x, y, z),
-									(long pos) -> new ArrayList<>(4)
-								)
-								.add(piece);
+							.computeIfAbsent(
+								BlockPos.asLong(x, y, z),
+								(long pos) -> new ArrayList<>(4)
+							)
+							.add(piece);
 						}
 					}
 				}
@@ -263,8 +263,7 @@ public abstract class StructureManager {
 
 	public static class FinalStructures extends ObjectArrayList<StructureStart> {
 
-		public FinalStructures() {
-		}
+		public FinalStructures() {}
 
 		public FinalStructures(int capacity) {
 			super(capacity);

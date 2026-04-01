@@ -73,9 +73,7 @@ public class TypeInfo {
 		return CollectionTransformer.convertArray(types, ARRAY_FACTORY, TypeInfo::of);
 	}
 
-	public static record ParsedTypeInfo(TypeInfo type, int endIndex) {
-
-	}
+	public static record ParsedTypeInfo(TypeInfo type, int endIndex) {}
 
 	public static ParsedTypeInfo parseNext(CharSequence input, int start) {
 		char first = input.charAt(start);

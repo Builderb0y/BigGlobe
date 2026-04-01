@@ -14,8 +14,7 @@ queried for an object which has not been registered to a {@link Registry}.
 */
 public class UnregisteredObjectException extends RuntimeException {
 
-	public UnregisteredObjectException() {
-	}
+	public UnregisteredObjectException() {}
 
 	public UnregisteredObjectException(String message) {
 		super(message);

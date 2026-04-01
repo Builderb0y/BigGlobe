@@ -2,8 +2,7 @@ package builderb0y.bigglobe.columns.scripted2;
 
 public class ColumnValueException extends Exception {
 
-	public ColumnValueException() {
-	}
+	public ColumnValueException() {}
 
 	public ColumnValueException(String message) {
 		super(message);

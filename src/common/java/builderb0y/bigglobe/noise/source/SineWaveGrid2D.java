@@ -87,7 +87,5 @@ public class SineWaveGrid2D implements Grid2D {
 		return sum * this.rcpStandardDeviation;
 	}
 
-	public static record PhaseData(long seed, double[] cosAngles, double[] sinAngles, double[] offsets) {
-
-	}
+	public static record PhaseData(long seed, double[] cosAngles, double[] sinAngles, double[] offsets) {}
 }

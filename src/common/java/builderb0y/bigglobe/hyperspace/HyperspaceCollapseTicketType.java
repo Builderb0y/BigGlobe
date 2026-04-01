@@ -16,6 +16,5 @@ public class HyperspaceCollapseTicketType {
 		)
 	);
 
-	public static void init() {
-	}
+	public static void init() {}
 }

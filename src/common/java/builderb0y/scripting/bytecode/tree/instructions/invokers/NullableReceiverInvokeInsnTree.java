@@ -36,8 +36,7 @@ public class NullableReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 		this.emitAllArgsExceptFirst(method); //object object (args)
 		this.emitMethod(method); //object (return)
 		switch (this.method.returnType.getSize()) {
-			case 0 -> {
-			}
+			case 0 -> {}
 			case 1 -> method.node.visitInsn(POP);
 			case 2 -> method.node.visitInsn(POP2);
 		} //object

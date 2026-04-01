@@ -60,8 +60,7 @@ public class DivideInsnTree extends BinaryInsnTree {
 							return new SignedRightShiftInsnTree(left, ldc(shift), LSHR);
 						}
 					}
-					default -> {
-					}
+					default -> {}
 				}
 			}
 		}

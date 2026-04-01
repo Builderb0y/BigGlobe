@@ -141,8 +141,6 @@ V6:
 	make scripted configured features relative to the placement position.
 		in other words, set originX = originY = originZ = 0,
 		and offset when the script tries to place somewhere.
-	rename StructureManager to something else to avoid name collisions with vanilla.
-		StructurePlacementCalculator would be funny.
 	remove script templates?
 		replace with custom classes that just take parameters?
 

@@ -11,9 +11,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 public class NoopFeatureDispatcher implements FeatureDispatcher {
 
 	@Override
-	public void generate(WorldWrapper world, Permuter random, long chunkSeed, Holder<FeatureDispatcher> selfEntry) {
-
-	}
+	public void generate(WorldWrapper world, Permuter random, long chunkSeed, Holder<FeatureDispatcher> selfEntry) {}
 
 	@Override
 	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {

@@ -14,9 +14,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 public class FakeRegistry<T> {
 
 	public final ResourceKey<Registry<T>> key;
-	public final HolderOwner<T> owner = new HolderOwner<>() {
-
-	};
+	public final HolderOwner<T> owner = new HolderOwner<>() {};
 	public final ReferenceQueue<Holder<T>> queue = new ReferenceQueue<>();
 	public final ConcurrentHashMap<T, WeakReference<Holder<T>>> cache = new ConcurrentHashMap<>(32);
 

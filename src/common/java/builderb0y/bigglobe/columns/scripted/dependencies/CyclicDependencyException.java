@@ -2,8 +2,7 @@ package builderb0y.bigglobe.columns.scripted.dependencies;
 
 public class CyclicDependencyException extends RuntimeException {
 
-	public CyclicDependencyException() {
-	}
+	public CyclicDependencyException() {}
 
 	public CyclicDependencyException(String message) {
 		super(message);

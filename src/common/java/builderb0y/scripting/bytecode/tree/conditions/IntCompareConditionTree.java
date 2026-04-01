@@ -71,8 +71,7 @@ public class IntCompareConditionTree implements ConditionTree {
 		return createInt(left, right, IF_ICMPGE, IFGE, (int l, int r) -> l >= r);
 	}
 
-	public void toInt(MethodCompileContext method) {
-	}
+	public void toInt(MethodCompileContext method) {}
 
 	@Override
 	public void emitBytecode(MethodCompileContext method, @Nullable Label ifTrue, @Nullable Label ifFalse) {

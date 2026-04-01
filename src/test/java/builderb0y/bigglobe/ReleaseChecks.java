@@ -23,6 +23,6 @@ public class ReleaseChecks {
 		assertFalse(Async.DEBUG_SYNC);
 		assertFalse(SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE);
 		//assertFalse(VertexHeap.AGGRESSIVE_ASSERTS);
-		//assertFalse(StructureManager.DEBUG_REMOVED);
+		//assertFalse(StructurePlacementCalculator.DEBUG_REMOVED);
 	}
 }

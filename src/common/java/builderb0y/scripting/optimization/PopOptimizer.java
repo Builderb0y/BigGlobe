@@ -54,8 +54,7 @@ public class PopOptimizer implements MethodOptimizer {
 								changed = true;
 							}
 						}
-						default -> {
-						}
+						default -> {}
 					}
 				}
 			}
@@ -79,8 +78,7 @@ public class PopOptimizer implements MethodOptimizer {
 								changed = true;
 							}
 						}
-						default -> {
-						}
+						default -> {}
 					}
 				}
 			}

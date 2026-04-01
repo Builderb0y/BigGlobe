@@ -171,14 +171,10 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			super(context.type);
 			this.params = context.type(ReifiedType.from(AccessSchema.class)).forceCreateCoder();
 			this.valid = context.type(ReifiedType.from(Valid.class).addAnnotation(VerifyNullable.INSTANCE)).forceCreateCoder();
-			this.cache = context.type(new ReifiedType<@DefaultBoolean(true) Boolean>() {
-
-			}).forceCreateCoder();
+			this.cache = context.type(new ReifiedType<@DefaultBoolean(true) Boolean>() {}).forceCreateCoder();
 			this.grid2D = context.type(ReifiedType.from(Grid2D.class)).forceCreateCoder();
 			this.grid3D = context.type(ReifiedType.from(Grid3D.class)).forceCreateCoder();
-			this.seed = context.type(new ReifiedType<Seed>() {
-
-			}).forceCreateCoder();
+			this.seed = context.type(new ReifiedType<Seed>() {}).forceCreateCoder();
 		}
 
 		@Override

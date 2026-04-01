@@ -252,8 +252,7 @@ public abstract class DataCompileContext {
 		PRE_COMPUTE_COLUMN_VALUE;
 	}
 
-	public void preprocessColumnValueCases(Int2ObjectSortedMap<InsnTree> cases, PreprocessMethod method) {
-	}
+	public void preprocessColumnValueCases(Int2ObjectSortedMap<InsnTree> cases, PreprocessMethod method) {}
 
 	public Stream<String> preprocessValidColumnValues(Stream<String> valid) {
 		return valid;

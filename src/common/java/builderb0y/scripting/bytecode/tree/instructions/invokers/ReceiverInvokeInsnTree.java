@@ -24,8 +24,7 @@ public class ReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 		this.emitAllArgsExceptFirst(method);
 		this.emitMethod(method);
 		switch (this.method.returnType.getSize()) {
-			case 0 -> {
-			}
+			case 0 -> {}
 			case 1 -> method.node.visitInsn(POP);
 			case 2 -> method.node.visitInsn(POP2);
 		}

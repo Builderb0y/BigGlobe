@@ -71,8 +71,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		return this.hasField();
 	}
 
-	public default void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {
-	}
+	public default void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {}
 
 	@MustBeInvokedByOverriders
 	public default void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {

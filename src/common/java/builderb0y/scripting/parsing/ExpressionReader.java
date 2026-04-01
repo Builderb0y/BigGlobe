@@ -565,7 +565,5 @@ public class ExpressionReader {
 		this.column = position.column;
 	}
 
-	public static record CursorPos(int cursor, int line, int column) {
-
-	}
+	public static record CursorPos(int cursor, int line, int column) {}
 }

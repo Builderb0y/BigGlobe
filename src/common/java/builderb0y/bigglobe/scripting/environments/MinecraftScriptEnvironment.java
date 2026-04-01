@@ -188,9 +188,7 @@ public class MinecraftScriptEnvironment {
 						List<ConstantValue> constantProperties = new ArrayList<>(16);
 						constantProperties.add(constantBlock);
 						constantProperties.add(constant(AbstractConstantFactory.flags(parser, nullable)));
-						record NonConstantProperty(String name, InsnTree value) {
-
-						}
+						record NonConstantProperty(String name, InsnTree value) {}
 						List<NonConstantProperty> nonConstantProperties = new ArrayList<>(8);
 						do {
 							String property = parser.input.expectIdentifierAfterWhitespace();

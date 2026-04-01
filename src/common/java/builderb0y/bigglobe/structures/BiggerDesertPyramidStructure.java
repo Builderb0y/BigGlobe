@@ -601,8 +601,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 		@Override
 		@MustBeInvokedByOverriders
-		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
-		}
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {}
 
 		@Override
 		public Coordinator coordinator(WorldGenLevel world, BoundingBox limit) {

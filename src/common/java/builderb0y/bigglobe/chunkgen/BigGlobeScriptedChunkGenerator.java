@@ -119,9 +119,9 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.*;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
-import builderb0y.bigglobe.structures.StructureManager;
-import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
-import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
 import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
@@ -259,7 +259,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient boolean seedSet;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
-	public transient StructureManager structureManager;
+	public transient StructurePlacementCalculator structureManager;
 
 	public BigGlobeScriptedChunkGenerator(
 		DecodeContext<?>            decodeContext,
@@ -384,7 +384,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public API.
 	*/
 	public void setStructuresEnabled(boolean structuresEnabled) {
-		this.structureManager = structuresEnabled ? new ActiveStructureManager() : new InactiveStructureManager();
+		this.structureManager = structuresEnabled ? new ActiveStructurePlacementCalculator() : new InactiveStructurePlacementCalculator();
 	}
 
 	/**
@@ -1106,7 +1106,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		for (StructureStart start : starts) {
 			map.merge(
 				start.getStructure(), start, (StructureStart start1, StructureStart start2) -> {
-					if (log) BigGlobeMod.LOGGER.info("More than one copy of structure " + StructureManager.structureName(start1.getStructure()) + " started in the same chunk. It may be present in more than one structure set.");
+					if (log) BigGlobeMod.LOGGER.info("More than one copy of structure " + StructurePlacementCalculator.structureName(start1.getStructure()) + " started in the same chunk. It may be present in more than one structure set.");
 					return new StructureStart(
 						start1.getStructure(),
 						start1.getChunkPos(),
@@ -1367,9 +1367,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				this.generator.displayPattern != null &&
 				value instanceof ColumnValueHolder holder
 			) {
-				record NameId(String name, String id) {
-
-				}
+				record NameId(String name, String id) {}
 				this.children = (
 					holder
 						.getColumnValues()

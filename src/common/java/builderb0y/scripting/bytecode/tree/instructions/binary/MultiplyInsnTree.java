@@ -69,8 +69,7 @@ public class MultiplyInsnTree extends BinaryInsnTree {
 						return new SignedLeftShiftInsnTree(variable, ldc(shift), LSHL);
 					}
 				}
-				default -> {
-				}
+				default -> {}
 			}
 		}
 		left = left.cast(parser, type, CastMode.EXPLICIT_THROW, false);

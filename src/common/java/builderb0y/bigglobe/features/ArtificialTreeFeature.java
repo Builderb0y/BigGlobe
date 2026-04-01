@@ -152,18 +152,14 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		@VerifyNullable Decorations decorations,
 		ColumnRandomYToIntScript.@VerifyNullable Catcher max_saplings
 	)
-		implements FeatureConfiguration {
-
-	}
+		implements FeatureConfiguration {}
 
 	public static record Branches(
 		RandomSource start_frac_y,
 		RandomSource count_per_layer,
 		Catcher length_function,
 		Catcher height_function
-	) {
-
-	}
+	) {}
 
 	public static record Decorations(
 		BlockDecorator @VerifyNullable [] trunk,
@@ -194,9 +190,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		}
 	}
 
-	public static record BallLeaves(BlockState inner_state) {
-
-	}
+	public static record BallLeaves(BlockState inner_state) {}
 
 	public static interface TreeHeightScript extends Script {
 

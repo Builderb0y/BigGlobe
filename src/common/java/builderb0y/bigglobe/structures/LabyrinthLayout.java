@@ -209,8 +209,7 @@ public abstract class LabyrinthLayout {
 			}
 
 			@Override
-			public void setPos(int x, int y, int z) {
-			}
+			public void setPos(int x, int y, int z) {}
 
 			@Override
 			public @Nullable RoomPiece getConnectedRoom(Direction direction) {
@@ -218,8 +217,7 @@ public abstract class LabyrinthLayout {
 			}
 
 			@Override
-			public void setConnectedRoom(Direction direction, RoomPiece piece) {
-			}
+			public void setConnectedRoom(Direction direction, RoomPiece piece) {}
 		}
 		return this.rooms.contains(new Checker(piece));
 	}
@@ -265,17 +263,13 @@ public abstract class LabyrinthLayout {
 			return this.boundingBox().minY() < that.boundingBox().maxY() && this.boundingBox().maxY() > that.boundingBox().minY();
 		}
 
-		public default void addDecorations(LabyrinthLayout layout) {
-		}
+		public default void addDecorations(LabyrinthLayout layout) {}
 	}
 
 	public static interface HallPiece extends LabyrinthPiece {
 
-		public default void addDecorations(LabyrinthLayout layout) {
-		}
+		public default void addDecorations(LabyrinthLayout layout) {}
 	}
 
-	public static interface DecorationPiece extends LabyrinthPiece {
-
-	}
+	public static interface DecorationPiece extends LabyrinthPiece {}
 }

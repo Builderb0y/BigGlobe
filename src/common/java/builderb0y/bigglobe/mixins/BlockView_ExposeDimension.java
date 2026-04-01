@@ -5,6 +5,4 @@ import builderb0y.bigglobe.mixinInterfaces.DimensionalBlockView;
 import net.minecraft.world.level.BlockGetter;
 
 @Mixin(BlockGetter.class)
-public interface BlockView_ExposeDimension extends DimensionalBlockView {
-
-}
+public interface BlockView_ExposeDimension extends DimensionalBlockView {}

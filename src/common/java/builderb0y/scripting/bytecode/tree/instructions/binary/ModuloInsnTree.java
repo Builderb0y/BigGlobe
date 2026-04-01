@@ -56,8 +56,7 @@ public class ModuloInsnTree extends BinaryInsnTree {
 							return new BitwiseAndInsnTree(left, ldc(mask), LAND);
 						}
 					}
-					default -> {
-					}
+					default -> {}
 				}
 			}
 		}

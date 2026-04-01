@@ -30,15 +30,13 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 				BigGlobeMod.LOGGER.info("Using new iris lightning render layer.");
 				break got;
 			}
-			catch (Exception ignored) {
-			}
+			catch (Exception ignored) {}
 			try {
 				layer = (RenderType)(Class.forName("net.coderbot.iris.pipeline.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
 				BigGlobeMod.LOGGER.info("Using old iris lightning render layer.");
 				break got;
 			}
-			catch (Exception ignored) {
-			}
+			catch (Exception ignored) {}
 			BigGlobeMod.LOGGER.info("Could not locate iris lightning render layer...");
 		}
 		LIGHTNING_LAYER = layer;

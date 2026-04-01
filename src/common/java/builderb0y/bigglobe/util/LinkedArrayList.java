@@ -66,8 +66,7 @@ public class LinkedArrayList<T> implements Cloneable {
 	public @Nullable NodeList nodeList;
 	public @Nullable ElementList elementList;
 
-	public LinkedArrayList() {
-	}
+	public LinkedArrayList() {}
 
 	//////////////////////////////// Factory methods ////////////////////////////////
 

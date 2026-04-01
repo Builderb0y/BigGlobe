@@ -45,8 +45,7 @@ public class ServerWaypointManager extends WaypointManager<ServerWaypointData> {
 
 	public int nextID;
 
-	public ServerWaypointManager() {
-	}
+	public ServerWaypointManager() {}
 
 	public Collection<ServerWaypointData> waypoints() {
 		return this.getAllWaypoints();

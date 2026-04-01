@@ -109,9 +109,7 @@ public interface ColumnScript extends Script {
 
 	@Target(ElementType.PARAMETER)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface NotY {
-
-	}
+	public static @interface NotY {}
 
 	public static abstract class BaseCatcher<S extends ColumnScript> extends ScriptCatcher<S> implements SetBasedMutableDependencyView {
 

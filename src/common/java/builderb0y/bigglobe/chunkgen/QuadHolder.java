@@ -17,8 +17,7 @@ public class QuadHolder<T> {
 
 	public T object00, object01, object10, object11;
 
-	public QuadHolder() {
-	}
+	public QuadHolder() {}
 
 	public QuadHolder(T object00, T object01, T object10, T object11) {
 		this.set(object00, object01, object10, object11);
@@ -63,8 +62,7 @@ public class QuadHolder<T> {
 
 	public static class QuadColumn extends QuadHolder<ScriptedColumn> {
 
-		public QuadColumn() {
-		}
+		public QuadColumn() {}
 
 		public QuadColumn(ScriptedColumn object00, ScriptedColumn object01, ScriptedColumn object10, ScriptedColumn object11) {
 			super(object00, object01, object10, object11);
@@ -94,8 +92,7 @@ public class QuadHolder<T> {
 
 	public static class QuadList extends QuadHolder<BlockSegmentList> {
 
-		public QuadList() {
-		}
+		public QuadList() {}
 
 		public QuadList(BlockSegmentList object00, BlockSegmentList object01, BlockSegmentList object10, BlockSegmentList object11) {
 			super(object00, object01, object10, object11);

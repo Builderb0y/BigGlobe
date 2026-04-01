@@ -7,8 +7,7 @@ this implementation of {@link IRandomList} will only accept elements which imple
 */
 public class ContainedRandomList<E extends IWeightedListElement> extends ComputedRandomList<E> {
 
-	public ContainedRandomList() {
-	}
+	public ContainedRandomList() {}
 
 	public ContainedRandomList(int initialCapacity) {
 		super(initialCapacity);

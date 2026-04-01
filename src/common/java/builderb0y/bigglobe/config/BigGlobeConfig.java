@@ -35,8 +35,7 @@ public class BigGlobeConfig {
 	@Excluded
 	public static final Supplier<BigGlobeConfig> INSTANCE = ClothConfigCompat.init();
 
-	public static void init() {
-	}
+	public static void init() {}
 
 	public void validatePostLoad() {
 		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
@@ -387,8 +386,7 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public UndergroundMode undergroundMode = UndergroundMode.FILL;
 
-		public void validatePostLoad() {
-		}
+		public void validatePostLoad() {}
 	}
 
 	@Tooltip(count = 2)
@@ -415,8 +413,7 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean lightAir = false;
 
-		public void validatePostLoad() {
-		}
+		public void validatePostLoad() {}
 	}
 
 	@Tooltip(count = 2)
@@ -448,9 +445,7 @@ public class BigGlobeConfig {
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@SuppressWarnings("NullableProblems")
-	public static @interface DefaultIgnore {
-
-	}
+	public static @interface DefaultIgnore {}
 
 	@Excluded
 	@Tooltip(count = 1)

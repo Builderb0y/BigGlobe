@@ -43,9 +43,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 		ColumnToDoubleScript.@VerifyNullable Catcher snow_chance,
 		ColumnYToWoodPaletteScript.Catcher palette,
 		int max_radius_in_chunks
-	) {
-
-	}
+	) {}
 
 	public final @EncodeInline Data data;
 

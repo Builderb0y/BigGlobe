@@ -105,7 +105,5 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 		}
 	}
 
-	public static record Data(int id, InteractionHand hand) {
-
-	}
+	public static record Data(int id, InteractionHand hand) {}
 }

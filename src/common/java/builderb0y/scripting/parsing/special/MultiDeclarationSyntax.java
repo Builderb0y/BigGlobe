@@ -18,9 +18,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public record MultiDeclarationSyntax(@Nullable TypeInfo type, VariableInitializer[] variables, boolean returnLast) {
 
-	public static record VariableInitializer(String name, InsnTree initializer) {
-
-	}
+	public static record VariableInitializer(String name, InsnTree initializer) {}
 
 	public static MultiDeclarationSyntax parse(ExpressionParser parser, @Nullable TypeInfo type) throws ScriptParsingException {
 		parser.input.expectAfterWhitespace('(');

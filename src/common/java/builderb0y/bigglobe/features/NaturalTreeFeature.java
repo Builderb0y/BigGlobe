@@ -138,31 +138,23 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@VerifyNullable Decorations decorations,
 		@VerifyNullable Stump stump
 	)
-		implements FeatureConfiguration {
-
-	}
+		implements FeatureConfiguration {}
 
 	public static record Stump(
 		RandomSource cutoff_frac
-	) {
-
-	}
+	) {}
 
 	public static record Branches(
 		RandomSource start_frac_y,
 		RandomSource count_per_layer,
 		Catcher length_function,
 		Catcher height_function
-	) {
-
-	}
+	) {}
 
 	public static record Shelf(
 		BlockState state,
 		ColumnRestriction restrictions
-	) {
-
-	}
+	) {}
 
 	public static record Decorations(
 		BlockDecorator @VerifyNullable [] trunk,
@@ -197,7 +189,5 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		}
 	}
 
-	public static record BallLeaves(BlockState inner_state) {
-
-	}
+	public static record BallLeaves(BlockState inner_state) {}
 }

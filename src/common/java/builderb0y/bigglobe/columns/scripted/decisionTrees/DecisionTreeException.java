@@ -7,8 +7,7 @@ public class DecisionTreeException extends RuntimeException {
 
 	public List<String> details = new ArrayList<>(8);
 
-	public DecisionTreeException() {
-	}
+	public DecisionTreeException() {}
 
 	public DecisionTreeException(String message) {
 		super(message);

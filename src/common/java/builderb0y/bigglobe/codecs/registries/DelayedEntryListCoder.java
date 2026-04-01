@@ -55,8 +55,6 @@ public class DelayedEntryListCoder<T> extends NamedCoder<DelayedEntryList<T>> {
 	*/
 	public static class DelayedCoders {
 
-		public static final AutoCoder<List<DelayedEntry>> LIST_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@SingletonArray List<DelayedEntry>>() {
-
-		});
+		public static final AutoCoder<List<DelayedEntry>> LIST_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@SingletonArray List<DelayedEntry>>() {});
 	}
 }

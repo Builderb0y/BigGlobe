@@ -9,8 +9,7 @@ public class Derivative3D implements Cloneable {
 
 	public double value, dx, dy, dz;
 
-	public Derivative3D() {
-	}
+	public Derivative3D() {}
 
 	public Derivative3D(double value) {
 		this.value = value;

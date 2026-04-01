@@ -6,7 +6,7 @@ import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
 import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
 import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;

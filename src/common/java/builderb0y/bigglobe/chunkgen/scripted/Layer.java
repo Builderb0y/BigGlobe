@@ -131,7 +131,5 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 		ColumnToBooleanScript.@VerifyNullable Catcher where,
 		ColumnToIntScript.@VerifyNullable Catcher min_y,
 		ColumnToIntScript.@VerifyNullable Catcher max_y
-	) {
-
-	}
+	) {}
 }

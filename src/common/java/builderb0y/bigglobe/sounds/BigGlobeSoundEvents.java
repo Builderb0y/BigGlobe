@@ -30,6 +30,5 @@ public class BigGlobeSoundEvents {
 		);
 	}
 
-	public static void init() {
-	}
+	public static void init() {}
 }

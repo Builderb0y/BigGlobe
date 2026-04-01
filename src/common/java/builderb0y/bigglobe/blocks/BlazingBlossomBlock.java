@@ -64,8 +64,7 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 			return;
 		}
 		switch (world.getDifficulty()) {
-			case PEACEFUL -> {
-			}
+			case PEACEFUL -> {}
 			case EASY -> entity.igniteForSeconds(2);
 			case NORMAL -> entity.igniteForSeconds(4);
 			case HARD -> entity.igniteForSeconds(6);

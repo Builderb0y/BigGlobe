@@ -22,8 +22,7 @@ public class ReceiverMapperInsnTree implements InsnTree {
 		method.node.visitInsn(this.receiver.getTypeInfo().isDoubleWidth() ? DUP2 : DUP);
 		this.mapper.emitBytecode(method);
 		switch (this.mapper.getTypeInfo().getSize()) {
-			case 0 -> {
-			}
+			case 0 -> {}
 			case 1 -> method.node.visitInsn(POP);
 			case 2 -> method.node.visitInsn(POP2);
 		}

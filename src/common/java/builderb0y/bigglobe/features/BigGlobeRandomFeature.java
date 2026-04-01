@@ -47,7 +47,5 @@ public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config>
 									>
 		choices
 	)
-		implements FeatureConfiguration {
-
-	}
+		implements FeatureConfiguration {}
 }

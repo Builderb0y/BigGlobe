@@ -22,72 +22,55 @@ public class DropCoordinator implements Coordinator {
 	public static final DropCoordinator INSTANCE = new DropCoordinator();
 
 	@Override
-	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {
-	}
+	public void genericPos(int x, int y, int z, CoordinatorRunnable callback) {}
 
 	@Override
-	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {
-	}
+	public <A> void genericPos(int x, int y, int z, A arg, CoordinatorConsumer<A> callback) {}
 
 	@Override
-	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
-	}
+	public <A, B> void genericPos(int x, int y, int z, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {}
 
 	@Override
-	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
-	}
+	public <A, B, C> void genericPos(int x, int y, int z, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {}
 
 	@Override
-	public void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinatorRunnable callback) {
-	}
+	public void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinatorRunnable callback) {}
 
 	@Override
-	public <T> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, T arg, CoordinatorConsumer<T> callback) {
-	}
+	public <T> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, T arg, CoordinatorConsumer<T> callback) {}
 
 	@Override
-	public <A, B> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {
-	}
+	public <A, B> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg1, B arg2, CoordinatorBiConsumer<A, B> callback) {}
 
 	@Override
-	public <A, B, C> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {
-	}
+	public <A, B, C> void genericCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, A arg1, B arg2, C arg3, CoordinatorTriConsumer<A, B, C> callback) {}
 
 	@Override
-	public void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, LineRunnable action) {
-	}
+	public void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, LineRunnable action) {}
 
 	@Override
-	public <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, LineConsumer<T> action, T... args) {
-	}
+	public <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, LineConsumer<T> action, T... args) {}
 
 	@Override
-	public <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, T arg, LineConsumer<T> callback) {
-	}
+	public <T> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, T arg, LineConsumer<T> callback) {}
 
 	@Override
-	public <A, B> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg1, B arg2, LineBiConsumer<A, B> callback) {
-	}
+	public <A, B> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg1, B arg2, LineBiConsumer<A, B> callback) {}
 
 	@Override
-	public <A, B, C> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg1, B arg2, C arg3, LineTriConsumer<A, B, C> callback) {
-	}
+	public <A, B, C> void genericLine(int x, int y, int z, int dx, int dy, int dz, int length, A arg1, B arg2, C arg3, LineTriConsumer<A, B, C> callback) {}
 
 	@Override
-	public void getCoordinates(int x, int y, int z, CoordinateRunnable action) {
-	}
+	public void getCoordinates(int x, int y, int z, CoordinateRunnable action) {}
 
 	@Override
-	public void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateRunnable action) {
-	}
+	public void getCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateRunnable action) {}
 
 	@Override
-	public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateRunnable action) {
-	}
+	public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateRunnable action) {}
 
 	@Override
-	public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateRunnable... actions) {
-	}
+	public void getCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, CoordinateRunnable... actions) {}
 
 	@Override
 	public Stream<BlockPos> streamCoordinates(int x, int y, int z) {
@@ -105,192 +88,145 @@ public class DropCoordinator implements Coordinator {
 	}
 
 	@Override
-	public void getBlockState(int x, int y, int z, CoordinateConsumer<BlockState> action) {
-	}
+	public void getBlockState(int x, int y, int z, CoordinateConsumer<BlockState> action) {}
 
 	@Override
-	public void getBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<BlockState> action) {
-	}
+	public void getBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<BlockState> action) {}
 
 	@Override
-	public void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<BlockState> action) {
-	}
+	public void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<BlockState> action) {}
 
 	@Override
-	public void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<BlockState>... actions) {
-	}
+	public void getBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<BlockState>... actions) {}
 
 	@Override
-	public void getFluidState(int x, int y, int z, CoordinateConsumer<FluidState> action) {
-	}
+	public void getFluidState(int x, int y, int z, CoordinateConsumer<FluidState> action) {}
 
 	@Override
-	public void getFluidStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<FluidState> action) {
-	}
+	public void getFluidStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<FluidState> action) {}
 
 	@Override
-	public void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<FluidState> action) {
-	}
+	public void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<FluidState> action) {}
 
 	@Override
-	public void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<FluidState>... actions) {
-	}
+	public void getFluidStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<FluidState>... actions) {}
 
 	@Override
-	public void getBlockEntity(int x, int y, int z, CoordinateConsumer<BlockEntity> action) {
-	}
+	public void getBlockEntity(int x, int y, int z, CoordinateConsumer<BlockEntity> action) {}
 
 	@Override
-	public void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<BlockEntity> action) {
-	}
+	public void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<BlockEntity> action) {}
 
 	@Override
-	public void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<BlockEntity> action) {
-	}
+	public void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<BlockEntity> action) {}
 
 	@Override
-	public void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<BlockEntity>... actions) {
-	}
+	public void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<BlockEntity>... actions) {}
 
 	@Override
-	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B> void getBlockEntity(int x, int y, int z, Class<B> tileEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<B> tileEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<B> tileEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<B> tileEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<B> tileEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B extends BlockEntity> void getBlockEntity(int x, int y, int z, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B extends BlockEntity> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B extends BlockEntity> void getBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B extends BlockEntity> void getBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockEntityType<B> tileEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public void getChunk(int x, int y, int z, CoordinateConsumer<ChunkAccess> action) {
-	}
+	public void getChunk(int x, int y, int z, CoordinateConsumer<ChunkAccess> action) {}
 
 	@Override
-	public void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<ChunkAccess> action) {
-	}
+	public void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<ChunkAccess> action) {}
 
 	@Override
-	public void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<ChunkAccess> action) {
-	}
+	public void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<ChunkAccess> action) {}
 
 	@Override
-	public void getChunkLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<ChunkAccess>... actions) {
-	}
+	public void getChunkLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<ChunkAccess>... actions) {}
 
 	@Override
-	public void setBlockState(int x, int y, int z, BlockState state) {
-	}
+	public void setBlockState(int x, int y, int z, BlockState state) {}
 
 	@Override
-	public void setBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {
-	}
+	public void setBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {}
 
 	@Override
-	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state) {
-	}
+	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state) {}
 
 	@Override
-	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, BlockState... states) {
-	}
+	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, BlockState... states) {}
 
 	@Override
-	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {
-	}
+	public void setBlockState(int x, int y, int z, CoordinateSupplier<BlockState> supplier) {}
 
 	@Override
-	public void setBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateSupplier<BlockState> supplier) {
-	}
+	public void setBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateSupplier<BlockState> supplier) {}
 
 	@Override
-	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateSupplier<BlockState> supplier) {
-	}
+	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateSupplier<BlockState> supplier) {}
 
 	@Override
-	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateSupplier<BlockState>... suppliers) {
-	}
+	public void setBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateSupplier<BlockState>... suppliers) {}
 
 	@Override
-	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
-	}
+	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
-	}
+	public <B> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
-	}
+	public <B> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B extends BlockEntity> void setBlockStateAndBlockEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public <B extends BlockEntity> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
-	}
+	public <B extends BlockEntity> void setBlockStateAndBlockEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {}
 
 	@Override
-	public void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
-	}
+	public void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {}
 
 	@Override
-	public void modifyBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateUnaryOperator<BlockState> mapper) {
-	}
+	public void modifyBlockStateCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateUnaryOperator<BlockState> mapper) {}
 
 	@Override
-	public void modifyBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateUnaryOperator<BlockState> mapper) {
-	}
+	public void modifyBlockStateLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateUnaryOperator<BlockState> mapper) {}
 
 	@Override
-	public void modifyBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateUnaryOperator<BlockState>... mappers) {
-	}
+	public void modifyBlockStateLine(int x, int y, int z, int dx, int dy, int dz, CoordinateUnaryOperator<BlockState>... mappers) {}
 
 	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
-	}
+	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {}
 
 	@Override
-	public <E extends Entity> void getEntitiesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
-	}
+	public <E extends Entity> void getEntitiesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {}
 
 	@Override
-	public <E extends Entity> void getEntitiesLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
-	}
+	public <E extends Entity> void getEntitiesLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {}
 
 	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerLevel, Entity> supplier) {
-	}
+	public void addEntity(int x, int y, int z, CoordinateFunction<ServerLevel, Entity> supplier) {}
 
 	@Override
-	public void addEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateFunction<ServerLevel, Entity> supplier) {
-	}
+	public void addEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateFunction<ServerLevel, Entity> supplier) {}
 
 	@Override
-	public void addEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateFunction<ServerLevel, Entity> supplier) {
-	}
+	public void addEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateFunction<ServerLevel, Entity> supplier) {}
 
 	@Override
-	public void addEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateFunction<ServerLevel, Entity>... suppliers) {
-	}
+	public void addEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateFunction<ServerLevel, Entity>... suppliers) {}
 
 	@Override
 	public Coordinator translate(int offsetX, int offsetY, int offsetZ) {

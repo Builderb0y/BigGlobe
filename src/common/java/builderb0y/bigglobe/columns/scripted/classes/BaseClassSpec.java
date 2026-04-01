@@ -74,14 +74,11 @@ public abstract class BaseClassSpec extends TypeSpec {
 		this.primaryConstructorDependencies = (SetBasedMutableDependencyView)(() -> primaryConstructorDependencies);
 	}
 
-	public void checkField(ClassHierarchy hierarchy, FieldSpec spec) throws CustomClassFormatException {
-	}
+	public void checkField(ClassHierarchy hierarchy, FieldSpec spec) throws CustomClassFormatException {}
 
-	public void checkProperty(ClassHierarchy hierarchy, BasePropertySpec spec) throws CustomClassFormatException {
-	}
+	public void checkProperty(ClassHierarchy hierarchy, BasePropertySpec spec) throws CustomClassFormatException {}
 
-	public void checkMethod(ClassHierarchy hierarchy, BaseMethodSpec spec) throws CustomClassFormatException {
-	}
+	public void checkMethod(ClassHierarchy hierarchy, BaseMethodSpec spec) throws CustomClassFormatException {}
 
 	public void checkConstructor(ClassHierarchy hierarchy, ConstructorSpec spec) throws CustomClassFormatException {
 		if (this.isAbstract) {

@@ -45,7 +45,5 @@ public class ConstantColumnEntry implements ColumnEntry, SimpleDependencyView {
 	}
 
 	@Override
-	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {
-
-	}
+	public void emitComputer(ColumnEntryMemory memory, DataCompileContext context) throws ScriptParsingException {}
 }

@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
 
-public class InactiveStructureManager extends StructureManager {
+public class InactiveStructurePlacementCalculator extends StructurePlacementCalculator {
 
 	public static final FinalStructures EMPTY_STRUCTURES = new FinalStructures(0);
 
@@ -26,7 +26,7 @@ public class InactiveStructureManager extends StructureManager {
 	}
 
 	@Override
-	public StructureManager copy() {
-		return new InactiveStructureManager();
+	public StructurePlacementCalculator copy() {
+		return new InactiveStructurePlacementCalculator();
 	}
 }

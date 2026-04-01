@@ -180,9 +180,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class DungeonPiece extends StructurePiece implements LabyrinthPiece {
 
-		public static final AutoCoder<Holder<Structure>> STRUCTURE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {
-
-		});
+		public static final AutoCoder<Holder<Structure>> STRUCTURE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
 
 		public byte variant;
 		public @Nullable Holder<Structure> owningStructure;
@@ -270,9 +268,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class RoomDungeonPiece extends DungeonPiece implements RoomPiece, RawGenerationStructurePiece {
 
-		public static final AutoCoder<DelayedEntryList<ConfiguredFeature<?, ?>>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {
-
-		});
+		public static final AutoCoder<DelayedEntryList<ConfiguredFeature<?, ?>>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
 		public static final int PIT_BIT = 1 << 1;
 
 		public final RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
@@ -662,8 +658,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
-		) {
-		}
+		) {}
 	}
 
 	public static abstract class DecorationDungeonPiece extends DungeonPiece implements DecorationPiece {

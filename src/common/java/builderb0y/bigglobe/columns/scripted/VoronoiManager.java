@@ -148,7 +148,5 @@ public class VoronoiManager {
 		List<Holder<VoronoiSettings>> settings,
 		VoronoiBaseCompileContext baseContext,
 		List<VoronoiImplCompileContext> implContexts
-	) {
-
-	}
+	) {}
 }

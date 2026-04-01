@@ -32,8 +32,7 @@ public class JumpToReturnOptimizer implements MethodOptimizer {
 						method.instructions.set(node, new InsnNode(target.getOpcode()));
 						changed = true;
 					}
-					default -> {
-					}
+					default -> {}
 				}
 			}
 			node = next;

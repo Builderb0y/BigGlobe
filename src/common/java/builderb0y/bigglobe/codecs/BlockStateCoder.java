@@ -91,9 +91,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	@Retention(RetentionPolicy.RUNTIME)
 	@UseVerifier(name = "verifyNormal", in = BlockStateCoder.class, usage = MemberUsage.METHOD_IS_HANDLER)
 	@Mirror(UseVerifier.class)
-	public static @interface VerifyNormal {
-
-	}
+	public static @interface VerifyNormal {}
 
 	@Override
 	public <T_Encoded> @Nullable BlockState decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {

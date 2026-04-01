@@ -80,9 +80,7 @@ public class SlingshotItem extends ProjectileWeaponItem {
 	}
 
 	@Override
-	public void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
-
-	}
+	public void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {}
 
 	@Override
 	public int getUseDuration(ItemStack stack, LivingEntity user) {

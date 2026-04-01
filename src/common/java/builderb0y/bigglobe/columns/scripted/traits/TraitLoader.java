@@ -22,9 +22,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class TraitLoader {
 
-	public static final AutoCoder<Map<Holder<WorldTrait>, WorldTraitProvider>> MAP_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<Map<Holder<WorldTrait>, WorldTraitProvider>>() {
-
-	});
+	public static final AutoCoder<Map<Holder<WorldTrait>, WorldTraitProvider>> MAP_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<Map<Holder<WorldTrait>, WorldTraitProvider>>() {});
 
 	public static <T_Encoded> Map<Holder<WorldTrait>, WorldTraitProvider> load(Identifier generatorID, DecodeContext<T_Encoded> context) {
 		if (generatorID == null) return null;
@@ -68,8 +66,7 @@ public class TraitLoader {
 
 	public static class TraitLoadingException extends RuntimeException {
 
-		public TraitLoadingException() {
-		}
+		public TraitLoadingException() {}
 
 		public TraitLoadingException(String message) {
 			super(message);

@@ -2,8 +2,7 @@ package builderb0y.scripting.bytecode.tree;
 
 public class InvalidOperandException extends IllegalArgumentException {
 
-	public InvalidOperandException() {
-	}
+	public InvalidOperandException() {}
 
 	public InvalidOperandException(String s) {
 		super(s);

@@ -84,9 +84,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	public static record GrowthConfig(
 		DelayedEntryList<Block> place,
 		DelayedEntryList<Block> against
-	) {
-
-	}
+	) {}
 
 	public static record BlocksConfig(
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double threshold,
@@ -118,9 +116,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		RandomSource length,
 		RandomSource commonness,
 		RandomSource crookedness
-	) {
-
-	}
+	) {}
 
 	@Override
 	public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
@@ -549,8 +545,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
-		) {
-		}
+		) {}
 
 		@Override
 		public void move(int x, int y, int z) {

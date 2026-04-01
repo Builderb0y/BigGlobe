@@ -62,9 +62,7 @@ public class ConstantFactory extends AbstractConstantFactory {
 		try {
 			if ((flags & CLIENT) != 0) {
 				return new RegistryEntryImpl<>(
-					new HolderOwner<>() {
-
-					},
+					new HolderOwner<>() {},
 					registryKey,
 					IdentifierVersions.create(id),
 					defaultValue

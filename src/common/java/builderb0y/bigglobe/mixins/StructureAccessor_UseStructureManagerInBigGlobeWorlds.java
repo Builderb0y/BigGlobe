@@ -26,8 +26,8 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.structures.DelegatingStructure;
-import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
-import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
 
 @Mixin(StructureManager.class)
 public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {

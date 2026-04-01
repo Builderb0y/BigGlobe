@@ -20,10 +20,10 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.structures.ActiveStructureManager;
-import builderb0y.bigglobe.structures.StructureManager;
-import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
-import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
+import builderb0y.bigglobe.structures.ActiveStructurePlacementCalculator;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
+import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
 import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
 
 public class LocateStructuresCommand extends AsyncCommand {
@@ -52,7 +52,7 @@ public class LocateStructuresCommand extends AsyncCommand {
 	public void run() {
 		Set<Structure> finding = this.tag.stream().map(Holder<Structure>::value).collect(Collectors.toSet());
 		BigGlobeScriptedChunkGenerator generator = BigGlobeCommands.generator(this.source);
-		ActiveStructureManager manager = (ActiveStructureManager)(generator.structureManager);
+		ActiveStructurePlacementCalculator manager = (ActiveStructurePlacementCalculator)(generator.structureManager);
 		Hints hints = ColumnUsage.GENERIC.normalHints();
 		ScriptedColumnLookup.Impl lookup = generator.newColumnLookup(this.source.getLevel(), hints);
 		this.tag.stream().flatMap((Holder<Structure> structureEntry) -> {
@@ -89,7 +89,7 @@ public class LocateStructuresCommand extends AsyncCommand {
 									BlockPos center = start.getBoundingBox().getCenter();
 									return Component.translatable(
 											"commands.bigglobe.locate.structure.success",
-											StructureManager.structureName(start.getStructure()),
+											StructurePlacementCalculator.structureName(start.getStructure()),
 											center.getX(),
 											center.getY(),
 											center.getZ(),

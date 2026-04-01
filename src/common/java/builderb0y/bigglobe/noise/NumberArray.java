@@ -1486,8 +1486,7 @@ public class NumberArray implements AutoCloseable {
 						Testing.log("Got first aligned index " + firstAlignedIndex + " for alignment " + alignment);
 						break got;
 					}
-					catch (Exception ignored) {
-					}
+					catch (Exception ignored) {}
 				}
 				firstAlignedIndex = 0;
 				Testing.log("Failed to get alignment index. Assuming 0.");

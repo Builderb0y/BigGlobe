@@ -322,7 +322,5 @@ public class OverrideTracker {
 	public static record TrackedEnumValue(
 		Holder<ElementSpec> owner,
 		Holder<ElementSpec> declaration
-	) {
-
-	}
+	) {}
 }

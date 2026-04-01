@@ -352,9 +352,7 @@ public interface ScriptEnvironment {
 
 	public abstract Stream<IdentifierDescriptor> listIdentifiers();
 
-	public record IdentifierDescriptor(String name, Object value) {
-
-	}
+	public record IdentifierDescriptor(String name, Object value) {}
 
 	public static InsnTree[] castArguments(ExpressionParser parser, MethodInfo method, CastMode mode, InsnTree... arguments) {
 		return castArguments(parser, method.name, method.paramTypes, mode, arguments);

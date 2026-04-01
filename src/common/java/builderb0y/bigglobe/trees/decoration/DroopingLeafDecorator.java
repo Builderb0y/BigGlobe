@@ -19,8 +19,7 @@ public class DroopingLeafDecorator extends ScatterLeafDecorator {
 			int bits = generator.random.nextInt() | 1;
 			(bits & 1) != 0 && super.placeAt(generator, pos, distance);
 			bits >>>= 1, pos.setY(pos.getY() - 1), distance++
-		) {
-		}
+		) {}
 		pos.setY(topY);
 		return true;
 	}

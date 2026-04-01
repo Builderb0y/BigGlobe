@@ -46,9 +46,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
 	public static final MapCodec<EmptyChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(EmptyChunkGenerator.class);
 
-	public static record Height(int min_y, int max_y) {
-
-	}
+	public static record Height(int min_y, int max_y) {}
 
 	public final Height height;
 
@@ -82,19 +80,13 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 		StructureManager structureAccessor,
 		ChunkAccess chunk
 
-	) {
-
-	}
+	) {}
 
 	@Override
-	public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
-
-	}
+	public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {}
 
 	@Override
-	public void spawnOriginalMobs(WorldGenRegion region) {
-
-	}
+	public void spawnOriginalMobs(WorldGenRegion region) {}
 
 	@Override
 	public int getGenDepth() {
@@ -139,9 +131,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
 	addDebugScreenInfo
 
-		(List<String> text, RandomState noiseConfig, BlockPos pos) {
-
-	}
+		(List<String> text, RandomState noiseConfig, BlockPos pos) {}
 
 	@Nullable
 	@Override
@@ -150,9 +140,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {
-
-	}
+	public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {}
 
 	@Override
 	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager accessor, MobCategory group, BlockPos pos) {
@@ -167,12 +155,8 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 		ChunkAccess chunk,
 		StructureTemplateManager structureTemplateManager
 		, ResourceKey<Level> dimension
-	) {
-
-	}
+	) {}
 
 	@Override
-	public void createReferences(WorldGenLevel world, StructureManager structureAccessor, ChunkAccess chunk) {
-
-	}
+	public void createReferences(WorldGenLevel world, StructureManager structureAccessor, ChunkAccess chunk) {}
 }

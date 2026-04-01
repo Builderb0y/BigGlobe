@@ -539,9 +539,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 	public static class RandomListImprinter<T> extends NamedImprinter<RandomList<T>> {
 
 		public static final AutoDecoder<Double> WEIGHT_DECODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
-			new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Double.POSITIVE_INFINITY, maxInclusive = false) Double>() {
-
-			}
+			new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Double.POSITIVE_INFINITY, maxInclusive = false) Double>() {}
 		);
 
 		public final @NotNull AutoCoder<T> elementCoder;

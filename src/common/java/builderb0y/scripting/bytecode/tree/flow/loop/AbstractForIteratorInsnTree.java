@@ -49,8 +49,7 @@ public abstract class AbstractForIteratorInsnTree implements InsnTree {
 				case DOUBLE -> DOUBLE_VALUE.emitBytecode(method);
 				case CHAR -> CHAR_VALUE.emitBytecode(method);
 				case BOOLEAN -> BOOLEAN_VALUE.emitBytecode(method);
-				case OBJECT, ARRAY, VOID -> {
-				}
+				case OBJECT, ARRAY, VOID -> {}
 			}
 		}
 		variable.variable.emitStore(method);

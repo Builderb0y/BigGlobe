@@ -55,9 +55,7 @@ public class CoordinateFunctions {
 	}
 
 	@FunctionalInterface
-	public static interface CoordinateUnaryOperator<T> extends CoordinateFunction<T, T> {
-
-	}
+	public static interface CoordinateUnaryOperator<T> extends CoordinateFunction<T, T> {}
 
 	@FunctionalInterface
 	public static interface CoordinateBooleanSupplier {

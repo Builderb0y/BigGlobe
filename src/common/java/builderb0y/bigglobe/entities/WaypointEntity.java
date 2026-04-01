@@ -301,8 +301,7 @@ public class WaypointEntity extends Entity {
 			return to;
 		}
 
-		public Orbit() {
-		}
+		public Orbit() {}
 
 		public Orbit(RandomGenerator random, float radius) {
 			Vector3f scratch = new Vector3f();

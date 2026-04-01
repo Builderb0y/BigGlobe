@@ -2,8 +2,7 @@ package builderb0y.bigglobe.columns.scripted.traits;
 
 public class TraitNotSettableException extends RuntimeException {
 
-	public TraitNotSettableException() {
-	}
+	public TraitNotSettableException() {}
 
 	public TraitNotSettableException(String message) {
 		super(message);

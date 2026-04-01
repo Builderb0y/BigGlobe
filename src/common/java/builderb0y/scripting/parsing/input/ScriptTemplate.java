@@ -61,9 +61,7 @@ public abstract class ScriptTemplate implements SimpleDependencyView {
 		@IdentifierName String name,
 		String type,
 		@UseName("default") @MultiLine @VerifyNullable String fallback
-	) {
-
-	}
+	) {}
 
 	@Override
 	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {

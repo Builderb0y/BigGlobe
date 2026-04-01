@@ -17,6 +17,4 @@ but this mixin will be disabled whenever cloth config is not installed.
 that logic is controlled by {@link BigGlobeMixinPlugin#shouldApplyMixin(String, String)}.
 */
 @Mixin(BigGlobeConfig.class)
-public class BigGlobeConfig_ImplementConfigData implements ConfigData {
-
-}
+public class BigGlobeConfig_ImplementConfigData implements ConfigData {}

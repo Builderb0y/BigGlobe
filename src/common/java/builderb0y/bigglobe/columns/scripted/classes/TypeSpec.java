@@ -48,23 +48,17 @@ public abstract class TypeSpec extends ElementSpec {
 
 	public abstract @Nullable OverrideTracker getOverrideTracker();
 
-	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
-	}
+	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws CustomClassFormatException {}
 
-	public void verify(ClassHierarchy hierarchy) throws CustomClassFormatException {
-	}
+	public void verify(ClassHierarchy hierarchy) throws CustomClassFormatException {}
 
-	public void createClass(ClassHierarchy hierarchy) {
-	}
+	public void createClass(ClassHierarchy hierarchy) {}
 
-	public void createMembers(ClassHierarchy hierarchy) {
-	}
+	public void createMembers(ClassHierarchy hierarchy) {}
 
-	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {
-	}
+	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {}
 
-	public void link(ScriptClassLoader loader) {
-	}
+	public void link(ScriptClassLoader loader) {}
 
 	public void setupEnvironment(MutableScriptEnvironment environment, @Nullable InsnTree loadCustomClass) {
 		environment.addType(this.name(), this.getTypeInfo());

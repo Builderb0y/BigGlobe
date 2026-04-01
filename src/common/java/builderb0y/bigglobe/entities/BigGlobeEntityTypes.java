@@ -124,6 +124,5 @@ public class BigGlobeEntityTypes {
 	/**
 	triggers static initializer.
 	*/
-	public static void init() {
-	}
+	public static void init() {}
 }

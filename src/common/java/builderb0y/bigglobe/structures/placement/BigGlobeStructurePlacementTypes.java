@@ -12,8 +12,7 @@ public class BigGlobeStructurePlacementTypes {
 
 	public static final StructurePlacementType<ScriptedStructurePlacement> SCRIPTED = register("scripted", ScriptedStructurePlacement.class);
 
-	public static void init() {
-	}
+	public static void init() {}
 
 	public static <T extends StructurePlacement> StructurePlacementType<T> register(String name, Class<T> type) {
 

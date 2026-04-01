@@ -25,7 +25,7 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
-import builderb0y.bigglobe.structures.ActiveStructureManager;
+import builderb0y.bigglobe.structures.ActiveStructurePlacementCalculator;
 import builderb0y.bigglobe.versions.CommandVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -134,7 +134,7 @@ public class BigGlobeLocateCommand {
 							Commands.argument("structure", ResourceOrTagKeyArgument.resourceOrTagKey(Registries.STRUCTURE)).executes(
 								(CommandContext<CommandSourceStack> context) -> {
 									BigGlobeScriptedChunkGenerator generator = BigGlobeCommands.generator(context);
-									if (!(generator.structureManager instanceof ActiveStructureManager)) {
+									if (!(generator.structureManager instanceof ActiveStructurePlacementCalculator)) {
 										context.getSource().sendFailure(Component.translatable("commands.bigglobe.locate.structure.fail.structures_disabled"));
 										return 0;
 									}

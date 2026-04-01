@@ -140,6 +140,5 @@ public class BigGlobeStructures {
 		return Registry.register(BuiltInRegistries.STRUCTURE_PLACEMENT, BigGlobeMod.modID(name), () -> codec);
 	}
 
-	public static void init() {
-	}
+	public static void init() {}
 }

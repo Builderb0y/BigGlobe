@@ -59,8 +59,7 @@ public class ExpressionParser {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bytecode.dumpScripts", "bigglobe_scripts");
 
-	public static void clinit() {
-	}
+	public static void clinit() {}
 
 	public static final int
 		CLIENT = 1 << 0;
@@ -221,8 +220,7 @@ public class ExpressionParser {
 					case ')', ']', '}' -> {
 						return left;
 					}
-					default -> {
-					}
+					default -> {}
 				}
 				//another operator (except ++ and --) indicates that said
 				//operator didn't get processed sooner when it should have.
@@ -231,8 +229,7 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "++:", ":++", "--", "--:", ":--", "!", "~" -> {
-					} //indicates that there's another statement to read.
+					case "", "++", "++:", ":++", "--", "--:", ":--", "!", "~" -> {} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -1175,8 +1172,7 @@ public class ExpressionParser {
 		try {
 			BigDecimal number = NumberParser.parse(this.input);
 			switch (negateMode) {
-				case NONE -> {
-				}
+				case NONE -> {}
 				case ARITHMETIC -> number = number.negate();
 				case BITWISE -> {
 					if (number.scale() > 0) throw new ScriptParsingException("Can't bitwise negate non-integer", this.input);
@@ -1506,9 +1502,7 @@ public class ExpressionParser {
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@UseVerifier(name = "verifyName", in = ExpressionParser.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	public static @interface IdentifierName {
-
-	}
+	public static @interface IdentifierName {}
 
 	public void beginCodeBlock() throws ScriptParsingException {
 		this.input.expectAfterWhitespace('(');

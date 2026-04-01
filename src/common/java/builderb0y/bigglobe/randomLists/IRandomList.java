@@ -462,9 +462,7 @@ public interface IRandomList<E> extends List<E> {
 			ReifiedType<T> elementType = context.type.resolveParameter(IRandomList.class).uncheckedCast();
 			this.elementCoder = context.type(elementType).forceCreateCoder();
 			this.elementName = elementName(elementType);
-			this.weightCoder = context.type(new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {
-
-			}).forceCreateCoder();
+			this.weightCoder = context.type(new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {}).forceCreateCoder();
 		}
 
 		public static @Nullable String elementName(ReifiedType<?> elementType) {

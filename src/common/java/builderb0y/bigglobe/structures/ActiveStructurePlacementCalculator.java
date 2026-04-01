@@ -50,7 +50,7 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.util.CollectionTransformer;
 
-public class ActiveStructureManager extends StructureManager {
+public class ActiveStructurePlacementCalculator extends StructurePlacementCalculator {
 
 	public final TimestampedComputingCache<ChunkPos, FinalStructures>
 		intersectingStructures = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D)),
@@ -526,7 +526,7 @@ public class ActiveStructureManager extends StructureManager {
 	}
 
 	@Override
-	public StructureManager copy() {
-		return new ActiveStructureManager();
+	public StructurePlacementCalculator copy() {
+		return new ActiveStructurePlacementCalculator();
 	}
 }

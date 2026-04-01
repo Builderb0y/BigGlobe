@@ -83,16 +83,14 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		TypeContext typeContext,
 		DataCompileContext context,
 		MutableDependencyView dependencies
-	) {
-	}
+	) {}
 
 	public default void setupExternalEnvironment(
 		MutableScriptEnvironment environment,
 		TypeContext typeContext,
 		ColumnCompileContext context,
 		ExternalEnvironmentParams params
-	) {
-	}
+	) {}
 
 	@Override
 	public abstract boolean equals(Object other);
@@ -110,7 +108,5 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		otherwise, this component holds null.
 		*/
 		@Nullable DataCompileContext context
-	) {
-
-	}
+	) {}
 }

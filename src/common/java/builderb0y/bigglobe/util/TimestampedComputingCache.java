@@ -247,8 +247,7 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 
 	public static class BackingMap<T_Key, T_Value> extends Object2ObjectLinkedOpenHashMap<T_Key, T_Value> {
 
-		public BackingMap() {
-		}
+		public BackingMap() {}
 
 		public BackingMap(int expected) {
 			super(expected);

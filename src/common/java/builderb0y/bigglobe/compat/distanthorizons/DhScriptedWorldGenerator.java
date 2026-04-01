@@ -295,14 +295,10 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	}
 
 	@Override
-	public void preGeneratorTaskStart() {
-
-	}
+	public void preGeneratorTaskStart() {}
 
 	@Override
-	public void close() {
-
-	}
+	public void close() {}
 
 	/*
 	public static class DhDebugging {

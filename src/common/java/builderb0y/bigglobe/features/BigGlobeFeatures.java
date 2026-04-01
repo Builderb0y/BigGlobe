@@ -38,6 +38,5 @@ public class BigGlobeFeatures {
 		return Registry.register(BuiltInRegistries.FEATURE, BigGlobeMod.modID(name), feature);
 	}
 
-	public static void init() {
-	}
+	public static void init() {}
 }

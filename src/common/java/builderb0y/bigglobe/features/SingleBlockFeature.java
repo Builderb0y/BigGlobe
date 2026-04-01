@@ -242,9 +242,7 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 
 	public static class ConfigCoder extends NamedCoder<Config> {
 
-		public static final ReifiedType<List<BlockState>> BLOCKSTATE_LIST_REIFIED_TYPE = new ReifiedType<@SingletonArray List<BlockState>>() {
-
-		};
+		public static final ReifiedType<List<BlockState>> BLOCKSTATE_LIST_REIFIED_TYPE = new ReifiedType<@SingletonArray List<BlockState>>() {};
 
 		public final AutoCoder<Config> withReplace;
 		public final AutoCoder<List<BlockState>> placeOnly;

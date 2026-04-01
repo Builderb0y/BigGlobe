@@ -9,8 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ArrayBuilder<T> extends ArrayList<T> implements Consumer<T> {
 
-	public ArrayBuilder() {
-	}
+	public ArrayBuilder() {}
 
 	public ArrayBuilder(int initialCapacity) {
 		super(initialCapacity);

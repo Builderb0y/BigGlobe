@@ -1305,9 +1305,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// handlers ////////////////////////////////
 
-	public static record CastResult(InsnTree tree, boolean requiredCasting) {
-
-	}
+	public static record CastResult(InsnTree tree, boolean requiredCasting) {}
 
 	@FunctionalInterface
 	public static interface VariableHandler {
@@ -1447,8 +1445,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		public @Nullable TypeInfo owner;
 		public @Nullable String name;
 
-		public NamedType() {
-		}
+		public NamedType() {}
 
 		public NamedType(@Nullable TypeInfo owner, String name) {
 			this.owner = owner;

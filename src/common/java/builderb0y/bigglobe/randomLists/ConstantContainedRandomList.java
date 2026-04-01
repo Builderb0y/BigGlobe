@@ -15,8 +15,7 @@ by utilizing the algorithm outlined in
 */
 public class ConstantContainedRandomList<E extends IWeightedListElement> extends ConstantComputedRandomList<E> {
 
-	public ConstantContainedRandomList() {
-	}
+	public ConstantContainedRandomList() {}
 
 	public ConstantContainedRandomList(int initialCapacity) {
 		super(initialCapacity);

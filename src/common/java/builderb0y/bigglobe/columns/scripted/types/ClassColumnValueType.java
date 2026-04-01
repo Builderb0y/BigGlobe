@@ -129,7 +129,5 @@ public class ClassColumnValueType implements ColumnValueType {
 		return "{ type: class, name: " + this.name + ", fields: " + Arrays.toString(this.fields) + " }";
 	}
 
-	public static record ClassColumnValueField(@IdentifierName String name, ColumnValueType type) {
-
-	}
+	public static record ClassColumnValueField(@IdentifierName String name, ColumnValueType type) {}
 }
