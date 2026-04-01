@@ -20,7 +20,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
-	public static final GridTypeInfo GRID_1D_TYPE_INFO = new GridTypeInfo(Grid1D.class, builderb0y.bigglobe.noise.ScriptedGrid1D.Parser.class, 1);
+	public static final GridTypeInfo GRID_1D_TYPE_INFO = new GridTypeInfo(Grid1D.class, ScriptedGrid1D.Parser.class, 1);
 
 	public transient Grid1D delegate;
 
@@ -31,7 +31,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_1D_TYPE_INFO);
-		builderb0y.bigglobe.noise.ScriptedGrid1D.Parser parser = new builderb0y.bigglobe.noise.ScriptedGrid1D.Parser(this.script, processedInputs, registry.parserFlags());
+		ScriptedGrid1D.Parser parser = new ScriptedGrid1D.Parser(this.script, processedInputs, registry.parserFlags());
 		parser
 			.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)

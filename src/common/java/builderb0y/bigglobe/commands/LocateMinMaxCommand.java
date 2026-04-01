@@ -2,10 +2,13 @@ package builderb0y.bigglobe.commands;
 
 import java.util.Comparator;
 import java.util.Locale;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -17,14 +20,14 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 
 	public final CompareMode compareMode;
 	public final BoundedPointIterator2D iterator;
-	public final ColumnToDoubleScript.Holder script;
+	public final ColumnToDoubleScript.Catcher script;
 	public final int radius;
 	public double maxPathLength = 16.0D;
 
 	public LocateMinMaxCommand(
 		CommandSourceStack source,
 		BoundedPointIterator2D iterator,
-		ColumnToDoubleScript.Holder script,
+		ColumnToDoubleScript.Catcher script,
 		CompareMode compareMode,
 		int radius
 	) {

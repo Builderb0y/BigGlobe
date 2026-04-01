@@ -6,7 +6,7 @@ import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript.Catcher;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -16,16 +16,16 @@ import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class OreFeature extends AbstractOreFeature<OreFeature.Config> {
 
-	public OreFeature(Codec<builderb0y.bigglobe.features.OreFeature.Config> codec) {
+	public OreFeature(Codec<OreFeature.Config> codec) {
 		super(codec);
 	}
 
 	public OreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(builderb0y.bigglobe.features.OreFeature.Config.class));
+		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OreFeature.Config.class));
 	}
 
 	@Override
-	public OreBlockReplacer getReplacer(SectionGenerationContext context, builderb0y.bigglobe.features.OreFeature.Config config) {
+	public OreBlockReplacer getReplacer(SectionGenerationContext context, OreFeature.Config config) {
 		PaletteIdReplacer idReplacer = PaletteIdReplacer.of(context, config.blocks);
 		return idReplacer != null ? new SingleOreBlockReplacer(idReplacer) : null;
 	}
@@ -69,8 +69,8 @@ public class OreFeature extends AbstractOreFeature<OreFeature.Config> {
 
 		public Config(
 			Seed seed,
-			ColumnYToDoubleScript.Holder chance,
-			ColumnYToDoubleScript.Holder core_chance,
+			Catcher chance,
+			Catcher core_chance,
 			RandomSource radius,
 			BlockState2ObjectMap<@VerifyNormal BlockState> blocks
 		) {

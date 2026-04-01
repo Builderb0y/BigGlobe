@@ -1,20 +1,21 @@
 package builderb0y.bigglobe.commands;
 
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 import builderb0y.bigglobe.versions.TextVersions;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 
 public class LocateNearestCommand extends AsyncCommand {
 
-	public final ColumnToBooleanScript.Holder script;
+	public final ColumnToBooleanScript.Catcher script;
 	public final GoldenSpiralIterator iterator;
 
-	public LocateNearestCommand(CommandSourceStack source, ColumnToBooleanScript.Holder script) {
+	public LocateNearestCommand(CommandSourceStack source, ColumnToBooleanScript.Catcher script) {
 		super(source);
 		this.script = script;
 		this.iterator = new GoldenSpiralIterator(

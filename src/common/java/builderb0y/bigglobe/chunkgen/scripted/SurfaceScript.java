@@ -4,6 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.objectweb.asm.Type;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
@@ -12,7 +15,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
@@ -46,17 +49,17 @@ public interface SurfaceScript extends Script {
 	);
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<SurfaceScript> implements SurfaceScript, SetBasedMutableDependencyView {
+	public static class Catcher extends ScriptCatcher<SurfaceScript> implements SurfaceScript, SetBasedMutableDependencyView {
 
-		public final Set<net.minecraft.core.Holder<? extends DependencyView>> dependencies = new HashSet<>();
+		public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
-		public Holder(ScriptUsage usage) throws ScriptParsingException {
+		public Catcher(ScriptUsage usage) throws ScriptParsingException {
 			super(usage);
 			this.addAllDependencies(usage);
 		}
 
 		@Override
-		public Set<net.minecraft.core.Holder<? extends DependencyView>> getDependencies() {
+		public Set<Holder<? extends DependencyView>> getDependencies() {
 			return this.dependencies;
 		}
 

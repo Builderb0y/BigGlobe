@@ -8,12 +8,12 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileab
 import builderb0y.scripting.parsing.Script;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
-public abstract class ScriptHolder<S extends Script> extends ScriptErrorCatcher.Impl implements Script, DelayedCompileable {
+public abstract class ScriptCatcher<S extends Script> extends ScriptErrorCatcher.Impl implements Script, DelayedCompileable {
 
 	public final @UseName("script") ScriptUsage usage;
 	public transient S script;
 
-	public ScriptHolder(ScriptUsage usage) {
+	public ScriptCatcher(ScriptUsage usage) {
 		this.usage = usage;
 	}
 

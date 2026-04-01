@@ -31,13 +31,13 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 
 	public final @VerifyNullable Valid valid;
 	public final Holder<Layer> @DefaultEmpty [] children;
-	public final SurfaceScript.@VerifyNullable Holder before_children, after_children;
+	public final SurfaceScript.@VerifyNullable Catcher before_children, after_children;
 
 	public Layer(
 		@VerifyNullable Valid valid,
 		Holder<Layer> @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder before_children,
-		SurfaceScript.@VerifyNullable Holder after_children
+		SurfaceScript.@VerifyNullable Catcher before_children,
+		SurfaceScript.@VerifyNullable Catcher after_children
 	) {
 		this.valid = valid;
 		this.children = children;
@@ -128,9 +128,9 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 	}
 
 	public static record Valid(
-		ColumnToBooleanScript.@VerifyNullable Holder where,
-		ColumnToIntScript.@VerifyNullable Holder min_y,
-		ColumnToIntScript.@VerifyNullable Holder max_y
+		ColumnToBooleanScript.@VerifyNullable Catcher where,
+		ColumnToIntScript.@VerifyNullable Catcher min_y,
+		ColumnToIntScript.@VerifyNullable Catcher max_y
 	) {
 
 	}

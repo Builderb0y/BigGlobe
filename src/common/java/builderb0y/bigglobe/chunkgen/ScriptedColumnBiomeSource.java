@@ -2,14 +2,17 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.util.Set;
 import java.util.stream.Stream;
+
+import com.mojang.serialization.MapCodec;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate.Sampler;
-import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
@@ -23,14 +26,14 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 
 	public static final MapCodec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedColumnBiomeSource.class);
 
-	public final ColumnYToBiomeScript.Holder script;
+	public final ColumnYToBiomeScript.Catcher script;
 	public final DelayedEntryList<Biome> all_possible_biomes;
 	public transient BigGlobeScriptedChunkGenerator generator;
 	public transient ThreadLocal<@Nullable ScriptedColumn> columnThreadLocal;
 	public final BetterRegistry<Biome> biomeRegistry;
 
 	public ScriptedColumnBiomeSource(
-		ColumnYToBiomeScript.Holder script,
+		ColumnYToBiomeScript.Catcher script,
 		DelayedEntryList<Biome> all_possible_biomes,
 		BetterRegistry<Biome> biomeRegistry
 	) {

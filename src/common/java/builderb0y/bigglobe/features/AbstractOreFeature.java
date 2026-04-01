@@ -257,14 +257,14 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 	public static class Config extends DummyConfig {
 
 		public final @SeedModes(Seed.NUMBER | Seed.STRING) Seed seed;
-		public final ColumnYToDoubleScript.Holder chance;
-		public final ColumnYToDoubleScript.@VerifyNullable Holder core_chance;
+		public final ColumnYToDoubleScript.Catcher chance;
+		public final ColumnYToDoubleScript.@VerifyNullable Catcher core_chance;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius;
 
 		public Config(
 			Seed seed,
-			ColumnYToDoubleScript.Holder chance,
-			ColumnYToDoubleScript.Holder core_chance,
+			ColumnYToDoubleScript.Catcher chance,
+			ColumnYToDoubleScript.Catcher core_chance,
 			RandomSource radius
 		) {
 			this.seed = seed;
@@ -273,7 +273,7 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 			this.radius = radius;
 		}
 
-		public ColumnYToDoubleScript.Holder getCoreChance() {
+		public ColumnYToDoubleScript.Catcher getCoreChance() {
 			return this.core_chance != null ? this.core_chance : this.chance;
 		}
 	}

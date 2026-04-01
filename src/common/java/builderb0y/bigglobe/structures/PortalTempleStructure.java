@@ -22,31 +22,13 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.BarrelBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.CrossCollisionBlock;
-import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.NetherPortalBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.WallBannerBlock;
-import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.AttachFace;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.SlabType;
-import net.minecraft.world.level.block.state.properties.StairsShape;
-import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -55,6 +37,7 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSeriali
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -82,8 +65,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	public PortalTempleStructure(
 		StructureSettings config,
-		ColumnToIntScript.@VerifyNullable Holder min_y,
-		ColumnToIntScript.@VerifyNullable Holder surface_y,
+		ColumnToIntScript.@VerifyNullable Catcher min_y,
+		ColumnToIntScript.@VerifyNullable Catcher surface_y,
 		RandomSource cracked_chance
 	) {
 		super(config, min_y, surface_y);

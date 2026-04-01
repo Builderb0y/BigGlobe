@@ -10,13 +10,13 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 public class RootLayer extends Layer {
 
-	public final ColumnToBlockStateScript.Holder state;
+	public final ColumnToBlockStateScript.Catcher state;
 
 	public RootLayer(
 		Holder<Layer> @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder before_children,
-		SurfaceScript.@VerifyNullable Holder after_children,
-		ColumnToBlockStateScript.Holder state
+		SurfaceScript.@VerifyNullable Catcher before_children,
+		SurfaceScript.@VerifyNullable Catcher after_children,
+		ColumnToBlockStateScript.Catcher state
 	) {
 		super(null, children, before_children, after_children);
 		this.state = state;

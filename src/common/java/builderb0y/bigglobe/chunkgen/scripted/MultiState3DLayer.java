@@ -11,14 +11,14 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 public class MultiState3DLayer extends Layer {
 
-	public final ColumnYToBlockStateScript.Holder state;
+	public final ColumnYToBlockStateScript.Catcher state;
 
 	public MultiState3DLayer(
 		@VerifyNullable Valid valid,
 		Holder<Layer> @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder before_children,
-		SurfaceScript.@VerifyNullable Holder after_children,
-		ColumnYToBlockStateScript.Holder state
+		SurfaceScript.@VerifyNullable Catcher before_children,
+		SurfaceScript.@VerifyNullable Catcher after_children,
+		ColumnYToBlockStateScript.Catcher state
 	) {
 		super(valid, children, before_children, after_children);
 		this.state = state;

@@ -3,8 +3,11 @@ package builderb0y.bigglobe.chunkgen.scripted;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
-import net.minecraft.core.Holder;
+
 import org.objectweb.asm.Type;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
@@ -14,7 +17,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
@@ -35,14 +38,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedLayer extends Layer {
 
-	public final Impl.Holder script;
+	public final Impl.Catcher script;
 
 	public ScriptedLayer(
 		@VerifyNullable Valid valid,
 		Holder<Layer> @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder before_children,
-		SurfaceScript.@VerifyNullable Holder after_children,
-		Impl.Holder script
+		SurfaceScript.@VerifyNullable Catcher before_children,
+		SurfaceScript.@VerifyNullable Catcher after_children,
+		Impl.Catcher script
 	) {
 		super(valid, children, before_children, after_children);
 		this.script = script;
@@ -67,17 +70,17 @@ public class ScriptedLayer extends Layer {
 		public abstract void emitSegments(ScriptedColumn column, BlockSegmentList blocks);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<ScriptedLayer.Impl> implements ScriptedLayer.Impl, SetBasedMutableDependencyView {
+		public static class Catcher extends ScriptCatcher<Impl> implements ScriptedLayer.Impl, SetBasedMutableDependencyView {
 
-			public final Set<net.minecraft.core.Holder<? extends DependencyView>> dependencies = new HashSet<>();
+			public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 				this.addAllDependencies(usage);
 			}
 
 			@Override
-			public Set<net.minecraft.core.Holder<? extends DependencyView>> getDependencies() {
+			public Set<Holder<? extends DependencyView>> getDependencies() {
 				return this.dependencies;
 			}
 

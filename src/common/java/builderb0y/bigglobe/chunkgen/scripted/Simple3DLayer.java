@@ -12,16 +12,16 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 public class Simple3DLayer extends Layer {
 
-	public final ColumnToBlockStateScript.Holder state;
-	public final ColumnYToBooleanScript.Holder condition;
+	public final ColumnToBlockStateScript.Catcher state;
+	public final ColumnYToBooleanScript.Catcher condition;
 
 	public Simple3DLayer(
 		@VerifyNullable Valid valid,
 		Holder<Layer> @DefaultEmpty [] children,
-		SurfaceScript.@VerifyNullable Holder before_children,
-		SurfaceScript.@VerifyNullable Holder after_children,
-		ColumnToBlockStateScript.Holder state,
-		ColumnYToBooleanScript.Holder condition
+		SurfaceScript.@VerifyNullable Catcher before_children,
+		SurfaceScript.@VerifyNullable Catcher after_children,
+		ColumnToBlockStateScript.Catcher state,
+		ColumnYToBooleanScript.Catcher condition
 	) {
 		super(valid, children, before_children, after_children);
 		this.state = state;

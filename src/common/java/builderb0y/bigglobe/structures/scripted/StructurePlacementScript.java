@@ -4,7 +4,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -32,11 +32,11 @@ public interface StructurePlacementScript extends Script {
 	);
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
+	public static class Catcher extends ScriptCatcher<StructurePlacementScript> implements StructurePlacementScript {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-		public Holder(ScriptUsage usage) {
+		public Catcher(ScriptUsage usage) {
 			super(usage);
 		}
 

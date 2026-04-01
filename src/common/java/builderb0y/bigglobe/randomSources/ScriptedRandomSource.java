@@ -12,10 +12,10 @@ public class ScriptedRandomSource implements RandomSource {
 
 	public final double min;
 	public final @VerifySorted(greaterThan = "min") double max;
-	public final ColumnYRNGScript.Holder script;
+	public final ColumnYRNGScript.Catcher script;
 	public Boolean requiresColumn;
 
-	public ScriptedRandomSource(double max, double min, ColumnYRNGScript.Holder script) {
+	public ScriptedRandomSource(double max, double min, ColumnYRNGScript.Catcher script) {
 		this.max = max;
 		this.min = min;
 		this.script = script;

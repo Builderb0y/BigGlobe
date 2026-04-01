@@ -2,19 +2,22 @@ package builderb0y.bigglobe.structures.megaTree;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
+
+import com.mojang.serialization.MapCodec;
+import org.joml.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
-import com.mojang.serialization.MapCodec;
-import org.joml.Vector3d;
+
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript.Catcher;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToWoodPaletteScript;
@@ -34,11 +37,11 @@ public class MegaTreeStructure extends BigGlobeStructure {
 	public static final MapCodec<MegaTreeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MegaTreeStructure.class);
 
 	public static record Data(
-		ColumnRandomYToDoubleScript.Holder size,
-		ColumnRandomYToDoubleScript.Holder trunk_radius,
-		ColumnRandomYToDoubleScript.Holder branch_sparsity,
-		ColumnToDoubleScript.@VerifyNullable Holder snow_chance,
-		ColumnYToWoodPaletteScript.Holder palette,
+		Catcher size,
+		Catcher trunk_radius,
+		Catcher branch_sparsity,
+		ColumnToDoubleScript.@VerifyNullable Catcher snow_chance,
+		ColumnYToWoodPaletteScript.Catcher palette,
 		int max_radius_in_chunks
 	) {
 
@@ -46,7 +49,7 @@ public class MegaTreeStructure extends BigGlobeStructure {
 
 	public final @EncodeInline Data data;
 
-	public MegaTreeStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Holder surface_y, Data data) {
+	public MegaTreeStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Catcher surface_y, Data data) {
 		super(config, null, surface_y);
 		this.data = data;
 	}

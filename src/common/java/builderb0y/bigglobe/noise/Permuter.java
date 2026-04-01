@@ -8,6 +8,7 @@ import java.util.random.RandomGenerator;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ColumnPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import it.unimi.dsi.fastutil.HashCommon;
 import org.jetbrains.annotations.Range;
@@ -56,7 +57,7 @@ public class Permuter implements RandomGenerator {
 		this.seed = seed;
 	}
 
-	public static Permuter from(net.minecraft.util.RandomSource random) {
+	public static Permuter from(RandomSource random) {
 		return random instanceof MojangPermuter mojangPermuter ? mojangPermuter.permuter : new Permuter(random.nextLong());
 	}
 

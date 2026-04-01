@@ -2,15 +2,15 @@ package builderb0y.bigglobe.overriders;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.StructureSet.StructureSelectionEntry;
-import net.minecraft.world.level.levelgen.structure.StructureType;
+
 import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.levelgen.structure.*;
+import net.minecraft.world.level.levelgen.structure.StructureSet.StructureSelectionEntry;
+
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -146,23 +146,23 @@ public interface ColumnValueOverrider extends ColumnScript {
 
 	public static non-sealed class Entry implements Overrider {
 
-		public final Holder script;
+		public final ColumnValueOverrider.Catcher script;
 		public final @DefaultBoolean(true) boolean raw_generation;
 		public final @DefaultBoolean(true) boolean feature_generation;
 		public final StructureFilter @VerifyNullable @SingletonArray [] structure_filter;
 		public final transient Reference2IntMap<Structure> cachedRadii;
 
 		public Entry(
-			Holder script,
+			Catcher script,
 			@DefaultBoolean(true) boolean raw_generation,
 			@DefaultBoolean(true) boolean feature_generation,
 			StructureFilter @VerifyNullable @SingletonArray [] structure_filter
 		) {
-			this.script = script;
-			this.raw_generation = raw_generation;
+			this.script             = script;
+			this.raw_generation     = raw_generation;
 			this.feature_generation = feature_generation;
-			this.structure_filter = structure_filter;
-			this.cachedRadii = structure_filter != null ? new Reference2IntOpenHashMap<>() : null;
+			this.structure_filter   = structure_filter;
+			this.cachedRadii        = structure_filter != null ? new Reference2IntOpenHashMap<>() : null;
 		}
 
 		@Override
@@ -201,18 +201,18 @@ public interface ColumnValueOverrider extends ColumnScript {
 		}
 	}
 
-	public static int getSearchRadius(net.minecraft.core.Holder<Entry>[] overriders, StructureSet set) {
+	public static int getSearchRadius(Holder<Entry>[] overriders, StructureSet set) {
 		int radius = -1;
-		for (net.minecraft.core.Holder<Entry> overrider : overriders) {
+		for (Holder<Entry> overrider : overriders) {
 			radius = overrider.value().getSearchRadius(set, radius);
 		}
 		return radius;
 	}
 
 	@Wrapper
-	public static class Holder extends ColumnScript.BaseHolder<ColumnValueOverrider> implements ColumnValueOverrider {
+	public static class Catcher extends BaseCatcher<ColumnValueOverrider> implements ColumnValueOverrider {
 
-		public Holder(ScriptUsage usage) {
+		public Catcher(ScriptUsage usage) {
 			super(usage);
 		}
 

@@ -2,6 +2,9 @@ package builderb0y.bigglobe.structures.megaTree;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
+
+import org.joml.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Holder;
@@ -18,7 +21,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import org.joml.Vector3d;
+
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
@@ -149,7 +152,7 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 		BlockPos pivot
 	) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-		ColumnToDoubleScript.Holder snowChance = this.data.actualStructure.data.snow_chance();
+		ColumnToDoubleScript.Catcher snowChance = this.data.actualStructure.data.snow_chance();
 		ScriptedColumn column = snowChance != null && chunkGenerator instanceof BigGlobeScriptedChunkGenerator scriptedGenerator ? scriptedGenerator.newColumn(world, 0, 0, ColumnUsage.GENERIC.maybeDhHints()) : null;
 		Permuter permuter = new Permuter(Permuter.permute(world.getSeed() ^ 0xD6B4371F4701555BL, chunkBox.minX() >> 4, chunkBox.minY() >> 4, chunkBox.minZ() >> 4));
 		WoodPalette wood = this.data.wood.value();
@@ -249,7 +252,7 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 		return state.isAir() || state.getBlock() instanceof SnowLayerBlock;
 	}
 
-	public void placeSnow(WorldGenLevel world, BlockPos.MutableBlockPos pos, ScriptedColumn column, ColumnToDoubleScript.Holder snowChance, Permuter permuter) {
+	public void placeSnow(WorldGenLevel world, BlockPos.MutableBlockPos pos, ScriptedColumn column, ColumnToDoubleScript.Catcher snowChance, Permuter permuter) {
 		if (column != null) {
 			column.setParamsUnchecked(column.params.at(pos.getX(), pos.getZ()));
 			if (world.isEmptyBlock(pos) && Permuter.nextChancedBoolean(permuter, snowChance.get(column))) {

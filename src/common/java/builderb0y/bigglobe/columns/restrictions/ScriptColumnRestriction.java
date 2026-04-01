@@ -1,16 +1,16 @@
 package builderb0y.bigglobe.columns.restrictions;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript.Catcher;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public class ScriptColumnRestriction implements ColumnRestriction {
 
-	public final RestrictionScriptHolder script;
+	public final RestrictionScriptCatcher script;
 
-	public ScriptColumnRestriction(RestrictionScriptHolder script) {
+	public ScriptColumnRestriction(RestrictionScriptCatcher script) {
 		this.script = script;
 	}
 
@@ -20,9 +20,9 @@ public class ScriptColumnRestriction implements ColumnRestriction {
 	}
 
 	@Wrapper
-	public static class RestrictionScriptHolder extends ColumnYToDoubleScript.Holder {
+	public static class RestrictionScriptCatcher extends Catcher {
 
-		public RestrictionScriptHolder(ScriptUsage usage) {
+		public RestrictionScriptCatcher(ScriptUsage usage) {
 			super(usage);
 		}
 

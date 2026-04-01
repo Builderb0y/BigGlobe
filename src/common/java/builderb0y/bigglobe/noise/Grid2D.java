@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.Grid2D.Info;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid2D;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeYGrid2D;
 import builderb0y.bigglobe.noise.perlin.PerlinGrid2D;
@@ -20,7 +21,7 @@ import builderb0y.scripting.util.InfoHolder;
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface Grid2D extends Grid, CoderRegistryTyped<Grid2D> {
 
-	public static final builderb0y.bigglobe.noise.Grid2D.Info INFO = new builderb0y.bigglobe.noise.Grid2D.Info();
+	public static final Info INFO = new Info();
 
 	public static class Info extends InfoHolder {
 

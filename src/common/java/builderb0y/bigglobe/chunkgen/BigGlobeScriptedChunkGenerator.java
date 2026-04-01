@@ -22,12 +22,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+
+import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -41,47 +37,24 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.util.random.Weighted;
 import net.minecraft.util.random.WeightedList;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.NaturalSpawner;
-import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.PalettedContainer;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
-import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.RandomSupport;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.chunk.*;
+import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
+import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride.BoundingBoxType;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.annotations.DefaultObject.DefaultObjectMode;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -101,7 +74,6 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.LodOverrides;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
@@ -113,7 +85,7 @@ import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript.Catcher;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -126,8 +98,8 @@ import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
-import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
+import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -147,6 +119,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.*;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
+import builderb0y.bigglobe.structures.StructureManager;
 import builderb0y.bigglobe.structures.StructureManager.FinalStructures;
 import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
 import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
@@ -198,7 +171,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final @DefaultObject(name = "DEFAULT", in = GameMechanics.class, mode = DefaultObjectMode.FIELD) GameMechanics game_mechanics;
 
 	public static record GameMechanics(
-		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
+		ColumnRandomToBooleanScript.@VerifyNullable Catcher spawn_point,
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
 		@VerifyNullable NetherOverrides nether,
@@ -218,9 +191,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		);
 
 		public static record ColorOverrides(
-			ColorScript.@VerifyNullable Holder grass,
-			ColorScript.@VerifyNullable Holder foliage,
-			ColorScript.@VerifyNullable Holder water
+			ColorScript.@VerifyNullable Catcher grass,
+			ColorScript.@VerifyNullable Catcher foliage,
+			ColorScript.@VerifyNullable Catcher water
 		) {}
 
 		public static record NetherOverrides(
@@ -248,7 +221,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				double min_radius,
 				double max_radius,
 				double step,
-				ColumnToBooleanScript.Holder condition
+				Catcher condition
 			) {}
 		}
 

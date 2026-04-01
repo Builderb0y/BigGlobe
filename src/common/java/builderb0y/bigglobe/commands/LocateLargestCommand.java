@@ -1,25 +1,27 @@
 package builderb0y.bigglobe.commands;
 
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 
 public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestCommand.Result> {
 
 	public final BoundedPointIterator2D iterator;
-	public final ColumnToBooleanScript.Holder predicate;
+	public final ColumnToBooleanScript.Catcher predicate;
 	public final int radius;
 	public int largestArea = 256;
 
 	public LocateLargestCommand(
 		CommandSourceStack source,
 		BoundedPointIterator2D iterator,
-		ColumnToBooleanScript.Holder predicate,
+		ColumnToBooleanScript.Catcher predicate,
 		int radius
 	) {
 		super(source);
@@ -29,7 +31,7 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 	}
 
 	@Override
-	public void addResult(builderb0y.bigglobe.commands.LocateLargestCommand.Result result) {
+	public void addResult(LocateLargestCommand.Result result) {
 		super.addResult(result);
 		if (result.diameter > this.largestArea) {
 			this.largestArea = result.diameter;
@@ -48,7 +50,7 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 				this.source.getServer().execute(this::sendFeedback);
 				break;
 			}
-			builderb0y.bigglobe.commands.LocateLargestCommand.Result result = this.nextResult();
+			LocateLargestCommand.Result result = this.nextResult();
 			if (result != null) {
 				this.addResult(result);
 			}
@@ -56,10 +58,10 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 		}
 	}
 
-	public @Nullable builderb0y.bigglobe.commands.LocateLargestCommand.Result nextResult() {
+	public @Nullable LocateLargestCommand.Result nextResult() {
 		ScriptedColumn column = this.newScriptedColumn();
 		column.setParamsUnchecked(column.params.at(this.iterator.floorX(), this.iterator.floorY()));
-		ColumnToBooleanScript.Holder predicate = this.predicate;
+		ColumnToBooleanScript.Catcher predicate = this.predicate;
 		if (!predicate.get(column)) return null;
 		GoldenSpiralIterator spiral = new GoldenSpiralIterator(this.iterator.x(), this.iterator.y(), 4.0D, 0.0D);
 		while (true) {
@@ -79,7 +81,7 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 			break;
 		}
 		column.setParamsUnchecked(column.params.at(BigGlobeMath.floorI(spiral.originX), BigGlobeMath.floorI(spiral.originY)));
-		builderb0y.bigglobe.commands.LocateLargestCommand.Result result = new builderb0y.bigglobe.commands.LocateLargestCommand.Result();
+		LocateLargestCommand.Result result = new LocateLargestCommand.Result();
 		result.x = column.x();
 		result.z = column.z();
 		result.diameter = ((int)(spiral.radius)) << 1;
@@ -99,7 +101,7 @@ public class LocateLargestCommand extends AsyncLocateCommand<LocateLargestComman
 	}
 
 	@Override
-	public int compare(builderb0y.bigglobe.commands.LocateLargestCommand.Result r1, builderb0y.bigglobe.commands.LocateLargestCommand.Result r2) {
+	public int compare(LocateLargestCommand.Result r1, LocateLargestCommand.Result r2) {
 		//intentionally reversed so that large radii are selected first.
 		return Integer.compare(r2.diameter, r1.diameter);
 	}

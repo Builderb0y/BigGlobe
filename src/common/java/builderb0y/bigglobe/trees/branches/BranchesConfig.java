@@ -27,14 +27,14 @@ public class BranchesConfig {
 	the input is how high the branch is.
 	0 as an input represents startY, and 1 represents the top of the tree.
 	*/
-	public final ScriptedBranchShape.Holder lengthGetter;
+	public final ScriptedBranchShape.Catcher lengthGetter;
 	/**
 	distribution function for what number to add to the branch's Y level when placing the log blocks.
 	the input of this function is how far along the branch we are.
 	0 represents the center of the trunk, and 1 represents the very tip of the branch.
 	the output is multiplied by lengthGetter's output, and then by heightMultiplierGetter's output.
 	*/
-	public final ScriptedBranchShape.Holder heightGetter;
+	public final ScriptedBranchShape.Catcher heightGetter;
 
 	public BranchConfig currentBranch;
 
@@ -43,8 +43,8 @@ public class BranchesConfig {
 		int branchCount,
 		double startAngle,
 		boolean thickBranches,
-		ScriptedBranchShape.Holder lengthGetter,
-		ScriptedBranchShape.Holder heightGetter
+		ScriptedBranchShape.Catcher lengthGetter,
+		ScriptedBranchShape.Catcher heightGetter
 	) {
 		this.startFracY = startFracY;
 		this.branchCount = branchCount;
@@ -59,8 +59,8 @@ public class BranchesConfig {
 		int branchCount,
 		double startAngle,
 		double trunkStartRadius,
-		ScriptedBranchShape.Holder lengthGetter,
-		ScriptedBranchShape.Holder heightGetter
+		ScriptedBranchShape.Catcher lengthGetter,
+		ScriptedBranchShape.Catcher heightGetter
 	) {
 		return new BranchesConfig(
 			startFracY,

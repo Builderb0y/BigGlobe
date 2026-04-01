@@ -1,14 +1,16 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import org.joml.Vector3d;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+
+import net.minecraft.world.level.levelgen.Heightmap;
+
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript.Catcher;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure.MegaTreeContext;
 import builderb0y.bigglobe.util.Vectors;
-import net.minecraft.world.level.levelgen.Heightmap;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
 import static builderb0y.bigglobe.math.BigGlobeMath.squareD;
@@ -53,7 +55,7 @@ public class MegaTreeBranch {
 		Vector3d scratchPos = new Vector3d();
 		Vector3d shyness = new Vector3d();
 		ScriptedColumn column = context.column;
-		ColumnToIntScript.Holder surfaceYGetter = context.structure.surface_y;
+		Catcher surfaceYGetter = context.structure.surface_y;
 		while (this.currentStep < this.totalSteps) {
 			this.currentStep++;
 			this.stepsUntilNextSplit--;

@@ -33,12 +33,12 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 
 	public static abstract class AbstractTrunkFactory implements TrunkFactory {
 
-		public final TrunkThicknessScript.Holder thickness;
+		public final TrunkThicknessScript.Catcher thickness;
 		public final boolean require_natural_ground;
 		public final boolean can_generate_in_liquid;
 
 		public AbstractTrunkFactory(
-			TrunkThicknessScript.Holder thickness,
+			TrunkThicknessScript.Catcher thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid
 		) {
@@ -51,7 +51,7 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 	public static class StraightTrunkFactory extends AbstractTrunkFactory {
 
 		public StraightTrunkFactory(
-			TrunkThicknessScript.Holder thickness,
+			TrunkThicknessScript.Catcher thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid
 		) {
@@ -77,7 +77,7 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 		public final RandomSource slant;
 
 		public SlantedTrunkFactory(
-			TrunkThicknessScript.Holder thickness,
+			TrunkThicknessScript.Catcher thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid,
 			RandomSource slant
@@ -107,7 +107,7 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 	public static class TwistedTrunkFactory extends AbstractTrunkFactory {
 
 		public TwistedTrunkFactory(
-			TrunkThicknessScript.Holder thickness,
+			TrunkThicknessScript.Catcher thickness,
 			boolean require_natural_ground,
 			boolean can_generate_in_liquid
 		) {

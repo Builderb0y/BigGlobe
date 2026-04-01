@@ -2,6 +2,9 @@ package builderb0y.bigglobe.features.dispatch;
 
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.annotations.Alias;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -9,7 +12,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -28,20 +31,20 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
 	@Alias("script")
-	public final Holder dispatcher;
+	public final ScriptedFeatureDispatcher.Catcher dispatcher;
 
-	public ScriptedFeatureDispatcher(Holder dispatcher) {
+	public ScriptedFeatureDispatcher(Catcher dispatcher) {
 		this.dispatcher = dispatcher;
 	}
 
 	@Override
-	public void generate(WorldWrapper world, Permuter random, long chunkSeed, net.minecraft.core.Holder<FeatureDispatcher> selfEntry) {
+	public void generate(WorldWrapper world, Permuter random, long chunkSeed, Holder<FeatureDispatcher> selfEntry) {
 		random.setSeed(Permuter.permute(chunkSeed, UnregisteredObjectException.getID(selfEntry).hashCode()));
 		this.dispatcher.generate(world, random);
 	}
 
 	@Override
-	public Stream<? extends net.minecraft.core.Holder<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return this.dispatcher.usage.streamDirectDependencies();
 	}
 
@@ -51,11 +54,11 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 	}
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<ScriptedFeatureDispatcherImpl> implements ScriptedFeatureDispatcherImpl {
+	public static class Catcher extends ScriptCatcher<ScriptedFeatureDispatcherImpl> implements ScriptedFeatureDispatcherImpl {
 
 		public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-		public Holder(ScriptUsage usage) throws ScriptParsingException {
+		public Catcher(ScriptUsage usage) throws ScriptParsingException {
 			super(usage);
 		}
 

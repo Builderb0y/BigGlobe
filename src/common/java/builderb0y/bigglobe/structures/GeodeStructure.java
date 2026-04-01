@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 import org.joml.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.verifiers.VerifyContext;
@@ -58,8 +60,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 	public GeodeStructure(
 		StructureSettings config,
-		ColumnToIntScript.@VerifyNullable Holder min_y,
-		ColumnToIntScript.@VerifyNullable Holder surface_y,
+		ColumnToIntScript.@VerifyNullable Catcher min_y,
+		ColumnToIntScript.@VerifyNullable Catcher surface_y,
 		Grid3D noise,
 		RandomSource radius,
 		BlocksConfig[] blocks,

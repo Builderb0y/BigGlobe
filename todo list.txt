@@ -143,8 +143,6 @@ V6:
 		and offset when the script tries to place somewhere.
 	rename StructureManager to something else to avoid name collisions with vanilla.
 		StructurePlacementCalculator would be funny.
-	rename script holders to something else to avoid name collisions with vanilla.
-		Catcher?
 	remove script templates?
 		replace with custom classes that just take parameters?
 

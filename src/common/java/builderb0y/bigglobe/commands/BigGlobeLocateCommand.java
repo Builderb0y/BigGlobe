@@ -19,12 +19,12 @@ import net.minecraft.world.phys.Vec3;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript.Catcher;
 import builderb0y.bigglobe.commands.LocateMinMaxCommand.CompareMode;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.structures.ActiveStructureManager;
 import builderb0y.bigglobe.versions.CommandVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -42,7 +42,7 @@ public class BigGlobeLocateCommand {
 					Commands.literal("nearest").then(
 						Commands.argument("script", StringArgumentType.greedyString()).executes(
 							(CommandContext<CommandSourceStack> context) -> {
-								ColumnToBooleanScript.Holder script = new ColumnToBooleanScript.Holder(
+								ColumnToBooleanScript.Catcher script = new ColumnToBooleanScript.Catcher(
 									new SourceScriptUsage(context.getArgument("script", String.class))
 								);
 								if (!compile(script, context.getSource())) return 0;
@@ -60,7 +60,7 @@ public class BigGlobeLocateCommand {
 							Commands.argument("script", StringArgumentType.greedyString()).executes(
 								(CommandContext<CommandSourceStack> context) -> {
 									CommandSourceStack source = context.getSource();
-									ColumnToBooleanScript.Holder script = new ColumnToBooleanScript.Holder(
+									ColumnToBooleanScript.Catcher script = new ColumnToBooleanScript.Catcher(
 										new SourceScriptUsage(context.getArgument("script", String.class))
 									);
 									if (!compile(script, source)) return 0;
@@ -84,7 +84,7 @@ public class BigGlobeLocateCommand {
 							Commands.argument("script", StringArgumentType.greedyString()).executes(
 								(CommandContext<CommandSourceStack> context) -> {
 									CommandSourceStack source = context.getSource();
-									ColumnToDoubleScript.Holder script = new ColumnToDoubleScript.Holder(
+									Catcher script = new Catcher(
 										new SourceScriptUsage(context.getArgument("script", String.class))
 									);
 									if (!compile(script, source)) return 0;
@@ -109,7 +109,7 @@ public class BigGlobeLocateCommand {
 							Commands.argument("script", StringArgumentType.greedyString()).executes(
 								(CommandContext<CommandSourceStack> context) -> {
 									CommandSourceStack source = context.getSource();
-									ColumnToDoubleScript.Holder script = new ColumnToDoubleScript.Holder(
+									Catcher script = new Catcher(
 										new SourceScriptUsage(context.getArgument("script", String.class))
 									);
 									if (!compile(script, source)) return 0;
@@ -173,7 +173,7 @@ public class BigGlobeLocateCommand {
 		);
 	}
 
-	public static boolean compile(ScriptHolder<?> script, CommandSourceStack source) {
+	public static boolean compile(ScriptCatcher<?> script, CommandSourceStack source) {
 		try {
 			script.compile(
 				(

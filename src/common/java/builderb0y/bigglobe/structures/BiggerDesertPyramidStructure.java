@@ -14,13 +14,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
@@ -35,6 +29,7 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSeriali
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -53,7 +48,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 	public static final MapCodec<BiggerDesertPyramidStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BiggerDesertPyramidStructure.class);
 
-	public BiggerDesertPyramidStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Holder surface_y) {
+	public BiggerDesertPyramidStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Catcher surface_y) {
 		super(config, null, surface_y);
 	}
 

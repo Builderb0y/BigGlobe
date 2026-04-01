@@ -10,7 +10,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.Piece;
@@ -47,11 +47,11 @@ public interface StructureLayoutScript extends Script {
 	}
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
+	public static class Catcher extends ScriptCatcher<StructureLayoutScript> implements StructureLayoutScript {
 
 		public static final InsnTree LOAD_RANDOM = load("random", type(RandomGenerator.class));
 
-		public Holder(ScriptUsage usage) {
+		public Catcher(ScriptUsage usage) {
 			super(usage);
 		}
 

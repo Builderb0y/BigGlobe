@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.noise.Grid3D.Info;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid3D;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeYGrid3D;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeZGrid3D;
@@ -24,7 +25,7 @@ import builderb0y.scripting.util.InfoHolder;
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 
-	public static final builderb0y.bigglobe.noise.Grid3D.Info INFO = new builderb0y.bigglobe.noise.Grid3D.Info();
+	public static final Info INFO = new Info();
 
 	public static class Info extends InfoHolder {
 

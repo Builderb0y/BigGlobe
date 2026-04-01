@@ -1,12 +1,15 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.Optional;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -25,9 +28,9 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 @AddPseudoField(name = "config", getter = "getConfig")
 public abstract class BigGlobeStructure extends Structure implements SizedStructure {
 
-	public final ColumnToIntScript.@VerifyNullable Holder min_y, surface_y;
+	public final ColumnToIntScript.@VerifyNullable Catcher min_y, surface_y;
 
-	public BigGlobeStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Holder minY, ColumnToIntScript.@VerifyNullable Holder surface_y) {
+	public BigGlobeStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Catcher minY, ColumnToIntScript.@VerifyNullable Catcher surface_y) {
 		super(config);
 		this.surface_y = surface_y;
 		this.min_y = minY;

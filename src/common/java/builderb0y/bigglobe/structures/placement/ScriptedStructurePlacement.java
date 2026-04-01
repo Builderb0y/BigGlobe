@@ -18,7 +18,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
@@ -37,9 +37,9 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedStructurePlacement extends StructurePlacement implements StreamableStructurePlacement {
 
-	public final StructurePlacementScript.Holder placement;
+	public final StructurePlacementScript.Catcher placement;
 
-	public ScriptedStructurePlacement(StructurePlacementScript.Holder placement) {
+	public ScriptedStructurePlacement(StructurePlacementScript.Catcher placement) {
 		super(Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1.0F, 0, Optional.empty());
 		this.placement = placement;
 	}
@@ -109,9 +109,9 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 		);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<StructurePlacementScript> implements StructurePlacementScript {
+		public static class Catcher extends ScriptCatcher<StructurePlacementScript> implements StructurePlacementScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -119,31 +119,31 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(StructurePlacementScript.class, this.usage, registry.parserFlags())
-						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-						.addEnvironment(MathScriptEnvironment.INSTANCE)
-						.addEnvironment(RandomScriptEnvironment.BASE)
-						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-						.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
-						.addEnvironment(WoodPaletteScriptEnvironment.BASE)
-						.configureEnvironment(MinecraftScriptEnvironment.create())
-						.configureEnvironment((MutableScriptEnvironment environment) -> {
-							LoadInsnTree loadLookup = load("columns", InsnTrees.type(ScriptedColumnLookup.class));
-							registry.setupExternalEnvironment(
-								environment
-									.addVariableLoad("worldSeed", TypeInfos.LONG)
-									.addVariableLoad("centerChunkX", TypeInfos.INT)
-									.addVariableLoad("centerChunkZ", TypeInfos.INT)
-									.addVariableLoad("chunkRange", TypeInfos.INT)
-									.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-									.configure(ScriptedColumn.hintsEnvironment())
-									.addFunction("addStart", Handlers.builder(ScriptedStructurePlacement.class, "outputStart").addArguments(load("builder", InsnTrees.type(Stream.Builder.class)), "II").buildFunction()),
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.addEnvironment(RandomScriptEnvironment.BASE)
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
+					.addEnvironment(WoodPaletteScriptEnvironment.BASE)
+					.configureEnvironment(MinecraftScriptEnvironment.create())
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						LoadInsnTree loadLookup = load("columns", InsnTrees.type(ScriptedColumnLookup.class));
+						registry.setupExternalEnvironment(
+							environment
+							.addVariableLoad("worldSeed", TypeInfos.LONG)
+							.addVariableLoad("centerChunkX", TypeInfos.INT)
+							.addVariableLoad("centerChunkZ", TypeInfos.INT)
+							.addVariableLoad("chunkRange", TypeInfos.INT)
+							.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
+							.configure(ScriptedColumn.hintsEnvironment())
+							.addFunction("addStart", Handlers.builder(ScriptedStructurePlacement.class, "outputStart").addArguments(load("builder", InsnTrees.type(Stream.Builder.class)), "II").buildFunction()),
 
-								new ExternalEnvironmentParams()
-									.withLookup(loadLookup)
-							);
-						})
-						.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-						.parse(new ScriptClassLoader(registry.loader))
+							new ExternalEnvironmentParams()
+							.withLookup(loadLookup)
+						);
+					})
+					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}
 

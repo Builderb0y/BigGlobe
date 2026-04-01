@@ -415,7 +415,7 @@ public class ColumnEntryRegistry {
 		}
 
 		/**
-		I need to add the ScriptHolder to the ColumnEntryRegistry.Loading after
+		I need to add the ScriptCatcher to the ColumnEntryRegistry.Loading after
 		it's constructed, including after subclass constructors have run.
 		this is not the intended use for verifiers, but it works.
 		*/

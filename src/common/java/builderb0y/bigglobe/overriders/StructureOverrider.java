@@ -10,7 +10,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
@@ -58,7 +58,7 @@ public interface StructureOverrider extends ColumnScript {
 		}
 	}
 
-	public static record Entry(Holder script) implements Overrider {
+	public static record Entry(Catcher script) implements Overrider {
 
 		@Override
 		public Type getOverriderType() {
@@ -67,9 +67,9 @@ public interface StructureOverrider extends ColumnScript {
 	}
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<StructureOverrider> implements StructureOverrider {
+	public static class Catcher extends ScriptCatcher<StructureOverrider> implements StructureOverrider {
 
-		public Holder(ScriptUsage usage) {
+		public Catcher(ScriptUsage usage) {
 			super(usage);
 		}
 

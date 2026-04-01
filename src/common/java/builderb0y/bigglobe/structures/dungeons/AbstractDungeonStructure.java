@@ -22,19 +22,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CrossCollisionBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.block.state.properties.SlabType;
-import net.minecraft.world.level.block.state.properties.StairsShape;
-import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -43,6 +35,7 @@ import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
@@ -87,8 +80,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public AbstractDungeonStructure(
 		StructureSettings config,
-		ColumnToIntScript.@VerifyNullable Holder min_y,
-		ColumnToIntScript.@VerifyNullable Holder surface_y,
+		ColumnToIntScript.@VerifyNullable Catcher min_y,
+		ColumnToIntScript.@VerifyNullable Catcher surface_y,
 		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
 		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes

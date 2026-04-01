@@ -2,7 +2,7 @@ package builderb0y.bigglobe.trees.trunks;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
@@ -18,9 +18,9 @@ public interface TrunkThicknessScript extends Script {
 	public abstract double getThickness(double height, double fraction, double minThickness);
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<TrunkThicknessScript> implements TrunkThicknessScript {
+	public static class Catcher extends ScriptCatcher<TrunkThicknessScript> implements TrunkThicknessScript {
 
-		public Holder(ScriptUsage usage) {
+		public Catcher(ScriptUsage usage) {
 			super(usage);
 		}
 

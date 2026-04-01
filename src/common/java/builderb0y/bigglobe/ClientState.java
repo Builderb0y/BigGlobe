@@ -15,6 +15,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.BiomeColors;
@@ -30,11 +31,8 @@ import net.minecraft.resources.RegistryOps.RegistryInfoLookup;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.FoliageColor;
-import net.minecraft.world.level.GrassColor;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
+
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
@@ -425,16 +423,14 @@ public class ClientState {
 
 	public static class ClientGeneratorParams {
 
-		public static final AutoCoder<@Nullable ClientGeneratorParams> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable ClientGeneratorParams>() {
-
-		});
+		public static final AutoCoder<@Nullable ClientGeneratorParams> NULLABLE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<@VerifyNullable ClientGeneratorParams>() {});
 
 		public final int minY, maxY;
 		public final @VerifyNullable Integer seaLevel;
 		public final long columnSeed;
-		public final ColorScript.@VerifyNullable Holder grassColor;
-		public final ColorScript.@VerifyNullable Holder foliageColor;
-		public final ColorScript.@VerifyNullable Holder waterColor;
+		public final ColorScript.@VerifyNullable Catcher grassColor;
+		public final ColorScript.@VerifyNullable Catcher foliageColor;
+		public final ColorScript.@VerifyNullable Catcher waterColor;
 		public final LodOverrides generatorLodOverrides;
 		public final Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits;
 		public final @VerifyNullable Holder<Layer> layer;
@@ -447,9 +443,9 @@ public class ClientState {
 			int maxY,
 			@VerifyNullable Integer seaLevel,
 			long columnSeed,
-			ColorScript.@VerifyNullable Holder grassColor,
-			ColorScript.@VerifyNullable Holder foliageColor,
-			ColorScript.@VerifyNullable Holder waterColor,
+			ColorScript.@VerifyNullable Catcher grassColor,
+			ColorScript.@VerifyNullable Catcher foliageColor,
+			ColorScript.@VerifyNullable Catcher waterColor,
 			LodOverrides generatorLodOverrides,
 			Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits,
 			@VerifyNullable Holder<Layer> layer
@@ -546,9 +542,9 @@ public class ClientState {
 		}
 
 		@Wrapper
-		public static class Holder extends ColumnScript.BaseHolder<ColorScript> implements ColorScript {
+		public static class Catcher extends BaseCatcher<ColorScript> implements ColorScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 

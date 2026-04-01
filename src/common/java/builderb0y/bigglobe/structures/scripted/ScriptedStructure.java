@@ -54,10 +54,10 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 	public static final MapCodec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructure.class);
 
-	public final StructureLayoutScript.Holder layout;
+	public final StructureLayoutScript.Catcher layout;
 	public final @DefaultInt(8) int max_radius_in_chunks;
 
-	public ScriptedStructure(StructureSettings config, StructureLayoutScript.Holder layout, int max_radius_in_chunks) {
+	public ScriptedStructure(StructureSettings config, StructureLayoutScript.Catcher layout, int max_radius_in_chunks) {
 		super(config, null, null);
 		this.layout = layout;
 		this.max_radius_in_chunks = max_radius_in_chunks;
@@ -111,11 +111,9 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	}
 
 	public static record CombinedStructureScripts(
-		StructurePlacementScript.Holder placement,
-		StructurePlacementScript.@VerifyNullable Holder raw_placement
-	) {
-
-	}
+		StructurePlacementScript.Catcher placement,
+		StructurePlacementScript.@VerifyNullable Catcher raw_placement
+	) {}
 
 	public static class Piece extends StructurePiece implements RawGenerationStructurePiece {
 
@@ -293,7 +291,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		@Override
 		public void generateRaw(Context context) {
-			StructurePlacementScript.Holder rawPlacement = this.placement.entry.value().raw_placement;
+			StructurePlacementScript.Catcher rawPlacement = this.placement.entry.value().raw_placement;
 			if (rawPlacement == null) return;
 			int minX = this.originalBoundingBox.minX();
 			int minY = this.originalBoundingBox.minY();

@@ -163,7 +163,7 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 		public Map.Entry<K, V> next() {
 			if (this.index >= ConstantMap.this.order.length) throw new NoSuchElementException();
 			int position = ConstantMap.this.order[this.index++];
-			return new builderb0y.bigglobe.scripting.wrappers.ConstantMap.Entry<>(unwrap(ConstantMap.this.keys[position]), ConstantMap.this.values[position]);
+			return new ConstantMap.Entry<>(unwrap(ConstantMap.this.keys[position]), ConstantMap.this.values[position]);
 		}
 	}
 

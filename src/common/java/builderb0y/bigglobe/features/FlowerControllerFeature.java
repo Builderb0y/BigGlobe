@@ -1,6 +1,11 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Comparator;
+
+import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.WorldGenLevel;
@@ -10,9 +15,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -161,12 +164,12 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 
 	public static class Config implements FeatureConfiguration {
 
-		public final ColumnToIntScript.Holder y_level;
+		public final ColumnToIntScript.Catcher y_level;
 		public final DelayedEntryList<ConfiguredFeature<?, ?>> flowers;
 		public transient FlowerFeature.Config @Nullable [] flattenedFlowers;
 
 		public Config(
-			ColumnToIntScript.Holder y_level,
+			ColumnToIntScript.Catcher y_level,
 			DelayedEntryList<ConfiguredFeature<?, ?>> flowers
 		) {
 			this.y_level = y_level;

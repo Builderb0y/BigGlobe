@@ -3,22 +3,25 @@ package builderb0y.bigglobe.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.commands.EvaluateCommand.CommandScript.Catcher;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -52,7 +55,7 @@ public class EvaluateCommand {
 					Commands
 						.argument("script", StringArgumentType.greedyString())
 						.executes((CommandContext<CommandSourceStack> context) -> {
-							CommandScript.Holder script = new CommandScript.Holder(context.getArgument("script", String.class));
+							Catcher script = new Catcher(context.getArgument("script", String.class));
 							if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
 							BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 							ServerLevel actualWorld = context.getSource().getLevel();
@@ -98,11 +101,11 @@ public class EvaluateCommand {
 
 		public abstract Object evaluate(WorldWrapper world, int originX, int originY, int originZ);
 
-		public static class Holder extends ScriptHolder<CommandScript> implements CommandScript {
+		public static class Catcher extends ScriptCatcher<CommandScript> implements CommandScript {
 
 			public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-			public Holder(String source) {
+			public Catcher(String source) {
 				super(new SourceScriptUsage(source));
 			}
 

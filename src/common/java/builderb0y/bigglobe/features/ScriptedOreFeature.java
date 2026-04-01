@@ -18,24 +18,24 @@ import builderb0y.scripting.util.TypeInfos;
 
 public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Config> {
 
-	public ScriptedOreFeature(Codec<builderb0y.bigglobe.features.ScriptedOreFeature.Config> codec) {
+	public ScriptedOreFeature(Codec<Config> codec) {
 		super(codec);
 	}
 
 	public ScriptedOreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(builderb0y.bigglobe.features.ScriptedOreFeature.Config.class));
+		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 	}
 
 	@Override
-	public OreBlockReplacer getReplacer(SectionGenerationContext context, builderb0y.bigglobe.features.ScriptedOreFeature.Config config) {
+	public OreBlockReplacer getReplacer(SectionGenerationContext context, Config config) {
 		return new ScriptedOreBlockReplacer(config.replacer_script);
 	}
 
 	public static class ScriptedOreBlockReplacer extends OreBlockReplacer {
 
-		public final OreBlockReplacerScript.Holder script;
+		public final OreBlockReplacerScript.Catcher script;
 
-		public ScriptedOreBlockReplacer(OreBlockReplacerScript.Holder script) {
+		public ScriptedOreBlockReplacer(OreBlockReplacerScript.Catcher script) {
 			this.script = script;
 		}
 
@@ -95,9 +95,9 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 		);
 
 		@Wrapper
-		public static class Holder extends ColumnScript.BaseHolder<OreBlockReplacerScript> implements OreBlockReplacerScript {
+		public static class Catcher extends BaseCatcher<OreBlockReplacerScript> implements OreBlockReplacerScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -167,14 +167,14 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 
 	public static class Config extends AbstractOreFeature.Config {
 
-		public final OreBlockReplacerScript.Holder replacer_script;
+		public final OreBlockReplacerScript.Catcher replacer_script;
 
 		public Config(
 			Seed seed,
-			ColumnYToDoubleScript.Holder chance,
-			ColumnYToDoubleScript.Holder core_chance,
+			ColumnYToDoubleScript.Catcher chance,
+			ColumnYToDoubleScript.Catcher core_chance,
 			RandomSource radius,
-			OreBlockReplacerScript.Holder replacer_script
+			OreBlockReplacerScript.Catcher replacer_script
 		) {
 			super(seed, chance, core_chance, radius);
 			this.replacer_script = replacer_script;

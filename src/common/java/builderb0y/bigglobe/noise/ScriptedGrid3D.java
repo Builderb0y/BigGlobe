@@ -20,7 +20,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 
-	public static final GridTypeInfo GRID_3D_TYPE_INFO = new GridTypeInfo(Grid3D.class, builderb0y.bigglobe.noise.ScriptedGrid3D.Parser.class, 3);
+	public static final GridTypeInfo GRID_3D_TYPE_INFO = new GridTypeInfo(Grid3D.class, ScriptedGrid3D.Parser.class, 3);
 
 	public transient Grid3D delegate;
 
@@ -31,7 +31,7 @@ public class ScriptedGrid3D extends ScriptedGrid<Grid3D> implements Grid3D {
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_3D_TYPE_INFO);
-		builderb0y.bigglobe.noise.ScriptedGrid3D.Parser parser = new builderb0y.bigglobe.noise.ScriptedGrid3D.Parser(this.script, processedInputs, registry.parserFlags());
+		ScriptedGrid3D.Parser parser = new ScriptedGrid3D.Parser(this.script, processedInputs, registry.parserFlags());
 		parser
 			.addEnvironment(new Environment(processedInputs, GRID_3D_TYPE_INFO))
 			.addEnvironment(MathScriptEnvironment.INSTANCE)

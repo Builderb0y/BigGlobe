@@ -4,7 +4,7 @@ import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -23,9 +23,9 @@ public interface ScriptedBranchShape extends Script {
 	public abstract double evaluate(double fraction, RandomGenerator random);
 
 	@Wrapper
-	public static class Holder extends ScriptHolder<ScriptedBranchShape> implements ScriptedBranchShape {
+	public static class Catcher extends ScriptCatcher<ScriptedBranchShape> implements ScriptedBranchShape {
 
-		public Holder(ScriptUsage usage) {
+		public Catcher(ScriptUsage usage) {
 			super(usage);
 		}
 

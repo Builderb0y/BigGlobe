@@ -3,15 +3,18 @@ package builderb0y.bigglobe.features;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -29,7 +32,7 @@ import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
-import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
+import builderb0y.bigglobe.trees.branches.ScriptedBranchShape.Catcher;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkFactory;
@@ -128,7 +131,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@DefaultBoolean(false) boolean delay_generation,
 		Holder<WoodPalette> palette,
 		BlockState2ObjectMap<BlockState> ground_replacements,
-		ColumnRandomYToDoubleScript.Holder height,
+		ColumnRandomYToDoubleScript.Catcher height,
 		TrunkFactory trunk,
 		@VerifyNullable Branches branches,
 		Shelf @VerifyNullable [] shelves,
@@ -148,8 +151,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	public static record Branches(
 		RandomSource start_frac_y,
 		RandomSource count_per_layer,
-		ScriptedBranchShape.Holder length_function,
-		ScriptedBranchShape.Holder height_function
+		Catcher length_function,
+		Catcher height_function
 	) {
 
 	}

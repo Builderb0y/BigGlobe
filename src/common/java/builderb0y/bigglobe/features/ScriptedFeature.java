@@ -1,6 +1,9 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Locale;
+
+import com.mojang.serialization.Codec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
@@ -11,7 +14,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import com.mojang.serialization.Codec;
+
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.DefaultString;
 import builderb0y.autocodec.annotations.UseName;
@@ -24,7 +27,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
@@ -191,11 +194,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			throws EarlyFeatureExitException;
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<ScriptedFeatureImplementation> implements ScriptedFeatureImplementation {
+		public static class Catcher extends ScriptCatcher<ScriptedFeatureImplementation> implements ScriptedFeatureImplementation {
 
 			public static final WorldWrapper.BoundInfo WORLD = WorldWrapper.BOUND_PARAM;
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -261,22 +264,22 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 	public static class Config implements FeatureConfiguration {
 
-		public final ScriptedFeatureImplementation.Holder script;
+		public final ScriptedFeatureImplementation.Catcher script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
 		public final @DefaultString("none")
 		@UseName("queue") QueueType queueType;
 
 		public Config(
-			ScriptedFeatureImplementation.Holder script,
+			ScriptedFeatureImplementation.Catcher script,
 			boolean rotate_randomly,
 			boolean flip_randomly,
 			QueueType queueType
 		) {
-			this.script = script;
+			this.script          = script;
 			this.rotate_randomly = rotate_randomly;
-			this.flip_randomly = flip_randomly;
-			this.queueType = queueType;
+			this.flip_randomly   = flip_randomly;
+			this.queueType       = queueType;
 		}
 	}
 

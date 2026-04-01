@@ -10,17 +10,20 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
-import net.minecraft.core.Holder;
-import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
+
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.block.state.BlockState;
+
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
@@ -110,11 +113,11 @@ public interface ColumnScript extends Script {
 
 	}
 
-	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements SetBasedMutableDependencyView {
+	public static abstract class BaseCatcher<S extends ColumnScript> extends ScriptCatcher<S> implements SetBasedMutableDependencyView {
 
 		public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>(64);
 
-		public BaseHolder(ScriptUsage usage) {
+		public BaseCatcher(ScriptUsage usage) {
 			super(usage);
 			this.addAllDependencies(usage);
 		}
@@ -223,9 +226,9 @@ public interface ColumnScript extends Script {
 		public abstract int get(ScriptedColumn column);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnToIntScript> implements ColumnToIntScript {
+		public static class Catcher extends BaseCatcher<ColumnToIntScript> implements ColumnToIntScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -257,9 +260,9 @@ public interface ColumnScript extends Script {
 		public abstract int get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToIntScript> implements ColumnYToIntScript {
+		public static class Catcher extends BaseCatcher<ColumnYToIntScript> implements ColumnYToIntScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -291,9 +294,9 @@ public interface ColumnScript extends Script {
 		public abstract long get(ScriptedColumn column);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnToLongScript> implements ColumnToLongScript {
+		public static class Catcher extends BaseCatcher<ColumnToLongScript> implements ColumnToLongScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -325,9 +328,9 @@ public interface ColumnScript extends Script {
 		public abstract long get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToLongScript> implements ColumnYToLongScript {
+		public static class Catcher extends BaseCatcher<ColumnYToLongScript> implements ColumnYToLongScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -359,9 +362,9 @@ public interface ColumnScript extends Script {
 		public abstract float get(ScriptedColumn column);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnToFloatScript> implements ColumnToFloatScript {
+		public static class Catcher extends BaseCatcher<ColumnToFloatScript> implements ColumnToFloatScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -393,9 +396,9 @@ public interface ColumnScript extends Script {
 		public abstract float get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToFloatScript> implements ColumnYToFloatScript {
+		public static class Catcher extends BaseCatcher<ColumnYToFloatScript> implements ColumnYToFloatScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -427,9 +430,9 @@ public interface ColumnScript extends Script {
 		public abstract double get(ScriptedColumn column);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnToDoubleScript> implements ColumnToDoubleScript {
+		public static class Catcher extends BaseCatcher<ColumnToDoubleScript> implements ColumnToDoubleScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -461,9 +464,9 @@ public interface ColumnScript extends Script {
 		public abstract double get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
+		public static class Catcher extends BaseCatcher<ColumnYToDoubleScript> implements ColumnYToDoubleScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -495,9 +498,9 @@ public interface ColumnScript extends Script {
 		public abstract boolean get(ScriptedColumn column);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnToBooleanScript> implements ColumnToBooleanScript {
+		public static class Catcher extends BaseCatcher<ColumnToBooleanScript> implements ColumnToBooleanScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -529,9 +532,9 @@ public interface ColumnScript extends Script {
 		public abstract boolean get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToBooleanScript> implements ColumnYToBooleanScript {
+		public static class Catcher extends BaseCatcher<ColumnYToBooleanScript> implements ColumnYToBooleanScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -563,9 +566,9 @@ public interface ColumnScript extends Script {
 		public abstract int get(ScriptedColumn column, RandomGenerator random);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomToIntScript> implements ColumnRandomToIntScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomToIntScript> implements ColumnRandomToIntScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -597,9 +600,9 @@ public interface ColumnScript extends Script {
 		public abstract int get(ScriptedColumn column, RandomGenerator random, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomYToIntScript> implements ColumnRandomYToIntScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomYToIntScript> implements ColumnRandomYToIntScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -631,9 +634,9 @@ public interface ColumnScript extends Script {
 		public abstract long get(ScriptedColumn column, RandomGenerator random);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomToLongScript> implements ColumnRandomToLongScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomToLongScript> implements ColumnRandomToLongScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -665,9 +668,9 @@ public interface ColumnScript extends Script {
 		public abstract long get(ScriptedColumn column, RandomGenerator random, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomYToLongScript> implements ColumnRandomYToLongScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomYToLongScript> implements ColumnRandomYToLongScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -699,9 +702,9 @@ public interface ColumnScript extends Script {
 		public abstract float get(ScriptedColumn column, RandomGenerator random);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomToFloatScript> implements ColumnRandomToFloatScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomToFloatScript> implements ColumnRandomToFloatScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -733,9 +736,9 @@ public interface ColumnScript extends Script {
 		public abstract float get(ScriptedColumn column, RandomGenerator random, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomYToFloatScript> implements ColumnRandomYToFloatScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomYToFloatScript> implements ColumnRandomYToFloatScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -767,9 +770,9 @@ public interface ColumnScript extends Script {
 		public abstract double get(ScriptedColumn column, RandomGenerator random);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomToDoubleScript> implements ColumnRandomToDoubleScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomToDoubleScript> implements ColumnRandomToDoubleScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -801,9 +804,9 @@ public interface ColumnScript extends Script {
 		public abstract double get(ScriptedColumn column, RandomGenerator random, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomYToDoubleScript> implements ColumnRandomYToDoubleScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomYToDoubleScript> implements ColumnRandomYToDoubleScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -835,9 +838,9 @@ public interface ColumnScript extends Script {
 		public abstract boolean get(ScriptedColumn column, RandomGenerator random);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomToBooleanScript> implements ColumnRandomToBooleanScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomToBooleanScript> implements ColumnRandomToBooleanScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -869,9 +872,9 @@ public interface ColumnScript extends Script {
 		public abstract boolean get(ScriptedColumn column, RandomGenerator random, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnRandomYToBooleanScript> implements ColumnRandomYToBooleanScript {
+		public static class Catcher extends BaseCatcher<ColumnRandomYToBooleanScript> implements ColumnRandomYToBooleanScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -903,9 +906,9 @@ public interface ColumnScript extends Script {
 		public abstract BlockState get(ScriptedColumn column);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnToBlockStateScript> implements ColumnToBlockStateScript {
+		public static class Catcher extends BaseCatcher<ColumnToBlockStateScript> implements ColumnToBlockStateScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -937,9 +940,9 @@ public interface ColumnScript extends Script {
 		public abstract BlockState get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToBlockStateScript> implements ColumnYToBlockStateScript {
+		public static class Catcher extends BaseCatcher<ColumnYToBlockStateScript> implements ColumnYToBlockStateScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -971,11 +974,11 @@ public interface ColumnScript extends Script {
 		public abstract BiomeEntry get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToBiomeScript> implements ColumnYToBiomeScript {
+		public static class Catcher extends BaseCatcher<ColumnYToBiomeScript> implements ColumnYToBiomeScript {
 
 			public boolean client;
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -1014,9 +1017,9 @@ public interface ColumnScript extends Script {
 		public abstract WoodPaletteEntry get(ScriptedColumn column, int y);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYToWoodPaletteScript> implements ColumnYToWoodPaletteScript {
+		public static class Catcher extends BaseCatcher<ColumnYToWoodPaletteScript> implements ColumnYToWoodPaletteScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -1048,9 +1051,9 @@ public interface ColumnScript extends Script {
 		public abstract double get(ScriptedColumn column, int y, long randomSeed);
 
 		@Wrapper
-		public static class Holder extends BaseHolder<ColumnYRNGScript> implements ColumnYRNGScript {
+		public static class Catcher extends BaseCatcher<ColumnYRNGScript> implements ColumnYRNGScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 

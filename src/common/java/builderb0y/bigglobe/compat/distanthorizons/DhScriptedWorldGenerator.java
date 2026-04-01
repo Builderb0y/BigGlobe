@@ -3,8 +3,7 @@ package builderb0y.bigglobe.compat.distanthorizons;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.biome.Biomes;
+
 import com.seibel.distanthorizons.api.DhApi;
 import com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiDistantGeneratorMode;
 import com.seibel.distanthorizons.api.enums.worldGeneration.EDhApiWorldGeneratorReturnType;
@@ -13,6 +12,10 @@ import com.seibel.distanthorizons.api.interfaces.override.worldGenerator.IDhApiW
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.objects.data.DhApiChunk;
 import com.seibel.distanthorizons.api.objects.data.IDhApiFullDataSource;
+
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.biome.Biomes;
+
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -132,7 +135,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 								catch (Throwable throwable) {
 									BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
 								}
-								for (ColumnValueOverrider.Holder overrider : this.chunkGenerator.getOverriders().rawColumnValues) {
+								for (ColumnValueOverrider.Catcher overrider : this.chunkGenerator.getOverriders().rawColumnValues) {
 									quadColumn.override(overrider, ScriptStructures.EMPTY_SCRIPT_STRUCTURES);
 								}
 								*/

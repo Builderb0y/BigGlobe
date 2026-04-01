@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.recipes;
 
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -7,7 +10,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.SimpleDelayedCompileable;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.ItemScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
@@ -19,8 +22,6 @@ import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -40,21 +41,19 @@ public class ScriptedRecipeClasses {
 		CraftingBookCategory category,
 		int width,
 		int height,
-		CraftingMatchesScript.Holder matches,
-		CraftingOutputScript.Holder output,
-		CraftingRemainderScript.@VerifyNullable Holder remainder
-	) {
-
-	}
+		CraftingMatchesScript.Catcher matches,
+		CraftingOutputScript.Catcher output,
+		CraftingRemainderScript.@VerifyNullable Catcher remainder
+	) {}
 
 	public static interface CraftingMatchesScript extends Script {
 
 		public abstract boolean matches(CraftingGrid input);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<CraftingMatchesScript> implements CraftingMatchesScript, SimpleDelayedCompileable {
+		public static class Catcher extends ScriptCatcher<CraftingMatchesScript> implements CraftingMatchesScript, SimpleDelayedCompileable {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -62,14 +61,14 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage, 0)
-						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-						.configureEnvironment(NbtScriptEnvironment.createMutable())
-						.addEnvironment(ItemScriptEnvironment.INSTANCE)
-						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-						.configureEnvironment((MutableScriptEnvironment environment) ->
-												environment.addVariableLoad("input", type(CraftingGrid.class))
-						)
-						.parse(new ScriptClassLoader())
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
+					.addEnvironment(ItemScriptEnvironment.INSTANCE)
+					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
+					.configureEnvironment((MutableScriptEnvironment environment) ->
+						environment.addVariableLoad("input", type(CraftingGrid.class))
+					)
+					.parse(new ScriptClassLoader())
 				);
 			}
 
@@ -91,9 +90,9 @@ public class ScriptedRecipeClasses {
 		public abstract ItemStack output(CraftingGrid input);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<CraftingOutputScript> implements CraftingOutputScript, SimpleDelayedCompileable {
+		public static class Catcher extends ScriptCatcher<CraftingOutputScript> implements CraftingOutputScript, SimpleDelayedCompileable {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -101,14 +100,14 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage, 0)
-						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-						.configureEnvironment(NbtScriptEnvironment.createMutable())
-						.addEnvironment(ItemScriptEnvironment.INSTANCE)
-						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-						.configureEnvironment((MutableScriptEnvironment environment) ->
-												environment.addVariableLoad("input", type(CraftingGrid.class))
-						)
-						.parse(new ScriptClassLoader())
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
+					.addEnvironment(ItemScriptEnvironment.INSTANCE)
+					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
+					.configureEnvironment((MutableScriptEnvironment environment) ->
+						environment.addVariableLoad("input", type(CraftingGrid.class))
+					)
+					.parse(new ScriptClassLoader())
 				);
 			}
 
@@ -131,9 +130,9 @@ public class ScriptedRecipeClasses {
 		public abstract void remainder(CraftingGrid input, CraftingGrid output);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<CraftingRemainderScript> implements CraftingRemainderScript, SimpleDelayedCompileable {
+		public static class Catcher extends ScriptCatcher<CraftingRemainderScript> implements CraftingRemainderScript, SimpleDelayedCompileable {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
@@ -146,9 +145,9 @@ public class ScriptedRecipeClasses {
 						.addEnvironment(ItemScriptEnvironment.INSTANCE)
 						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
 						.configureEnvironment((MutableScriptEnvironment environment) ->
-												environment
-													.addVariableLoad("input", type(CraftingGrid.class))
-													.addVariableLoad("output", type(CraftingGrid.class))
+							environment
+							.addVariableLoad("input", type(CraftingGrid.class))
+							.addVariableLoad("output", type(CraftingGrid.class))
 						)
 						.parse(new ScriptClassLoader())
 				);

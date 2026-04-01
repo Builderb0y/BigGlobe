@@ -2,6 +2,11 @@ package builderb0y.bigglobe.features;
 
 import java.util.*;
 import java.util.random.RandomGenerator;
+
+import com.mojang.serialization.Codec;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -11,9 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -29,12 +32,12 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
-import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
+import builderb0y.bigglobe.trees.branches.ScriptedBranchShape.Catcher;
 import builderb0y.bigglobe.trees.decoration.BallLeafDecorator;
 import builderb0y.bigglobe.trees.decoration.BlockDecorator;
 import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
@@ -143,11 +146,11 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	public static record Config(
 		Holder<WoodPalette> palette,
 		BlockState2ObjectMap<BlockState> ground_replacements,
-		TreeHeightScript.Holder height,
+		TreeHeightScript.Catcher height,
 		TrunkFactory trunk,
 		Branches branches,
 		@VerifyNullable Decorations decorations,
-		ColumnRandomYToIntScript.@VerifyNullable Holder max_saplings
+		ColumnRandomYToIntScript.@VerifyNullable Catcher max_saplings
 	)
 		implements FeatureConfiguration {
 
@@ -156,8 +159,8 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	public static record Branches(
 		RandomSource start_frac_y,
 		RandomSource count_per_layer,
-		ScriptedBranchShape.Holder length_function,
-		ScriptedBranchShape.Holder height_function
+		Catcher length_function,
+		Catcher height_function
 	) {
 
 	}
@@ -200,9 +203,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		public abstract int getHeight(double baseRadius, RandomGenerator random);
 
 		@Wrapper
-		public static class Holder extends ScriptHolder<TreeHeightScript> implements TreeHeightScript {
+		public static class Catcher extends ScriptCatcher<TreeHeightScript> implements TreeHeightScript {
 
-			public Holder(ScriptUsage usage) {
+			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
