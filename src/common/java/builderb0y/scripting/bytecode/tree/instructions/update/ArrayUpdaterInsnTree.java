@@ -88,7 +88,7 @@ public class ArrayUpdaterInsnTree extends AbstractUpdaterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new ArrayUpdaterInsnTree(this.mode.asVoid(), this.array, this.index, this.updater);
 	}
 }

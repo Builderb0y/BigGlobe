@@ -46,7 +46,7 @@ public class ReceiverListMapUpdaterInsnTree extends ListMapUpdaterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return new NormalListMapUpdaterInsnTree(this.mode.asVoid(), this.receiver, this.key, this.value, this.replacer);
 	}
 }

@@ -53,7 +53,7 @@ to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
 	ensure feature dispatchers for skylands are very distinct from the feature dispatchers for normal terrain.
 	apparently fog has some issues on LODs when your render distance is low and there's a mountain above you.
-	improve list of features for biomes.
+	improve "list of features.md" for biomes.
 		currently missing underground biomes.
 		details on how various biomes compare to vanilla counterparts.
 		differences between biomes, where applicable.
@@ -65,10 +65,7 @@ high priority:
 	unit tests for assignment-as-an-expression type inference.
 	replace GLException with debug callback?
 		which should also be disabled in production.
-	figure out how there are colliding structures at /tp @s 25129.58 52.51 11294.24 1163.70 57.72
-		1.21.11 world, not V6.
 	whitelist which blocks exposed dungeons and spider pits are allowed to spawn on top of.
-	mark bclib as fully incompatible.
 	make slingshots able to throw splash/lingering potions.
 
 V6:
@@ -161,9 +158,31 @@ json classes:
 		merge stuff.
 
 changelog:
+	# For normal people
+	* Entirely new overworld design.
+	* Nether walls between biomes now only extend up to Y 512, making traversal at higher Y levels easier.
+	* Fixed pale garden having lava everywhere and burning all the trees down.
+		* Also removed lava spills from crimson and warped forests.
+	* Minor tweaks to the hyperspace collapse animation.
+	# For data pack developers
+	* All Big Globe custom registries are now in the Big Globe namespace.
+		* Previously, they were in the "minecraft" namespace, which meant that you had paths like `/data/namespace/bigglobe_whatever/...`.
+		* Now, every registry added by Big Globe is in a folder named "bigglobe". So you get paths like `/data/namespace/bigglobe/whatever/...`.
+		* A script has been provided to move all files to the correct location automatically.
+			* This can be found on my github page, under the name "V6DataPackConverter.java" in the root directory.
+	* Scripted configured features now handle coordinates relative to their placement position.
+		* The now-useless originX/Y/Z variables are now always 0, and the translation to the *actual* placement position is handled internally, just like random rotation and flipping.
+		* The actual placement position can now be obtained with the placementX/Y/Z variables, if needed.
+		* This should not affect *most* scripts, but there are a few cases where this can matter:
+			* If the script attempts to re-assign originX/Y/Z, this will now cause a compile error.
+			* If the script is using originX/Y/Z as a seed for RNG, you will now get the same seed for all positions.
+			* Scripts that place blocks at an absolute position instead of a relative one will either need to be converted accordingly, or be placed at a position that cancels this out.
+				* For example, if the script tries to place blocks at a specific Y level, then your feature dispatcher should place it at Y 0.
 
 if a V5 backport is made:
 	copy hyperspace ring collapse code.
+	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
+	fix pale garden never getting updated for biome attributes changes.
 
 alternate world presets:
 	paradise.

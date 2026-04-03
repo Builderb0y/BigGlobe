@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Locale;
+import java.util.random.RandomGenerator;
 
 import com.mojang.serialization.Codec;
 
@@ -58,28 +59,31 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 	}
 
+	public Symmetry getSymmetry(Config config, RandomGenerator random) {
+		if (config.rotate_randomly) {
+			if (config.flip_randomly) {
+				return Symmetry.VALUES[random.nextInt(8)];
+			}
+			else {
+				return Symmetry.VALUES[random.nextInt(4)];
+			}
+		}
+		else {
+			if (config.flip_randomly) {
+				return Symmetry.VALUES[random.nextInt(4, 8)];
+			}
+			else {
+				return Symmetry.IDENTITY;
+			}
+		}
+	}
+
 	@Override
 	public boolean place(FeaturePlaceContext<Config> context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			BlockPos origin = context.origin();
 			Permuter permuter = Permuter.from(context.random());
-			Symmetry symmetry;
-			if (context.config().rotate_randomly) {
-				if (context.config().flip_randomly) {
-					symmetry = Symmetry.VALUES[permuter.nextInt(8)];
-				}
-				else {
-					symmetry = Symmetry.VALUES[permuter.nextInt(4)];
-				}
-			}
-			else {
-				if (context.config().flip_randomly) {
-					symmetry = Symmetry.VALUES[permuter.nextInt(4, 8)];
-				}
-				else {
-					symmetry = Symmetry.IDENTITY;
-				}
-			}
+			Symmetry symmetry = this.getSymmetry(context.config(), permuter);
 			int chunkX = origin.getX() >> 4;
 			int chunkZ = origin.getZ() >> 4;
 			BoundingBox box;
@@ -114,7 +118,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				);
 			}
 			Coordination coordination = new Coordination(
-				SymmetricOffset.fromCenter(origin.getX(), origin.getZ(), symmetry),
+				new SymmetricOffset(origin.getX(), origin.getY(), origin.getZ(), symmetry),
 				box,
 				box
 			);
@@ -156,14 +160,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				ColumnUsage.FEATURES.maybeDhHints()
 			);
 			wrapper.featureSalt = permuter.nextLong();
-			if (
-				context.config().script.generate(
-					wrapper,
-					origin.getX(),
-					origin.getY(),
-					origin.getZ()
-				)
-			) {
+			if (context.config().script.generate(wrapper)) {
 				if (context.config().queueType != QueueType.NONE) {
 					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.level());
 				}
@@ -180,18 +177,26 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 	@Override
 	public boolean generate(WorldWrapper world, Config config, BlockPos pos) {
-		return config.script.generate(world, pos.getX(), pos.getY(), pos.getZ());
+		return config.script.generate(
+			new WorldWrapper(
+				world,
+				new Coordination(
+					new SymmetricOffset(
+						pos.getX(),
+						pos.getY(),
+						pos.getZ(),
+						world.coordination.transformation().symmetry().andThen(this.getSymmetry(config, world.random))
+					),
+					world.coordination.mutableArea(),
+					world.coordination.immutableArea()
+				)
+			)
+		);
 	}
 
 	public static interface ScriptedFeatureImplementation extends Script {
 
-		public abstract boolean generate(
-			WorldWrapper world,
-			int originX,
-			int originY,
-			int originZ
-		)
-			throws EarlyFeatureExitException;
+		public abstract boolean generate(WorldWrapper world) throws EarlyFeatureExitException;
 
 		@Wrapper
 		public static class Catcher extends ScriptCatcher<ScriptedFeatureImplementation> implements ScriptedFeatureImplementation {
@@ -206,47 +211,50 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage, registry.parserFlags())
-						.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
-						.addEnvironment(MathScriptEnvironment.INSTANCE)
-						.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-						.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-						.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-						.configureEnvironment(NbtScriptEnvironment.createMutable())
-						.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
-						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-						.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-						.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-						.configureEnvironment((MutableScriptEnvironment environment) -> {
-							registry.setupExternalEnvironment(
-								environment
-									.addVariableLoad("originX", TypeInfos.INT)
-									.addVariableLoad("originY", TypeInfos.INT)
-									.addVariableLoad("originZ", TypeInfos.INT)
-									.addVariable("hints", WORLD.hints)
-									.configure(ScriptedColumn.hintsEnvironment())
-									.addVariable("distantHorizons", WORLD.distantHorizons)
-									.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
-									.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT")))),
-								new ExternalEnvironmentParams()
-									.withLookup(WORLD.loadSelf)
-									.withXZ(
-										load("originX", TypeInfos.INT),
-										load("originZ", TypeInfos.INT)
-									)
-									.withY(load("originY", TypeInfos.INT))
-							);
-						})
-						.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-						.parse(new ScriptClassLoader(registry.loader))
+					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
+					.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						registry.setupExternalEnvironment(
+							environment
+							.addVariableConstant("originX", 0)
+							.addVariableConstant("originY", 0)
+							.addVariableConstant("originZ", 0)
+							.addVariable("placementX", WORLD.originX)
+							.addVariable("placementY", WORLD.originY)
+							.addVariable("placementZ", WORLD.originZ)
+							.addVariable("hints", WORLD.hints)
+							.configure(ScriptedColumn.hintsEnvironment())
+							.addVariable("distantHorizons", WORLD.distantHorizons)
+							.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
+							.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT")))),
+
+							new ExternalEnvironmentParams()
+							.withLookup(WORLD.loadSelf)
+							//world handles translations.
+							.withXZ(ldc(0), ldc(0))
+							.withY(ldc(0))
+							.offsetY(WORLD.originY)
+						);
+					})
+					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}
 
 			@Override
-			public boolean generate(WorldWrapper world, int originX, int originY, int originZ) {
+			public boolean generate(WorldWrapper world) {
 				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
-					return this.script.generate(world, originX, originY, originZ);
+					return this.script.generate(world);
 				}
 				catch (EarlyFeatureExitException exit) {
 					return exit.placeBlocks;
@@ -300,7 +308,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 		public static final EarlyFeatureExitException
 			FINISH = new EarlyFeatureExitException(true),
-			ABORT = new EarlyFeatureExitException(false);
+			ABORT  = new EarlyFeatureExitException(false);
 
 		public final boolean placeBlocks;
 

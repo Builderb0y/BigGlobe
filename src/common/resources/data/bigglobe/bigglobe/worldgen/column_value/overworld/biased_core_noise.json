@@ -5,14 +5,19 @@
 		"is_3d": true
 	},
 	"script": [
-		"raw_core_noise + (",
+		"float fraction = (",
 			"unmixLinear(",
 				"world_traits.`bigglobe:core_min_y`.as(double),",
 				"world_traits.`bigglobe:core_max_y`.as(double),",
 				"y.as(double)",
 			")",
 			".as(float) * 2.0I - 1.0I",
-		") ^ 16 * 0.625I"
+		")",
+		"return(",
+			"raw_core_noise + (",
+				"fraction * 0.125I + fraction ^ 16 * 0.75I",
+			")",
+		")"
 	],
 	"valid": {
 		"min_y": "world_traits.`bigglobe:core_min_y`",

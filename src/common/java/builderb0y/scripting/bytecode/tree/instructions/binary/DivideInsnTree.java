@@ -42,18 +42,34 @@ public class DivideInsnTree extends BinaryInsnTree {
 				switch (type.getSort()) {
 					case INT -> {
 						int intScalar = rightConstant.asInt();
-						if (intScalar == 0) {
-							throw new ArithmeticException("Division by literal zero");
-						}
-						else if (intScalar > 0 && (intScalar & (intScalar - 1)) == 0) {
-							int shift = Integer.numberOfTrailingZeros(intScalar);
-							return new SignedRightShiftInsnTree(left, ldc(shift), ISHR);
+						switch (intScalar) {
+							case -1 -> {
+								return neg(left);
+							}
+							case 0 -> {
+								throw new ArithmeticException("Division by literal zero");
+							}
+							case 1 -> {
+								return left;
+							}
+							default -> {
+								if (intScalar > 0 && (intScalar & (intScalar - 1)) == 0) {
+									int shift = Integer.numberOfTrailingZeros(intScalar);
+									return new SignedRightShiftInsnTree(left, ldc(shift), ISHR);
+								}
+							}
 						}
 					}
 					case LONG -> {
 						long longScalar = rightConstant.asLong();
-						if (longScalar == 0L) {
+						if (longScalar == -1L) {
+							return neg(left);
+						}
+						else if (longScalar == 0L) {
 							throw new ArithmeticException("Division by literal zero");
+						}
+						else if (longScalar == 1L) {
+							return left;
 						}
 						else if (longScalar > 0L && (longScalar & (longScalar - 1L)) == 0L) {
 							int shift = Long.numberOfTrailingZeros(longScalar);

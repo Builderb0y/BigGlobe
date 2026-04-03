@@ -3,8 +3,9 @@
 	"config": {
 		"script": [
 			"random.nextBoolean(0.25L).if (",
-				"while (getBlockState(originX, :++originY, originZ) ==. 'minecraft:basalt[axis=y]':",
-					"setBlockState(originX, originY, originZ, 'minecraft:smooth_basalt')",
+				"int y = 0",
+				"while (getBlockState(0, :++y, 0) ==. 'minecraft:basalt[axis=y]':",
+					"setBlockState(0, y, 0, 'minecraft:smooth_basalt')",
 				")",
 			")"
 		]

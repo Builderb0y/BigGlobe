@@ -46,7 +46,7 @@ public class StandAloneTraits2DSetterInsnTree extends Abstract2DSetterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new StandAloneTraits2DSetterInsnTree(
 			this.mode.asVoid(),
 			this.column,

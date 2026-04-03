@@ -20,7 +20,7 @@
 	"contact": {
 		"issues": "https://github.com/Builderb0y/BigGlobe/issues"
 	},
-	"license": "CC-BY-NC 4.0",
+	"license": "ARR",
 	"icon": "assets/bigglobe/icon_64x.png",
 	"environment": "*",
 	"entrypoints": {
@@ -37,8 +37,8 @@
 	"depends": {
 		"fabricloader": ">=0.18.0",
 		"fabric-api": "*",
-		"minecraft": [ "26.1" ],
-		"java": ">=21"
+		"minecraft": [ "26.1.*" ],
+		"java": ">=25"
 	},
 	"suggests": {
 	},

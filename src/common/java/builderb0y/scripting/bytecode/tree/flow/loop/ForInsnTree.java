@@ -23,10 +23,10 @@ public class ForInsnTree implements InsnTree {
 
 	public ForInsnTree(LoopName loopName, InsnTree initializer, ConditionTree condition, InsnTree step, InsnTree body) {
 		this.loopName = loopName;
-		this.initializer = initializer.asStatement();
+		this.initializer = initializer.asStatement(false);
 		this.condition = condition;
-		this.step = step.asStatement();
-		this.body = body.asStatement();
+		this.step = step.asStatement(false);
+		this.body = body.asStatement(false);
 	}
 
 	@Override

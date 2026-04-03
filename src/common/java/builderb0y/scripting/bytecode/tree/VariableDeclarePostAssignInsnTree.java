@@ -27,7 +27,7 @@ public class VariableDeclarePostAssignInsnTree extends VariableDeclarationInsnTr
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return new VariableDeclareAssignInsnTree(this.variable, this.initializer);
 	}
 }

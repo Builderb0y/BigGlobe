@@ -51,7 +51,7 @@ public class NullableListMapUpdaterInsnTree extends ListMapUpdaterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new NullableListMapUpdaterInsnTree(this.mode.asVoid(), this.receiver, this.key, this.value, this.replacer);
 	}
 }

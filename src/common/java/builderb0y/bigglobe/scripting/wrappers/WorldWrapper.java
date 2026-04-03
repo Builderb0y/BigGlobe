@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -55,8 +56,18 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public static class Info extends InfoHolder {
 
-		public FieldInfo random;
-		public MethodInfo seed, minValidYLevel, maxValidYLevel, hints, distantHorizons, surfaceOnly, offsetY;
+		public FieldInfo
+			random;
+		public MethodInfo
+			seed,
+			minValidYLevel,
+			maxValidYLevel,
+			hints,
+			distantHorizons,
+			surfaceOnly,
+			originX,
+			originY,
+			originZ;
 
 		public InsnTree seed(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.seed);
@@ -86,8 +97,16 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			return invokeInstance(loadWorld, this.surfaceOnly);
 		}
 
-		public InsnTree offsetY(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.offsetY);
+		public InsnTree originX(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.originX);
+		}
+
+		public InsnTree originY(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.originY);
+		}
+
+		public InsnTree originZ(InsnTree loadWorld) {
+			return invokeInstance(loadWorld, this.originZ);
 		}
 	}
 
@@ -95,7 +114,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public static class BoundInfo extends BoundInfoHolder {
 
-		public InsnTree random, seed, hints, distantHorizons, offsetY;
+		public InsnTree
+			random,
+			seed,
+			hints,
+			distantHorizons,
+			originX,
+			originY,
+			originZ;
 
 		public BoundInfo(InsnTree loadWorld) {
 			super(INFO, loadWorld);
@@ -104,7 +130,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public final WorldOrChunk world;
 	public final Coordination coordination;
-	public final BlockPos.MutableBlockPos pos;
+	public final MutableBlockPos pos;
 	public Vector3d doublePos;
 	public final RandomGenerator random;
 	public long featureSalt = 0xB5ECAC279BD1E7FBL;
@@ -122,7 +148,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	) {
 		this.world = world;
 		this.coordination = coordination;
-		this.pos = new BlockPos.MutableBlockPos();
+		this.pos = new MutableBlockPos();
 		this.random = random;
 		this.columnFactory = chunkGenerator.columnEntryRegistry.columnFactory;
 		if (world instanceof ChunkDelegator delegator) {
@@ -145,6 +171,17 @@ public class WorldWrapper implements ScriptedColumnLookup {
 				chunkGenerator.compiledWorldTraits
 			);
 		}
+	}
+
+	public WorldWrapper(WorldWrapper from, Coordination coordination) {
+		this.world = from.world;
+		this.coordination = coordination;
+		this.pos = new MutableBlockPos();
+		this.random = new Permuter(from.random.nextLong());
+		this.columnFactory = from.columnFactory;
+		this.columns = from.columns;
+		this.params = from.params;
+		this.overriders = from.overriders;
 	}
 
 	public static record AutoOverride(ScriptStructures[] structures, Holder<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
@@ -192,15 +229,27 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		);
 	}
 
-	public BlockPos.MutableBlockPos unboundedPos(int x, int y, int z) {
+	public int originX() {
+		return this.coordination.transformation.offsetX();
+	}
+
+	public int originY() {
+		return this.coordination.transformation.offsetY();
+	}
+
+	public int originZ() {
+		return this.coordination.transformation.offsetZ();
+	}
+
+	public MutableBlockPos unboundedPos(int x, int y, int z) {
 		return this.coordination.modifyPosUnbounded(this.pos.set(x, y, z));
 	}
 
-	public BlockPos.@Nullable MutableBlockPos mutablePos(int x, int y, int z) {
+	public @Nullable MutableBlockPos mutablePos(int x, int y, int z) {
 		return this.coordination.filterPosMutable(this.unboundedPos(x, y, z));
 	}
 
-	public BlockPos.@Nullable MutableBlockPos immutablePos(int x, int y, int z) {
+	public @Nullable MutableBlockPos immutablePos(int x, int y, int z) {
 		return this.coordination.filterPosImmutable(this.unboundedPos(x, y, z));
 	}
 
@@ -236,10 +285,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		Vector3d pos = this.doublePos;
 		if (pos == null) pos = this.doublePos = new Vector3d();
 		return pos.set(x, y, z);
-	}
-
-	public int offsetY() {
-		return this.coordination.transformation.offsetY();
 	}
 
 	public long seed() {
@@ -320,7 +365,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public void fillBlockStateConditionally(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Predicate<BlockState> predicate) {
 		if (state != null) {
-			BlockPos.MutableBlockPos pos = this.unboundedPos(minX, minY, minZ);
+			MutableBlockPos pos = this.unboundedPos(minX, minY, minZ);
 			minX = pos.getX();
 			minY = pos.getY();
 			minZ = pos.getZ();
@@ -370,7 +415,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public void updateBlockStates(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-		BlockPos.MutableBlockPos pos = this.unboundedPos(minX, minY, minZ);
+		MutableBlockPos pos = this.unboundedPos(minX, minY, minZ);
 		minX = pos.getX();
 		minY = pos.getY();
 		minZ = pos.getZ();
@@ -448,7 +493,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public boolean isYLevelValid(int y) {
-		return !this.world.isOutsideBuildHeight(y);
+		return !this.world.isOutsideBuildHeight(y + this.coordination.transformation.offsetY());
 	}
 
 	public boolean isPositionValid(int x, int y, int z) {
@@ -568,22 +613,22 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public static record Coordination(SymmetricOffset transformation, BoundingBox mutableArea, BoundingBox immutableArea) {
 
-		public static BlockPos.MutableBlockPos rotate(BlockPos.MutableBlockPos pos, SymmetricOffset rotation) {
+		public static MutableBlockPos rotate(MutableBlockPos pos, SymmetricOffset rotation) {
 			int x = rotation.getX(pos.getX(), pos.getY(), pos.getZ());
 			int y = rotation.getY(pos.getX(), pos.getY(), pos.getZ());
 			int z = rotation.getZ(pos.getX(), pos.getY(), pos.getZ());
 			return pos.set(x, y, z);
 		}
 
-		public BlockPos.MutableBlockPos modifyPosUnbounded(BlockPos.MutableBlockPos pos) {
+		public MutableBlockPos modifyPosUnbounded(MutableBlockPos pos) {
 			return rotate(pos, this.transformation);
 		}
 
-		public BlockPos.@Nullable MutableBlockPos filterPosMutable(BlockPos.MutableBlockPos pos) {
+		public @Nullable MutableBlockPos filterPosMutable(MutableBlockPos pos) {
 			return this.mutableArea.isInside(pos) ? pos : null;
 		}
 
-		public BlockPos.@Nullable MutableBlockPos filterPosImmutable(BlockPos.MutableBlockPos pos) {
+		public @Nullable MutableBlockPos filterPosImmutable(MutableBlockPos pos) {
 			return this.immutableArea.isInside(pos) ? pos : null;
 		}
 

@@ -5,14 +5,22 @@
 		"is_3d": true
 	},
 	"script": [
-		"raw_deep_dark_noise - (",
+		"float fraction = (",
 			"unmixLinear(",
 				"world_traits.`bigglobe:deep_dark_min_y`.as(double),",
 				"world_traits.`bigglobe:deep_dark_max_y`.as(double),",
 				"y.as(double)",
 			")",
 			".as(float) * 2.0I - 1.0I",
-		") ^ 16"
+		")",
+		"return(",
+			"raw_deep_dark_noise - (",
+				"+ (fraction :^ 2) * 0.0625I",
+				"+ (fraction :^ 2) * 0.125I",
+				"+ (fraction :^ 2) * 0.25I",
+				"+ (fraction :^ 2) * 0.5I",
+			")",
+		")"
 	],
 	"valid": {
 		"min_y": "world_traits.`bigglobe:deep_dark_min_y`",

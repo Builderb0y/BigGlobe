@@ -13,7 +13,7 @@ public class IfInsnTree implements InsnTree {
 
 	public IfInsnTree(ConditionTree condition, InsnTree trueBody) {
 		this.condition = condition;
-		this.trueBody = trueBody.asStatement();
+		this.trueBody = trueBody.asStatement(false);
 	}
 
 	public static InsnTree create(ConditionTree condition, InsnTree body) {

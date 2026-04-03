@@ -49,7 +49,7 @@ public class StandAloneTraits3DSetterInsnTree extends Abstract3DSetterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new StandAloneTraits3DSetterInsnTree(
 			this.mode.asVoid(),
 			this.column,

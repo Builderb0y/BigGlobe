@@ -55,7 +55,7 @@ public class IncrementUpdateInsnTree implements UpdateInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.order == UpdateOrder.VOID ? this : new IncrementUpdateInsnTree(UpdateOrder.VOID, this.variable, this.amount);
 	}
 }

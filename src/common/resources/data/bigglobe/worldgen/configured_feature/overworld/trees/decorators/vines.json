@@ -3,18 +3,19 @@
 	"config": {
 		"script": [
 			"BlockState state = 'minecraft:vine[north=false,south=false,east=false,west=false,up=false]'",
+			"int*(x = 0, y = 0, z = 0)",
 			"state = state.with(",
 				"random.switch (",
-					"(++originZ,, 'north'),",
-					"(--originZ,, 'south'),",
-					"(--originX,, 'east'),",
-					"(++originX,, 'west')",
+					"(x =  1,, 'north'),",
+					"(z = -1,, 'south'),",
+					"(x = -1,, 'east'),",
+					"(x =  1,, 'west')",
 				"),",
 				"true",
 			")",
-			"while (isYLevelValid(originY) && getBlockState(originX, originY, originZ).isAir():",
-				"setBlockState(originX, originY, originZ, state)",
-				"--originY",
+			"while (isYLevelValid(originY) && getBlockState(x, y, z).isAir():",
+				"setBlockState(x, y, z, state)",
+				"--y",
 			")",
 			"return(true)"
 		]

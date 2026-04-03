@@ -2,12 +2,13 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
+			"int y = 0",
 			"block (",
-				"unless (isYLevelValid(originY): return(false))",
-				"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
+				"unless (isYLevelValid(y): return(false))",
+				"else if (getBlockState(0, y - 1, 0).isReplaceable(): --y,, continue())",
 			")",
-			"unless (BlockState state = getBlockState(originX, originY, originZ),, state.getBlock() ==. 'minecraft:snow' || state.hasLava():",
-				"return(placeBlockState(originX, originY, originZ, 'bigglobe:rock[rocks=1,waterlogged=false]'))",
+			"unless (BlockState state = getBlockState(0, y, 0),, state.getBlock() ==. 'minecraft:snow' || state.hasLava():",
+				"return(placeBlockState(0, y, 0, 'bigglobe:rock[rocks=1,waterlogged=false]'))",
 			")",
 			"return(false)"
 		]

@@ -59,6 +59,11 @@ When a world is present, the following functions can be called:
 * `mergeBlockData(int*(x, y, z), NbtCompound data)` - acts like the `/data merge` command; merges the existing NBT data at the given position with the provided NBT data, then sets it on the block at the given position. Does nothing if the block at the given position is not a block entity.
 * `summon(double x, double y, double z, String entityType)` - acts like the `/summon` command; spawns the given entity at the given position.
 * `summon(double x, double y, double z, String entityType, NbtCompound nbt)` - also acts like `/summon`, with custom NBT data to apply to the entity when spawning it.
+* `int transformX(int*(x, y, z))`, `int transformY(int*(x, y, z))`, and `int transformZ(int*(x, y, z))` - some contexts may apply transformations to the coordinates you use to try to interact with the world. Some examples of this are:
+	* Scripted configured features - coordinates are relative to the placement position, and you can enable `rotate_randomly` and `flip_randomly`.
+	* Scripted structure pieces - when calling methods like `symmetrify()` or `offset()`.
+
+	`transformX()`, `transformY()`, and `transformZ()` will apply these transformations to the provided coordinates, and return the x, y, or z component of the transformed position.
 
 # Methods
 

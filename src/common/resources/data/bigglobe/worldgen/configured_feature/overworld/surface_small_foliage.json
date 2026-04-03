@@ -5,19 +5,20 @@
 			"debug_name": "ConfiguredFeatureOverworldSurfaceSmallFoliage",
 			"source": [
 				";handle cave intersecting surface.",
+				"int y = 0",
 				"block (",
-					"unless (isYLevelValid(originY): return(false))",
-					"else if (getBlockState(originX, originY - 1, originZ).isReplaceable(): --originY,, continue())",
+					"unless (isYLevelValid(y): return(false))",
+					"else if (getBlockState(0, y - 1, 0).isReplaceable(): --y,, continue())",
 				")",
 
 				";sigmoid curve",
 				"double adjustedFoliage = 0.5 / (fastExp(-4.0 * world_traits.`bigglobe:foliage_at_surface`) + 1.0)",
 				"random.unless(adjustedFoliage: return(false))",
 
-				"BlockState existingState = getBlockState(originX, originY, originZ)",
+				"BlockState existingState = getBlockState(0, y, 0)",
 				"BlockState newState = null",
 				"if (existingState ==. 'minecraft:air':",
-					"BlockState below = getBlockState(originX, originY - 1, originZ)",
+					"BlockState below = getBlockState(0, y - 1, 0)",
 					"if (below ==. 'minecraft:mud':",
 						"return(false)",
 					")",
@@ -28,7 +29,7 @@
 						"double fromTemperate = world_traits.`bigglobe:temperature_at` ^ 2 + world_traits.`bigglobe:foliage_at` ^ 2",
 						"double deadBushChance = fromTemperate / (fromTemperate * 8.0 + 4.0)",
 						"random.if (deadBushChance:",
-							"random.unless (unmixSmooth(2.0L, 6.0L, originY): return(false))",
+							"random.unless (unmixSmooth(2.0L, 6.0L, y): return(false))",
 							"newState = 'minecraft:dead_bush'",
 						")",
 						"else random.if (adjustedFoliage:",
@@ -70,7 +71,7 @@
 				"else (",
 					"return(false)",
 				")",
-				"return(newState != null && placeBlockState(originX, originY, originZ, newState))"
+				"return(newState != null && placeBlockState(0, y, 0, newState))"
 			]
 		}
 	}

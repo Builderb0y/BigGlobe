@@ -40,7 +40,7 @@ public abstract class AbstractUpdaterInsnTree implements UpdateInsnTree {
 	}
 
 	@Override
-	public abstract InsnTree asStatement();
+	public abstract InsnTree asStatement(boolean force);
 
 	public static enum CombinedMode {
 		VOID(UpdateOrder.VOID, false), //a += b

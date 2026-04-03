@@ -150,7 +150,7 @@ public class SwitchInsnTree implements InsnTree {
 
 	@Override
 	public InsnTree doCast(ExpressionParser parser, TypeInfo type, CastMode mode, boolean nullable) {
-		return this.mapCases(branch -> branch.cast(parser, type, mode, nullable), type);
+		return this.mapCases((InsnTree branch) -> branch.cast(parser, type, mode, nullable), type);
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class SwitchInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
-		return this.mapCases(InsnTree::asStatement, TypeInfos.VOID);
+	public InsnTree asStatement(boolean force) {
+		return this.mapCases((InsnTree tree) -> tree.asStatement(force), TypeInfos.VOID);
 	}
 }

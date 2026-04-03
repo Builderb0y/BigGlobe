@@ -39,7 +39,7 @@ public class StandAloneDirect3DSetterInsnTree extends Abstract3DSetterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new StandAloneDirect3DSetterInsnTree(
 			this.mode.asVoid(),
 			this.column,

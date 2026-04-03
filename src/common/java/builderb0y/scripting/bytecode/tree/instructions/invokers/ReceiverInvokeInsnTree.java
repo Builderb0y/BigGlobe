@@ -36,14 +36,14 @@ public class ReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return (
 			(
 				this.method.isStatic()
-					? StaticInvokeInsnTree.create(this.method, this.args)
-					: new NormalInvokeInsnTree(this.method, this.args)
+				? StaticInvokeInsnTree.create(this.method, this.args)
+				: new NormalInvokeInsnTree(this.method, this.args)
 			)
-				.asStatement()
+			.asStatement(force)
 		);
 	}
 }

@@ -24,7 +24,10 @@ Configured features are found in `/data/(modid)/worldgen/configured_feature` whe
 
 ## Additional variables
 
-* `int originX`, `originY`, and `originZ` - the x, y, and z coordinates that this configured feature was placed at.
+* `int*(originX, originY, originZ)` - always 0 as of V6. In V5, these served the same purpose as `placementX/Y/Z` below.
+* `int*(placementX, placementY, placementZ)` - the x, y, and z coordinates that this configured feature was placed at.
+
+	Note that as of V6, coordinates used for getBlockState(), setBlockState(), and column values, are all relative to the placement position.
 * `boolean distantHorizons` (deprecated in V4.6.0, replaced with `hints.isLod`) - true if we are currently generating terrain for distant horizons fake chunks, false otherwise. This can be used to skip details that aren't visible from a distance.
 
 ## Additional functions

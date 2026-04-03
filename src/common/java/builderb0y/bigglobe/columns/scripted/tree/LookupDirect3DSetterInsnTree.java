@@ -51,7 +51,7 @@ public class LookupDirect3DSetterInsnTree extends Abstract3DSetterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new LookupDirect3DSetterInsnTree(
 			this.mode.asVoid(),
 			this.lookup,

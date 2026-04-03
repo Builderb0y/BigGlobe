@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.instructions.casting.ForcedStatementInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisInsnTree;
@@ -48,7 +49,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 			return mode.implicit ? this : new IdentityCastInsnTree(this, type);
 		}
 		if (type.isVoid()) {
-			return this.asStatement();
+			return this.asStatement(!mode.implicit);
 		}
 		if (this.jumpsUnconditionally()) {
 			return wrapIdentityCast(this, type);
@@ -107,13 +108,13 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		return false;
 	}
 
-	public default InsnTree asStatement() {
-		if (this.canBeStatement()) {
+	public default InsnTree asStatement(boolean force) {
+		if (force || this.canBeStatement()) {
 			if (this.getTypeInfo().isVoid()) {
 				return this;
 			}
 			else {
-				return new OpcodeCastInsnTree(this, this.getTypeInfo().isDoubleWidth() ? POP2 : POP, TypeInfos.VOID);
+				return new ForcedStatementInsnTree(this);
 			}
 		}
 		else {
@@ -126,7 +127,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 	}
 
 	public static enum UpdateOp {
-		ASSIGN((ExpressionParser parser, InsnTree oldValue, InsnTree newValue) -> seq(oldValue.asStatement() /* pop old value */, newValue)),
+		ASSIGN((ExpressionParser parser, InsnTree oldValue, InsnTree newValue) -> seq(oldValue.asStatement(true) /* pop old value */, newValue)),
 		ADD(InsnTrees::add),
 		SUBTRACT(InsnTrees::sub),
 		MULTIPLY(InsnTrees::mul),

@@ -48,7 +48,7 @@ public class NullableReceiverObjectUpdaterInsnTree extends AbstractObjectUpdater
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return new NullableObjectUpdaterInsnTree(this.mode.asVoid(), this.emitters);
 	}
 }

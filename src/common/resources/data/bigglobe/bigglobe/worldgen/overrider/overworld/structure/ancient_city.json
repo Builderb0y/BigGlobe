@@ -2,9 +2,15 @@
 	"type": "structure",
 	"script": [
 		"if (start.structure ==. 'minecraft:ancient_city':",
-			"int minY = world_traits.`bigglobe:deep_dark_min_y`(start.midX, start.midZ) + 16",
-			"int maxY = world_traits.`bigglobe:deep_dark_max_y`(start.midX, start.midZ) - 16",
-			"return(start.moveToRange(minY, maxY))",
+			"int minY = world_traits.`bigglobe:deep_dark_min_y`(start.midX, start.midZ)",
+			"int maxY = minY + 32",
+			"for (int y in range[minY, maxY):",
+				"if (`bigglobe:overworld/biased_deep_dark_noise`(start.midX, y, start.midZ) > 0.0I:",
+					"start.move(y - start.minY)",
+					"return(true)",
+				")",
+			")",
+			"return(false)",
 		")",
 		"return(true)"
 	]

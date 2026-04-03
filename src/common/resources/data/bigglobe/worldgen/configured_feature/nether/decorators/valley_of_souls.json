@@ -6,7 +6,7 @@
 				"placeFeature(originX, y, originZ, 'bigglobe:nether/decorators/lava_soul')",
 			")",
 			"for (int baseY in range[minValidYLevel, maxValidYLevel) % 32:",
-				"int y = baseY | 16x5EBDEDC4EE513888UL.newSeed(originX, originZ, baseY).nextInt(32)",
+				"int y = baseY | (worldSeed # 16x5EBDEDC4EE513888UL).newSeed(placementX, placementZ, baseY).nextInt(32)",
 				"BlockState originState = getBlockState(originX, y, originZ)",
 				"if (originState.isAir():",
 					"if (getBlockState(originX, y - 1, originZ) == `bigglobe:nether/bubble`.surface_state:",

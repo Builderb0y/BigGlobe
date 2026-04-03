@@ -1,6 +1,6 @@
 {
 	"script": [
-		"long columnSeed = (worldSeed # 16x05985ACD460C357DUL).newSeed(originX, originZ)",
+		"long columnSeed = (worldSeed # 16x05985ACD460C357DUL).newSeed(placementX, placementZ)",
 		"for (int baseY in range[ceilInt(MIN_Y) & ~31, floorInt(MAX_Y)] % 32:",
 			"long positionSeed = columnSeed.newSeed(baseY)",
 			"int y = baseY | (positionSeed.nextInt() & 31)",

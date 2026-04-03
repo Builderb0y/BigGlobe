@@ -42,7 +42,7 @@ public class ReceiverObjectUpdaterInsnTree extends AbstractObjectUpdaterInsnTree
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return new NormalObjectUpdaterInsnTree(this.mode.asVoid(), this.emitters);
 	}
 }

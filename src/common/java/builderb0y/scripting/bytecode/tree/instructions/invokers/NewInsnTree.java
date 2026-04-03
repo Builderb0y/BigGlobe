@@ -32,7 +32,7 @@ public class NewInsnTree extends BaseInvokeInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return new UnusedNewInsnTree(this.method, this.args);
 	}
 

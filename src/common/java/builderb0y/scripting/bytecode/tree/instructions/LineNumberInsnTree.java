@@ -77,8 +77,8 @@ public class LineNumberInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
-		return new LineNumberInsnTree(this.content.asStatement(), this.lineNumber);
+	public InsnTree asStatement(boolean force) {
+		return new LineNumberInsnTree(this.content.asStatement(force), this.lineNumber);
 	}
 
 	@Override

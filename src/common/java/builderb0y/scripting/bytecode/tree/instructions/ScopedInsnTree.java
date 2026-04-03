@@ -59,8 +59,8 @@ public class ScopedInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
-		return new ScopedInsnTree(this.body.asStatement());
+	public InsnTree asStatement(boolean force) {
+		return new ScopedInsnTree(this.body.asStatement(force));
 	}
 
 	@Override

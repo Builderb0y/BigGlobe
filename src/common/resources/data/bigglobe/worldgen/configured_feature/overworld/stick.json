@@ -3,17 +3,18 @@
 	"config": {
 		"script": [
 			"BlockState under = null",
+			"int y = 0",
 			"block (",
-				"unless (isYLevelValid(originY - 1): return(false))",
-				"if ((under := getBlockState(originX, originY - 1, originZ)).isReplaceable(): --originY,, continue())",
+				"unless (isYLevelValid(y - 1): return(false))",
+				"if ((under := getBlockState(0, y - 1, 0)).isReplaceable(): --y,, continue())",
 			")",
 			"unless (",
 				"under.isIn('#minecraft:sand') || (",
-					"BlockState state = getBlockState(originX, originY, originZ),,",
+					"BlockState state = getBlockState(0, y, 0),,",
 					"state.getBlock() ==. 'minecraft:snow' || state.hasLava()",
 				")",
 			":",
-				"return(placeBlockState(originX, originY, originZ, 'bigglobe:stick[waterlogged=false]'))",
+				"return(placeBlockState(0, y, 0, 'bigglobe:stick[waterlogged=false]'))",
 			")",
 			"return(false)"
 		]

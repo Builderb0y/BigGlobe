@@ -5,7 +5,7 @@
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
 			"if (`bigglobe:end/has_mountain`(x, z):",
-				"placeFeature(x, floorInt(`bigglobe:end/mountain_max_y`(x, z)) + 1, z, 'bigglobe:end/obsidian_spire')",
+				"placeFeature(x, 0, z, 'bigglobe:end/obsidian_spire')",
 			")",
 		")"
 	]

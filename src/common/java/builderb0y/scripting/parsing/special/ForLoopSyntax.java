@@ -47,7 +47,7 @@ public class ForLoopSyntax {
 			InsnTree body = parser.nextScript();
 			parser.input.expectAfterWhitespace(')');
 			parser.environment.user().pop();
-			return for_(loopName, initializer, condition, incrementer, body.asStatement());
+			return for_(loopName, initializer, condition, incrementer, body.asStatement(false));
 		}
 	}
 
@@ -100,7 +100,7 @@ public class ForLoopSyntax {
 				}
 				List<VariableDeclarationInsnTree> declarations = variables.stream().peek((LazyVarInfo variable) -> parser.environment.user().assignVariable(variable.name)).map(VariableDeclarationInsnTree::new).toList();
 				return switch (parser.input.readOperatorAfterWhitespace()) {
-					case ":" -> loopFactory.createLoop(parser, loopName, declarations, parser.nextScript().asStatement());
+					case ":" -> loopFactory.createLoop(parser, loopName, declarations, parser.nextScript().asStatement(false));
 					case "," -> {
 						InsnTree body = tryParseEnhanced(parser, loopName);
 						if (body == null) throw new ScriptParsingException("Expected next variable declaration", parser.input);

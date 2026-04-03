@@ -30,8 +30,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
-	@Alias("script")
-	public final ScriptedFeatureDispatcher.Catcher dispatcher;
+	public final @Alias("script") Catcher dispatcher;
 
 	public ScriptedFeatureDispatcher(Catcher dispatcher) {
 		this.dispatcher = dispatcher;
@@ -66,38 +65,38 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(ScriptedFeatureDispatcherImpl.class, this.usage, registry.parserFlags())
-					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
-					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.configureEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
-					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						for (String name : new String[] {
-							"minModifiableX",
-							"minModifiableY",
-							"minModifiableZ",
-							"maxModifiableX",
-							"maxModifiableY",
-							"maxModifiableZ",
-							"minAccessibleX",
-							"minAccessibleY",
-							"minAccessibleZ",
-							"maxAccessibleX",
-							"maxAccessibleY",
-							"maxAccessibleZ",
-							}) {
-							environment.addVariable(name, Handlers.builder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
-						}
-						environment.addVariable("distantHorizons", WORLD.distantHorizons);
-						registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
-					})
-					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.parse(new ScriptClassLoader(registry.loader))
+				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+				.addEnvironment(MathScriptEnvironment.INSTANCE)
+				.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.configureEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+				.configureEnvironment((MutableScriptEnvironment environment) -> {
+					for (String name : new String[] {
+						"minModifiableX",
+						"minModifiableY",
+						"minModifiableZ",
+						"maxModifiableX",
+						"maxModifiableY",
+						"maxModifiableZ",
+						"minAccessibleX",
+						"minAccessibleY",
+						"minAccessibleZ",
+						"maxAccessibleX",
+						"maxAccessibleY",
+						"maxAccessibleZ",
+					}) {
+						environment.addVariable(name, Handlers.builder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
+					}
+					environment.addVariable("distantHorizons", WORLD.distantHorizons);
+					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
+				})
+				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}
 

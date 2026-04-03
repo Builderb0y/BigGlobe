@@ -63,7 +63,7 @@ public class ArgumentedObjectUpdateInsnTree extends AbstractUpdaterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new ArgumentedObjectUpdateInsnTree(this.mode, this.emitters);
 	}
 

@@ -17,10 +17,7 @@ public class DoWhileInsnTree implements InsnTree {
 	public DoWhileInsnTree(LoopName loopName, ConditionTree condition, InsnTree body) {
 		this.loopName = loopName;
 		this.condition = condition;
-		if (!body.canBeStatement()) {
-			throw new IllegalArgumentException("Body is not a statement");
-		}
-		this.body = body.asStatement();
+		this.body = body.asStatement(false);
 	}
 
 	@Override

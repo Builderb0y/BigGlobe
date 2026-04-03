@@ -59,45 +59,45 @@ public interface StructureLayoutScript extends Script {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(StructureLayoutScript.class, this.usage, registry.parserFlags())
-					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
-					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
-					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
-					.addEnvironment(StructureScriptEnvironment.INSTANCE)
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.configureEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
-					.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
-					.configureEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
-						registry.setupExternalEnvironment(
-							environment
-								.addVariableLoad("worldSeed", TypeInfos.LONG)
-								.addFieldGet(ScriptedStructure.Piece.class, "data")
-								.addVariableLoad("originX", TypeInfos.INT)
-								.addVariableLoad("originZ", TypeInfos.INT)
-								.addQualifiedSpecificConstructor(Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, CompoundTag.class)
-								.addMethodInvokes(Piece.class, "withRotation", "rotateAround", "symmetrify", "symmetrifyAround", "offset")
-								.addMethodMultiInvokes(Piece.class, "rotateRandomly", "rotateAndFlipRandomly")
-								.addMethod(type(Piece.class), "rotateRandomly", Handlers.builder(Piece.class, "rotateRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
-								.addMethod(type(Piece.class), "rotateAndFlipRandomly", Handlers.builder(Piece.class, "rotateAndFlipRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
-								.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
-								.addVariableLoad("pieces", type(CheckedList.class))
-								.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-								.configure(ScriptedColumn.hintsEnvironment())
-								.addVariable("distantHorizons", Handlers.builder(StructureLayoutScript.class, "distantHorizons").addImplicitArgument(load("hints", type(Hints.class))).buildVariable()),
+				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(LOAD_RANDOM))
+				.addEnvironment(MathScriptEnvironment.INSTANCE)
+				.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
+				.addEnvironment(StructureScriptEnvironment.INSTANCE)
+				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
+				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))
+				.configureEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
+				.configureEnvironment((MutableScriptEnvironment environment) -> {
+					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
+					registry.setupExternalEnvironment(
+						environment
+						.addVariableLoad("worldSeed", TypeInfos.LONG)
+						.addFieldGet(ScriptedStructure.Piece.class, "data")
+						.addVariableLoad("originX", TypeInfos.INT)
+						.addVariableLoad("originZ", TypeInfos.INT)
+						.addQualifiedSpecificConstructor(Piece.class, int.class, int.class, int.class, int.class, int.class, int.class, StructurePlacementScriptEntry.class, CompoundTag.class)
+						.addMethodInvokes(Piece.class, "withRotation", "rotateAround", "symmetrify", "symmetrifyAround", "offset")
+						.addMethodMultiInvokes(Piece.class, "rotateRandomly", "rotateAndFlipRandomly")
+						.addMethod(type(Piece.class), "rotateRandomly", Handlers.builder(Piece.class, "rotateRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
+						.addMethod(type(Piece.class), "rotateAndFlipRandomly", Handlers.builder(Piece.class, "rotateAndFlipRandomly").addReceiverArgument(Piece.class).addImplicitArgument(LOAD_RANDOM).buildMethod())
+						.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
+						.addVariableLoad("pieces", type(CheckedList.class))
+						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
+						.configure(ScriptedColumn.hintsEnvironment())
+						.addVariable("distantHorizons", Handlers.builder(StructureLayoutScript.class, "distantHorizons").addImplicitArgument(load("hints", type(Hints.class))).buildVariable()),
 
-							new ExternalEnvironmentParams()
-								.withLookup(loadLookup)
-								.withXZ(
-									load("originX", TypeInfos.INT),
-									load("originZ", TypeInfos.INT)
-								)
-						);
-					})
-					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.parse(new ScriptClassLoader(registry.loader))
+						new ExternalEnvironmentParams()
+						.withLookup(loadLookup)
+						.withXZ(
+							load("originX", TypeInfos.INT),
+							load("originZ", TypeInfos.INT)
+						)
+					);
+				})
+				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}
 

@@ -13,7 +13,7 @@ public class BlockInsnTree implements InsnTree {
 
 	public BlockInsnTree(LoopName loopName, InsnTree body) {
 		this.loopName = loopName;
-		this.body = body.asStatement();
+		this.body = body.asStatement(false);
 	}
 
 	@Override

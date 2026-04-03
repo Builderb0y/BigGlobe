@@ -1,32 +1,35 @@
 {
 	"carvers": [],
 	"downfall": 0.0,
-	"effects": {
-		"mood_sound": {
-			"sound": "minecraft:ambient.nether_wastes.mood",
-			"tick_delay": 6000,
-			"block_search_extent": 8,
-			"offset": 2.0
-		},
-		"additions_sound": {
-			"sound": "minecraft:ambient.nether_wastes.additions",
-			"tick_chance": 0.0111
-		},
-		"music": [{
-			"weight": 1,
-			"data": {
+	"attributes": {
+		"minecraft:audio/background_music": {
+			"default": {
 				"sound": "minecraft:music.nether.nether_wastes",
 				"min_delay": 12000,
 				"max_delay": 24000,
 				"replace_current_music": false
 			}
-		}],
-		"fog_color": 8484720,
-		"sky_color": 12171705,
+		},
+		"minecraft:audio/ambient_sounds": {
+			"mood": {
+				"sound": "minecraft:ambient.nether_wastes.mood",
+				"tick_delay": 6000,
+				"block_search_extent": 8,
+				"offset": 2.0
+			},
+			"additions": {
+				"sound": "minecraft:ambient.nether_wastes.additions",
+				"tick_chance": 0.0111
+			}
+		},
+		"minecraft:audio/music_volume": 0.0,
+		"minecraft:visual/fog_color": "#817770",
+		"minecraft:visual/sky_color": "#b9b9b9",
+		"minecraft:visual/water_fog_color": "#556980"
+	},
+	"effects": {
 		"water_color": 7768221,
-		"water_fog_color": 5597568,
-		"foliage_color": 8883574,
-		"grass_color": 7832178
+		"foliage_color": 8883574
 	},
 	"features": [ [], [], [], [], [], [], [], [], [], [] ],
 	"has_precipitation": false,

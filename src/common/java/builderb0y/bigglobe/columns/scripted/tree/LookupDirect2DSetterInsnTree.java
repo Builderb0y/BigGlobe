@@ -45,7 +45,7 @@ public class LookupDirect2DSetterInsnTree extends Abstract2DSetterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new LookupDirect2DSetterInsnTree(
 			this.mode.asVoid(),
 			this.lookup,

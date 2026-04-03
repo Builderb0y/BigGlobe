@@ -2,9 +2,10 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"while (getBlockState(originX, :--originY, originZ) ==. 'minecraft:blackstone':",
+			"int y = 0",
+			"while (getBlockState(0, :--y, 0) ==. 'minecraft:blackstone':",
 				"random.if (0.125:",
-					"setBlockState(originX, originY, originZ, 'minecraft:polished_blackstone')",
+					"setBlockState(0, y, 0, 'minecraft:polished_blackstone')",
 				")",
 			")",
 			"return(true)"

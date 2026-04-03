@@ -41,8 +41,8 @@ public class WrappedCastInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
-		return this.compileValue.asStatement();
+	public InsnTree asStatement(boolean force) {
+		return this.compileValue.asStatement(force);
 	}
 
 	@Override

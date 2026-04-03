@@ -36,7 +36,7 @@ public class StandAloneDirect2DSetterInsnTree extends Abstract2DSetterInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		return this.mode.isVoid() ? this : new StandAloneDirect2DSetterInsnTree(
 			this.mode.asVoid(),
 			this.column,

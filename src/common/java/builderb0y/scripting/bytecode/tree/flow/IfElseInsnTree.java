@@ -98,8 +98,8 @@ public class IfElseInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
-		return new IfElseInsnTree(this.condition, this.trueBody.asStatement(), this.falseBody.asStatement(), TypeInfos.VOID);
+	public InsnTree asStatement(boolean force) {
+		return new IfElseInsnTree(this.condition, this.trueBody.asStatement(force), this.falseBody.asStatement(force), TypeInfos.VOID);
 	}
 
 	@Override

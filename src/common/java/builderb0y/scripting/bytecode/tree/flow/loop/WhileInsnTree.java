@@ -22,7 +22,7 @@ public class WhileInsnTree implements InsnTree {
 	public WhileInsnTree(LoopName loopName, ConditionTree condition, InsnTree body) {
 		this.loopName = loopName;
 		this.condition = condition;
-		this.body = body.asStatement();
+		this.body = body.asStatement(false);
 	}
 
 	public static InsnTree createRepeat(ExpressionParser parser, LoopName loopName, InsnTree times, InsnTree body) {

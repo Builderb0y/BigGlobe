@@ -29,7 +29,11 @@ public record SymmetricOffset(
 	@UseName("z") int offsetZ,
 
 	@UseName("r" /* named r for backwards compatibility */)
-	@UseCoder(name = "RAW_SYMMETRY_CODER", in = SymmetricOffset.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
+	@UseCoder(
+		name  = "RAW_SYMMETRY_CODER",
+		in    = SymmetricOffset.class,
+		usage = MemberUsage.FIELD_CONTAINS_HANDLER
+	)
 	Symmetry symmetry
 ) {
 

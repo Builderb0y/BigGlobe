@@ -49,7 +49,7 @@ public class AfterNullableReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
-		return new NullableInvokeInsnTree(this.method, this.args).asStatement();
+	public InsnTree asStatement(boolean force) {
+		return new NullableInvokeInsnTree(this.method, this.args).asStatement(force);
 	}
 }

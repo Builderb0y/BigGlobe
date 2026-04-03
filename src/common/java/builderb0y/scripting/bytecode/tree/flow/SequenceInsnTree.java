@@ -60,7 +60,7 @@ public class SequenceInsnTree implements InsnTree {
 			//in result when result is completely full and contains an element
 			//at every index. hence the length check below.
 			if (writeIndex != flattenedLength) {
-				result[writeIndex - 1] = result[writeIndex - 1].asStatement();
+				result[writeIndex - 1] = result[writeIndex - 1].asStatement(false);
 			}
 		}
 		return result;
@@ -121,9 +121,9 @@ public class SequenceInsnTree implements InsnTree {
 	}
 
 	@Override
-	public InsnTree asStatement() {
+	public InsnTree asStatement(boolean force) {
 		InsnTree oldLast = this.statements[this.statements.length - 1];
-		InsnTree newLast = oldLast.asStatement();
+		InsnTree newLast = oldLast.asStatement(force);
 		if (newLast == oldLast) return this;
 		InsnTree[] newStatements = this.statements.clone();
 		newStatements[newStatements.length - 1] = newLast;

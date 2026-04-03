@@ -57,14 +57,36 @@ public class MultiplyInsnTree extends BinaryInsnTree {
 			switch (type.getSort()) {
 				case INT -> {
 					int intScalar = scalar.asInt();
-					if (intScalar != 0 && (intScalar & (intScalar - 1)) == 0) {
-						int shift = Integer.numberOfTrailingZeros(intScalar);
-						return new SignedLeftShiftInsnTree(variable, ldc(shift), ISHL);
+					switch (intScalar) {
+						case -1 -> {
+							return neg(variable);
+						}
+						case 0 -> {
+							return seq(variable.asStatement(true), ldc(0));
+						}
+						case 1 -> {
+							return variable;
+						}
+						default -> {
+							if ((intScalar & (intScalar - 1)) == 0) {
+								int shift = Integer.numberOfTrailingZeros(intScalar);
+								return new SignedLeftShiftInsnTree(variable, ldc(shift), ISHL);
+							}
+						}
 					}
 				}
 				case LONG -> {
 					long longScalar = scalar.asLong();
-					if (longScalar != 0L && (longScalar & (longScalar - 1L)) == 0) {
+					if (longScalar == -1L) {
+						return neg(variable);
+					}
+					else if (longScalar == 0L) {
+						return seq(variable.asStatement(true), ldc(0));
+					}
+					else if (longScalar == 1L) {
+						return variable;
+					}
+					else if ((longScalar & (longScalar - 1L)) == 0) {
 						int shift = Long.numberOfTrailingZeros(longScalar);
 						return new SignedLeftShiftInsnTree(variable, ldc(shift), LSHL);
 					}

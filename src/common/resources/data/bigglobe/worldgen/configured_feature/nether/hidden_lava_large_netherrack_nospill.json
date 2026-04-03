@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:hidden_lava_large",
+			"inputs": {
+				"REPLACE": "'#bigglobe:hidden_lava_replaceables_netherrack'",
+				"SPILL_CHANCE": "0.0L"
+			}
+		}
+	}
+}
