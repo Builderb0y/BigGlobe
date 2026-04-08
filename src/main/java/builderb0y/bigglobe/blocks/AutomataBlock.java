@@ -153,7 +153,12 @@ public class AutomataBlock extends Block {
 		boolean moved
 	) {
 		super.onStateReplaced(state, world, pos, #if MC_VERSION < MC_1_21_5 newState, #endif moved);
-		if (this.natural) {
+		if (
+			this.natural
+			#if MC_VERSION < MC_1_21_5
+				&& !newState.isOf(this)
+			#endif
+		) {
 			Long2LongOpenHashMap worldMap = BURNOUT_MAP.get(world);
 			if (worldMap != null) worldMap.remove(pos.asLong());
 		}
