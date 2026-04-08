@@ -19,10 +19,13 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -194,7 +197,16 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			ColorScript.@VerifyNullable Catcher grass,
 			ColorScript.@VerifyNullable Catcher foliage,
 			ColorScript.@VerifyNullable Catcher water
-		) {}
+		) {
+
+			@Environment(EnvType.CLIENT)
+			public ColorScript.@Nullable Catcher forColorResolver(ColorResolver resolver) {
+				if (resolver == BiomeColors.  GRASS_COLOR_RESOLVER) return this.grass;
+				if (resolver == BiomeColors.FOLIAGE_COLOR_RESOLVER) return this.foliage;
+				if (resolver == BiomeColors.  WATER_COLOR_RESOLVER) return this.water;
+				return null;
+			}
+		}
 
 		public static record NetherOverrides(
 			boolean place_portal_at_high_y_level,

@@ -12,6 +12,7 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
+import builderb0y.bigglobe.rendering2.lods.LodVertexFormat;
 import builderb0y.bigglobe.scripting.ClientPrintSink;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
@@ -30,6 +31,7 @@ public class BigGlobeClient implements ClientModInitializer {
 		BigGlobeParticles.initClient();
 
 		BigGlobeDebugHudEntries.init();
+		LodVertexFormat.init();
 
 		BuiltinScriptEnvironment.PRINTER = new ClientPrintSink();
 		BigGlobeMod.LOGGER.info("Done initializing client.");

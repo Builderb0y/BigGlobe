@@ -42,6 +42,7 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.ColorOverrides;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.LodOverrides;
+import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -69,6 +70,7 @@ import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
+import builderb0y.bigglobe.rendering2.lods.LodMesher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
@@ -198,30 +200,16 @@ public class ClientState {
 	public static void overrideColor(BlockGetter world, int x, int y, int z, ColorResolver colorResolver, CallbackInfoReturnable<Integer> callback) {
 		//don't intercept for my own drawing code,
 		//since it contains intentionally incorrect coordinates.
-		//TODO: re-enable once rendering has been re-written.
-		//if (LodGenerator.RENDERING_LODS.get()) return;
+		if (LodMesher.isMeshing()) return;
 		ResourceKey<Level> dimension = ((DimensionalBlockView)(world)).bigglobe_getDimension();
 		if (dimension == null) return;
 		ClientState state = get(dimension);
 		if (state == null) return;
 		ClientGeneratorParams params = state.generatorParams;
-		if (params != null) {
-			if (colorResolver == BiomeColors.GRASS_COLOR_RESOLVER) {
-				if (params.grassColor != null) {
-					callback.setReturnValue(params.grassColor.getColor(params.getColumn(x, z), y));
-				}
-			}
-			else if (colorResolver == BiomeColors.FOLIAGE_COLOR_RESOLVER) {
-				if (params.foliageColor != null) {
-					callback.setReturnValue(params.foliageColor.getColor(params.getColumn(x, z), y));
-				}
-			}
-			else if (colorResolver == BiomeColors.WATER_COLOR_RESOLVER) {
-				if (params.waterColor != null) {
-					callback.setReturnValue(params.waterColor.getColor(params.getColumn(x, z), y));
-				}
-			}
-		}
+		if (params == null || params.colors == null) return;
+		ColorScript.Catcher script = params.colors.forColorResolver(colorResolver);
+		if (script == null) return;
+		callback.setReturnValue(script.getColor(params.getColumn(x, z), y));
 	}
 
 	public static class Syncing {
@@ -428,10 +416,9 @@ public class ClientState {
 		public final int minY, maxY;
 		public final @VerifyNullable Integer seaLevel;
 		public final long columnSeed;
-		public final ColorScript.@VerifyNullable Catcher grassColor;
-		public final ColorScript.@VerifyNullable Catcher foliageColor;
-		public final ColorScript.@VerifyNullable Catcher waterColor;
+		public final @VerifyNullable ColorOverrides colors;
 		public final LodOverrides generatorLodOverrides;
+		public final @VerifyNullable ScriptedColumnBiomeSource biomeSource;
 		public final Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits;
 		public final @VerifyNullable Holder<Layer> layer;
 		public transient ColumnEntryRegistry columnEntryRegistry;
@@ -443,10 +430,9 @@ public class ClientState {
 			int maxY,
 			@VerifyNullable Integer seaLevel,
 			long columnSeed,
-			ColorScript.@VerifyNullable Catcher grassColor,
-			ColorScript.@VerifyNullable Catcher foliageColor,
-			ColorScript.@VerifyNullable Catcher waterColor,
+			@VerifyNullable ColorOverrides colors,
 			LodOverrides generatorLodOverrides,
+			@VerifyNullable ScriptedColumnBiomeSource biomeSource,
 			Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits,
 			@VerifyNullable Holder<Layer> layer
 		) {
@@ -454,10 +440,9 @@ public class ClientState {
 			this.maxY = maxY;
 			this.seaLevel = seaLevel;
 			this.columnSeed = columnSeed;
-			this.grassColor = grassColor;
-			this.foliageColor = foliageColor;
-			this.waterColor = waterColor;
+			this.colors = colors;
 			this.generatorLodOverrides = generatorLodOverrides;
+			this.biomeSource = biomeSource;
 			this.worldTraits = worldTraits;
 			this.layer = layer;
 			this.column = ThreadLocal.withInitial(this::createColumn);
@@ -469,11 +454,9 @@ public class ClientState {
 			this.maxY = generator.height.max_y();
 			this.seaLevel = generator.height.sea_level();
 			this.columnSeed = generator.columnSeed;
-			ColorOverrides colors = generator.game_mechanics.colors();
-			this.grassColor   = colors != null ? colors.grass  () : null;
-			this.foliageColor = colors != null ? colors.foliage() : null;
-			this.waterColor   = colors != null ? colors.water  () : null;
+			this.colors = generator.game_mechanics.colors();
 			this.generatorLodOverrides = generator.game_mechanics.lods();
+			this.biomeSource = generator.biome_source() instanceof ScriptedColumnBiomeSource source ? source : null;
 			this.worldTraits = new HashMap<>(generator.world_traits != null ? generator.loadedWorldTraits.size() : 0);
 			if (generator.world_traits != null) {
 				for (Map.Entry<Holder<WorldTrait>, WorldTraitProvider> entry : generator.loadedWorldTraits.entrySet()) {
@@ -487,7 +470,18 @@ public class ClientState {
 		}
 
 		public void compile(ColumnEntryRegistry.Loading loading) throws Exception {
-			if (this.grassColor == null && this.foliageColor == null && this.waterColor == null && this.layer == null) return;
+			if (
+				(
+					this.colors == null || (
+						this.colors.grass() == null &&
+						this.colors.foliage() == null &&
+						this.colors.water() == null
+					)
+				)
+				&& this.layer == null
+			) {
+				return;
+			}
 			loading.compile();
 			this.columnEntryRegistry = loading.getRegistry();
 			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.worldTraits);

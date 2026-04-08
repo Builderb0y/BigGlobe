@@ -44,6 +44,13 @@ public class QuadHolder<T> {
 		array[baseIndex + zSkip + 1] = this.object11;
 	}
 
+	public void fillNullsFrom(QuadHolder<T> that) {
+		if (this.object00 == null) this.object00 = that.object00;
+		if (this.object01 == null) this.object01 = that.object01;
+		if (this.object10 == null) this.object10 = that.object10;
+		if (this.object11 == null) this.object11 = that.object11;
+	}
+
 	public boolean allNull() {
 		return this.object00 == null && this.object01 == null && this.object10 == null && this.object11 == null;
 	}

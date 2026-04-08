@@ -135,11 +135,13 @@ V6:
 	remove BigGlobeEntityRenderer.
 	update AutoCodec.
 	migrate structure locating system from center/range to min/max coords.
-	make scripted configured features relative to the placement position.
-		in other words, set originX = originY = originZ = 0,
-		and offset when the script tries to place somewhere.
 	remove script templates?
 		replace with custom classes that just take parameters?
+	find and remove requirement status on tag elements that are marked as "required": false.
+	remove/inline everything in "versions" folder.
+	remove ScopeLocal.
+	remove voxy hyperspeed generation code.
+		and associated config options.
 
 LODs:
 	shader support.

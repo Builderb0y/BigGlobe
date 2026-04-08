@@ -105,7 +105,7 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, Bloc
 			super(minY, maxY);
 		}
 
-		public int getLightLevel(int y, int lod) {
+		public int getSkyLight(int y, int lod) {
 			return Mth.clamp(this.skylightLevel - ((this.maxY - y) << lod) * BlockStateVersions.getOpacity(this.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO), 0, 15);
 		}
 

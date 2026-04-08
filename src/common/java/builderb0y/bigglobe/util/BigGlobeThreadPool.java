@@ -18,17 +18,15 @@ public class BigGlobeThreadPool {
 
 	static {
 		int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1); //reserve space for client and server thread.
-		POOL = new ThreadPoolExecutor(
-			threads, threads, 1, TimeUnit.SECONDS, TASKS, (Runnable task) -> {
+		POOL = new ThreadPoolExecutor(threads, threads, 1, TimeUnit.SECONDS, TASKS, (Runnable task) -> {
 			Thread thread = new Thread(task, "Big Globe Worker Thread");
 			thread.setDaemon(true);
 			thread.setUncaughtExceptionHandler((Thread thread_, Throwable exception) -> {
-				BigGlobeMod.LOGGER.error("An unexpected exception occurred in " + thread + ": ", exception);
+				BigGlobeMod.LOGGER.error("An unexpected exception occurred in " + thread_ + ": ", exception);
 				BigGlobeThreadPool.POOL.prestartAllCoreThreads();
 			});
 			return thread;
-		}
-		);
+		});
 		POOL.prestartAllCoreThreads();
 	}
 
