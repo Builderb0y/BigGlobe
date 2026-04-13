@@ -319,8 +319,7 @@ public class ClientState {
 		}
 
 		public void parse() throws DecodeException {
-			try {
-				ScriptFileResolver.OVERRIDES.set(this.includes);
+			ScriptFileResolver.OVERRIDES.get(this.includes, () -> {
 				RegistryOps<Tag> ops = this.createOps(NbtOps.INSTANCE, true);
 				for (Map.Entry<Identifier, Tag> entry : this.templates.entrySet()) {
 					Registry.register(this.templateRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ScriptTemplate.CODER, entry.getValue(), ops));
@@ -346,10 +345,8 @@ public class ClientState {
 				this.decisionTreeRegistry.freeze();
 				this.worldTraitRegistry.freeze();
 				this.layerRegistry.freeze();
-			}
-			finally {
-				ScriptFileResolver.OVERRIDES.set(null);
-			}
+				return null; //run() can't throw exceptions, but get() can.
+			});
 		}
 
 		@SuppressWarnings("unchecked")

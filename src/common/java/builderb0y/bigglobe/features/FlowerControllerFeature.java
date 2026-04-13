@@ -52,7 +52,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 
 	@Override
 	public boolean place(FeaturePlaceContext<Config> context) {
-		ScriptedColumnLookup columns = ScriptedColumnLookup.GLOBAL.getCurrent();
+		ScriptedColumnLookup columns = ScriptedColumnLookup.GLOBAL.currentValue();
 		if (columns == null) {
 			if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 				columns = new ScriptedColumnLookup.Impl(

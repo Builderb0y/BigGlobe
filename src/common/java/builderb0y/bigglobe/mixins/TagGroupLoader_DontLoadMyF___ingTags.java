@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.util.BetterScopedValue;
 
 /**
 big thanks to Blodhgarm for making the "Load My F***ing Tags" mod.
@@ -37,7 +38,7 @@ this behavior is configurable, and useful for data pack developers.
 public class TagGroupLoader_DontLoadMyF___ingTags {
 
 	@Unique
-	private static final ThreadLocal<Identifier> CURRENT_TAG_ID = new ThreadLocal<>();
+	private static final BetterScopedValue<Identifier> CURRENT_TAG_ID = new BetterScopedValue<>();
 
 	@WrapMethod(method = "lambda$build$1")
 	private void bigglobe_storeCurrentTagId(
@@ -47,14 +48,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		SortingEntry dependencies,
 		Operation<Void> original
 	) {
-		Identifier old = CURRENT_TAG_ID.get();
-		CURRENT_TAG_ID.set(id);
-		try {
-			original.call(valueGetter, map, id, dependencies);
-		}
-		finally {
-			CURRENT_TAG_ID.set(old);
-		}
+		CURRENT_TAG_ID.run(id, () -> original.call(valueGetter, map, id, dependencies));
 	}
 
 	@Inject(method = "tryBuildTag", at = @At(value = "INVOKE", target = "Ljava/util/List;isEmpty()Z"))
@@ -64,7 +58,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		CallbackInfoReturnable<Either<List<EntryWithSource>, List<T>>> callback,
 		@Local(ordinal = 1) List<EntryWithSource> errors
 	) {
-		if (!errors.isEmpty() && ColumnEntryRegistry.Loading.addInvalidTag(CURRENT_TAG_ID.get(), errors)) {
+		if (!errors.isEmpty() && ColumnEntryRegistry.Loading.addInvalidTag(CURRENT_TAG_ID.currentValue(), errors)) {
 			errors.clear();
 		}
 	}

@@ -14,10 +14,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.common.primitives.Primitives;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
@@ -100,7 +97,7 @@ public class BigGlobeConfigLoader {
 
 	public static JsonElement toJson(String text) {
 		JsonReader reader = new JsonReader(new StringReader(text));
-		reader.setLenient(true);
+		reader.setStrictness(Strictness.LENIENT);
 		return JsonParser.parseReader(reader);
 	}
 

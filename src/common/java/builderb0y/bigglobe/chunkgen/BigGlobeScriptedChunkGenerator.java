@@ -987,7 +987,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					});
 				}
 			}
-			ScriptedColumnLookup.GLOBAL.accept(worldWrapper, this.feature_dispatcher::generateNormal);
+			ScriptedColumnLookup.GLOBAL.run(worldWrapper, () -> this.feature_dispatcher.generateNormal(worldWrapper));
 		}
 		finally {
 			this.columnEntryRegistry.chunkReuseColumns.add(columns);

@@ -30,13 +30,14 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.EmptyDependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.util.BetterScopedValue;
 import builderb0y.bigglobe.util.FakeRegistry;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.util.ArrayBuilder;
 
 public class ScriptFileResolver {
 
-	public static final ThreadLocal<Map<Identifier, String>> OVERRIDES = new ThreadLocal<>();
+	public static final BetterScopedValue<Map<Identifier, String>> OVERRIDES = new BetterScopedValue<>();
 	public static final FakeRegistry<ResolvedInclude> RESOLVED_INCLUDE_REGISTRY = new FakeRegistry<>(ResolvedInclude.REGISTRY_KEY);
 
 	public static Holder<ResolvedInclude> intern(ResolvedInclude include) {
@@ -47,7 +48,7 @@ public class ScriptFileResolver {
 		if (identifier.getNamespace().contains("..") || identifier.getPath().contains("..")) {
 			throw new IllegalArgumentException("No, you may not access parent directories this way.");
 		}
-		Map<Identifier, String> overrides = OVERRIDES.get();
+		Map<Identifier, String> overrides = OVERRIDES.currentValue();
 		if (overrides != null) {
 			String source = overrides.get(identifier);
 			if (source != null) return new ResolvedInclude(identifier, source);

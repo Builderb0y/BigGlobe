@@ -154,7 +154,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
-		if (ScriptedColumnLookup.GLOBAL.getCurrent() instanceof WorldWrapper parent) {
+		if (ScriptedColumnLookup.GLOBAL.currentValue() instanceof WorldWrapper parent) {
 			this.columns = parent.columns;
 			this.overriders = parent.overriders;
 			this.params = parent.params;

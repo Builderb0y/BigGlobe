@@ -254,7 +254,7 @@ public class ActiveStructurePlacementCalculator extends StructurePlacementCalcul
 			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
 			if (!pieces.isEmpty()) synchronized (starts) {
 				starts.addElementToEnd(pieces);
-				this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
+				this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.intValue(), size)));
 			}
 		});
 		if (starts.isEmpty()) return new FinalStructures(0);
@@ -268,7 +268,7 @@ public class ActiveStructurePlacementCalculator extends StructurePlacementCalcul
 		)
 		.flatMap((Holder<StructureSet> set) -> {
 			return this.maxSize(set).stream().mapToObj((int radius) -> {
-				return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
+				return getFilteredStartChunks(params, set, maxSizeForChunk.intValue() + radius);
 			})
 			.flatMap(Function.identity());
 		})
