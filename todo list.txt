@@ -139,13 +139,10 @@ V6:
 		replace with custom classes that just take parameters?
 	find and remove requirement status on tag elements that are marked as "required": false.
 	remove/inline everything in "versions" folder.
-	remove voxy hyperspeed generation code.
-		and associated config options.
 	see if I still need JIJ extraction now that loom just uses implementation().
 	race condition in registry loading.
 		each dynamic registry is now loaded on a different thread,
 		leading to dependencies not being available until loading is complete.
-	remove TracyWrapper.
 
 LODs:
 	shader support.

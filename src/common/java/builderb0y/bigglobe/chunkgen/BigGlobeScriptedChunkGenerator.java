@@ -122,7 +122,6 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.spawning.ExtraSpawn;
 import builderb0y.bigglobe.structures.*;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator;
 import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
 import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
 import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
@@ -131,8 +130,6 @@ import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
-import builderb0y.bigglobe.versions.TracyWrapper;
-import builderb0y.bigglobe.versions.TracyWrapper.ZoneWrapper;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.bigglobe.versions.SpawnEntryVersions.*;
@@ -765,40 +762,26 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 							for (int offsetX = 0; offsetX < 16; offsetX += 2) {
 								final int offsetX_ = offsetX;
 								async.submit(() -> {
-									boolean trace = TracyWrapper.ENABLED && TRACE_OPERATION.compareAndSet(true, false);
-									try (ZoneWrapper generateQuad = trace ? TracyWrapper.beginZone("generateQuad") : null) {
-										int baseIndex = (offsetZ_ << 4) | offsetX_;
-										int quadX = startX | offsetX_;
-										int quadZ = startZ | offsetZ_;
-										QuadColumn quadColumn = new QuadColumn();
-										quadColumn.loadFromArray(columns, baseIndex, 16);
-										quadColumn.at(params, quadX, quadZ, 1);
-										try (ZoneWrapper precomputeGeneral = trace ? TracyWrapper.beginZone("precompute") : null) {
-											for (String name : this.getOverriders().rawColumnValueDependencies)
-												try {
-													try (ZoneWrapper precomputeSpecific = trace ? TracyWrapper.beginZone(name) : null) {
-														quadColumn.preComputeColumnValue(name);
-													}
-												}
-												catch (Throwable throwable) {
-													BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
-												}
-										}
-										try (ZoneWrapper overrideGeneral = trace ? TracyWrapper.beginZone("override") : null) {
-											for (int index = 0; index < structures.length; index++) {
-												try (ZoneWrapper overrideSpecific = trace ? TracyWrapper.beginZone(UnregisteredObjectException.getID(overriders[index])::toString) : null) {
-													quadColumn.override(overriders[index].value().script, structures[index]);
-												}
-											}
-										}
-										QuadList quadList = new QuadList();
-										quadList.createNew(chunkMinY, chunkMaxY);
-										Layer layer = this.layer.value();
-										try (ZoneWrapper emitSegments = trace ? TracyWrapper.beginZone("emitSegments") : null) {
-											QuadHolder.generate(quadColumn, quadList, layer);
-										}
-										quadList.storeInArray(lists, baseIndex, 16);
+									int baseIndex = (offsetZ_ << 4) | offsetX_;
+									int quadX = startX | offsetX_;
+									int quadZ = startZ | offsetZ_;
+									QuadColumn quadColumn = new QuadColumn();
+									quadColumn.loadFromArray(columns, baseIndex, 16);
+									quadColumn.at(params, quadX, quadZ, 1);
+									for (String name : this.getOverriders().rawColumnValueDependencies) try {
+										quadColumn.preComputeColumnValue(name);
 									}
+									catch (Throwable throwable) {
+										BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
+									}
+									for (int index = 0; index < structures.length; index++) {
+										quadColumn.override(overriders[index].value().script, structures[index]);
+									}
+									QuadList quadList = new QuadList();
+									quadList.createNew(chunkMinY, chunkMaxY);
+									Layer layer = this.layer.value();
+									QuadHolder.generate(quadColumn, quadList, layer);
+									quadList.storeInArray(lists, baseIndex, 16);
 								});
 							}
 						}
