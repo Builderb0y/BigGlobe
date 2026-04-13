@@ -13,6 +13,8 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -22,6 +24,7 @@ import builderb0y.bigglobe.rendering2.NativeMemory;
 import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.rendering2.lods.*;
 
+@Environment(EnvType.CLIENT)
 public class FlatLodRenderer extends LodRenderer {
 
 	public static final @Nullable RenderPipeline SOLID, CUTOUT, TRANSLUCENT;

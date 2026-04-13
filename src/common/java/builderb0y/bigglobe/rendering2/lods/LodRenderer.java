@@ -7,6 +7,8 @@ import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import org.lwjgl.system.*;
 
@@ -20,6 +22,7 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.rendering2.NativeMemory;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public abstract class LodRenderer implements SafeCloseable {
 
 	public static final int

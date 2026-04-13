@@ -3,6 +3,8 @@ package builderb0y.bigglobe.rendering2.lods;
 import java.util.ConcurrentModificationException;
 import java.util.EnumMap;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderingRegistry;
 import net.fabricmc.fabric.api.client.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
@@ -28,6 +30,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.DirectionVersions;
 
+@Environment(EnvType.CLIENT)
 public class LodMesher {
 
 	public static final ScopedValue<Boolean> MESHING_LODS = ScopedValue.newInstance();

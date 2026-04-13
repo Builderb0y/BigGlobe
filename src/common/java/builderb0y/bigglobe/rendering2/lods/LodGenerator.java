@@ -2,18 +2,17 @@ package builderb0y.bigglobe.rendering2.lods;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.chunkgen.QuadHolder;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
@@ -28,7 +27,8 @@ import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.SafeCloseable;
 
-public class LodGenerator<T> implements SafeCloseable {
+@Environment(EnvType.CLIENT)
+public class LodGenerator<T_LoadCache> implements SafeCloseable {
 
 	public final LodSystem system;
 	public final DimensionType dimensionType;
@@ -89,7 +89,7 @@ public class LodGenerator<T> implements SafeCloseable {
 			ColumnUsage.RAW_GENERATION.builtinLodHints(lod),
 			this.system.params.compiledWorldTraits
 		);
-		T cache = mode.canLoad() && lod < this.maxLoadLevel ? this.preload(generateFrom) : null;
+		T_LoadCache cache = mode.canLoad() && lod < this.maxLoadLevel ? this.preload(generateFrom) : null;
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int z = generateFrom.minZ(); z <= generateFrom.maxZ(); z += distanceBetweenQuads) {
 				final int z_ = z;
@@ -198,11 +198,11 @@ public class LodGenerator<T> implements SafeCloseable {
 		);
 	}
 
-	public T preload(BoundingBox area) {
+	public T_LoadCache preload(BoundingBox area) {
 		return null;
 	}
 
-	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, DownscaleSettings downscale, @Nullable T cache) {
+	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, DownscaleSettings downscale, @Nullable T_LoadCache cache) {
 		QuadList quadList = new QuadList();
 		if (mode.canGenerate()) {
 			quadList.createNew(quadColumn.object00.minY(), quadColumn.object00.maxY());
@@ -214,6 +214,7 @@ public class LodGenerator<T> implements SafeCloseable {
 
 	public void processDirtyChunks() {}
 
+	@Environment(EnvType.CLIENT)
 	public static enum LoadMode {
 		GENERATE_ONLY,
 		LOAD_OR_GENERATE,
@@ -236,6 +237,7 @@ public class LodGenerator<T> implements SafeCloseable {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static record DownscaleSettings(byte packedData) {
 
 		public static final DownscaleSettings NONE = new DownscaleSettings((byte)(0));

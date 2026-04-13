@@ -1,9 +1,12 @@
 package builderb0y.bigglobe.rendering2;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import org.joml.Matrix4f;
 
+@Environment(EnvType.CLIENT)
 public class CommonState {
 
 	public static final Matrix4f

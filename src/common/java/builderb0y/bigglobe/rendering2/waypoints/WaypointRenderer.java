@@ -18,6 +18,8 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.TextureFormat;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
@@ -36,6 +38,7 @@ import builderb0y.bigglobe.rendering2.NativeMemory;
 import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public class WaypointRenderer implements SafeCloseable {
 
 	public static final RenderPipeline PIPELINE = (
@@ -211,6 +214,7 @@ public class WaypointRenderer implements SafeCloseable {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class State {
 
 		public List<WaypointEntityRenderer.State> waypoints = Collections.emptyList();

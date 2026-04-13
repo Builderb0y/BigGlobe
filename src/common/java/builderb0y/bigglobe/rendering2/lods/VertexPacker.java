@@ -1,10 +1,13 @@
 package builderb0y.bigglobe.rendering2.lods;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.util.ARGB;
 
+@Environment(EnvType.CLIENT)
 public class VertexPacker implements VertexConsumer {
 
 	public static final byte

@@ -1,14 +1,20 @@
 package builderb0y.bigglobe.rendering2.lods.flat;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.rendering2.lods.*;
+import builderb0y.bigglobe.rendering2.lods.GenerationPipeline;
+import builderb0y.bigglobe.rendering2.lods.LodFrustum;
 import builderb0y.bigglobe.rendering2.lods.LodGenerator.LoadMode;
+import builderb0y.bigglobe.rendering2.lods.LodNode;
+import builderb0y.bigglobe.rendering2.lods.LodTree;
 
+@Environment(EnvType.CLIENT)
 public class FlatLodTree extends LodTree {
 
 	public final FlatLodSystem system;

@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.rendering2.lods.flat;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -11,6 +14,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.rendering2.lods.LodGenerator;
 import builderb0y.bigglobe.rendering2.lods.LodSystem;
 
+@Environment(EnvType.CLIENT)
 public class FlatLoadingLodGenerator extends LodGenerator<FlatLoadingLodGenerator.LightweightChunkArea> {
 
 	public final ChunkCache chunkCache;
@@ -77,6 +81,7 @@ public class FlatLoadingLodGenerator extends LodGenerator<FlatLoadingLodGenerato
 		this.chunkCache.processDirtyChunks();
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static record LightweightChunkArea(LightweightChunk[] chunks, int minChunkX, int minChunkZ, int stride) {
 
 		public LightweightChunkArea(LightweightChunk[] chunks, ChunkPos minChunkPosInclusive, ChunkPos maxChunkPosInclusive) {

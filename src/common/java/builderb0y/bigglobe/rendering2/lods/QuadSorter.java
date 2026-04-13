@@ -2,6 +2,8 @@ package builderb0y.bigglobe.rendering2.lods;
 
 import java.util.function.Function;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +16,7 @@ import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public abstract class QuadSorter implements SafeCloseable {
 
 	public @Nullable Direction getGeometricNormal(VertexPacker view) {
@@ -114,6 +117,7 @@ public abstract class QuadSorter implements SafeCloseable {
 
 	public abstract NativeMemory getOutput(VertexPacker view);
 
+	@Environment(EnvType.CLIENT)
 	public static class UnsortedQuadSorter extends QuadSorter {
 
 		public final NativeMemory output;
@@ -138,6 +142,7 @@ public abstract class QuadSorter implements SafeCloseable {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class LayerQuadSorter extends QuadSorter {
 
 		public final QuadSorter solid, cutout, translucent;
@@ -176,6 +181,7 @@ public abstract class QuadSorter implements SafeCloseable {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class FlatNormalQuadSorter extends QuadSorter {
 
 		public final QuadSorter

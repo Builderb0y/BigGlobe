@@ -6,15 +6,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -25,9 +25,9 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.rendering2.lods.flat.FlatLodSystem;
-import builderb0y.bigglobe.rendering2.lods.flat.LodQuadNode;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public abstract class LodSystem implements SafeCloseable {
 
 	static {

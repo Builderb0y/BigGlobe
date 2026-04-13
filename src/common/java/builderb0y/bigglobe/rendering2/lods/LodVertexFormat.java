@@ -2,10 +2,13 @@ package builderb0y.bigglobe.rendering2.lods;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.BigGlobeMod;
 
+@Environment(EnvType.CLIENT)
 public class LodVertexFormat {
 
 	public static final int VERTEX_BYTES = 3 * 4, QUAD_BYTES = VERTEX_BYTES * 4;

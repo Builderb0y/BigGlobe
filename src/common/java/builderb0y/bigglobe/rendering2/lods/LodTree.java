@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.rendering2.lods;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -7,6 +9,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.rendering2.lods.flat.LodQuadNode;
 
+@Environment(EnvType.CLIENT)
 public abstract class LodTree implements AutoCloseable {
 
 	public abstract LodNode getRoot();

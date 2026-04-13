@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
@@ -15,6 +17,7 @@ import builderb0y.bigglobe.rendering2.lods.QuadSorter.LayerQuadSorter;
 import builderb0y.bigglobe.rendering2.lods.QuadSorter.UnsortedQuadSorter;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public class FlatMesh implements SafeCloseable {
 
 	public final GpuBuffer

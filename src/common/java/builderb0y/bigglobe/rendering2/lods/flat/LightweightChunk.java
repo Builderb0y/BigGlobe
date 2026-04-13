@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.rendering2.lods.flat;
 
 import com.mojang.serialization.DataResult;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
@@ -29,8 +31,10 @@ import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
+@Environment(EnvType.CLIENT)
 public class LightweightChunk {
 
+	@Environment(EnvType.CLIENT)
 	public static enum ColumnIndexRange {
 		LOD0(0, 256),
 		LOD1(LOD0.end, LOD0.end + 64),

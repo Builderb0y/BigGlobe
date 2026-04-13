@@ -1,9 +1,12 @@
 package builderb0y.bigglobe.rendering2.lods;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public abstract class LodNode implements SafeCloseable {
 
 	public static final int

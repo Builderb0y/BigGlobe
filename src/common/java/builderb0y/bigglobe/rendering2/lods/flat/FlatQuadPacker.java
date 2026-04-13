@@ -2,6 +2,8 @@ package builderb0y.bigglobe.rendering2.lods.flat;
 
 import java.util.function.Supplier;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -10,13 +12,14 @@ import net.minecraft.util.Mth;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering2.NativeMemory;
+import builderb0y.bigglobe.rendering2.lods.LodNode;
 import builderb0y.bigglobe.rendering2.lods.LodVertexFormat;
+import builderb0y.bigglobe.rendering2.lods.QuadPacker;
 import builderb0y.bigglobe.rendering2.lods.QuadSorter.FlatNormalQuadSorter;
 import builderb0y.bigglobe.rendering2.lods.QuadSorter.LayerQuadSorter;
 import builderb0y.bigglobe.rendering2.lods.QuadSorter.UnsortedQuadSorter;
-import builderb0y.bigglobe.rendering2.lods.LodNode;
-import builderb0y.bigglobe.rendering2.lods.QuadPacker;
 
+@Environment(EnvType.CLIENT)
 public class FlatQuadPacker extends QuadPacker<FlatMesh> {
 
 	public FlatQuadPacker() {

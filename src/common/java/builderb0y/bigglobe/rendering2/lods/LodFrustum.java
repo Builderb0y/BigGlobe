@@ -3,10 +3,11 @@ package builderb0y.bigglobe.rendering2.lods;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.world.phys.Vec3;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
+
+import net.minecraft.world.phys.Vec3;
+
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RenderVersions;

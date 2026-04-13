@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.rendering2.lods.flat;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 
 import net.minecraft.client.Minecraft;
@@ -15,6 +17,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.rendering2.lods.*;
 
+@Environment(EnvType.CLIENT)
 public class FlatLodSystem extends LodSystem {
 
 	public final FlatLodTree tree;

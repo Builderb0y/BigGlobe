@@ -2,6 +2,8 @@ package builderb0y.bigglobe.rendering2.lods;
 
 import java.util.function.Consumer;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -24,6 +26,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 
 	public final BlockSegmentList[] storage;

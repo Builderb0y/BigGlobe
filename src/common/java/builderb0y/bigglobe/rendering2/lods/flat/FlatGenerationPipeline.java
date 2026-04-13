@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.rendering2.lods.flat;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -13,6 +15,7 @@ import builderb0y.bigglobe.rendering2.lods.LodGenerator.DownscaleSettings;
 import builderb0y.bigglobe.rendering2.lods.LodGenerator.LoadMode;
 import builderb0y.bigglobe.rendering2.lods.LodMesher;
 
+@Environment(EnvType.CLIENT)
 public class FlatGenerationPipeline extends GenerationPipeline {
 
 	public FlatGenerationPipeline(FlatLodSystem system, LodGenerator<?> generator, LodMesher mesher) {

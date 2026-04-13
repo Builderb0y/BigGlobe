@@ -1,5 +1,9 @@
 package builderb0y.bigglobe.rendering2.lods;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
+@Environment(EnvType.CLIENT)
 public record DrawRange(int firstVertex, int vertexCount) {
 
 	public static DrawRange fromBytes(int firstByte, int byteCount) {

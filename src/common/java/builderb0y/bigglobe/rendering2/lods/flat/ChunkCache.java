@@ -4,6 +4,9 @@ import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -23,6 +26,7 @@ import builderb0y.bigglobe.util.TimestampedComputingCache.ValueHolder;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.NbtVersions;
 
+@Environment(EnvType.CLIENT)
 public class ChunkCache implements SafeCloseable {
 
 	public final LodGenerator<?> generator;

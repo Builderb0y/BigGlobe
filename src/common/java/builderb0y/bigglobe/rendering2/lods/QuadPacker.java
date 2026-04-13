@@ -4,6 +4,8 @@ import java.nio.ByteOrder;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadView;
 
 import net.minecraft.util.ARGB;
@@ -13,6 +15,7 @@ import net.minecraft.util.Mth;
 import builderb0y.bigglobe.rendering2.NativeMemory;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public abstract class QuadPacker<T_Mesh extends SafeCloseable> implements Consumer<QuadView>, SafeCloseable {
 
 	public final QuadSorter sorter;

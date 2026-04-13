@@ -1,6 +1,11 @@
 package builderb0y.bigglobe.rendering2.lods;
 
 import java.util.Arrays;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.SimpleBitStorage;
@@ -11,13 +16,15 @@ import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.phys.shapes.Shapes;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
+@Environment(EnvType.CLIENT)
 public class LightweightSection {
 
+	@Environment(EnvType.CLIENT)
 	public static enum SectionIndexRange {
 		LOD0(0, 4096, false),
 		LOD1(0, 512, true),
@@ -102,6 +109,7 @@ public class LightweightSection {
 	}
 
 	@FunctionalInterface
+	@Environment(EnvType.CLIENT)
 	public static interface Mipper {
 
 		public void mip(int srcLod, int srcIndex, int srcShift, int dstIndex);
@@ -139,6 +147,7 @@ public class LightweightSection {
 		return level;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class CountsMap {
 
 		public final int[] counts = new int[8];
@@ -203,6 +212,7 @@ public class LightweightSection {
 	//would've just used ChunkNibbleArray directly,
 	//but it's limited to length 2048 exclusively.
 	//this is wasteful for LOD light levels.
+	@Environment(EnvType.CLIENT)
 	public static class LightLevelStorage {
 
 		public final byte[] payload;

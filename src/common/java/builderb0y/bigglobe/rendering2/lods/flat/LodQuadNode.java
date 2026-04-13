@@ -1,10 +1,14 @@
 package builderb0y.bigglobe.rendering2.lods.flat;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.util.Mth;
 
 import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.rendering2.lods.LodNode;
 
+@Environment(EnvType.CLIENT)
 public class LodQuadNode extends LodNode {
 
 	public static final int

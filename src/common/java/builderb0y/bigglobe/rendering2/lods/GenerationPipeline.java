@@ -4,6 +4,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -15,6 +17,7 @@ import builderb0y.bigglobe.rendering2.lods.LodGenerator.LoadMode;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public abstract class GenerationPipeline extends Thread implements SafeCloseable {
 
 	public static final long CHUNKLOAD_DELAY_MS = 2000L;
@@ -86,6 +89,7 @@ public abstract class GenerationPipeline extends Thread implements SafeCloseable
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static record Request(
 		LodNode node,
 		LoadMode mode,
@@ -99,6 +103,7 @@ public abstract class GenerationPipeline extends Thread implements SafeCloseable
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static record Supply(
 		LodNode node,
 		QuadPacker<?> packer,

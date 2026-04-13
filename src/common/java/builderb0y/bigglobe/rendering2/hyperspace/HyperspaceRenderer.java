@@ -15,13 +15,14 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 import org.lwjgl.system.*;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -43,6 +44,7 @@ import builderb0y.bigglobe.rendering2.CommonState;
 import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+@Environment(EnvType.CLIENT)
 public class HyperspaceRenderer implements SafeCloseable {
 
 	public static final RenderPipeline
@@ -418,6 +420,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static class Beam {
 
 		public static final int maxBeamTicks = 10 * 20;
