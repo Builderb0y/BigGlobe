@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.fog.environment.LavaFogEnvironment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import builderb0y.bigglobe.rendering2.SoulLavaFogHandler;
+import builderb0y.bigglobe.rendering.SoulLavaFogHandler;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LavaFogEnvironment.class)

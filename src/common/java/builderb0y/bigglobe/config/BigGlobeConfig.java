@@ -27,7 +27,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
 @Config(name = BigGlobeMod.MODID)

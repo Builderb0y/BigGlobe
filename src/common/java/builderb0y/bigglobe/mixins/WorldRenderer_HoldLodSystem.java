@@ -12,7 +12,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 @Mixin(LevelRenderer.class)
 public class WorldRenderer_HoldLodSystem implements LodSystemHolder {

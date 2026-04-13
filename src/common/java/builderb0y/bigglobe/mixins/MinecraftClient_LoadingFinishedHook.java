@@ -11,9 +11,9 @@ import net.minecraft.client.main.GameConfig;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.rendering2.hyperspace.HyperspaceRenderer;
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
-import builderb0y.bigglobe.rendering2.waypoints.WaypointRenderer;
+import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
+import builderb0y.bigglobe.rendering.waypoints.WaypointRenderer;
 
 @Mixin(Minecraft.class)
 public class MinecraftClient_LoadingFinishedHook {

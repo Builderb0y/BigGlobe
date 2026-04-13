@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.LevelRenderer;
 
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 public interface LodSystemHolder {
 

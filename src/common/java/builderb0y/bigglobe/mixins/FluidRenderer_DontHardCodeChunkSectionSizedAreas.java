@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import net.minecraft.client.renderer.block.FluidRenderer;
 
-import builderb0y.bigglobe.rendering2.lods.LodMesher;
+import builderb0y.bigglobe.rendering.lods.LodMesher;
 
 @Mixin(FluidRenderer.class)
 public class FluidRenderer_DontHardCodeChunkSectionSizedAreas {

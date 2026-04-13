@@ -12,7 +12,7 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
-import builderb0y.bigglobe.rendering2.lods.LodVertexFormat;
+import builderb0y.bigglobe.rendering.lods.LodVertexFormat;
 import builderb0y.bigglobe.scripting.ClientPrintSink;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 

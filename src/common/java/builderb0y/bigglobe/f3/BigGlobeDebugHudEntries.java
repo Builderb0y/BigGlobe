@@ -13,7 +13,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 @Environment(EnvType.CLIENT)
 public class BigGlobeDebugHudEntries {

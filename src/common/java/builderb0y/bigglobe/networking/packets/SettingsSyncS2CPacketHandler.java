@@ -30,7 +30,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.util.NbtIo2;
 
 public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<SettingsSyncS2CPacketHandler.Receiving> {

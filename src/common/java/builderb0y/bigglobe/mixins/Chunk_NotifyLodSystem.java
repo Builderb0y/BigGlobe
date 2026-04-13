@@ -17,8 +17,8 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.ImmersivePortalsCompat;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
-import builderb0y.bigglobe.rendering2.lods.LodSystem;
-import builderb0y.bigglobe.rendering2.lods.flat.FlatLoadingLodGenerator;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
+import builderb0y.bigglobe.rendering.lods.flat.FlatLoadingLodGenerator;
 
 @Mixin(ChunkAccess.class)
 public abstract class Chunk_NotifyLodSystem {
