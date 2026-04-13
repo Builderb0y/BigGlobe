@@ -1,6 +1,9 @@
 package builderb0y.bigglobe.rendering2.lods;
 
+import java.util.function.Function;
+
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadView;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -11,7 +14,7 @@ import builderb0y.bigglobe.rendering2.ResourceTracker;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.SafeCloseable;
 
-public abstract class FaceSorter implements SafeCloseable {
+public abstract class QuadSorter implements SafeCloseable {
 
 	public @Nullable Direction getGeometricNormal(VertexPacker view) {
 		float
@@ -111,11 +114,11 @@ public abstract class FaceSorter implements SafeCloseable {
 
 	public abstract NativeMemory getOutput(VertexPacker view);
 
-	public static class UnsortedFaceSorter extends FaceSorter {
+	public static class UnsortedQuadSorter extends QuadSorter {
 
 		public final NativeMemory output;
 
-		public UnsortedFaceSorter(NativeMemory output) {
+		public UnsortedQuadSorter(NativeMemory output) {
 			this.output = output;
 		}
 
@@ -135,17 +138,21 @@ public abstract class FaceSorter implements SafeCloseable {
 		}
 	}
 
-	public static class LayerFaceSorter extends FaceSorter {
+	public static class LayerQuadSorter extends QuadSorter {
 
-		public final FaceSorter solid, cutout, translucent;
+		public final QuadSorter solid, cutout, translucent;
 
-		public LayerFaceSorter(FaceSorter solid, FaceSorter cutout, FaceSorter translucent) {
+		public LayerQuadSorter(QuadSorter solid, QuadSorter cutout, QuadSorter translucent) {
 			this.solid = solid;
 			this.cutout = cutout;
 			this.translucent = translucent;
 		}
 
-		public FaceSorter getNext(ChunkSectionLayer layer) {
+		public LayerQuadSorter(Function<ChunkSectionLayer, QuadSorter> allLayers) {
+			this(allLayers.apply(ChunkSectionLayer.SOLID), allLayers.apply(ChunkSectionLayer.CUTOUT), allLayers.apply(ChunkSectionLayer.TRANSLUCENT));
+		}
+
+		public QuadSorter getNext(ChunkSectionLayer layer) {
 			return switch (layer) {
 				case SOLID -> this.solid;
 				case CUTOUT -> this.cutout;
@@ -169,30 +176,34 @@ public abstract class FaceSorter implements SafeCloseable {
 		}
 	}
 
-	public static class FlatFaceSorter extends FaceSorter {
+	public static class FlatNormalQuadSorter extends QuadSorter {
 
-		public final FaceSorter
-			north,
-			east,
-			south,
-			west,
-			other;
+		public final QuadSorter
+			posX,
+			negX,
+			posZ,
+			negZ,
+			none;
 
-		public FlatFaceSorter(FaceSorter north, FaceSorter east, FaceSorter south, FaceSorter west, FaceSorter other) {
-			this.north = north;
-			this.east  = east;
-			this.south = south;
-			this.west  = west;
-			this.other = other;
+		public FlatNormalQuadSorter(QuadSorter posX, QuadSorter negX, QuadSorter posZ, QuadSorter negZ, QuadSorter none) {
+			this.posX = posX;
+			this.negX = negX;
+			this.posZ = posZ;
+			this.negZ = negZ;
+			this.none = none;
 		}
 
-		public FaceSorter getNext(Direction face) {
+		public FlatNormalQuadSorter(Function<@Nullable Direction, @NotNull QuadSorter> allFaces) {
+			this(allFaces.apply(Directions.POSITIVE_X), allFaces.apply(Directions.NEGATIVE_X), allFaces.apply(Directions.POSITIVE_Z), allFaces.apply(Directions.NEGATIVE_Z), allFaces.apply(null));
+		}
+
+		public QuadSorter getNext(Direction face) {
 			return switch (face) {
-				case NORTH -> this.north;
-				case EAST  -> this.east;
-				case SOUTH -> this.south;
-				case WEST  -> this.west;
-				case null, default -> this.other;
+				case NORTH -> this.negZ;
+				case EAST  -> this.posX;
+				case SOUTH -> this.posZ;
+				case WEST  -> this.negX;
+				case null, default -> this.none;
 			};
 		}
 
@@ -208,7 +219,7 @@ public abstract class FaceSorter implements SafeCloseable {
 
 		@Override
 		public void close() {
-			ResourceTracker.closeAll(this.north, this.east, this.south, this.west, this.other);
+			ResourceTracker.closeAll(this.posX, this.negX, this.posZ, this.negZ, this.none);
 		}
 	}
 }

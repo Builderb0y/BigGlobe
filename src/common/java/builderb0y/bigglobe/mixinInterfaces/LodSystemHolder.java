@@ -1,15 +1,16 @@
 package builderb0y.bigglobe.mixinInterfaces;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.renderer.LevelRenderer;
+
+import builderb0y.bigglobe.rendering2.lods.LodSystem;
 
 public interface LodSystemHolder {
 
-	/*
-	//todo: re-enable once rendering is re-written.
 	public abstract @Nullable LodSystem bigglobe_getLodSystem();
 
 	public abstract void bigglobe_setLodSystem(@Nullable LodSystem system);
-	*/
 
 	public static LodSystemHolder of(LevelRenderer worldRenderer) {
 		return (LodSystemHolder)(worldRenderer);

@@ -270,10 +270,6 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			return new Hints(true, UndergroundMode.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().distantHorizonsIntegration.undergroundMode), lod, this);
 		}
 
-		public Hints voxyHints(int lod) {
-			return new Hints(true, UndergroundMode.min(this.defaultUndergroundMode(), BigGlobeConfig.INSTANCE.get().voxyIntegration.undergroundMode), lod, this);
-		}
-
 		public Hints maybeDhHints() {
 			return this.maybeDhHints(DistantHorizonsCompat.isOnDistantHorizonThread());
 		}

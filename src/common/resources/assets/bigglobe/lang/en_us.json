@@ -390,20 +390,6 @@
 	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[2]": "AUTO: Big Globe will only do that when neither Distant Horizons nor Voxy are installed.",
 	"text.autoconfig.bigglobe.option.lodRendering.enabled.@Tooltip[3]": "If you're on multiplayer, the server and the client must both have this option enabled for LOD rendering to work.",
 
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend": "Renderer Backend",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[0]": "This config option controls what openGL tricks Big Globe uses to render LODs.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[1]": "It is recommended to set this to AUTO to allow Big Globe to pick the best backend for your hardware and drivers.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[2]": "This option exists for people who have compatibility issues with Big Globe's default selection.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[3]": "SIMPLE_SEPARATE: uses one glDrawElements() call for each LOD node.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[4]": "SIDED_SEPARATE: groups faces by normal vector, and for each LOD node, issues a glMultiDrawElements() call for all faces which are facing towards the player.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[5]": "SIDED_COMBINED: groups faces by normal vector, and at the end of rendering, issues a single glMultiDrawElements() call for all visible geometry.",
-	"text.autoconfig.bigglobe.option.lodRendering.rendererBackend.@Tooltip[6]": "AUTO: uses SIDED_SEPARATE, since it seems to be the most stable across different hardware and drivers.",
-
-	"text.autoconfig.bigglobe.option.lodRendering.maxQuads": "Max Quads",
-	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[0]": "The number of quads Big Globe will allow itself to render.",
-	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[1]": "More quads will allow higher quality LOD rendering.",
-	"text.autoconfig.bigglobe.option.lodRendering.maxQuads.@Tooltip[2]": "Fewer quads will use less VRAM.",
-
 	"text.autoconfig.bigglobe.option.lodRendering.quality": "Quality",
 	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[0]": "Factor controlling how far away LOD terrain can render before it gets replaced with a lower quality version of that terrain.",
 	"text.autoconfig.bigglobe.option.lodRendering.quality.@Tooltip[1]": "Higher quality will use higher quality models for further distances.",
@@ -476,27 +462,6 @@
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[2]": "CARVE - Caves will generate, but underground structures and features will not.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[3]": "DECORATE - All underground stuff will generate normally.",
 	"text.autoconfig.bigglobe.option.distantHorizonsIntegration.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate chunks for Distant Horizons at.",
-
-	"text.autoconfig.bigglobe.option.voxyIntegration": "Voxy Integration",
-	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[0]": "Configures special actions to take or skip when generating chunks for Voxy.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.@Tooltip[1]": "None of these actions will ever be skipped for normal chunks. This category will have no effect if Voxy is not installed.",
-
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread": "Use Worldgen Thread",
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[0]": "If true, Big Globe will generate terrain for Voxy constantly in a background thread.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[1]": "If false, Voxy will only process chunks you've visited.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.useWorldgenThread.@Tooltip[2]": "Note that terrain generated this way may be a simplified representation of actual terrain, and finer details may be filled in only when you get closer to it.",
-
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode": "Underground Mode",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[0]": "NONE - The underground and all blocks in it are completely skipped.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[1]": "FILL - The underground will be filled with stone, but no caves will generate.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[2]": "CARVE - Caves will generate, but underground structures and features will not.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[3]": "DECORATE - Currently the same as 2, but maybe some day underground structures and features might generate too.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.undergroundMode.@Tooltip[4]": "Reducing this value can increase the speed which Big Globe can generate chunks for Voxy at.",
-
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir": "Light Air",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[0]": "If true, Big Globe will tell Voxy what the light level of air blocks are.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[1]": "If false, Big Globe will skip air blocks when giving data to Voxy.",
-	"text.autoconfig.bigglobe.option.voxyIntegration.lightAir.@Tooltip[2]": "Enabling this option can fix some lighting errors with Voxy, at the cost of LOD generation speed.",
 
 	"text.autoconfig.bigglobe.option.c2meIntegration": "C2ME Integration",
 	"text.autoconfig.bigglobe.option.c2meIntegration.@Tooltip[0]": "Configures special behaviors when C2ME is installed.",

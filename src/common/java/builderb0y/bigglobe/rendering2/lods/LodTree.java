@@ -19,15 +19,22 @@ public abstract class LodTree implements AutoCloseable {
 
 	public abstract int countDirtyNodes();
 
-	public abstract void pruneTree();
+	public String f3Message() {
+		int meshedNodes = this.countMeshyNodes();
+		int renderingNodes = this.countRenderingNodes();
+		int dirtyNodes = this.countDirtyNodes();
+		int totalNodes = this.countTotalNodes();
+		return "[BG] LOD Nodes: R: " + renderingNodes + ", M: " + meshedNodes + ", D: " + dirtyNodes + ", T: " + totalNodes;
+	}
+
 
 	public abstract @Nullable LodNode getNodeAtPlayerForDowngradeChecking();
-
-	public abstract void drawTree();
 
 	public abstract void updateTree();
 
 	public abstract void invalidateRegion(BoundingBox region);
+
+	public abstract BoundingBox getBounds(LodNode node);
 
 	public static double computeTreeQuality(double squareDistance, LodQuadNode node) {
 		return FastMath.Log.fastLog2(squareDistance) * 0.5D - node.level;

@@ -1,42 +1,35 @@
 package builderb0y.bigglobe.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
 
-@Mixin(FogRenderer.class)
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+
+@Mixin(value = FogRenderer.class, priority = 500) //before sodium.
 public abstract class BackgroundRenderer_NoFogWithLods {
 
-	/*
-	//todo: re-enable once rendering is re-written.
-	@Inject(method = "setupFog(Lnet/minecraft/client/Camera;ILnet/minecraft/client/DeltaTracker;FLnet/minecraft/client/multiplayer/ClientLevel;)Lorg/joml/Vector4f;", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getDevice()Lcom/mojang/blaze3d/systems/GpuDevice;", remap = false))
+	@Inject(method = "setupFog", at = @At(value = "TAIL"))
 	private void bigglobe_disableFogWhenRenderingLods(
 		Camera camera,
 		int viewDistance,
-
 		DeltaTracker tickCounter,
 		float skyDarkness,
 		ClientLevel world,
-		CallbackInfoReturnable<Vector4f> callback,
-		@Local FogData fogData
+		CallbackInfoReturnable<FogData> callback
 	) {
 		if (Minecraft.getInstance().levelRenderer instanceof LodSystemHolder holder && holder.bigglobe_getLodSystem() != null) {
+			FogData fogData = callback.getReturnValue();
 			fogData.renderDistanceStart = fogData.environmentalStart = 30_000_000.0F * 4.0F;
 			fogData.renderDistanceEnd = fogData.environmentalEnd = 30_000_000.0F * 8.0F;
 		}
 	}
-
-	@ModifyReturnValue(method = "computeFogColor", at = @At(value = "RETURN"))
-	private Vector4f bigglobe_captureFogColor(Vector4f original) {
-		if (Minecraft.getInstance() != null && Minecraft.getInstance().levelRenderer != null) {
-			LodSystem system = LodSystemHolder.of(Minecraft.getInstance().levelRenderer).bigglobe_getLodSystem();
-			if (system != null) {
-				system.renderState.fogR = original.x;
-				system.renderState.fogG = original.y;
-				system.renderState.fogB = original.z;
-			}
-		}
-		return original;
-	}
-	*/
 }

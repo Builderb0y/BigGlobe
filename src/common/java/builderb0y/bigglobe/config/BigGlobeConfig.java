@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import me.shedaniel.autoconfig.annotation.Config;
-import me.shedaniel.autoconfig.annotation.ConfigEntry.BoundedDiscrete;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.EnumHandler;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.EnumHandler.EnumDisplayOption;
@@ -19,6 +18,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 
 import builderb0y.autocodec.annotations.*;
@@ -26,6 +26,8 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 import builderb0y.bigglobe.compat.InstalledMods;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+import builderb0y.bigglobe.rendering2.lods.LodSystem;
 
 //reminder: any time I add something new to this file, I need to add a lang entry for it too.
 @Config(name = BigGlobeMod.MODID)
@@ -43,7 +45,6 @@ public class BigGlobeConfig {
 		this.dataPackDebugging.validatePostLoad();
 		this.lodRendering.validatePostLoad();
 		this.distantHorizonsIntegration.validatePostLoad();
-		this.voxyIntegration.validatePostLoad();
 		this.playerSpawning.validatePostLoad();
 	}
 
@@ -207,56 +208,10 @@ public class BigGlobeConfig {
 			return this.enabled.isEnabled();
 		}
 
-		public static enum RendererBackend {
-			AUTO,
-			SIMPLE_SEPARATE,
-			SIDED_SEPARATE,
-			SIDED_COMBINED;
-
-			/*
-			//todo: re-enable once rendering is re-written.
-			@Environment(EnvType.CLIENT)
-			public LodRenderer createRenderer(LodRendering config) {
-				int quads = config.maxQuads;
-				return switch (this) {
-					case AUTO -> new SidedSeparateLodRenderer(quads);
-					case SIMPLE_SEPARATE -> new SimpleLodRenderer(quads);
-					case SIDED_SEPARATE -> new SidedSeparateLodRenderer(quads);
-					case SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
-				};
-			}
-			*/
-		}
-
-		@Tooltip(count = 7)
-		@UseName("Renderer Backend")
-		@EnumHandler(option = EnumDisplayOption.BUTTON)
-		@DefaultIgnore
-		public RendererBackend rendererBackend = RendererBackend.AUTO;
-		@Excluded
-		public static transient RendererBackend previousRendererBackend = RendererBackend.AUTO;
-
-		/*
-		//todo: re-enable once rendering is re-written.
-		@Environment(EnvType.CLIENT)
-		public LodRenderer createRendererBackend() {
-			return this.rendererBackend.createRenderer(this);
-		}
-		*/
-
-		@Tooltip(count = 3)
-		@UseName("Maximum Quad Count")
-		@DefaultIgnore
-		@BoundedDiscrete(min = 10_000_000L, max = 100_000_000L)
-		@VerifyIntRange(min = 10_000_000L, max = 100_000_000L)
-		public int maxQuads = 50_000_000;
-		@Excluded
-		public static transient int previousMaxQuads = 50_000_000;
-
 		@Tooltip(count = 3)
 		@UseName("Quality")
 		@DefaultIgnore
-		public double quality = 1.0D;
+		public double quality = 7.0D;
 
 		@Tooltip(count = 3)
 		@UseName("Max LOD For Chunk Loading")
@@ -318,8 +273,7 @@ public class BigGlobeConfig {
 		public boolean showProgress = true;
 
 		public void validatePostLoad() {
-			this.maxQuads = Mth.clamp(this.maxQuads, 10_000_000, 100_000_000);
-			this.quality = Mth.clamp(this.quality, -2.0D, 2.0D);
+			this.quality = Mth.clamp(this.quality, 4.0D, 8.0D);
 			this.maxLodForChunkLoading = Mth.clamp(this.maxLodForChunkLoading, 0, 5);
 			this.verticalCompression = Math.max(this.verticalCompression, 0);
 			this.caveCullingDepth = Math.max(this.caveCullingDepth, -1);
@@ -335,22 +289,16 @@ public class BigGlobeConfig {
 
 		@Environment(EnvType.CLIENT)
 		public void maybeReloadLODs() {
-			/*
-			//todo: re-enable once rendering is re-written.
 			Minecraft client = Minecraft.getInstance();
 			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.levelRenderer) : null;
 			if (
 				this.renderingEnabled() != previousEnabled ||
-				this.rendererBackend != previousRendererBackend ||
-				this.maxQuads != previousMaxQuads ||
 				this.undergroundMode != previousUndergroundMode ||
 				this.maxLodForChunkLoading != previousMaxLodForChunkLoading ||
 				this.verticalCompression != previousVerticalCompression ||
 				this.caveCullingDepth != previousCaveCullingDepth
 			) {
 				previousEnabled = this.renderingEnabled();
-				previousRendererBackend = this.rendererBackend;
-				previousMaxQuads = this.maxQuads;
 				previousUndergroundMode = this.undergroundMode;
 				previousMaxLodForChunkLoading = this.maxLodForChunkLoading;
 				previousVerticalCompression = this.verticalCompression;
@@ -363,7 +311,6 @@ public class BigGlobeConfig {
 					system.qualityLimit = this.quality;
 				}
 			}
-			*/
 		}
 	}
 
@@ -385,33 +332,6 @@ public class BigGlobeConfig {
 		@EnumHandler(option = EnumDisplayOption.BUTTON)
 		@DefaultIgnore
 		public UndergroundMode undergroundMode = UndergroundMode.FILL;
-
-		public void validatePostLoad() {}
-	}
-
-	@Tooltip(count = 2)
-	@UseName("Voxy Integration")
-	@CollapsibleObject(startExpanded = true)
-	@DefaultIgnore
-	public final VoxyIntegration voxyIntegration = new VoxyIntegration();
-
-	public static class VoxyIntegration {
-
-		@Tooltip(count = 3)
-		@UseName("Use Worldgen Thread")
-		@DefaultIgnore
-		public boolean useWorldgenThread = true;
-
-		@Tooltip(count = 5)
-		@UseName("Underground Mode")
-		@EnumHandler(option = EnumDisplayOption.BUTTON)
-		@DefaultIgnore
-		public UndergroundMode undergroundMode = UndergroundMode.NONE;
-
-		@Tooltip(count = 3)
-		@UseName("Light Air")
-		@DefaultIgnore
-		public boolean lightAir = false;
 
 		public void validatePostLoad() {}
 	}
@@ -450,5 +370,5 @@ public class BigGlobeConfig {
 	@Excluded
 	@Tooltip(count = 1)
 	@UseName("Config Version")
-	public static final int CONFIG_VERSION = 2;
+	public static final int CONFIG_VERSION = 3;
 }

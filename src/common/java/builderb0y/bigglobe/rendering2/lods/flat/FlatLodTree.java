@@ -6,11 +6,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.rendering2.lods.LodFrustum;
-import builderb0y.bigglobe.rendering2.lods.LodGenerator;
+import builderb0y.bigglobe.rendering2.lods.*;
 import builderb0y.bigglobe.rendering2.lods.LodGenerator.LoadMode;
-import builderb0y.bigglobe.rendering2.lods.LodNode;
-import builderb0y.bigglobe.rendering2.lods.LodTree;
 
 public class FlatLodTree extends LodTree {
 
@@ -19,6 +16,7 @@ public class FlatLodTree extends LodTree {
 
 	public FlatLodTree(FlatLodSystem system) {
 		this.system = system;
+		this.root = new LodQuadNode(-(1 << (LodQuadNode.MAX_SIZE - 1)), -(1 << (LodQuadNode.MAX_SIZE - 1)), LodQuadNode.MAX_LEVEL);
 	}
 
 	@Override
@@ -65,7 +63,7 @@ public class FlatLodTree extends LodTree {
 
 	public int countMeshyNodes(LodQuadNode root) {
 		return root == null ? 0 : (
-			+ (root.passes != null ? 1 : 0)
+			+ (root.mesh != null ? 1 : 0)
 			+ this.countMeshyNodes(root.x0z0)
 			+ this.countMeshyNodes(root.x0z1)
 			+ this.countMeshyNodes(root.x1z0)
@@ -89,30 +87,24 @@ public class FlatLodTree extends LodTree {
 	}
 
 	@Override
-	public void pruneTree() {
-		this.pruneTree(this.root);
+	public BoundingBox getBounds(LodNode node) {
+		return this.getBounds((LodQuadNode)(node));
 	}
 
-	public void pruneTree(LodQuadNode root) {
-		if (root == null) {
-			return;
-		}
-		double squareDistance = this.squareDistanceTo(root);
-		double treeQuality = computeTreeQuality(squareDistance, root);
-		if (treeQuality > this.system.qualityLimit) {
-			root.mergeChildren();
-		}
-		else {
-			this.pruneTree(root.x0z0);
-			this.pruneTree(root.x0z1);
-			this.pruneTree(root.x1z0);
-			this.pruneTree(root.x1z1);
-		}
+	public BoundingBox getBounds(LodQuadNode node) {
+		return new BoundingBox(
+			node.minX(),
+			this.system.params.minY,
+			node.minZ(),
+			node.maxX() - 1,
+			this.system.params.maxY - 1,
+			node.maxZ() - 1
+		);
 	}
 
 	@Override
 	public @Nullable LodNode getNodeAtPlayerForDowngradeChecking() {
-		LodFrustum frustum = this.system.frustum;
+		LodFrustum frustum = this.system.getRenderer().frustum;
 		//don't downgrade anything if we're above the world,
 		//because the LodQuadTree at the player's horizontal position
 		//will not match our current quality in this case no matter how long we wait.
@@ -146,11 +138,6 @@ public class FlatLodTree extends LodTree {
 	}
 
 	@Override
-	public void drawTree() {
-
-	}
-
-	@Override
 	public void updateTree() {
 		this.updateTree(this.root, System.currentTimeMillis(), null);
 	}
@@ -170,8 +157,8 @@ public class FlatLodTree extends LodTree {
 
 		double squareDistance = this.squareDistanceTo(tree);
 		double treeQuality = computeTreeQuality(squareDistance, tree);
-		boolean inGenerationRange = squareDistance < BigGlobeMath.squareD(this.system.frustum.generationBuffer);
-		boolean inRenderingRange = squareDistance < BigGlobeMath.squareD(this.system.frustum.farClippingPlane);
+		boolean inGenerationRange = squareDistance < BigGlobeMath.squareD(this.system.getRenderer().frustum.generationBuffer);
+		boolean inRenderingRange = squareDistance < BigGlobeMath.squareD(this.system.getRenderer().frustum.farClippingPlane);
 		boolean inLoadingRange = squareDistance < BigGlobeMath.squareD(this.system.loadDistance);
 		boolean awaitingMerge = false;
 		tree.setInRange(inRenderingRange);
@@ -182,7 +169,7 @@ public class FlatLodTree extends LodTree {
 				}
 			}
 			else {
-				if (tree.passes != null) {
+				if (tree.mesh != null) {
 					tree.mergeChildren();
 				}
 				else if (!tree.isQueued()) {
@@ -195,14 +182,14 @@ public class FlatLodTree extends LodTree {
 			tree.merge();
 		}
 
-		if (tree.level > LodQuadNode.MIN_LEVEL) {
+		if (tree.level > 0) {
 			if (frustumVisible == null) {
-				frustumVisible = this.system.frustum.test(
+				frustumVisible = this.system.getRenderer().frustum.test(
 					tree.minX(),
-					this.system.generator.generatorParams.minY,
+					this.system.params.minY,
 					tree.minZ(),
 					tree.maxX(),
-					this.system.generator.generatorParams.maxY,
+					this.system.params.maxY,
 					tree.maxZ()
 				);
 			}
@@ -216,13 +203,13 @@ public class FlatLodTree extends LodTree {
 			//only this tree exists: 1
 			//all 4 children exist: child depth + 1
 			//tree and children exist: child depth + 1
-			if (depth > 0 || tree.passes != null || !inRenderingRange) {
+			if (depth > 0 || tree.mesh != null || !inRenderingRange) {
 				depth++;
 			}
 			tree.setAncestorDepth(depth);
 		}
 		else {
-			tree.setAncestorDepth(tree.passes != null ? 1 : 0);
+			tree.setAncestorDepth(tree.mesh != null ? 1 : 0);
 		}
 
 		switch (tree.getAncestorDepth()) {
@@ -253,12 +240,12 @@ public class FlatLodTree extends LodTree {
 
 	@Override
 	public void invalidateRegion(BoundingBox region) {
-		this.invalidateRegion(region, this.root, System.currentTimeMillis() + LodGenerator.CHUNK_REBUILD_DELAY);
+		this.invalidateRegion(region, this.root, System.currentTimeMillis() + GenerationPipeline.CHUNKLOAD_DELAY_MS);
 	}
 
 	public void invalidateRegion(BoundingBox region, LodQuadNode node, long time) {
 		if (node != null && region.intersects(node.minX(), node.minZ(), node.maxX() - 1, node.maxZ() - 1)) {
-			if (node.level < this.system.generator.maxLoadLevel) {
+			if (node.level < this.system.generator.generator.maxLoadLevel) {
 				node.rebuildTime = time;
 			}
 			this.invalidateRegion(region, node.x0z0, time);
@@ -269,7 +256,7 @@ public class FlatLodTree extends LodTree {
 	}
 
 	public double squareDistanceTo(LodQuadNode node) {
-		LodFrustum frustum = this.system.frustum;
+		LodFrustum frustum = this.system.getRenderer().frustum;
 		double closestX = Mth.clamp(frustum.x, node.minX(), node.maxX());
 		double closestY = Mth.clamp(frustum.y, this.system.params.minY, this.system.params.maxY);
 		double closestZ = Mth.clamp(frustum.z, node.minZ(), node.maxZ());
@@ -278,6 +265,6 @@ public class FlatLodTree extends LodTree {
 
 	@Override
 	public void close() throws Exception {
-		this.root.close();
+		if (this.root != null) this.root.close();
 	}
 }

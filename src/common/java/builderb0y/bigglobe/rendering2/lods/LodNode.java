@@ -17,7 +17,7 @@ public abstract class LodNode implements SafeCloseable {
 
 	public final byte level;
 	public byte flags, ancestorDepth;
-	public @Nullable SafeCloseable passes;
+	public @Nullable SafeCloseable mesh;
 	public long rebuildTime = Long.MAX_VALUE;
 
 	public LodNode(int level) {
@@ -101,9 +101,9 @@ public abstract class LodNode implements SafeCloseable {
 
 	public void unload() {
 		this.setQueued(false);
-		SafeCloseable passes = this.passes;
+		SafeCloseable passes = this.mesh;
 		if (passes != null) {
-			this.passes = null;
+			this.mesh = null;
 			passes.close();
 		}
 	}

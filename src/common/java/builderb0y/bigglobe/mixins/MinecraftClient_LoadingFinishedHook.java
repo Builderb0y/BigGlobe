@@ -12,6 +12,7 @@ import net.minecraft.client.main.GameConfig;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.rendering2.hyperspace.HyperspaceRenderer;
+import builderb0y.bigglobe.rendering2.lods.LodSystem;
 import builderb0y.bigglobe.rendering2.waypoints.WaypointRenderer;
 
 @Mixin(Minecraft.class)
@@ -27,5 +28,6 @@ public class MinecraftClient_LoadingFinishedHook {
 		ColumnEntryRegistry.Loading.reset(); //fix compatibility with veil.
 		WaypointRenderer.init();
 		HyperspaceRenderer.init();
+		LodSystem.init();
 	}
 }

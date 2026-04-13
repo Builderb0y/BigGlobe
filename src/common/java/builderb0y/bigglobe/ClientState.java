@@ -258,6 +258,9 @@ public class ClientState {
 					if (colors.water  () != null) colors.water  ().streamDirectDependencies().forEach(collector);
 				}
 				if (this.containsLayers) collector.accept(generator.layer);
+				if (generator.biome_source() instanceof ScriptedColumnBiomeSource biomeSource) {
+					biomeSource.script.streamDirectDependencies().forEach(collector);
+				}
 				generator
 				.columnEntryRegistry
 				.registries

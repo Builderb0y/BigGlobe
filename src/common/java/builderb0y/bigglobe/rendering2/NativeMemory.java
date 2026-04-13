@@ -67,8 +67,8 @@ public class NativeMemory implements SafeCloseable {
 
 			this.address = (
 				this.address == 0L
-					? nmemAllocChecked(newCapacity)
-					: nmemReallocChecked(this.address, newCapacity)
+				? nmemAllocChecked(newCapacity)
+				: nmemReallocChecked(this.address, newCapacity)
 			);
 			this.capacity = newCapacity;
 		}
@@ -79,7 +79,7 @@ public class NativeMemory implements SafeCloseable {
 		this.ensureCapacity(this.used = Math.addExact(this.used, dataSize));
 	}
 
-	public long addressForAppending(int dataSize) {
+	public long addressForAppending(long dataSize) {
 		long nextSize = Math.addExact(this.used, dataSize);
 		long address = this.ensureCapacity(nextSize) + this.used;
 		this.used = nextSize;
@@ -113,6 +113,11 @@ public class NativeMemory implements SafeCloseable {
 
 	public NativeMemory appendDouble(double value, ByteOrder order) {
 		memPutLong(this.addressForAppending(Double.BYTES), order == ByteOrder.nativeOrder() ? Double.doubleToRawLongBits(value) : Long.reverseBytes(Double.doubleToRawLongBits(value)));
+		return this;
+	}
+
+	public NativeMemory append(NativeMemory that) {
+		memCopy(that.address, this.addressForAppending(that.used), that.used);
 		return this;
 	}
 

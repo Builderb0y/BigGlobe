@@ -2,6 +2,7 @@ package builderb0y.bigglobe.rendering2.lods;
 
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadView;
 
@@ -9,17 +10,18 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering2.NativeMemory;
 import builderb0y.bigglobe.util.SafeCloseable;
 
-public abstract class QuadPacker implements Consumer<QuadView>, SafeCloseable {
+public abstract class QuadPacker<T_Mesh extends SafeCloseable> implements Consumer<QuadView>, SafeCloseable {
 
-	public final FaceSorter sorter;
+	public final QuadSorter sorter;
 
-	public QuadPacker(FaceSorter sorter) {
+	public QuadPacker(QuadSorter sorter) {
 		this.sorter = sorter;
 	}
+
+	public abstract T_Mesh build(Supplier<String> name);
 
 	@Override
 	public void accept(QuadView view) {
@@ -76,25 +78,5 @@ public abstract class QuadPacker implements Consumer<QuadView>, SafeCloseable {
 	@Override
 	public void close() {
 		this.sorter.close();
-	}
-
-	public static class FlatQuadPacker extends QuadPacker {
-
-		public FlatQuadPacker(FaceSorter sorter) {
-			super(sorter);
-		}
-
-		@Override
-		public int encodePosition(float x, float y, float z) {
-			x = x * (  128.0F / LodNode.SIZE) + 64.5F;
-			y = y * (32768.0F /    4096.0F  ) +  0.5F;
-			z = z * (  128.0F / LodNode.SIZE) + 64.5F;
-
-			int ix = Mth.clamp(BigGlobeMath.floorI(x), 0, 255);
-			int iy = Mth.clamp(BigGlobeMath.floorI(y), Short.MIN_VALUE, Short.MAX_VALUE);
-			int iz = Mth.clamp(BigGlobeMath.floorI(z), 0, 255);
-
-			return ix | (iz << 8) | (iy << 16);
-		}
 	}
 }

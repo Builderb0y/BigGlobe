@@ -1,16 +1,22 @@
 package builderb0y.bigglobe.mixins;
 
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+import builderb0y.bigglobe.rendering2.lods.LodSystem;
 
 @Mixin(LevelRenderer.class)
 public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 
-	/*
-	//todo: re-enable once rendering is re-written.
 	@Unique
 	private LodSystem bigglobe_lodSystem;
 
@@ -44,5 +50,4 @@ public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 			this.bigglobe_lodSystem = null;
 		}
 	}
-	*/
 }

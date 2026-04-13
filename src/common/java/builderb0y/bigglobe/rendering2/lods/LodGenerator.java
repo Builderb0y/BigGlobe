@@ -1,12 +1,15 @@
 package builderb0y.bigglobe.rendering2.lods;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
@@ -20,56 +23,77 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.rendering2.lods.flat.LightweightChunk.ColumnIndexRange;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.SafeCloseable;
 
 public class LodGenerator<T> implements SafeCloseable {
 
-	public final ClientGeneratorParams generatorParams;
+	public final LodSystem system;
 	public final DimensionType dimensionType;
 	public final ConcurrentLinkedQueue<ScriptedColumn> columnRecycler = new ConcurrentLinkedQueue<>();
-	public final AtomicInteger storedColumnCount = new AtomicInteger();
+	public final LongAdder storedColumnCount = new LongAdder();
 	public final byte maxLoadLevel;
 
-	public LodGenerator(ClientGeneratorParams generatorParams, DimensionType dimensionType) {
-		this.generatorParams = generatorParams;
+	public LodGenerator(LodSystem system, DimensionType dimensionType) {
+		this.system = system;
 		this.dimensionType = dimensionType;
 		this.maxLoadLevel = (byte)(BigGlobeConfig.INSTANCE.get().lodRendering.maxLodForChunkLoading);
+	}
+
+	public String f3Message() {
+		return "[BG] LOD Generator: columns: " + this.storedColumnCount.longValue();
 	}
 
 	public ScriptedColumn nextRecycledColumn(ScriptedColumn.Params params) {
 		ScriptedColumn column = this.columnRecycler.poll();
 		if (column != null) {
-			this.storedColumnCount.decrementAndGet();
+			this.storedColumnCount.decrement();
 			column.setParamsUnchecked(params);
 			return column;
 		}
 		else {
-			return this.generatorParams.columnEntryRegistry.columnFactory.create(params);
+			return this.system.params.columnEntryRegistry.columnFactory.create(params);
 		}
 	}
 
-	public @Nullable ColumnBlockGetter generateRegion(BoundingBox region, byte lod, LoadMode mode) {
+	public void recycleColumn(ScriptedColumn column) {
+		this.columnRecycler.add(column);
+		this.storedColumnCount.increment();
+	}
+
+	public void recycleColumns(ScriptedColumn... columns) {
+		this.columnRecycler.addAll(Arrays.asList(columns));
+		this.storedColumnCount.add(columns.length);
+	}
+
+	public void recycleColumns(Collection<ScriptedColumn> columns) {
+		this.columnRecycler.addAll(columns);
+		this.storedColumnCount.add(columns.size());
+	}
+
+	public @Nullable ColumnBlockGetter generateRegion(BoundingBox generateFrom, BoundingBox translateTo, byte lod, LoadMode mode, DownscaleSettings downscale) {
 		int distanceBetweenColumns = 1 << lod;
 		int distanceBetweenQuads = 2 << lod;
-		int columnCount = (region.getXSpan() >> lod) * (region.getZSpan() >> lod);
+		int shift = downscale.mergeHorizontally() ? lod + 1 : lod;
+		int columnCount = (generateFrom.getXSpan() >> shift) * (generateFrom.getZSpan() >> shift);
 		ScriptedColumn[] columns = new ScriptedColumn[columnCount];
 		BlockSegmentList[] lists = new BlockSegmentList[columnCount];
 		ScriptedColumn.Params params = new Params(
-			this.generatorParams.columnSeed,
+			this.system.params.columnSeed,
 			0,
 			0,
-			region.minY(),
-			region.maxY() + 1,
+			generateFrom.minY(),
+			generateFrom.maxY() + 1,
 			ColumnUsage.RAW_GENERATION.builtinLodHints(lod),
-			this.generatorParams.compiledWorldTraits
+			this.system.params.compiledWorldTraits
 		);
-		T cache = mode.canLoad() && lod < this.maxLoadLevel ? this.preload(region) : null;
+		T cache = mode.canLoad() && lod < this.maxLoadLevel ? this.preload(generateFrom) : null;
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
-			for (int z = region.minZ(); z <= region.maxZ(); z += distanceBetweenQuads) {
+			for (int z = generateFrom.minZ(); z <= generateFrom.maxZ(); z += distanceBetweenQuads) {
 				final int z_ = z;
-				for (int x = region.minX(); x <= region.maxX(); x += distanceBetweenQuads) {
+				for (int x = generateFrom.minX(); x <= generateFrom.maxX(); x += distanceBetweenQuads) {
 					final int x_ = x;
 					async.submit(() -> {
 						QuadColumn quadColumn = new QuadColumn(
@@ -79,13 +103,21 @@ public class LodGenerator<T> implements SafeCloseable {
 							this.nextRecycledColumn(params)
 						);
 						quadColumn.at(params, x_, z_, distanceBetweenColumns);
-						QuadList quadList = this.loadOrGenerate(quadColumn, mode, cache);
-						int relativeX = (x_ - region.minX())    >> lod;
-						int relativeZ = (z_ - region.minZ())    >> lod;
-						int stride    =       region.getXSpan() >> lod;
+						QuadList quadList = this.loadOrGenerate(quadColumn, mode, downscale, cache);
+						int relativeX = (x_ - generateFrom.minX())    >> shift;
+						int relativeZ = (z_ - generateFrom.minZ())    >> shift;
+						int stride    =       generateFrom.getXSpan() >> shift;
 						int baseIndex = relativeZ * stride + relativeX;
-						quadColumn.storeInArray(columns, baseIndex, stride);
-						quadList.storeInArray(lists, baseIndex, stride);
+						if (downscale.mergeHorizontally()) {
+							BlockSegmentList merged = quadList.merge();
+							lists[baseIndex] = merged;
+							columns[baseIndex] = quadColumn.object00;
+							this.recycleColumns(quadColumn.object01, quadColumn.object10, quadColumn.object11);
+						}
+						else {
+							quadColumn.storeInArray(columns, baseIndex, stride);
+							quadList.storeInArray(lists, baseIndex, stride);
+						}
 					});
 				}
 			}
@@ -102,7 +134,7 @@ public class LodGenerator<T> implements SafeCloseable {
 					redo = true;
 				}
 				else {
-					this.columnRecycler.addAll(Arrays.asList(columns));
+					this.recycleColumns(columns);
 					return null;
 				}
 			}
@@ -114,47 +146,55 @@ public class LodGenerator<T> implements SafeCloseable {
 			redo = false;
 		}
 		if (redo) try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
-			for (int z = region.minZ(); z <= region.maxZ(); z += distanceBetweenQuads) {
+			for (int z = generateFrom.minZ(); z <= generateFrom.maxZ(); z += distanceBetweenQuads) {
 				final int z_ = z;
-				for (int x = region.minX(); x <= region.maxX(); x += distanceBetweenQuads) {
+				for (int x = generateFrom.minX(); x <= generateFrom.maxX(); x += distanceBetweenQuads) {
 					final int x_ = x;
 					async.submit(() -> {
-						QuadList loaded = new QuadList();
-						int relativeX = (x_ - region.minX())    >> lod;
-						int relativeZ = (z_ - region.minZ())    >> lod;
-						int stride    =       region.getXSpan() >> lod;
+						int relativeX = (x_ - generateFrom.minX())    >> lod;
+						int relativeZ = (z_ - generateFrom.minZ())    >> lod;
+						int stride    =       generateFrom.getXSpan() >> lod;
 						int baseIndex = relativeZ * stride + relativeX;
-						loaded.loadFromArray(lists, baseIndex, stride);
-						if (loaded.anyNull()) {
-							QuadColumn quadColumn = new QuadColumn();
-							quadColumn.loadFromArray(columns, baseIndex, stride);
-							QuadList generated = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, cache);
-							loaded.fillNullsFrom(generated);
-							loaded.storeInArray(lists, baseIndex, stride);
+						if (downscale.mergeHorizontally()) {
+							if (lists[baseIndex] == null) {
+								QuadColumn quadColumn = new QuadColumn(
+									this.nextRecycledColumn(params),
+									this.nextRecycledColumn(params),
+									this.nextRecycledColumn(params),
+									this.nextRecycledColumn(params)
+								);
+								quadColumn.at(params, x_, z_, distanceBetweenColumns);
+								QuadList quadList = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, downscale, cache);
+								lists[baseIndex] = quadList.merge();
+								this.recycleColumns(quadColumn.object01, quadColumn.object10, quadColumn.object11);
+							}
+						}
+						else {
+							QuadList loaded = new QuadList();
+							loaded.loadFromArray(lists, baseIndex, stride);
+							if (loaded.anyNull()) {
+								QuadColumn quadColumn = new QuadColumn();
+								quadColumn.loadFromArray(columns, baseIndex, stride);
+								QuadList generated = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, downscale, cache);
+								loaded.fillNullsFrom(generated);
+								loaded.storeInArray(lists, baseIndex, stride);
+							}
 						}
 					});
 				}
 			}
 		}
-		BoundingBox transformedVolume = new BoundingBox(
-			0,
-			region.minY(),
-			0,
-			(region.getXSpan() >> lod) - 1,
-			region.maxY(),
-			(region.getZSpan() >> lod) - 1
-		);
 		return new ColumnBlockGetter(
 			lists,
 			columns,
-			transformedVolume,
-			transformedVolume, //not padded here.
+			translateTo,
+			translateTo, //not padded here.
 			lod,
 			this.dimensionType.hasSkyLight() ? (byte)(15) : (byte)(0),
-			this.generatorParams.colors,
-			this.generatorParams.biomeSource,
+			this.system.params.colors,
+			this.system.params.biomeSource,
 			this.dimensionType.cardinalLightType().get(),
-			(ScriptedColumn[] toRecycle) -> this.columnRecycler.addAll(Arrays.asList(toRecycle))
+			this::recycleColumns
 		);
 	}
 
@@ -162,14 +202,17 @@ public class LodGenerator<T> implements SafeCloseable {
 		return null;
 	}
 
-	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, @Nullable T cache) {
+	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, DownscaleSettings downscale, @Nullable T cache) {
 		QuadList quadList = new QuadList();
 		if (mode.canGenerate()) {
 			quadList.createNew(quadColumn.object00.minY(), quadColumn.object00.maxY());
-			QuadHolder.generate(quadColumn, quadList, this.generatorParams.layer.value());
+			QuadHolder.generate(quadColumn, quadList, this.system.params.layer.value());
+			downscale.applyDownscale(quadList);
 		}
 		return quadList;
 	}
+
+	public void processDirtyChunks() {}
 
 	public static enum LoadMode {
 		GENERATE_ONLY,
@@ -193,23 +236,71 @@ public class LodGenerator<T> implements SafeCloseable {
 		}
 	}
 
-	public BlockSegmentList[] generateCaveCullingRegion(BoundingBox region) {
-		int columnCount = region.getXSpan() * region.getZSpan();
-		BlockSegmentList[] lists = new BlockSegmentList[columnCount];
+	public static record DownscaleSettings(byte packedData) {
+
+		public static final DownscaleSettings NONE = new DownscaleSettings((byte)(0));
+
+		public DownscaleSettings(int packedData) {
+			this((byte)(packedData));
+		}
+
+		public boolean mergeHorizontally() {
+			return (this.packedData & 128) != 0;
+		}
+
+		public DownscaleSettings mergeHorizontally(boolean mergeHorizontally) {
+			return new DownscaleSettings(mergeHorizontally ? (this.packedData | 128) : (this.packedData & ~128));
+		}
+
+		public int deltaLod() {
+			return this.packedData & 31;
+		}
+
+		public DownscaleSettings deltaLod(int deltaLod) {
+			return new DownscaleSettings((this.packedData & ~31) | deltaLod);
+		}
+
+		public boolean keepAir() {
+			return (this.packedData & 64) != 0;
+		}
+
+		public DownscaleSettings keepAir(boolean keepAir) {
+			return new DownscaleSettings(keepAir ? (this.packedData | 64) : (this.packedData & ~64));
+		}
+
+		public void applyDownscale(QuadList list) {
+			if (this.deltaLod() > 0) {
+				if (this.keepAir()) {
+					list.downscaleKeepAir(this.deltaLod());
+				}
+				else {
+					list.downscale(this.deltaLod());
+				}
+			}
+		}
+	}
+
+	public BlockSegmentList[] generateCaveCullingChunk(ChunkPos chunkPos) {
+		BlockSegmentList[] lists = new BlockSegmentList[ColumnIndexRange.LOD4.end];
 		ScriptedColumn.Params params = new Params(
-			this.generatorParams.columnSeed,
+			this.system.params.columnSeed,
 			0,
 			0,
-			region.minY(),
-			region.maxY() + 1,
+			this.system.params.minY,
+			this.system.params.maxY,
 			ColumnUsage.HEIGHTMAP.builtinLodHints(0),
-			this.generatorParams.compiledWorldTraits
+			this.system.params.compiledWorldTraits
 		);
-		Layer layer = this.generatorParams.layer.value();
+		Layer layer = this.system.params.layer.value();
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
-			for (int z = region.minZ(); z <= region.maxZ(); z += 2) {
+			int
+				minX = chunkPos.x() << 4,
+				minZ = chunkPos.z() << 4,
+				maxX = minX + 16,
+				maxZ = minZ + 16;
+			for (int z = minZ; z < maxZ; z += 2) {
 				final int z_ = z;
-				for (int x = region.minX(); x <= region.maxX(); x += 2) {
+				for (int x = minX; x < maxX; x += 2) {
 					final int x_ = x;
 					async.submit(() -> {
 						QuadColumn quadColumn = new QuadColumn(
@@ -222,13 +313,27 @@ public class LodGenerator<T> implements SafeCloseable {
 						QuadList quadList = new QuadList();
 						quadList.createNew(params.minY(), params.maxY());
 						QuadHolder.generate(quadColumn, quadList, layer);
-						this.columnRecycler.addAll(Arrays.asList(quadColumn.object00, quadColumn.object01, quadColumn.object10, quadColumn.object11));
-						int relativeX = (x_ - region.minX());
-						int relativeZ = (z_ - region.minZ());
-						int stride    =       region.getXSpan();
-						int baseIndex = relativeZ * stride + relativeX;
-						quadList.storeInArray(lists, baseIndex, stride);
+						this.recycleColumns(quadColumn.object00, quadColumn.object01, quadColumn.object10, quadColumn.object11);
+						int relativeX = (x_ - minX);
+						int relativeZ = (z_ - minZ);
+						int baseIndex = (relativeZ << 4) + relativeX;
+						quadList.storeInArray(lists, baseIndex, 16);
 					});
+				}
+			}
+		}
+		for (int srcLod = 0; srcLod < 4; srcLod++) {
+			int dstLod = srcLod + 1;
+			int srcShift = 4 - srcLod;
+			int dstShift = 4 - dstLod;
+			int dstChunkSize = 1 << dstShift;
+			int srcBase = ColumnIndexRange.VALUES[srcLod].start;
+			int dstBase = ColumnIndexRange.VALUES[dstLod].start;
+			for (int srcZ = 0, dstZ = 0; dstZ < dstChunkSize; srcZ += 2, dstZ += 1) {
+				for (int srcX = 0, dstX = 0; dstX < dstChunkSize; srcX += 2, dstX += 1) {
+					int srcIndex = ((srcZ << srcShift) | srcX) + srcBase;
+					int dstIndex = ((dstZ << dstShift) | dstX) + dstBase;
+					lists[dstIndex] = QuadList.downscaleColumn(lists[srcIndex], 1);
 				}
 			}
 		}

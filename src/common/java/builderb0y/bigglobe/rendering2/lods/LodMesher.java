@@ -9,8 +9,10 @@ import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.client.renderer.v1.render.AltModelBlockRenderer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.FluidRenderer;
+import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -30,15 +32,31 @@ public class LodMesher {
 
 	public static final ScopedValue<Boolean> MESHING_LODS = ScopedValue.newInstance();
 
+	public final boolean ambientOcclusion;
+	public final BlockColors blockColors;
+	public final BlockStateModelSet blockModels;
+	public final FluidStateModelSet fluidModels;
+
+	public LodMesher(boolean ambientOcclusion) {
+		this.ambientOcclusion = ambientOcclusion;
+		this.blockColors = Minecraft.getInstance().getBlockColors();
+		this.blockModels = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
+		this.fluidModels = Minecraft.getInstance().getModelManager().getFluidStateModelSet();
+	}
+
+	public LodMesher() {
+		this(Minecraft.getInstance().options.ambientOcclusion().get());
+	}
+
 	public static boolean isMeshing() {
 		return MESHING_LODS.orElse(Boolean.FALSE);
 	}
 
-	public static void mesh(ColumnBlockGetter world, QuadPacker output) {
-		ScopedValue.where(MESHING_LODS, Boolean.TRUE).run(() -> doMesh(world, output));
+	public void mesh(ColumnBlockGetter world, QuadPacker<?> output) {
+		ScopedValue.where(MESHING_LODS, Boolean.TRUE).run(() -> this.doMesh(world, output));
 	}
 
-	public static void doMesh(ColumnBlockGetter world, QuadPacker output) {
+	public void doMesh(ColumnBlockGetter world, QuadPacker<?> output) {
 		QuadEmitter emitter = Renderer.get().quadEmitter(output);
 		EnumMap<ChunkSectionLayer, VertexPacker> fluidOutputs = new EnumMap<>(ChunkSectionLayer.class);
 		FluidRenderer.Output fluidOutput = (ChunkSectionLayer layer) -> {
@@ -46,16 +64,11 @@ public class LodMesher {
 				return new VertexPacker(theSameLayer, output);
 			});
 		};
-		AltModelBlockRenderer blockRenderer = Renderer.get().altModelBlockRenderer(
-			Minecraft.getInstance().options.ambientOcclusion().get(),
-			true,
-			Minecraft.getInstance().getBlockColors()
-		);
-		FluidRenderer fluidRenderer = new FluidRenderer(Minecraft.getInstance().getModelManager().getFluidStateModelSet());
+		AltModelBlockRenderer blockRenderer = Renderer.get().altModelBlockRenderer(this.ambientOcclusion, true, this.blockColors);
+		FluidRenderer fluidRenderer = new FluidRenderer(this.fluidModels);
 
 		BlockSegmentList[] adjacents = new BlockSegmentList[4];
 		MutableBlockPos pos = new MutableBlockPos();
-		BlockStateModelSet models = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
 		BoundingBox area = world.unpaddedVolume;
 		for (pos.setZ(area.minZ()); pos.getZ() <= area.maxZ(); pos.setZ(pos.getZ() + 1)) {
 			for (pos.setX(area.minX()); pos.getX() <= area.maxX(); pos.setX(pos.getX() + 1)) {
@@ -71,7 +84,7 @@ public class LodMesher {
 					}
 					LitSegment centerSegment = center.get(centerIndex);
 					if (!centerSegment.value.isAir()) {
-						for (pos.setY(Math.max(centerSegment.minY, area.minY())); pos.getY() <= centerSegment.maxY();) {
+						for (pos.setY(Math.max(centerSegment.minY, area.minY())); pos.getY() <= centerSegment.maxY;) {
 							int y = pos.getY();
 							if (y > area.maxY()) break segmentIndexLoop;
 							int nextY;
@@ -112,13 +125,13 @@ public class LodMesher {
 							if (shouldRender) {
 								blockRenderer.tesselateBlock(
 									emitter,
-									pos.getX() - area.minX(),
-									pos.getY() - area.minY(),
-									pos.getZ() - area.minZ(),
+									pos.getX(),
+									pos.getY(),
+									pos.getZ(),
 									world,
 									pos,
 									centerSegment.value,
-									models.get(centerSegment.value),
+									this.blockModels.get(centerSegment.value),
 									centerSegment.value.getSeed(pos)
 								);
 								FluidState fluidState = centerSegment.value.getFluidState();

@@ -134,6 +134,7 @@ public class QuadHolder<T> {
 		}
 
 		public static BlockSegmentList downscaleColumn(BlockSegmentList list, int deltaLod) {
+			if (list == null) return null;
 			BlockSegmentList newList = new BlockSegmentList(list.minY >> deltaLod, (list.maxY >> deltaLod) + 1);
 			for (LitSegment segment : list) {
 				int minY = segment.minY >> deltaLod, maxY = segment.maxY >> deltaLod;
@@ -156,11 +157,12 @@ public class QuadHolder<T> {
 		}
 
 		public BlockSegmentList merge() {
+			if (this.allNull()) return null;
 			BlockSegmentList result = new BlockSegmentList(this.object00.minY(), this.object00.maxY());
-			result.addAllSegments(this.object00);
-			copyAir(this.object01, result);
-			copyAir(this.object10, result);
-			copyAir(this.object11, result);
+			if (this.object00 != null) result.addAllSegments(this.object00);
+			if (this.object01 != null) copyAir(this.object01, result);
+			if (this.object10 != null) copyAir(this.object10, result);
+			if (this.object11 != null) copyAir(this.object11, result);
 			return result;
 		}
 
@@ -175,6 +177,7 @@ public class QuadHolder<T> {
 		}
 
 		public static BlockSegmentList downscaleColumnKeepAir(BlockSegmentList list, int deltaLod) {
+			if (list == null) return null;
 			BlockSegmentList newList = new BlockSegmentList(list.minY >> deltaLod, (list.maxY >> deltaLod) + 1);
 			for (LitSegment segment : list) {
 				int minY = segment.minY >> deltaLod, maxY = segment.maxY >> deltaLod;

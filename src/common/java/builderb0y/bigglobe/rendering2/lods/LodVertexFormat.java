@@ -4,8 +4,11 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.bigglobe.BigGlobeMod;
+
 public class LodVertexFormat {
 
+	public static final int VERTEX_BYTES = 3 * 4, QUAD_BYTES = VERTEX_BYTES * 4;
 	public static final @Nullable VertexFormatElement ELEMENT;
 	public static final @Nullable VertexFormat FORMAT;
 	static {
@@ -17,6 +20,7 @@ public class LodVertexFormat {
 					break done;
 				}
 			}
+			BigGlobeMod.LOGGER.warn("LOD rendering unavailable because too many mods are registering VertexFormat's.");
 			ELEMENT = null;
 			FORMAT  = null;
 		}

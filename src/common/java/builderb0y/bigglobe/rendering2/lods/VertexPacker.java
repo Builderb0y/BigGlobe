@@ -31,9 +31,9 @@ public class VertexPacker implements VertexConsumer {
 		state;
 
 	public final ChunkSectionLayer layer;
-	public final QuadPacker output;
+	public final QuadPacker<?> output;
 
-	public VertexPacker(ChunkSectionLayer layer, QuadPacker output) {
+	public VertexPacker(ChunkSectionLayer layer, QuadPacker<?> output) {
 		this.layer = layer;
 		this.output = output;
 	}

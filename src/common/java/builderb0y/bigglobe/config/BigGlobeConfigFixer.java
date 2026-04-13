@@ -2,6 +2,7 @@ package builderb0y.bigglobe.config;
 
 import org.jetbrains.annotations.NotNull;
 
+import builderb0y.autocodec.data.AbstractNumberData;
 import builderb0y.autocodec.fixers.DataFixContext;
 import builderb0y.autocodec.fixers.DataFixException;
 import builderb0y.autocodec.fixers.VersionedFixer;
@@ -23,17 +24,29 @@ public class BigGlobeConfigFixer extends VersionedFixer<BigGlobeConfig> {
 	@SuppressWarnings("fallthrough")
 	public @NotNull <T_Encoded> DataFixContext<T_Encoded> fixData(@NotNull DataFixContext<T_Encoded> context, int version) throws DataFixException {
 		switch (version) {
-			default:
-				throw new DataFixException(() -> "Unknown config version: " + version);
+			default: throw new DataFixException(() -> "Unknown config version: " + version);
 			case 0:
-			case 1:
-				this.resetLodRendering(context);
-			case 2:
+			case 1: this.resetLodRendering(context);
+			case 2: this.increaseQualityForNewRange(context);
+			case 3:
 		}
 		return context;
 	}
 
 	public <T_Encoded> void resetLodRendering(DataFixContext<T_Encoded> context) throws DataFixException {
 		context.removeMember("LOD Rendering");
+	}
+
+	public <T_Encoded> void increaseQualityForNewRange(DataFixContext<T_Encoded> context) throws DataFixException {
+		DataFixContext<T_Encoded> lods = context.tryGetMember("LOD Rendering");
+		if (lods != null) {
+			DataFixContext<T_Encoded> quality = lods.tryGetMember("Quality");
+			if (quality != null) {
+				AbstractNumberData number = quality.tryAsNumber();
+				if (number != null) {
+					number.set(number.doubleValue() + 6.0D);
+				}
+			}
+		}
 	}
 }

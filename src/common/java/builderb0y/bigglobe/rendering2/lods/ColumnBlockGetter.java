@@ -69,10 +69,6 @@ public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 		return this.lighting;
 	}
 
-	public int relativeColumnIndex(int x, int z) {
-		return z * this.paddedVolume.getXSpan() + x;
-	}
-
 	public int columnIndex(int x, int z) {
 		if (x >= this.paddedVolume.minX() && x <= this.paddedVolume.maxX() && z >= this.paddedVolume.minZ() && z <= this.paddedVolume.maxZ()) {
 			x -= this.paddedVolume.minX();
@@ -84,11 +80,9 @@ public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 
 	@Override
 	public int getBlockTint(BlockPos pos, ColorResolver resolver) {
-		if (this.paddedVolume.isInside(pos)) {
-			int relativeX = pos.getX() - this.paddedVolume.minX();
-			int relativeZ = pos.getZ() - this.paddedVolume.minZ();
+		int index = this.columnIndex(pos.getX(), pos.getZ());
+		if (index >= 0) {
 			int y = pos.getY() << this.lod;
-			int index = relativeZ * this.paddedVolume.getXSpan() + relativeX;
 			ScriptedColumn column = this.columns[index];
 			ColorScript.Catcher script = this.colorOverrides.forColorResolver(resolver);
 			if (script != null) {

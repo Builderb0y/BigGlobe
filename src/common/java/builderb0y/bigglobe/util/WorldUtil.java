@@ -93,12 +93,20 @@ public class WorldUtil {
 	}
 
 	public static BoundingBox chunkBox(ChunkPos pos, LevelHeightAccessor height) {
+		return chunkBox(
+			pos,
+			HeightLimitViewVersions.getMinY(height),
+			HeightLimitViewVersions.getMaxY(height)
+		);
+	}
+
+	public static BoundingBox chunkBox(ChunkPos pos, int minY, int maxY) {
 		return new BoundingBox(
 			pos.getMinBlockX(),
-			HeightLimitViewVersions.getMinY(height),
+			minY,
 			pos.getMinBlockZ(),
 			pos.getMaxBlockX(),
-			HeightLimitViewVersions.getMaxY(height) - 1,
+			maxY - 1,
 			pos.getMaxBlockZ()
 		);
 	}

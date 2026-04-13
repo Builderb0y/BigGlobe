@@ -104,7 +104,6 @@
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",
 		"WorldRenderer_HoldLodSystem",
-		"WorldRenderer_RenderHyperspaceSky",
 		"WorldType_ChangeTranslation"
 	],
 	"injectors": {

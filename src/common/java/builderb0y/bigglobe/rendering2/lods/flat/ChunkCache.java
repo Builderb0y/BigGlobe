@@ -15,6 +15,7 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.rendering2.lods.LodGenerator;
+import builderb0y.bigglobe.rendering2.lods.LodSystem;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.util.TimestampedComputingCache;
 import builderb0y.bigglobe.util.TimestampedComputingCache.Units;
@@ -38,22 +39,31 @@ public class ChunkCache implements SafeCloseable {
 		return thread;
 	});
 
-	public ChunkCache(LodGenerator generator, ServerLevel world) {
+	public ChunkCache(LodGenerator<?> generator, ServerLevel world) {
 		this.generator = generator;
 		this.world = world;
 		this.loader = world.getChunkSource().chunkMap;
+	}
+
+	public String f3Message() {
+		TimestampedComputingCache<ChunkPos, LightweightChunk> chunks = this.chunks;
+		int present = chunks.presentCount.get();
+		int total = chunks.size();
+		int empty = total - present;
+		return "P: " + present + ", E: " + empty + ", T: " + total;
 	}
 
 	public void invalidateChunkLater(ChunkPos chunkPos) {
 		this.dirtyChunks.add(chunkPos);
 	}
 
-	public void processDirtyChunks(FlatLodSystem system) {
+	public void processDirtyChunks() {
+		LodSystem system = this.generator.system;
 		if (this.presentChunksLock.tryLock()) try {
 			for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null; ) {
 				if (this.chunks.tryInvalidate(chunkPos)) {
 					this.presentChunks.set(chunkPos.x(), chunkPos.z(), true);
-					system.invalidateChunkNow(chunkPos);
+					system.getTree().invalidateRegion(WorldUtil.chunkBox(chunkPos, system.params.minY, system.params.maxY));
 				}
 				else {
 					this.dirtyChunks.add(chunkPos);
@@ -110,9 +120,7 @@ public class ChunkCache implements SafeCloseable {
 			BlockSegmentList[] cullingData = (
 				BigGlobeConfig.INSTANCE.get().lodRendering.caveCullingDepth >= 0
 				&& !this.world.dimensionType().hasCeiling()
-				? this.generator.generateCaveCullingRegion(
-					WorldUtil.chunkBox(chunkPos, this.world)
-				)
+				? this.generator.generateCaveCullingChunk(chunkPos)
 				: null
 			);
 			LightweightChunk result = new LightweightChunk(this.world, chunkPos);

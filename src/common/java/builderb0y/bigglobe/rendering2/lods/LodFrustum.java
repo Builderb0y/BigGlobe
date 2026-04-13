@@ -40,7 +40,7 @@ public class LodFrustum {
 		this.y = cameraPos.y;
 		this.z = cameraPos.z;
 
-		float vanillaViewDistance = context.gameRenderer().getGameRenderState().optionsRenderState.renderDistance;
+		float vanillaViewDistance = context.gameRenderer().getGameRenderState().optionsRenderState.renderDistance << 4;
 		float aboveDifference = (float)(this.y - HeightLimitViewVersions.getMaxY(context.level()));
 		if (aboveDifference > 0.0F) {
 			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.5F);

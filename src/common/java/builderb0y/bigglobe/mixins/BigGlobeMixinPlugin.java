@@ -122,7 +122,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".World_UseCorrectSeaLevel", Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldGenProperties_LogLevelType", Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldPresets_MakeBigGlobeTheDefaultWorldType2", Boolean.TRUE);
-		defaults.put(mixinPackage + ".WorldRenderer_RenderHyperspaceSky", Boolean.TRUE);
 		defaults.put(mixinPackage + ".WorldType_ChangeTranslation", Boolean.TRUE);
 		return defaults;
 	}
