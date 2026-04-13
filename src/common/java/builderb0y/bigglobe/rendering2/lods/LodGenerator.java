@@ -73,7 +73,13 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 		this.storedColumnCount.add(columns.size());
 	}
 
-	public @Nullable ColumnBlockGetter generateRegion(BoundingBox generateFrom, BoundingBox translateTo, byte lod, LoadMode mode, DownscaleSettings downscale) {
+	public @Nullable ColumnBlockGetter generateRegion(
+		BoundingBox generateFrom,
+		BoundingBox translateTo,
+		byte lod,
+		LoadMode mode,
+		DownscaleSettings downscale
+	) {
 		int distanceBetweenColumns = 1 << lod;
 		int distanceBetweenQuads = 2 << lod;
 		int shift = downscale.mergeHorizontally() ? lod + 1 : lod;

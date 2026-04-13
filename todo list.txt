@@ -142,7 +142,6 @@ V6:
 	remove ScopeLocal.
 	remove voxy hyperspeed generation code.
 		and associated config options.
-	ensure all rendering classes are marked as @Environment(EnvType.CLIENT)
 	see if I still need JIJ extraction now that loom just uses implementation().
 
 LODs:
