@@ -214,6 +214,7 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 			quadList.createNew(quadColumn.object00.minY(), quadColumn.object00.maxY());
 			QuadHolder.generate(quadColumn, quadList, this.system.params.layer.value());
 			downscale.applyDownscale(quadList);
+			quadList.computeLightLevels(this.dimensionType.hasSkyLight() ? ((byte)(15)) : ((byte)(0)));
 		}
 		return quadList;
 	}
