@@ -72,9 +72,6 @@ V6:
 	add new json classes.
 	LOD renderer improvements:
 		make ingesting work in multiplayer.
-		add visualizer for used geometry buffer?
-	revert old tree density and threshold.
-		maybe figure out how to make acacia trees work differently?
 	islands world type:
 		add glaciers.
 	fix Data mutability paradigm in AutoCodec.
@@ -140,9 +137,6 @@ V6:
 	find and remove requirement status on tag elements that are marked as "required": false.
 	remove/inline everything in "versions" folder.
 	see if I still need JIJ extraction now that loom just uses implementation().
-	race condition in registry loading.
-		each dynamic registry is now loaded on a different thread,
-		leading to dependencies not being available until loading is complete.
 
 LODs:
 	shader support.

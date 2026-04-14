@@ -211,7 +211,7 @@ public class V6DataPackConverter {
 			case "bigglobe_custom_classes"   -> joiner.add("bigglobe").add("custom_class");
 			case "bigglobe_extra_mob_spawns" -> joiner.add("bigglobe").add("extra_mob_spawn");
 			case "bigglobe_noise_sources"    -> joiner.add("bigglobe").add("noise_source");
-			case "bigglobe_script_files"     -> joiner.add("bigglobe").add("script_files");
+			case "bigglobe_script_files"     -> joiner.add("bigglobe").add("script_file");
 			case "bigglobe_script_templates" -> joiner.add("bigglobe").add("script_template");
 			case "bigglobe_wood_palettes"    -> joiner.add("bigglobe").add("wood_palette");
 			case "worldgen" -> {
