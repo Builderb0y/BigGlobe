@@ -52,6 +52,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dispensers.BigGlobeDispenserBehaviors;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
@@ -92,6 +93,7 @@ public class BigGlobeMod implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Initializing...");
 		BigGlobeConfig.init();
+		BigGlobeDynamicRegistries.init();
 
 		BigGlobeLoot.init();
 

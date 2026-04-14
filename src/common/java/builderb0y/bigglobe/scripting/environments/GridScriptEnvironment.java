@@ -213,7 +213,7 @@ public class GridScriptEnvironment {
 	}
 
 	public static Grid getGrid(String id, int flags) {
-		Holder<Grid> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY, id, flags, EMPTY_GRID);
+		Holder<Grid> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.NOISE_SOURCE_REGISTRY_KEY, id, flags, EMPTY_GRID);
 		return entry != null ? entry.value() : null;
 	}
 

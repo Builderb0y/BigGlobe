@@ -23,7 +23,7 @@ public class StructurePlacementScriptEntry extends EntryWrapper<CombinedStructur
 	}
 
 	public static StructurePlacementScriptEntry of(String id, int flags) {
-		Holder<CombinedStructureScripts> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, id, flags, CLIENT_SCRIPTS);
+		Holder<CombinedStructureScripts> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY, id, flags, CLIENT_SCRIPTS);
 		return entry != null ? new StructurePlacementScriptEntry(entry) : null;
 	}
 

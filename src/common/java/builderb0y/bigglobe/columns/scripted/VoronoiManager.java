@@ -26,7 +26,7 @@ public class VoronoiManager {
 
 	public VoronoiManager(ColumnEntryRegistry registry) {
 		this.registry = registry;
-		BetterRegistry<ColumnEntry> columnEntryRegistry = registry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
+		BetterRegistry<ColumnEntry> columnEntryRegistry = registry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_VALUE_REGISTRY_KEY);
 		BetterRegistry<VoronoiSettings> voronoiRegistry = registry.registries.getRegistry(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
 
 		voronoiRegistry.streamEntries().forEach((Holder<VoronoiSettings> voronoiEntry) -> {

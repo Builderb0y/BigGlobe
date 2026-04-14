@@ -27,7 +27,7 @@ public class StructurePlacementScriptTag extends TagWrapper<CombinedStructureScr
 	}
 
 	public static StructurePlacementScriptTag of(int flags, String... ids) {
-		return new StructurePlacementScriptTag(DelayedEntryList.emptyOnClient(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new StructurePlacementScriptTag(DelayedEntryList.emptyOnClient(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override

@@ -15,6 +15,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderConte
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -109,6 +111,8 @@ public abstract class LodSystem implements SafeCloseable {
 	}
 
 	public void extract(LevelExtractionContext context) {
+		ProfilerFiller profiler = Profiler.get();
+		profiler.push("bigglobe:lod/extract");
 		this.getRenderer().extract(context);
 		this.renderingThisFrame = !(
 			context.camera().entity() instanceof LivingEntity livingEntity && (
@@ -116,9 +120,13 @@ public abstract class LodSystem implements SafeCloseable {
 				livingEntity.hasEffect(MobEffects.DARKNESS)
 			)
 		);
+		profiler.push("updateTree");
 		this.getTree().updateTree();
+		profiler.popPush("processChangedChunks");
 		this.getGenerationPipeline().generator.processDirtyChunks();
+		profiler.pop();
 		this.updateQuality();
+		profiler.pop();
 	}
 
 	public void updateQuality() {
@@ -182,12 +190,17 @@ public abstract class LodSystem implements SafeCloseable {
 					OptionalDouble.empty()
 				)
 			) {
+				ProfilerFiller profiler = Profiler.get();
+				profiler.push("bigglobe:lod");
 				this.getRenderer().beginRendering(pass);
 				for (ChunkSectionLayer layer : ChunkSectionLayer.values()) {
+					profiler.push(layer::toString);
 					pass.pushDebugGroup(layer::toString);
 					this.getRenderer().render(pass, layer);
 					pass.popDebugGroup();
+					profiler.pop();
 				}
+				profiler.pop();
 			}
 			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(
 				Minecraft.getInstance().getMainRenderTarget().getDepthTexture(),

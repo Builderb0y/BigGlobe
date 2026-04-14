@@ -59,7 +59,6 @@
 		"PortalForcer_PlaceInNetherCaverns",
 		"RailBlock_RotateProperly",
 		"RandomSpreadStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently",
-		"RegistryLoader_AddBigGlobeEntries",
 		"RegistryLoader_LoadColumnEntryRegistry",
 		"RegistryOps_MakeAdjustable",
 		"SaplingBlock_GrowIntoBigGlobeTree",

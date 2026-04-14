@@ -218,12 +218,12 @@ public class ClientState {
 		public boolean containsLayers;
 		public Map<Identifier, String> includes;
 		public Map<Identifier, Tag> templates, columnEntries, voronoiSettings, decisionTrees, worldTraits, layers;
-		public transient MappedRegistry<ScriptTemplate> templateRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<ColumnEntry> columnEntryRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<VoronoiSettings> voronoiSettingsRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<DecisionTreeSettings> decisionTreeRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<WorldTrait> worldTraitRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<Layer> layerRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.LAYER_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<ScriptTemplate>           templateRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries. SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<ColumnEntry>           columnEntryRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.    COLUMN_VALUE_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<VoronoiSettings>   voronoiSettingsRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<DecisionTreeSettings> decisionTreeRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   DECISION_TREE_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<WorldTrait>             worldTraitRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.     WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<Layer>                       layerRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   TERRAIN_LAYER_REGISTRY_KEY, Lifecycle.experimental());
 
 		public Syncing(
 			boolean containsLayers,
@@ -354,11 +354,11 @@ public class ClientState {
 			ResourceKey<?> wildcard = key;
 			MappedRegistry<?> registry;
 			if (wildcard == BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY) registry = this.templateRegistry;
-			else if (wildcard == BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY) registry = this.columnEntryRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.COLUMN_VALUE_REGISTRY_KEY) registry = this.columnEntryRegistry;
 			else if (wildcard == BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY) registry = this.voronoiSettingsRegistry;
-			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY) registry = this.decisionTreeRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.DECISION_TREE_REGISTRY_KEY) registry = this.decisionTreeRegistry;
 			else if (wildcard == BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY) registry = this.worldTraitRegistry;
-			else if (wildcard == BigGlobeDynamicRegistries.LAYER_REGISTRY_KEY) registry = this.layerRegistry;
+			else if (wildcard == BigGlobeDynamicRegistries.TERRAIN_LAYER_REGISTRY_KEY) registry = this.layerRegistry;
 			else registry = null;
 			return (MappedRegistry<T_Element>)(registry);
 		}

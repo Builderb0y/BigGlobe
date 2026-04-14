@@ -150,7 +150,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				for (ServerLevel world : server.getAllLevels()) {
 					if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 						Identifier worldID = world.dimension().identifier();
-						DependencyDepthSorter.start(generator.compiledWorldTraits, generator.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY), "server " + worldID.getNamespace() + ' ' + worldID.getPath());
+						DependencyDepthSorter.start(generator.compiledWorldTraits, generator.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_VALUE_REGISTRY_KEY), "server " + worldID.getNamespace() + ' ' + worldID.getPath());
 					}
 				}
 			}
@@ -334,7 +334,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this
 		.columnEntryRegistry
 		.registries
-		.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY)
+		.getRegistry(BigGlobeDynamicRegistries.COLUMN_VALUE_REGISTRY_KEY)
 		.streamEntries()
 		.forEach(new CyclicDependencyAnalyzer(this.compiledWorldTraits));
 	}

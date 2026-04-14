@@ -116,7 +116,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 				if (data.columnEntryRegistry != null && BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
 					DependencyDepthSorter.start(
 						data.compiledWorldTraits,
-						data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY),
+						data.columnEntryRegistry.registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_VALUE_REGISTRY_KEY),
 						"client"
 					);
 				}

@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
-import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -164,16 +163,16 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<WorldPreset> WORLD_PRESET_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WorldPreset.class), Registries.WORLD_PRESET);
 	public static final RegistryCoders<WoodPalette> WOOD_PALETTE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WoodPalette.class), BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY);
 	public static final RegistryCoders<ScriptTemplate> SCRIPT_TEMPLATE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ScriptTemplate.class), BigGlobeDynamicRegistries.SCRIPT_TEMPLATE_REGISTRY_KEY);
-	public static final RegistryCoders<Grid> GRID_TEMPLATE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Grid.class), BigGlobeDynamicRegistries.GRID_TEMPLATE_REGISTRY_KEY);
-	public static final RegistryCoders<ColumnEntry> COLUMN_ENTRY_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ColumnEntry.class), BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
+	public static final RegistryCoders<Grid> GRID_TEMPLATE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Grid.class), BigGlobeDynamicRegistries.NOISE_SOURCE_REGISTRY_KEY);
+	public static final RegistryCoders<ColumnEntry> COLUMN_ENTRY_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ColumnEntry.class), BigGlobeDynamicRegistries.COLUMN_VALUE_REGISTRY_KEY);
 	public static final RegistryCoders<VoronoiSettings> VORONOI_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(VoronoiSettings.class), BigGlobeDynamicRegistries.VORONOI_SETTINGS_REGISTRY_KEY);
-	public static final RegistryCoders<DecisionTreeSettings> DECISION_TREE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings.class), BigGlobeDynamicRegistries.DECISION_TREE_SETTINGS_REGISTRY_KEY);
+	public static final RegistryCoders<DecisionTreeSettings> DECISION_TREE_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DecisionTreeSettings.class), BigGlobeDynamicRegistries.DECISION_TREE_REGISTRY_KEY);
 	public static final RegistryCoders<Overrider> OVERRIDER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Overrider.class), BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY);
-	public static final RegistryCoders<CombinedStructureScripts> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts.class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY);
+	public static final RegistryCoders<CombinedStructureScripts> SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(CombinedStructureScripts.class), BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY);
 	public static final RegistryCoders<FeatureDispatcher> FEATURE_DISPATCHER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(FeatureDispatcher.class), BigGlobeDynamicRegistries.FEATURE_DISPATCHER_REGISTRY_KEY);
 	public static final RegistryCoders<WorldTrait> WORLD_TRAIT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(WorldTrait.class), BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY);
-	public static final RegistryCoders<Layer> LAYER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Layer.class), BigGlobeDynamicRegistries.LAYER_REGISTRY_KEY);
-	public static final RegistryCoders<ExtraSpawn> EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ExtraSpawn.class), BigGlobeDynamicRegistries.EXTRA_SPAWN_REGISTRY_KEY);
+	public static final RegistryCoders<Layer> LAYER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Layer.class), BigGlobeDynamicRegistries.TERRAIN_LAYER_REGISTRY_KEY);
+	public static final RegistryCoders<ExtraSpawn> EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(ExtraSpawn.class), BigGlobeDynamicRegistries.EXTRA_MOB_SPAWN_REGISTRY_KEY);
 	public static final RegistryCoders<?>[] DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
