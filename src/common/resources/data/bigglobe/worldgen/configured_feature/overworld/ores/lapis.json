@@ -7,25 +7,12 @@
 			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_lapis_ore"
 		},
 		"chance": [
-			"if (world_traits.`bigglobe:exact_surface_y`.isBetween[y, world_traits.`bigglobe:sea_level`]:",
-				"unmixLinear(",
-					"world_traits.`bigglobe:exact_surface_y`,",
-					"world_traits.`bigglobe:sea_level`,",
-					"y",
-				")",
-				"+ 1.0L",
+			"double ground = world_traits.`bigglobe:exact_surface_y`",
+			"double depth = max(",
+				"world_traits.`bigglobe:sea_level` - ground,",
+				"16.0L - 4096.0L * `bigglobe:overworld/raw/river/macro` ^ 2",
 			")",
-			"else if (world_traits.`bigglobe:in_river`:",
-				"unmixLinear(",
-					"`bigglobe:overworld/eroded_river`.high.y,",
-					"`bigglobe:overworld/eroded_heightmap`.high.y,",
-					"y",
-				")",
-				"+ 1.0L",
-			")",
-			"else (",
-				"0.0L",
-			")"
+			"depth > 0.0L ? unmixLinear(ground - depth, ground, y) : 0.0L"
 		],
 		"radius": {
 			"type": "average",

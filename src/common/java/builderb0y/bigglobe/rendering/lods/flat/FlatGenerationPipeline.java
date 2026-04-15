@@ -23,11 +23,17 @@ public class FlatGenerationPipeline extends GenerationPipeline {
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public @Nullable ColumnBlockGetter generateWithPadding(BoundingBox area, byte lod, LoadMode mode) {
 		final int rawPadding = 2;
 		int padding = rawPadding << lod;
 		byte prevLod = (byte)(Math.max(lod - 1, 0));
-		LodGenerator<?> generator = this.generator;
+		LodGenerator generator = this.generator;
+		Object loadCache = (
+			mode.canLoad() && lod < generator.maxLoadLevel
+			? generator.preload(new BoundingBox(area.minX() - padding, area.minY(), area.minZ() - padding, area.maxX() + padding, area.maxY(), area.maxZ() + padding))
+			: null
+		);
 		//"center translate". name kept short for readability below.
 		BoundingBox ct = new BoundingBox(0, area.minY(), 0, (area.getXSpan() >> lod) - 1, area.maxY(), (area.getZSpan() >> lod) - 1);
 		ColumnBlockGetter center = generator.generateRegion(
@@ -35,7 +41,8 @@ public class FlatGenerationPipeline extends GenerationPipeline {
 			ct,
 			lod,
 			mode,
-			DownscaleSettings.NONE.deltaLod(lod)
+			DownscaleSettings.NONE.deltaLod(lod),
+			loadCache
 		);
 		if (center == null) return null;
 		mode = mode.allowGeneration();
@@ -51,28 +58,32 @@ public class FlatGenerationPipeline extends GenerationPipeline {
 				new BoundingBox(ct.maxX() + 1, ct.minY(), ct.minZ(), ct.maxX() + rawPadding, ct.maxY(), ct.maxZ()),
 				prevLod,
 				mode,
-				downscaleSettings
+				downscaleSettings,
+				loadCache
 			),
 			negX = generator.generateRegion(
 				new BoundingBox(area.minX() - padding, area.minY(), area.minZ(), area.minX() - 1, area.maxY(), area.maxZ()),
 				new BoundingBox(ct.minX() - rawPadding, ct.minY(), ct.minZ(), ct.minX() - 1, ct.maxY(), ct.maxZ()),
 				prevLod,
 				mode,
-				downscaleSettings
+				downscaleSettings,
+				loadCache
 			),
 			posZ = generator.generateRegion(
 				new BoundingBox(area.minX() - padding, area.minY(), area.maxZ() + 1, area.maxX() + padding, area.maxY(), area.maxZ() + padding),
 				new BoundingBox(ct.minX() - rawPadding, ct.minY(), ct.maxZ() + 1, ct.maxX() + rawPadding, ct.maxY(), ct.maxZ() + rawPadding),
 				prevLod,
 				mode,
-				downscaleSettings
+				downscaleSettings,
+				loadCache
 			),
 			negZ = generator.generateRegion(
 				new BoundingBox(area.minX() - padding, area.minY(), area.minZ() - padding, area.maxX() + padding, area.maxY(), area.minZ() - 1),
 				new BoundingBox(ct.minX() - rawPadding, ct.minY(), ct.minZ() - rawPadding, ct.maxX() + rawPadding, ct.maxY(), ct.minZ() - 1),
 				prevLod,
 				mode,
-				downscaleSettings
+				downscaleSettings,
+				loadCache
 			);
 		int combinedArea = ((area.getXSpan() >> lod) + (rawPadding << 1)) * ((area.getZSpan() >> lod) + (rawPadding << 1));
 		ColumnBlockGetter combined = new ColumnBlockGetter(

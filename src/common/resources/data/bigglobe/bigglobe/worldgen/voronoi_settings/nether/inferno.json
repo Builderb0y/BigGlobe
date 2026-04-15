@@ -3,13 +3,11 @@
 	"owner": "bigglobe:nether/bubble",
 	"enables": [
 		"bigglobe:nether/bubble/biome_inferno",
-		"bigglobe:nether/bubble/cave_width",
 		"bigglobe:nether/bubble/cavern_noise_inferno",
 		"bigglobe:nether/bubble/filler_basalt",
 		"bigglobe:nether/bubble/fluid_lava",
 		"bigglobe:nether/bubble/lava_level_extra",
 		"bigglobe:nether/bubble/noise_inferno",
-		"bigglobe:nether/bubble/raw_cave_noise",
 		"bigglobe:nether/bubble/surface_state_blackstone",
 		"bigglobe:nether/bubble/decorator_inferno"
 	],

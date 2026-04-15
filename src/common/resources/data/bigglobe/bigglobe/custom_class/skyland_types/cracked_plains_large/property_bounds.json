@@ -1,7 +1,0 @@
-{
-	"element_type": "property/override",
-	"override": "bigglobe:skyland_types/base/property_bounds",
-	"get": [
-		"`bigglobe:overworld/skylands/cracked_plains_large_bounds`"
-	]
-}

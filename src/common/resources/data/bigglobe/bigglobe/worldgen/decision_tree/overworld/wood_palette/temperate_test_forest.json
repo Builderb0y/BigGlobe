@@ -2,7 +2,7 @@
 	"condition": {
 		"type": "world_trait_threshold",
 		"min": 0.25,
-		"max": 0.75,
+		"max": 0.5,
 		"trait": "bigglobe:foliage_at_surface"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/oak",

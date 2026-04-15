@@ -1,9 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:overworld/rock_layers/deepslate",
-		"bigglobe:overworld/rock_layers/dirt",
-		"bigglobe:overworld/rock_layers/rocks",
-		"bigglobe:overworld/rock_layers/extras"
-	]
-}

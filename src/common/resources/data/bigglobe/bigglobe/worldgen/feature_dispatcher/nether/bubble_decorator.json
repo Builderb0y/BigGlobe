@@ -5,7 +5,9 @@
 			"int z in range[minModifiableZ, maxModifiableZ],",
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
-			"placeFeature(x, 0, z, `bigglobe:nether/bubble`(x, z).decorator)",
+			"if (`bigglobe:nether/is_center`(x, z):",
+				"placeFeature(x, 0, z, `bigglobe:nether/bubble`(x, z).decorator)",
+			")",
 		")"
 	]
 }

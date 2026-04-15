@@ -19,7 +19,7 @@
 		"int sideCount = 6",
 		"NbtList sidePositions = nbtList()",
 		"double angleOffset = random.nextDouble(tau / sideCount)",
-		"int*(minTerrainY = 16x7FFF_FFFFU, maxTerrainY = 16x8000_0000U)",
+		"int*(minTerrainY = 16x7FFF_FFFFU, maxTerrainY = world_traits.`bigglobe:sea_level` - 32)",
 		"for (int sideIndex in range[0, sideCount):",
 			"double angle = random.nextDouble(tau / sideCount) + sideIndex * (tau / sideCount) + angleOffset",
 			"double x = cos(angle) * radius",

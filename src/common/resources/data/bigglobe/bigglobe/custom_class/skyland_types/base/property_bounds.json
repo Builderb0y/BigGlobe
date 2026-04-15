@@ -1,6 +1,0 @@
-{
-	"element_type": "property/abstract",
-	"name": "bounds",
-	"property_type": "bigglobe:skyland_bounds/class",
-	"settable": false
-}

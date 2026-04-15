@@ -7,53 +7,52 @@ if (surfaceY.isBetween[minY, maxY]:
 		+ dx(world_traits.`bigglobe:slope_surface_y`) ^ 2
 		+ dz(world_traits.`bigglobe:slope_surface_y`) ^ 2
 	)
+	if (`bigglobe:overworld/is_desert`:
+		int lowerBound = hints.isLod ? ceilInt(world_traits.`bigglobe:slope_surface_y`) - 16 : world_traits.`bigglobe:core_max_y`
+		int upperBound = world_traits.`bigglobe:y_level_in_surface`
+		double terracottaOffset = `bigglobe:overworld/terracotta_offset` * `bigglobe:overworld/raw/mountainness`
+		boolean mesa = `bigglobe:overworld/is_mesa`
+		for (int blockY in range[lowerBound, upperBound]:
+			double dY = (blockY + terracottaOffset) * 0.5L
+			int layerY = floorInt(dY)
+			double fracY = dY - layerY
+			long thisSeed  = (worldSeed # 16xB5F4CE9A9B83A3EDUL).newSeed(layerY)
+			long upperSeed = (worldSeed # 16xB5F4CE9A9B83A3EDUL).newSeed(layerY + 1)
+			if (fracY <   thisSeed.nextDouble(-0.25L, 0.25L): layerY -= 1)
+			if (fracY >= upperSeed.nextDouble(+0.75L, 1.25L): layerY += 1)
+			long terracottaSeed = (worldSeed # 16x41E4CF20890390BCUL).newSeed(layerY)
+			double terracottaChance = 1.0L - smooth(`bigglobe:approximate_distance_below_surface`(blockY) / 128.0L - 0.5L)
+			BlockState replacement = if (mesa:
+				terracottaSeed.switch (
+					11.0L - 11.0L * terracottaChance: 'minecraft:stone',
+					4.0L * terracottaChance: 'minecraft:red_sandstone',
+					terracottaChance: 'minecraft:terracotta',
+					terracottaChance: 'minecraft:yellow_terracotta',
+					terracottaChance: 'minecraft:gray_terracotta',
+					terracottaChance: 'minecraft:black_terracotta',
+					terracottaChance: 'minecraft:red_terracotta',
+					terracottaChance: 'minecraft:orange_terracotta',
+					terracottaChance: 'minecraft:brown_terracotta',
+					default: 'minecraft:stone'
+				)
+			)
+			else (
+				terracottaSeed.switch (
+					8.0L - 8.0L * terracottaChance: 'minecraft:stone',
+					4.0I * terracottaChance: 'minecraft:sandstone',
+					terracottaChance: 'minecraft:terracotta',
+					terracottaChance: 'minecraft:yellow_terracotta',
+					terracottaChance: 'minecraft:light_gray_terracotta',
+					terracottaChance: 'minecraft:white_terracotta',
+					default: 'minecraft:stone'
+				)
+			)
+			setBlockState(blockY, replacement)
+		)
+	)
 	if ((seed := seed.newSeed()).nextDouble() < unmixSmooth(8.0L, 4.0L, world_traits.`bigglobe:exact_surface_y`):
 		int depth = (seed := seed.newSeed()).nextInt(3, 7)
 		setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')
-	)
-	else if (`bigglobe:overworld/is_desert`:
-		int lowerBound = ceilInt(world_traits.`bigglobe:slope_surface_y`) - 32
-		int upperBound = world_traits.`bigglobe:y_level_in_surface`
-		double terracottaOffset = `bigglobe:overworld/terracotta_offset`
-		boolean mesa = `bigglobe:overworld/is_mesa`
-		int step = hints.distanceBetweenColumns
-		int mask = ~(step - 1)
-		for (int blockY in range[lowerBound, upperBound]:
-			int lodY = blockY & mask
-			if (BlockState state = getBlockState(blockY),, state != null && !state.isAir():
-				double dY = lodY + terracottaOffset
-				int layerY = floorInt(dY) & mask
-				double fracY = dY - layerY
-				long thisSeed  = (worldSeed # 16xB5F4CE9A9B83A3EDUL).newSeed(lodY)
-				long upperSeed = (worldSeed # 16xB5F4CE9A9B83A3EDUL).newSeed(lodY + step)
-				if (fracY <   thisSeed.nextDouble(-0.125L, 0.125L): layerY -= step)
-				if (fracY >= upperSeed.nextDouble(step - 0.125L, step + 0.125L): layerY += step)
-				long terracottaSeed = (worldSeed # 16x41E4CF20890390BCUL).newSeed(layerY)
-				setBlockState(blockY,
-					mesa
-					? terracottaSeed.switch (
-						'minecraft:terracotta',
-						'minecraft:yellow_terracotta',
-						'minecraft:gray_terracotta',
-						'minecraft:black_terracotta',
-						'minecraft:red_terracotta',
-						'minecraft:orange_terracotta',
-						'minecraft:brown_terracotta',
-						'minecraft:red_sandstone'
-					)
-					: terracottaSeed.switch (
-						'minecraft:terracotta',
-						'minecraft:yellow_terracotta',
-						'minecraft:light_gray_terracotta',
-						'minecraft:white_terracotta',
-						'minecraft:cyan_terracotta',
-						'minecraft:light_blue_terracotta',
-						'minecraft:blue_terracotta',
-						'minecraft:sandstone'
-					)
-				)
-			)
-		)
 	)
 	if (`bigglobe:overworld/lake_surface_states` != null:
 		setBlockStates(

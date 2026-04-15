@@ -12,11 +12,12 @@
 	},
 	"valid": {
 		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
-		"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 16)"
+		"min_y": "world_traits.`bigglobe:min_y`"
 	},
 	"children": [
 		"bigglobe:overworld/the_core",
 		"bigglobe:overworld/deep_dark_carver",
-		"bigglobe:overworld/cave_carver"
+		"bigglobe:overworld/cave_carver",
+		"bigglobe:overworld/rock_types"
 	]
 }

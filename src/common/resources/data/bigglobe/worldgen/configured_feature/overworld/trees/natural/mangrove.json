@@ -1,44 +1,12 @@
 {
-	"type": "bigglobe:natural_tree",
+	"type": "bigglobe:script",
 	"config": {
-		"palette": "minecraft:mangrove",
-		"height": "fastExp2(world_traits.`bigglobe:foliage_at` + 3.0I) * random.nextDouble() + 4.0L",
-		"trunk": {
-			"type": "bigglobe:straight",
-			"thickness": "mixLinear(max(height * 0.125L, minThickness), minThickness, fraction)",
-			"require_natural_ground": true,
-			"can_generate_in_liquid": true
-		},
-		"branches": {
-			"start_frac_y": { "type": "uniform", "min": 0.25, "max": 0.5 },
-			"count_per_layer": { "type": "uniform", "min": 2.0, "max": 4.0 },
-			"length_function": "random.nextDouble(0.25, 0.5)",
-			"height_function": "fraction * 0.25"
-		},
-		"decorations": {
-			"trunk": [
-				{ "type": "bigglobe:random_walk_leaves", "is_trunk": true },
-				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
-			],
-			"branches": [
-				{ "type": "bigglobe:random_walk_leaves", "is_trunk": false },
-				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
-			],
-			"leaves": [
-				{ "type": "bigglobe:feature", "feature": "bigglobe:overworld/trees/decorators/mangrove_propagule_16th_chance" },
-				{ "type": "bigglobe:snow", "chance": "world_traits.`bigglobe:snow_chance_at`" }
-			]
-		},
-		"ground_replacements": {
-			"minecraft:grass_block":     "minecraft:dirt",
-			"minecraft:podzol":          "minecraft:dirt",
-			"bigglobe:overgrown_podzol": "minecraft:dirt",
-			"minecraft:farmland":        "minecraft:dirt",
-			"minecraft:dirt":            "minecraft:dirt",
-			"minecraft:coarse_dirt":     "minecraft:coarse_dirt",
-			"minecraft:rooted_dirt":     "minecraft:rooted_dirt",
-			"minecraft:mud":             "minecraft:mud",
-			"minecraft:packed_mud":      "minecraft:packed_mud"
+		"script": {
+			"template": "bigglobe:split_tree_natural",
+			"inputs": {
+				"palette": "'minecraft:mangrove'",
+				"requireValidGround": "true"
+			}
 		}
 	}
 }

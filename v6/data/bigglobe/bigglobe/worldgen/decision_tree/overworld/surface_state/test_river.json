@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script",
-		"script": "world_traits.`bigglobe:in_river`"
-	},
-	"if_true": "bigglobe:overworld/surface_state/river_test_hot",
-	"if_false": "bigglobe:overworld/surface_state/test_hot"
-}

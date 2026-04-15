@@ -3,13 +3,11 @@
 	"owner": "bigglobe:nether/bubble",
 	"enables": [
 		"bigglobe:nether/bubble/biome_valley_of_souls",
-		"bigglobe:nether/bubble/cave_width",
 		"bigglobe:nether/bubble/cavern_noise_forest",
 		"bigglobe:nether/bubble/filler_soul_soil",
 		"bigglobe:nether/bubble/fluid_soul_lava",
 		"bigglobe:nether/bubble/lava_level_normal",
 		"bigglobe:nether/bubble/noise_forest",
-		"bigglobe:nether/bubble/raw_cave_noise",
 		"bigglobe:nether/bubble/surface_state_soul_sand",
 		"bigglobe:nether/bubble/decorator_valley_of_souls"
 	],

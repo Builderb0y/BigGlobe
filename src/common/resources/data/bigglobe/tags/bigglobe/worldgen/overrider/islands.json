@@ -37,10 +37,7 @@
 		"bigglobe:overworld/structure/small_decorations",
 		"bigglobe:overworld/structure/stronghold",
 		"bigglobe:islands/structure/surface_skyland_exclusion",
-		{
-			"id": "bigglobe:overworld/structure/trial_chambers",
-			"required": false
-		},
+		"bigglobe:overworld/structure/trial_chambers",
 		"bigglobe:overworld/structure/underground",
 		"bigglobe:islands/structure/volcano_chamber_exclusion",
 		"bigglobe:overworld/structure/woodland_mansion",

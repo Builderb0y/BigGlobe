@@ -8,10 +8,6 @@
 			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
 			"placeFeature(x, y, z, 'bigglobe:overworld/surface_small_foliage')",
 			"placeFeature(x, y, z, 'bigglobe:overworld/cherry_blossoms')",
-			"if (world_traits.`bigglobe:has_skylands`(x, z):",
-				"y = world_traits.`bigglobe:skyland_max_y`(x, z)",
-				"placeFeature(x, y, z, 'bigglobe:overworld/skylands/small_foliage')",
-			")",
 		")"
 	]
 }

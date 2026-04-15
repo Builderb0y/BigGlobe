@@ -15,7 +15,7 @@
 				"int z = minModifiableZ | random.nextInt(16)",
 				"if (`bigglobe:islands/has_skylands`(x, z):",
 					"int y = world_traits.`bigglobe:skyland_min_y`(x, z) - 1",
-					"placeFeature(x, y, z, 'bigglobe:overworld/skylands/hanging_roots')",
+					"placeFeature(x, y, z, 'bigglobe:islands/skylands/hanging_roots')",
 				")",
 			")",
 		")"

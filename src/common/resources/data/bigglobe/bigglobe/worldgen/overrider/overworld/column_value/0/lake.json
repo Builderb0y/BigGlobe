@@ -22,6 +22,7 @@
 						"world_traits.`bigglobe:automatic_snow_y`(start.minY) + (newSurfaceY - oldSurfaceY),",
 						"lakeChance",
 					")",
+					"world_traits.`bigglobe:river_water_y` += newSurfaceY - oldSurfaceY",
 
 					"setSurfaceFoliage(start.minY, lakeChance)",
 					"(worldSeed # 16x73675EE7D46B59A3UL).newSeed(x, z).unless (lakeChance:",
@@ -38,6 +39,7 @@
 					"world_traits.`bigglobe:automatic_exact_surface_y`(start.minY) = newSurfaceY",
 					"world_traits.`bigglobe:automatic_slope_surface_y`(start.minY) = mixLinear(slopeTarget, world_traits.`bigglobe:automatic_slope_surface_y`(start.minY), fraction)",
 					"world_traits.`bigglobe:automatic_snow_y`(start.minY) += newSurfaceY - oldSurfaceY",
+					"world_traits.`bigglobe:river_water_y` += newSurfaceY - oldSurfaceY",
 				")",
 			")"
 		],

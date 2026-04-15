@@ -22,7 +22,6 @@
 					"rock_replacers": [
 						"bigglobe:overworld/bedrock",
 						"bigglobe:overworld/cobblestone_sprinkle",
-						"#bigglobe:overworld/rock_layers",
 						"#bigglobe:islands/ores"
 					],
 					"raw": "bigglobe:islands/raw_root",

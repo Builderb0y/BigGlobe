@@ -46,14 +46,12 @@ public class AutomataBlock extends Block {
 
 	@Override
 	public void neighborChanged(
-
 		BlockState state,
 		Level world,
 		BlockPos pos,
 		Block sourceBlock,
 		@Nullable Orientation wireOrientation,
 		boolean notify
-
 	) {
 		if (
 			state == this.empty &&
@@ -83,10 +81,6 @@ public class AutomataBlock extends Block {
 	@Override
 	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
 		super.tick(state, world, pos, random);
-		this.tick(world, pos, state, random);
-	}
-
-	public void tick(ServerLevel world, BlockPos pos, BlockState state, RandomSource random) {
 		switch (state.getValue(BigGlobeBlockStateProperties.AUTOMATA_STATE)) {
 			case 0 -> {
 				BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();

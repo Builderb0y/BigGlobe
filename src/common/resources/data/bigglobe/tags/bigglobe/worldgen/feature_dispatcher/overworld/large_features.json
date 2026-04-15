@@ -8,10 +8,6 @@
 
 		"bigglobe:overworld/trees",
 		"bigglobe:overworld/bushes",
-		"bigglobe:overworld/prismarine",
-
-		"bigglobe:overworld/skyland_amethyst",
-		"bigglobe:overworld/skyland_hanging_roots",
-		"bigglobe:overworld/skyland_trees"
+		"bigglobe:overworld/prismarine"
 	]
 }

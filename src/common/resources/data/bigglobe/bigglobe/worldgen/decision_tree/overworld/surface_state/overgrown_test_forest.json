@@ -1,8 +1,8 @@
 {
 	"condition": {
 		"type": "script_chance",
-		"script": "0.75L / (fastExp(3.0L - 6.0L * world_traits.`bigglobe:foliage_at_surface`) + 1.0L)"
+		"script": "world_traits.`bigglobe:foliage_at_surface`"
 	},
-	"if_true": "bigglobe:overworld/surface_state/temperate_forest",
-	"if_false": "bigglobe:overworld/surface_state/temperate_overgrown"
+	"if_true": "bigglobe:overworld/surface_state/forest_test_swamp",
+	"if_false": "bigglobe:overworld/surface_state/overgrown_test_swamp"
 }

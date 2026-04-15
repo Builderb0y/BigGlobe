@@ -1,9 +1,0 @@
-{
-	"type": "root",
-	"state": "'minecraft:air'",
-	"children": [
-		"bigglobe:overworld/filler_and_underground",
-		"bigglobe:overworld/ocean_water",
-		"bigglobe:overworld/river_water"
-	]
-}

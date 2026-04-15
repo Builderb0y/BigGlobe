@@ -4,7 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": [
-		"0.0625L / (`raw/hilliness` ^ 2 + 0.0625L)"
-	]
+	"script": "`raw/dx_heightmap` ^ 2 + `raw/dz_heightmap` ^ 2"
 }

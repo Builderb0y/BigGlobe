@@ -1,5 +1,4 @@
 {
-	"bigglobe:approximately_in_river":   "`bigglobe:overworld/approximately_in_river`",
 	"bigglobe:biome":                    "`bigglobe:overworld/biome`",
 	"bigglobe:cave_decorator":           "`bigglobe:overworld/cave`.decorator",
 	"bigglobe:cave_dungeon_decorator":   "`bigglobe:overworld/cave`.dungeon_feature",
@@ -67,6 +66,10 @@
 	"bigglobe:foliage_at_surface": {
 		"get": "`bigglobe:overworld/foliage`",
 		"set": "`bigglobe:overworld/foliage` = value"
+	},
+	"bigglobe:river_water_y": {
+		"get": "`bigglobe:overworld/river_water_y`",
+		"set": "`bigglobe:overworld/river_water_y` = value"
 	},
 	"bigglobe:slope_surface_y": {
 		"get": "`bigglobe:overworld/slope_surface_y`",

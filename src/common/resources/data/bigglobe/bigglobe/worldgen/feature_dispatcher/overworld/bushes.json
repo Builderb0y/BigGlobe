@@ -1,7 +1,7 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"repeat (random.roundInt(fastExp2(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 6.0I - 2.0I)):",
+		"repeat (random.roundInt(world_traits.`bigglobe:foliage_at_surface`(minModifiableX | 8, minModifiableZ | 8) * 8.0I):",
 			"int*(",
 				"rng = random.nextInt()",
 				"x = minModifiableX | (rng & 15)",

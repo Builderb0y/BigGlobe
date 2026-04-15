@@ -4,16 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": [
-		"double height = slope_surface_y",
-		"unless (in_river:",
-			"double globalScalar = `raw/river` - `raw/ocean_adjusted_heightmap`",
-			"globalScalar = 1.0L - 256.0L / (globalScalar ^ 2 + 256.0L)",
-			"double duneScalar = dune_scalar * globalScalar",
-			"if (duneScalar > 0.0L: height += dune * duneScalar)",
-			"double crackThreshold = desert_crack_threshold * globalScalar",
-			"if (crackThreshold > 0.0L && desert_cracks.soft_distance > 1.0L - crackThreshold: height -= 1.0L)",
-		")",
-		"return(height)"
-	]
+	"script": "eroded_heightmap.high.y"
 }

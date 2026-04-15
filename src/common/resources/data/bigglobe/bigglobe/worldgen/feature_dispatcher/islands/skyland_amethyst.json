@@ -6,7 +6,7 @@
 		"random.if (world_traits.`bigglobe:magicalness`(x, z):",
 			"if (`bigglobe:islands/has_skylands`(x, z):",
 				"int y = world_traits.`bigglobe:skyland_min_y`(x, z) - 1",
-				"placeFeature(x, y, z, 'bigglobe:overworld/skylands/amethyst_crystals')",
+				"placeFeature(x, y, z, 'bigglobe:islands/skylands/amethyst_crystals')",
 			")",
 		")"
 	]

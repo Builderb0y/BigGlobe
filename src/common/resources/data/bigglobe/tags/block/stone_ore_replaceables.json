@@ -10,7 +10,9 @@
 		"minecraft:polished_diorite",
 		"minecraft:polished_andesite",
 		"minecraft:dripstone_block",
+		"minecraft:smooth_basalt",
 		"minecraft:tuff",
-		"minecraft:calcite"
+		"minecraft:calcite",
+		"#minecraft:terracotta"
 	]
 }

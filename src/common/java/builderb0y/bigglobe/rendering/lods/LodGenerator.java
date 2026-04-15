@@ -78,7 +78,8 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 		BoundingBox translateTo,
 		byte lod,
 		LoadMode mode,
-		DownscaleSettings downscale
+		DownscaleSettings downscale,
+		T_LoadCache cache
 	) {
 		int distanceBetweenColumns = 1 << lod;
 		int distanceBetweenQuads = 2 << lod;
@@ -95,7 +96,6 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 			ColumnUsage.RAW_GENERATION.builtinLodHints(lod),
 			this.system.params.compiledWorldTraits
 		);
-		T_LoadCache cache = mode.canLoad() && lod < this.maxLoadLevel ? this.preload(generateFrom) : null;
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			for (int z = generateFrom.minZ(); z <= generateFrom.maxZ(); z += distanceBetweenQuads) {
 				final int z_ = z;

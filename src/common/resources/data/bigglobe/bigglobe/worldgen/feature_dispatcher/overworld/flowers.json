@@ -1,7 +1,6 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:overworld/surface_flowers')",
-		"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:overworld/skyland_flowers')"
+		"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:overworld/surface_flowers')"
 	]
 }

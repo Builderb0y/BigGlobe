@@ -1,8 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:skyland_types/base/property_bounds",
-		"bigglobe:skyland_types/base/property_surface",
-		"bigglobe:skyland_types/base/property_tree_feature"
-	]
-}

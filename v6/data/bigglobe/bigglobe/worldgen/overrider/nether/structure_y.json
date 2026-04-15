@@ -1,6 +1,0 @@
-{
-	"type": "structure",
-	"script": [
-		"return(true)"
-	]
-}

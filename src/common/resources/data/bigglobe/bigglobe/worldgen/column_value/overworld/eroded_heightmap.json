@@ -36,14 +36,14 @@
 	"script": {
 		"template": "bigglobe:dual_sine_wave_erosion",
 		"inputs": {
-			"lowY":  "`raw/ocean_adjusted_heightmap`",
-			"highY": "`raw/ocean_adjusted_heightmap`",
-			"dx": "`raw/dx_ocean_adjusted_heightmap`",
-			"dz": "`raw/dz_ocean_adjusted_heightmap`",
-			"minWavelength": "4.0L",
-			"midWavelength": "exp2(2.5L - 1.5L * world_traits.`bigglobe:temperature_at_surface`)",
+			"lowY":  "approximate_surface_y",
+			"highY": "approximate_surface_y",
+			"dx": "`raw/dx_heightmap`",
+			"dz": "`raw/dz_heightmap`",
+			"minWavelength": "4 + max(0, hints.lod << 6 - 256)",
+			"midWavelength": "exp2(2.5L - 1.5L * world_traits.`bigglobe:temperature_at_surface`) + max(0, hints.lod << 6 - 256)",
 			"maxWavelength": "256.0L",
-			"amplitude": "128.0L",
+			"amplitude": "`bigglobe:overworld/obelisk_terrain_suppression` * 128.0L * (1.0L - 1.0L / (`raw/river/macro` ^ 2 * 256.0L + 1.0L))",
 			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL"
 		}
 	}

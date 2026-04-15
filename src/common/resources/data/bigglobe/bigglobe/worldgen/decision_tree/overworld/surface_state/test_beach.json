@@ -3,6 +3,6 @@
 		"type": "script",
 		"script": "world_traits.`bigglobe:is_beach`"
 	},
-	"if_true": "bigglobe:overworld/surface_state/test_river",
-	"if_false": "bigglobe:overworld/surface_state/test_hot"
+	"if_true": "bigglobe:overworld/surface_state/beach_test_overgrown",
+	"if_false": "bigglobe:overworld/surface_state/test_river"
 }

@@ -1,6 +1,0 @@
-{
-	"element_type": "class/voronoi",
-	"name": "LargePlatformSkylandType",
-	"extends": "bigglobe:skyland_types/base/class",
-	"members": "#bigglobe:skyland_types/platform_large_members"
-}

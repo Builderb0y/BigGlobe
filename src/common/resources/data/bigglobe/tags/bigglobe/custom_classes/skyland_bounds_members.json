@@ -1,8 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:skyland_bounds/field_min_y",
-		"bigglobe:skyland_bounds/field_max_y",
-		"bigglobe:skyland_bounds/constructor_min_y_max_y"
-	]
-}

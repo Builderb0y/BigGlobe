@@ -1,9 +1,0 @@
-{
-	"pack": {
-		"description": "Big Globe V6",
-		"pack_format": 88,
-		"min_format": 15,
-		"max_format": 88,
-		"supported_formats": [ 15, 88 ]
-	}
-}
