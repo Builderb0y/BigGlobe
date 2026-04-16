@@ -18,7 +18,7 @@ The following other fields are also available when `type` is...
 * "gaussian" - the value is the average of several other values.
 	* `amplitude` - the maximum possible value that this grid can supply.
 	* `iterations` - the number of random numbers that are averaged together.
-* "linear", "smooth", "smoother", or "cubic"
+* "linear", "smooth", "smoother", "cubic", or "quintic" (new in V6):
 	```json
 	{
 		"type": "smooth",
@@ -41,7 +41,7 @@ The following other fields are also available when `type` is...
 * "worley" - a "center point" exists, on average, every `scale` blocks, and the value is the square of the distance to the nearest center point.
 	* `scale` - the average distance between center points. Note that there is only one scale for this type, not one per axis.
 	* `amplitude` - a multiplier for the value. The value is always in the range 0 to amplitude.
-* "linear_resample", "smooth_resample", "smoother_resample", or "cubic_resample"
+* "linear_resample", "smooth_resample", "smoother_resample", "cubic_resample", or "quintic_resample" (new in V6):
 	* `source` - another grid with the same number of dimensions as this one.
 
 		It is recommended (but not required) to use one of the following grid types for the source, because other grid types not on this list may be slower to sample.
@@ -61,12 +61,21 @@ The following other fields are also available when `type` is...
 		* f'(1) = (d - b) / 2.
 		* f is a degree 3 polynomial.
 
+		Cubic interpolation also guarantees that the curve is smooth everywhere, including at sample points where the coefficients - a, b, c, and d - can change. This also means that the derivative is guaranteed to be continuous everywhere, again including at sample points. The 2nd derivative may be discontinuous at sample points.
+
 		Note that the resulting curve can sometimes, in rare circumstances, result in values that are greater than source's max value, or less than source's min value.
+	* quintic (new in V6) - similar to cubic, but with a degree 5 polynomial. Has the following *additional* constraints for the 2nd derivative:
+		* f''(0) = 2c - 4b + 2a.
+		* f''(1) = 2d - 4c + 2b.
+
+		Unlike cubic interpolation, quintic interpolation also guarantees that the derivative is smooth at sample points, and the 2nd derivative is continuous.
+
+		Like cubic interpolation, quintic interpolation can also rarely result in values in a range that differs from that of its source.
 * "perlin" (New in V5.0.4) - similar to "smooth", but where the smooth polynomial is flat at lattice points, perlin has a randomized slope there. Perlin grids have the following additional properties:
 	* `scaleX/Y/Z` - distance between lattice points, measured in blocks.
 	* `max_slope` - the bounds for the derivative at lattice points. The true partial derivative on each axis is a uniform random number between -max_slope and +max_slope. When this value is 0, this grid behaves like a smooth grid, which is to say, a smooth_resample grid with a white_noise source.
 	* `max_offset` - the bounds for the value at each lattice point. The value is a uniform random number between -max_offset and +max_offset. When this value is 0, this grid behaves like the more traditional perlin noise algorithm, which does not typically have an offset at lattice points.
-* (dx|dy|dz)_(linear|smooth|smoother|cubic)_resample (I didn't feel like typing out all the combinations here, but one example is dy_smoother_resample) - interpolates values from another grid just like described above, but then computes the derivative of the curve they use for interpolation and returns that. Like the other resample grids above, the dx/y/z resample grids have the following additional properties:
+* (dx|dy|dz)_(linear|smooth|smoother|cubic|quintic)_resample (I didn't feel like typing out all the combinations here, but one example is dy_smoother_resample) - interpolates values from another grid just like described above, but then computes the derivative of the curve they use for interpolation and returns that. Like the other resample grids above, the dx/y/z resample grids have the following additional properties:
 	* `source`
 	* `scaleX/Y/Z`
 

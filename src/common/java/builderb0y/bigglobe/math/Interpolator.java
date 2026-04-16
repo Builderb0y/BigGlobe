@@ -145,16 +145,16 @@ public class Interpolator {
 	cubic interpolation based on terms rather than values.
 	useful if the values themselves don't change between invocations, but f does.
 	example usage:
-	double term1 = cubicTerm1(a, b, c, d);
-	double term2 = cubicTerm2(a, b, c, d);
-	double term3 = cubicTerm3(a, b, c, d);
-	double term4 = cubicTerm4(a, b, c, d);
+	double term0 = cubicTerm1(a, b, c, d);
+	double term1 = cubicTerm2(a, b, c, d);
+	double term2 = cubicTerm3(a, b, c, d);
+	double term3 = cubicTerm4(a, b, c, d);
 	for (double f = a bunch of doubles between 0.0 and 1.0) {
-	double interpolated = combineCubicTerms(term1, term2, term3, term4, f);
+	double interpolated = combineCubicTerms(term0, term1, term2, term3, f);
 	}
 	*/
-	public static double combineCubicTerms(double term1, double term2, double term3, double term4, double f) {
-		return ((term4 * f + term3) * f + term2) * f + term1;
+	public static double combineCubicTerms(double term0, double term1, double term2, double term3, double f) {
+		return ((term3 * f + term2) * f + term1) * f + term0;
 	}
 
 	//two of these methods do not make use of all their parameters.
@@ -162,19 +162,19 @@ public class Interpolator {
 	//hopefully JIT inlines this so it doesn't matter.
 	//yes, I know I'm breaking my usual "optimize everything
 	//at the source code level without relying on JIT" rule.
-	public static double cubicTerm1(double a, double b, double c, double d) {
+	public static double cubicTerm0(double a, double b, double c, double d) {
 		return b;
 	}
 
-	public static double cubicTerm2(double a, double b, double c, double d) {
+	public static double cubicTerm1(double a, double b, double c, double d) {
 		return (c - a) * 0.5D;
 	}
 
-	public static double cubicTerm3(double a, double b, double c, double d) {
+	public static double cubicTerm2(double a, double b, double c, double d) {
 		return a - (2.5D * b) + (2.0D * c) - (0.5D * d);
 	}
 
-	public static double cubicTerm4(double a, double b, double c, double d) {
+	public static double cubicTerm3(double a, double b, double c, double d) {
 		return 1.5D * (b - c) + 0.5D * (d - a);
 	}
 
@@ -188,20 +188,80 @@ public class Interpolator {
 		return ((1.5D * (d - a) + 4.5D * (b - c)) * f + (2.0D * a - 5.0D * b + 4.0D * c - d)) * f + 0.5D * (c - a);
 	}
 
-	public static double combineCubicDerivativeTerms(double term1, double term2, double term3, double f) {
-		return (term1 * f + term2) * f + term3;
+	public static double combineCubicDerivativeTerms(double term0, double term1, double term2, double f) {
+		return (term0 * f + term1) * f + term2;
 	}
 
-	public static double cubicDerivativeTerm1(double a, double b, double c, double d) {
+	public static double cubicDerivativeTerm0(double a, double b, double c, double d) {
 		return 1.5D * (d - a) + 4.5D * (b - c);
 	}
 
-	public static double cubicDerivativeTerm2(double a, double b, double c, double d) {
+	public static double cubicDerivativeTerm1(double a, double b, double c, double d) {
 		return 2.0D * a - 5.0D * b + 4.0D * c - d;
 	}
 
-	public static double cubicDerivativeTerm3(double a, double b, double c, double d) {
+	public static double cubicDerivativeTerm2(double a, double b, double c, double d) {
 		return 0.5D * (c - a);
+	}
+
+	public static double mixQuintic(double a, double b, double c, double d, double f) {
+		return (((((1.5D * (c - b) + 0.5D * (a - d)) * f + (1.5D * d - 4.0D * c + 3.5D * b - a)) * f + (-d + 2.0D * c - b)) * f + (c - 2.0D * b + a)) * f + ((c - a) * 0.5D)) * f + b;
+	}
+
+	public static double combineQuinticTerms(double term0, double term1, double term2, double term3, double term4, double term5, double f) {
+		return ((((term5 * f + term4) * f + term3) * f + term2) * f + term1) * f + term0;
+	}
+
+	public static double quinticTerm0(double a, double b, double c, double d) {
+		return b;
+	}
+
+	public static double quinticTerm1(double a, double b, double c, double d) {
+		return (c - a) * 0.5D;
+	}
+
+	public static double quinticTerm2(double a, double b, double c, double d) {
+		return c - 2.0D * b + a;
+	}
+
+	public static double quinticTerm3(double a, double b, double c, double d) {
+		return -d + 2.0D * c - b;
+	}
+
+	public static double quinticTerm4(double a, double b, double c, double d) {
+		return 1.5D * d - 4.0D * c + 3.5D * b - a;
+	}
+
+	public static double quinticTerm5(double a, double b, double c, double d) {
+		return 1.5D * (c - b) + 0.5D * (a - d);
+	}
+
+	public static double quinticDerivative(double a, double b, double c, double d, double f) {
+		return ((((2.5D * (a - d) + 7.5D * (c - b)) * f + (6.0D * d - 16.0D * c + 14.0D * b - 4.0D * a)) * f + (-3.0D * (d + b) + 6.0D * c)) * f + (2.0D * (c + a) - 4.0D * b)) * f + ((c - a) * 0.5D);
+	}
+
+	public static double combineQuinticDerivativeTerms(double term0, double term1, double term2, double term3, double term4, double f) {
+		return (((term4 * f + term3) * f + term2) * f + term1) * f + term0;
+	}
+
+	public static double quinticDerivativeTerm0(double a, double b, double c, double d) {
+		return (c - a) * 0.5D;
+	}
+
+	public static double quinticDerivativeTerm1(double a, double b, double c, double d) {
+		return 2.0D * (c + a) - 4.0D * b;
+	}
+
+	public static double quinticDerivativeTerm2(double a, double b, double c, double d) {
+		return -3.0D * (d + b) + 6.0D * c;
+	}
+
+	public static double quinticDerivativeTerm3(double a, double b, double c, double d) {
+		return 6.0D * d - 16.0D * c + 14.0D * b - 4.0D * a;
+	}
+
+	public static double quinticDerivativeTerm4(double a, double b, double c, double d) {
+		return 2.5D * (a - d) + 7.5D * (c - b);
 	}
 
 	/**

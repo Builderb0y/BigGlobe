@@ -254,14 +254,14 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		public double derivative;
 
 		public BendComponent(double a, double b, double c, double d) {
-			this.term1 = Interpolator.cubicTerm1(a, b, c, d);
-			this.term2 = Interpolator.cubicTerm2(a, b, c, d);
-			this.term3 = Interpolator.cubicTerm3(a, b, c, d);
-			this.term4 = Interpolator.cubicTerm4(a, b, c, d);
+			this.term1 = Interpolator.cubicTerm0(a, b, c, d);
+			this.term2 = Interpolator.cubicTerm1(a, b, c, d);
+			this.term3 = Interpolator.cubicTerm2(a, b, c, d);
+			this.term4 = Interpolator.cubicTerm3(a, b, c, d);
 
-			this.derivativeTerm1 = Interpolator.cubicDerivativeTerm1(a, b, c, d);
-			this.derivativeTerm2 = Interpolator.cubicDerivativeTerm2(a, b, c, d);
-			this.derivativeTerm3 = Interpolator.cubicDerivativeTerm3(a, b, c, d);
+			this.derivativeTerm1 = Interpolator.cubicDerivativeTerm0(a, b, c, d);
+			this.derivativeTerm2 = Interpolator.cubicDerivativeTerm1(a, b, c, d);
+			this.derivativeTerm3 = Interpolator.cubicDerivativeTerm2(a, b, c, d);
 		}
 
 		public BendComponent(BendComponent that) {

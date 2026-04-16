@@ -7,7 +7,6 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.noise.Grid3D.Info;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid3D;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeYGrid3D;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeZGrid3D;
@@ -37,66 +36,71 @@ public interface Grid3D extends Grid, CoderRegistryTyped<Grid3D> {
 	public static final CoderRegistry<Grid3D> REGISTRY = Grid.TESTING.booleanValue() ? null : new CoderRegistry<>(BigGlobeMod.modID("grid_3d"));
 	public static final Object INITIALIZER = new Object() {{
 		if (REGISTRY != null) {
-			REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"), WhiteNoiseGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("binary"), BinaryGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"), GaussianGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"            ),                    ConstantGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("white_noise"         ),                  WhiteNoiseGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("binary"              ),                      BinaryGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"            ),                    GaussianGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("linear"), LinearGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"), SmoothGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smoother"), SmootherGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"), CubicGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("perlin"), PerlinGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear"              ),                      LinearGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth"              ),                      SmoothGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smoother"            ),                    SmootherGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic"               ),                       CubicGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("quintic"             ),                     QuinticGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("perlin"              ),                      PerlinGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("worley"), WorleyGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("worley"              ),                      WorleyGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("linear_resample"), LinearResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smooth_resample"), SmoothResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("smoother_resample"), SmootherResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("cubic_resample"), CubicResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("linear_resample"     ),              LinearResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smooth_resample"     ),              SmoothResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("smoother_resample"   ),            SmootherResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("cubic_resample"      ),               CubicResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("quintic_resample"    ),             QuinticResampleGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_linear_resample"), LinearDerivativeXResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"), SmoothDerivativeXResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_linear_resample"  ),   LinearDerivativeXResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smooth_resample"  ),   SmoothDerivativeXResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dx_smoother_resample"), SmootherDerivativeXResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"), CubicDerivativeXResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dx_perlin"), PerlinDerivativeXGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_cubic_resample"   ),    CubicDerivativeXResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_quintic_resample" ),  QuinticDerivativeXResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dx_perlin"           ),           PerlinDerivativeXGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_linear_resample"), LinearDerivativeYResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smooth_resample"), SmoothDerivativeYResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_linear_resample"  ),   LinearDerivativeYResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smooth_resample"  ),   SmoothDerivativeYResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dy_smoother_resample"), SmootherDerivativeYResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"), CubicDerivativeYResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dy_perlin"), PerlinDerivativeYGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_cubic_resample"   ),    CubicDerivativeYResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_quintic_resample" ),  QuinticDerivativeYResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dy_perlin"           ),           PerlinDerivativeYGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("dz_linear_resample"), LinearDerivativeZResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dz_smooth_resample"), SmoothDerivativeZResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dz_linear_resample"  ),   LinearDerivativeZResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dz_smooth_resample"  ),   SmoothDerivativeZResampleGrid3D.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("dz_smoother_resample"), SmootherDerivativeZResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dz_cubic_resample"), CubicDerivativeZResampleGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("dz_perlin"), PerlinDerivativeZGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dz_cubic_resample"   ),    CubicDerivativeZResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dz_quintic_resample" ),  QuinticDerivativeZResampleGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("dz_perlin"           ),           PerlinDerivativeZGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("offset"), OffsetGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("tile"), TileGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("offset"              ),                      OffsetGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("tile"                ),                        TileGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("negate"), NegateGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("abs"), AbsGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("square"), SquareGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"), ChangeRangeGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("negate"              ),                      NegateGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("abs"                 ),                         AbsGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("square"              ),                      SquareGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("change_range"        ),                 ChangeRangeGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("sum"), SummingGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("product"), ProductGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("sum"                 ),                     SummingGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("product"             ),                     ProductGrid3D.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_x"), ProjectGrid3D_X.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_y"), ProjectGrid3D_Y.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_z"), ProjectGrid3D_Z.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_xy"), ProjectGrid3D_XY.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_xz"), ProjectGrid3D_XZ.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("project_yz"), ProjectGrid3D_YZ.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_x"           ),                   ProjectGrid3D_X.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_y"           ),                   ProjectGrid3D_Y.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_z"           ),                   ProjectGrid3D_Z.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_xy"          ),                  ProjectGrid3D_XY.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_xz"          ),                  ProjectGrid3D_XZ.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("project_yz"          ),                  ProjectGrid3D_YZ.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_xy"), StackedGrid_XY.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_xz"), StackedGrid_XZ.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_yz"), StackedGrid_YZ.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_xy"          ),                    StackedGrid_XY.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_xz"          ),                    StackedGrid_XZ.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("stacked_yz"          ),                    StackedGrid_YZ.class);
 
-			REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptedGrid3D.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("template"), TemplateGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"              ),                    ScriptedGrid3D.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("template"            ),                    TemplateGrid3D.class);
 		}
 	}};
 

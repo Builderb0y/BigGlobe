@@ -14,14 +14,14 @@ public class CubicDerivativePolynomial extends Polynomial4 {
 
 	@Override
 	public void update(double value0, double value1, double value2, double value3, double rcp) {
-		this.term0 = rcp * (4.5D * (value1 - value2) + 1.5D * (value3 - value0));
-		this.term1 = rcp * (2.0D * value0 - (5.0D * value1) + (4.0D * value2) - value3);
-		this.term2 = rcp * (0.5D * (value2 - value0));
+		this.term0 = Interpolator.cubicDerivativeTerm0(value0, value1, value2, value3) * rcp;
+		this.term1 = Interpolator.cubicDerivativeTerm1(value0, value1, value2, value3) * rcp;
+		this.term2 = Interpolator.cubicDerivativeTerm2(value0, value1, value2, value3) * rcp;
 	}
 
 	@Override
 	public double interpolate(double fraction) {
-		return (fraction * this.term0 + this.term1) * fraction + this.term2;
+		return Interpolator.combineCubicDerivativeTerms(this.term0, this.term1, this.term2, fraction);
 	}
 
 	@Override

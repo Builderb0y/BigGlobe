@@ -34,6 +34,13 @@ public class ResampleGridTest {
 		NumberArray.Manager.Testing.TESTING = true;
 	}
 
+	public static void dump(Grid source, NumberArray array) {
+		System.out.println(source.getClass());
+		for (int index = 0; index < array.length(); index++) {
+			System.out.println("#".repeat((int)(array.getD(index) * 48.0D + 64.0D)));
+		}
+	}
+
 	@Test
 	public void test1D() {
 		NumberArray
@@ -61,6 +68,12 @@ public class ResampleGridTest {
 		test1D(
 			new CubicResampleGrid1D(source, GRID_SCALE_X),
 			new CubicDerivativeXResampleGrid1D(source, GRID_SCALE_X),
+			gridScratch,
+			derivativeScratch
+		);
+		test1D(
+			new QuinticResampleGrid1D(source, GRID_SCALE_X),
+			new QuinticDerivativeXResampleGrid1D(source, GRID_SCALE_X),
 			gridScratch,
 			derivativeScratch
 		);
@@ -118,6 +131,13 @@ public class ResampleGridTest {
 			new CubicResampleGrid2D(source, GRID_SCALE_X, GRID_SCALE_Y),
 			new CubicDerivativeXResampleGrid2D(source, GRID_SCALE_X, GRID_SCALE_Y),
 			new CubicDerivativeYResampleGrid2D(source, GRID_SCALE_X, GRID_SCALE_Y),
+			gridScratch,
+			derivativeScratch
+		);
+		test2D(
+			new QuinticResampleGrid2D(source, GRID_SCALE_X, GRID_SCALE_Y),
+			new QuinticDerivativeXResampleGrid2D(source, GRID_SCALE_X, GRID_SCALE_Y),
+			new QuinticDerivativeYResampleGrid2D(source, GRID_SCALE_X, GRID_SCALE_Y),
 			gridScratch,
 			derivativeScratch
 		);
@@ -201,6 +221,14 @@ public class ResampleGridTest {
 			new CubicDerivativeXResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
 			new CubicDerivativeYResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
 			new CubicDerivativeZResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
+			gridScratch,
+			derivativeScratch
+		);
+		test3D(
+			new QuinticResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
+			new QuinticDerivativeXResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
+			new QuinticDerivativeYResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
+			new QuinticDerivativeZResampleGrid3D(source, GRID_SCALE_X, GRID_SCALE_Y, GRID_SCALE_Z),
 			gridScratch,
 			derivativeScratch
 		);

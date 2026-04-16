@@ -145,6 +145,9 @@ V6:
 	suspect "culling chunks" are incorrect when they're loaded from real chunks instead of generated.
 		possibly downscaled incorrectly.
 	increase distance between mega trees.
+	check on nether generation.
+		ensure lava is still correct.
+		got some weird git issue related to this at one point.
 
 LODs:
 	shader support.
@@ -183,6 +186,7 @@ changelog:
 			* If the script is using originX/Y/Z as a seed for RNG, you will now get the same seed for all positions.
 			* Scripts that place blocks at an absolute position instead of a relative one will either need to be converted accordingly, or be placed at a position that cancels this out.
 				* For example, if the script tries to place blocks at a specific Y level, then your feature dispatcher should place it at Y 0.
+	* Added new "quintic" noise source. Similar to cubic noise sources, but the derivative is smooth instead of just continuous.
 
 if a V5 backport is made:
 	copy hyperspace ring collapse code.
