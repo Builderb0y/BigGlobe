@@ -144,7 +144,7 @@ V6:
 		also remove from tree configured features (ground replacements).
 	suspect "culling chunks" are incorrect when they're loaded from real chunks instead of generated.
 		possibly downscaled incorrectly.
-	custom ticker for automata which discards when attempting to tick in a non-ticking position.
+	increase distance between mega trees.
 
 LODs:
 	shader support.

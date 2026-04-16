@@ -316,28 +316,26 @@ public class BigGlobeBlocks {
 
 	public static final AutomataBlock ANCIENT_AUTOMATA = register(
 		"ancient_automata",
-		new AutomataBlock(
+		new NaturalAutomataBlock(
 			BlockBehaviour
 			.Properties
 			.of()
 			.setId(key("ancient_automata"))
 			.mapColor(MapColor.COLOR_BLACK)
 			.requiresCorrectToolForDrops()
-			.strength(1.5F, 6.0F),
-			true
+			.strength(1.5F, 6.0F)
 		)
 	);
 	public static final AutomataBlock AUTOMATA = register(
 		"automata",
-		new AutomataBlock(
+		new ArtificialAutomataBlock(
 			BlockBehaviour
 			.Properties
 			.of()
 			.setId(key("automata"))
 			.mapColor(MapColor.COLOR_BLACK)
 			.requiresCorrectToolForDrops()
-			.strength(1.5F, 6.0F),
-			false
+			.strength(1.5F, 6.0F)
 		)
 	);
 	public static final FlowerBedBlock RED_WILDFLOWERS = register(
