@@ -50,27 +50,27 @@ public class FlatLoadingLodGenerator extends LodGenerator<FlatLoadingLodGenerato
 	}
 
 	@Override
-	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, DownscaleSettings downscale, LightweightChunkArea chunks) {
+	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, int lod, DownscaleSettings downscale, LightweightChunkArea chunks) {
 		if (chunks != null) {
 			QuadList list = new QuadList();
-			list.object00 = this.fetch(chunks, quadColumn.object00);
-			list.object01 = this.fetch(chunks, quadColumn.object01);
-			list.object10 = this.fetch(chunks, quadColumn.object10);
-			list.object11 = this.fetch(chunks, quadColumn.object11);
+			list.object00 = this.fetch(chunks, quadColumn.object00, lod);
+			list.object01 = this.fetch(chunks, quadColumn.object01, lod);
+			list.object10 = this.fetch(chunks, quadColumn.object10, lod);
+			list.object11 = this.fetch(chunks, quadColumn.object11, lod);
+			downscale.applyDownscale(list);
 			if (list.anyNull()) {
-				list.fillNullsFrom(super.loadOrGenerate(quadColumn, mode, downscale, chunks));
+				list.fillNullsFrom(super.loadOrGenerate(quadColumn, mode, lod, downscale, chunks));
 			}
 			return list;
 		}
 		else {
-			return super.loadOrGenerate(quadColumn, mode, downscale, chunks);
+			return super.loadOrGenerate(quadColumn, mode, lod, downscale, chunks);
 		}
 	}
 
-	public BlockSegmentList fetch(LightweightChunkArea chunks, ScriptedColumn column) {
+	public BlockSegmentList fetch(LightweightChunkArea chunks, ScriptedColumn column, int lod) {
 		LightweightChunk chunk = chunks.getChunk(column.x(), column.z());
 		if (chunk != null) {
-			byte lod = column.hints().lod();
 			return chunk.getColumn(column.x() >> lod, column.z() >> lod, lod);
 		}
 		return null;

@@ -41,7 +41,7 @@ public class FlatGenerationPipeline extends GenerationPipeline {
 			ct,
 			lod,
 			mode,
-			DownscaleSettings.NONE.deltaLod(lod),
+			DownscaleSettings.NONE,
 			loadCache
 		);
 		if (center == null) return null;
@@ -51,7 +51,7 @@ public class FlatGenerationPipeline extends GenerationPipeline {
 		// negX | center | posX
 		//------+--------+------
 		//         negZ
-		DownscaleSettings downscaleSettings = DownscaleSettings.NONE.deltaLod(lod).mergeHorizontally(lod > 0).keepAir(true);
+		DownscaleSettings downscaleSettings = DownscaleSettings.NONE.deltaLod(lod > 0 ? 1 : 0).mergeHorizontally(lod > 0).keepAir(true);
 		ColumnBlockGetter
 			posX = generator.generateRegion(
 				new BoundingBox(area.maxX() + 1, area.minY(), area.minZ(), area.maxX() + padding, area.maxY(), area.maxZ()),

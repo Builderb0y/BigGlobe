@@ -109,7 +109,7 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 							this.nextRecycledColumn(params)
 						);
 						quadColumn.at(params, x_, z_, distanceBetweenColumns);
-						QuadList quadList = this.loadOrGenerate(quadColumn, mode, downscale, cache);
+						QuadList quadList = this.loadOrGenerate(quadColumn, mode, lod, downscale, cache);
 						int relativeX = (x_ - generateFrom.minX())    >> shift;
 						int relativeZ = (z_ - generateFrom.minZ())    >> shift;
 						int stride    =       generateFrom.getXSpan() >> shift;
@@ -170,7 +170,7 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 									this.nextRecycledColumn(params)
 								);
 								quadColumn.at(params, x_, z_, distanceBetweenColumns);
-								QuadList quadList = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, downscale, cache);
+								QuadList quadList = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, lod, downscale, null);
 								lists[baseIndex] = quadList.merge();
 								this.recycleColumns(quadColumn.object01, quadColumn.object10, quadColumn.object11);
 							}
@@ -181,7 +181,7 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 							if (loaded.anyNull()) {
 								QuadColumn quadColumn = new QuadColumn();
 								quadColumn.loadFromArray(columns, baseIndex, stride);
-								QuadList generated = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, downscale, cache);
+								QuadList generated = this.loadOrGenerate(quadColumn, LoadMode.GENERATE_ONLY, lod, downscale, null);
 								loaded.fillNullsFrom(generated);
 								loaded.storeInArray(lists, baseIndex, stride);
 							}
@@ -208,12 +208,12 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 		return null;
 	}
 
-	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, DownscaleSettings downscale, @Nullable T_LoadCache cache) {
+	public QuadList loadOrGenerate(QuadColumn quadColumn, LoadMode mode, int lod, DownscaleSettings downscale, @Nullable T_LoadCache cache) {
 		QuadList quadList = new QuadList();
 		if (mode.canGenerate()) {
 			quadList.createNew(quadColumn.object00.minY(), quadColumn.object00.maxY());
 			QuadHolder.generate(quadColumn, quadList, this.system.params.layer.value());
-			downscale.applyDownscale(quadList);
+			downscale.deltaLod(downscale.deltaLod() + lod).applyDownscale(quadList);
 			quadList.computeLightLevels(this.dimensionType.hasSkyLight() ? ((byte)(15)) : ((byte)(0)));
 		}
 		return quadList;
