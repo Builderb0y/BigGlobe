@@ -3,10 +3,6 @@ int surfaceY = world_traits.`bigglobe:y_level_on_surface`
 ;which could happen with cubic chunks.
 if (surfaceY.isBetween[minY, maxY]:
 	long seed = columnSeed(16x89EA3521C6A72ABCUL)
-	double slopeSquared = (
-		+ dx(world_traits.`bigglobe:slope_surface_y`) ^ 2
-		+ dz(world_traits.`bigglobe:slope_surface_y`) ^ 2
-	)
 	if (`bigglobe:overworld/is_desert`:
 		int lowerBound = hints.isLod ? ceilInt(world_traits.`bigglobe:slope_surface_y`) - 16 : world_traits.`bigglobe:core_max_y`
 		int upperBound = world_traits.`bigglobe:y_level_in_surface`
@@ -63,8 +59,9 @@ if (surfaceY.isBetween[minY, maxY]:
 	)
 	int depth = floorInt(
 		+ (seed := seed.newSeed()).nextDouble(3.0L, 7.0L) ;base randomness
-		- (slopeSquared * 3.0L) ;less depth when slope is high
-		+ (world_traits.`bigglobe:foliage_at`(surfaceY) * 2.0L)
+		+ (`bigglobe:overworld/raw/foliage_noise` * 2.0L) ;more depth when foliage is high
+		- (`bigglobe:overworld/mountainness` * 8.0L) ;less depth when Y level is high
+		- (`bigglobe:overworld/hilliness` * world_traits.`bigglobe:eroded_foliage` * 4.0L) ;more depth in valleys
 	)
 	if (depth > 0:
 		if (`bigglobe:overworld/lake_surface_states` != null:
@@ -83,8 +80,5 @@ if (surfaceY.isBetween[minY, maxY]:
 				)
 			)
 		)
-	)
-	if (world_traits.`bigglobe:exact_surface_y` > world_traits.`bigglobe:sea_level` && (seed := seed.newSeed()).nextBoolean(world_traits.`bigglobe:snow_chance`):
-		generateSnow(surfaceY, world_traits.`bigglobe:snow_y`)
 	)
 )

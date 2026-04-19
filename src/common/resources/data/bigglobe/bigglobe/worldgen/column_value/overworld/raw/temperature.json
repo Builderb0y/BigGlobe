@@ -5,15 +5,23 @@
 		"is_3d": false
 	},
 	"grid": {
-		"type": "sum",
-		"layers": [
-			{ "type": "cubic", "scale": 2048, "amplitude": 1.0 },
-			{ "type": "cubic", "scale": 1024, "amplitude": 0.5 },
-			{ "type": "cubic", "scale":  512, "amplitude": 0.25 },
-			{ "type": "cubic", "scale":  256, "amplitude": 0.125 },
-			{ "type": "cubic", "scale":  128, "amplitude": 0.0625 },
-			{ "type": "cubic", "scale":   64, "amplitude": 0.03125 },
-			{ "type": "cubic", "scale":   32, "amplitude": 0.015625 }
-		]
+		"type": "script",
+		"min": -3.0,
+		"max":  3.0,
+		"script": "base ^ 3",
+		"inputs": {
+			"base": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.5       }, "scale": 4096 },
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.25      }, "scale": 2048 },
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.125     }, "scale": 1024 },
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.0625    }, "scale":  512 },
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.03125   }, "scale":  256 },
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.015625  }, "scale":  128 },
+					{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.0078125 }, "scale":   64 }
+				]
+			}
+		}
 	}
 }

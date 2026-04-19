@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "eroded_heightmap.high.y"
+	"script": "eroded_heightmap.terrain.y"
 }

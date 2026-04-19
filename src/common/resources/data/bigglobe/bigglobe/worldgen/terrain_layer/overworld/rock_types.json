@@ -34,14 +34,8 @@
 			"setBlockStates(prevY, maxFillY, prevState)",
 		")"
 	],
-	"before_children": {
-		"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
-	},
 	"after_children": {
-		"file": "bigglobe:world_preset/overworld_surface_placement",
-		"includes": [
-			"bigglobe:include/generate_snow"
-		]
+		"file": "bigglobe:world_preset/overworld_surface_placement"
 	},
 	"valid": {
 		"where": "hints.usage !=. 'heightmap'",

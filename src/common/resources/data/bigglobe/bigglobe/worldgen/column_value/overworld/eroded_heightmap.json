@@ -6,7 +6,7 @@
 			"name": "DualSineWaveErosionData",
 			"fields": [
 				{
-					"name": "high",
+					"name": "terrain",
 					"type": {
 						"type": "class",
 						"name": "SineWaveErosionData",
@@ -18,7 +18,7 @@
 					}
 				},
 				{
-					"name": "low",
+					"name": "snow",
 					"type": {
 						"type": "class",
 						"name": "SineWaveErosionData",
@@ -28,6 +28,10 @@
 							{ "name": "dz", "type": "double" }
 						]
 					}
+				},
+				{
+					"name": "foliage",
+					"type": "float"
 				}
 			]
 		},
@@ -41,9 +45,9 @@
 			"dx": "`raw/dx_heightmap`",
 			"dz": "`raw/dz_heightmap`",
 			"minWavelength": "4 + max(0, hints.lod << 6 - 256)",
-			"midWavelength": "exp2(2.5L - 1.5L * world_traits.`bigglobe:temperature_at_surface`) + max(0, hints.lod << 6 - 256)",
-			"maxWavelength": "256.0L",
-			"amplitude": "`bigglobe:overworld/obelisk_terrain_suppression` * 128.0L * (1.0L - 1.0L / (`raw/river/macro` ^ 2 * 256.0L + 1.0L))",
+			"midWavelength": "exp2(3.5L - 2.5L * world_traits.`bigglobe:temperature_at_surface`) + max(0, hints.lod << 6 - 256)",
+			"maxWavelength": "512.0L",
+			"amplitude": "`bigglobe:overworld/obelisk_terrain_suppression` * 128.0L * (1.0L - 1.0L / (`raw/river/macro` ^ 2 * 16.0L + 1.0L))",
 			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL"
 		}
 	}

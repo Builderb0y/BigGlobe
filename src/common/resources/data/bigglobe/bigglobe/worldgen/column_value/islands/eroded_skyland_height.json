@@ -6,7 +6,7 @@
 			"name": "DualSineWaveErosionData",
 			"fields": [
 				{
-					"name": "high",
+					"name": "terrain",
 					"type": {
 						"type": "class",
 						"name": "SineWaveErosionData",
@@ -18,7 +18,7 @@
 					}
 				},
 				{
-					"name": "low",
+					"name": "snow",
 					"type": {
 						"type": "class",
 						"name": "SineWaveErosionData",
@@ -28,6 +28,10 @@
 							{ "name": "dz", "type": "double" }
 						]
 					}
+				},
+				{
+					"name": "foliage",
+					"type": "float"
 				}
 			]
 		},

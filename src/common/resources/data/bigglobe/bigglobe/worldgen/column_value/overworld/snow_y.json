@@ -7,13 +7,12 @@
 	"script": [
 		"mixLinear(",
 			"world_traits.`bigglobe:exact_surface_y`,",
-			"eroded_heightmap.low.y + (world_traits.`bigglobe:temperature_at_surface` * -16.0L - 8.0L),",
+			"eroded_heightmap.snow.y + (world_traits.`bigglobe:temperature_at_surface` * -8.0L - 4.0L),",
 			"unmixSmooth(",
 				"world_traits.`bigglobe:sea_level`,",
 				"world_traits.`bigglobe:sea_level` + 32.0L,",
 				"world_traits.`bigglobe:exact_surface_y`",
 			")",
-			"* (1.0L - river_chance)",
 		")"
 	]
 }

@@ -5,7 +5,12 @@
 		"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
 	},
 	"after_children": {
-		"file": "bigglobe:world_preset/overworld_surface_placement",
+		"source": [
+			"int surfaceY = world_traits.`bigglobe:y_level_on_surface`",
+			"if (world_traits.`bigglobe:exact_surface_y` > world_traits.`bigglobe:sea_level` && columnSeed(16xD8C346BDF1997FC2UL).nextBoolean(world_traits.`bigglobe:snow_chance`):",
+				"generateSnow(surfaceY, world_traits.`bigglobe:snow_y`)",
+			")"
+		],
 		"includes": [
 			"bigglobe:include/generate_snow"
 		]

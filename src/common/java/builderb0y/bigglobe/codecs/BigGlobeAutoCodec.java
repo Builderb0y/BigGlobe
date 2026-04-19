@@ -209,7 +209,7 @@ public class BigGlobeAutoCodec {
 		WORLD_TRAIT_REGISTRY_CODERS,
 		LAYER_REGISTRY_CODERS,
 		EXTRA_SPAWN_REGISTRY_CODERS,
-		};
+	};
 
 	public static final AutoCodec AUTO_CODEC = new AutoCodec() {
 
@@ -249,24 +249,22 @@ public class BigGlobeAutoCodec {
 						@Override
 						public void setup() {
 							super.setup();
-							this.addRaw(
-								Tag.class, new NamedCoder<>("NbtElementCoder") {
+							this.addRaw(Tag.class, new NamedCoder<>("NbtElementCoder") {
 
-									@Override
-									@OverrideOnly
-									public <T_Encoded> @Nullable Tag decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-										if (context.isEmpty()) return null;
-										return DataOps.UNCOMPRESSED.convertTo(NbtOps.INSTANCE, context.data);
-									}
-
-									@Override
-									@OverrideOnly
-									public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Tag> context) throws EncodeException {
-										if (context.object == null) return EmptyData.INSTANCE;
-										return NbtOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, context.object);
-									}
+								@Override
+								@OverrideOnly
+								public <T_Encoded> @Nullable Tag decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+									if (context.isEmpty()) return null;
+									return DataOps.UNCOMPRESSED.convertTo(NbtOps.INSTANCE, context.data);
 								}
-							);
+
+								@Override
+								@OverrideOnly
+								public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Tag> context) throws EncodeException {
+									if (context.object == null) return EmptyData.INSTANCE;
+									return NbtOps.INSTANCE.convertTo(DataOps.UNCOMPRESSED, context.object);
+								}
+							});
 							this.addRaw(UUID.class, UUIDCoder.INSTANCE);
 							for (RegistryCoders<?> coders : DYNAMIC_REGISTRY_CODERS) {
 								coders.addAllTo(this);
@@ -371,6 +369,27 @@ public class BigGlobeAutoCodec {
 				@Override
 				public boolean canView(@NotNull Field field) {
 					return super.canView(field) && field.getDeclaringClass().getName().startsWith("builderb0y.");
+				}
+			};
+		}
+	};
+	public static final AutoCodec SILENT_CODEC = new AutoCodec() {
+
+		@Override
+		@OverrideOnly
+		public @NotNull TaskLogger createDefaultLogger(@NotNull ReentrantLock lock) {
+			return new DisabledTaskLogger();
+		}
+
+		@Override
+		@OverrideOnly
+		public @NotNull CoderFactoryList createCoders() {
+			return new CoderFactoryList(this) {
+
+				@Override
+				public void setup() {
+					super.setup();
+					this.getFactory(EnumCoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
 				}
 			};
 		}

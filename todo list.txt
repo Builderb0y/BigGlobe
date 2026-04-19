@@ -81,15 +81,6 @@ V6:
 		this will probably require some hacks for dragon flight logic.
 		also end crystal spike generation.
 	new "rock layers" for nether too?
-	alternate rock system that's not layered:
-		stone - constant high bias.
-		deepslate - y level.
-		granite - mountainness.
-		diorite - high foliage.
-		andesite - low temperature.
-		calcite - constant low bias.
-		tuff - low foliage.
-		dripstone - ocean.
 	make nether surface depth a bubble property.
 	structure dispatchers?
 		2D and 3D variants.
@@ -99,8 +90,6 @@ V6:
 			inject structure dispatchers into structure sets,
 			override method in scripted structure set.
 		mob spawning will need to become scripted somehow.
-	make nether fortresses spawn exclusively in the upper part of the nether,
-		split up structure sets for them.
 	slopes biome.
 		pine trees?
 			green-ish bark, birch-ish inside. desaturated.
@@ -111,8 +100,6 @@ V6:
 		goats.
 	half (16-bit float) storage mode in NumberArray.
 	prevent mushrooms from spawning inside and on top of obelisks.
-	caves don't seem to be able to carve through sand, for some reason.
-		maybe bug in layered terracotta script.
 	vanilla #dirt tag changed to #substrate_overworld
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
@@ -142,12 +129,9 @@ V6:
 	remove packed mud.
 		I think it looks bad.
 		also remove from tree configured features (ground replacements).
-	suspect "culling chunks" are incorrect when they're loaded from real chunks instead of generated.
-		possibly downscaled incorrectly.
 	increase distance between mega trees.
-	check on nether generation.
-		ensure lava is still correct.
-		got some weird git issue related to this at one point.
+	tweak islands as necessary to account for changes in erosion system.
+		and new mesa system.
 
 LODs:
 	shader support.
@@ -192,6 +176,7 @@ if a V5 backport is made:
 	copy hyperspace ring collapse code.
 	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
 	fix pale garden never getting updated for biome attributes changes.
+	fix portal temple column value overrider not applying to bigglobe:portal_temple_cracked structure.
 
 alternate world presets:
 	paradise.

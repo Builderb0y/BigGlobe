@@ -39,49 +39,50 @@ public class RespawnCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 			Commands
-				.literal(BigGlobeMod.MODID + ":respawn")
-				.requires(CommandVersions.levelPredicate(2))
+			.literal(BigGlobeMod.MODID + ":respawn")
+			.requires(CommandVersions.levelPredicate(2))
+			.executes((CommandContext<CommandSourceStack> context) -> {
+				Component failReason = RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrException(), false);
+				if (failReason == null) return 1;
+				context.getSource().sendFailure(failReason);
+				return 0;
+			})
+			.then(
+				Commands
+				.argument("mode", new RespawnModeArgumentType())
 				.executes((CommandContext<CommandSourceStack> context) -> {
-					Component failReason = RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrException(), false);
+					Component failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrException(), false);
 					if (failReason == null) return 1;
 					context.getSource().sendFailure(failReason);
 					return 0;
 				})
 				.then(
 					Commands
-						.argument("mode", new RespawnModeArgumentType())
+					.argument("force", BoolArgumentType.bool())
+					.executes((CommandContext<CommandSourceStack> context) -> {
+						Component failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrException(), context.getArgument("force", Boolean.class));
+						if (failReason == null) return 1;
+						context.getSource().sendFailure(failReason);
+						return 0;
+					})
+					.then(
+						Commands
+						.argument("players", EntityArgument.players())
 						.executes((CommandContext<CommandSourceStack> context) -> {
-							Component failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrException(), false);
-							if (failReason == null) return 1;
-							context.getSource().sendFailure(failReason);
-							return 0;
+							RespawnMode point = context.getArgument("mode", RespawnMode.class);
+							Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
+							int successCount = 0;
+							for (ServerPlayer player : players) {
+								if (point.respawnPlayer(player, false) == null) successCount++;
+							}
+							if (successCount != players.size()) {
+								context.getSource().sendFailure(Component.translatable(PREFIX + "multi.fail"));
+							}
+							return successCount;
 						})
-						.then(
-							Commands.argument("force", BoolArgumentType.bool())
-								.executes((CommandContext<CommandSourceStack> context) -> {
-									Component failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrException(), context.getArgument("force", Boolean.class));
-									if (failReason == null) return 1;
-									context.getSource().sendFailure(failReason);
-									return 0;
-								})
-								.then(
-									Commands
-										.argument("players", EntityArgument.players())
-										.executes((CommandContext<CommandSourceStack> context) -> {
-											RespawnMode point = context.getArgument("mode", RespawnMode.class);
-											Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
-											int successCount = 0;
-											for (ServerPlayer player : players) {
-												if (point.respawnPlayer(player, false) == null) successCount++;
-											}
-											if (successCount != players.size()) {
-												context.getSource().sendFailure(Component.translatable(PREFIX + "multi.fail"));
-											}
-											return successCount;
-										})
-								)
-						)
+					)
 				)
+			)
 		);
 	}
 
@@ -134,7 +135,7 @@ public class RespawnCommand {
 		;
 
 		//why is there a class named Codec in StringIdentifiable?
-		public static final Codec<RespawnMode> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RespawnMode.class);
+		public static final Codec<RespawnMode> CODEC = BigGlobeAutoCodec.SILENT_CODEC.createDFUCodec(RespawnMode.class);
 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 
@@ -195,25 +196,23 @@ public class RespawnCommand {
 
 			float yaw = EntityVersions.getRespawnAngle(player);
 			Vec3 actualPosition = (
-
 				ServerPlayer.findRespawnAndUseSpawnBlock(
-						world,
-						new ServerPlayer.RespawnConfig(
-							new LevelData.RespawnData(
-								new GlobalPos(
-									dimension,
-									position
-								),
-								yaw,
-								0.0F
+					world,
+					new ServerPlayer.RespawnConfig(
+						new LevelData.RespawnData(
+							new GlobalPos(
+								dimension,
+								position
 							),
-							false
+							yaw,
+							0.0F
 						),
 						false
-					)
-					.map(ServerPlayer.RespawnPosAngle::position)
-					.orElse(null)
-
+					),
+					false
+				)
+				.map(ServerPlayer.RespawnPosAngle::position)
+				.orElse(null)
 			);
 			if (actualPosition == null) {
 				if (force) {

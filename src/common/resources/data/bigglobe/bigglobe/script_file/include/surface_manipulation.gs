@@ -16,6 +16,7 @@ void setSurfaceY(double*(y, fraction), int snowMode:
 		case (1: world_traits.`bigglobe:automatic_snow_y`(iY) = mixLinear(y - 1.0L, world_traits.`bigglobe:automatic_snow_y`(iY), fraction))
 		case (2: world_traits.`bigglobe:automatic_snow_y`(iY) += newY - oldY)
 	)
+	world_traits.`bigglobe:river_water_y` += newY - oldY
 )
 
 void setSnowY(double*(y, fraction):

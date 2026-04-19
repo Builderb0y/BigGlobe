@@ -8,10 +8,11 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 153.6    }, "scale": 3072 },
-			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":  61.44   }, "scale": 1536 },
-			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":  24.576  }, "scale":  768 },
-			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":   9.8304 }, "scale":  384 }
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude": 153.6     }, "scale": 4096 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":  61.44    }, "scale": 2048 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":  24.576   }, "scale": 1024 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":   9.8304  }, "scale":  512 },
+			{ "type": "dy_smoother_resample", "source": { "type": "binary", "amplitude":   3.93216 }, "scale":  256 }
 		]
 	}
 }

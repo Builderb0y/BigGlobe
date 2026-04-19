@@ -87,8 +87,8 @@ public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 		if (index >= 0) {
 			int y = pos.getY() << this.lod;
 			ScriptedColumn column = this.columns[index];
-			ColorScript.Catcher script = this.colorOverrides.forColorResolver(resolver);
-			if (script != null) {
+			ColorScript.Catcher script;
+			if (this.colorOverrides != null && (script = this.colorOverrides.forColorResolver(resolver)) != null) {
 				return script.getColor(column, y);
 			}
 			else if (this.biomeSource != null) {

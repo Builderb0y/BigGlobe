@@ -5,6 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"max(eroded_heightmap.high.y * 0.1875L - 16.0L, 0.0) ^ 2"
+		"`raw/mountainness` * obelisk_terrain_suppression"
 	]
 }

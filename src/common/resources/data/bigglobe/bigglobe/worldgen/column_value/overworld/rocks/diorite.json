@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": true
 	},
-	"script": "diorite_tuff_noise + world_traits.`bigglobe:foliage_at`",
+	"script": "diorite_tuff_noise + `bigglobe:overworld/raw/foliage_noise`",
 	"cache": false
 }
