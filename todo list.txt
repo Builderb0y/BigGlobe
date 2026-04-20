@@ -125,13 +125,10 @@ V6:
 	remove/inline everything in "versions" folder.
 	see if I still need JIJ extraction now that loom just uses implementation().
 	custom ore model that takes textures from blocks around it.
-	islands world type needs new rock non-layers.
-	remove packed mud.
-		I think it looks bad.
-		also remove from tree configured features (ground replacements).
-	increase distance between mega trees.
+	islands world type needs new rock terrain layers.
 	tweak islands as necessary to account for changes in erosion system.
 		and new mesa system.
+		and new biome tint system.
 
 LODs:
 	shader support.

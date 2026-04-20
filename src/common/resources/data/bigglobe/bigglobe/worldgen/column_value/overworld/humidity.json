@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"`raw/humidity`"
+	]
+}

@@ -33,36 +33,17 @@
 					},
 					"colors": {
 						"grass": {
-							"template": "bigglobe:block_color_adjustment",
-							"inputs": {
-								"COLOR": [
-									"getDefaultGrassColor(",
-										"1.0L / (fastExp(-8.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
-										"1.0L / (fastExp(-8.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
-									")"
-								]
-							}
+							"source": "computeBiomeTint(false, 0.0I)",
+							"includes": "bigglobe:include/biome_tint"
 						},
 						"foliage": {
-							"template": "bigglobe:block_color_adjustment",
-							"inputs": {
-								"COLOR": [
-									"getDefaultFoliageColor(",
-										"1.0L / (fastExp(-8.0L * world_traits.`bigglobe:temperature_at`(y)) + 1.0L),",
-										"1.0L / (fastExp(-8.0L * world_traits.`bigglobe:foliage_at`(y)) + 1.0L)",
-									")"
-								]
-							}
+							"source": "computeBiomeTint(true, 0.0I)",
+							"includes": "bigglobe:include/biome_tint"
 						},
-						"water": {
-							"template": "bigglobe:block_color_adjustment",
-							"inputs": {
-								"COLOR": [
-									"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
-									"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
-								]
-							}
-						}
+						"water": [
+							"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
+							"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+						]
 					},
 					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
 				}

@@ -4,6 +4,6 @@
 		"type": "int",
 		"is_3d": false
 	},
-	"script": "x / 8192",
+	"script": "x / 16384",
 	"cache": false
 }

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
@@ -88,7 +89,7 @@ public class ScriptFileResolver {
 	}
 
 	@UseCoder(name = "new", in = ResolvedIncludesCoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
-	public static record ResolvedIncludes(Holder<ResolvedInclude>[] includes) implements SimpleDependencyView {
+	public static record ResolvedIncludes(Holder<ResolvedInclude> @SingletonArray [] includes) implements SimpleDependencyView {
 
 		public String assemble(String source) {
 			StringBuilder builder = new StringBuilder(this.includes.length << 9);
@@ -119,7 +120,7 @@ public class ScriptFileResolver {
 		public <T_Encoded> @Nullable ResolvedIncludes decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
 			ArrayBuilder<Holder<ResolvedInclude>> builder = new ArrayBuilder<>();
-			for (DecodeContext<T_Encoded> elementContext : context.listIterable()) {
+			for (DecodeContext<T_Encoded> elementContext : context.listIterableOrSingleton()) {
 				builder.accept(intern(resolve(elementContext.decodeWith(this.identifierCoder))));
 			}
 			return new ResolvedIncludes(builder.toArray(ResolvedInclude.ENTRY_ARRAY_FACTORY));
@@ -132,14 +133,14 @@ public class ScriptFileResolver {
 			if (includes == null) return EmptyData.INSTANCE;
 			return ListData.collect(
 				Arrays
-					.stream(includes.includes)
-					.map(Holder<ResolvedInclude>::value)
-					.map(ResolvedInclude::id)
-					.map((Identifier id) -> (
-						context
-							.object(id)
-							.encodeWith(this.identifierCoder)
-					))
+				.stream(includes.includes)
+				.map(Holder<ResolvedInclude>::value)
+				.map(ResolvedInclude::id)
+				.map((Identifier id) -> (
+					context
+					.object(id)
+					.encodeWith(this.identifierCoder)
+				))
 			);
 		}
 	}

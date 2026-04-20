@@ -98,12 +98,12 @@
 	"bigglobe:automatic_lake_surface_states": {
 		"get": [
 			"`bigglobe:islands/automatic_is_skyland`",
-			"? `bigglobe:overworld/skyland_lake_surface_states`",
+			"? `bigglobe:islands/skyland_lake_surface_states`",
 			": `bigglobe:overworld/lake_surface_states`"
 		],
 		"set": [
 			"`bigglobe:islands/automatic_is_skyland`",
-			"? (`bigglobe:overworld/skyland_lake_surface_states` = value)",
+			"? (`bigglobe:islands/skyland_lake_surface_states` = value)",
 			": (`bigglobe:overworld/lake_surface_states` = value)"
 		]
 	},

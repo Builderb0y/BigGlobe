@@ -3,6 +3,6 @@
 		"type": "script",
 		"script": "`bigglobe:overworld/is_desert`"
 	},
-	"if_true": "bigglobe:overworld/surface_state/hot_test_wasteland",
-	"if_false": "bigglobe:overworld/surface_state/temperate_test_overgrown"
+	"if_true": "bigglobe:overworld/surface_state/hot_test_mesa",
+	"if_false": "bigglobe:overworld/surface_state/temperate_test_swamp"
 }

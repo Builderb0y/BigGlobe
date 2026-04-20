@@ -6,6 +6,6 @@
 	},
 	"script": [
 		"long regionSeed = (worldSeed # 16x603466E1BDDF6A3EUL).newSeed(obelisk_group_region_x, obelisk_group_region_z)",
-		"return(obelisk_group_region_z * 8192 + regionSeed.nextInt(2048, 6144))"
+		"return(obelisk_group_region_z * 16384 + regionSeed.nextInt(2048, 14336))"
 	]
 }

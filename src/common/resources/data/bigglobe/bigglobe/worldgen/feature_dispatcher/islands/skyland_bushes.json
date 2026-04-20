@@ -7,7 +7,7 @@
 					"x = minModifiableX | random.nextInt(16)",
 					"z = minModifiableZ | random.nextInt(16)",
 				")",
-				"if (`bigglobe:overworld/skyland_lake_surface_states`(x, z) == null:",
+				"if (`bigglobe:islands/skyland_lake_surface_states`(x, z) == null:",
 					"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
 					"placeFeature(x, y, z, 'bigglobe:overworld/bush')",
 				")",

@@ -3,6 +3,6 @@
 		"type": "script_chance",
 		"script": "world_traits.`bigglobe:foliage_at_surface`"
 	},
-	"if_true": "bigglobe:overworld/surface_state/forest_test_swamp",
-	"if_false": "bigglobe:overworld/surface_state/overgrown_test_swamp"
+	"if_true": "bigglobe:overworld/surface_state/temperate_forest",
+	"if_false": "bigglobe:overworld/surface_state/temperate_overgrown"
 }

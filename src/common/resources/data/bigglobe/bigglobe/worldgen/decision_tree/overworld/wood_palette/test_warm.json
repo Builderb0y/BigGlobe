@@ -1,8 +1,8 @@
 {
 	"condition": {
 		"type": "world_trait_threshold",
-		"min": -0.125,
-		"max": 0.125,
+		"min": -0.015625,
+		"max":  0.015625,
 		"trait": "bigglobe:temperature_at_surface"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/test_hot",
