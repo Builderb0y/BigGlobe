@@ -6,12 +6,16 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
@@ -246,9 +250,17 @@ public class BigGlobeAutoCodec {
 				public @NotNull CoderFactory createLookupFactory() {
 					return new LookupCoderFactory() {
 
+						@Environment(EnvType.CLIENT)
+						public void setupClient() {
+							this.addRaw(BlockStateModel.Unbaked.class, autoCodec.wrapDFUCodec(BlockStateModel.Unbaked.CODEC));
+						}
+
 						@Override
 						public void setup() {
 							super.setup();
+							if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+								this.setupClient();
+							}
 							this.addRaw(Tag.class, new NamedCoder<>("NbtElementCoder") {
 
 								@Override

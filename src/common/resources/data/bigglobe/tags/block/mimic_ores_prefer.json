@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"#minecraft:base_stone_overworld",
+		"#c:stones",
+		"minecraft:dripstone_block",
+		"minecraft:calcite",
+		"minecraft:tuff"
+	]
+}

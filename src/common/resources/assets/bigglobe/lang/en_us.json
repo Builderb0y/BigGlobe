@@ -290,6 +290,8 @@
 	"hyperspace.invalid_destination_dimension": "This waypoint leads to a non-existent dimension.",
 	"hyperspace.invalid_destination": "This waypoint was destroyed after you entered hyperspace.",
 
+	"resourcepack.bigglobe.mimic_ores": "Mimic Ores",
+
 	"text.autoconfig.bigglobe.title": "Big Globe",
 
 	"text.autoconfig.bigglobe.option.defaultWorldType": "Default World Type",

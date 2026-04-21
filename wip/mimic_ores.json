@@ -1,0 +1,1054 @@
+{
+	"version": 15,
+	"parameter_sets": {
+		"groups": [
+			{
+				"name": "Global",
+				"selected": "Default",
+				"variations": [
+					"Default"
+				]
+			}
+		]
+	},
+	"layer_graph": {
+		"showing_layer": "strip",
+		"selected_layer": "strip",
+		"layers": [
+			{
+				"name": "coal_ore.png",
+				"gridX": 0,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/7VWuw3CQAzNBjQMQ3VZgwEYgAEo2AAUIKwStggd9CCFDnoIRBHXPE56PGwKK3rKnf38PeeDxTKPMs+yXMShbZ9Retw0lyhJzM7X9T7KT/q8scof/1fVLspXmPHB+CBm+qz5YPlB+8P1JkqPJ6dzmF5vYXw49rj7RkneZ3xH3dm3JPWp+Wb2VT7M36JYhbLchtn9kbyP8VPrVcVoD/mq+jCezD/Eaj6M88E870R9H/rVeCIm/cnsyf565wf/Y/+w/lLnqeqPOt+Qr8oPz6N+nB/e9Yd8mL/IB+cHxsP6Plnri8RLnmfqe0b6j/ajum+wfcIaD+/9Q52HrD6Jv3I8GR/rfqnat/YHiyfrb/Ke0/pG+2gP84n20D+yv8r1zexb84P3WXyt+6r3fEWszn9Wj//e55zjob6v7nzJ+ReA2ca9ABAAAA=="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "copper_ore.png",
+				"gridX": 0,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/7VWsU4CQRA9/QErE2o/w2In/oklvT8A2GK00QgmmOgPnIgJaqUFdoh/IA1ggpXWKHfJEjO74fkYrpjkJre7s+/NzJuVreMT8VZJEiF9N5v9eFtlvZtMPrzl/mDw5i36X/v6PHQ+Ws/ut96P9TU/iC8r3vL8ezr9dL3eS9TX8bvde29RH90f4JH996Ebjcau2bzI/b2nZ9fvv7p6/Shab8b8wPM0PsQX4IPur52r64UVUb8kXtmo1iSpVF2a3vwrX3o90ouC+y+Ir/Oj76vxaLwHX9+yWTtc7Ff5ouuV7S/dPyieka8AH4sX6EnAv/IDPtj6R3pq5B/ym/VTtr/Tucv9dvtWtk/PcpyZ32pdyu7Do5TOG7H/uh6D+7DzWu8H/Q75YOMDPli9gflAfCP+NR9IX0A9Rvn4yz/bb8Z4AV42Hlkf5vlnfA/S8cB7JqjHNfNhno/se4DUBzgfUb8ifUXvyVX0ZxkeVP9IL1E/o/wC/gO9Avk3z/OCz6Pzx/aLVT9Ifun4a+bjF4ZDbY4AEAAA"
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "diamond_ore",
+				"gridX": 0,
+				"gridY": 2,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/72WP06CQRDFOYCGzljbW3AAnStoIVfwBtYcAJRKtNVaEzkIiglwBD8bxAY7MCH5LGY3+fmY1WJDJt8y++bPezPWvOpbfTqNxvFqta5Pzja6X1Xv9cnadH80eq7PNv48PrIpXsTv8Krvh/H4fFH+Cvs/Wiw+7eRlbO3p7FfxqHgJz3z+YedvlZ2OXzf2Trdne9cD27+53aaf1frYbu/SDh8erfU0zN4X8aI/9X3Kp9ofwX5J8uvwq/zDeMV4ZH3z8Z1Nppvfi+VXtt4+P+Af/Yn6qfZHUi/A4/XA29TvPh/0f7lfqd7B/rWDu/ufk/vu4y3Ml+S+x+Ns0qdE30V9CvOlNJ9JT6heNM8ofshv0t/ifMB6R/ETP6nexB91nqr7Q3TeFd4nsD/V/aHwfinnX+Wfi6f4fIH3sT6e/7Rvivt3wk/nD/VX1WN1n/P5Iv0J9l94P/xnvof59MfvUz2+AfUiaUUAEAAA"
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "emerald_ore",
+				"gridX": 0,
+				"gridY": 3,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/71XsU4CQRClsKf1A/yNm638CBL9AksbSoOSQKWldpgcv4DQQQLU2EAgYrDDaKdBbdBwyTWzm7y8m5VLNpfJ7s3svJn3ds+Vr29cPi5KJUfast3+5iOz1+vXfARttH4yecxHIX+x7TRty3Q6k1brPmir9Sx+EE8UH+GF8AbxXGW+yN5nb++7d9Lt9tzp8lmGw1GU+uj1bPx/rr+Ot3tks/lK+v1Bof4h+wXF9/oH1SMyn7z4Ot+Tp6V0Og9S/f4p4o/mT+x8yP1JrXbpzj8+3cFVPWQnq9WLO7y9k6O0HcQL1QfxHczTeGl/up4qP81X3a9e/qg/2HqSeo30B/azyh/lm/H5eDSWRqMZ9Mf2g1Uvjd/rfHS+NF+N/IV6Dfyzekuf56TesOc/vR/wPVsPNp43D/TT4wt7X9zz/RHh4fWnVU+t9WHxM+qtl4/SE1pPjechy0dabxGeqr9j62ns/zf6fkrqj1VPrf6s8Vg8zfsn9e0PI+1N5gAQAAA="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "gold_ore.png",
+				"gridX": 0,
+				"gridY": 4,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/62XPVICQRCF9wZcQBPuQOjOVcyp8gQEeAKJMAEDOYMU3AJvsGRYWHoBQaMxeLNV377tDTro2pr+e939etPoaZGyzKsqmXp9On1k6aRfr79ZWr8fDu9ZetkbWgd/6Wa1rpvmWFfzx072ND83Hn2v+m63z9InH8RD9KIfIJ6iXi7emh/Yd/HBfic8KJ7p+TPdrl/u7ptja3yEz9D23XmK5jv7uaSHr+96uXzu0g+4j9S+6uPXzb/0wJ/yx/xUzzJ527a9R3zUv+RX5CvvcX+786H+qR7QnxT/4PvfrDftK6wH4eXGp/5p/qnftb9onqkfAF9730b51OQ/7GfAL5wv8F2hEz/TPiM8IZ/o/Lh8XuxP11/03jL5CutP86a68onJr9j/bv3de9ndn8SvQT607xeqP8yTWy+8b4gfqB+jeLj7m+4Nc//gfRiMD/F0+Tv6/+Hym+h/0OiIdAAQAAA="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "iron_ore.png",
+				"gridX": 0,
+				"gridY": 5,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/71WOxbBQBRNqaKwC40dZCxDbSVKGnEOdfRRsAQ2ENHR0kQTOwhHjmne5Jyb600UUzwZ7zf33vdML1oae6ZBEJbly56f7Dx/2FNro/tZdrankT9gG1GftOl6ZH7SBv7ofIriGabpKYzjTXW/M5tX+STJts6W92E94LsTb7jbm+4i+sSpjY/8s+8r+wfy0eIX1ju+XKvf+qt1o/dj8YP6o+Wfki9OvWR9CL9OvxHePPeP1QcaL9Ke3O5mdDiawff/8jvCN8tX9H5K/XJsth8sn7T6ys4rEm80n1qeP3S/EH8lPrV8RPNOxpPzjt03EP9lPkiflPim+aPFF8AP9I/0DODp73xm56nnfY7eP1l+aOOT+7h63pB8h/wi91Pn/ZDesPqB5jXLd8kv0G96nwH9oPXWM5+09bXNb/V+4Vv/gP83+tVNigAQAAA="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "lapis_ore.png",
+				"gridX": 0,
+				"gridY": 6,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/72XPU4DMRCFt0eIio6KmiusfQUOwDE4wNIF8dtABQ10CUhJaEIBCjcIoYXQhh7awIJkimdHn2YNKSxl5LX9ZvzeG8evHB37MKqicLPZZxip2NP30+lbGMmYvh+NHsNosp/io5jyjfAMBrdhJGPAv3A8VG+YL4fDB9dud3x5d/8zX1Q7rt+/8Ut7+6n5stvtuVZr1y8fHDbCC/et9SqrGs9mvfe88zP5HN3X+sXl75iH5/v8javrZD0VX/3bTSavfuv5pQkfCA/qh/hg1bfxfjFf2A/zpXys/gZ8jvSgfLDqW/UmfLf6p7lemp+eL/x14/GTXz059dvvH6l55T/WG/bP9lPVp96X6lP1RrHioX6hMeg9t79E81Rvyg/4HNWX9CN8QX+39hfyU6036dWYf9Rftf6gH6wv8cuIH8+j/pBab/AT9C9dL/5p7QcR/wLetbPzVGztL2b/IP2C/1r90IovqgfxB95DUSzrFQ/xKfv/AfFN6h/p29jfNB/0f6t/Wd93qg/wr6jfAx4z/r9+32a+F7Pr/9/4JP4CJPpy3AAQAAA="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "redstone_ore",
+				"gridX": 0,
+				"gridY": 7,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/71XsU4CQRClNbEz0Z85bqks/CErk7PUaIURPwUTjGejCTSIP4AdfAE0nt5uuObtJY/n7EHyEl7mbph5OzM7uJPhgzu+uw8oej0n8ryqfhsEvlqtG7Ry9vx8/tngX/5SczX+ruNBfZhe1nzU30P7YvGVj8fPHq2cne+h9VXrAfJ1p4+jrCzfPPbhsr7q+Vn1Bbu7mM6y5fLbozU/tNdoPoFf/VT5ZPLiEfj5+0dWFNcegZ+NnrJB7W+w04flx+pJPN9ovmH+OA8xfszX4+jmNqDN7l7L4NNjn/mK8aLel5ttv/7e33EWf2q9onwYV+MhdlU/Wk/I1flnnWdqfMhF/1g/Ub9iv6v1yvYLNk+YHeMl/RDFh/7xfWt/iPtU1C+YH84XPD94n+4T1n3Buj+w+hTnS/J9guWTuj+N9SXPR6IX6w92H0X7j6gH9Y/5kXqz6kf7Ub3vxPtN9Zf6/xu9/9X7uOP52nU8yfW07jPk+T82Mc09ABAAAA=="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "diamondMask",
+				"gridX": 1,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"code": {
+						"group": "Global",
+						"variations": {
+							"Default": [
+								"float4 c = diamond_ore(UV);",
+								"return float4(c.b > c.r + 0.25 ? 0.0 : 1.0);"
+							]
+						}
+					},
+					"autoSize": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "emeraldMask",
+				"gridX": 1,
+				"gridY": 4,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"code": {
+						"group": "Global",
+						"variations": {
+							"Default": [
+								"float4 c = emerald_ore(UV);",
+								"return float4(c.g > c.b + 0.25 || c.g > 0.75 ? 0.0 : 1.0);"
+							]
+						}
+					},
+					"autoSize": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "redstoneMask",
+				"gridX": 1,
+				"gridY": 6,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"code": {
+						"group": "Global",
+						"variations": {
+							"Default": [
+								"float4 c = redstone_ore(UV);",
+								"return float4(c.r > c.g + 0.25 ? 0.0 : 1.0);"
+							]
+						}
+					},
+					"autoSize": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "diamondCorrected",
+				"gridX": 2,
+				"gridY": 2,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "gradient_remap",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"per_channel": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"preserve_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"from_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"from_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "diamond_ore"
+									}
+								}
+							}
+						},
+						"to_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"to_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "diamondMask"
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "emeraldCorrected",
+				"gridX": 2,
+				"gridY": 3,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "gradient_remap",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"per_channel": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"preserve_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"from_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"from_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "emerald_ore"
+									}
+								}
+							}
+						},
+						"to_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"to_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "emeraldMask"
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "redstoneCorrected",
+				"gridX": 2,
+				"gridY": 7,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "gradient_remap",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"per_channel": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"preserve_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"from_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"from_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "redstone_ore"
+									}
+								}
+							}
+						},
+						"to_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"to_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "redstoneMask"
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "select",
+				"gridX": 3,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "passthrough",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "emeraldCorrected"
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "stone",
+				"gridX": 3,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/8VXQQ6AIAzjB/5IvuYP9Gn4C/wEmpjsgiZLbYeHHRp0jK4dmqd1yxZLShnEc2unxY1rPSxesfd8KbvFp3xqjNYfXU/Pj8cXex50Pw+z70fz22FU/64/yPywXtX8svmcdXT+PPgi9ULzr543qH+cdZYvth9w/6LnAco3yf9wv6n7GTzvwv1H6n00v/L52Ofv9YrypfYP2a+/vydG61nuV5I/+f+Bp1fxfRhev1qfYL7w8w3G8nmoxqR/4HrBfl1WYVGMABAAAA=="
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "strip",
+				"gridX": 4,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"code": {
+						"group": "Global",
+						"variations": {
+							"Default": [
+								"float4 s = stone(UV);",
+								"float4 c = select(UV);",
+								"if (s.r == c.r && s.g == c.g && s.b == c.b) {",
+								"\treturn float4(0.0);",
+								"}",
+								"else if (c.r == c.g && c.g == c.b) {",
+								"\tif (c.r > s.r) {",
+								"\t\treturn float4(1.0).a(unmix(s.r, 1.0, c.r));",
+								"\t}",
+								"\telse {",
+								"\t\treturn float4(0.0).a(unmix(s.r, 0.0, c.r));",
+								"\t}",
+								"}",
+								"else {",
+								"\treturn c;",
+								"}"
+							]
+						}
+					},
+					"autoSize": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			}
+		]
+	},
+	"animation": {
+		"frames": 1
+	}
+}

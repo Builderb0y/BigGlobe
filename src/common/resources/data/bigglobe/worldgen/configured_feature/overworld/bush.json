@@ -11,7 +11,7 @@
 				")",
 				"unless (",
 					"getBlockState(0, y - 1, 0)",
-					".isIn('#minecraft:dirt', '#minecraft:sand') &&",
+					".isIn('#minecraft:substrate_overworld', '#minecraft:sand') &&",
 					"getBlockState(0, y, 0).isReplaceable()",
 				":",
 					"return(false)",

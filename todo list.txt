@@ -105,8 +105,6 @@ V6:
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
 	test and ensure mangrove trees (and any other trees that can spawn on mud) can't spawn in lakes.
-	snow chance column value which does NOT take rivers into account.
-		use for snow on trees.
 	change syntax of weighted random switches:
 		random.switch (
 			weight(1.0: body)
@@ -124,7 +122,6 @@ V6:
 	find and remove requirement status on tag elements that are marked as "required": false.
 	remove/inline everything in "versions" folder.
 	see if I still need JIJ extraction now that loom just uses implementation().
-	custom ore model that takes textures from blocks around it.
 	islands world type needs new rock terrain layers.
 	tweak islands as necessary to account for changes in erosion system.
 		and new mesa system.

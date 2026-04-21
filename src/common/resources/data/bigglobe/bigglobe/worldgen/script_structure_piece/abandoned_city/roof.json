@@ -46,7 +46,7 @@
 	],
 	"placement": [
 		"for (int*(z, x) in range[-2, 2]:",
-			"if (getBlockState(x, 0, z).isIn('#minecraft:dirt') && getBlockState(x, 1, z).isAir():",
+			"if (getBlockState(x, 0, z).isIn('#minecraft:substrate_overworld') && getBlockState(x, 1, z).isAir():",
 				"random.if (",
 					"random.if (",
 						"random.if (",
