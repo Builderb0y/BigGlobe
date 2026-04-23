@@ -5,9 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"double r = `raw/river/macro`",
-		"double r2 = r ^ 2",
-		"double accum = r",
-		"4.0I * `raw/temperature` * float(accum + (accum :* r2) + (accum :* r2) + (accum :* r2))"
+		"`raw/temperature` * float(`raw/river/macro`)"
 	]
 }

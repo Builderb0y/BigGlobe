@@ -10,8 +10,8 @@
 			},
 			{
 				"type": "world_trait_threshold",
-				"min": 0.75,
-				"max": 0.5,
+				"min": 0.125,
+				"max": 0.0625,
 				"trait": "bigglobe:temperature_at_surface"
 			},
 			{

@@ -6,7 +6,7 @@
 			"#bigglobe:stone_ore_replaceables":     "minecraft:emerald_ore",
 			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_emerald_ore"
 		},
-		"chance": "fastExp(`bigglobe:approximate_distance_below_surface` / -192.0L) * world_traits.`bigglobe:hilliness`",
+		"chance": "fastExp(`bigglobe:approximate_distance_below_surface` / -192.0L) * `bigglobe:overworld/mountainness`",
 		"core_chance": "0.25L",
 		"radius": {
 			"type": "average",

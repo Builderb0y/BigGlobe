@@ -4,5 +4,8 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "`river/macro` ^ 2"
+	"script": [
+		"double r = `river/macro` ^ 2",
+		"return((r + r ^ 2) * 0.5L)"
+	]
 }

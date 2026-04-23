@@ -16,6 +16,7 @@
 	"bigglobe:lake_y":                   "`bigglobe:islands/has_skylands` ? `bigglobe:islands/skyland_top` : `bigglobe:islands/basic_surface_height`",
 	"bigglobe:lava_y":                   "-896I",
 	"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
+	"bigglobe:mountainness":             "`bigglobe:islands/curved_island_height`",
 	"bigglobe:max_y":                    " 1024I",
 	"bigglobe:min_y":                    "-1024I",
 	"bigglobe:sea_level":                "0I",

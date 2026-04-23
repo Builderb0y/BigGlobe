@@ -19,6 +19,7 @@
 	"bigglobe:in_river":                 "`bigglobe:overworld/in_river`",
 	"bigglobe:lava_y":                   "-896I",
 	"bigglobe:magicalness":              "`bigglobe:overworld/magicalness`",
+	"bigglobe:mountainness":             "`bigglobe:overworld/mountainness`",
 	"bigglobe:min_y":                    "-1024I",
 	"bigglobe:max_y":                    " 1024I",
 	"bigglobe:sea_level":                "0I",

@@ -43,7 +43,6 @@
 			"dx": "exp_skyland_height_noise * dx_skyland_height_noise",
 			"dz": "exp_skyland_height_noise * dz_skyland_height_noise",
 			"minWavelength": "4.0L",
-			"midWavelength": "8.0L",
 			"maxWavelength": "64.0L",
 			"amplitude": "64.0L",
 			"seed": "worldSeed # 16xB305F6533FB64C54UL"

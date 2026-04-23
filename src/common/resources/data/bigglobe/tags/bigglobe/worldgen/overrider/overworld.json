@@ -36,10 +36,7 @@
 		"bigglobe:overworld/structure/prismarine_geode",
 		"bigglobe:overworld/structure/small_decorations",
 		"bigglobe:overworld/structure/stronghold",
-		{
-			"id": "bigglobe:overworld/structure/trial_chambers",
-			"required": false
-		},
+		"bigglobe:overworld/structure/trial_chambers",
 		"bigglobe:overworld/structure/underground",
 		"bigglobe:overworld/structure/woodland_mansion",
 

@@ -41,8 +41,9 @@
 							"includes": "bigglobe:include/biome_tint"
 						},
 						"water": [
-							"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
-							"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+							"float temperature = world_traits.`bigglobe:temperature_at` * 4.0I",
+							"temperature /= sqrt(temperature ^ 2 + 1.0I).as(float)",
+							"packI(63, roundInt(temperature * 64.0I + 128.0I), 255)"
 						]
 					},
 					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"

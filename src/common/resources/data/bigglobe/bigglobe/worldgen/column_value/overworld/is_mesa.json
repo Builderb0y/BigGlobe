@@ -5,8 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"unless (is_desert: return(false))",
-		";re-calculate to prevent overriding.",
-		"columnSeed(16x64222EA231843A51UL).nextBoolean(unmixSmooth(-0.125I, 0.125I, mesa_noise))"
+		"is_desert && `raw/river/macro` > 0.0L"
 	]
 }

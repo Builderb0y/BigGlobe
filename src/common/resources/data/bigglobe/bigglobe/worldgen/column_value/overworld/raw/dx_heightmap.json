@@ -5,6 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"`river/macro` * 1536.0L * `river/dx_macro` + dx_elevation"
+		"(`river/macro` * 768.0L + `river/macro` ^ 3 * 1536.0L) * `river/dx_macro` + dx_elevation"
 	]
 }

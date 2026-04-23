@@ -9,7 +9,7 @@
 				"getBlockState(originX, y + 1, originZ).getBlock() ==. 'minecraft:pale_oak_log'",
 			")",
 			".if (",
-				"setBlockState(originX, y, originZ, 'minecraft:creaking_heart[axis=y,active=false,creaking_heart_state=dormant,natural=true]')",
+				"setBlockState(originX, y, originZ, 'minecraft:creaking_heart[axis=y,creaking_heart_state=dormant,natural=true]')",
 			")"
 		]
 	}
