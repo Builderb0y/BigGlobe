@@ -71,8 +71,6 @@ V5 backports:
 	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
 	fix pale garden never getting updated for biome attributes changes.
 	fix portal temple column value overrider not applying to bigglobe:portal_temple_cracked structure.
-	fix blindness effect not working when LODs are enabled.
-		missing check for shouldRenderThisFrame in BackgroundRenderer_NoFogWithLods.
 
 V6:
 	add new json classes.

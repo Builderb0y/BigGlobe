@@ -49,7 +49,7 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 			CallbackInfoReturnable<Vector4f> callback,
 			@Local net.minecraft.client.render.fog.FogData fogData
 		) {
-			if (MinecraftClient.getInstance().worldRenderer instanceof LodSystemHolder holder && holder.bigglobe_getLodSystem() != null) {
+			if (MinecraftClient.getInstance().worldRenderer instanceof LodSystemHolder holder && holder.bigglobe_getLodSystem() != null && holder.bigglobe_getLodSystem().renderingThisFrame) {
 				fogData.renderDistanceStart = fogData.environmentalStart = 30_000_000.0F * 4.0F;
 				fogData.renderDistanceEnd = fogData.environmentalEnd = 30_000_000.0F * 8.0F;
 			}
@@ -103,7 +103,7 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 			CallbackInfo callback
 		) {
 			LodSystem system = LodSystemHolder.of(MinecraftClient.getInstance().worldRenderer).bigglobe_getLodSystem();
-			if (fogType == net.minecraft.client.render.BackgroundRenderer.FogType.FOG_TERRAIN && system != null) {
+			if (fogType == net.minecraft.client.render.BackgroundRenderer.FogType.FOG_TERRAIN && system != null && system.renderingThisFrame) {
 				system.renderState.fogR = red;
 				system.renderState.fogG = green;
 				system.renderState.fogB = blue;
