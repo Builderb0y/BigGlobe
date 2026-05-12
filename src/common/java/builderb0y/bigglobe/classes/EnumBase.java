@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes;
 
 import java.util.Map;
 import java.util.Set;

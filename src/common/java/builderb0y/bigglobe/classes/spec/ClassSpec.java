@@ -1,9 +1,12 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.MapData;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
+import builderb0y.bigglobe.classes.ScriptObject;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;

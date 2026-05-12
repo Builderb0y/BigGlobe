@@ -2,7 +2,7 @@ package builderb0y.bigglobe.columns.scripted2.entries;
 
 import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
+import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;

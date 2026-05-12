@@ -1,6 +1,10 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import org.jetbrains.annotations.Nullable;
+
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.OverrideTracker;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;

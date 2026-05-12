@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.scripted2.entries;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
+import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.Valid;

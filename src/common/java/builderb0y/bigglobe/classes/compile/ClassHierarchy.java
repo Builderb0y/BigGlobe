@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.compile;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.columns.scripted.classes.TypeSpec.CompileStep;
+
+import builderb0y.bigglobe.classes.spec.TypeSpec;
+import builderb0y.bigglobe.classes.spec.TypeSpec.CompileStep;
+import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -48,14 +51,13 @@ public class ClassHierarchy {
 
 	public void progressTo(CompileStep state) throws CustomClassFormatException {
 		CustomClassFormatException root = null;
-		for (TypeSpec type : this.types)
-			try {
-				type.doProgressTo(state, this);
-			}
-			catch (Exception exception) {
-				if (root == null) root = new CustomClassFormatException("Exception " + state.description);
-				root.addSuppressed(new CustomClassFormatException("Exception " + state.description + " for " + UnregisteredObjectException.getID(this.entryOf(type)), exception));
-			}
+		for (TypeSpec type : this.types) try {
+			type.doProgressTo(state, this);
+		}
+		catch (Exception exception) {
+			if (root == null) root = new CustomClassFormatException("Exception " + state.description);
+			root.addSuppressed(new CustomClassFormatException("Exception " + state.description + " for " + UnregisteredObjectException.getID(this.entryOf(type)), exception));
+		}
 		if (root != null) throw root;
 	}
 

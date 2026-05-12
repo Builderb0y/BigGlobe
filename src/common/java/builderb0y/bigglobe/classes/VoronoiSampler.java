@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes;
 
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
@@ -21,12 +21,12 @@ import builderb0y.scripting.util.InfoHolder;
 public class VoronoiSampler {
 
 	public static final int
-		FLAG_CENTER = 1 << 0,
-		FLAG_CELL = 1 << 1,
+		FLAG_CENTER                = 1 << 0,
+		FLAG_CELL                  = 1 << 1,
 		FLAG_SOFT_DISTANCE_SQUARED = 1 << 2,
-		FLAG_SOFT_DISTANCE = 1 << 3,
-		FLAG_HARD_DISTANCE = 1 << 4,
-		FLAG_EUCLIDEAN_DISTANCE = 1 << 5;
+		FLAG_SOFT_DISTANCE         = 1 << 3,
+		FLAG_HARD_DISTANCE         = 1 << 4,
+		FLAG_EUCLIDEAN_DISTANCE    = 1 << 5;
 
 	public static final Info INFO = new Info();
 

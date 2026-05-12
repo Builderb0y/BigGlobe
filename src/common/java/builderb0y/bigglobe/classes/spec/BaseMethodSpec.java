@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +11,9 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.autocodec.util.ObjectArrayFactory;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.Named;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.LazyVarInfo;
@@ -24,7 +27,7 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 
 	public static final Strategy<BaseMethodSpec>
 		DESC_STRATEGY = HashStrategies.allOf(
-		NAME_STRATEGY,
+		Named.NAME_STRATEGY,
 		HashStrategies.map(
 			HashStrategies.orderedArrayStrategy(ParameterSpec.TYPE_STRATEGY),
 			BaseMethodSpec::getParameters

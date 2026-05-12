@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,10 +11,13 @@ import builderb0y.autocodec.annotations.DefaultString;
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.OverrideTracker;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
-import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedField;
-import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedProperty;
+import builderb0y.bigglobe.classes.spec.BaseMethodSpec.MethodSpecDesc;
+import builderb0y.bigglobe.classes.compile.OverrideTracker.TrackedField;
+import builderb0y.bigglobe.classes.compile.OverrideTracker.TrackedProperty;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;

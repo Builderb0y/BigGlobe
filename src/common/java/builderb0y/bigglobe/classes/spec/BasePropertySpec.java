@@ -1,9 +1,12 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.util.HashStrategies;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.Named;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -14,7 +17,7 @@ public abstract class BasePropertySpec extends MemberSpec implements SetBasedMut
 
 	public static final Hash.Strategy<BasePropertySpec>
 		TYPE_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), BasePropertySpec::getPropertyType),
-		FULL_STRATEGY = HashStrategies.allOf(NAME_STRATEGY, TYPE_STRATEGY);
+		FULL_STRATEGY = HashStrategies.allOf(Named.NAME_STRATEGY, TYPE_STRATEGY);
 
 	public abstract Holder<ElementSpec> getPropertyType();
 

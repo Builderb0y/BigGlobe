@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import java.util.*;
 import net.minecraft.core.Holder;
@@ -11,6 +11,11 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.classes.*;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.OverrideTracker;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;

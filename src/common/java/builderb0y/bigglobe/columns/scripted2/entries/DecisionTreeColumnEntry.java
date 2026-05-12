@@ -5,7 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
+import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;

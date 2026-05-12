@@ -1,12 +1,15 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.compile;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
-import builderb0y.bigglobe.columns.scripted.classes.ConstructorSpec.ConstructorContext;
+
+import builderb0y.bigglobe.classes.ElementSpecTypes;
+import builderb0y.bigglobe.classes.spec.*;
+import builderb0y.bigglobe.classes.spec.BaseMethodSpec.MethodSpecDesc;
+import builderb0y.bigglobe.classes.spec.ConstructorSpec.ConstructorContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.bigglobe.util.UnregisteredObjectException.getID;
@@ -15,10 +18,10 @@ public class OverrideTracker {
 
 	public final ClassHierarchy hierarchy;
 	public final Holder<ElementSpec> owner;
-	public final Object2ObjectOpenHashMap<String, TrackedField> fields = new Object2ObjectOpenHashMap<>();
-	public final Object2ObjectOpenHashMap<MethodSpecDesc, TrackedMethod> methods = new Object2ObjectOpenHashMap<>();
-	public final Object2ObjectOpenHashMap<String, TrackedProperty> properties = new Object2ObjectOpenHashMap<>();
-	public final Object2ObjectOpenHashMap<String, TrackedEnumValue> enumValues = new Object2ObjectOpenHashMap<>();
+	public final Object2ObjectOpenHashMap<String,         TrackedField    > fields     = new Object2ObjectOpenHashMap<>();
+	public final Object2ObjectOpenHashMap<MethodSpecDesc, TrackedMethod   > methods    = new Object2ObjectOpenHashMap<>();
+	public final Object2ObjectOpenHashMap<String,         TrackedProperty > properties = new Object2ObjectOpenHashMap<>();
+	public final Object2ObjectOpenHashMap<String,         TrackedEnumValue> enumValues = new Object2ObjectOpenHashMap<>();
 
 	public OverrideTracker(ClassHierarchy hierarchy, Holder<ElementSpec> owner) {
 		this.hierarchy = hierarchy;

@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.compile;
 
 public class ConstantFormatException extends Exception {
 

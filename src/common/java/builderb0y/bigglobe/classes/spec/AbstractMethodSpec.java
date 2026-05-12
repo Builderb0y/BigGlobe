@@ -1,37 +1,35 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
+
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.OverrideTracker;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class NormalMethodSpec extends BaseMethodSpec {
+public class AbstractMethodSpec extends BaseMethodSpec {
 
 	public final @IdentifierName String name;
 	public final Holder<ElementSpec> return_type;
 	public final ParameterSpec[] parameters;
-	public final ScriptUsage code;
 	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
-	public NormalMethodSpec(
-		String name,
+	public AbstractMethodSpec(
+		@IdentifierName String name,
 		Holder<ElementSpec> return_type,
-		ParameterSpec[] parameters,
-		ScriptUsage code
+		ParameterSpec[] parameters
 	) {
 		this.name = name;
 		this.return_type = return_type;
 		this.parameters = parameters;
-		this.code = code;
 	}
 
 	@Override
@@ -41,7 +39,7 @@ public class NormalMethodSpec extends BaseMethodSpec {
 
 	@Override
 	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addInstanceMethod(this);
+		tracker.addAbstractMethod(this);
 	}
 
 	@Override
@@ -51,17 +49,6 @@ public class NormalMethodSpec extends BaseMethodSpec {
 		if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(methodContext.clazz.info)) {
 			environment.addFunctionInvoke(loadCustomClass, methodContext.info);
 		}
-	}
-
-	@Override
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz) throws ScriptParsingException {
-		this.compile(
-			hierarchy, clazz, this.code, (MutableScriptEnvironment environment) -> {
-				for (ParameterSpec parameter : this.parameters) {
-					environment.addVariableLoad(parameter.name, parameter.typeInfo());
-				}
-			}
-		);
 	}
 
 	@Override
@@ -76,7 +63,7 @@ public class NormalMethodSpec extends BaseMethodSpec {
 
 	@Override
 	public int flags() {
-		return ACC_PUBLIC;
+		return ACC_PUBLIC | ACC_ABSTRACT;
 	}
 
 	@Override

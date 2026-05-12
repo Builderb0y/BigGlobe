@@ -91,38 +91,38 @@ public class ColumnEntryRegistry {
 		checkExceptions(exceptions);
 
 		entries
-			.streamEntries()
-			.sorted(Comparator.comparing((Holder<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
-			.forEach((Holder<ColumnEntry> entry) -> {
-				try {
-					this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-						entry.value().emitFieldGetterAndSetter(context.getMemories().get(entry.value()), context);
-					});
-				}
-				catch (Exception exception) {
-					exceptions.put(entry, exception);
-				}
-			});
+		.streamEntries()
+		.sorted(Comparator.comparing((Holder<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
+		.forEach((Holder<ColumnEntry> entry) -> {
+			try {
+				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+					entry.value().emitFieldGetterAndSetter(context.getMemories().get(entry.value()), context);
+				});
+			}
+			catch (Exception exception) {
+				exceptions.put(entry, exception);
+			}
+		});
 		checkExceptions(exceptions);
 
 		entries
-			.streamEntries()
-			.sorted(Comparator.comparing((Holder<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
-			.forEach((Holder<ColumnEntry> entry) -> {
-				try {
-					this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-						try {
-							entry.value().emitComputer(context.getMemories().get(entry.value()), context);
-						}
-						catch (ScriptParsingException exception) {
-							throw AutoCodecUtil.rethrow(exception);
-						}
-					});
-				}
-				catch (Exception exception) {
-					exceptions.put(entry, exception);
-				}
-			});
+		.streamEntries()
+		.sorted(Comparator.comparing((Holder<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
+		.forEach((Holder<ColumnEntry> entry) -> {
+			try {
+				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+					try {
+						entry.value().emitComputer(context.getMemories().get(entry.value()), context);
+					}
+					catch (ScriptParsingException exception) {
+						throw AutoCodecUtil.rethrow(exception);
+					}
+				});
+			}
+			catch (Exception exception) {
+				exceptions.put(entry, exception);
+			}
+		});
 		checkExceptions(exceptions);
 
 		this.columnContext.prepareForCompile();
@@ -132,18 +132,18 @@ public class ColumnEntryRegistry {
 			this.columnLookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
-						this.columnLookup,
-						"create",
-						MethodType.methodType(ScriptedColumn.Factory.class),
-						MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
-						this.columnLookup.findConstructor(
-							this.columnClass,
-							MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
-						),
-						MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
-					)
-					.getTarget()
-					.invokeExact()
+					this.columnLookup,
+					"create",
+					MethodType.methodType(ScriptedColumn.Factory.class),
+					MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
+					this.columnLookup.findConstructor(
+						this.columnClass,
+						MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
+					),
+					MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
+				)
+				.getTarget()
+				.invokeExact()
 			);
 		}
 		catch (Throwable throwable) {

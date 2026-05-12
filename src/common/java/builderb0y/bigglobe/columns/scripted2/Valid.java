@@ -2,10 +2,10 @@ package builderb0y.bigglobe.columns.scripted2;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.Data;
-import builderb0y.bigglobe.columns.scripted.classes.ClassHierarchy;
-import builderb0y.bigglobe.columns.scripted.classes.ConstantFormatException;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
-import builderb0y.bigglobe.columns.scripted.classes.TypeSpec;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
+import builderb0y.bigglobe.classes.spec.ElementSpec;
+import builderb0y.bigglobe.classes.spec.TypeSpec;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import net.minecraft.core.Holder;

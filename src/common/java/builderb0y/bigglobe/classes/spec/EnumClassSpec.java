@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.columns.scripted.classes;
+package builderb0y.bigglobe.classes.spec;
 
 import java.util.Map;
 import java.util.Set;
@@ -7,7 +7,11 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.Data;
-import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedField;
+import builderb0y.bigglobe.classes.*;
+import builderb0y.bigglobe.classes.compile.OverrideTracker.TrackedField;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
@@ -161,7 +165,7 @@ public class EnumClassSpec extends BaseClassSpec {
 			FieldSpec spec = (FieldSpec)(field.declaration().value());
 			FieldCompileContext context = this.getCompileContext(spec);
 			TypeInfo fieldType = asType(spec.field_type).getTypeInfo();
-			InsnTree getFromSupplier = invokeInstance(
+			InsnTree getFromSupplier = InsnTrees.invokeInstance(
 				load("constants", EnumConstantSupplier.INFO.type),
 				switch (fieldType.getSort()) {
 					case VOID -> throw new IllegalStateException("Void-typed field");
