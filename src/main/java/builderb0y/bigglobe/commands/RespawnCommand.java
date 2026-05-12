@@ -144,7 +144,7 @@ public class RespawnCommand {
 		;
 
 		//why is there a class named Codec in StringIdentifiable?
-		public static final com.mojang.serialization.Codec<RespawnMode> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RespawnMode.class);
+		public static final com.mojang.serialization.Codec<RespawnMode> CODEC = BigGlobeAutoCodec.SILENT_CODEC.createDFUCodec(RespawnMode.class);
 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 

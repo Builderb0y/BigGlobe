@@ -164,6 +164,7 @@ changelog:
 	* Fixed LODs on AMD (again).
 	* Fixed blindness and darkness debuffs not working when LODs are enabled.
 	* Fixed portal temple sometimes not spawning correctly.
+	* Fixed `/bigglobe:respawn` command spamming stack traces when typing the mode.
 
 alternate world presets:
 	paradise.

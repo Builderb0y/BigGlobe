@@ -381,6 +381,37 @@ public class BigGlobeAutoCodec {
 		}
 	};
 
+	public static final AutoCodec SILENT_CODEC = new AutoCodec() {
+
+		@Override
+		public @NotNull TaskLogger createFactoryLogger(@NotNull ReentrantLock lock) {
+			return new DisabledTaskLogger();
+		}
+
+		@Override
+		public @NotNull TaskLogger createEncodeLogger(@NotNull ReentrantLock lock) {
+			return new DisabledTaskLogger();
+		}
+
+		@Override
+		public @NotNull TaskLogger createDecodeLogger(@NotNull ReentrantLock lock) {
+			return new DisabledTaskLogger();
+		}
+
+		@Override
+		@OverrideOnly
+		public @NotNull CoderFactoryList createCoders() {
+			return new CoderFactoryList(this) {
+
+				@Override
+				public void setup() {
+					super.setup();
+					this.getFactory(EnumCoder.Factory.class).nameGetter = StringIdentifiableEnumName.INSTANCE;
+				}
+			};
+		}
+	};
+
 	public static class RegistryCoders<T> {
 
 		public final @NotNull RegistryKey<Registry<T>> registryKey;
