@@ -1,6 +1,6 @@
 reminders for myself:
 	renderdoc:
-		LD_PRELOAD=/home/builderb0y/renderdoc_1.38/lib/librenderdoc.so
+		LD_PRELOAD=/home/builderb0y/renderdoc_1.44/lib/librenderdoc.so
 	SoftReference delays:
 		-XX:SoftRefLRUPolicyMSPerMB=10
 
@@ -62,11 +62,17 @@ high priority:
 	unit tests for assignment-as-an-expression type inference.
 	replace GLException with debug callback?
 		which should also be disabled in production.
-	figure out how there are colliding structures at /tp @s 25129.58 52.51 11294.24 1163.70 57.72
-		1.21.11 world, not V6.
 	whitelist which blocks exposed dungeons and spider pits are allowed to spawn on top of.
 	mark bclib as fully incompatible.
 	make slingshots able to throw splash/lingering potions.
+
+V5 backports:
+	copy hyperspace ring collapse code.
+	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
+	fix pale garden never getting updated for biome attributes changes.
+	fix portal temple column value overrider not applying to bigglobe:portal_temple_cracked structure.
+	fix blindness effect not working when LODs are enabled.
+		missing check for shouldRenderThisFrame in BackgroundRenderer_NoFogWithLods.
 
 V6:
 	add new json classes.

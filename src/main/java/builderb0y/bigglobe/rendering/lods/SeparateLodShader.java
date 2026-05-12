@@ -95,6 +95,13 @@ public class SeparateLodShader extends VanillaLodShader {
 			}
 			"""
 		);
+
+		glBindAttribLocation(this.program, 0, "horizontalPosition");
+		glBindAttribLocation(this.program, 1, "verticalPosition");
+		glBindAttribLocation(this.program, 2, "texcoordData");
+		glBindAttribLocation(this.program, 3, "colorData");
+		glBindAttribLocation(this.program, 4, "lightData");
+
 		this.link();
 
 		this.modelViewProjectionMatrix = glGetUniformLocation(this.program, "modelViewProjectionMatrix");
