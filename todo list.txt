@@ -161,27 +161,9 @@ json classes:
 		merge stuff.
 
 changelog:
-	# For normal users:
-	* You can now right click a waypoint with a bottle of aura to change the color of the waypoint.
-	* Re-designed the hyperspace background.
-	* Ancient Automata now activates when punched or landed on.
-		* Player-crafted Automata block remains unchanged.
-	* Obelisk interior floor is now made of ancient automata blocks.
-		* The rest of the obelisk is still made of deepslate.
-	* Added advancement for finding an obelisk.
-	* Fixed TagGroupLoader mixin on MC 1.21.1 and earlier.
-	* Miscellaneous tweaks and improvements to LOD renderer.
-	* Tweaked some of the default LOD config values.
-		* This change applies retroactively.
-	* Added new command: `/bigglobe:locate structures <radius> <structures>`. Similar to the vanilla command, but the radius is configurable, and it also locates *every* structure in range, not just the closest one. Only works in Big Globe worlds though.
-	* Added recipes for custom wildflowers -> dye to older MC versions.
-	# For data pack developers:
-	* Added new property on scripted chunk generators to tweak some of the LOD parameters.
-		* Currently used in the nether to reduce the LOD view distance.
-	* Added new `core_chance` property to ores.
-		* Coal and emerald now have a constant core chance of 0.25. Their chance of spawning outside the core has not changed.
-	* Fixed scripted structure placements not being able to query column values properly.
-	* Fixed scripted terrain layers.
+	* Fixed LODs on AMD (again).
+	* Fixed blindness and darkness debuffs not working when LODs are enabled.
+	* Fixed portal temple sometimes not spawning correctly.
 
 alternate world presets:
 	paradise.
