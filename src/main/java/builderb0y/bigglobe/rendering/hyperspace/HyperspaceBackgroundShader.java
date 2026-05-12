@@ -55,6 +55,10 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					return v * v * (v * -2.0 + 3.0);
 				}
 
+				float smootherify(float f) {
+					return ((f * 6.0 - 15.0) * f + 10.0) * (f * f * f);
+				}
+
 				float unmix(float a, float b, float f) {
 					return (f - a) / (b - a);
 				}
@@ -98,6 +102,17 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 					vec3(-0.5773502692, -0.5773502692, 0.5773502692)
 				);
 
+				const vec3[] rings = vec3[](
+					vec3(-0.7723748152639520, -0.6257217161535689, -0.1091305579560948),
+					vec3(-0.4558079648356913, +0.8213886861667926, +0.3428698374449635),
+					vec3(+0.6407589983979347, -0.2988057149410549, +0.7072079260660478),
+					vec3(+0.1217859973729906, -0.6336616763953198, +0.7639640375775152),
+					vec3(+0.5731406611404863, -0.0718927690284453, -0.8162972573204377),
+					vec3(+0.1225799366355919, +0.2804134690372744, +0.9520201917590276),
+					vec3(-0.9098248429157619, -0.1349507888222423, -0.3924373068523987),
+					vec3(+0.4086476798044498, +0.7034281302411686, +0.5815461627212870)
+				);
+
 				struct Voronoise {
 					float ringDist;
 					int discriminator;
@@ -105,13 +120,18 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 
 				Voronoise voronoise(vec3 coord) {
 					Voronoise result = Voronoise(1.0, 0);
-					for (int index = 0; index < 8; index++) {
-						vec3 point = unitVec(float(index));
+					for (int index = 0; index < rings.length(); index++) {
+						vec3 point = rings[index];
 						float dotProduct = dot(coord, point);
 						if (dotProduct < 0.0) {
 							result.discriminator |= 1 << index;
 							dotProduct = -dotProduct;
 						}
+						float threshold = float(index) * (0.25 / float(rings.length())) + 0.25;
+						threshold = unmix(threshold, 1.0, collapse);
+						threshold = clamp(threshold, 0.0, 1.0);
+						threshold = smootherify(threshold);
+						dotProduct -= threshold * 0.5;
 						if (dotProduct < result.ringDist) {
 							result.ringDist = dotProduct;
 						}
@@ -165,15 +185,11 @@ public class HyperspaceBackgroundShader extends ScreenTriangleShader {
 						Voronoise voronoi = voronoise(norm);
 						float flashOffset = (hash11(float(voronoi.discriminator)) * 0.75 + 0.25) - collapse * collapse;
 						flash = flashOffset > 0.0 ? 0.0 : exp2(flashOffset * 64.0);
-						float threshold = collapse * 1.5 - 0.5;
-						threshold = threshold * threshold * threshold * 0.5;
-						if (voronoi.ringDist < threshold) {
+						if (voronoi.ringDist < 0.0) {
 							vec2 rng = hash21(float(voronoi.discriminator));
-							float red = 0.0;
-							red = mix(0.25, red, square(voronoi.ringDist));
-							red += cos(voronoi.ringDist * 128.0 * smoothify(unmix(1.0 / 3.0, 1.0, collapse))) * 0.0625;
+							float red = cos(voronoi.ringDist * 64.0) * 0.0625 + 0.25;
 							fragColor = vec4(red, 0.0, 0.0, 1.0);
-							fragColor.rgb += flash * exp2((voronoi.ringDist - threshold) * 64.0);
+							fragColor.rgb += flash * exp2(voronoi.ringDist * 64.0);
 							return;
 						}
 					}

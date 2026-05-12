@@ -154,15 +154,13 @@ json classes:
 	need to fix:
 		merge stuff.
 
-V5 backports:
-	copy hyperspace ring collapse code.
-
 changelog:
 	* Fixed LODs on AMD (again).
 	* Fixed blindness and darkness debuffs not working when LODs are enabled.
 	* Fixed portal temple sometimes not spawning correctly.
 	* Fixed `/bigglobe:respawn` command spamming stack traces when typing the mode.
-	* Fixed environment attributes in pale garden biome.
+	* Fixed environment attributes in pale garden biome. Among other things, this means the fog color is correct now.
+	* Slightly improved hyperspace collapse visuals.
 
 alternate world presets:
 	paradise.
