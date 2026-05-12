@@ -1,6 +1,32 @@
 {
 	"carvers": [],
 	"downfall": 0.0,
+	"attributes": {
+		"minecraft:visual/fog_color": 8484720,
+		"minecraft:visual/sky_color": 12171705,
+		"minecraft:visual/water_fog_color": 5597568,
+		"minecraft:audio/background_music": {
+			"default": {
+				"max_delay": 24000,
+				"min_delay": 12000,
+				"replace_current_music": false,
+				"sound": "minecraft:music.nether.nether_wastes"
+			}
+		},
+		"minecraft:audio/ambient_sounds": {
+			"loop": "minecraft:ambient.nether_wastes.loop",
+			"mood": {
+				"block_search_extent": 8,
+				"offset": 2.0,
+				"sound": "minecraft:ambient.nether_wastes.mood",
+				"tick_delay": 6000
+			},
+			"additions": {
+				"sound": "minecraft:ambient.nether_wastes.additions",
+				"tick_chance": 0.0111
+			}
+		}
+	},
 	"effects": {
 		"mood_sound": {
 			"sound": "minecraft:ambient.nether_wastes.mood",

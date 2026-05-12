@@ -66,12 +66,6 @@ high priority:
 	mark bclib as fully incompatible.
 	make slingshots able to throw splash/lingering potions.
 
-V5 backports:
-	copy hyperspace ring collapse code.
-	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
-	fix pale garden never getting updated for biome attributes changes.
-	fix portal temple column value overrider not applying to bigglobe:portal_temple_cracked structure.
-
 V6:
 	add new json classes.
 	LOD renderer improvements:
@@ -160,11 +154,15 @@ json classes:
 	need to fix:
 		merge stuff.
 
+V5 backports:
+	copy hyperspace ring collapse code.
+
 changelog:
 	* Fixed LODs on AMD (again).
 	* Fixed blindness and darkness debuffs not working when LODs are enabled.
 	* Fixed portal temple sometimes not spawning correctly.
 	* Fixed `/bigglobe:respawn` command spamming stack traces when typing the mode.
+	* Fixed environment attributes in pale garden biome.
 
 alternate world presets:
 	paradise.
