@@ -1,0 +1,28 @@
+{
+	"type": "structure",
+	"script": [
+		";(",
+			"jungle temples and swamp huts spawn at a random Y level and",
+			"move to the surface when asked to place blocks in the world.",
+			"this is problematic because their bounding box when checking",
+			"for collisions is not guaranteed to be the same as their bounding",
+			"box after that movement. as such, they can collide with other",
+			"structures when they're not supposed to. the workaround here",
+			"is to move the structure in an overrider, before collisions",
+			"are checked, and hope that the final bounding box is close enough",
+			"that there aren't any false negatives caused by movement.",
+		")",
+		"if (start.structure.isIn('minecraft:jungle_pyramid', 'minecraft:swamp_hut'):",
+			"start.move(",
+				"min(",
+					"world_traits.`bigglobe:y_level_on_surface`(start.minX, start.minZ),",
+					"world_traits.`bigglobe:y_level_on_surface`(start.minX, start.maxZ),",
+					"world_traits.`bigglobe:y_level_on_surface`(start.maxX, start.minZ),",
+					"world_traits.`bigglobe:y_level_on_surface`(start.maxX, start.maxZ)",
+				")",
+				"- start.minY",
+			")",
+		")",
+		"return(true)"
+	]
+}

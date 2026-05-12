@@ -23,11 +23,11 @@ public class CollectionTransformer {
 	}
 
 	public static <
-					T_FromElement,
-					T_ToElement,
-					T_FromCollection extends Collection<T_FromElement>,
-					T_ToCollection extends Collection<T_ToElement>
-					>
+		T_FromElement,
+		T_ToElement,
+		T_FromCollection extends Collection<T_FromElement>,
+		T_ToCollection extends Collection<T_ToElement>
+	>
 	T_ToCollection convertCollection(
 		T_FromCollection from,
 		IntFunction<T_ToCollection> toConstructor,
@@ -43,12 +43,12 @@ public class CollectionTransformer {
 	}
 
 	public static <
-					T_Key,
-					T_FromValue,
-					T_ToValue,
-					T_FromMap extends Map<T_Key, T_FromValue>,
-					T_ToMap extends Map<T_Key, T_ToValue>
-					>
+		T_Key,
+		T_FromValue,
+		T_ToValue,
+		T_FromMap extends Map<T_Key, T_FromValue>,
+		T_ToMap extends Map<T_Key, T_ToValue>
+	>
 	T_ToMap convertMap(
 		T_FromMap fromMap,
 		IntFunction<T_ToMap> toConstructor,
@@ -63,12 +63,12 @@ public class CollectionTransformer {
 	}
 
 	public static <
-					T_Key,
-					T_FromValue,
-					T_ToValue,
-					T_FromMap extends Map<T_Key, T_FromValue>,
-					T_ToMap extends Map<T_Key, T_ToValue>
-					>
+		T_Key,
+		T_FromValue,
+		T_ToValue,
+		T_FromMap extends Map<T_Key, T_FromValue>,
+		T_ToMap extends Map<T_Key, T_ToValue>
+	>
 	T_ToMap convertMapWithKeys(
 		T_FromMap fromMap,
 		IntFunction<T_ToMap> toConstructor,

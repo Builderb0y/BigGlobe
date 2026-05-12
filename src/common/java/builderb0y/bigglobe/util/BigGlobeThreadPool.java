@@ -17,22 +17,20 @@ public class BigGlobeThreadPool {
 	public static final ThreadPoolExecutor POOL;
 
 	static {
-		int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1); //reserve space for client and server thread.
-		POOL = new ThreadPoolExecutor(threads, threads, 1, TimeUnit.SECONDS, TASKS, (Runnable task) -> {
-			Thread thread = new Thread(task, "Big Globe Worker Thread");
-			thread.setDaemon(true);
-			thread.setUncaughtExceptionHandler((Thread thread_, Throwable exception) -> {
-				BigGlobeMod.LOGGER.error("An unexpected exception occurred in " + thread_ + ": ", exception);
-				BigGlobeThreadPool.POOL.prestartAllCoreThreads();
-			});
-			return thread;
-		});
+		int threads = Math.max(Runtime.getRuntime().availableProcessors() - 4, 1); //reserve space for client and server thread.
+		POOL = new ThreadPoolExecutor(threads, threads, 1, TimeUnit.SECONDS, TASKS, WorkerThread::new);
 		POOL.prestartAllCoreThreads();
 	}
 
 	public static final Executor
 		MAIN_EXECUTOR = TASKS::addFirst,
-		LOD_EXECUTOR = TASKS::addLast;
+		LOD_EXECUTOR  = TASKS::addLast;
+
+	public static void checkNotAlreadyInPool() {
+		if (Thread.currentThread() instanceof WorkerThread) {
+			throw new IllegalThreadStateException("Do not use BigGlobeThreadPool on a thread started by BigGlobeThreadPool.");
+		}
+	}
 
 	public static void checkThreads() {
 		int threads = BigGlobeConfig.INSTANCE.get().threads();
@@ -54,12 +52,14 @@ public class BigGlobeThreadPool {
 	}
 
 	public static Executor mainExecutor() {
+		checkNotAlreadyInPool();
 		checkThreads();
 		onMainTaskStarted();
 		return MAIN_EXECUTOR;
 	}
 
 	public static Executor lodExecutor() {
+		checkNotAlreadyInPool();
 		checkThreads();
 		return LOD_EXECUTOR;
 	}
@@ -90,5 +90,17 @@ public class BigGlobeThreadPool {
 
 	public static boolean isBusy() {
 		return BUSY.getAndSet(false);
+	}
+
+	public static class WorkerThread extends Thread {
+
+		public WorkerThread(Runnable task) {
+			super(task, "Big Globe Worker Thread");
+			this.setDaemon(true);
+			this.setUncaughtExceptionHandler((Thread thread, Throwable exception) -> {
+				BigGlobeMod.LOGGER.error("An unexpected exception occurred in " + thread + ": ", exception);
+				BigGlobeThreadPool.POOL.prestartAllCoreThreads();
+			});
+		}
 	}
 }

@@ -1,21 +1,20 @@
 package builderb0y.bigglobe.util;
 
 import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
@@ -49,11 +48,11 @@ public class WorldUtil {
 		}
 	}
 
-	public static BlockPos.@Nullable MutableBlockPos findNonReplaceableGround(BlockGetter world, BlockPos start) {
+	public static @Nullable MutableBlockPos findNonReplaceableGround(BlockGetter world, BlockPos start) {
 		return findNonReplaceableGroundMutable(world, start.mutable());
 	}
 
-	public static BlockPos.@Nullable MutableBlockPos findNonReplaceableGroundMutable(BlockGetter world, BlockPos.MutableBlockPos mutablePos) {
+	public static @Nullable MutableBlockPos findNonReplaceableGroundMutable(BlockGetter world, MutableBlockPos mutablePos) {
 		if (world instanceof LevelReader worldView) {
 			world = worldView.getChunk(mutablePos);
 		}

@@ -34,6 +34,10 @@ public class UnregisteredObjectException extends RuntimeException {
 		else throw new UnregisteredObjectException("Unregistered object " + object + " in " + registry);
 	}
 
+	public static <T> Identifier getID(Registry<T> registry, T object) {
+		return getKey(registry, object).identifier();
+	}
+
 	public static <T> ResourceKey<T> getKey(Holder<T> entry) {
 		ResourceKey<T> key = entry.unwrapKey().orElse(null);
 		if (key != null) return key;

@@ -1,18 +1,8 @@
 package builderb0y.bigglobe.mixins;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import net.minecraft.core.Holder;
-import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import com.google.common.base.Predicates;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,13 +11,26 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.core.Holder;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.DelegatingStructure;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
+import builderb0y.bigglobe.structures.management.StructureLocator;
+import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
+import builderb0y.bigglobe.util.Streamable;
+import builderb0y.bigglobe.util.WorldUtil;
 
 @Mixin(StructureManager.class)
 public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
@@ -39,40 +42,38 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 	@Inject(method = "startsForStructure(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/Predicate;)Ljava/util/List;", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_getIntersectingStarts(ChunkPos pos, Predicate<Structure> predicate, CallbackInfoReturnable<List<StructureStart>> callback) {
 		if (this.level instanceof ServerLevelAccessor serverWorldAccess && serverWorldAccess.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			FinalStructures structures = generator.structureManager.getIntersectingStructures(
-				this.bigglobe_makeParams(serverWorldAccess.getLevel(), generator, pos)
+			Streamable<Holder<Structure>> structures = generator.structureLocator().allStructures();
+			callback.setReturnValue(
+				generator.structureLocator().getStructuresIntersecting(
+					this.bigglobe_makeParams(
+						serverWorldAccess.getLevel(),
+						generator,
+						WorldUtil.chunkBox(pos, serverWorldAccess),
+						() -> structures.stream().filter((Holder<Structure> structure) -> predicate.test(structure.value()))
+					)
+				)
+				.map(StructureStartWrapper::start)
+				.toList()
 			);
-			if (structures.isEmpty() || predicate == Predicates.<Structure>alwaysTrue()) {
-				callback.setReturnValue(Collections.unmodifiableList(structures));
-			}
-			else {
-				callback.setReturnValue(
-					structures
-					.stream()
-					.filter((StructureStart start) -> predicate.test(start.getStructure()))
-					.toList()
-				);
-			}
 		}
 	}
 
 	@Inject(method = "startsForStructure(Lnet/minecraft/core/SectionPos;Lnet/minecraft/world/level/levelgen/structure/Structure;)Ljava/util/List;", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_getIntersectingStarts(SectionPos sectionPos, Structure structure, CallbackInfoReturnable<List<StructureStart>> callback) {
 		if (this.level instanceof ServerLevelAccessor serverWorldAccess && serverWorldAccess.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			FinalStructures structures = generator.structureManager.getIntersectingStructures(
-				this.bigglobe_makeParams(serverWorldAccess.getLevel(), generator, sectionPos.chunk())
+			Holder<Structure> entry = StructureLocator.toHolder(serverWorldAccess, structure);
+			callback.setReturnValue(
+				generator.structureLocator().getStructuresIntersecting(
+					this.bigglobe_makeParams(
+						serverWorldAccess.getLevel(),
+						generator,
+						WorldUtil.chunkBox(sectionPos.chunk(), serverWorldAccess),
+						Streamable.singleton(entry)
+					)
+				)
+				.map(StructureStartWrapper::start)
+				.toList()
 			);
-			if (structures.isEmpty()) {
-				callback.setReturnValue(Collections.unmodifiableList(structures));
-			}
-			else {
-				callback.setReturnValue(
-					structures
-					.stream()
-					.filter((StructureStart start) -> start.getStructure() == structure)
-					.toList()
-				);
-			}
 		}
 	}
 
@@ -96,14 +97,18 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 	}
 
 	@Unique
-	private StructureGenerationParams bigglobe_makeParams(ServerLevel world, BigGlobeScriptedChunkGenerator generator, ChunkPos chunkPos) {
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
-		return new StructureGenerationParams(
+	private StructureLocator.Params bigglobe_makeParams(ServerLevel world, BigGlobeScriptedChunkGenerator generator, BoundingBox area, Streamable<Holder<Structure>> structures) {
+		return new StructureLocator.Params(
 			generator,
-			generator.newColumnLookup(world, hints),
+			generator.configuredColumnFactory(
+				world,
+				ColumnUsage.GENERIC.maybeDhHints()
+			),
 			world,
-			chunkPos
+			new ManyStructuresOneBox(
+				structures,
+				area
+			)
 		);
 	}
 }

@@ -3,14 +3,8 @@
 		"type": "bigglobe:scripted",
 		"placement": [
 			"for (",
-				"int regionZ in range[",
-					"(centerChunkZ - chunkRange) / (16384 / 16),",
-					"(centerChunkZ + chunkRange) / (16384 / 16)",
-				"],",
-				"int regionX in range[",
-					"(centerChunkX - chunkRange) / (16384 / 16),",
-					"(centerChunkX + chunkRange) / (16384 / 16)",
-				"]",
+				"int regionZ in range[regionMinZ / 16384, regionMaxZ / 16384],",
+				"int regionX in range[regionMinX / 16384, regionMaxX / 16384]",
 			":",
 				"int blockX  = regionX * 16384",
 				"int blockZ  = regionZ * 16384",
@@ -23,7 +17,8 @@
 					"double angle = double(index) / double(count) * tau + startAngle",
 					"int newX = centerX + int(cos(angle) * radius)",
 					"int newZ = centerZ + int(sin(angle) * radius)",
-					"addStart(newX / 16, newZ / 16)",
+					"StructureStart start = createStartNear(newX, 0, newZ, 'bigglobe:obelisk')",
+					"if (start.?override(): starts.add(start))",
 				")",
 			")"
 		]

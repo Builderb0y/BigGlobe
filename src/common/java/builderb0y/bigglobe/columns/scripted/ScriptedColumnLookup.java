@@ -2,7 +2,10 @@ package builderb0y.bigglobe.columns.scripted;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+
 import net.minecraft.server.level.ColumnPos;
+
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.BetterScopedValue;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -14,24 +17,31 @@ public interface ScriptedColumnLookup {
 		LOOKUP_COLUMN = MethodInfo.inCaller("lookupColumn"),
 		HINTS = MethodInfo.inCaller("getHints");
 
-	public abstract Hints getHints();
+	public abstract ConfiguredColumnFactory getSource();
+
+	public default Hints getHints() {
+		return this.getSource().hints();
+	}
 
 	public abstract ScriptedColumn lookupColumn(int x, int z);
 
 	public static class Impl implements ScriptedColumnLookup, Long2ObjectFunction<ScriptedColumn> {
 
-		public final ScriptedColumn.Factory columnFactory;
-		public final ScriptedColumn.Params params;
+		public final ConfiguredColumnFactory factory;
 		public Long2ObjectOpenHashMap<ScriptedColumn> columns;
 
+		@Deprecated
 		public Impl(ScriptedColumn.Factory factory, ScriptedColumn.Params params) {
-			this.columnFactory = factory;
-			this.params = params;
+			this.factory = new ConfiguredColumnFactory(factory, params.worldInfo(), params.hints());
+		}
+
+		public Impl(ConfiguredColumnFactory factory) {
+			this.factory = factory;
 		}
 
 		@Override
-		public Hints getHints() {
-			return this.params.hints();
+		public ConfiguredColumnFactory getSource() {
+			return this.factory;
 		}
 
 		@Override
@@ -44,11 +54,9 @@ public interface ScriptedColumnLookup {
 
 		@Override
 		public ScriptedColumn get(long packedPos) {
-			return this.columnFactory.create(
-				this.params.at(
-					ColumnPos.getX(packedPos),
-					ColumnPos.getZ(packedPos)
-				)
+			return this.factory.createAt(
+				ColumnPos.getX(packedPos),
+				ColumnPos.getZ(packedPos)
 			);
 		}
 	}

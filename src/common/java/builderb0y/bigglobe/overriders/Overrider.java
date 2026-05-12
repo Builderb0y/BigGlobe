@@ -73,18 +73,17 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 
 		public int getSearchRadius(Holder<StructureSet> set) {
 			synchronized (this.radii) {
-				return this.radii.computeIfAbsent(
-					set, (Holder<StructureSet> set_) -> {
-						return ColumnValueOverrider.getSearchRadius(this.overriders, set_.value());
-					}
-				);
+				return this.radii.computeIfAbsent(set, (Holder<StructureSet> set_) -> {
+					return ColumnValueOverrider.getSearchRadius(this.overriders, set_.value());
+				});
 			}
 		}
 
 		public int[] getIndices(Structure structure) {
 			synchronized (this.indices) {
 				return this.indices.computeIfAbsent(
-					structure, (Structure structure_) -> {
+					structure,
+					(Structure structure_) -> {
 						int length = this.overriders.length;
 						IntArrayList list = new IntArrayList(length);
 						for (int index = 0; index < length; index++) {
@@ -101,18 +100,19 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 
 	public static class SortedOverriders {
 
-		public final StructureOverrider.Entry[] structures;
+		public final List<Holder<StructureOverrider.Entry>> structures;
 		public final CollisionOverrider.Entry[] collisions;
 		public final ColumnValueOverridersWithRadiusCache rawColumnValues, featureColumnValues;
 		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
 			Map<Type, List<Holder<Overrider>>> map = generator.overriders.entryStream().collect(Collectors.groupingBy((Holder<Overrider> entry) -> entry.value().getOverriderType()));
-			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(Holder<Overrider>::value).map(StructureOverrider.Entry.class::cast).toArray(StructureOverrider.Entry[]::new);
+			this.structures = (List)(map.getOrDefault(Type.STRUCTURE, Collections.emptyList()));
 			this.collisions = map.getOrDefault(Type.COLLISION, Collections.emptyList()).stream().map(Holder<Overrider>::value).map(CollisionOverrider.Entry.class::cast).toArray(CollisionOverrider.Entry[]::new);
-			this.rawColumnValues = new ColumnValueOverridersWithRadiusCache(map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((Holder<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).raw_generation).toArray(Holder[]::new));
-			this.featureColumnValues = new ColumnValueOverridersWithRadiusCache(map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().filter((Holder<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).feature_generation).toArray(Holder[]::new));
+			List<Holder<Overrider>> columnValueOverriders = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList());
+			this.rawColumnValues = new ColumnValueOverridersWithRadiusCache(columnValueOverriders.stream().filter((Holder<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).raw_generation).toArray(Holder[]::new));
+			this.featureColumnValues = new ColumnValueOverridersWithRadiusCache(columnValueOverriders.stream().filter((Holder<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).feature_generation).toArray(Holder[]::new));
 			this.rawColumnValueDependencies = this.extractDependencies(this.rawColumnValues.overriders, generator);
 			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues.overriders, generator);
 		}

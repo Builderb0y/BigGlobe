@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.scripting.environments;
 
+import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 
 import builderb0y.bigglobe.scripting.wrappers.StructurePieceWrapper;
@@ -19,38 +20,52 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class StructureScriptEnvironment {
 
-	public static final MutableScriptEnvironment INSTANCE = (
+	public static final MutableScriptEnvironment BASE = (
+		new MutableScriptEnvironment()
+		.addType("Structure", StructureEntry.TYPE)
+		.addType("StructureTag", StructureTag.TYPE)
+		.addType("StructureType", StructureTypeEntry.TYPE)
+		.addType("StructureTypeTag", StructureTypeTag.TYPE)
+		.addType("StructurePieceType", StructurePieceTypeEntry.TYPE)
+		.addType("StructurePieceTypeTag", StructurePieceTypeTag.TYPE)
+
+		.addFieldInvokes(StructureEntry.class, "type", "generationStep", "validBiomes", "terrainAdaptation")
+		.addMethodInvokeSpecific(StructureTag.class, "random", StructureEntry.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(StructureTag.class, "random", StructureEntry.class, long.class)
+		.addMethodInvokeSpecific(StructureTypeTag.class, "random", StructureTypeEntry.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(StructureTypeTag.class, "random", StructureTypeEntry.class, long.class)
+		.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, long.class)
+
+		.addCastConstant(StructureEntry.CONSTANT_FACTORY, true)
+		.addCastConstant(StructureTypeEntry.CONSTANT_FACTORY, true)
+		.addCastConstant(StructurePieceTypeEntry.CONSTANT_FACTORY, true)
+		.configure(StructureTag.PARSER)
+		.configure(StructureTypeTag.PARSER)
+		.configure(StructurePieceTypeTag.PARSER)
+	);
+
+	public static final MutableScriptEnvironment EXTRA = (
 		new MutableScriptEnvironment()
 
-			.addType("StructureStart", StructureStartWrapper.TYPE)
-			.addType("StructurePiece", StructurePieceWrapper.TYPE)
-			.addType("Structure", StructureEntry.TYPE)
-			.addType("StructureTag", StructureTag.TYPE)
-			.addType("StructureType", StructureTypeEntry.TYPE)
-			.addType("StructureTypeTag", StructureTypeTag.TYPE)
-			.addType("StructurePieceType", StructurePieceTypeEntry.TYPE)
-			.addType("StructurePieceTypeTag", StructurePieceTypeTag.TYPE)
-			.addType("ScriptStructurePiece", type(ScriptedStructure.Piece.class))
-			.addType("StructurePlacementScript", type(StructurePlacementScriptEntry.class))
+		.addType("StructureStart", StructureStartWrapper.TYPE)
+		.addType("StructurePiece", StructurePieceWrapper.TYPE)
+		.addType("ScriptStructurePiece", type(ScriptedStructure.Piece.class))
+		.addType("StructurePlacementScript", type(StructurePlacementScriptEntry.class))
 
-			.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "structure", "pieces")
-			.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "rotation", "mirror", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
-			.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, RandomGenerator.class)
-			.addMethodInvokeSpecific(StructurePieceTypeTag.class, "random", StructurePieceTypeEntry.class, long.class)
-			.addFieldInvokes(StructureEntry.class, "type", "generationStep", "validBiomes", "terrainAdaptation")
-			.addMethodInvokeSpecific(StructureTag.class, "random", StructureEntry.class, RandomGenerator.class)
-			.addMethodInvokeSpecific(StructureTag.class, "random", StructureEntry.class, long.class)
-			.addMethodInvokeSpecific(StructureTypeTag.class, "random", StructureTypeEntry.class, RandomGenerator.class)
-			.addMethodInvokeSpecific(StructureTypeTag.class, "random", StructureTypeEntry.class, long.class)
-			.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetZ", "placement")
+		.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "structure", "pieces")
+		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "rotation", "mirror", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
+		.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetZ", "placement")
 
-			.addCastConstant(StructureEntry.CONSTANT_FACTORY, true)
-			.addCastConstant(StructureTypeEntry.CONSTANT_FACTORY, true)
-			.addCastConstant(StructurePieceTypeEntry.CONSTANT_FACTORY, true)
-			.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
-			.configure(StructureTag.PARSER)
-			.configure(StructureTypeTag.PARSER)
-			.configure(StructurePieceTypeTag.PARSER)
-			.configure(StructurePlacementScriptTag.PARSER)
+		.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
+		.configure(StructurePlacementScriptTag.PARSER)
 	);
+
+	public static Consumer<MutableScriptEnvironment> basicTypes() {
+		return (MutableScriptEnvironment environment) -> environment.addAll(BASE);
+	}
+
+	public static Consumer<MutableScriptEnvironment> live() {
+		return (MutableScriptEnvironment environment) -> environment.addAll(BASE).addAll(EXTRA);
+	}
 }

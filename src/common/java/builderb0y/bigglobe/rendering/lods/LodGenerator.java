@@ -292,13 +292,10 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 	public BlockSegmentList[] generateCaveCullingChunk(ChunkPos chunkPos) {
 		BlockSegmentList[] lists = new BlockSegmentList[ColumnIndexRange.LOD4.end];
 		ScriptedColumn.Params params = new Params(
-			this.system.params.columnSeed,
 			0,
 			0,
-			this.system.params.minY,
-			this.system.params.maxY,
-			ColumnUsage.HEIGHTMAP.builtinLodHints(0),
-			this.system.params.compiledWorldTraits
+			this.system.params.worldInfo(),
+			ColumnUsage.HEIGHTMAP.builtinLodHints(0)
 		);
 		Layer layer = this.system.params.layer.value();
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {

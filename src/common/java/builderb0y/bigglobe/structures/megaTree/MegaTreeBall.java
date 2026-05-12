@@ -33,6 +33,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
+import builderb0y.bigglobe.structures.management.StructureLocator;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -71,17 +72,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		}
 
 		public Data(MegaTreeStructure actualStructure, double x, double y, double z, double radius, int step, int totalSteps, Holder<WoodPalette> wood) {
-			this(getActualEntry(actualStructure), actualStructure, x, y, z, radius, step, totalSteps, wood);
-		}
-
-		public static Holder<Structure> getActualEntry(MegaTreeStructure structure) {
-			return RegistryVersions.getEntry(
-				RegistryVersions.getRegistry(
-					BigGlobeMod.getCurrentServer().registryAccess(),
-					Registries.STRUCTURE
-				),
-				structure
-			);
+			this(StructureLocator.toHolder(actualStructure), actualStructure, x, y, z, radius, step, totalSteps, wood);
 		}
 
 		public Vector3d position() {

@@ -126,6 +126,12 @@ V6:
 	tweak islands as necessary to account for changes in erosion system.
 		and new mesa system.
 		and new biome tint system.
+	structures:
+		make originX/Y/Z zero for scripted structure placements too.
+		make structure overriders have a filter too, like column value overriders.
+		transition structure max size from chunks to blocks.
+	exclude snow_layer from LOD mipping?
+	write unit test to verify that jspecify is not used.
 
 LODs:
 	shader support.
@@ -171,6 +177,8 @@ if a V5 backport is made:
 	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
 	fix pale garden never getting updated for biome attributes changes.
 	fix portal temple column value overrider not applying to bigglobe:portal_temple_cracked structure.
+	fix blindness effect not working when LODs are enabled.
+		missing check for shouldRenderThisFrame in BackgroundRenderer_NoFogWithLods.
 
 alternate world presets:
 	paradise.

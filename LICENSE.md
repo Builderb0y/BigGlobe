@@ -20,6 +20,7 @@
 	* This also does NOT include monetization which you have no control over. For example, hosting a 3rd-party pack on Modrinth.
 * Claim to be the author of Big Globe.
 	* You ARE allowed claim to be the author of any 3rd-party packs that you create.
+* Use Big Globe's source code to train AI's, LLM's, or similar algorithms.
 * Continue Big Globe's development if, for any reason, I ever stop developing it myself.
 
 ## You MAY, but I would PREFER you not:

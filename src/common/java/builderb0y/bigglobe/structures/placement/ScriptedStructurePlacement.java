@@ -1,26 +1,31 @@
 package builderb0y.bigglobe.structures.placement;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
+
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
-import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
+import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
+import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
+import builderb0y.bigglobe.util.CheckedList;
+import builderb0y.bigglobe.util.CheckedList.NullPolicy;
 import builderb0y.scripting.bytecode.InsnTrees;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -35,7 +40,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ScriptedStructurePlacement extends StructurePlacement implements StreamableStructurePlacement {
+public class ScriptedStructurePlacement extends StructurePlacement implements SmartStructurePlacement {
 
 	public final StructurePlacementScript.Catcher placement;
 
@@ -45,37 +50,21 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 	}
 
 	@Override
-	public Stream<ChunkPos> bigglobe_getNearbyStartChunks(
-		BigGlobeScriptedChunkGenerator generator,
-		ChunkGeneratorStructureState calculator,
-		int centerChunkX,
-		int centerChunkZ,
-		int chunkRange
-	) {
-		Stream.Builder<ChunkPos> builder = Stream.builder();
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
-			generator.columnEntryRegistry.columnFactory,
-			new Params(
-				generator.columnSeed,
-				0,
-				0,
-				generator.height.min_y(),
-				generator.height.max_y(),
-				hints,
-				generator.compiledWorldTraits
-			)
+	public Stream<StructureStartWrapper> bigglobe_generateStructuresInArea(Context context) {
+		List<StructureStartWrapper> starts = new CheckedList<>(StructureStartWrapper.class, NullPolicy.IGNORE);
+		this.placement.populateStructures(
+			context.columns(),
+			starts,
+			context,
+			context.hashedWorldSeed(),
+			context.area().minX(),
+			context.area().minY(),
+			context.area().minZ(),
+			context.area().maxX(),
+			context.area().maxY(),
+			context.area().maxZ()
 		);
-		this.placement.getNearbyStartChunks(
-			builder,
-			lookup,
-			generator.columnSeed,
-			centerChunkX,
-			centerChunkZ,
-			chunkRange
-		);
-		return builder.build();
+		return starts.stream();
 	}
 
 	@Override
@@ -93,19 +82,31 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 		return BigGlobeStructurePlacementTypes.SCRIPTED;
 	}
 
-	public static void outputStart(Stream.Builder<ChunkPos> builder, int x, int z) {
-		builder.accept(new ChunkPos(x, z));
+	public static StructureStartWrapper createNear(Context context, int x, int y, int z, StructureEntry structure) {
+		return context.createNear(new BlockPos(x, y, z), structure);
+	}
+
+	public static StructureStartWrapper createAt(Context context, int x, int y, int z, StructureEntry structure) {
+		return context.createAt(new BlockPos(x, y, z), structure);
+	}
+
+	public static boolean override(StructureStartWrapper start, Context context) {
+		return context.override(start);
 	}
 
 	public static interface StructurePlacementScript extends Script {
 
-		public abstract void getNearbyStartChunks(
-			Stream.Builder<ChunkPos> builder,
+		public abstract void populateStructures(
 			ScriptedColumnLookup columns,
+			List<StructureStartWrapper> starts,
+			Context context,
 			long worldSeed,
-			int centerChunkX,
-			int centerChunkZ,
-			int chunkRange
+			int regionMinX,
+			int regionMinY,
+			int regionMinZ,
+			int regionMaxX,
+			int regionMaxY,
+			int regionMaxZ
 		);
 
 		@Wrapper
@@ -126,17 +127,24 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
 					.addEnvironment(WoodPaletteScriptEnvironment.BASE)
 					.configureEnvironment(MinecraftScriptEnvironment.create())
+					.configureEnvironment(StructureScriptEnvironment.live())
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
 						LoadInsnTree loadLookup = load("columns", InsnTrees.type(ScriptedColumnLookup.class));
 						registry.setupExternalEnvironment(
 							environment
+							.addVariableLoad("starts", TypeInfo.of(List.class))
 							.addVariableLoad("worldSeed", TypeInfos.LONG)
-							.addVariableLoad("centerChunkX", TypeInfos.INT)
-							.addVariableLoad("centerChunkZ", TypeInfos.INT)
-							.addVariableLoad("chunkRange", TypeInfos.INT)
-							.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-							.configure(ScriptedColumn.hintsEnvironment())
-							.addFunction("addStart", Handlers.builder(ScriptedStructurePlacement.class, "outputStart").addArguments(load("builder", InsnTrees.type(Stream.Builder.class)), "II").buildFunction()),
+							.addVariableLoad("regionMinX", TypeInfos.INT)
+							.addVariableLoad("regionMinY", TypeInfos.INT)
+							.addVariableLoad("regionMinZ", TypeInfos.INT)
+							.addVariableLoad("regionMaxX", TypeInfos.INT)
+							.addVariableLoad("regionMaxY", TypeInfos.INT)
+							.addVariableLoad("regionMaxZ", TypeInfos.INT)
+							.addFunction("createStartNear", Handlers.builder(ScriptedStructurePlacement.class, "createNear").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
+							.addFunction("createStartAt", Handlers.builder(ScriptedStructurePlacement.class, "createAt").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
+							.addMethod(InsnTrees.type(StructureStartWrapper.class), "override", Handlers.builder(ScriptedStructurePlacement.class, "override").addReceiverArgument(StructureStartWrapper.class).addImplicitArgument(load("context", TypeInfo.of(Context.class))).buildMethod())
+							.addVariableRenamedInvoke(loadLookup, "hints", ScriptedColumnLookup.HINTS)
+							.configure(ScriptedColumn.hintsEnvironment()),
 
 							new ExternalEnvironmentParams()
 							.withLookup(loadLookup)
@@ -148,25 +156,36 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 			}
 
 			@Override
-			public void getNearbyStartChunks(
-				Stream.Builder<ChunkPos> builder,
+			public void populateStructures(
 				ScriptedColumnLookup columns,
+				List<StructureStartWrapper> starts,
+				Context context,
 				long worldSeed,
-				int centerChunkX,
-				int centerChunkZ,
-				int chunkRange
+				int regionMinX,
+				int regionMinY,
+				int regionMinZ,
+				int regionMaxX,
+				int regionMaxY,
+				int regionMaxZ
 			) {
 				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
-					this.script.getNearbyStartChunks(
-						builder,
+					this.script.populateStructures(
 						columns,
+						starts,
+						context,
 						worldSeed,
-						centerChunkX,
-						centerChunkZ,
-						chunkRange
+						regionMinX,
+						regionMinY,
+						regionMinZ,
+						regionMaxX,
+						regionMaxY,
+						regionMaxZ
 					);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
 				}
 				finally {
 					manager.used = used;

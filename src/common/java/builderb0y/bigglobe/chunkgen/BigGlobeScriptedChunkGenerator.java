@@ -2,12 +2,15 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.base.Predicates;
@@ -18,7 +21,6 @@ import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -28,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -50,12 +51,12 @@ import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.levelgen.*;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride.BoundingBoxType;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import builderb0y.autocodec.annotations.*;
@@ -72,6 +73,7 @@ import builderb0y.autocodec.decoders.DecodeContext.RootDecodePath;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -93,7 +95,9 @@ import builderb0y.bigglobe.columns.scripted.ColumnValueHolder;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
@@ -108,6 +112,7 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
@@ -116,20 +121,22 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.AutoOverride;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.spawning.ExtraSpawn;
-import builderb0y.bigglobe.structures.*;
+import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
-import builderb0y.bigglobe.structures.placement.StreamableStructurePlacement;
+import builderb0y.bigglobe.structures.ScriptStructures;
+import builderb0y.bigglobe.structures.management.EmptyStructureLocator;
+import builderb0y.bigglobe.structures.management.FlatStructureLocator;
+import builderb0y.bigglobe.structures.management.StructureLocator;
+import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.bigglobe.versions.SpawnEntryVersions.*;
@@ -140,11 +147,17 @@ import static builderb0y.bigglobe.versions.SpawnEntryVersions.*;
 public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements DelayedCompileable {
 
 	public static final boolean WORLD_SLICES = false;
-	public static final AtomicBoolean TRACE_OPERATION = new AtomicBoolean(false);
 
 	public static final MapCodec<BigGlobeScriptedChunkGenerator> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BigGlobeScriptedChunkGenerator.class);
+	public static final VarHandle STRUCTURE_LOCATOR;
 
 	static {
+		try {
+			STRUCTURE_LOCATOR = MethodHandles.lookup().findVarHandle(BigGlobeScriptedChunkGenerator.class, "structureLocator", StructureLocator.class).withInvokeExactBehavior();
+		}
+		catch (Exception exception) {
+			throw AutoCodecUtil.rethrow(exception);
+		}
 		ServerLifecycleEvents.SERVER_STARTED.register((MinecraftServer server) -> {
 			if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.dependencyGraphs) {
 				for (ServerLevel world : server.getAllLevels()) {
@@ -268,7 +281,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient boolean seedSet;
 	public transient Pattern displayPattern;
 	public transient DisplayEntry rootDebugDisplay;
-	public transient StructurePlacementCalculator structureManager;
+
+	public transient ChunkGeneratorStructureState structureState;
+	public transient boolean structuresEnabled;
+	@Deprecated //don't reference directly. use getter instead.
+	public transient StructureLocator structureLocator;
 
 	public BigGlobeScriptedChunkGenerator(
 		DecodeContext<?>            decodeContext,
@@ -319,7 +336,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.extraSpawnRegistry  = from.extraSpawnRegistry;
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
 		this.rootDebugDisplay    = new DisplayEntry(this);
-		this.structureManager    = from.structureManager.copy();
+		this.structuresEnabled   = from.structuresEnabled;
 		this.extraSpawns         = from.extraSpawns;
 	}
 
@@ -393,7 +410,33 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public API.
 	*/
 	public void setStructuresEnabled(boolean structuresEnabled) {
-		this.structureManager = structuresEnabled ? new ActiveStructurePlacementCalculator() : new InactiveStructurePlacementCalculator();
+		this.structuresEnabled = structuresEnabled;
+		this.structureLocator = null;
+	}
+
+	@Override
+	public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structureSetRegistry, RandomState noiseConfig, long seed) {
+		if (!this.seedSet) {
+			//make it impossible to reverse-engineer the seed from information sent to the client.
+			this.columnSeed = Hashing.sha256().hashLong(seed).asLong();
+			this.seedSet = true;
+		}
+
+		return this.structureState = super.createState(structureSetRegistry, noiseConfig, seed);
+	}
+
+	public StructureLocator structureLocator() {
+		//fast path: plain access memory semantics are fine.
+		StructureLocator locator = this.structureLocator;
+		if (locator == null) {
+			//slow path: need to ensure that we never have more than one locator,
+			//and that any call to this method, no matter which thread,
+			//always sees the same locator.
+			StructureLocator newLocator = this.structuresEnabled ? new FlatStructureLocator(this.structureState) : EmptyStructureLocator.INSTANCE;
+			StructureLocator existing = (StructureLocator)(STRUCTURE_LOCATOR.compareAndExchange(this, (StructureLocator)(null), newLocator));
+			locator = existing == null ? newLocator : existing;
+		}
+		return locator;
 	}
 
 	/**
@@ -485,35 +528,43 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		);
 	}
 
-	public ScriptedColumnLookup.Impl newColumnLookup(LevelHeightAccessor world, Hints hints) {
-		return new ScriptedColumnLookup.Impl(
-			this.columnEntryRegistry.columnFactory,
+	public ScriptedColumn newColumn(int x, int z, Hints hints) {
+		return this.columnEntryRegistry.columnFactory.create(
 			new ScriptedColumn.Params(
 				this.columnSeed,
-				0,
-				0,
-				world,
+				x,
+				z,
+				this.height.min_y,
+				this.height.max_y,
 				hints,
 				this.compiledWorldTraits
 			)
 		);
 	}
 
-	@Override
-	public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structureSetRegistry, RandomState noiseConfig, long seed) {
-		if (!this.seedSet) {
-			//make it impossible to reverse-engineer the seed from information sent to the client.
-			this.columnSeed = Hashing.sha256().hashLong(seed).asLong();
-			this.seedSet = true;
-		}
-
-		return super.createState(structureSetRegistry, noiseConfig, seed);
+	public ConfiguredColumnFactory configuredColumnFactory(Hints hints) {
+		return new ConfiguredColumnFactory(
+			this.columnEntryRegistry.columnFactory,
+			new WorldInfo(this),
+			hints
+		);
 	}
 
-	public void initStructureManager(boolean structuresEnabled) {
-		if (this.structureManager == null) {
-			this.setStructuresEnabled(structuresEnabled);
-		}
+	public ConfiguredColumnFactory configuredColumnFactory(LevelHeightAccessor world, Hints hints) {
+		return new ConfiguredColumnFactory(
+			this.columnEntryRegistry.columnFactory,
+			new WorldInfo(
+				this.columnSeed,
+				HeightLimitViewVersions.getMinY(world),
+				HeightLimitViewVersions.getMaxY(world),
+				this.compiledWorldTraits
+			),
+			hints
+		);
+	}
+
+	public ScriptedColumnLookup.Impl newColumnLookup(LevelHeightAccessor world, Hints hints) {
+		return new ScriptedColumnLookup.Impl(this.configuredColumnFactory(world, hints));
 	}
 
 	@Override
@@ -534,7 +585,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		long seed,
 		RandomState noiseConfig,
 		BiomeManager biomeAccess,
-		net.minecraft.world.level.StructureManager structureAccessor,
+		StructureManager structureAccessor,
 		ChunkAccess chunk
 
 	) {
@@ -542,7 +593,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public void buildSurface(WorldGenRegion region, net.minecraft.world.level.StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
+	public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
 		//no-op.
 	}
 
@@ -587,24 +638,25 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, net.minecraft.world.level.StructureManager accessor, MobCategory group, BlockPos pos) {
-		return (
-			accessor
-			.startsForStructure(ChunkPos.containing(pos), Predicates.alwaysTrue())
-			.stream()
-			.map((StructureStart start) -> {
-				if (!start.getBoundingBox().isInside(pos)) return null;
-				StructureSpawnOverride spawns = start.getStructure().spawnOverrides().get(group);
-				if (spawns == null) return null;
-				if (spawns.boundingBox() == BoundingBoxType.PIECE) {
-					return start.getPieces().stream().map(StructurePiece::getBoundingBox).anyMatch(box -> box.isInside(pos)) ? spawns.spawns() : null;
-				}
-				return spawns.spawns();
-			})
-			.filter(Objects::nonNull)
-			.findAny()
-			.orElseGet(() -> this.getSpawnEntries(biome, group))
-		);
+	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager accessor, MobCategory group, BlockPos pos) {
+		if (((StructureAccessor_WorldAccess)(accessor)).bigglobe_getWorld() instanceof ServerLevel serverLevel) {
+			WeightedList<SpawnerData> spawns = this.structureLocator().getMobSpawns(
+				new StructureLocator.Context(
+					this,
+					this.configuredColumnFactory(ColumnUsage.GENERIC.normalHints()),
+					serverLevel.getLevel()
+				),
+				pos,
+				group
+			);
+			return spawns != null ? spawns : this.getSpawnEntries(biome, group);
+		}
+		else {
+			if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace("getMobsAt() called with a StructureManager whose world is not a ServerLevel.");
+			}
+			return super.getMobsAt(biome, accessor, group, pos);
+		}
 	}
 
 	@Override
@@ -617,7 +669,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				chunkPos.getMinBlockX(),
 				this.getHeight(
 					this.newColumn(region, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), ColumnUsage.HEIGHTMAP.maybeDhHints()),
-					Heightmap.Types.OCEAN_FLOOR_WG,
+					Types.OCEAN_FLOOR_WG,
 					region
 				),
 				chunkPos.getMinBlockZ()
@@ -709,7 +761,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 		Blender blender,
 		RandomState noiseConfig,
-		net.minecraft.world.level.StructureManager structureAccessor,
+		StructureManager structureAccessor,
 		ChunkAccess chunk
 	) {
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
@@ -723,7 +775,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		Holder<ColumnValueOverrider.Entry>[] overriders = this.getOverriders().rawColumnValues.overriders();
 		ScriptStructures[] structures = ScriptStructures.getStructures(
 			this,
-			this.newColumnLookup(chunk, hints),
+			this.configuredColumnFactory(chunk, hints),
 			structureAccessor,
 			chunk.getPos(),
 			this.getOverriders().rawColumnValues
@@ -843,7 +895,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 					//////////////////////////////// heightmaps ////////////////////////////////
 
-					for (Heightmap.Types type : chunk.getPersistedStatus().heightmapsAfter()) {
+					for (Types type : chunk.getPersistedStatus().heightmapsAfter()) {
 						Heightmap heightmap = chunk.getOrCreateHeightmapUnprimed(type);
 						@SuppressWarnings("CastToIncompatibleInterface")
 						BitStorage heightmapStorage = ((Heightmap_StorageAccess)(heightmap)).bigglobe_getStorage();
@@ -912,7 +964,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, net.minecraft.world.level.StructureManager structureAccessor) {
+	public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
 			return;
 		}
@@ -933,7 +985,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		);
 		ScriptStructures[] structures = ScriptStructures.getStructures(
 			this,
-			worldWrapper,
+			worldWrapper.getSource(),
 			structureAccessor,
 			chunk.getPos(),
 			this.getOverriders().featureColumnValues
@@ -954,9 +1006,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			);
 			try (
 				AsyncConsumer<ScriptedColumn> async = new AsyncConsumer<>(
-					BigGlobeThreadPool.autoExecutor(), (ScriptedColumn column) -> {
-					worldWrapper.columns.put(ColumnPos.asLong(column.x(), column.z()), column);
-				}
+					BigGlobeThreadPool.autoExecutor(),
+					(ScriptedColumn column) -> {
+						worldWrapper.columns.put(ColumnPos.asLong(column.x(), column.z()), column);
+					}
 				)
 			) {
 				for (int index = 0; index < 256; index++) {
@@ -964,7 +1017,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					async.submit(() -> {
 						int x = chunk.getPos().getMinBlockX() | (index_ & 15);
 						int z = chunk.getPos().getMinBlockZ() | (index_ >>> 4);
-						columns[index_].setParamsUnchecked(worldWrapper.params.at(x, z));
+						columns[index_].setParamsUnchecked(worldWrapper.getSource().params(x, z));
 						worldWrapper.overriders.override(columns[index_]);
 						return columns[index_];
 					});
@@ -977,55 +1030,60 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		}
 	}
 
-	public void generateRawStructures(ChunkAccess chunk, net.minecraft.world.level.StructureManager structureAccessor, ScriptedColumnLookup columns) {
+	public void generateRawStructures(ChunkAccess chunk, StructureManager structureAccessor, ScriptedColumnLookup columns) {
 		if (((StructureAccessor_WorldAccess)(structureAccessor)).bigglobe_getWorld() instanceof ServerLevelAccessor serverWorldAccess) {
 			Hints hints = ColumnUsage.GENERIC.maybeDhHints();
-			FinalStructures structures = this.structureManager.getIntersectingStructures(
-				new StructureGenerationParams(
-					this,
-					this.newColumnLookup(serverWorldAccess, hints),
-					serverWorldAccess.getLevel(),
-					chunk.getPos()
-				)
-			);
-			RawGenerationStructurePiece.Context context = null;
 			BoundingBox chunkBox = WorldUtil.chunkBox(chunk);
-			Registry<Structure> structureRegistry = RegistryVersions.getRegistry(serverWorldAccess.registryAccess(), Registries.STRUCTURE);
-			for (StructureStart start : structures) {
-				if (start.getStructure() instanceof RawGenerationStructure) {
-					long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getKey(start.getStructure()), start);
-					List<StructurePiece> children = start.getPieces();
+			RawGenerationStructurePiece.Context context = new RawGenerationStructurePiece.Context(chunk, this, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
+			Registry<Structure> structureRegistry = StructureLocator.structureRegistry(serverWorldAccess);
+			this.structureLocator().getStructuresIntersecting(
+				new StructureLocator.Params(
+					this,
+					this.configuredColumnFactory(serverWorldAccess, hints),
+					serverWorldAccess.getLevel(),
+					new ManyStructuresOneBox(
+						this.structureLocator().allStructures(),
+						chunkBox
+					)
+				)
+			)
+			.filter((StructureStartWrapper start) -> start.start().getStructure() instanceof RawGenerationStructure)
+			.forEachOrdered((StructureStartWrapper start) -> {
+				try {
+					long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getKey(start.start().getStructure()), start);
+					List<StructurePiece> children = start.start().getPieces();
 					for (int pieceIndex = 0, pieceCount = children.size(); pieceIndex < pieceCount; pieceIndex++) {
 						StructurePiece piece = children.get(pieceIndex);
 						if (piece instanceof RawGenerationStructurePiece rawPiece && piece.getBoundingBox().intersects(chunkBox)) {
-							long pieceSeed = Permuter.permute(structureSeed, pieceIndex);
-							if (context == null) {
-								context = new RawGenerationStructurePiece.Context(chunk, this, columns, DistantHorizonsCompat.isOnDistantHorizonThread());
-							}
-							context.pieceSeed = pieceSeed;
+							context.pieceSeed = Permuter.permute(structureSeed, pieceIndex);
 							rawPiece.generateRaw(context);
 						}
 					}
 				}
-			}
+				catch (Exception exception) {
+					BigGlobeMod.LOGGER.error("Exception placing raw structure: " + start, exception);
+				}
+			});
 		}
 	}
 
-	public void generateStructures(WorldGenLevel world, ChunkAccess chunk, net.minecraft.world.level.StructureManager structureAccessor) {
+	public void generateStructures(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {
 		BoundingBox chunkBox = WorldUtil.chunkBox(chunk);
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
-		FinalStructures structures = this.structureManager.getIntersectingStructures(
-			new StructureGenerationParams(
+		this.structureLocator().getStructuresIntersecting(
+			new StructureLocator.Params(
 				this,
-				this.newColumnLookup(world, hints),
+				this.configuredColumnFactory(world, hints),
 				world.getLevel(),
-				chunk.getPos()
+				new ManyStructuresOneBox(
+					this.structureLocator().allStructures(),
+					chunkBox
+				)
 			)
-		);
-		Registry<Structure> structureRegistry = RegistryVersions.getRegistry(world.registryAccess(), Registries.STRUCTURE);
-		for (StructureStart start : structures) {
-			long structureSeed = getStructureSeed(this.columnSeed, structureRegistry.getKey(start.getStructure()), start);
-			List<StructurePiece> children = start.getPieces();
+		)
+		.forEachOrdered((StructureStartWrapper start) -> {
+			long structureSeed = getStructureSeed(this.columnSeed, start.originalID(), start);
+			List<StructurePiece> children = start.start().getPieces();
 			BoundingBox firstPieceBB = children.get(0).getBoundingBox();
 			BlockPos pivot = new BlockPos(
 				(firstPieceBB.minX() + firstPieceBB.maxX() + 1) >> 1,
@@ -1053,157 +1111,176 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				}
 			}
 			try {
-				start.getStructure().afterPlace(
+				start.start().getStructure().afterPlace(
 					world,
 					structureAccessor,
 					this,
 					new MojangPermuter(structureSeed),
 					chunkBox,
 					chunk.getPos(),
-					((StructureStart_ChildrenGetter)(Object)(start)).bigglobe_getChildren()
+					((StructureStart_ChildrenGetter)(Object)(start.start())).bigglobe_getChildren()
 				);
 			}
 			catch (Exception exception) {
 				BigGlobeMod.LOGGER.error("Exception post-placing structure start " + start + ':', exception);
 			}
-		}
+		});
 	}
 
-	public static long getStructureSeed(long worldSeed, Identifier structureID, StructureStart start) {
-		return Permuter.permute(worldSeed ^ 0x74ED298CF4DD2677L, structureID.hashCode(), start.getChunkPos().x(), start.getChunkPos().z());
+	public static long getStructureSeed(long worldSeed, Identifier structureID, StructureStartWrapper start) {
+		return Permuter.permute(
+			worldSeed ^ 0x74ED298CF4DD2677L,
+			structureID.hashCode(),
+			start.pos().getX(),
+			start.pos().getY(),
+			start.pos().getZ()
+		);
 	}
 
 	@Override
 	public void createStructures(
 		RegistryAccess registryManager,
 		ChunkGeneratorStructureState placementCalculator,
-		net.minecraft.world.level.StructureManager structureAccessor,
+		StructureManager structureAccessor,
 		ChunkAccess chunk,
 		StructureTemplateManager structureTemplateManager,
 		ResourceKey<Level> dimension
 	) {
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		FinalStructures starts = this.structureManager.getFinalStructures(
-			new StructureGenerationParams(
-				this,
-				this.newColumnLookup(chunk, ColumnUsage.GENERIC.maybeDhHints(distantHorizons)),
-				placementCalculator,
-				registryManager,
-				placementCalculator.randomState(),
-				structureTemplateManager,
-				chunk,
-				chunk.getPos(),
-				distantHorizons
+		chunk.setAllStarts(
+			this.structureLocator().getStructuresInside(
+				new StructureLocator.Params(
+					new StructureLocator.Context(
+						this,
+						this.configuredColumnFactory(chunk, ColumnUsage.GENERIC.maybeDhHints()),
+						placementCalculator,
+						registryManager,
+						structureTemplateManager,
+						chunk
+					),
+					new ManyStructuresOneBox(
+						this.structureLocator().allStructures(),
+						WorldUtil.chunkBox(chunk)
+					)
+				)
+			)
+			.map(StructureStartWrapper::start)
+			.collect(
+				Collectors.toMap(
+					StructureStart::getStructure,
+					Function.identity(),
+					(StructureStart start1, StructureStart start2) -> {
+						return new StructureStart(
+							start1.getStructure(),
+							start1.getChunkPos(),
+							0,
+							new PiecesContainer(
+								Stream
+								.concat(
+									start1.getPieces().stream(),
+									start2.getPieces().stream()
+								)
+								.toList()
+							)
+						);
+					}
+				)
 			)
 		);
-		boolean log = BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning;
-		Map<Structure, StructureStart> map = new Object2ObjectOpenHashMap<>(starts.size());
-		for (StructureStart start : starts) {
-			map.merge(
-				start.getStructure(), start, (StructureStart start1, StructureStart start2) -> {
-					if (log) BigGlobeMod.LOGGER.info("More than one copy of structure " + StructurePlacementCalculator.structureName(start1.getStructure()) + " started in the same chunk. It may be present in more than one structure set.");
-					return new StructureStart(
-						start1.getStructure(),
-						start1.getChunkPos(),
-						0,
-						new PiecesContainer(
-							Stream
-							.concat(
-								start1.getPieces().stream(),
-								start2.getPieces().stream()
-							)
-							.toList()
-						)
-					);
-				}
-			);
-		}
-		chunk.setAllStarts(map);
 	}
 
 	@Override
 	public void createReferences(
 		WorldGenLevel world,
-		net.minecraft.world.level.StructureManager structureAccessor,
+		StructureManager structureAccessor,
 		ChunkAccess chunk
 	) {
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
-		FinalStructures intersecting = this.structureManager.getIntersectingStructures(
-			new StructureGenerationParams(
+		this.structureLocator().getStructuresIntersecting(
+			new StructureLocator.Params(
 				this,
-				this.newColumnLookup(chunk, hints),
+				this.configuredColumnFactory(chunk, ColumnUsage.GENERIC.maybeDhHints()),
 				world.getLevel(),
-				chunk.getPos()
+				new ManyStructuresOneBox(
+					this.structureLocator().allStructures(),
+					WorldUtil.chunkBox(chunk)
+				)
+			)
+		)
+		.map(StructureStartWrapper::start)
+		.filter((StructureStart start) -> {
+			return start.getChunkPos().getChessboardDistance(chunk.getPos()) <= 8;
+		})
+		.forEachOrdered((StructureStart start) -> {
+			chunk.addReferenceForStructure(start.getStructure(), start.getChunkPos().pack());
+		});
+	}
+
+	public Stream<StructureStartWrapper> findNearbyStructures(
+		ServerLevel world,
+		HolderSet<Structure> toFind,
+		BoundingBox area,
+		BlockPos center
+	) {
+		if (!this.structuresEnabled) return Stream.empty();
+		return (
+			this
+			.structureLocator()
+			.getStructuresNearby(
+				new StructureLocator.Params(
+					this,
+					this.configuredColumnFactory(world, ColumnUsage.GENERIC.normalHints()),
+					world,
+					new ManyStructuresOneBox(toFind::stream, area)
+				),
+				center
 			)
 		);
-		for (StructureStart start : intersecting) {
-			if (StreamableStructurePlacement.distance(start.getChunkPos(), chunk.getPos().x(), chunk.getPos().z()) <= 8) {
-				chunk.addReferenceForStructure(start.getStructure(), start.getChunkPos().pack());
-			}
-		}
+	}
+
+	public static BoundingBox clampedExpandedBoundingBox(BlockPos center, int radius, LevelHeightAccessor height) {
+		return new BoundingBox(
+			center.getX() - radius,
+			Math.max(center.getY() - radius, HeightLimitViewVersions.getMinY(height)),
+			center.getZ() - radius,
+			center.getX() + radius,
+			Math.min(center.getY() + radius, HeightLimitViewVersions.getMaxY(height) - 1),
+			center.getZ() + radius
+		);
 	}
 
 	@Override
 	public @Nullable Pair<BlockPos, Holder<Structure>> findNearestMapStructure(
 		ServerLevel world,
-		HolderSet<Structure> structures,
+		HolderSet<Structure> toFind,
 		BlockPos center,
-		int radius,
+		int chunkRadius,
 		boolean skipReferencedStructures
 	) {
-		int centerX = center.getX() >> 4;
-		int centerZ = center.getZ() >> 4;
-		ChunkGeneratorStructureState calculator = world.getChunkSource().getGeneratorState();
-		return structures.stream().flatMap((Holder<Structure> structureEntry) -> {
-				return calculator.getPlacementsForStructure(structureEntry).stream();
-			})
-				.distinct()
-				.flatMap((StructurePlacement placement) -> {
-					return ((StreamableStructurePlacement)(placement)).bigglobe_getNearbyStartChunks(this, calculator, centerX, centerZ, radius);
-				})
-				.sorted(StreamableStructurePlacement.distanceComparator(centerX, centerZ))
-				.map((ChunkPos chunkPos) -> this.getStructure(world, structures, chunkPos.x(), chunkPos.z()))
-				.filter(Objects::nonNull)
-				.findFirst()
-				.orElse(null);
-	}
-
-	public @Nullable Pair<BlockPos, Holder<Structure>> getStructure(
-		ServerLevel world,
-		HolderSet<Structure> structures,
-		int chunkX,
-		int chunkZ
-	) {
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints();
-		FinalStructures starts = this.structureManager.getFinalStructures(
-			new StructureGenerationParams(
-				this,
-				this.newColumnLookup(world, hints),
+		return (
+			this
+			.findNearbyStructures(
 				world,
-				new ChunkPos(chunkX, chunkZ)
+				toFind,
+				clampedExpandedBoundingBox(center, chunkRadius << 4, world),
+				center
 			)
+			.findFirst()
+			.map((StructureStartWrapper start) -> Pair.of(
+				start.box().getCenter(),
+				start.originalStructure()
+			))
+			.orElse(null)
 		);
-		for (Holder<Structure> structure : structures) {
-			for (StructureStart start : starts) {
-				if (start.getStructure() == structure.value()) {
-					return Pair.of(start.getBoundingBox().getCenter(), structure);
-				}
-			}
-		}
-		return null;
 	}
 
 	@Override
 	public CompletableFuture<ChunkAccess> createBiomes(
-
 		RandomState noiseConfig,
 		Blender blender,
-		net.minecraft.world.level.StructureManager structureAccessor,
+		StructureManager structureAccessor,
 		ChunkAccess chunk
 	) {
 		if (!(this.biomeSource instanceof ScriptedColumnBiomeSource source)) {
 			return super.createBiomes(
-
 				noiseConfig,
 				blender,
 				structureAccessor,
@@ -1250,7 +1327,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public int getBaseHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor world, RandomState noiseConfig) {
+	public int getBaseHeight(int x, int z, Types heightmap, LevelHeightAccessor world, RandomState noiseConfig) {
 		return this.getHeight(
 			this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints()),
 			heightmap,
@@ -1258,13 +1335,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		);
 	}
 
-	public int getHeight(ScriptedColumn column, Heightmap.Types heightmap, LevelHeightAccessor world) {
+	public int getHeight(ScriptedColumn column, Types heightmap, LevelHeightAccessor world) {
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.value().emitSegments(column, list);
 		return getHeight(list, heightmap);
 	}
 
-	public static int getHeight(BlockSegmentList list, Heightmap.Types type) {
+	public static int getHeight(BlockSegmentList list, Types type) {
 		for (int index = list.size(); --index >= 0; ) {
 			LitSegment segment = list.get(index);
 			if (type.isOpaque().test(segment.value)) {

@@ -19,7 +19,7 @@ import builderb0y.scripting.util.InfoHolder;
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 /**
-subclassed at runtime to add necessary fields.
+subclassed at runtime to add data-driven fields.
 */
 public abstract class ScriptedColumn implements ColumnValueHolder {
 
@@ -99,30 +99,30 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		return (MutableScriptEnvironment environment) -> {
 			environment
 
-				.addType("ScriptedColumn", loadColumn.getTypeInfo())
-				.addVariable("x", INFO.x(loadColumn))
-				.addVariable("z", INFO.z(loadColumn))
-				.addVariable("minCachedYLevel", INFO.minY(loadColumn))
-				.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
-				.addVariable("hints", INFO.hints(loadColumn))
-				.addVariable("purpose", INFO.purpose(loadColumn))
-				.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
-				.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
-				.addVariable("worldSeed", INFO.baseSeed(loadColumn))
-				.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
-				.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
-				.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
+			.addType("ScriptedColumn", loadColumn.getTypeInfo())
+			.addVariable("x", INFO.x(loadColumn))
+			.addVariable("z", INFO.z(loadColumn))
+			.addVariable("minCachedYLevel", INFO.minY(loadColumn))
+			.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
+			.addVariable("hints", INFO.hints(loadColumn))
+			.addVariable("purpose", INFO.purpose(loadColumn))
+			.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
+			.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
+			.addVariable("worldSeed", INFO.baseSeed(loadColumn))
+			.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
+			.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
+			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
 
-				.addFieldInvoke("x", INFO.x)
-				.addFieldInvoke("z", INFO.z)
-				.addFieldInvoke("minCachedYLevel", INFO.minY)
-				.addFieldInvoke("maxCachedYLevel", INFO.maxY)
-				.addFieldInvoke("hints", INFO.hints)
-				.addFieldInvoke("purpose", INFO.purpose)
-				.addFieldInvoke("distantHorizons", INFO.distantHorizons)
-				.addFieldInvoke("surfaceOnly", INFO.surfaceOnly)
+			.addFieldInvoke("x", INFO.x)
+			.addFieldInvoke("z", INFO.z)
+			.addFieldInvoke("minCachedYLevel", INFO.minY)
+			.addFieldInvoke("maxCachedYLevel", INFO.maxY)
+			.addFieldInvoke("hints", INFO.hints)
+			.addFieldInvoke("purpose", INFO.purpose)
+			.addFieldInvoke("distantHorizons", INFO.distantHorizons)
+			.addFieldInvoke("surfaceOnly", INFO.surfaceOnly)
 
-				.configure(hintsEnvironment())
+			.configure(hintsEnvironment())
 			;
 		};
 	}
@@ -130,9 +130,9 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	public static Consumer<MutableScriptEnvironment> hintsEnvironment() {
 		return (MutableScriptEnvironment environment) -> {
 			environment
-				.addType("Hints", Hints.class)
-				.addFieldInvokes(Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate")
-				.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
+			.addType("Hints", Hints.class)
+			.addFieldInvokes(Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate")
+			.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
 			;
 		};
 	}
@@ -140,41 +140,58 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	public static final ConstructorInfo CONSTRUCTOR_INFO = new ConstructorInfo(ScriptedColumn.class);
 
 	public static record Params(
-		long seed,
 		int x,
 		int z,
-		int minY,
-		int maxY,
-		Hints hints,
-		WorldTraits worldTraits
+		WorldInfo worldInfo,
+		Hints hints
 	) {
 
+		public Params(long seed, int x, int z, int minY, int maxY, Hints hints, WorldTraits traits) {
+			this(x, z, new WorldInfo(seed, minY, maxY, traits), hints);
+		}
+
 		public Params(long seed, int x, int z, LevelHeightAccessor world, Hints hints, WorldTraits traits) {
-			this(seed, x, z, HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world), hints, traits);
+			this(x, z, new WorldInfo(seed, HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world), traits), hints);
 		}
 
 		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Hints hints) {
-			this(generator.columnSeed, x, z, generator.height.min_y(), generator.height.max_y(), hints, generator.compiledWorldTraits);
+			this(x, z, new WorldInfo(generator), hints);
 		}
 
-		public Params withSeed(long seed) {
-			return this.seed == seed ? this : new Params(seed, this.x, this.z, this.minY, this.maxY, this.hints, this.worldTraits);
+		public long seed() {
+			return this.worldInfo.seed;
+		}
+
+		public int minY() {
+			return this.worldInfo.minY;
+		}
+
+		public int maxY() {
+			return this.worldInfo.maxY;
+		}
+
+		public WorldTraits worldTraits() {
+			return this.worldInfo.worldTraits;
 		}
 
 		public Params at(int x, int z) {
-			return this.x == x && this.z == z ? this : new Params(this.seed, x, z, this.minY, this.maxY, this.hints, this.worldTraits);
-		}
-
-		public Params heightRange(int minY, int maxY) {
-			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.hints, this.worldTraits);
-		}
-
-		public Params heightRange(LevelHeightAccessor world) {
-			return this.heightRange(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
+			return this.x == x && this.z == z ? this : new Params(x, z, this.worldInfo, this.hints);
 		}
 
 		public Params hints(Hints hints) {
-			return this.hints.equals(hints) ? this : new Params(this.seed, this.x, this.z, this.minY, this.maxY, hints, this.worldTraits);
+			return this.hints.equals(hints) ? this : new Params(this.x, this.z, this.worldInfo, hints);
+		}
+	}
+
+	public static record WorldInfo(
+		long seed,
+		int minY,
+		int maxY,
+		WorldTraits worldTraits
+	) {
+
+		public WorldInfo(BigGlobeScriptedChunkGenerator generator) {
+			this(generator.columnSeed, generator.height.min_y(), generator.height.max_y(), generator.compiledWorldTraits);
 		}
 	}
 
@@ -291,6 +308,25 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		public abstract ScriptedColumn create(Params params);
 	}
 
+	public static record ConfiguredColumnFactory(
+		Factory factory,
+		WorldInfo worldInfo,
+		Hints hints
+	) {
+
+		public Params params(int x, int z) {
+			return new Params(x, z, this.worldInfo, this.hints);
+		}
+
+		public ScriptedColumn createAt(int x, int z) {
+			return this.factory.create(this.params(x, z));
+		}
+
+		public ScriptedColumnLookup lookup() {
+			return new ScriptedColumnLookup.Impl(this);
+		}
+	}
+
 	public int x() {
 		return this.params.x;
 	}
@@ -300,11 +336,11 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	}
 
 	public int minY() {
-		return this.params.minY;
+		return this.params.worldInfo.minY;
 	}
 
 	public int maxY() {
-		return this.params.maxY;
+		return this.params.worldInfo.maxY;
 	}
 
 	public Hints hints() {
@@ -312,7 +348,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	}
 
 	public WorldTraits worldTraits() {
-		return this.params.worldTraits;
+		return this.params.worldInfo.worldTraits;
 	}
 
 	@Deprecated
@@ -331,19 +367,19 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	}
 
 	public long baseSeed() {
-		return this.params.seed;
+		return this.params.worldInfo.seed;
 	}
 
 	public long saltedBaseSeed(long salt) {
-		return this.params.seed ^ salt;
+		return this.params.worldInfo.seed ^ salt;
 	}
 
 	public long positionedSeed() {
-		return Permuter.permute(this.params.seed, this.x(), this.z());
+		return Permuter.permute(this.params.worldInfo.seed, this.x(), this.z());
 	}
 
 	public long saltedPositionedSeed(long salt) {
-		return Permuter.permute(this.params.seed ^ salt, this.x(), this.z());
+		return Permuter.permute(this.params.worldInfo.seed ^ salt, this.x(), this.z());
 	}
 
 	public abstract ScriptedColumn blankCopy();

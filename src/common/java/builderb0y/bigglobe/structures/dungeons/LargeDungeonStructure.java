@@ -42,6 +42,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
+import builderb0y.bigglobe.structures.management.StructureLocator;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -66,7 +67,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 	@Override
 	public DungeonLayout layout(ScriptedColumn column, int y, RandomGenerator random) {
-		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, getActualEntry(this));
+		return new Layout(column, y, random, this.room_decorators, this.spawner_entries, StructureLocator.toHolder(this));
 	}
 
 	@Override

@@ -58,9 +58,7 @@ public class Handlers {
 		public final List<Argument> arguments;
 		public int currentRequiredIndex;
 		public boolean addedAsNested;
-
 		public boolean pure;
-
 		public Callback callback;
 
 		public Builder() {

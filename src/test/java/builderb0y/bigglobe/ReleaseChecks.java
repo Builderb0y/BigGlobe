@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ReleaseChecks {
 
-	@SuppressWarnings({ "ConstantAssertArgument", "JavaReflectionMemberAccess" })
 	@Test
+	@SuppressWarnings({ "ConstantAssertArgument", "JavaReflectionMemberAccess" })
 	void test() {
 		try {
 			BigGlobeItems.class.getDeclaredField("TEST_ITEM");
@@ -22,7 +22,5 @@ public class ReleaseChecks {
 		assertFalse(BigGlobeScriptedChunkGenerator.WORLD_SLICES);
 		assertFalse(Async.DEBUG_SYNC);
 		assertFalse(SerializableBlockQueue.DEBUG_ALWAYS_SERIALIZE);
-		//assertFalse(VertexHeap.AGGRESSIVE_ASSERTS);
-		//assertFalse(StructurePlacementCalculator.DEBUG_REMOVED);
 	}
 }

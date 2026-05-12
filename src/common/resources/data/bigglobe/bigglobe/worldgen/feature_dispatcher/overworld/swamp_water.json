@@ -2,8 +2,8 @@
 	"type": "bigglobe:script",
 	"dispatcher": [
 		"repeat (random.roundInt(",
-			"world_traits.`bigglobe:humidity_at_surface`(minModifiableX | 8, minModifiableZ | 8) *",
-			"(0.25I - world_traits.`bigglobe:magicalness`(minModifiableX | 8, minModifiableZ | 8)) *",
+			"max(0.0I, world_traits.`bigglobe:humidity_at_surface`(minModifiableX | 8, minModifiableZ | 8)) *",
+			"(0.25I - max(0.0I, world_traits.`bigglobe:magicalness`(minModifiableX | 8, minModifiableZ | 8))) *",
 			"16.0I",
 		"):",
 			"int*(",

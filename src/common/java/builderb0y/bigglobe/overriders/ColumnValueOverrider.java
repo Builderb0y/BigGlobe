@@ -231,12 +231,12 @@ public interface ColumnValueOverrider extends ColumnScript {
 			super.addExtraFunctionsToEnvironment(parameters, environment);
 			InsnTree loadColumn = load(parameters.actualColumn);
 			environment
-				.addAll(StructureScriptEnvironment.INSTANCE)
-				.configure(NbtScriptEnvironment.createImmutable())
-				.addFieldGet(ScriptedStructure.Piece.class, "data")
-				.addVariableLoad("structures", type(ScriptStructures.class))
-				.configure(JavaUtilScriptEnvironment.withoutRandom())
-				.addAll(WoodPaletteScriptEnvironment.BASE);
+			.configure(StructureScriptEnvironment.live())
+			.configure(NbtScriptEnvironment.createImmutable())
+			.addFieldGet(ScriptedStructure.Piece.class, "data")
+			.addVariableLoad("structures", type(ScriptStructures.class))
+			.configure(JavaUtilScriptEnvironment.withoutRandom())
+			.addAll(WoodPaletteScriptEnvironment.BASE);
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);

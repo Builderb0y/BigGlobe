@@ -1,30 +1,41 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
+import java.util.Comparator;
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public record StructureStartWrapper(
-	StructureEntry entry,
+	Holder<Structure> originalStructure,
+	StructureEntry structure,
 	StructureStart start,
+	MutableBlockPos pos,
 	BoundingBox box
 ) {
 
 	public static final ObjectArrayFactory<StructureStartWrapper> ARRAY_FACTORY = new ObjectArrayFactory<>(StructureStartWrapper.class);
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
-	public static StructureStartWrapper of(Holder<Structure> original, StructureStart start) {
+	public static StructureStartWrapper of(Holder<Structure> original, StructureStart start, BlockPos pos) {
+		if (!start.isValid()) throw new IllegalArgumentException("Attempt to wrap invalid structure start");
 		//the bounding box of the start might be expanded,
 		//but we don't want to expose that expansion to scripts.
 		//so, re-calculate the size.
@@ -49,6 +60,7 @@ public record StructureStartWrapper(
 			entry = delegating.delegate();
 		}
 		return new StructureStartWrapper(
+			original,
 			new StructureEntry(
 				entry,
 				new BiomeTag(
@@ -61,60 +73,48 @@ public record StructureStartWrapper(
 				original.value().terrainAdaptation()
 			),
 			start,
+			pos.mutable(),
 			new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ)
 		);
 	}
 
-	public int minX() {
-		return this.box.minX();
+	public static Comparator<StructureStartWrapper> compareByClosestTo(BlockPos center) {
+		return Comparator.comparingLong(
+			(StructureStartWrapper start) -> BigGlobeMath.squareL(
+				start.pos.getX() - center.getX(),
+				start.pos.getY() - center.getY(),
+				start.pos.getZ() - center.getZ()
+			)
+		);
 	}
 
-	public int minY() {
-		return this.box.minY();
+	public int minX() { return this.box.minX(); }
+	public int minY() { return this.box.minY(); }
+	public int minZ() { return this.box.minZ(); }
+	public int maxX() { return this.box.maxX(); }
+	public int maxY() { return this.box.maxY(); }
+	public int maxZ() { return this.box.maxZ(); }
+	public int midX() { return (this.box.minX() + this.box.maxX() + 1) >> 1; }
+	public int midY() { return (this.box.minY() + this.box.maxY() + 1) >> 1; }
+	public int midZ() { return (this.box.minZ() + this.box.maxZ() + 1) >> 1; }
+	public int sizeX() { return this.box.maxX() - this.box.minX() + 1; }
+	public int sizeY() { return this.box.maxY() - this.box.minY() + 1; }
+	public int sizeZ() { return this.box.maxZ() - this.box.minZ() + 1; }
+
+	@SuppressWarnings("deprecation")
+	public void move(int dx, int dy, int dz) {
+		this.pos.move(dx, dy, dz);
+		for (StructurePiece piece : this.start.getPieces()) {
+			piece.move(dx, dy, dz);
+		}
+		this.start.getBoundingBox().move(dx, dy, dz);
 	}
 
-	public int minZ() {
-		return this.box.minZ();
-	}
-
-	public int maxX() {
-		return this.box.maxX();
-	}
-
-	public int maxY() {
-		return this.box.maxY();
-	}
-
-	public int maxZ() {
-		return this.box.maxZ();
-	}
-
-	public int midX() {
-		return (this.box.minX() + this.box.maxX() + 1) >> 1;
-	}
-
-	public int midY() {
-		return (this.box.minY() + this.box.maxY() + 1) >> 1;
-	}
-
-	public int midZ() {
-		return (this.box.minZ() + this.box.maxZ() + 1) >> 1;
-	}
-
-	public int sizeX() {
-		return this.box.maxX() - this.box.minX();
-	}
-
-	public int sizeY() {
-		return this.box.maxY() - this.box.minY();
-	}
-
-	public int sizeZ() {
-		return this.box.maxZ() - this.box.minZ();
-	}
-
-	public StructureEntry structure() {
-		return this.entry;
+	public BlockPos clampedPos() {
+		int x = Mth.clamp(this.pos.getX(), this.box.minX(), this.box.maxX());
+		int y = Mth.clamp(this.pos.getY(), this.box.minY(), this.box.maxY());
+		int z = Mth.clamp(this.pos.getZ(), this.box.minZ(), this.box.maxZ());
+		return this.pos.getX() == x && this.pos.getY() == y && this.pos.getZ() == z ? this.pos : new BlockPos(x, y, z);
 	}
 
 	public List<StructurePiece> pieces() {
@@ -134,8 +134,12 @@ public record StructureStartWrapper(
 		return this.start.hashCode();
 	}
 
+	public Identifier originalID() {
+		return UnregisteredObjectException.getID(this.originalStructure);
+	}
+
 	@Override
 	public String toString() {
-		return "StructureStart" + this.pieces();
+		return this.originalID() + " (" + this.structure.id() + ") at " + this.box;
 	}
 }

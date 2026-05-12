@@ -16,28 +16,34 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 
 	public final List<E> delegate;
 	public final Class<E> type;
+	public final NullPolicy nullPolicy;
 
-	public CheckedList(List<E> delegate, Class<E> type) {
+	public CheckedList(List<E> delegate, Class<E> type, NullPolicy policy) {
 		this.delegate = delegate;
 		this.type = type;
+		this.nullPolicy = policy;
 	}
 
-	public CheckedList(int initialCapacity, Class<E> type) {
-		this(new ArrayList<>(initialCapacity), type);
+	public CheckedList(int initialCapacity, Class<E> type, NullPolicy policy) {
+		this(new ArrayList<>(initialCapacity), type, policy);
 	}
 
-	public CheckedList(Class<E> type) {
-		this(new ArrayList<>(), type);
+	public CheckedList(Class<E> type, NullPolicy policy) {
+		this(new ArrayList<>(), type, policy);
 	}
 
-	@SuppressWarnings("unchecked")
-	public E check(Object object) {
+	public boolean check(Object object) {
 		if (this.type.isInstance(object)) {
-			return (E)(object);
+			return true;
 		}
-		else {
-			throw new IllegalArgumentException("Attempt to add " + object + " to a List of type " + this.type.getName());
+		else if (object == null) {
+			switch (this.nullPolicy) {
+				case ADD -> { return true; }
+				case THROW -> { /* fallthrough */ }
+				case IGNORE -> { return false; }
+			}
 		}
+		throw new IllegalArgumentException("Attempt to add " + object + " to a List of type " + this.type.getName());
 	}
 
 	@Override
@@ -72,7 +78,7 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 
 	@Override
 	public boolean add(E element) {
-		return this.delegate.add(this.check(element));
+		return this.check(element) && this.delegate.add(element);
 	}
 
 	@Override
@@ -96,19 +102,21 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 	public boolean addAll(Collection<? extends E> collection) {
 		boolean changed = false;
 		for (E element : collection) {
-			changed |= this.delegate.add(this.check(element));
+			if (this.check(element) && this.delegate.add(element)) {
+				changed = true;
+			}
 		}
 		return changed;
 	}
 
 	@Override
 	public boolean addAll(int index, Collection<? extends E> collection) {
-		boolean changed = false;
+		if (collection.isEmpty()) return false;
+		List<E> filtered = new ArrayList<>(collection.size());
 		for (E element : collection) {
-			this.delegate.add(index++, this.check(element));
-			changed = true;
+			if (this.check(element)) filtered.add(element);
 		}
-		return changed;
+		return this.delegate.addAll(index, filtered);
 	}
 
 	@Override
@@ -133,12 +141,19 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 
 	@Override
 	public E set(int index, E element) {
-		return this.delegate.set(index, this.check(element));
+		if (this.check(element)) {
+			return this.delegate.set(index, element);
+		}
+		else {
+			//I... guess this is the most sane way to handle this,
+			//given that I'm violating the contract of this method sometimes?
+			return this.delegate.get(index);
+		}
 	}
 
 	@Override
 	public void add(int index, E element) {
-		this.delegate.add(index, this.check(element));
+		if (this.check(element)) this.delegate.add(index, element);
 	}
 
 	@Override
@@ -168,12 +183,15 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
-		return new CheckedList<>(this.delegate.subList(fromIndex, toIndex), this.type);
+		return new CheckedList<>(this.delegate.subList(fromIndex, toIndex), this.type, this.nullPolicy);
 	}
 
 	@Override
 	public void replaceAll(UnaryOperator<E> operator) {
-		this.delegate.replaceAll((E element) -> this.check(operator.apply(element)));
+		this.delegate.replaceAll((E element) -> {
+			E replacement = operator.apply(element);
+			return this.check(replacement) ? replacement : element;
+		});
 	}
 
 	@Override
@@ -300,18 +318,28 @@ public class CheckedList<E> implements List<E>, RandomAccess {
 		}
 
 		@Override
-		public void set(E e) {
-			this.delegate.set(CheckedList.this.check(e));
+		public void set(E element) {
+			if (CheckedList.this.check(element)) {
+				this.delegate.set(element);
+			}
 		}
 
 		@Override
-		public void add(E e) {
-			this.delegate.add(CheckedList.this.check(e));
+		public void add(E element) {
+			if (CheckedList.this.check(element)) {
+				this.delegate.add(element);
+			}
 		}
 
 		@Override
 		public void forEachRemaining(Consumer<? super E> action) {
 			this.delegate.forEachRemaining(action);
 		}
+	}
+
+	public static enum NullPolicy {
+		ADD,
+		THROW,
+		IGNORE;
 	}
 }

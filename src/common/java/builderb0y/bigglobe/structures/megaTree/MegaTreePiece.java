@@ -35,6 +35,7 @@ import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.DataStructurePiece;
+import builderb0y.bigglobe.structures.management.StructureLocator;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
@@ -79,7 +80,7 @@ public class MegaTreePiece extends DataStructurePiece<MegaTreePiece.Data> {
 
 		@Hidden
 		public Data(MegaTreeStructure actualStructure, Holder<WoodPalette> wood, double originX, double originY, double originZ, float[] balls) {
-			this(BigGlobeStructure.getActualEntry(actualStructure), actualStructure, wood, originX, originY, originZ, balls);
+			this(StructureLocator.toHolder(actualStructure), actualStructure, wood, originX, originY, originZ, balls);
 		}
 
 		public int countBalls() {

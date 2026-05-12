@@ -42,7 +42,7 @@ public class ServerChunkLoadingManager_InitStructureManager {
 		CallbackInfo callback
 	) {
 		if (chunkGenerator instanceof BigGlobeScriptedChunkGenerator generator) {
-			generator.initStructureManager(world.getServer().getWorldGenSettings().options().generateStructures());
+			generator.setStructuresEnabled(world.getServer().getWorldGenSettings().options().generateStructures());
 		}
 	}
 }

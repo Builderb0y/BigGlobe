@@ -56,7 +56,7 @@ public interface CollisionOverrider extends ColumnScript {
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.create())
 				.configureEnvironment(MinecraftScriptEnvironment.create())
-				.addEnvironment(StructureScriptEnvironment.INSTANCE)
+				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.addEnvironment(WoodPaletteScriptEnvironment.BASE)
 				.configureEnvironment((MutableScriptEnvironment environment) -> {

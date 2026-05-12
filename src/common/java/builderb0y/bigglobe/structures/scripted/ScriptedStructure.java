@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -22,6 +22,7 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+
 import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.annotations.ForceOrdinal;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -31,10 +32,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -44,11 +42,13 @@ import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.util.CheckedList;
+import builderb0y.bigglobe.util.CheckedList.NullPolicy;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class ScriptedStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -71,36 +71,30 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	@Override
 	public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
-		Permuter permuter = Permuter.from(context.random());
-		int x = context.chunkPos().getMinBlockX() | permuter.nextInt(16);
-		int z = context.chunkPos().getMinBlockZ() | permuter.nextInt(16);
-		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
-		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
-			generator.columnEntryRegistry.columnFactory,
-			new Params(
-				generator.columnSeed,
-				0,
-				0,
-				context.heightAccessor(),
-				hints,
-				generator.compiledWorldTraits
-			)
-		);
-		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
-		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces);
-		StructurePiecesBuilder collector = new StructurePiecesBuilder();
-		int minY = Integer.MAX_VALUE;
-		int maxY = Integer.MIN_VALUE;
-		for (StructurePiece piece : pieces) {
-			collector.addPiece(piece);
-			minY = Math.min(minY, piece.getBoundingBox().minY());
-			maxY = Math.max(maxY, piece.getBoundingBox().maxY());
-		}
+		long seed = context.random().nextLong();
+		int x = context.chunkPos().getMinBlockX() | context.random().nextInt(16);
+		int z = context.chunkPos().getMinBlockZ() | context.random().nextInt(16);
 		return Optional.of(
 			new GenerationStub(
-				new BlockPos(x, (maxY + minY + 1) >> 1, z),
-				Either.right(collector)
+				new BlockPos(x, 0, z),
+				(StructurePiecesBuilder collector) -> {
+					Permuter permuter = new Permuter(seed);
+					ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
+						generator.configuredColumnFactory(
+							context.heightAccessor(),
+							ColumnUsage.GENERIC.maybeDhHints()
+						)
+					);
+					CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class, NullPolicy.THROW);
+					this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces);
+					int minY = Integer.MAX_VALUE;
+					int maxY = Integer.MIN_VALUE;
+					for (StructurePiece piece : pieces) {
+						collector.addPiece(piece);
+						minY = Math.min(minY, piece.getBoundingBox().minY());
+						maxY = Math.max(maxY, piece.getBoundingBox().maxY());
+					}
+				}
 			)
 		);
 	}

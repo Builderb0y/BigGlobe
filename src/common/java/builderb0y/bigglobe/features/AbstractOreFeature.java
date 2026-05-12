@@ -41,7 +41,7 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 				);
 				OreBlockReplacer replacer = this.getReplacer(context, config);
 				if (replacer != null) {
-					ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
+					ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.getSource().params(0, 0));
 					generateAllIntersecting(
 						context,
 						worldWrapper,

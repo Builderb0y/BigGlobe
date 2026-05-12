@@ -8,7 +8,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+
+import builderb0y.bigglobe.util.Grouper;
 
 public class RegistryVersions {
 
@@ -70,6 +71,6 @@ public class RegistryVersions {
 
 	public static <T> Stream<HolderSet<T>> streamTags(Registry<T> registry) {
 
-		return BetterRegistry.castStream(registry.getTags());
+		return Grouper.castStream(registry.getTags());
 	}
 }

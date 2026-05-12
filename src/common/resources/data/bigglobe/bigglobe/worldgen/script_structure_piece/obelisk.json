@@ -96,7 +96,7 @@
 					"if (verticalFraction - noise < 1.0I && columnSeed.newSeed(y).nextBoolean(smooth(bottomFraction)):",
 						"setBlockState(x, y, z, filler)",
 					")",
-					"else if (verticalFraction + noise + 0.0625I < 1.0I && bottomFraction > 1.0I:",
+					"else if (verticalFraction + noise + 0.015625I < 1.0I && bottomFraction > 1.0I:",
 						"setBlockState(x, y, z, accent)",
 					")",
 				")",

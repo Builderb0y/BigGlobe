@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import builderb0y.bigglobe.util.Grouper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -110,14 +112,13 @@ public interface BetterRegistry<T> {
 
 		@Override
 		public Stream<Holder<T>> streamEntries() {
-			return castStream(this.registry.listElements());
+			return Grouper.castStream(this.registry.listElements());
 		}
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Stream<HolderSet<T>> streamTags() {
-
-			return castStream(this.registry.getTags());
+			return Grouper.castStream(this.registry.getTags());
 		}
 	}
 
@@ -148,19 +149,13 @@ public interface BetterRegistry<T> {
 
 		@Override
 		public Stream<Holder<T>> streamEntries() {
-			return castStream(this.wrapperImpl.listElements());
+			return Grouper.castStream(this.wrapperImpl.listElements());
 		}
 
 		@Override
 		public Stream<HolderSet<T>> streamTags() {
-
-			return castStream(this.wrapperImpl.listTags());
+			return Grouper.castStream(this.wrapperImpl.listTags());
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> Stream<T> castStream(Stream<? extends T> stream) {
-		return (Stream<T>)(stream);
 	}
 
 	public static interface Lookup {

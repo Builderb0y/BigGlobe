@@ -36,16 +36,6 @@ public abstract class BigGlobeStructure extends Structure implements SizedStruct
 		this.min_y = minY;
 	}
 
-	public static Holder<Structure> getActualEntry(Structure structure) {
-		return RegistryVersions.getEntry(
-			RegistryVersions.getRegistry(
-				BigGlobeMod.getCurrentServer().registryAccess(),
-				Registries.STRUCTURE
-			),
-			structure
-		);
-	}
-
 	public @EncodeInline StructureSettings getConfig() {
 		return this.settings;
 	}

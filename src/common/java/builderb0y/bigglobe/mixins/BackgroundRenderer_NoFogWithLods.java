@@ -26,7 +26,11 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 		ClientLevel world,
 		CallbackInfoReturnable<FogData> callback
 	) {
-		if (Minecraft.getInstance().levelRenderer instanceof LodSystemHolder holder && holder.bigglobe_getLodSystem() != null) {
+		if (
+			Minecraft.getInstance().levelRenderer instanceof LodSystemHolder holder &&
+			holder.bigglobe_getLodSystem() != null &&
+			holder.bigglobe_getLodSystem().renderingThisFrame
+		) {
 			FogData fogData = callback.getReturnValue();
 			fogData.renderDistanceStart = fogData.environmentalStart = 30_000_000.0F * 4.0F;
 			fogData.renderDistanceEnd = fogData.environmentalEnd = 30_000_000.0F * 8.0F;

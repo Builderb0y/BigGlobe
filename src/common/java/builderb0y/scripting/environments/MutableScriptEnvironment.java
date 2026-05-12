@@ -30,21 +30,21 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public static final Predicate<Method>
-		IS_STATIC = (Method method) -> Modifier.isStatic(method.getModifiers()),
+		IS_STATIC   = (Method method) -> Modifier.isStatic(method.getModifiers()),
 		IS_INSTANCE = (Method method) -> !Modifier.isStatic(method.getModifiers()),
-		NO_ARGS = (Method method) -> method.getParameterCount() == 0;
+		NO_ARGS     = (Method method) -> method.getParameterCount() == 0;
 
-	public Map<String, VariableHandler.Named> variables = new HashMap<>(16);
-	public Map<NamedType, FieldHandler.Named> fields = new HashMap<>(16);
-	public Map<String, List<FunctionHandler.Named>> functions = new HashMap<>(64);
-	public Map<NamedType, List<MethodHandler.Named>> methods = new HashMap<>(64);
-	public Map<NamedType, VariableHandler.Named> qualifiedVariables = new HashMap<>(64);
-	public Map<NamedType, List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
-	public Map<String, TypeInfo> types = new HashMap<>(16);
-	public Map<String, KeywordHandler.Named> keywords = new HashMap<>(16);
+	public Map<String,              VariableHandler.Named > variables = new HashMap<>(16);
+	public Map<NamedType,              FieldHandler.Named > fields = new HashMap<>(16);
+	public Map<String,         List<FunctionHandler.Named>> functions = new HashMap<>(64);
+	public Map<NamedType,        List<MethodHandler.Named>> methods = new HashMap<>(64);
+	public Map<NamedType,           VariableHandler.Named > qualifiedVariables = new HashMap<>(64);
+	public Map<NamedType,      List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
+	public Map<String,               KeywordHandler.Named > keywords = new HashMap<>(16);
 	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords = new HashMap<>(16);
+	public Map<String,                           TypeInfo > types = new HashMap<>(16);
 	//         from           to
-	public Map<TypeInfo, Map<TypeInfo, CastHandlerHolder>> casters = new HashMap<>(64);
+	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters = new HashMap<>(64);
 
 	public static IdentifierDescriptor prefix(String type, String name, String descriptor, Object value) {
 		return new IdentifierDescriptor(

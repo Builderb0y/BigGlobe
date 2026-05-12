@@ -56,8 +56,9 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		if (columns == null) {
 			if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 				columns = new ScriptedColumnLookup.Impl(
-					generator.columnEntryRegistry.columnFactory,
-					new ScriptedColumn.Params(generator, 0, 0, ColumnUsage.FEATURES.maybeDhHints())
+					generator.configuredColumnFactory(
+						ColumnUsage.FEATURES.maybeDhHints()
+					)
 				);
 			}
 			else {

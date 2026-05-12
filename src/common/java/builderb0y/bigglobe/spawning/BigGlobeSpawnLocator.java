@@ -1,16 +1,18 @@
 package builderb0y.bigglobe.spawning;
 
+import java.util.Optional;
 import java.util.UUID;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.LevelData;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -22,11 +24,11 @@ import builderb0y.bigglobe.math.pointSequences.HaltonIterator2D;
 import builderb0y.bigglobe.mixins.MinecraftServer_InitializeSpawnPoint;
 import builderb0y.bigglobe.mixins.PlayerManager_InitializeSpawnPoint;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator.FinalStructures;
-import builderb0y.bigglobe.structures.StructurePlacementCalculator.StructureGenerationParams;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.structures.management.StructureLocator;
+import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
 import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.GameProfileVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeSpawnLocator {
 
@@ -37,9 +39,7 @@ public class BigGlobeSpawnLocator {
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			SpawnPoint spawnPoint = findSpawn(world, generator, world.getSeed());
 			if (spawnPoint != null) {
-
 				world.setRespawnData(new LevelData.RespawnData(new GlobalPos(world.dimension(), spawnPoint.toBlockPos()), spawnPoint.yaw(), 0.0F));
-
 				return true;
 			}
 		}
@@ -138,19 +138,23 @@ public class BigGlobeSpawnLocator {
 
 	public static boolean checkStructures(ServerLevel world, BigGlobeScriptedChunkGenerator generator, int blockX, int blockY, int blockZ) {
 		Hints hints = ColumnUsage.GENERIC.normalHints();
-		FinalStructures structures = generator.structureManager.getIntersectingStructures(
-			new StructureGenerationParams(
-				generator,
-				generator.newColumnLookup(world, hints),
-				world,
-				new ChunkPos(blockX >> 4, blockZ >> 4)
+		Optional<StructureStartWrapper> result = (
+			generator.structureLocator().getStructuresIntersecting(
+				new StructureLocator.Params(
+					generator,
+					generator.configuredColumnFactory(world, hints),
+					world,
+					new ManyStructuresOneBox(
+						generator.structureLocator().allStructures(),
+						new BoundingBox(blockX, blockY, blockZ, blockX, blockY, blockZ)
+					)
+				)
 			)
+			.findAny()
 		);
-		for (StructureStart start : structures) {
-			if (start.getBoundingBox().isInside(blockX, blockY, blockZ)) {
-				BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + RegistryVersions.getRegistry(world.registryAccess(), Registries.STRUCTURE).getKey(start.getStructure()));
-				return false;
-			}
+		if (result.isPresent()) {
+			BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + result.get().originalID());
+			return false;
 		}
 		return true;
 	}

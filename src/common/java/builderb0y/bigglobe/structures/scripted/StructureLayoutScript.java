@@ -64,7 +64,7 @@ public interface StructureLayoutScript extends Script {
 				.configureEnvironment(RandomScriptEnvironment.create(LOAD_RANDOM))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
-				.addEnvironment(StructureScriptEnvironment.INSTANCE)
+				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.configureEnvironment(WoodPaletteScriptEnvironment.create(LOAD_RANDOM))
 				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(LOAD_RANDOM))

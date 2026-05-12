@@ -12,25 +12,27 @@ import org.jetbrains.annotations.Nullable;
 
 public class TimestampedComputingCache<T_Key, T_Value> {
 
-	/**
-	@see Units
-	*/
+	/** @see Units */
 	public final double retainMillisecondsPerByte;
 	public final ReentrantLock globalLock;
 	public final BackingMap<T_Key, ValueHolder<T_Value>> values;
 	public final AtomicInteger presentCount;
+	public long previousPurge;
 
 	/**
 	@param retainTime one of
 	{@link Units#nanoseconds(double)},
 	{@link Units#microseconds(double)},
-	{@link Units#milliseconds(double)}, or
-	{@link Units#seconds(double)}.
+	{@link Units#milliseconds(double)},
+	{@link Units#seconds(double)}. or
+	{@link Units#minutes(double)}.
+
 	@param retainData one of
 	{@link Units#bytes(double)},
 	{@link Units#kilobytes(double)},
 	{@link Units#megabytes(double)}, or
 	{@link Units#gigabytes(double)}.
+
 	@see Units
 	*/
 	public TimestampedComputingCache(double retainTime, double retainData) {
@@ -50,7 +52,11 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 			else if (create) {
 				this.values.putAndMoveToLast(key, holder = new ValueHolder<>());
 			}
-			this.doPurge();
+			long time = System.currentTimeMillis();
+			if (time - this.previousPurge >= 1000L) {
+				this.previousPurge = time;
+				this.doPurge();
+			}
 			return holder;
 		}
 		finally {
@@ -221,7 +227,7 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 	public static class ValueHolder<V> {
 
 		public static final byte
-			ABSENT = 0,
+			ABSENT  = 0,
 			PRESENT = 1,
 			UNKNOWN = 2;
 
@@ -275,6 +281,10 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 
 		public static double seconds(double seconds) {
 			return seconds * 1_000.0D;
+		}
+
+		public static double minutes(double minutes) {
+			return minutes * 60_000.0D;
 		}
 
 		public static double bytes(double bytes) {

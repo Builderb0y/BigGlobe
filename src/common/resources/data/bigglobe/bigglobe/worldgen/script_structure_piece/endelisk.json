@@ -27,7 +27,7 @@
 			"float relativeX = x - midX",
 			"float relativeZ = z - midZ",
 			"float xzRadius2 = relativeX ^ 2 + relativeZ ^ 2",
-			"Grid3D('bigglobe:obelisk_noise').getValuesY(worldSeed # 16xAA723C2B7936430FUL, x, iterMinY, z, noiseSamples)",
+			"Grid3D('bigglobe:endelisk_noise').getValuesY(worldSeed # 16xAA723C2B7936430FUL, x, iterMinY, z, noiseSamples)",
 			"for yLoop (int y in range[iterMinY, iterMaxY]:",
 				"float relativeY = y - midY",
 				"float maxFrac = 0.0I",

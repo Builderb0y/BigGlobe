@@ -14,10 +14,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -132,7 +129,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".BlockEntityType_AddBlockHook");
 		unconfigurable.add(mixinPackage + ".BlockView_ExposeDimension");
 		unconfigurable.add(mixinPackage + ".ChunkRegion_UseCreateFlag");
-		unconfigurable.add(mixinPackage + ".ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently");
+		unconfigurable.add(mixinPackage + ".ConcentricRingsStructurePlacement_MakeSmart");
 		unconfigurable.add(mixinPackage + ".DataPacks_StoreResourceManager");
 		unconfigurable.add(mixinPackage + ".DebugHud_MakeSearchable");
 		unconfigurable.add(mixinPackage + ".Entity_CurrentIdGetter");
@@ -148,7 +145,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".PalettedContainer_DataAccess");
 		unconfigurable.add(mixinPackage + ".PlantBlock_CanPlantOnTopAccess");
 		unconfigurable.add(mixinPackage + ".PlayerEntity_TrackWaypoints");
-		unconfigurable.add(mixinPackage + ".RandomSpreadStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently");
+		unconfigurable.add(mixinPackage + ".RandomSpreadStructurePlacement_MakeSmart");
 		unconfigurable.add(mixinPackage + ".RecipeManager_BackwardsCompatibleRecipes");
 		unconfigurable.add(mixinPackage + ".RegistryLoader_LoadColumnEntryRegistry");
 		unconfigurable.add(mixinPackage + ".RegistryOps_MakeAdjustable");
@@ -160,7 +157,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".Structure_ImplementSizedStructure");
 		unconfigurable.add(mixinPackage + ".StructureAccessor_WorldAccess");
 		unconfigurable.add(mixinPackage + ".StructurePiece_DirectRotationSetter");
-		unconfigurable.add(mixinPackage + ".StructurePlacement_ImplementStreamableStructurePlacement");
+		unconfigurable.add(mixinPackage + ".StructurePlacement_MakeSmart");
 		unconfigurable.add(mixinPackage + ".StructureStart_ChildrenGetter");
 		unconfigurable.add(mixinPackage + ".WorldPreset_DimensionsAccess");
 		unconfigurable.add(mixinPackage + ".WorldRenderer_HoldLodSystem");

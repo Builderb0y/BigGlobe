@@ -27,7 +27,9 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
@@ -134,9 +136,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public Vector3d doublePos;
 	public final RandomGenerator random;
 	public long featureSalt = 0xB5ECAC279BD1E7FBL;
-	public final ScriptedColumn.Factory columnFactory;
+	public final ConfiguredColumnFactory columnFactory;
 	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
-	public final ScriptedColumn.Params params;
 	public AutoOverride overriders;
 
 	public WorldWrapper(
@@ -150,25 +151,25 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		this.coordination = coordination;
 		this.pos = new MutableBlockPos();
 		this.random = random;
-		this.columnFactory = chunkGenerator.columnEntryRegistry.columnFactory;
 		if (world instanceof ChunkDelegator delegator) {
 			delegator.worldWrapper = this;
 		}
 		if (ScriptedColumnLookup.GLOBAL.currentValue() instanceof WorldWrapper parent) {
 			this.columns = parent.columns;
 			this.overriders = parent.overriders;
-			this.params = parent.params;
+			this.columnFactory = parent.columnFactory;
 		}
 		else {
 			this.columns = new Long2ObjectOpenHashMap<>(64);
-			this.params = new ScriptedColumn.Params(
-				chunkGenerator.columnSeed,
-				0,
-				0,
-				coordination.mutableArea.minY(),
-				coordination.mutableArea.maxY() + 1,
-				hints,
-				chunkGenerator.compiledWorldTraits
+			this.columnFactory = new ConfiguredColumnFactory(
+				chunkGenerator.columnEntryRegistry.columnFactory,
+				new WorldInfo(
+					chunkGenerator.columnSeed,
+					coordination.mutableArea.minY(),
+					coordination.mutableArea.maxY() + 1,
+					chunkGenerator.compiledWorldTraits
+				),
+				hints
 			);
 		}
 	}
@@ -180,7 +181,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		this.random = new Permuter(from.random.nextLong());
 		this.columnFactory = from.columnFactory;
 		this.columns = from.columns;
-		this.params = from.params;
 		this.overriders = from.overriders;
 	}
 
@@ -207,8 +207,8 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	@Override
-	public Hints getHints() {
-		return this.params.hints();
+	public ConfiguredColumnFactory getSource() {
+		return this.columnFactory;
 	}
 
 	@Override
@@ -218,8 +218,9 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		z = pos.getZ();
 		return this.columns.computeIfAbsent(
 			ColumnPos.asLong(x, z), (long packedPos) -> {
-				ScriptedColumn column = this.columnFactory.create(
-					this.params.at(ColumnPos.getX(packedPos), ColumnPos.getZ(packedPos))
+				ScriptedColumn column = this.columnFactory.createAt(
+					ColumnPos.getX(packedPos),
+					ColumnPos.getZ(packedPos)
 				);
 				if (this.overriders != null) {
 					this.overriders.override(column);
@@ -292,17 +293,17 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public Hints hints() {
-		return this.params.hints();
+		return this.columnFactory.hints();
 	}
 
 	@Deprecated
 	public boolean distantHorizons() {
-		return this.params.hints().isLod();
+		return this.columnFactory.hints().isLod();
 	}
 
 	@Deprecated
 	public boolean surfaceOnly() {
-		return !this.params.hints().fill();
+		return !this.columnFactory.hints().fill();
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
