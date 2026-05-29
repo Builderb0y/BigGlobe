@@ -1,11 +1,12 @@
 package builderb0y.bigglobe.sounds;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeSoundEvents {
 

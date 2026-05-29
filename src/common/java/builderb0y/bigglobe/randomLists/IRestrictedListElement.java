@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.randomLists;
 
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public interface IRestrictedListElement extends IWeightedListElement {
 

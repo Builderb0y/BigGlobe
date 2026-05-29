@@ -1,5 +1,13 @@
 package builderb0y.bigglobe.items;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
@@ -9,13 +17,6 @@ import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
 import builderb0y.bigglobe.versions.GameProfileVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.context.UseOnContext;
 
 public class WaypointItem extends Item {
 

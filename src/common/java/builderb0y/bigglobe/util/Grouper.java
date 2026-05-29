@@ -14,10 +14,10 @@ import builderb0y.bigglobe.util.Grouper.KeyGetter.KeyPerElementGetter;
 import builderb0y.bigglobe.util.Grouper.KeyGetter.KeyPerValueGetter;
 import builderb0y.bigglobe.util.Grouper.KeyGetter.KeysPerElementGetter;
 import builderb0y.bigglobe.util.Grouper.KeyGetter.KeysPerValueGetter;
+import builderb0y.bigglobe.util.Grouper.ValueGetter.ValuePerElementGetter;
 import builderb0y.bigglobe.util.Grouper.ValueGetter.ValuePerKeyGetter;
 import builderb0y.bigglobe.util.Grouper.ValueGetter.ValuesPerElementGetter;
 import builderb0y.bigglobe.util.Grouper.ValueGetter.ValuesPerKeyGetter;
-import builderb0y.bigglobe.util.Grouper.ValueGetter.ValuePerElementGetter;
 
 public class Grouper<
 	T_Element,

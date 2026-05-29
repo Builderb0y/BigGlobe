@@ -1,10 +1,13 @@
 package builderb0y.bigglobe.settings;
 
 import java.util.Comparator;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.math.BigGlobeMath;

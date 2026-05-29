@@ -1,8 +1,15 @@
 package builderb0y.bigglobe.trees;
 
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.state.BlockState;
+
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
@@ -17,11 +24,6 @@ import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.state.BlockState;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 

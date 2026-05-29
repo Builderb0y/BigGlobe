@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.hyperspace;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.TicketType;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class HyperspaceCollapseTicketType {
 

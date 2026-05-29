@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.trees.branches;
 
+import net.minecraft.util.Mth;
+
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import net.minecraft.util.Mth;
 
 public class BranchConfig {
 

@@ -1,11 +1,13 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.versions.BlockStateVersions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, BlockSegmentList.LitSegment> {
 

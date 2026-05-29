@@ -1,7 +1,8 @@
 package builderb0y.scripting.parsing;
 
-import net.minecraft.CharPredicate;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.CharPredicate;
 
 /**
 lowest-level parsing logic for scripts,

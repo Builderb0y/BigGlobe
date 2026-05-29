@@ -23,7 +23,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.SafeCloseable;
 
 @Environment(EnvType.CLIENT)

@@ -1,11 +1,5 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
-import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
-import builderb0y.bigglobe.scripting.wrappers.tags.TagParser;
-import builderb0y.bigglobe.versions.ItemStackVersions;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -13,6 +7,13 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
+import builderb0y.bigglobe.scripting.wrappers.tags.TagParser;
+import builderb0y.bigglobe.versions.ItemStackVersions;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 

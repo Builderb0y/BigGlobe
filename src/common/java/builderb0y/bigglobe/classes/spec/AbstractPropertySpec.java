@@ -7,7 +7,7 @@ import net.minecraft.core.Holder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.DetailedException;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;

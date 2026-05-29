@@ -2,6 +2,11 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
+
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Holder;
@@ -20,18 +25,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3d;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ConfiguredColumnFactory;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.WorldInfo;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;

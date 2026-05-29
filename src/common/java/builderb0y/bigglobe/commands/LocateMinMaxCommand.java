@@ -10,8 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToDoubleScript;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.commands.LocateMinMaxCommand.Result;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.BoundedPointIterator2D;

@@ -3,14 +3,7 @@ package builderb0y.bigglobe.mixins;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.core.Registry.PendingTags;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.tags.TagEntry.Lookup;
-import net.minecraft.tags.TagLoader;
-import net.minecraft.tags.TagLoader.EntryWithSource;
-import net.minecraft.tags.TagLoader.SortingEntry;
+
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -21,7 +14,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import net.minecraft.core.Registry.PendingTags;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.TagEntry.Lookup;
+import net.minecraft.tags.TagLoader;
+import net.minecraft.tags.TagLoader.EntryWithSource;
+import net.minecraft.tags.TagLoader.SortingEntry;
+
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.BetterScopedValue;
 
@@ -59,7 +61,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		CallbackInfoReturnable<Either<List<EntryWithSource>, List<T>>> callback,
 		@Local(ordinal = 1) List<EntryWithSource> errors
 	) {
-		if (!errors.isEmpty() && builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.Loading.addInvalidTag(CURRENT_TAG_ID.currentValue(), errors)) {
+		if (!errors.isEmpty() && builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.addInvalidTag(CURRENT_TAG_ID.currentValue(), errors)) {
 			errors.clear();
 		}
 	}
@@ -70,7 +72,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		RegistryAccess registryManager,
 		CallbackInfoReturnable<List<PendingTags<?>>> callback
 	) {
-		builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
+		builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
 		ColumnEntryRegistry.Loading.invalidTags = new HashMap<>();
 	}
 }

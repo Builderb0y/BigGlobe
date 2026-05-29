@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.structures;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 
 /**
 a {@link Structure} which has at least one StructurePiece which

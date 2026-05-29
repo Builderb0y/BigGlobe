@@ -2,15 +2,14 @@ package builderb0y.bigglobe.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
-import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
+
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.Level;
+
 import builderb0y.bigglobe.ClientState;
 
 @Mixin(ClientLevel.class)

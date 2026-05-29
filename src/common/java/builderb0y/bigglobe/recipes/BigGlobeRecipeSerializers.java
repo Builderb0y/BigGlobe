@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.recipes;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeRecipeSerializers {
 

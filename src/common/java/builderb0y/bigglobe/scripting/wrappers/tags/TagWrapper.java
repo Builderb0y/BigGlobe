@@ -2,8 +2,11 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.util.Iterator;
 import java.util.random.RandomGenerator;
-import net.minecraft.core.Holder;
+
 import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;

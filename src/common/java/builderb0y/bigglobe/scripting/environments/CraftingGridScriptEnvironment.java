@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.scripting.environments;
 
+import net.minecraft.world.item.ItemStack;
+
 import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import net.minecraft.world.item.ItemStack;
 
 public class CraftingGridScriptEnvironment {
 

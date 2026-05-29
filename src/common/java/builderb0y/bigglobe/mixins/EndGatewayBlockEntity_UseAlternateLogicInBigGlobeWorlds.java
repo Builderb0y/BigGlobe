@@ -6,14 +6,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToBooleanScript;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
-import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +19,15 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
+import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 /**
 vanilla end gateway logic is a mess.

@@ -7,11 +7,11 @@ import net.minecraft.resources.ResourceKey;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.columns.scripted2.decisionTrees.DecisionTreeSpec;
-import builderb0y.bigglobe.columns.scripted2.traits.WorldTrait;
-import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSpec;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.overriders.Overrider;

@@ -3,6 +3,8 @@ package builderb0y.bigglobe.classes.spec;
 import java.util.*;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -10,21 +12,17 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.BlockState;
 
-import org.jetbrains.annotations.MustBeInvokedByOverriders;
-import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.classes.*;
+import builderb0y.bigglobe.classes.VoronoiSampler;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
 import builderb0y.bigglobe.classes.compile.DetailedException;
-import builderb0y.bigglobe.classes.compile.OverrideTracker;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
-import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.scripting.wrappers.*;

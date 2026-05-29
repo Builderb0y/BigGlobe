@@ -4,10 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.structures.BigGlobeStructureTags;
-import builderb0y.bigglobe.versions.EntityVersions;
-import builderb0y.bigglobe.versions.SpawnEntryVersions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -16,6 +13,11 @@ import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+
+import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.structures.BigGlobeStructureTags;
+import builderb0y.bigglobe.versions.EntityVersions;
+import builderb0y.bigglobe.versions.SpawnEntryVersions;
 
 @Mixin(NaturalSpawner.class)
 public class SpawnHelper_AllowSlimeSpawningInLakes {

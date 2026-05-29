@@ -1,11 +1,12 @@
 package builderb0y.bigglobe.trees.decoration;
 
+import net.minecraft.core.BlockPos;
+
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList.KnownTotalWeightRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
-import net.minecraft.core.BlockPos;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 

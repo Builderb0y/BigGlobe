@@ -1,6 +1,15 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Map;
+
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import org.jetbrains.annotations.Debug;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -9,13 +18,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import org.jetbrains.annotations.Debug;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.TestOnly;
+
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.versions.BlockEntityVersions;

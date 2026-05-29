@@ -4,14 +4,16 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 
 @Mixin(BoneMealItem.class)
 public class BoneMealItem_SpreadChorusNylium {

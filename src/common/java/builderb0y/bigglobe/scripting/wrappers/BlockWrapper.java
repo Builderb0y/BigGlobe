@@ -2,9 +2,12 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
+
+import com.google.common.collect.ImmutableList;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import com.google.common.collect.ImmutableList;
+
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;

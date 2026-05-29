@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.codecs;
 
 import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.util.StringRepresentable;
+
 import builderb0y.autocodec.common.Case;
 import builderb0y.autocodec.common.EnumName;
-import net.minecraft.util.StringRepresentable;
 
 public class StringIdentifiableEnumName implements EnumName {
 

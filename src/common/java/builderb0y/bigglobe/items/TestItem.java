@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.items;
 
 import com.google.common.base.Predicates;
+import org.jetbrains.annotations.TestOnly;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -13,7 +15,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.Structure.GenerationStub;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
-import org.jetbrains.annotations.TestOnly;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.RegistryVersions;
 

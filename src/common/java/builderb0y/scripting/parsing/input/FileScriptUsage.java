@@ -1,12 +1,14 @@
 package builderb0y.scripting.parsing.input;
 
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.FakeRegistry;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.Identifier;
 
 public class FileScriptUsage extends ScriptUsage {
 

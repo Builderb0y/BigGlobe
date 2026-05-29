@@ -1,11 +1,13 @@
 package builderb0y.bigglobe.codecs;
 
 import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.resources.Identifier;
+
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.KeyDispatchCoder.DispatchCoder;
 import builderb0y.autocodec.coders.LookupCoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import net.minecraft.resources.Identifier;
 
 public class CoderRegistry<E extends CoderRegistryTyped<E>> extends DispatchCoder<E> {
 

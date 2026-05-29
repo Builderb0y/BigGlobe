@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
+import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
 public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 

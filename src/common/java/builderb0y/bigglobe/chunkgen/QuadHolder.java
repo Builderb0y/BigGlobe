@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.lang.invoke.MethodHandle;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -9,9 +7,9 @@ import net.minecraft.world.level.block.LiquidBlock;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Params;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider.Catcher;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.versions.BlockStateVersions;

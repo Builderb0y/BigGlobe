@@ -1,10 +1,12 @@
 package builderb0y.bigglobe.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.EyeblossomBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.EyeblossomBlock;
+
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(EyeblossomBlock.class)

@@ -1,11 +1,12 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
-import builderb0y.bigglobe.util.Directions;
-import builderb0y.scripting.bytecode.TypeInfo;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool.Projection;
+
+import builderb0y.bigglobe.util.Directions;
+import builderb0y.scripting.bytecode.TypeInfo;
 
 public class StructurePieceWrapper {
 

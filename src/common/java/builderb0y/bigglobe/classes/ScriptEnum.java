@@ -1,12 +1,10 @@
 package builderb0y.bigglobe.classes;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-
-import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
+import builderb0y.bigglobe.columns.scripted.ConstructorInfo;
 import builderb0y.bigglobe.scripting.wrappers.ConstantMap;
 import builderb0y.bigglobe.scripting.wrappers.ConstantSet;
 import builderb0y.scripting.bytecode.FieldInfo;

@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.blocks;
 
-import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.IdentifierVersions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 
 public class BigGlobeBlockTags {
 

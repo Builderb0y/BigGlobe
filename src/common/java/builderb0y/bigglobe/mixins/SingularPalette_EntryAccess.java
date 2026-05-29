@@ -2,9 +2,11 @@ package builderb0y.bigglobe.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
+
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.SingleValuePalette;
+
+import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 
 /**
 used for optimization in {@link SectionGenerationContext#setAllStates(BlockState, boolean)}

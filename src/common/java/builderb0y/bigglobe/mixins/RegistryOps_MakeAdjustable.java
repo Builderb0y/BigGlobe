@@ -1,12 +1,14 @@
 package builderb0y.bigglobe.mixins;
 
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.resources.DelegatingOps;
-import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.RegistryOps.RegistryInfoLookup;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import net.minecraft.resources.DelegatingOps;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryOps.RegistryInfoLookup;
+
 import builderb0y.bigglobe.mixinInterfaces.AdjustableRegistryOps;
 
 @Mixin(RegistryOps.class)

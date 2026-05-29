@@ -1,11 +1,16 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.feature.*;
-import net.minecraft.world.level.levelgen.feature.EndSpikeFeature.EndSpike;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.EndSpikeFeature;
+import net.minecraft.world.level.levelgen.feature.EndSpikeFeature.EndSpike;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.versions.RegistryVersions;
 

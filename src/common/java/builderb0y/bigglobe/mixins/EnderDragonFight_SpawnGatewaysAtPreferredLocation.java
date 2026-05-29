@@ -5,9 +5,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.end.EnderDragonFight;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(EnderDragonFight.class)
 public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {

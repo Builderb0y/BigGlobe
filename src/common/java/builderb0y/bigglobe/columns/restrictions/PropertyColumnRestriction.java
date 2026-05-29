@@ -3,15 +3,15 @@ package builderb0y.bigglobe.columns.restrictions;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import net.minecraft.core.Holder;
+
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.classes.spec.TypeSpec;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.DelayedCompileable;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+import net.minecraft.core.Holder;
+
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;

@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.chunkgen.perSection;
 
-import builderb0y.bigglobe.mixins.PalettedContainer_DataAccess;
 import net.minecraft.util.BitStorage;
 import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
+
+import builderb0y.bigglobe.mixins.PalettedContainer_DataAccess;
 
 @SuppressWarnings("CastToIncompatibleInterface")
 public class SectionUtil {

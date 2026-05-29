@@ -3,15 +3,17 @@ package builderb0y.bigglobe.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.overriders.StructureOverrider;
-import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.TemplateStructurePiece;
 import net.minecraft.world.level.levelgen.structure.structures.IglooPieces;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.overriders.StructureOverrider;
+import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 
 @Mixin(IglooPieces.IglooPiece.class)
 public abstract class IglooGeneratorPiece_DontMoveInBigGlobeWorlds extends TemplateStructurePiece {

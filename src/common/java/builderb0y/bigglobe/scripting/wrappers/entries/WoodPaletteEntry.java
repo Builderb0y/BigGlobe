@@ -5,10 +5,13 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.random.RandomGenerator;
+
+import com.google.common.collect.Maps;
+
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import com.google.common.collect.Maps;
+
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;

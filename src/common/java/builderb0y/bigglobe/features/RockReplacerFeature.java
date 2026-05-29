@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.features;
 
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 
 public interface RockReplacerFeature<T_Config extends FeatureConfiguration> {
 

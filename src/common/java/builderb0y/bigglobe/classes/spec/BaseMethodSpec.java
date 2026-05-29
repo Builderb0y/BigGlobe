@@ -9,20 +9,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.minecraft.core.Holder;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.autocodec.util.ObjectArrayFactory;
+import builderb0y.bigglobe.classes.Named;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
-import builderb0y.bigglobe.classes.Named;
 import builderb0y.bigglobe.classes.compile.DetailedException;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SetBasedMutableDependencyView;
-import builderb0y.bigglobe.columns.scripted2.traits.WorldTraits;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;

@@ -3,9 +3,11 @@ package builderb0y.bigglobe.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.structures.EndCityStructure;
+
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(EndCityStructure.class)
 public class EndCityStructure_UnHardcodeMinimumY {

@@ -14,9 +14,9 @@ import net.minecraft.world.phys.Vec3;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.commands.EvaluateCommand.CommandScript.Catcher;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;

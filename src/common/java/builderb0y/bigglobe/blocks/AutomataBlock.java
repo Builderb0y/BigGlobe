@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.blocks;
 
-import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;

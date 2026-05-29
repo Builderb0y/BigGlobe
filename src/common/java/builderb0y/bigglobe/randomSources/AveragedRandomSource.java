@@ -3,7 +3,7 @@ package builderb0y.bigglobe.randomSources;
 import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 

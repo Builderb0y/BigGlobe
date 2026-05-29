@@ -1,13 +1,14 @@
 package builderb0y.bigglobe.blocks;
 
-import builderb0y.bigglobe.codecs.BlockStateCoder;
-import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
-import builderb0y.bigglobe.codecs.BlockStateCoder.Result;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+
+import builderb0y.bigglobe.codecs.BlockStateCoder;
+import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
+import builderb0y.bigglobe.codecs.BlockStateCoder.Result;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 
 /**
 frequently used BlockState's.

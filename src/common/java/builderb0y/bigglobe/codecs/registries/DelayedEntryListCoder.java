@@ -1,11 +1,14 @@
 package builderb0y.bigglobe.codecs.registries;
 
 import java.util.List;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
+
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;

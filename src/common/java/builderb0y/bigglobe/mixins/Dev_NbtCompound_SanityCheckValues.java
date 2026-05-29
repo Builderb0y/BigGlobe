@@ -4,10 +4,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import builderb0y.bigglobe.BigGlobeMod;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.Tag;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 @Mixin(CompoundTag.class)
 public class Dev_NbtCompound_SanityCheckValues {

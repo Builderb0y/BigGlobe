@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.fluids;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeFluidTags {
 

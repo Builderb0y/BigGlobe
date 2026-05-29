@@ -3,7 +3,6 @@ package builderb0y.bigglobe.classes.spec;
 import java.lang.invoke.ConstantBootstraps;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedHashSet;
 
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
@@ -12,16 +11,16 @@ import net.minecraft.core.Holder;
 
 import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.classes.ScriptObject;
-import builderb0y.bigglobe.classes.compile.*;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue.DynamicConstantValue;
 import builderb0y.scripting.bytecode.tree.ConstantValue.HandleConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.TypeHandler;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.util.TypeInfos;
 

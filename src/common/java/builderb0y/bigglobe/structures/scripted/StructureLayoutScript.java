@@ -1,14 +1,16 @@
 package builderb0y.bigglobe.structures.scripted;
 
 import java.util.random.RandomGenerator;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
+
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;

@@ -1,7 +1,6 @@
 package builderb0y.bigglobe.classes.spec;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
@@ -14,8 +13,8 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
 import builderb0y.bigglobe.classes.compile.DetailedException;
-import builderb0y.bigglobe.columns.scripted2.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.input.ScriptUsage;

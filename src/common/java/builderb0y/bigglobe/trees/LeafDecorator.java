@@ -1,13 +1,14 @@
 package builderb0y.bigglobe.trees;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
+
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.decoration.BlockDecorator;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class LeafDecorator implements BlockDecorator {
 

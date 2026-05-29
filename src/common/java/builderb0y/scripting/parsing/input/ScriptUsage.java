@@ -2,11 +2,14 @@ package builderb0y.scripting.parsing.input;
 
 import java.util.Map;
 import java.util.stream.Stream;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.Identifier;
+
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -20,8 +23,8 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.TypelessCoderRegistry;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 

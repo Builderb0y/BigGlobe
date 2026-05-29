@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.versions;
 
 import java.util.stream.Stream;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+
+import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 

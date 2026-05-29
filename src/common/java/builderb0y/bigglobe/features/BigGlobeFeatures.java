@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.features;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.feature.Feature;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeFeatures {
 

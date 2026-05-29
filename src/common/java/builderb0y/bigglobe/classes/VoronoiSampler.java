@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.classes;
 
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
+import builderb0y.bigglobe.columns.scripted.ConstructorInfo;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;

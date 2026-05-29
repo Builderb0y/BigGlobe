@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
 import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.rendering.waypoints.WaypointRenderer;

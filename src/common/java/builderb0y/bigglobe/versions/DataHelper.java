@@ -8,9 +8,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import com.mojang.serialization.Codec;
+
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import com.mojang.serialization.Codec;
+
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;

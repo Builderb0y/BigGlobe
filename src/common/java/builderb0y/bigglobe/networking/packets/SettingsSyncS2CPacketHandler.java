@@ -23,8 +23,8 @@ import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.Loading;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyDepthSorter;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
@@ -61,7 +61,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 
 		public ClientGeneratorParams compile() throws Exception {
 			Loading loading = new Loading(this.clientState.lookup(), true);
-			return builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.Loading.OVERRIDE.get(
+			return builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.OVERRIDE.get(
 				loading,
 				() -> {
 					this.clientState.parse();

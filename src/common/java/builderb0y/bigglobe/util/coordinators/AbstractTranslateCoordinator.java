@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.util.coordinators;
 
+import net.minecraft.core.Vec3i;
+
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorBiConsumer;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorConsumer;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorRunnable;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorTriConsumer;
-import net.minecraft.core.Vec3i;
 
 public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator {
 

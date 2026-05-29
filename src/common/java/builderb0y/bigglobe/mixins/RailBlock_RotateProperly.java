@@ -2,14 +2,14 @@ package builderb0y.bigglobe.mixins;
 
 import org.spongepowered.asm.mixin.*;
 
-import static net.minecraft.world.level.block.state.properties.RailShape.*;
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RailBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.RailShape;
+
+import static net.minecraft.world.level.block.state.properties.RailShape.*;
 
 @Mixin(RailBlock.class)
 public class RailBlock_RotateProperly extends Block {

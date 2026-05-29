@@ -3,9 +3,11 @@ package builderb0y.bigglobe.mixins;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.fog.environment.LavaFogEnvironment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+
+import net.minecraft.client.renderer.fog.environment.LavaFogEnvironment;
+
 import builderb0y.bigglobe.rendering.SoulLavaFogHandler;
 
 @Environment(EnvType.CLIENT)

@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.structures;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.levelgen.structure.Structure;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeStructureTags {
 

@@ -1,7 +1,8 @@
 package builderb0y.bigglobe.compat.voxy;
 
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Mth;
 
 /**
 this class used to be used for generating chunks for voxy

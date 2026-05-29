@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class WoodPaletteKeys {
 

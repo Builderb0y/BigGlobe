@@ -1,15 +1,18 @@
 package builderb0y.bigglobe.hyperspace;
 
 import java.util.List;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3dc;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import org.jetbrains.annotations.ApiStatus.OverrideOnly;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3dc;
+
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseFixer;

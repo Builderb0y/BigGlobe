@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.mixins;
 
-import net.minecraft.world.level.BaseSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+
+import net.minecraft.world.level.BaseSpawner;
 
 @Mixin(BaseSpawner.class)
 public interface MobSpawnerLogic_GettersAndSettersForEverything {

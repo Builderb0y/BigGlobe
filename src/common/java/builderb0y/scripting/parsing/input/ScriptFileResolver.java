@@ -5,13 +5,16 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import org.jetbrains.annotations.ApiStatus.OverrideOnly;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -28,9 +31,9 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.EmptyDependencyView;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.EmptyDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.util.BetterScopedValue;
 import builderb0y.bigglobe.util.FakeRegistry;
 import builderb0y.bigglobe.versions.IdentifierVersions;

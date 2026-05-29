@@ -1,9 +1,5 @@
 package builderb0y.bigglobe.items;
 
-import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
-import builderb0y.bigglobe.entities.RockEntity;
-import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
-import builderb0y.bigglobe.versions.ActionResultVersions;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.sounds.SoundSource;
@@ -19,6 +15,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SnowballItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+
+import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
+import builderb0y.bigglobe.entities.RockEntity;
+import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
+import builderb0y.bigglobe.versions.ActionResultVersions;
 
 public class RockItem extends BlockItem implements SlingshotAmmunition {
 

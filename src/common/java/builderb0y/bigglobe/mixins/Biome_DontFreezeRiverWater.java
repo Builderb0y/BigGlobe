@@ -1,11 +1,13 @@
 package builderb0y.bigglobe.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
+
 import builderb0y.bigglobe.blocks.RiverWaterBlock;
 
 @Mixin(Biome.class)

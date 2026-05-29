@@ -1,12 +1,5 @@
 package builderb0y.bigglobe.entities;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
-import builderb0y.bigglobe.blocks.RockBlock;
-import builderb0y.bigglobe.features.SingleBlockFeature;
-import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.versions.EntityVersions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -31,6 +24,14 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+
+import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blocks.RockBlock;
+import builderb0y.bigglobe.features.SingleBlockFeature;
+import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class RockEntity extends ThrowableItemProjectile {
 

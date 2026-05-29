@@ -1,14 +1,12 @@
 package builderb0y.bigglobe.codecs.registries;
 
 import org.jetbrains.annotations.NotNull;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderOwner;
-import net.minecraft.core.Registry;
-import net.minecraft.core.WritableRegistry;
+
+import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
+
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.DynamicOpsContext;
 import builderb0y.autocodec.decoders.DecodeContext;

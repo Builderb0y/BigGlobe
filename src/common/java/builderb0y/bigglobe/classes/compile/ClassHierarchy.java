@@ -7,16 +7,17 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
-import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 
 import builderb0y.bigglobe.classes.compile.StagedCompileable.BulkStagedCompiler;
 import builderb0y.bigglobe.classes.spec.BaseClassSpec;
-import builderb0y.bigglobe.classes.spec.TypeSpec;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.classes.spec.TypeSpec;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.MutableScriptEnvironment;

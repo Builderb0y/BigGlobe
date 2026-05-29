@@ -5,13 +5,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
+
+import it.unimi.dsi.fastutil.HashCommon;
+import org.jetbrains.annotations.Range;
+
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
-import it.unimi.dsi.fastutil.HashCommon;
-import org.jetbrains.annotations.Range;
+
 import builderb0y.scripting.bytecode.CastingSupport;
 
 /**

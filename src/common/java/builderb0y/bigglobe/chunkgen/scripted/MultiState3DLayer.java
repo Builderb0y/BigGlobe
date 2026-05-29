@@ -5,9 +5,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnYToBlockStateScript;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBlockStateScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 public class MultiState3DLayer extends Layer {
 

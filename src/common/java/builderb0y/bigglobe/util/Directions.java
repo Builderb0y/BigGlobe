@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.util;
 
-import builderb0y.bigglobe.math.BigGlobeMath;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+
+import builderb0y.bigglobe.math.BigGlobeMath;
 
 public class Directions {
 

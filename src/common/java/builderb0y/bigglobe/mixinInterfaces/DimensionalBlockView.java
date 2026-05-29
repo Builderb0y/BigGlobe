@@ -2,10 +2,13 @@ package builderb0y.bigglobe.mixinInterfaces;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.bigglobe.BigGlobeMod;
 
 /**

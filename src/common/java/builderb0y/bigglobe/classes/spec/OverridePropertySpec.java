@@ -1,22 +1,18 @@
 package builderb0y.bigglobe.classes.spec;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import net.minecraft.core.Holder;
-import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
 import builderb0y.bigglobe.classes.compile.DetailedException;
-import builderb0y.bigglobe.classes.compile.OverrideTracker;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;

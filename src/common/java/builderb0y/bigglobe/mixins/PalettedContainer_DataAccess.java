@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.mixins;
 
-import net.minecraft.world.level.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+
+import net.minecraft.world.level.chunk.PalettedContainer;
 
 @Mixin(PalettedContainer.class)
 public interface PalettedContainer_DataAccess<T> {

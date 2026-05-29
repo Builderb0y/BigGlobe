@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.entities;
 
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.versions.EntityVersions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -21,6 +19,10 @@ import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.versions.EntityVersions;
 
 public class TorchArrowEntity extends AbstractArrow {
 

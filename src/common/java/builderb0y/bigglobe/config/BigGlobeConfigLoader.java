@@ -18,10 +18,12 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.minecraft.nbt.Tag;
+
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.coders.AutoCoder;

@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.mixins;
 
 import java.util.Map;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.world.item.crafting.Recipe;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,6 +12,11 @@ import com.mojang.serialization.Codec;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.world.item.crafting.Recipe;
+
 import builderb0y.bigglobe.BigGlobeMod;
 
 @Mixin(SimpleJsonResourceReloadListener.class)

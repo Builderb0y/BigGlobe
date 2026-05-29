@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.versions;
 
 import java.util.Optional;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.HolderSet;
 import net.minecraft.tags.TagKey;
-import org.jetbrains.annotations.Nullable;
 
 public class RegistryEntryListVersions {
 

@@ -7,7 +7,6 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.noise.Grid1D.Info;
 import builderb0y.bigglobe.noise.perlin.PerlinDerivativeXGrid1D;
 import builderb0y.bigglobe.noise.perlin.PerlinGrid1D;
 import builderb0y.bigglobe.noise.processing.*;

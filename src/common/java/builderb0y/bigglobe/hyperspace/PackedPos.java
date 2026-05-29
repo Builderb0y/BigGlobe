@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.hyperspace;
 
 import org.joml.Vector3dc;
-import builderb0y.bigglobe.math.BigGlobeMath;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
+
+import builderb0y.bigglobe.math.BigGlobeMath;
 
 /**
 a position used to sync waypoints to the client.

@@ -1,11 +1,12 @@
 package builderb0y.bigglobe.trees.decoration;
 
-import builderb0y.bigglobe.trees.TreeGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+
+import builderb0y.bigglobe.trees.TreeGenerator;
 
 public class FeatureDecorator implements BlockDecorator {
 

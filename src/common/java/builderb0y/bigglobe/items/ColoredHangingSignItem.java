@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.items;
 
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.util.WorldUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -11,6 +11,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.HangingSignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.util.WorldUtil;
 
 public class ColoredHangingSignItem extends HangingSignItem {
 

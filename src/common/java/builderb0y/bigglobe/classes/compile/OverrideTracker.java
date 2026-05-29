@@ -3,8 +3,10 @@ package builderb0y.bigglobe.classes.compile;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Stream;
-import net.minecraft.core.Holder;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import net.minecraft.core.Holder;
 
 import builderb0y.bigglobe.classes.ElementSpecTypes;
 import builderb0y.bigglobe.classes.spec.*;

@@ -1,14 +1,17 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.random.RandomGenerator;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Directions;

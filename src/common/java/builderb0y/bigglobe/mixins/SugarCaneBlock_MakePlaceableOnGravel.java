@@ -2,10 +2,12 @@ package builderb0y.bigglobe.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.world.level.block.SugarCaneBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.state.BlockState;
+
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 
 @Mixin(SugarCaneBlock.class)

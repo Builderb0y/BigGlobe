@@ -2,7 +2,7 @@ package builderb0y.bigglobe.randomSources;
 
 import java.util.random.RandomGenerator;
 
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 
 public record ConstantRandomSource(double value) implements RandomSource {
 

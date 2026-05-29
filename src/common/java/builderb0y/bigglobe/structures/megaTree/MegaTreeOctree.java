@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.math.BigGlobeMath;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
+
+import builderb0y.bigglobe.math.BigGlobeMath;
 
 public class MegaTreeOctree {
 

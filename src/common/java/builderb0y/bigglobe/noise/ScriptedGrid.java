@@ -13,7 +13,7 @@ import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.logging.TaskLogger;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;

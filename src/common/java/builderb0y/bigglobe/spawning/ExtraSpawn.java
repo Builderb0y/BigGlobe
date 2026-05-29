@@ -1,13 +1,14 @@
 package builderb0y.bigglobe.spawning;
 
-import builderb0y.autocodec.annotations.VerifyIntRange;
-import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.bigglobe.util.DelayedEntryList;
 import net.minecraft.core.Holder;
 import net.minecraft.util.random.Weighted;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
+
+import builderb0y.autocodec.annotations.VerifyIntRange;
+import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.bigglobe.util.DelayedEntryList;
 
 public record ExtraSpawn(
 	DelayedEntryList<Biome> biomes,

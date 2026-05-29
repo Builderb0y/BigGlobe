@@ -1,10 +1,13 @@
 package builderb0y.bigglobe.codecs;
 
 import java.util.UUID;
-import net.minecraft.core.UUIDUtil;
+
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.UUIDUtil;
+
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.EmptyData;

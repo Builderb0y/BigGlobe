@@ -8,14 +8,16 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks.VanillaBlocks;
-import builderb0y.bigglobe.versions.IdentifierVersions;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Items;
+
+import builderb0y.bigglobe.blocks.BigGlobeBlocks.VanillaBlocks;
+import builderb0y.bigglobe.versions.IdentifierVersions;
 
 @Mixin(Items.class)
 public abstract class Items_PlaceableFlint {

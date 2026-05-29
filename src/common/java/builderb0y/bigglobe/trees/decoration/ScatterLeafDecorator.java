@@ -1,13 +1,15 @@
 package builderb0y.bigglobe.trees.decoration;
 
 import org.joml.Vector3d;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.util.Vectors;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class ScatterLeafDecorator extends ConfiguredLeafDecorator {
 

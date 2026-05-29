@@ -1,6 +1,5 @@
 package builderb0y.bigglobe.versions;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ProblemReporter;
@@ -8,6 +7,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
+
+import builderb0y.bigglobe.BigGlobeMod;
 
 public class BlockEntityVersions {
 

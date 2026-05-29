@@ -1,10 +1,12 @@
 package builderb0y.bigglobe.hyperspace;
 
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.blocks.CloudColor;
-import builderb0y.bigglobe.versions.GameProfileVersions;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+
+import builderb0y.bigglobe.blocks.CloudColor;
+import builderb0y.bigglobe.versions.GameProfileVersions;
 
 /**
 information about a waypoint for the purposes of syncing that waypoint to a client.

@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.scripting.wrappers.entries;
 
-import builderb0y.bigglobe.scripting.wrappers.tags.TagWrapper;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+
+import builderb0y.bigglobe.scripting.wrappers.tags.TagWrapper;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
 

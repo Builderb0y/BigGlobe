@@ -8,7 +8,8 @@ import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.Data;
-import builderb0y.bigglobe.classes.compile.*;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 

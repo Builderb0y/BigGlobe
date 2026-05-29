@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.features;
 
-import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+
+import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 
 public interface RawFeature<T_Config extends FeatureConfiguration> {
 

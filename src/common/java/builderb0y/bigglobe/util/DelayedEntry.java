@@ -1,10 +1,12 @@
 package builderb0y.bigglobe.util;
 
 import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.resources.Identifier;
+
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import net.minecraft.resources.Identifier;
 
 @Wrapper
 public class DelayedEntry {

@@ -4,7 +4,7 @@ import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.noise.Permuter;
 
 public record LinearLowRandomSource(

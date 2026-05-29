@@ -4,9 +4,9 @@ import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToBlockStateScript;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBlockStateScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 
 public class RootLayer extends Layer {
 

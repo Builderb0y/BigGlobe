@@ -1,8 +1,11 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.Optional;
-import net.minecraft.world.level.levelgen.structure.StructureType;
+
 import com.mojang.serialization.MapCodec;
+
+import net.minecraft.world.level.levelgen.structure.StructureType;
+
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class NoopStructure extends BigGlobeStructure {

@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.ObjectArrays;
 
 import builderb0y.bigglobe.chunkgen.scripted.SurfaceScript.AnyNumericTypeExpressionParser;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.scripting.bytecode.DelayedMethod;
 import builderb0y.scripting.bytecode.DelayedMethod.LazyInvokeInsnTree;
 import builderb0y.scripting.bytecode.InsnTrees;

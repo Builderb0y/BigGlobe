@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.versions;
 
-import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.gamerules.GameRules;
+
+import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 
 public class GameruleVersions {
 

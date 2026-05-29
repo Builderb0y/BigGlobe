@@ -1,10 +1,11 @@
 package builderb0y.bigglobe.mixins;
 
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.structures.WoodlandMansionStructure;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.structures.WoodlandMansionStructure;
 
 @Mixin(WoodlandMansionStructure.class)
 public class WoodlandMansionStructure_DontHardCodeSeaLevel {

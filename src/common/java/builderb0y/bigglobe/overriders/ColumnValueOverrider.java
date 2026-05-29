@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.StructureSet.StructureSelectionEntry;
 
 import builderb0y.autocodec.annotations.*;
-import builderb0y.bigglobe.columns.scripted2.ColumnScript;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ColumnScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.NumberArray;

@@ -4,12 +4,14 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.mutable.MutableObject;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import org.apache.commons.lang3.mutable.MutableObject;
 
 public class FakeRegistry<T> {
 

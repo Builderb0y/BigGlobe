@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.classes.spec;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,11 +18,12 @@ import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.classes.ScriptObject;
-import builderb0y.bigglobe.classes.compile.*;
-import builderb0y.bigglobe.classes.compile.StagedCompileable.CompileStep;
-import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.classes.compile.OverrideTracker;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.Grouper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;

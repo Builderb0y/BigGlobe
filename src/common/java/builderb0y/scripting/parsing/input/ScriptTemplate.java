@@ -3,17 +3,20 @@ package builderb0y.scripting.parsing.input;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import net.minecraft.core.Holder;
+
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.TypelessCoderRegistry;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 

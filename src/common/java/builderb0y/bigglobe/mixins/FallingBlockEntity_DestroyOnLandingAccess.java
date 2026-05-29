@@ -1,8 +1,9 @@
 package builderb0y.bigglobe.mixins;
 
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+
+import net.minecraft.world.entity.item.FallingBlockEntity;
 
 @Mixin(FallingBlockEntity.class)
 public interface FallingBlockEntity_DestroyOnLandingAccess {

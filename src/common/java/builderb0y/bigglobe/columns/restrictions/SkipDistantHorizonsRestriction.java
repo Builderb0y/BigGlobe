@@ -8,7 +8,7 @@ import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.encoders.EncodeContext;
-import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 
 @UseCoder(name = "code", usage = MemberUsage.METHOD_IS_HANDLER)

@@ -1,17 +1,19 @@
 package builderb0y.bigglobe.mixins;
 
 import java.util.List;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentPieces;
-import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentPieces.OceanMonumentPiece;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentPieces;
+import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentPieces.OceanMonumentPiece;
 
 @Mixin(OceanMonumentPieces.MonumentBuilding.class)
 public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMonumentPieces.OceanMonumentPiece {

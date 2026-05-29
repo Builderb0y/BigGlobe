@@ -4,6 +4,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.world.entity.MobCategory;
@@ -13,15 +17,14 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
-import com.mojang.serialization.MapCodec;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted2.dependencies.CyclicDependencyException;
+import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 

@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.dispensers;
 
-import builderb0y.bigglobe.items.BigGlobeItems;
 import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
+
+import builderb0y.bigglobe.items.BigGlobeItems;
 
 public class BigGlobeDispenserBehaviors {
 

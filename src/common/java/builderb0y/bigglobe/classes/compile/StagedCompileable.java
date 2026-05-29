@@ -7,7 +7,6 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
 import net.minecraft.core.Holder;
 
-import builderb0y.bigglobe.classes.spec.ConstantFieldSpec;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class StagedCompileable<T_Context> {
