@@ -1,7 +1,7 @@
 {
 	"attributes": {
-		"minecraft:visual/fog_color": 12638463,
-		"minecraft:visual/sky_color": 7907327,
+		"minecraft:visual/fog_color": "#7F9F5F",
+		"minecraft:visual/sky_color": "#7F5F3F",
 		"minecraft:visual/water_fog_color": 2302743,
 		"minecraft:audio/background_music": {
 			"default": {
