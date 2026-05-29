@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:nether_bubbles/base/class",
+		"is_3d": false
+	},
+	"script": [
+		"VoronoiCell cell = bubble",
+		"long seed = (worldSeed # 16x6F751B9A1B89C371UL).newSeed(cell.cellX, cell.cellZ)",
+		"float totalWeight = 0.0I",
+		"NetherBubble result = null",
+		"for (NetherBubble type in NetherBubble.valueSet:",
+			"if (type.weight > 0.0I && (seed := seed.newSeed()).nextFloat(totalWeight :+ type.weight) < type.weight:",
+				"result = type",
+			")",
+		")",
+		"result"
+	]
+}

@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": 0.25,
 		"max": 0.375,
-		"trait": "bigglobe:magicalness"
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:magicalness"
+		}
 	},
 	"if_true": "bigglobe:overworld/wood_palette/cherry",
 	"if_false": "bigglobe:overworld/wood_palette/temperate_test_forest"

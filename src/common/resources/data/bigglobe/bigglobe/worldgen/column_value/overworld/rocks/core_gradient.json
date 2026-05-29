@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"unmixLinear(",
+			"double(world_traits.`bigglobe:core_max_y`),",
+			"double(world_traits.`bigglobe:lava_y`),",
+			"double(y) + double(core_noise)",
+		")",
+		".as(float) * 8.0I"
+	],
+	"valid": {
+		"min_y": "world_traits.`bigglobe:min_y`",
+		"max_y": "world_traits.`bigglobe:deep_dark_min_y`"
+	}
+}

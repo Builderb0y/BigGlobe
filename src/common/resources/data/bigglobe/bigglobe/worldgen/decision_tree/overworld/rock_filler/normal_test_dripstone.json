@@ -1,0 +1,19 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": -0.0625,
+		"max":  0.0625,
+		"smooth_min": 0,
+		"smooth_max": 0,
+		"value": {
+			"type": "script",
+			"script": [
+				"float bias = float((world_traits.`bigglobe:sea_level` - world_traits.`bigglobe:approximate_surface_y`) / 16.0L)",
+				"if (abs(bias) < 1.0I: bias += `bigglobe:overworld/rocks/dripstone_noise`)",
+				"return(bias)"
+			]
+		}
+	},
+	"if_true": "bigglobe:overworld/rock_filler/dripstone",
+	"if_false": "bigglobe:overworld/rock_filler/normal"
+}

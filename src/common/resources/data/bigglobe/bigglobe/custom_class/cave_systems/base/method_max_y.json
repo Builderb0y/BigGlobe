@@ -1,0 +1,10 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:cave_systems/base/class",
+	"name": "maxY",
+	"return_type": "double",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" }
+	],
+	"code": "column.world_traits.`bigglobe:exact_surface_y`"
+}

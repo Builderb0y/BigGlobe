@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.stream.Stream;
 
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 

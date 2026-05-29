@@ -5,7 +5,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import net.minecraft.core.Holder;

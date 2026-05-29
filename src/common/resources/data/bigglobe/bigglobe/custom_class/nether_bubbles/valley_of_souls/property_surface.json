@@ -1,5 +1,0 @@
-{
-	"element_type": "property/override",
-	"override": "bigglobe:nether_bubbles/base/property_surface",
-	"get": "SurfaceStates.new().$add('minecraft:soul_sand', columnSeed(16x412E91A72E54D63FUL).nextInt(1, 7))"
-}

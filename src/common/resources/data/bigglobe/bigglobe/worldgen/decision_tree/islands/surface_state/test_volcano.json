@@ -4,7 +4,7 @@
 		"script": [
 			"`bigglobe:islands/is_volcano` &&",
 			"columnSeed(16x704E52FED1AE9417UL)",
-			".nextBoolean(1.0L - `bigglobe:islands/island`.soft_distance_squared)"
+			".nextBoolean(1.0L - `bigglobe:islands/island`.softDistanceSquared)"
 		]
 	},
 	"if_true": "bigglobe:islands/surface_state/volcano",

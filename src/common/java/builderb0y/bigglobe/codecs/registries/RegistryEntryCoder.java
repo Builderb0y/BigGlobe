@@ -23,6 +23,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, Holder<T>> {
 
@@ -37,7 +38,7 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, Holder<T>> {
 	@OverrideOnly
 	public <T_Encoded> @Nullable Holder<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		if (context.isString()) return this.registry(context).requireByName(context.forceAsString().value);
+		if (context.isString()) return this.registry(context).requireById(BigGlobeAutoCodec.toID(context.forceAsString().value, this.key.identifier().getNamespace()));
 		if (this.inlineCoder != null) return Holder.direct(context.decodeWith(this.inlineCoder));
 		throw new DecodeException(() -> context.pathToStringBuilder().append(" is not a string, and inline definitions are not allowed.").toString());
 	}
@@ -48,7 +49,7 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, Holder<T>> {
 		Holder<T> entry = context.object;
 		if (entry == null) return EmptyData.INSTANCE;
 		ResourceKey<T> key = entry.unwrapKey().orElse(null);
-		if (key != null) return new StringData(key.identifier().toString());
+		if (key != null) return new StringData(BigGlobeAutoCodec.toString(key.identifier(), this.key.identifier().getNamespace()));
 		if (this.inlineCoder != null) return context.object(entry.value()).encodeWith(this.inlineCoder);
 		throw new EncodeException(() -> "Unregistered object and inline definitions are not allowed: " + entry);
 	}

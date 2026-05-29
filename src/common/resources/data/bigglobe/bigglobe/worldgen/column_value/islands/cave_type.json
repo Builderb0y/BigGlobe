@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:cave_systems/base/class",
+		"is_3d": false
+	},
+	"script": [
+		"VoronoiCell cell = cave",
+		"long seed = (worldSeed # 16x9760c4b9b433edc4UL).newSeed(cell.cellX, cell.cellZ)",
+		"float totalWeight = 0.0I",
+		"CaveSystem result = null",
+		"for (CaveSystem type in CaveSystem.valueSet:",
+			"if (type.weight > 0.0I && (seed := seed.newSeed()).nextFloat(totalWeight :+ type.weight) < type.weight:",
+				"result = type",
+			")",
+		")",
+		"result"
+	]
+}

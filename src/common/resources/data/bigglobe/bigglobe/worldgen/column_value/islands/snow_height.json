@@ -5,8 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"double snowHeight = beachy_surface_height",
-		"unless (is_floating: snowHeight -= erosion.snow.y * erosion_multiplier)",
+		"double snowHeight = snow_erosion.?y ?: beachy_surface_height",
 		"snowHeight = snowHeight * (1.0L + 1.0L / 64.0L) - 6.0L - world_traits.`bigglobe:temperature_at_surface` * 8.0L",
 		"double terrainHeight = eroded_surface_height",
 		"if (terrainHeight - `bigglobe:overworld/sea_level` < 32.0L:",

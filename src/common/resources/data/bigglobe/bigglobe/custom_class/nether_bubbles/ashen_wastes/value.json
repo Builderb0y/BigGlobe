@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/ashen_wastes/class",
+	"name": "ASHEN_WASTES",
+	"field_values": {
+		"weight": 0.75,
+		"biome": "bigglobe:ashen_wastes",
+		"decorator": "bigglobe:nether/decorators/ashen_wastes"
+	}
+}

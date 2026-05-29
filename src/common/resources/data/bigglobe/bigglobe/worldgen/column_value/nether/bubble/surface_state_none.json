@@ -1,7 +1,0 @@
-{
-	"type": "constant",
-	"params": {
-		"type": "block_state",
-		"is_3d": false
-	}
-}

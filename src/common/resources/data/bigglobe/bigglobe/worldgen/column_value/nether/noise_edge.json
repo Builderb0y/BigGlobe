@@ -20,7 +20,7 @@
 		}
 	},
 	"valid": {
-		"where": "`bigglobe:nether/bubble`.soft_distance > 0.875L",
+		"where": "`bigglobe:nether/bubble`.softDistance > 0.875L",
 		"min_y": "`bigglobe:nether/min_y` + 16",
 		"max_y": "`bigglobe:nether/max_y` - 16",
 		"fallback": 0.5

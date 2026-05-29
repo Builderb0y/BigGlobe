@@ -1,0 +1,6 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:rock_fillers/base/class",
+	"name": "state",
+	"field_type": "block_state"
+}

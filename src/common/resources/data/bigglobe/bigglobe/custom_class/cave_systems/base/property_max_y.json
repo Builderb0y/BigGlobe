@@ -1,6 +1,0 @@
-{
-	"element_type": "property/normal",
-	"name": "minY",
-	"property_type": "double",
-	"get": "world_traits.`bigglobe:exact_surface_y`"
-}

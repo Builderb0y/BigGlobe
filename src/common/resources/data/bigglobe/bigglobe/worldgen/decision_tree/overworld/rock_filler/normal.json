@@ -1,0 +1,17 @@
+{
+	"result": {
+		"type": "script",
+		"script": [
+			"float maxWeight = -1000.0I",
+			"BlockState state = 'minecraft:stone'",
+			"for (RockFiller filler in RockFiller.valueSet:",
+				"float weight = filler.weight(column, y)",
+				"if (weight > maxWeight:",
+					"state = filler.state",
+					"maxWeight = weight",
+				")",
+			")",
+			"return(state)"
+		]
+	}
+}

@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "`bigglobe:end/has_mountain`"
+		"type": "column_value",
+		"column_value": "bigglobe:end/has_mountain"
 	},
 	"if_true": "bigglobe:end/surface/test_mountain",
 	"if_false": "bigglobe:end/surface/test_nest"

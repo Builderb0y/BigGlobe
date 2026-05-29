@@ -1,0 +1,19 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"name": "defaultHasSurface",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" },
+		{ "name": "y",      "type": "int"            }
+	],
+	"code": [
+		"column.columnSeed(16x783DBB66AE78F478UL).newSeed(y).nextBoolean(",
+			"unmixSmoother(",
+				"double(column.`bigglobe:nether/mid_y` - column.`bigglobe:nether/cavern_fade_radius`),",
+				"double(column.`bigglobe:nether/mid_y`),",
+				"double(y)",
+			")",
+		")"
+	]
+}

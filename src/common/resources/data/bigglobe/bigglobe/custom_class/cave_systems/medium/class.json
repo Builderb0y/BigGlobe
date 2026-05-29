@@ -1,0 +1,6 @@
+{
+	"element_type": "class/enum",
+	"abstract": true,
+	"name": "MediumCaveSystem",
+	"extends": "bigglobe:cave_systems/base/class"
+}

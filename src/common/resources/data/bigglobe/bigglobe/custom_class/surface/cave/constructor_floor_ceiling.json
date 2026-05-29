@@ -1,0 +1,13 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:surface/cave/class",
+	"name": "create",
+	"return_type": "bigglobe:surface/cave/class",
+	"parameters": [
+		{ "name": "floor", "type": "bigglobe:surface/multi/class" },
+		{ "name": "ceiling", "type": "bigglobe:surface/multi/class" }
+	],
+	"code": [
+		"CaveSurfaceStates.new().=$floor(floor).=$ceiling(ceiling)"
+	]
+}

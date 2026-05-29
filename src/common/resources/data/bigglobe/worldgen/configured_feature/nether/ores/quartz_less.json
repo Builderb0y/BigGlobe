@@ -5,7 +5,7 @@
 		"blocks": {
 			"minecraft:netherrack": "minecraft:nether_quartz_ore"
 		},
-		"chance": "`bigglobe:nether/bubble`.biome.isIn('#bigglobe:nether_ores/quartz_less') ? 0.25 : 0.0",
+		"chance": "`bigglobe:nether/bubble_type`.biome.isIn('#bigglobe:nether_ores/quartz_less') ? 0.25 : 0.0",
 		"radius": { "type": "bigglobe:average", "min": 2.5, "max": 6.0, "average": 3.5 }
 	}
 }

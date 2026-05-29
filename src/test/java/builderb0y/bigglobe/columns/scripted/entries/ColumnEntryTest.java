@@ -3,6 +3,8 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ColumnEntryTest {

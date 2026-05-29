@@ -8,11 +8,11 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
-import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType;
-import builderb0y.bigglobe.columns.scripted.types.ClassColumnValueType.ClassColumnValueField;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted2.types.ClassColumnValueType;
+import builderb0y.bigglobe.columns.scripted2.types.ClassColumnValueType.ClassColumnValueField;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;

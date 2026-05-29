@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:constant",
-	"params": {
-		"type": "bigglobe:configured_feature",
-		"is_3d": false
-	},
-	"value": "bigglobe:overworld/caves/mushroom_decorator"
-}

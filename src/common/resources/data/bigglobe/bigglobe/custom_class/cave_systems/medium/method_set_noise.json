@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/medium/class",
+	"override": "bigglobe:cave_systems/base/method_set_noise",
+	"code": [
+		"column.`bigglobe:overworld/caves/medium_noise`(y) = value"
+	]
+}

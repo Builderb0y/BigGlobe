@@ -1,53 +1,18 @@
 {
 	"type": "script",
 	"params": {
-		"type": {
-			"type": "class",
-			"name": "DualSineWaveErosionData",
-			"fields": [
-				{
-					"name": "terrain",
-					"type": {
-						"type": "class",
-						"name": "SineWaveErosionData",
-						"fields": [
-							{ "name": "y",  "type": "double" },
-							{ "name": "dx", "type": "double" },
-							{ "name": "dz", "type": "double" }
-						]
-					}
-				},
-				{
-					"name": "snow",
-					"type": {
-						"type": "class",
-						"name": "SineWaveErosionData",
-						"fields": [
-							{ "name": "y",  "type": "double" },
-							{ "name": "dx", "type": "double" },
-							{ "name": "dz", "type": "double" }
-						]
-					}
-				},
-				{
-					"name": "foliage",
-					"type": "float"
-				}
-			]
-		},
+		"type": "bigglobe:eroder/class",
 		"is_3d": false
 	},
-	"script": {
-		"template": "bigglobe:dual_sine_wave_erosion",
-		"inputs": {
-			"lowY":  "approximate_surface_y",
-			"highY": "approximate_surface_y",
-			"dx": "`raw/dx_heightmap`",
-			"dz": "`raw/dz_heightmap`",
-			"minWavelength": "4.0L",
-			"maxWavelength": "512.0L",
-			"amplitude": "`bigglobe:overworld/obelisk_terrain_suppression` * 128.0L * (1.0L - 1.0L / (`raw/river/macro` ^ 2 * 16.0L + 1.0L))",
-			"seed": "worldSeed # 16xC3C1DD243EC7D72BUL"
-		}
-	}
+	"script": [
+		"Eroder",
+		".new()",
+		".$=x(x)",
+		".$=z(z)",
+		".$=seed(worldSeed # 16xC3C1DD243EC7D72BUL)",
+		".$=y(approximate_surface_y)",
+		".$=dx(`raw/dx_heightmap`)",
+		".$=dz(`raw/dz_heightmap`)",
+		".$erodeAll(4.0L, 512.0L, erosion_amplitude)"
+	]
 }

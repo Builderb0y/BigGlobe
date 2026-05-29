@@ -1,5 +1,0 @@
-{
-	"element_type": "property/override",
-	"override": "bigglobe:cave_systems/base/property_dungeon_feature",
-	"get": "'bigglobe:overworld/caves/random_dungeon_frozen'"
-}

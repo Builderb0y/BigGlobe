@@ -100,7 +100,6 @@ V6:
 		goats.
 	half (16-bit float) storage mode in NumberArray.
 	prevent mushrooms from spawning inside and on top of obelisks.
-	vanilla #dirt tag changed to #substrate_overworld
 	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 		add setFluidState() to WorldWrapper which modifies waterlogged property.
 		ideally block states and fluid states should be completely separate.
@@ -116,7 +115,6 @@ V6:
 	update recipes to modern schemas, remove JsonDataLoader_BackwardsCompatibleRecipes mixin.
 	remove BigGlobeEntityRenderer.
 	update AutoCodec.
-	migrate structure locating system from center/range to min/max coords.
 	remove script templates?
 		replace with custom classes that just take parameters?
 	find and remove requirement status on tag elements that are marked as "required": false.
@@ -132,6 +130,18 @@ V6:
 		transition structure max size from chunks to blocks.
 	exclude snow_layer from LOD mipping?
 	write unit test to verify that jspecify is not used.
+	test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
+	make ConstantSet and ConstantMap implement SequencedSet and SequencedMap, respectively.
+	put clay in underground water pockets so that axolotls can spawn.
+	make delayed features record the ID of the feature to place,
+		and then call that feature to place in a live world,
+		instead of placing in worldgen and copying blocks to live world once loaded.
+		this will require manually specifying the size of the feature in json.
+	imported objects.
+		when variable or function is called, if there are no matches, try fields and methods on imported objects.
+	to (re)move:
+		remove ConstructorSpec.txt
+		move scripted2 package back into scripted location.
 
 LODs:
 	shader support.
@@ -147,21 +157,19 @@ json classes:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
 	need to fix:
-		merge stuff.
 
 changelog:
 	# For normal people
 	* Entirely new overworld design.
 	* Nether walls between biomes now only extend up to Y 512, making traversal at higher Y levels easier.
-	* Fixed pale garden having lava everywhere and burning all the trees down.
-		* Also removed lava spills from crimson and warped forests.
-	* Minor tweaks to the hyperspace collapse animation.
+	* Overworld biomes now have new sky and fog colors.
 	# For data pack developers
-	* All Big Globe custom registries are now in the Big Globe namespace.
+	* All Big Globe custom registries are now in the `bigglobe` namespace.
 		* Previously, they were in the "minecraft" namespace, which meant that you had paths like `/data/namespace/bigglobe_whatever/...`.
 		* Now, every registry added by Big Globe is in a folder named "bigglobe". So you get paths like `/data/namespace/bigglobe/whatever/...`.
 		* A script has been provided to move all files to the correct location automatically.
 			* This can be found on my github page, under the name "V6DataPackConverter.java" in the root directory.
+			* This script will NOT migrate any json schema changes.
 	* Scripted configured features now handle coordinates relative to their placement position.
 		* The now-useless originX/Y/Z variables are now always 0, and the translation to the *actual* placement position is handled internally, just like random rotation and flipping.
 		* The actual placement position can now be obtained with the placementX/Y/Z variables, if needed.
@@ -171,14 +179,6 @@ changelog:
 			* Scripts that place blocks at an absolute position instead of a relative one will either need to be converted accordingly, or be placed at a position that cancels this out.
 				* For example, if the script tries to place blocks at a specific Y level, then your feature dispatcher should place it at Y 0.
 	* Added new "quintic" noise source. Similar to cubic noise sources, but the derivative is smooth instead of just continuous.
-
-if a V5 backport is made:
-	copy hyperspace ring collapse code.
-	fix pale garden, crimson forest, and warped forest having lava everywhere and burning the trees down.
-	fix pale garden never getting updated for biome attributes changes.
-	fix portal temple column value overrider not applying to bigglobe:portal_temple_cracked structure.
-	fix blindness effect not working when LODs are enabled.
-		missing check for shouldRenderThisFrame in BackgroundRenderer_NoFogWithLods.
 
 alternate world presets:
 	paradise.

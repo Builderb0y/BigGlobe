@@ -2,8 +2,8 @@ package builderb0y.bigglobe.columns.scripted;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.Data;
-import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
+import builderb0y.bigglobe.columns.scripted2.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted2.types.ColumnValueType;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 

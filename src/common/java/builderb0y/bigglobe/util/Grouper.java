@@ -70,6 +70,11 @@ implements Collector<T_Element, T_Map, T_Map> {
 		return (Stream<T>)(stream);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T_From, T_To> Stream<T_To> filterByClass(Stream<T_From> stream, Class<T_To> clazz) {
+		return (Stream<T_To>)(stream.filter(clazz::isInstance));
+	}
+
 	//*sigh*
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T_Element> Collector<T_Element, List<T_Element>, List<T_Element>> toList() {

@@ -1,0 +1,18 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:eroder/class",
+	"name": "erodeAll",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "minWavelength", "type": "double" },
+		{ "name": "maxWavelength", "type": "double" },
+		{ "name": "amplitude",     "type": "double" }
+	],
+	"code": [
+		"mask = 1.0L - 1.0L / ((dx ^ 2 + dz ^ 2) * 2.0L + 1.0L)",
+		"for (double wavelength = maxWavelength, wavelength >= minWavelength, wavelength *= 0.5L:",
+			"if (dx ^ 2 + dz ^ 2 == 0.0L: return())",
+			"erode(wavelength, amplitude * wavelength / maxWavelength)",
+		")"
+	]
+}

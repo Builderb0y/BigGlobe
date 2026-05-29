@@ -1,11 +1,7 @@
 {
 	"type": "voronoi",
 	"params": {
-		"type": {
-			"type": "voronoi",
-			"name": "Island",
-			"exports": {}
-		},
+		"type": "voronoi",
 		"is_3d": false
 	},
 	"diagram": {

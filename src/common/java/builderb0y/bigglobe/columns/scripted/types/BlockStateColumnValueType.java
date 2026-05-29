@@ -5,7 +5,7 @@ import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.StringData;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
-import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted2.compile.ColumnCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import net.minecraft.core.registries.Registries;

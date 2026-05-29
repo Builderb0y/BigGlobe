@@ -20,10 +20,10 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnRandomYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -112,8 +112,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			columns,
 			context.level(),
 			config.delay_generation
-				? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
-				: new BlockQueue(false),
+			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
+			: new BlockQueue(false),
 			permuter,
 			config.palette.value(),
 			config.ground_replacements,
@@ -121,10 +121,10 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			branchesConfig,
 			decoratorsBuilder.build(),
 			config.stump != null
-				? config.stump.cutoff_frac
-				: null
+			? config.stump.cutoff_frac
+			: null
 		)
-				.generate();
+		.generate();
 	}
 
 	public static record Config(

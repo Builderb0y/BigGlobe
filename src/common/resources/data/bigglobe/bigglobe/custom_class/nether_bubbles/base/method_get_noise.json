@@ -1,0 +1,11 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"name": "noise",
+	"return_type": "float",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" },
+		{ "name": "y",      "type": "int"            }
+	],
+	"code": "column.`bigglobe:nether/bubble/cavern_noise_forest`(y)"
+}

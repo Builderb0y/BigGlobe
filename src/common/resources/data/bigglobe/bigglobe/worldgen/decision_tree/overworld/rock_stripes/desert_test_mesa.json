@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "column_value",
+		"column_value": "bigglobe:overworld/is_mesa"
+	},
+	"if_true": "bigglobe:overworld/rock_stripes/mesa",
+	"if_false": "bigglobe:overworld/rock_stripes/desert"
+}

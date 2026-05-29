@@ -4,9 +4,9 @@
 		"if (start.structure ==. 'minecraft:bastion_remnant':",
 			"int midX = start.midX",
 			"int midZ = start.midZ",
-			"if (`bigglobe:nether/bubble`(midX, midZ).soft_distance_squared > 0.5: return(false))",
-			"NetherBubble bubble = `bigglobe:nether/bubble`(midX, midZ)",
-			"start.move(bubble.lava_level - start.minY)",
+			"if (`bigglobe:nether/bubble`(midX, midZ).softDistanceSquared > 0.5: return(false))",
+			"NetherBubble bubble = `bigglobe:nether/bubble_type`(midX, midZ)",
+			"start.move(bubble.lavaLevel - start.minY)",
 		")",
 		"return(true)"
 	]

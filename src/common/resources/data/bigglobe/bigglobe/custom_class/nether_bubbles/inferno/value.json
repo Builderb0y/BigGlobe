@@ -1,0 +1,12 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/inferno/class",
+	"name": "INFERNO",
+	"field_values": {
+		"weight": 0.5,
+		"biome": "bigglobe:inferno",
+		"decorator": "bigglobe:nether/decorators/inferno",
+		"lava_level": 128
+	}
+}

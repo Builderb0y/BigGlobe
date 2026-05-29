@@ -1,6 +1,6 @@
 {
 	"result": {
-		"type": "scripted",
-		"script": "`bigglobe:islands/cave`.biome"
+		"type": "script",
+		"script": "`bigglobe:islands/cave_type`.biome"
 	}
 }

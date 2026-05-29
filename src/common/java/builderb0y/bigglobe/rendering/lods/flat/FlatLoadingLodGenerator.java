@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.bigglobe.rendering.lods.LodGenerator;
 import builderb0y.bigglobe.rendering.lods.LodSystem;
 

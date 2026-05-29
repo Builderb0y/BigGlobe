@@ -246,6 +246,7 @@
 	"gamerule.bigglobe:soulLavaSourceConversion": "Soul Lava converts to source",
 
 	"commands.bigglobe.registryDump.success": "All registries have been dumped. You can find them in .minecraft/bigglobe_registry_dump",
+	"commands.bigglobe.registryDump.failure": "An error occurred while trying to dump registries. Consult your logs for more info.",
 
 	"commands.bigglobe.locate.searching": "Searching...",
 	"commands.bigglobe.locate.done": "Done searching.",

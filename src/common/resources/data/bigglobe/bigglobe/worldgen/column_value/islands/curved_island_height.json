@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"double dist = island.soft_distance",
+		"double dist = island.softDistance",
 		"return((1.0L - dist) ^ 2 * ((mountainness * -2.0L + 2.0L) * dist + 1.0L))"
 	]
 }

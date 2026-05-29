@@ -176,7 +176,7 @@
 					"double fraction = projector.setY(y).project(true).getRadiusFractionSquared()",
 					"if (fraction.isBetween(0.0L, 4.0L):",
 						"fraction = abs(fraction * (1.0L / 3.0L) - (4.0L / 3.0L))",
-						"`bigglobe:nether/bubble`.noise(y) += float(fraction ^ 3)",
+						"`bigglobe:nether/noise`(y) += float(fraction ^ 3)",
 					")",
 				")",
 			")",

@@ -4,5 +4,5 @@
 		"type": "boolean",
 		"is_3d": false
 	},
-	"script": "(worldSeed # 16xC6996CCF6C795AF9UL).newSeed(island.cell_x, island.cell_z).nextBoolean()"
+	"script": "(worldSeed # 16xC6996CCF6C795AF9UL).newSeed(island.cellX, island.cellZ).nextBoolean()"
 }

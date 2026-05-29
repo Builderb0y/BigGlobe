@@ -1,5 +1,6 @@
 {
 	"type": "column_value",
+	"feature_generation": false,
 	"script": [
 		"for (StructureStart start in structures:",
 			"ScriptStructurePiece piece = start.pieces.(0)",
@@ -16,12 +17,11 @@
 			"if (maxFrac < 2.0I:",
 				"if (maxFrac <= 1.0I:",
 					"maxFrac = 1.0I",
-					"`bigglobe:overworld/lake_surface_states` = LakeSurfaceStates.new('minecraft:stone', 'minecraft:stone')",
+					"`bigglobe:overworld/lake_surface_states` = SurfaceStates.new()",
 				")",
 				"int startY = piece.data.startY",
 				"float curve = float(1.0L - sqrt(1.0I - (2.0I - maxFrac) ^ 2))",
 				"world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY), startY + 0.5L, double(curve))",
-				"world_traits.`bigglobe:automatic_slope_surface_y`(piece.minY) = maxFrac == 1.0I ? startY + 16.5L : mixLinear(world_traits.`bigglobe:automatic_slope_surface_y`(piece.minY), startY + 0.5L, double(curve))",
 
 				"float frac = unmixLinear(2.0I, 1.0I, maxFrac)",
 				"for (int y in range(startY - 16, ceilInt(world_traits.`bigglobe:exact_surface_y`)):",

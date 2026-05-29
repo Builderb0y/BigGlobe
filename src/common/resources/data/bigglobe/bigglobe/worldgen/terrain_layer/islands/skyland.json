@@ -6,8 +6,20 @@
 		"min_y": "world_traits.`bigglobe:skyland_min_y`",
 		"max_y": "world_traits.`bigglobe:skyland_max_y`"
 	},
+	"before_children": {
+		"includes": [
+			"bigglobe:world_preset/place_surface"
+		],
+		"source": [
+			"placeSurface(world_traits.`bigglobe:skyland_max_y`, `bigglobe:islands/surface_states`)"
+		]
+	},
 	"after_children": {
-		"file": "bigglobe:world_preset/islands_skyland_surface_placement",
+		"source": [
+			"(worldSeed # 16x46bff46fbc25a748UL).newSeed(x, z).if(`bigglobe:islands/skyland_snow_chance`:",
+				"generateSnow(world_traits.`bigglobe:skyland_max_y`, `bigglobe:islands/skyland_snow_y`)",
+			")"
+		],
 		"includes": [
 			"bigglobe:include/generate_snow"
 		]

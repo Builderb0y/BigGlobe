@@ -4,6 +4,7 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 
 import static org.objectweb.asm.Opcodes.*;
 
+//todo: convert to record.
 public class LazyVarInfo implements Typeable {
 
 	public static final ObjectArrayFactory<LazyVarInfo> ARRAY_FACTORY = new ObjectArrayFactory<>(LazyVarInfo.class);

@@ -1,0 +1,9 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:rock_stripes/mesa/class",
+	"impl_type": "bigglobe:rock_stripes/mesa/class",
+	"name": "red_TERRACOTTA",
+	"field_values": {
+		"state": "minecraft:red_terracotta"
+	}
+}

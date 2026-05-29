@@ -32,14 +32,12 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
-import builderb0y.bigglobe.versions.BlockStateVersions;
 
 @UseCoder(name = "CODER", in = SerializableBlockQueue.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public class SerializableBlockQueue extends BlockQueue {
@@ -139,22 +137,22 @@ public class SerializableBlockQueue extends BlockQueue {
 		for (LongIterator iterator = this.queuedBlocks.keySet().iterator(); iterator.hasNext(); ) {
 			long longPos = iterator.nextLong();
 			BlockState state = world.getBlockState(pos.set(longPos));
-			if (!this.canReplace(longPos, state)) {
+			if (!this.canReplace(world, pos, longPos, state)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public boolean canReplace(long pos, BlockState state) {
+	public boolean canReplace(LevelAccessor world, BlockPos blockPos, long packedPos, BlockState state) {
 		return (
-			canImplicitlyReplace(state) ||
-			this.queuedReplacements.get(pos) == state
+			canImplicitlyReplace(world, blockPos, state) ||
+			this.queuedReplacements.get(packedPos) == state
 		);
 	}
 
-	public static boolean canImplicitlyReplace(BlockState state) {
-		return BlockStateVersions.isReplaceable(state) || state.is(BigGlobeBlockTags.PLANTS);
+	public static boolean canImplicitlyReplace(LevelAccessor world, BlockPos pos, BlockState state) {
+		return !state.isCollisionShapeFullBlock(world, pos); //BlockStateVersions.isReplaceable(state) || state.is(BigGlobeBlockTags.PLANTS);
 	}
 
 	public static SerializableBlockQueue read(MapData data) {

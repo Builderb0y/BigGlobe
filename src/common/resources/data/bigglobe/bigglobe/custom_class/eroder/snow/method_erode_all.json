@@ -1,0 +1,15 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:eroder/snow/class",
+	"override": "bigglobe:eroder/method_erode_all",
+	"code": [
+		"mask = 1.0L - 1.0L / ((dx ^ 2 + dz ^ 2) * 2.0L + 1.0L)",
+		"double snowLinearFactor = 2.0L",
+		"double snowMultiplier = fastLog2(maxWavelength / minWavelength) * snowLinearFactor",
+		"for (double wavelength = maxWavelength, wavelength >= minWavelength, wavelength *= 0.5L:",
+			"if (dx ^ 2 + dz ^ 2 == 0.0L: return())",
+			"erode(wavelength, amplitude * (wavelength - snowMultiplier * minWavelength) / maxWavelength)",
+			"snowMultiplier -= snowLinearFactor",
+		")"
+	]
+}

@@ -10,7 +10,8 @@ import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.RegistryOps.RegistryInfo;
 import net.minecraft.resources.RegistryOps.RegistryInfoLookup;
 import net.minecraft.resources.ResourceKey;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterDynamicRegistry;
 

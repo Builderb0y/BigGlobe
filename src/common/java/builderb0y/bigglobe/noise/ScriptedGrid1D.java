@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import builderb0y.autocodec.annotations.MultiLine;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;

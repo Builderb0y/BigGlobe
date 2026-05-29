@@ -1,6 +1,5 @@
 {
-	"element_type": "class/voronoi",
+	"element_type": "class/enum",
 	"name": "ValleyOfSoulsNetherBubble",
-	"extends": "bigglobe:nether_bubbles/base/class",
-	"members": "#bigglobe:nether_bubbles/valley_of_souls_members"
+	"extends": "bigglobe:nether_bubbles/base/class"
 }

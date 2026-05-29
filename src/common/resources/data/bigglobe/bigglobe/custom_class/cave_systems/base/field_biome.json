@@ -1,0 +1,6 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:cave_systems/base/class",
+	"name": "biome",
+	"field_type": "biome"
+}

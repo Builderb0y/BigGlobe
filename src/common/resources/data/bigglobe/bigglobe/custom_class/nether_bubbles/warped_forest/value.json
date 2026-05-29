@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/warped_forest/class",
+	"name": "WARPED_FOREST",
+	"field_values": {
+		"weight": 0.25,
+		"biome": "bigglobe:warped_forest",
+		"decorator": "bigglobe:nether/decorators/warped_forest"
+	}
+}

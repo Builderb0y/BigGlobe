@@ -11,17 +11,16 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
-import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.CheckedList;
 import builderb0y.bigglobe.util.CheckedList.NullPolicy;
 import builderb0y.scripting.bytecode.InsnTrees;
@@ -130,7 +129,7 @@ public class ScriptedStructurePlacement extends StructurePlacement implements Sm
 					.configureEnvironment(StructureScriptEnvironment.live())
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
 						LoadInsnTree loadLookup = load("columns", InsnTrees.type(ScriptedColumnLookup.class));
-						registry.setupExternalEnvironment(
+						registry.setupEnvironment(
 							environment
 							.addVariableLoad("starts", TypeInfo.of(List.class))
 							.addVariableLoad("worldSeed", TypeInfos.LONG)
@@ -144,10 +143,8 @@ public class ScriptedStructurePlacement extends StructurePlacement implements Sm
 							.addFunction("createStartAt", Handlers.builder(ScriptedStructurePlacement.class, "createAt").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
 							.addMethod(InsnTrees.type(StructureStartWrapper.class), "override", Handlers.builder(ScriptedStructurePlacement.class, "override").addReceiverArgument(StructureStartWrapper.class).addImplicitArgument(load("context", TypeInfo.of(Context.class))).buildMethod())
 							.addVariableRenamedInvoke(loadLookup, "hints", ScriptedColumnLookup.HINTS)
-							.configure(ScriptedColumn.hintsEnvironment()),
-
-							new ExternalEnvironmentParams()
-							.withLookup(loadLookup)
+							.configure(ScriptedColumn.baseEnvironment(null, loadLookup, registry.columnCompileContext.columnTypeInfo())),
+							new ExternalEnvironmentParams().withLookup(loadLookup)
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)

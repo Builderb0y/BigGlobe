@@ -5,7 +5,7 @@
 		"blocks": {
 			"minecraft:netherrack": "bigglobe:sulfur_ore"
 		},
-		"chance": "`bigglobe:nether/bubble`.biome.isIn('#bigglobe:nether_ores/sulfur_less') ? 0.25 : 0.0",
+		"chance": "`bigglobe:nether/bubble_type`.biome.isIn('#bigglobe:nether_ores/sulfur_less') ? 0.25 : 0.0",
 		"radius": { "type": "bigglobe:average", "min": 3.0, "max": 8.0, "average": 4.0 }
 	}
 }

@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeException;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted2.decisionTrees.DecisionTreeException;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;

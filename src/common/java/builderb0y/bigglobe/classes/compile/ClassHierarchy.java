@@ -1,75 +1,79 @@
 package builderb0y.bigglobe.classes.compile;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-import org.jetbrains.annotations.Nullable;
 
+import builderb0y.bigglobe.classes.compile.StagedCompileable.BulkStagedCompiler;
+import builderb0y.bigglobe.classes.spec.BaseClassSpec;
 import builderb0y.bigglobe.classes.spec.TypeSpec;
-import builderb0y.bigglobe.classes.spec.TypeSpec.CompileStep;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 
-public class ClassHierarchy {
+public class ClassHierarchy extends BulkStagedCompiler<ClassHierarchy, ElementSpec> {
 
 	public final ColumnEntryRegistry registry;
 	public final Map<ElementSpec, Holder<ElementSpec>> elements;
-	public final List<TypeSpec> types;
+	public final List<Holder<ElementSpec>> rootTypes;
+	public final ObjectOpenCustomHashSet<TypeSpec> names;
 
-	public ClassHierarchy(ColumnEntryRegistry registry) throws CustomClassFormatException {
+	public ClassHierarchy(ColumnEntryRegistry registry) {
 		this.registry = registry;
-		this.elements = null; /*(
+		this.elements = (
 			registry
 			.registries
 			.getRegistry(BigGlobeDynamicRegistries.ELEMENT_SPEC_REGISTRY_KEY)
 			.streamEntries()
-			.collect(Collectors.toMap(RegistryEntry<ElementSpec>::value, Function.identity()))
-		);*/
-		this.types = null; /*(
-			this
-			.elements
-			.keySet()
-			.stream()
-			.filter(TypeSpec.class::isInstance)
-			.map(TypeSpec.class::cast)
-			.toList()
-		)*/
-		ObjectOpenCustomHashSet<TypeSpec> names = new ObjectOpenCustomHashSet<>(TypeSpec.NAME_STRATEGY);
-		for (TypeSpec type : this.types) {
-			TypeSpec existing = names.addOrGet(type);
-			if (existing != type) {
-				throw new CustomClassFormatException("Duplicate class: " + type.name() + " (provided by " + UnregisteredObjectException.getKey(this.entryOf(existing)) + " and " + UnregisteredObjectException.getKey(this.entryOf(type)));
+			.collect(Collectors.toMap(Holder<ElementSpec>::value, Function.identity()))
+		);
+		this.rootTypes = new ArrayList<>();
+		this.names = new ObjectOpenCustomHashSet<>(TypeSpec.NAME_STRATEGY);
+	}
+
+	@Override
+	public ClassHierarchy getSelf() {
+		return this;
+	}
+
+	@Override
+	public Collection<? extends Holder<? extends ElementSpec>> getElementsToCompileForStep(CompileStep step) {
+		return switch (step) {
+			case FRESH -> throw new UnsupportedOperationException();
+			case REFERENCE -> this.elements.values();
+			case RESOLVE, VERIFY, REPRESENT, COMPILE -> this.rootTypes;
+		};
+	}
+
+	public void checkName(TypeSpec type) throws DetailedException {
+		TypeSpec existing = this.names.addOrGet(type);
+		if (existing != type) {
+			throw new CustomClassFormatException("Duplicate class name: " + type.name() + " (provided by " + this.idOf(existing) + " and " + this.idOf(type) + ")");
+		}
+	}
+
+	public void link(ScriptClassLoader loader) {
+		for (Holder<ElementSpec> type : this.rootTypes) {
+			if (type.value() instanceof BaseClassSpec clazz) {
+				clazz.define(loader);
 			}
 		}
 	}
 
-	public void progressTo(CompileStep state) throws CustomClassFormatException {
-		CustomClassFormatException root = null;
-		for (TypeSpec type : this.types) try {
-			type.doProgressTo(state, this);
-		}
-		catch (Exception exception) {
-			if (root == null) root = new CustomClassFormatException("Exception " + state.description);
-			root.addSuppressed(new CustomClassFormatException("Exception " + state.description + " for " + UnregisteredObjectException.getID(this.entryOf(type)), exception));
-		}
-		if (root != null) throw root;
-	}
-
-	public void link(ScriptClassLoader loader) {
-		for (TypeSpec type : this.types) {
-			type.link(loader);
-		}
-	}
-
-	public void setupEnvironment(MutableScriptEnvironment environment, @Nullable InsnTree loadCustomClass) {
-		for (TypeSpec type : this.types) {
-			type.setupEnvironment(environment, loadCustomClass);
+	public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		for (Holder<ElementSpec> type : this.elements.values()) {
+			type.value().setupEnvironment(type, environment, params);
 		}
 	}
 

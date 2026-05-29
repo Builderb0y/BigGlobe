@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.columns.scripted2.entries;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeArray;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeNumberArray;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeObjectArray;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
@@ -31,17 +31,17 @@ public abstract class LoopColumnEntry extends NonConstantColumnEntry {
 	}
 
 	@Override
-	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
+	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, ColumnEntryContext context) throws ScriptParsingException {
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree loadMappedArray = getField(loadColumn, context.valueField.info);
-		TypeInfo elementType = ElementSpec.asType(this.params.type()).getTypeInfo();
-		InsnTree getRawArray = getField(loadMappedArray, elementType.isObject() ? MappedRangeObjectArray.ARRAY : MappedRangeNumberArray.ARRAY);
+		TypeInfo elementType = this.typeInfo(registry);
+		InsnTree getRawArray = getField(loadMappedArray, elementType.isObject() ? MappedRangeObjectArray.ARRAY : MappedRangeNumberArray.INFO.array);
 		VariableDeclareAssignInsnTree rawArray = new VariableDeclareAssignInsnTree(new LazyVarInfo("array", getRawArray.getTypeInfo()), getRawArray);
 		LazyVarInfo iterY = new LazyVarInfo("iterY", TypeInfos.INT);
 		LazyVarInfo minY = new LazyVarInfo("minY", TypeInfos.INT);
 		LazyVarInfo maxY = new LazyVarInfo("maxY", TypeInfos.INT);
 		InsnTree index = new SubtractInsnTree(load(iterY), load(minY), ISUB);
-		InsnTree computer = this.makeComputer(registry, context);
+		InsnTree computer = invokeInstance(loadColumn, context.computer.info, load(iterY));
 		LoadInsnTree loadRawArray = load(rawArray.variable);
 		return new ScopedInsnTree(
 			seq(

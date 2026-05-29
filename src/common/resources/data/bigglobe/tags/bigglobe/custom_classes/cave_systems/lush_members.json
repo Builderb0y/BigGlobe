@@ -1,9 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:cave_systems/lush/property_biome",
-		"bigglobe:cave_systems/lush/property_floor_states",
-		"bigglobe:cave_systems/lush/property_ceiling_states",
-		"bigglobe:cave_systems/lush/property_decorator"
-	]
-}

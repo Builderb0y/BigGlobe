@@ -1,13 +1,20 @@
 {
 	"type": "simple_3d",
 	"state": "'minecraft:air'",
-	"condition": "`bigglobe:overworld/cave`.noise(y) < 0.5I",
+	"condition": "`bigglobe:overworld/cave_type`.getNoise(column, y) < 0.5I",
 	"after_children": {
-		"file": "bigglobe:world_preset/overworld_cave_surface_placement"
+		"includes": [
+			"bigglobe:world_preset/place_surface",
+			"bigglobe:world_preset/place_surface_above",
+			"bigglobe:world_preset/overworld_cave_surface_placement"
+		],
+		"source": [
+			"placeCaveSurfaces(`bigglobe:overworld/cave_type`.surface(column))"
+		]
 	},
 	"valid": {
 		"where": "hints.carve",
-		"min_y": "higherInt(world_traits.`bigglobe:approximate_surface_y` - `bigglobe:overworld/cave`.depth)",
-		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
+		"min_y": "world_traits.`bigglobe:cave_min_y`",
+		"max_y": "world_traits.`bigglobe:cave_max_y`"
 	}
 }

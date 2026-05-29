@@ -1,6 +1,5 @@
 {
-	"element_type": "class/voronoi",
+	"element_type": "class/enum",
 	"name": "AshenWastesNetherBubble",
-	"extends": "bigglobe:nether_bubbles/base/class",
-	"members": "#bigglobe:nether_bubbles/ashen_wastes_members"
+	"extends": "bigglobe:nether_bubbles/base/class"
 }

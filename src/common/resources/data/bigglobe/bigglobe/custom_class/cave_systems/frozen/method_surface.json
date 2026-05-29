@@ -1,0 +1,16 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/frozen/class",
+	"override": "bigglobe:cave_systems/base/method_surface",
+	"code": [
+		"CaveSurfaceStates.create(",
+			"SurfaceStates.new().$add(",
+				"column.`bigglobe:overworld/caves/surface_depth_noise` > 3.0I",
+				"? 'minecraft:powder_snow'",
+				": 'minecraft:snow_block',",
+				"defaultSurfaceDepth(column)",
+			"),",
+			"SurfaceStates.new()",
+		")"
+	]
+}

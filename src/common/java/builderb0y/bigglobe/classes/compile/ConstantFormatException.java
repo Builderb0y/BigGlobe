@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.classes.compile;
 
-public class ConstantFormatException extends Exception {
+public class ConstantFormatException extends DetailedException {
 
 	public ConstantFormatException() {}
 

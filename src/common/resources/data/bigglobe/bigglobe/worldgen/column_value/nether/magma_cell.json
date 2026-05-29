@@ -1,10 +1,7 @@
 {
 	"type": "voronoi",
 	"params": {
-		"type": {
-			"type": "voronoi",
-			"name": "NetherMagmaCell"
-		},
+		"type": "voronoi",
 		"is_3d": false
 	},
 	"diagram": {

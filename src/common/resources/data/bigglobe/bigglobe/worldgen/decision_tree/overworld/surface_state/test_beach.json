@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "world_traits.`bigglobe:is_beach`"
+		"type": "world_trait",
+		"world_trait": "bigglobe:is_beach"
 	},
 	"if_true": "bigglobe:overworld/surface_state/beach_test_overgrown",
 	"if_false": "bigglobe:overworld/surface_state/test_river"

@@ -1,0 +1,10 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:nether_bubbles/inferno/class",
+	"override": "bigglobe:nether_bubbles/base/method_surface",
+	"code": [
+		"y >= lavaLevel",
+		"? SurfaceStates.new().$add('minecraft:blackstone', column.columnSeed(16x412E91A72E54D63FUL).nextInt(1, 7))",
+		": SurfaceStates.new()"
+	]
+}

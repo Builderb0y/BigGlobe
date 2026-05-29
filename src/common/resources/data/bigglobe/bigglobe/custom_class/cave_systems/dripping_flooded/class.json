@@ -1,6 +1,0 @@
-{
-	"element_type": "class/normal",
-	"name": "FloodedDrippingCaveSystem",
-	"extends": "bigglobe:cave_systems/dripping/class",
-	"members": "#bigglobe:cave_systems/dripping_flooded_members"
-}

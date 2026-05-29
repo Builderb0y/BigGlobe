@@ -15,13 +15,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.SimpleDelayedCompileable;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Permuter;
 
-public class DelayedEntryList<T> implements DelayedCompileable {
+public class DelayedEntryList<T> implements SimpleDelayedCompileable {
 
 	public static final Comparator<Holder<?>> COMPARATOR = Comparator.comparing(UnregisteredObjectException::getID);
 
@@ -190,32 +191,32 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 		}
 		List<Holder<T>> entryList = this.entryList = (
 			this
-				.delayedEntries
-				.stream()
-				.flatMap((DelayedEntry element) -> {
-					if (element.isTag()) {
-						TagKey<T> key = TagKey.create(this.registryKey, element.id);
-						HolderSet<T> resolution = this.resolver.requireTag(key);
-						if (resolution.size() == 0 && BigGlobeConfig.INSTANCE.get().dataPackDebugging.emptyTags) {
-							BigGlobeMod.LOGGER.warn("Empty tag: " + key);
-						}
-						return resolution.stream();
+			.delayedEntries
+			.stream()
+			.flatMap((DelayedEntry element) -> {
+				if (element.isTag()) {
+					TagKey<T> key = TagKey.create(this.registryKey, element.id);
+					HolderSet<T> resolution = this.resolver.requireTag(key);
+					if (resolution.size() == 0 && BigGlobeConfig.INSTANCE.get().dataPackDebugging.emptyTags) {
+						BigGlobeMod.LOGGER.warn("Empty tag: " + key);
 					}
-					else {
-						return Stream.of(this.resolver.requireById(element.id));
-					}
-				})
-				.collect(
-					Collector.of(
-						() -> new TreeSet<Holder<T>>(COMPARATOR),
-						TreeSet::add,
-						(TreeSet<Holder<T>> set1, TreeSet<Holder<T>> set2) -> {
-							set1.addAll(set2);
-							return set1;
-						},
-						List::copyOf
-					)
+					return resolution.stream();
+				}
+				else {
+					return Stream.of(this.resolver.requireById(element.id));
+				}
+			})
+			.collect(
+				Collector.of(
+					() -> new TreeSet<>(COMPARATOR),
+					TreeSet::add,
+					(TreeSet<Holder<T>> set1, TreeSet<Holder<T>> set2) -> {
+						set1.addAll(set2);
+						return set1;
+					},
+					List::copyOf
 				)
+			)
 		);
 		this.objectList = null;
 		this.objectSet = null;
@@ -224,7 +225,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 	}
 
 	@Override
-	public void compile(ColumnEntryRegistry registry) {
+	public void compile() {
 		if (!this.compileCalled) {
 			this.compileCalled = true;
 			this.resolve();

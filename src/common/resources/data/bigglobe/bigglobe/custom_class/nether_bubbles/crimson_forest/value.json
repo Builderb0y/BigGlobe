@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/crimson_forest/class",
+	"name": "CRIMSON_FOREST",
+	"field_values": {
+		"weight": 1.0,
+		"biome": "bigglobe:crimson_forest",
+		"decorator": "bigglobe:nether/decorators/crimson_forest"
+	}
+}

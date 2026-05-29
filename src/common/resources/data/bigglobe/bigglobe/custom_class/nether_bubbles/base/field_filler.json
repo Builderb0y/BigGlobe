@@ -1,0 +1,7 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"name": "filler",
+	"field_type": "block_state",
+	"default": "minecraft:netherrack"
+}

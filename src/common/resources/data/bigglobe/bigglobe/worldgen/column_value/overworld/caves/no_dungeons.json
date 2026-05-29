@@ -1,7 +1,0 @@
-{
-	"type": "constant",
-	"params": {
-		"type": "configured_feature",
-		"is_3d": false
-	}
-}

@@ -1,0 +1,9 @@
+{
+	"type": "decision_tree",
+	"params": {
+		"type": "block_state",
+		"is_3d": true
+	},
+	"root": "bigglobe:overworld/rock_filler/root_test_deepslate",
+	"cache": false
+}

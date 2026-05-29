@@ -3,9 +3,9 @@
 	"script": [
 		"if (start.structure.isIn('#bigglobe:underground') || start.structure.type.isIn('#bigglobe:underground'):",
 			"int*(",
-				"x = clamp(`bigglobe:islands/island`(start.midX, start.midZ).center_x, start.minX, start.maxX)",
+				"x = clamp(`bigglobe:islands/island`(start.midX, start.midZ).centerX, start.minX, start.maxX)",
 				"y = start.minY",
-				"z = clamp(`bigglobe:islands/island`(start.midX, start.midZ).center_z, start.minZ, start.maxZ)",
+				"z = clamp(`bigglobe:islands/island`(start.midX, start.midZ).centerZ, start.minZ, start.maxZ)",
 			")",
 			"if (`bigglobe:islands/is_volcano`(x, z) && `bigglobe:islands/volcano_magma_sdf`(x, y, z) <= 0.0I:",
 				"return(false)",

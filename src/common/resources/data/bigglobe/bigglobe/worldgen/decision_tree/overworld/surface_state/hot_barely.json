@@ -1,9 +1,12 @@
 {
 	"result": {
-		"type": "constant",
-		"value": {
-			"surfaceState": "bigglobe:overgrown_sand",
-			"subsurfaceState": "minecraft:sand"
-		}
+		"type": "script",
+		"script": [
+			"SurfaceStates surface = new()",
+			"int depth = floorInt(`bigglobe:overworld/default_surface_depth`)",
+			"if (depth > 1: surface.add('minecraft:sand', depth))",
+			"if (depth > 0: surface.add('bigglobe:overgrown_sand', 1))",
+			"surface"
+		]
 	}
 }

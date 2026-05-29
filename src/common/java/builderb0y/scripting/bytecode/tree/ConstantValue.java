@@ -857,9 +857,9 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 					bootstrapMethod.isInterface()
 				),
 				Arrays
-					.stream(bootstrapArgs)
-					.map(ConstantValue::asAsmObject)
-					.toArray()
+				.stream(bootstrapArgs)
+				.map(ConstantValue::asAsmObject)
+				.toArray()
 			);
 		}
 
@@ -886,6 +886,44 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		@Override
 		public String toString() {
 			return this.dynamic.toString();
+		}
+	}
+
+	public static class HandleConstantValue extends NonConstantValue {
+
+		public final TypeInfo type;
+		public final MethodInfo bootstrapMethod;
+		public final Handle handle;
+
+		public HandleConstantValue(TypeInfo type, MethodInfo bootstrapMethod) {
+			this.type = type;
+			this.bootstrapMethod = bootstrapMethod;
+			this.handle = bootstrapMethod.toHandle();
+		}
+
+		@Override
+		public Object asAsmObject() {
+			return this.handle;
+		}
+
+		@Override
+		public Object asJavaObject() {
+			return this.bootstrapMethod;
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			return this.type;
+		}
+
+		@Override
+		public boolean isConstantOrDynamic() {
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return this.handle.toString();
 		}
 	}
 

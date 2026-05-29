@@ -5,11 +5,13 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+
+import builderb0y.bigglobe.classes.spec.ElementSpec;
+import builderb0y.bigglobe.classes.spec.TypeSpec;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
 import builderb0y.bigglobe.scripting.ScriptErrorCatcher;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -36,18 +38,16 @@ public abstract class PropertyColumnRestriction extends ScriptErrorCatcher.Impl 
 
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-		ColumnEntryMemory memory = registry.columnContext.memories.get(this.property.value());
-		if (memory == null) throw new IllegalStateException("Unknown or voronoi-enabled property: " + this.property);
-		TypeInfo type = memory.getTyped(ColumnEntryMemory.TYPE_CONTEXT).type();
+		TypeInfo type = this.property.value().typeInfo(registry);
 		Class<?> fromClass = switch (type.getSort()) {
 			case FLOAT -> float.class;
 			case DOUBLE -> double.class;
 			default -> throw new IllegalArgumentException("Property should point to a float or double-typed column value, but " + this.property + " points to a column value of type " + type);
 		};
 		MethodHandle handle;
-		String getterName = memory.getTyped(ColumnEntryMemory.GETTER).node.name;
+		String getterName = registry.columnCompileContext.getCompileContext(this.property.value()).mainGetter.node.name;
 		try {
-			if (memory.getTyped(ColumnEntryMemory.ENTRY).getAccessSchema().is_3d()) {
+			if (this.property.value().params.is_3d()) {
 				handle = registry.columnLookup.findVirtual(registry.columnClass, getterName, MethodType.methodType(fromClass, int.class));
 			}
 			else {

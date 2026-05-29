@@ -3,7 +3,14 @@
 	"state": "'minecraft:air'",
 	"condition": "`bigglobe:islands/cave_noise` < 0.5I",
 	"after_children": {
-		"file": "bigglobe:world_preset/overworld_cave_surface_placement"
+		"includes": [
+			"bigglobe:world_preset/place_surface",
+			"bigglobe:world_preset/place_surface_above",
+			"bigglobe:world_preset/overworld_cave_surface_placement"
+		],
+		"source": [
+			"placeCaveSurfaces(`bigglobe:islands/cave_type`.surface(column))"
+		]
 	},
 	"valid": {
 		"where": "hints.carve",

@@ -3,8 +3,8 @@ package builderb0y.bigglobe.chunkgen.scripted;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.RecordLike;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 
 @RecordLike({})
 public class NoopLayer extends Layer {

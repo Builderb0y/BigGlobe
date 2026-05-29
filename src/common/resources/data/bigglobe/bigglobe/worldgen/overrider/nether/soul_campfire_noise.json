@@ -25,7 +25,7 @@
 						"toAdd *= unmixSmoothD2F(start.minY - 8, start.minY, y)",
 						"toAdd *= unmixSmoothD2F(start.maxY + 8, start.maxY, y)",
 						"toAdd *= smooth(1.0I - horizontalDistance)",
-						"`bigglobe:nether/bubble`.noise(y) += toAdd * 0.5I",
+						"`bigglobe:nether/noise`(y) += toAdd * 0.5I",
 					")",
 				")",
 			")",

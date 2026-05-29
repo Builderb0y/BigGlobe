@@ -1,0 +1,13 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:cave_systems/base/class",
+	"impl_type": "bigglobe:cave_systems/generic/class",
+	"name": "GENERIC",
+	"field_values": {
+		"weight": 1.0,
+		"dungeonFeature": "bigglobe:overworld/caves/random_dungeon",
+		"decorator": "bigglobe:overworld/caves/generic_decorator",
+		"biome": "bigglobe:generic_cave",
+		"systemDepth": 384
+	}
+}

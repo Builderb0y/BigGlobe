@@ -1,20 +1,8 @@
 {
 	"type": "bigglobe:decision_tree",
 	"params": {
-		"type": {
-			"type": "class",
-			"name": "SurfaceStates",
-			"fields": [
-				{ "name": "surfaceState",    "type": "block_state" },
-				{ "name": "subsurfaceState", "type": "block_state" }
-			]
-		},
+		"type": "bigglobe:surface/multi/class",
 		"is_3d": false
 	},
-	"root": "bigglobe:islands/surface_state/test_beach",
-	"patches": {
-		"bigglobe:overworld/surface_state/temperate_test_overgrown": "bigglobe:islands/surface_state/temperate_test_overgrown",
-		"bigglobe:overworld/surface_state/temperate_test_swamp": "bigglobe:islands/surface_state/temperate_test_swamp"
-	},
-	"cache": false
+	"root": "bigglobe:islands/surface_state/test_beach"
 }

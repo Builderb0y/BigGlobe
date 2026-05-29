@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/pale_garden/class",
+	"name": "PALE_GARDEN",
+	"field_values": {
+		"weight": 0.75,
+		"biome": "bigglobe:pale_garden",
+		"decorator": "bigglobe:nether/decorators/pale_garden"
+	}
+}

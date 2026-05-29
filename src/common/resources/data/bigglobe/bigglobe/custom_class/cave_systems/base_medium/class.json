@@ -1,6 +1,0 @@
-{
-	"element_type": "class/normal",
-	"name": "MediumCaveSystem",
-	"extends": "bigglobe:cave_systems/base/class",
-	"members": "#bigglobe:cave_systems/medium_members"
-}

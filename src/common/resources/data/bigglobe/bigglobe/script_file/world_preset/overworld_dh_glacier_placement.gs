@@ -1,4 +1,4 @@
-if (hints.isLod && `bigglobe:overworld/glacier_cell`.?hard_distance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`:
+if (hints.isLod && `bigglobe:overworld/glacier_cell`.?hardDistance ?: 1.0L <= `bigglobe:overworld/glacier_crack_threshold`:
 	setBlockStates(
 		max(
 			world_traits.`bigglobe:y_level_on_surface`,

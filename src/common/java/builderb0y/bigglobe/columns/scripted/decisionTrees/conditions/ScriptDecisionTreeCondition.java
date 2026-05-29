@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
+import builderb0y.bigglobe.columns.scripted2.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted2.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;

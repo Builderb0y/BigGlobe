@@ -1,0 +1,10 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:cave_systems/base/class",
+	"name": "getNoise",
+	"return_type": "float",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" },
+		{ "name": "y",      "type": "int"            }
+	]
+}

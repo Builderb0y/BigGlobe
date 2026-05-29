@@ -1,0 +1,6 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:nether_bubbles/nether_wastes/class",
+	"override": "bigglobe:nether_bubbles/base/method_get_noise",
+	"code": "column.`bigglobe:nether/bubble/cavern_noise_nether_wastes`(y)"
+}

@@ -1,0 +1,10 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:rock_fillers/base/class",
+	"name": "weight",
+	"return_type": "float",
+	"parameters": [
+		{ "type": "column_storage", "name": "column" },
+		{ "type": "int",            "name": "y"      }
+	]
+}

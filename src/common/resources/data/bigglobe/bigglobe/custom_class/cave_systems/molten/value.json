@@ -1,0 +1,12 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:cave_systems/base/class",
+	"impl_type": "bigglobe:cave_systems/molten/class",
+	"name": "MOLTEN",
+	"field_values": {
+		"weight": 0.25,
+		"decorator": "bigglobe:overworld/caves/molten_decorator",
+		"biome": "bigglobe:molten_cave",
+		"systemDepth": 256
+	}
+}

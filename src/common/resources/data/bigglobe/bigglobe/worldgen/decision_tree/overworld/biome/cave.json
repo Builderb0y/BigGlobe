@@ -1,6 +1,6 @@
 {
 	"result": {
-		"type": "scripted",
-		"script": "`bigglobe:overworld/cave`.biome"
+		"type": "script",
+		"script": "`bigglobe:overworld/cave_type`.biome"
 	}
 }

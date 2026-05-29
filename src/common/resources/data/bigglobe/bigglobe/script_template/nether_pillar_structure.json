@@ -1,9 +1,10 @@
 {
 	"script": [
 		"random.if (CHANCE_PER_CHUNK:",
+			"ColumnStorage centerColumn = columnAt(originX, originZ)",
 			"repeat centerAttempt (CENTER_ATTEMPTS:",
 				"int centerY = random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`)",
-				"unless (`bigglobe:nether/bubble`.noise(centerY) < 0.5I:",
+				"unless (centerColumn.`bigglobe:nether/bubble_type`.noise(centerColumn, centerY) < 0.5I:",
 					"continue(centerAttempt)",
 				")",
 				"double*(",
@@ -18,7 +19,8 @@
 					"posZ = originZ + int(dz)",
 					"posY = centerY",
 				")",
-				"while (`bigglobe:nether/bubble`(posX, posZ).noise(posY) < 0.5I:",
+				"ColumnStorage posColumn = columnAt(posX, posZ)",
+				"while (posColumn.`bigglobe:nether/bubble_type`.noise(posColumn, posY) < 0.5I:",
 					"if (:++ posY >= `bigglobe:nether/max_y`: continue(centerAttempt))",
 				")",
 
@@ -27,7 +29,8 @@
 					"negZ = originZ - int(dz)",
 					"negY = centerY",
 				")",
-				"while (`bigglobe:nether/bubble`(negX, negZ).noise(negY) < 0.5I:",
+				"ColumnStorage negColumn = columnAt(negX, negZ)",
+				"while (negColumn.`bigglobe:nether/bubble_type`.noise(negColumn, negY) < 0.5I:",
 					"if (:-- negY < `bigglobe:nether/min_y`: continue(centerAttempt))",
 				")",
 
@@ -42,7 +45,7 @@
 				"posY += ceilInt(endRadius)",
 				"unless (",
 					"posY + ceilInt(endRadius) < `bigglobe:nether/max_y` &&",
-					"`bigglobe:nether/bubble`(posX, posZ).noise(posY + ceilInt(endRadius)) >= 0.5I",
+					"posColumn.`bigglobe:nether/bubble_type`.noise(posColumn, posY + ceilInt(endRadius)) >= 0.5I",
 				":",
 					"continue(centerAttempt)",
 				")",
@@ -50,13 +53,13 @@
 				"negY -= ceilInt(endRadius)",
 				"unless (",
 					"negY - ceilInt(endRadius) >= `bigglobe:nether/min_y` &&",
-					"`bigglobe:nether/bubble`(negX, negZ).noise(negY - ceilInt(endRadius)) >= 0.5I",
+					"negColumn.`bigglobe:nether/bubble_type`.noise(negColumn, negY - ceilInt(endRadius)) >= 0.5I",
 				":",
 					"continue(centerAttempt)",
 				")",
 
 				"centerY = (posY + negY) >> 1",
-				"unless (`bigglobe:nether/bubble`.noise(centerY) < 0.5I:",
+				"unless (centerColumn.`bigglobe:nether/bubble_type`.noise(centerColumn, centerY) < 0.5I:",
 					"continue(centerAttempt)",
 				")",
 

@@ -35,8 +35,8 @@ public class ClassCompileContext {
 	public int memberUniquifier;
 	public List<Object> constants = new ArrayList<>();
 
-	public ClassCompileContext(int access, TypeInfo info) {
-		String name = info.getInternalName();
+	public ClassCompileContext(int access, TypeInfo type) {
+		String name = type.getInternalName();
 		int has = 0;
 		for (int index = 0, length = name.length(); index < length; index++) {
 			switch (name.charAt(index)) {
@@ -50,16 +50,16 @@ public class ClassCompileContext {
 			throw new IllegalStateException("For security reasons, your class name must contain a slash, an underscore, a dollar sign, and a number. (was '" + name + "')");
 		}
 		this.node = new ClassNode();
-		this.info = info;
+		this.info = type;
 		this.definedClasses = new HashMap<>(2);
-		this.definedClasses.put(info.getInternalName(), info);
+		this.definedClasses.put(type.getInternalName(), type);
 		this.node.visit(
 			V17,
 			access,
-			info.getInternalName(),
+			type.getInternalName(),
 			null,
-			info.superClass.getInternalName(),
-			CollectionTransformer.convertArray(info.superInterfaces, STRING_ARRAY_FACTORY, TypeInfo::getInternalName)
+			type.superClass.getInternalName(),
+			CollectionTransformer.convertArray(type.superInterfaces, STRING_ARRAY_FACTORY, TypeInfo::getInternalName)
 		);
 		this.node.visitSource("Script", null);
 		this.innerClasses = new ArrayList<>(2);
@@ -118,11 +118,6 @@ public class ClassCompileContext {
 	}
 
 	public byte[] toByteArray() {
-		for (MethodCompileContext method : this.innerMethods) {
-			if (!method.scopes.stack.isEmpty()) {
-				throw new IllegalStateException(this.node.name + '.' + method.node.name + "() has not had its scope fully popped yet!");
-			}
-		}
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS) {
 
 			@Override
@@ -154,7 +149,7 @@ public class ClassCompileContext {
 				new MethodInfo(ACC_PUBLIC, this.info.superClass, "<init>", TypeInfos.VOID)
 			)
 		)
-			.emitBytecode(constructor);
+		.emitBytecode(constructor);
 		constructor.endCode();
 	}
 

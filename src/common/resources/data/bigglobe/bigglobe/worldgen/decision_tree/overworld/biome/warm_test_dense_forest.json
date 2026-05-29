@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": 0.25,
 		"max": 0.75,
-		"trait": "bigglobe:foliage_at_surface"
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:foliage_at_surface"
+		}
 	},
 	"if_true": "bigglobe:overworld/biome/warm_dense_forest",
 	"if_false": "bigglobe:overworld/biome/warm_light_forest"

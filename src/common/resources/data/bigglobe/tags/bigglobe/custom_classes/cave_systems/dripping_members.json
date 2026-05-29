@@ -1,9 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:cave_systems/dripping/property_biome",
-		"bigglobe:cave_systems/dripping/property_floor_surface",
-		"bigglobe:cave_systems/dripping/property_ceiling_surface",
-		"bigglobe:cave_systems/dripping/property_decorator"
-	]
-}

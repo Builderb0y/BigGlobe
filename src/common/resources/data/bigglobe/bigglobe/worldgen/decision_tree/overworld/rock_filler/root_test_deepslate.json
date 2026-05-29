@@ -1,0 +1,21 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": -0.015625,
+		"max":  0.015625,
+		"smooth_min": 0,
+		"smooth_max": 0,
+		"value": {
+			"type": "script",
+			"script": [
+				"float bias = float(",
+					"(world_traits.`bigglobe:approximate_surface_y` - 256.0L - double(y)) / 128.0L",
+				")",
+				"if (abs(bias) < 1.0I: bias += `bigglobe:overworld/rocks/deepslate_noise`)",
+				"return(bias)"
+			]
+		}
+	},
+	"if_true": "bigglobe:overworld/rock_filler/deepslate_test_core",
+	"if_false": "bigglobe:overworld/rock_filler/normal_test_dripstone"
+}

@@ -11,7 +11,7 @@
 		"t *= 1.0I + accum + (accum :* r2) + (accum :* r2) + (accum :* r2)",
 		"mixLinear(",
 			"world_traits.`bigglobe:exact_surface_y`,",
-			"eroded_heightmap.snow.y + (t * -64.0I - 4.0I),",
+			"eroded_snow.y + (t * -64.0I - 4.0I),",
 			"unmixSmooth(",
 				"world_traits.`bigglobe:sea_level`,",
 				"world_traits.`bigglobe:sea_level` + 32.0L,",

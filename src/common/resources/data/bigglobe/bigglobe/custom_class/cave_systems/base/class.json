@@ -1,5 +1,5 @@
 {
-	"element_type": "class/normal",
-	"name": "CaveSystem",
-	"members": "#bigglobe:cave_systems/base_members"
+	"element_type": "class/enum",
+	"abstract": true,
+	"name": "CaveSystem"
 }

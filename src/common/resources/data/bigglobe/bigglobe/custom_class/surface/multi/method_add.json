@@ -1,11 +1,13 @@
 {
 	"element_type": "method/normal",
+	"owner": "bigglobe:surface/multi/class",
+	"name": "add",
 	"return_type": "void",
 	"parameters": [
-		{ "name": "state", "element_type": "block_state" },
-		{ "name": "depth", "element_type": "int" }
+		{ "name": "state", "type": "block_state" },
+		{ "name": "depth", "type": "int"         }
 	],
 	"code": [
-		"if (depth > 0: layers.add(SurfaceState.new(state, depth)))"
+		"if (depth > 0: layers.add(SurfaceState.create(state, depth)))"
 	]
 }

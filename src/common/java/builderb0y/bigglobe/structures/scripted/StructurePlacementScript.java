@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.structures.scripted;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -57,7 +57,7 @@ public interface StructurePlacementScript extends Script {
 				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					registry.setupExternalEnvironment(
+					registry.setupEnvironment(
 						environment
 						.addVariableLoad("minX", TypeInfos.INT)
 						.addVariableLoad("minY", TypeInfos.INT)
@@ -75,8 +75,7 @@ public interface StructurePlacementScript extends Script {
 						.addVariableLoad("chunkMaxY", TypeInfos.INT)
 						.addVariableLoad("chunkMaxZ", TypeInfos.INT)
 						.addVariableLoad("piece", type(ScriptedStructure.Piece.class))
-						.addVariableGetField(load("piece", type(ScriptedStructure.Piece.class)), ScriptedStructure.Piece.class, "data")
-						.addVariable("distantHorizons", WORLD.distantHorizons),
+						.addVariableGetField(load("piece", type(ScriptedStructure.Piece.class)), ScriptedStructure.Piece.class, "data"),
 						new ExternalEnvironmentParams()
 						.withLookup(WORLD.loadSelf)
 						.offsetY(WORLD.originY)

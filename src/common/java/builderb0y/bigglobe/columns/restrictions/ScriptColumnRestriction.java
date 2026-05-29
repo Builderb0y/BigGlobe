@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.columns.restrictions;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript.Catcher;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnYToDoubleScript.Catcher;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 

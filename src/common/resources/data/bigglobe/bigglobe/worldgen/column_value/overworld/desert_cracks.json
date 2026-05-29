@@ -1,10 +1,7 @@
 {
-	"type": "bigglobe:voronoi",
+	"type": "voronoi",
 	"params": {
-		"type": {
-			"type": "bigglobe:voronoi",
-			"name": "DesertCrackCell"
-		},
+		"type": "voronoi",
 		"is_3d": false
 	},
 	"diagram": {

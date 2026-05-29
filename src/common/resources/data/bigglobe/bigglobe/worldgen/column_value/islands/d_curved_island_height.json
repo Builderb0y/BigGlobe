@@ -5,8 +5,8 @@
 		"is_3d": false
 	},
 	"script": [
-		"double dist = island.soft_distance",
-		"double dampen = island.euclidean_distance / (island.euclidean_distance + 16.0L)",
+		"double dist = island.softDistance",
+		"double dampen = island.euclideanDistance / (island.euclideanDistance + 16.0L)",
 		"return((dist - 1.0L) * ((dist * 6.0L - 2.0L) * (1.0L - mountainness) + 2.0L) * island_height * dampen)"
 	]
 }

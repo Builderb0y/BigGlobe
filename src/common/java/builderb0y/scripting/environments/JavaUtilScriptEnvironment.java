@@ -91,7 +91,7 @@ public class JavaUtilScriptEnvironment {
 			.addMethodInvokes(Collection.class, "size", "isEmpty", "contains", "containsAll")
 			.addMethodInvokes(SortedSet.class, "subSet", "headSet", "tailSet", "first", "last")
 			.addMethodMultiInvokes(NavigableSet.class, "lower", "floor", "ceiling", "higher", "descendingSet", "descendingIterator", "subSet", "headSet", "tailSet")
-			.addMethodMultiInvokes(List.class, "get", "indexOf", "lastIndexOf", "listIterator", "subList")
+			.addMethodMultiInvokes(List.class, "get", "getFirst", "getLast", "indexOf", "lastIndexOf", "listIterator", "subList")
 			.addMethodInvokes(Queue.class, "element", "peek")
 			.addMethodInvokes(Deque.class, "getFirst", "getLast", "peekFirst", "peekLast")
 			.addMethodMultiInvokes(IRandomList.class, "getWeight", "iterator", "listIterator", "subList")

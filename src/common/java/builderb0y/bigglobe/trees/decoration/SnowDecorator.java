@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToFloatScript;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnYToFloatScript;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.trees.TreeGenerator;
 

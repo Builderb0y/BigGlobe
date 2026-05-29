@@ -2,30 +2,35 @@ package builderb0y.bigglobe.classes.spec;
 
 import java.util.HashSet;
 import java.util.Set;
-import net.minecraft.core.Holder;
+import java.util.stream.Stream;
+
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
-import builderb0y.autocodec.annotations.DefaultBoolean;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.compile.OverrideTracker;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.tree.StandAloneDirect3DGetterInsnTree;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.ScriptEnvironment;
-import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -33,110 +38,84 @@ public class NormalPropertySpec extends BasePropertySpec {
 
 	public final @IdentifierName String name;
 	public final Holder<ElementSpec> property_type;
-	public final @DefaultBoolean(false) boolean is_3d;
+	@Override
+	public TypeSpec getPropertyTypeSpec(ClassHierarchy hierarchy) {
+		return requireType(this.property_type, TypeSpec.class, () -> hierarchy.idOf(this) + " > property_type");
+	}
 	public final ScriptUsage get;
 	public final @VerifyNullable ScriptUsage set;
-	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient SetBasedMutableDependencyView dependencies = SetBasedMutableDependencyView.from(new HashSet<>());
 
 	public NormalPropertySpec(
+		Holder<ElementSpec> owner,
 		@IdentifierName String name,
 		Holder<ElementSpec> property_type,
-		boolean is_3d,
 		ScriptUsage get,
 		@VerifyNullable ScriptUsage set
 	) {
+		super(owner);
 		this.name = name;
 		this.property_type = property_type;
-		this.is_3d = is_3d;
 		this.get = get;
 		this.set = set;
 	}
 
 	@Override
-	public boolean is3D() {
-		return this.is_3d;
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.concat(super.streamDirectDependencies(), this.dependencies.streamDirectDependencies());
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
-		PropertyCompileContext propertyContext = owner.getCompileContext(this);
-		MethodInfo getterInfo = propertyContext.get.info;
-		MethodInfo setterInfo = propertyContext.set != null ? propertyContext.set.info : null;
-		TypeInfo ownerType = owner.getTypeInfo();
-		if (this.is_3d) {
-			if (this.set != null) {
-				environment.addMethod(
-					propertyContext.get.clazz.info,
-					this.name,
-					new MethodHandler.Named(
-						this.name + "(int y)",
-						(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-							InsnTree y = ScriptEnvironment.castArgument(parser, name, TypeInfos.INT, CastMode.IMPLICIT_NULL, arguments);
-							if (y == null) return null;
-							if (mode != GetMethodMode.NORMAL) {
-								throw new ScriptParsingException("Nullable and receiver access modes are not supported here.", parser.input);
-							}
-							return new CastResult(new StandAloneDirect3DGetterInsnTree(receiver, y, getterInfo, setterInfo), y != arguments[0]);
+	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		InsnTree loadCustomClass = params.loadCustomClass;
+		TypeInfo owner = this.context.get.clazz.info;
+		MethodInfo getter = this.context.get.info;
+		if (this.isSettable()) {
+			MethodInfo setter = this.context.set.info;
+			environment.addField(
+				owner,
+				this.name,
+				new FieldHandler.Named(
+					"getter: " + getter + ", setter: " + setter,
+					(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+						if (getter.isDeprecated() || setter.isDeprecated()) {
+							BigGlobeMod.LOGGER.warn("Deprecated field used: " + this.name + '\n' + parser.input.getSourceForError());
 						}
-					)
-				);
-				if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
-					environment.addFunction(
-						this.name,
-						new FunctionHandler.Named(
-							this.name + "(int y)",
-							(ExpressionParser parser, String name, InsnTree... arguments) -> {
-								InsnTree y = ScriptEnvironment.castArgument(parser, name, TypeInfos.INT, CastMode.IMPLICIT_NULL, arguments);
-								if (y == null) return null;
-								return new CastResult(new StandAloneDirect3DGetterInsnTree(load("this", ownerType), y, getterInfo, setterInfo), y != arguments[0]);
-							}
-						)
-					);
-				}
-			}
-			else {
-				environment.addMethodInvoke(this.name, getterInfo);
-				if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
-					environment.addFunctionInvoke(load("this", ownerType), getterInfo);
-				}
+						if (params.dependencies != null) params.dependencies.addDependency(self);
+						return mode.makeGetterSetter(parser, receiver, getter, setter);
+					}
+				)
+			);
+			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(owner)) {
+				InsnTree tree = new GetterSetterInsnTree(loadCustomClass, getter, setter);
+				environment.addVariable(this.name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name) -> {
+					if (params.dependencies != null) params.dependencies.addDependency(self);
+					return tree;
+				}));
 			}
 		}
 		else {
-			if (this.set != null) {
-				environment.addFieldGetterSetter(propertyContext.get.clazz.info, this.name, propertyContext.get.info, propertyContext.set.info);
-				if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
-					environment.addVariableGetterSetter(loadCustomClass, this.name, propertyContext.get.info, propertyContext.set.info);
-				}
-			}
-			else {
-				environment.addFieldInvoke(propertyContext.get.info);
-				if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
-					environment.addVariableInvoke(loadCustomClass, propertyContext.get.info);
-				}
+			environment.addField(getter.owner, getter.name, Handlers.builder(getter).addReceiverArgument(getter.owner).callback(params.dependencyCallback(self)).buildField());
+			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(owner)) {
+				environment.addVariable(getter.name, Handlers.builder(getter).addImplicitArgument(loadCustomClass).callback(params.dependencyCallback(self)).buildVariable());
 			}
 		}
 	}
 
 	@Override
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
-		PropertyCompileContext propertyContext = owner.getCompileContext(this);
-		InsnTree loadY = this.is_3d ? load("y", TypeInfos.INT) : null;
-		compile(
-			hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
-				if (this.is_3d) environment.addVariableLoad("y", TypeInfos.INT);
-			}
-		);
-		if (this.set != null) compile(
-			hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
-				if (this.is_3d) environment.addVariableLoad("y", TypeInfos.INT);
-				environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
-			}
-		);
+	public void compile(ClassHierarchy hierarchy) throws DetailedException {
+		super.compile(hierarchy);
+		compile(hierarchy, this.context.get, this.get, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, NO_EXTRAS);
+		if (this.set != null) compile(hierarchy, this.context.set, this.set, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, (MutableScriptEnvironment environment) -> {
+			environment.addVariableLoad("value", this.getPropertyTypeSpec(hierarchy).getTypeInfo());
+		});
 	}
 
 	@Override
-	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addNormalProperty(this);
+	@MustBeInvokedByOverriders
+	public void verify(ClassHierarchy hierarchy) throws DetailedException {
+		super.verify(hierarchy);
+		this.owner(hierarchy).overrideTracker.addNormalProperty(this);
 	}
 
 	@Override
@@ -157,10 +136,5 @@ public class NormalPropertySpec extends BasePropertySpec {
 	@Override
 	public int flags() {
 		return ACC_PUBLIC;
-	}
-
-	@Override
-	public Set<Holder<? extends DependencyView>> getDependencies() {
-		return this.dependencies;
 	}
 }

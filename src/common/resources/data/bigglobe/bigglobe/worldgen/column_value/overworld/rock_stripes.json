@@ -1,0 +1,8 @@
+{
+	"type": "decision_tree",
+	"params": {
+		"type": "set",
+		"is_3d": false
+	},
+	"root": "bigglobe:overworld/rock_stripes/root_test_desert"
+}

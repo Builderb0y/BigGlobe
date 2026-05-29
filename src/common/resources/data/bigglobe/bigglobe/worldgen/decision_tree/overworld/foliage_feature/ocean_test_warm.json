@@ -1,10 +1,13 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": 0.0,
 		"max": 1.0,
-		"smooth_max": false,
-		"trait": "bigglobe:temperature_at_surface"
+		"smooth_max": 0,
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:temperature_at_surface"
+		}
 	},
 	"if_true": "bigglobe:overworld/foliage_feature/coral",
 	"if_false": "bigglobe:overworld/foliage_feature/no_feature"

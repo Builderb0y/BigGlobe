@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.classes.compile;
 
-public class CustomClassFormatException extends Exception {
+public class CustomClassFormatException extends DetailedException {
 
 	public CustomClassFormatException() {}
 

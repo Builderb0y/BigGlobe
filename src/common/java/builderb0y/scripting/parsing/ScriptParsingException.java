@@ -2,22 +2,32 @@ package builderb0y.scripting.parsing;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ScriptParsingException extends Exception {
+import builderb0y.bigglobe.classes.compile.DetailedException;
+
+public class ScriptParsingException extends DetailedException {
 
 	public ScriptParsingException(String message, ExpressionReader input) {
-		super(appendContext(message, input));
+		super(message);
+		this.addContext(input);
 	}
 
 	public ScriptParsingException(String message, Throwable cause, ExpressionReader input) {
-		super(appendContext(message, input), cause);
+		super(message, cause);
+		this.addContext(input);
 	}
 
 	public ScriptParsingException(Throwable cause, ExpressionReader input) {
-		super(appendContext(cause.getMessage(), input), cause);
+		super(cause);
+		this.addContext(input);
 	}
 
-	public ScriptParsingException(ScriptParsingException cause) {
-		super(cause.getMessage(), cause);
+	public void addContext(ExpressionReader input) {
+		if (input != null) {
+			this.appendLine("at line " + input.line + ", column " + input.column);
+			input.getSourceForError().lines().forEachOrdered(this::appendLine);
+			int index = this.lines.size() - 1;
+			this.lines.set(index, this.lines.get(index) + " <--- HERE");
+		}
 	}
 
 	public static @Nullable String appendContext(@Nullable String message, @Nullable ExpressionReader input) {

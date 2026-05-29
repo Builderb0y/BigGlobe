@@ -23,7 +23,7 @@ import net.minecraft.util.Mth;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.UndergroundMode;
 import builderb0y.bigglobe.compat.ClothConfigCompat;
 import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;

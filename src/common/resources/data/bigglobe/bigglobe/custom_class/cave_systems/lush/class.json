@@ -1,6 +1,5 @@
 {
-	"element_type": "class/normal",
+	"element_type": "class/enum",
 	"name": "LushCaveSystem",
-	"extends": "bigglobe:cave_systems/base_easy/class",
-	"members": "#bigglobe:cave_systems/lush_members"
+	"extends": "bigglobe:cave_systems/easy/class"
 }

@@ -3,33 +3,34 @@ package builderb0y.bigglobe.columns.scripted2.entries;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
+import builderb0y.bigglobe.columns.scripted2.decisionTrees.DecisionTreeContext;
+import builderb0y.bigglobe.columns.scripted2.decisionTrees.DecisionTreeException;
+import builderb0y.bigglobe.columns.scripted2.decisionTrees.DecisionTreeSpec;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.Valid;
-import builderb0y.scripting.bytecode.LazyVarInfo;
-import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTraits;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
-
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class DecisionTreeColumnEntry extends LoopColumnEntry {
 
-	public final Holder<DecisionTreeSettings> root;
-	public final @VerifyNullable Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches;
+	public final Holder<DecisionTreeSpec> root;
+	public final @VerifyNullable Map<Holder<DecisionTreeSpec>, Holder<DecisionTreeSpec>> patches;
 
 	public DecisionTreeColumnEntry(
 		AccessSchema params,
 		@VerifyNullable Valid valid,
 		boolean cache,
-		Holder<DecisionTreeSettings> root,
-		@VerifyNullable Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches
+		Holder<DecisionTreeSpec> root,
+		@VerifyNullable Map<Holder<DecisionTreeSpec>, Holder<DecisionTreeSpec>> patches
 	) {
 		super(params, valid, cache);
 		this.root = root;
@@ -46,24 +47,20 @@ public class DecisionTreeColumnEntry extends LoopColumnEntry {
 	}
 
 	@Override
-	public InsnTree makeComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
-		if (true) throw new UnsupportedOperationException("todo: implement decision trees");
-		MethodCompileContext method = registry.columnCompileContext.clazz.newMethod(
-			ACC_PUBLIC,
-			"decisionTree_" + context.internalName,
-			ElementSpec.asType(this.params.type()).getTypeInfo(),
-			this.params.is_3d()
-				? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) }
-				: LazyVarInfo.ARRAY_FACTORY.empty()
-		);
-		//return_(this.root.value().createInsnTree()).emitBytecode(method);
-		//method.endCode();
-		return invokeInstance(
-			registry.columnCompileContext.loadColumn(),
-			method.info,
-			this.params.is_3d()
-				? new InsnTree[] { load("y", TypeInfos.INT) }
-				: InsnTree.ARRAY_FACTORY.empty()
-		);
+	public InsnTree makeComputer(ColumnEntryRegistry registry, ColumnEntryContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+		try {
+			return (
+				new DecisionTreeContext(
+					registry,
+					this.patches,
+					this.params.typeSpec(registry, this),
+					this.params.is_3d()
+				)
+				.emitTree(this.root)
+			);
+		}
+		catch (DecisionTreeException exception) {
+			throw new ScriptParsingException(exception, null);
+		}
 	}
 }

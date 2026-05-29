@@ -1,0 +1,15 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:cave_systems/base/class",
+	"name": "defaultSurfaceDepth",
+	"return_type": "int",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" }
+	],
+	"code": [
+		"float noise = column.world_traits.`bigglobe:cave_surface_depth`",
+		"if (noise > 1.0I: return(floorInt(column.columnSeed(16x6AAAFC2862FCBC27UL).nextFloat() * (noise - 1.0I) + 1.0I)))",
+		"if (noise > 0.0I: return(1))",
+		"return(0)"
+	]
+}

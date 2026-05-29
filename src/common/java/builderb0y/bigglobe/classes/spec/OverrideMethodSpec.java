@@ -1,65 +1,86 @@
 package builderb0y.bigglobe.classes.spec;
 
 import java.util.Set;
+import java.util.stream.Stream;
+
 import net.minecraft.core.Holder;
+
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.compile.OverrideTracker;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
-import static org.objectweb.asm.Opcodes.*;
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class OverrideMethodSpec extends BaseMethodSpec {
 
 	public final Holder<ElementSpec> override;
+
+	public BaseMethodSpec override(ClassHierarchy hierarchy) {
+		return requireType(this.override, BaseMethodSpec.class, () -> hierarchy.idOf(this) + " > override");
+	}
+
+	@Override
+	public TypeSpec returnTypeSpec(ClassHierarchy hierarchy) {
+		return this.override(hierarchy).returnTypeSpec(hierarchy);
+	}
+
 	public final ScriptUsage code;
 
 	public OverrideMethodSpec(
+		Holder<ElementSpec> owner,
 		Holder<ElementSpec> override,
 		ScriptUsage code
 	) {
+		super(owner);
 		this.override = override;
 		this.code = code;
 	}
 
 	@Override
-	public Set<Holder<? extends DependencyView>> getDependencies() {
-		return ((BaseMethodSpec)(this.override.value())).getDependencies();
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.concat(super.streamDirectDependencies(), Stream.of(this.override));
 	}
 
 	@Override
-	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addOverrideMethod(this);
+	@MustBeInvokedByOverriders
+	public void reference(ClassHierarchy hierarchy) throws DetailedException {
+		super.reference(hierarchy);
+		this.override(hierarchy).overrides.add(hierarchy.entryOf(this));
 	}
 
 	@Override
-	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
-		if (!(this.override.value() instanceof BaseMethodSpec)) {
-			throw new CustomClassFormatException("Override method " + this.override.value().name() + " overrides non-method " + UnregisteredObjectException.getID(this.override));
-		}
+	@MustBeInvokedByOverriders
+	public void verify(ClassHierarchy hierarchy) throws DetailedException {
+		super.verify(hierarchy);
+		this.override(hierarchy);
+		this.owner(hierarchy).overrideTracker.addOverrideMethod(this);
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
-		//no-op. base method can be called as-is.
-	}
-
-	@Override
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz) throws ScriptParsingException {
-		this.compile(
-			hierarchy, clazz, this.code, (MutableScriptEnvironment environment) -> {
-				for (ParameterSpec parameter : this.getParameters()) {
-					environment.addVariableLoad(parameter.name, parameter.typeInfo());
-				}
+	@MustBeInvokedByOverriders
+	public void compile(ClassHierarchy hierarchy) throws DetailedException {
+		super.compile(hierarchy);
+		this.compile(hierarchy, this.code, load("this", this.owner(hierarchy).getTypeInfo()), (MutableScriptEnvironment environment) -> {
+			for (ParameterSpec parameter : this.getParameters()) {
+				environment.addVariableLoad(parameter.name, parameter.typeInfo());
 			}
-		);
+		});
+	}
+
+	@Override
+	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		//no-op. base method can be called as-is.
 	}
 
 	@Override
@@ -73,7 +94,7 @@ public class OverrideMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public int flags() {
+	public int accessFlags() {
 		return ACC_PUBLIC;
 	}
 

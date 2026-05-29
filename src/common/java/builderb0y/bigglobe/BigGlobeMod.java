@@ -79,11 +79,13 @@ public class BigGlobeMod implements ModInitializer {
 		MODID = "bigglobe",
 		MODNAME = "Big Globe";
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(MODNAME);
+	public static final Logger
+		LOGGER = LoggerFactory.getLogger(MODNAME);
 	public static final boolean
 		REGEN_WORLDS = Boolean.getBoolean(MODID + ".regenWorlds"),
 		MIXIN_AUDIT = Boolean.getBoolean(MODID + ".mixinAudit");
-	public static final ResourceKey<WorldPreset> BIG_GLOBE_WORLD_PRESET_KEY = ResourceKey.create(Registries.WORLD_PRESET, modID("bigglobe"));
+	public static final ResourceKey<WorldPreset>
+		BIG_GLOBE_WORLD_PRESET_KEY = ResourceKey.create(Registries.WORLD_PRESET, modID("bigglobe"));
 
 	public static MinecraftServer currentServer;
 	public static BetterRegistry.Lookup currentRegistries;

@@ -4,8 +4,9 @@
 	"spawn_overrides": {},
 	"step": "surface_structures",
 	"layout": [
+		"ColumnStorage column = columnAt(originX, originZ)",
 		"boolean isTerrainAt(int y:",
-			"return(`bigglobe:nether/bubble`(originX, originZ).noise(y) > 0.5I)",
+			"return(column.`bigglobe:nether/bubble_type`.noise(column, y) > 0.5I)",
 		")",
 
 		"int getY(:",
@@ -13,7 +14,7 @@
 				"int y = random.nextInt(`bigglobe:nether/min_y`, `bigglobe:nether/max_y`)",
 				"unless (isTerrainAt(y):",
 					"do until (isTerrainAt(y):",
-						"if (:-- y < `bigglobe:nether/bubble`(originX, originZ).lava_level: return(16x8000_0000U))",
+						"if (:-- y < `bigglobe:nether/bubble_type`(originX, originZ).lavaLevel: return(16x8000_0000U))",
 					")",
 					"return(y + 1)",
 				")",

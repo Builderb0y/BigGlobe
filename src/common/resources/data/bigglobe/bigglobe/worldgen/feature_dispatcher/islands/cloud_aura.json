@@ -4,7 +4,7 @@
 		"boolean valid(int*(x, z):",
 			"`bigglobe:islands/is_floating`(x, z)",
 			"&& abs(",
-				"`bigglobe:islands/island`(x, z).soft_distance_squared",
+				"`bigglobe:islands/island`(x, z).softDistanceSquared",
 				"- `bigglobe:islands/cloud_horizontal_center`(x, z)",
 			")",
 			"< `bigglobe:islands/cloud_horizontal_extent`(x, z)",

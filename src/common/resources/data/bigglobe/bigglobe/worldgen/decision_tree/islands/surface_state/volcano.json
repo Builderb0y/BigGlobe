@@ -1,9 +1,12 @@
 {
 	"result": {
-		"type": "constant",
-		"value": {
-			"surfaceState": "minecraft:blackstone",
-			"subsurfaceState": "minecraft:basalt[axis=y]"
-		}
+		"type": "script",
+		"script": [
+			"SurfaceStates surface = new()",
+			"int depth = floorInt(`bigglobe:overworld/default_surface_depth`)",
+			"if (depth > 1: surface.add('minecraft:basalt[axis=y]', depth))",
+			"if (depth > 0: surface.add('minecraft:blackstone', 1))",
+			"surface"
+		]
 	}
 }

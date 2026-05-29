@@ -4,7 +4,7 @@ int surfaceY = world_traits.`bigglobe:y_level_on_surface`
 if (surfaceY.isBetween[minY, maxY]:
 	long seed = columnSeed(16x89EA3521C6A72ABCUL)
 	if (`bigglobe:overworld/is_desert`:
-		int lowerBound = hints.isLod ? ceilInt(world_traits.`bigglobe:slope_surface_y`) - 16 : world_traits.`bigglobe:core_max_y`
+		int lowerBound = hints.isLod ? world_traits.`bigglobe:y_level_on_surface` - 16 : world_traits.`bigglobe:core_max_y`
 		int upperBound = world_traits.`bigglobe:y_level_in_surface`
 		double terracottaOffset = `bigglobe:overworld/terracotta_offset` * `bigglobe:overworld/raw/mountainness`
 		boolean mesa = `bigglobe:overworld/is_mesa`

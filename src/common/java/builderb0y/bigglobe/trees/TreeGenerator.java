@@ -2,7 +2,7 @@ package builderb0y.bigglobe.trees;
 
 import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;

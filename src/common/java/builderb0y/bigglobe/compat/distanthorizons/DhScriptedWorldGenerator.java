@@ -25,8 +25,8 @@ import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat.DHCode;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
@@ -229,7 +229,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		DhApiChunk results = DHCode.newChunk(chunkX, chunkZ, chunkBottomY, chunkTopY);
 		ScriptedColumn[] columns;
 		try {
-			columns = this.chunkGenerator.columnEntryRegistry.chunkReuseColumns.take();
+			columns = this.chunkGenerator.columnEntryRegistry.chunkGeneratorColumns.take();
 		}
 		catch (InterruptedException exception) {
 			BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
@@ -262,7 +262,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 			}
 		}
 		finally {
-			this.chunkGenerator.columnEntryRegistry.chunkReuseColumns.add(columns);
+			this.chunkGenerator.columnEntryRegistry.chunkGeneratorColumns.add(columns);
 		}
 		for (int index = 0; index < 256; index++) {
 			results.setDataPoints(index & 15, index >>> 4, dataPointBuilders[index]);

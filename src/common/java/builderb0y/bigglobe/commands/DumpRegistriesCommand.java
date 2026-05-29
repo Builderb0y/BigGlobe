@@ -2,8 +2,8 @@ package builderb0y.bigglobe.commands;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonElement;
@@ -13,18 +13,21 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryAccess.RegistryEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import builderb0y.autocodec.util.AutoCodecUtil;
+import net.minecraft.tags.TagKey;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.CommandVersions;
@@ -32,25 +35,39 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DumpRegistriesCommand {
 
+	public static final Comparator<Identifier> IDENTIFIER_COMPARATOR = (
+		Comparator
+		.comparing(Identifier::getNamespace)
+		.thenComparing(Identifier::getPath)
+	);
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 			Commands.literal(BigGlobeMod.MODID + ":dumpRegistries")
-				.requires(CommandVersions.levelPredicate(4).or((CommandSourceStack source) -> source.getServer() != null && source.getServer().isSingleplayer()))
-				.executes((CommandContext<CommandSourceStack> context) -> {
-					try {
-						dumpEverything(context);
-						context.getSource().sendSuccess(() -> Component.translatable("commands." + BigGlobeMod.MODID + ".registryDump.success"), false);
-					}
-					catch (Throwable throwable) {
-						BigGlobeMod.LOGGER.error("Error dumping registries:", throwable);
-						AutoCodecUtil.rethrow(throwable);
-					}
-					return 1;
-				})
+			.requires(CommandVersions.levelPredicate(4).or((CommandSourceStack source) -> source.getServer() != null && source.getServer().isSingleplayer()))
+			.executes((CommandContext<CommandSourceStack> context) -> tryDump(context, false))
+			.then(
+				Commands
+				.literal("full")
+				.executes((CommandContext<CommandSourceStack> context) -> tryDump(context, true))
+			)
 		);
 	}
 
-	public static void dumpEverything(CommandContext<CommandSourceStack> context) {
+	public static int tryDump(CommandContext<CommandSourceStack> context, boolean full) {
+		try {
+			dumpEverything(context, full);
+			context.getSource().sendSuccess(() -> Component.translatable("commands.bigglobe.registryDump.success"), false);
+			return 1;
+		}
+		catch (Throwable throwable) {
+			BigGlobeMod.LOGGER.error("Error dumping registries:", throwable);
+			context.getSource().sendFailure(Component.translatable("commands.bigglobe.registryDump.failure"));
+			return 0;
+		}
+	}
+
+	public static void dumpEverything(CommandContext<CommandSourceStack> context, boolean full) {
 		File root = new File(FabricLoader.getInstance().getGameDir().toFile(), "bigglobe_registry_dump");
 		delete(root);
 		File registryRoot = new File(root, "registries");
@@ -58,15 +75,21 @@ public class DumpRegistriesCommand {
 		//File recipeRoot     = new File(root, "recipes");
 		//File lootTablesRoot = new File(root, "loot_tables");
 		RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, context.getSource().registryAccess());
-		Map<ResourceKey<? extends Registry<?>>, Codec<?>> dynamicCodecs = new HashMap<>(RegistryDataLoader.WORLDGEN_REGISTRIES.size() + RegistryDataLoader.DIMENSION_REGISTRIES.size());
-		for (RegistryDataLoader.RegistryData<?> entry : RegistryDataLoader.WORLDGEN_REGISTRIES) {
-			dynamicCodecs.put(entry.key(), entry.elementCodec());
+		Map<ResourceKey<? extends Registry<?>>, Codec<?>> dynamicCodecs;
+		if (full) {
+			dynamicCodecs = new Object2ObjectOpenHashMap<>(RegistryDataLoader.WORLDGEN_REGISTRIES.size() + RegistryDataLoader.DIMENSION_REGISTRIES.size());
+			for (RegistryDataLoader.RegistryData<?> entry : RegistryDataLoader.WORLDGEN_REGISTRIES) {
+				dynamicCodecs.put(entry.key(), entry.elementCodec());
+			}
+			for (RegistryDataLoader.RegistryData<?> entry : RegistryDataLoader.DIMENSION_REGISTRIES) {
+				dynamicCodecs.put(entry.key(), entry.elementCodec());
+			}
 		}
-		for (RegistryDataLoader.RegistryData<?> entry : RegistryDataLoader.DIMENSION_REGISTRIES) {
-			dynamicCodecs.put(entry.key(), entry.elementCodec());
+		else {
+			dynamicCodecs = Collections.emptyMap();
 		}
 
-		dumpRegistries(context, registryRoot, tagsRoot, dynamicCodecs, ops);
+		dumpRegistries(context, registryRoot, tagsRoot, dynamicCodecs, ops, full);
 		//this code is disabled because mojang has not implemented shaped recipe serializing yet.
 		/*
 		#if MC_VERSION >= MC_1_20_2
@@ -76,70 +99,87 @@ public class DumpRegistriesCommand {
 		*/
 	}
 
-	public static void dumpRegistries(CommandContext<CommandSourceStack> context, File registryRoot, File tagsRoot, Map<ResourceKey<? extends Registry<?>>, Codec<?>> dynamicCodecs, RegistryOps<JsonElement> ops) {
+	public static void dumpRegistries(
+		CommandContext<CommandSourceStack> context,
+		File registryRoot,
+		File tagsRoot,
+		Map<ResourceKey<? extends Registry<?>>, Codec<?>> dynamicCodecs,
+		RegistryOps<JsonElement> ops,
+		boolean full
+	) {
 		context
-			.getSource()
-			.registryAccess()
-			.registries()
-			.forEach(dynamicRegistryEntry -> {
-				String path = identifierPath(dynamicRegistryEntry.key().identifier());
-				File perRegistryRoot = new File(registryRoot, path);
-				File perTagRoot = new File(tagsRoot, path);
-				@SuppressWarnings("rawtypes")
-				Codec codec = dynamicCodecs.get(dynamicRegistryEntry.key());
-				if (codec != null) { //dynamic registry
-					for (Map.Entry<? extends ResourceKey<?>, ?> elementEntry : dynamicRegistryEntry.value().entrySet()) {
-						codec
-							.encodeStart(ops, elementEntry.getValue())
-							.resultOrPartial(message -> BigGlobeMod.LOGGER.error("Error dumping " + elementEntry.getKey() + ": " + message))
-							.ifPresent((Object json_) -> {
-								JsonElement json = (JsonElement)(json_);
-								File file = new File(perRegistryRoot, identifierPath(elementEntry.getKey().identifier()) + ".json");
-								file.getParentFile().mkdirs();
-								try (JsonWriter writer = new JsonWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-									writer.setIndent("\t");
-									Streams.write(json, writer);
-								}
-								catch (IOException exception) {
-									BigGlobeMod.LOGGER.error("Error dumping " + elementEntry.getKey() + ':', exception);
-								}
-							});
-					}
+		.getSource()
+		.registryAccess()
+		.registries()
+		.forEach((RegistryEntry<?> dynamicRegistryEntry) -> {
+			String path = identifierPath(dynamicRegistryEntry.key().identifier());
+			File perRegistryRoot = new File(registryRoot, path);
+			File perTagRoot = new File(tagsRoot, path);
+			@SuppressWarnings("rawtypes")
+			Codec codec = dynamicCodecs.get(dynamicRegistryEntry.key());
+			if (codec != null) { //dynamic registry
+				for (Map.Entry<? extends ResourceKey<?>, ?> elementEntry : dynamicRegistryEntry.value().entrySet()) {
+					codec
+					.encodeStart(ops, elementEntry.getValue())
+					.resultOrPartial(message -> BigGlobeMod.LOGGER.error("Error dumping " + elementEntry.getKey() + ": " + message))
+					.ifPresent((Object json_) -> {
+						JsonElement json = (JsonElement)(json_);
+						File file = new File(perRegistryRoot, identifierPath(elementEntry.getKey().identifier()) + ".json");
+						file.getParentFile().mkdirs();
+						try (JsonWriter writer = new JsonWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
+							writer.setIndent("\t");
+							Streams.write(json, writer);
+						}
+						catch (IOException exception) {
+							BigGlobeMod.LOGGER.error("Error dumping " + elementEntry.getKey() + ':', exception);
+						}
+					});
 				}
-				else { //static registry
-					perRegistryRoot.getParentFile().mkdirs();
-					try (PrintStream stream = new PrintStream(new FileOutputStream(perRegistryRoot.getPath() + ".txt"), false, StandardCharsets.UTF_8)) {
-						dynamicRegistryEntry
-							.value()
-							.registryKeySet()
-							.stream()
-							.map(ResourceKey::identifier)
-							.sorted(
-								Comparator
-									.comparing(Identifier::getNamespace)
-									.thenComparing(Identifier::getPath)
-							)
-							.forEachOrdered(stream::println);
-					}
-					catch (IOException exception) {
-						exception.printStackTrace();
-					}
+			}
+			else { //static registry
+				perRegistryRoot.getParentFile().mkdirs();
+				try (PrintStream stream = new PrintStream(new FileOutputStream(perRegistryRoot.getPath() + ".txt"), false, StandardCharsets.UTF_8)) {
+					dynamicRegistryEntry
+					.value()
+					.registryKeySet()
+					.stream()
+					.map(ResourceKey::identifier)
+					.sorted(
+						Comparator
+						.comparing(Identifier::getNamespace)
+						.thenComparing(Identifier::getPath)
+					)
+					.forEachOrdered(stream::println);
 				}
-				dumpTags(dynamicRegistryEntry, perTagRoot);
-			});
+				catch (IOException exception) {
+					BigGlobeMod.LOGGER.error("Error dumping " + dynamicRegistryEntry.key() + ':', exception);
+				}
+			}
+			if (full) dumpTagsFull(dynamicRegistryEntry, perTagRoot);
+			else dumpTagsPartial(dynamicRegistryEntry, perTagRoot);
+		});
 	}
 
-	public static void dumpTags(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File perTagRoot) {
-		Comparator<Identifier> comparator = (
-			Comparator
-				.comparing(Identifier::getNamespace)
-				.thenComparing(Identifier::getPath)
-		);
+	public static void dumpTagsPartial(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File perTagRoot) {
+		try (PrintStream stream = new PrintStream(new FileOutputStream(perTagRoot.getPath() + ".txt"), false, StandardCharsets.UTF_8)) {
+			RegistryVersions
+			.streamTags(dynamicRegistryEntry.value())
+			.map(UnregisteredObjectException::getTagKey)
+			.map(TagKey::location)
+			.sorted(IDENTIFIER_COMPARATOR)
+			.forEachOrdered(stream::println);
+		}
+		catch (IOException exception) {
+			exception.printStackTrace();
+		}
+	}
+
+	public static void dumpTagsFull(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File perTagRoot) {
 		RegistryVersions.streamTags(dynamicRegistryEntry.value()).forEach((HolderSet<?> list) -> {
 			File file = new File(perTagRoot, identifierPath(UnregisteredObjectException.getTagKey(list).location()) + ".txt");
 			file.getParentFile().mkdirs();
 			try (PrintStream stream = new PrintStream(new FileOutputStream(file), false, StandardCharsets.UTF_8)) {
-				list.stream().map(UnregisteredObjectException::getKey).map(ResourceKey::identifier).sorted(comparator).forEachOrdered(stream::println);
+				list.stream().map(UnregisteredObjectException::getKey).map(ResourceKey::identifier).sorted(IDENTIFIER_COMPARATOR).forEachOrdered(stream::println);
 			}
 			catch (IOException exception) {
 				BigGlobeMod.LOGGER.error("Error dumping tag #" + UnregisteredObjectException.getTagKey(list).location() + ':', exception);

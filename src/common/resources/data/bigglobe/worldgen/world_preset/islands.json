@@ -34,11 +34,11 @@
 					},
 					"colors": {
 						"grass": {
-							"source": "computeBiomeTint(false, `bigglobe:islands/is_volcano` ? unmixSmooth(1.0I, 0.75I, `bigglobe:islands/island`.soft_distance_squared.as(float)) : 0.0I)",
+							"source": "computeBiomeTint(false, `bigglobe:islands/is_volcano` ? unmixSmooth(1.0I, 0.75I, `bigglobe:islands/island`.softDistanceSquared.as(float)) : 0.0I)",
 							"includes": "bigglobe:include/biome_tint"
 						},
 						"foliage": {
-							"source": "computeBiomeTint(true, `bigglobe:islands/is_volcano` ? unmixSmooth(1.0I, 0.75I, `bigglobe:islands/island`.soft_distance_squared.as(float)) : 0.0I)",
+							"source": "computeBiomeTint(true, `bigglobe:islands/is_volcano` ? unmixSmooth(1.0I, 0.75I, `bigglobe:islands/island`.softDistanceSquared.as(float)) : 0.0I)",
 							"includes": "bigglobe:include/biome_tint"
 						},
 						"water": [

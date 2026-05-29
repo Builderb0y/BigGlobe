@@ -1,9 +1,12 @@
 {
 	"result": {
-		"type": "constant",
-		"value": {
-			"surfaceState": "bigglobe:overgrown_podzol[snowy=false]",
-			"subsurfaceState": "minecraft:dirt"
-		}
+		"type": "script",
+		"script": [
+			"SurfaceStates surface = new()",
+			"int depth = floorInt(`bigglobe:overworld/default_surface_depth`)",
+			"if (depth > 1: surface.add('minecraft:dirt', depth))",
+			"if (depth > 0: surface.add('bigglobe:overgrown_podzol[snowy=false]', 1))",
+			"surface"
+		]
 	}
 }

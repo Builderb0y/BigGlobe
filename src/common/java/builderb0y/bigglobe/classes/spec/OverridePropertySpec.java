@@ -1,78 +1,83 @@
 package builderb0y.bigglobe.classes.spec;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.compile.OverrideTracker;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class OverridePropertySpec extends BasePropertySpec {
 
 	public final Holder<ElementSpec> override;
+	public BasePropertySpec override(ClassHierarchy hierarchy) {
+		return requireType(this.override, BasePropertySpec.class, () -> hierarchy.idOf(this) + " > override");
+	}
 	public final ScriptUsage get;
 	public final @VerifyNullable ScriptUsage set;
+	public final transient SetBasedMutableDependencyView dependencies = SetBasedMutableDependencyView.from(new HashSet<>());
 
 	public OverridePropertySpec(
+		Holder<ElementSpec> owner,
 		Holder<ElementSpec> override,
 		ScriptUsage get,
 		@VerifyNullable ScriptUsage set
 	) {
+		super(owner);
 		this.override = override;
 		this.get = get;
 		this.set = set;
 	}
 
 	@Override
-	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
-		if (!(this.override.value() instanceof BasePropertySpec override)) {
-			throw new CustomClassFormatException("Override property " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " overrides non-property " + UnregisteredObjectException.getID(this.override));
-		}
-		else {
-			if (this.isSettable() && !override.isSettable()) {
-				throw new CustomClassFormatException("Override property " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " cannot be settable if its override (" + UnregisteredObjectException.getID(this.override) + ") is not settable.");
-			}
-			else if (!this.isSettable() && override.isSettable()) {
-				throw new CustomClassFormatException("Override property " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " must be settable if its override (" + UnregisteredObjectException.getID(this.override) + ") is settable.");
-			}
-		}
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.concat(super.streamDirectDependencies(), this.dependencies.streamDirectDependencies());
 	}
 
 	@Override
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
-		PropertyCompileContext propertyContext = owner.getCompileContext(this);
-		InsnTree loadY = this.is3D() ? load("y", TypeInfos.INT) : null;
-		compile(
-			hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
-				if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
-			}
-		);
-		if (this.set != null) compile(
-			hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
-				if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
-				environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
-			}
-		);
+	public TypeSpec getPropertyTypeSpec(ClassHierarchy hierarchy) {
+		return this.override(hierarchy).getPropertyTypeSpec(hierarchy);
+	}
+
+	@Override
+	public void verify(ClassHierarchy hierarchy) throws DetailedException {
+		super.verify(hierarchy);
+		BasePropertySpec override = this.override(hierarchy);
+		if (this.isSettable() && !override.isSettable()) {
+			throw new CustomClassFormatException("Override property " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " cannot be settable if its override (" + UnregisteredObjectException.getID(this.override) + ") is not settable.");
+		}
+		else if (!this.isSettable() && override.isSettable()) {
+			throw new CustomClassFormatException("Override property " + UnregisteredObjectException.getID(hierarchy.entryOf(this)) + " must be settable if its override (" + UnregisteredObjectException.getID(this.override) + ") is settable.");
+		}
+		this.owner(hierarchy).overrideTracker.addOverrideProperty(this);
+	}
+
+	@Override
+	public void compile(ClassHierarchy hierarchy) throws DetailedException {
+		super.compile(hierarchy);
+		compile(hierarchy, this.context.get, this.get, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, NO_EXTRAS);
+		if (this.set != null) compile(hierarchy,  this.context.set, this.set, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, (MutableScriptEnvironment environment) -> {
+			environment.addVariableLoad("value", this.getPropertyTypeSpec(hierarchy).getTypeInfo());
+		});
 	}
 
 	@Override
 	public boolean isSettable() {
 		return this.set != null;
-	}
-
-	@Override
-	public boolean is3D() {
-		return ((BasePropertySpec)(this.override.value())).is3D();
 	}
 
 	@Override
@@ -86,22 +91,12 @@ public class OverridePropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addOverrideProperty(this);
-	}
-
-	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
+	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		//no-op. base method can be called as-is.
 	}
 
 	@Override
 	public String name() {
 		return this.override.value().name();
-	}
-
-	@Override
-	public Set<Holder<? extends DependencyView>> getDependencies() {
-		return ((BasePropertySpec)(this.override.value())).getDependencies();
 	}
 }

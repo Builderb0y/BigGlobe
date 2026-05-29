@@ -5,23 +5,19 @@ import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 //config needs to be encoded inline, but I can't annotate the field on the super class.
 //and also my ReflectionManager can't see the backing field anyway.

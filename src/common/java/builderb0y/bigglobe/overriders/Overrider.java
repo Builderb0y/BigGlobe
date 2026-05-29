@@ -22,10 +22,12 @@ import builderb0y.autocodec.coders.KeyDispatchCoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.IndirectDependencyCollector;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
@@ -103,7 +105,7 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 		public final List<Holder<StructureOverrider.Entry>> structures;
 		public final CollisionOverrider.Entry[] collisions;
 		public final ColumnValueOverridersWithRadiusCache rawColumnValues, featureColumnValues;
-		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
+		public final ColumnValueInfo[] rawColumnValueDependencies, featureColumnValueDependencies;
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
@@ -129,25 +131,23 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 			return 0;
 		}
 
-		public String[] extractDependencies(Holder<ColumnValueOverrider.Entry>[] holders, BigGlobeScriptedChunkGenerator generator) {
+		public ColumnValueInfo[] extractDependencies(Holder<ColumnValueOverrider.Entry>[] holders, BigGlobeScriptedChunkGenerator generator) {
 			IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 			for (Holder<ColumnValueOverrider.Entry> entry : holders) {
 				entry.value().script.streamDirectDependencies().forEach(collector);
 			}
+			Map<Holder<ColumnEntry>, ColumnValueInfo> values = ScriptedColumn.getColumnValues(generator.columnEntryRegistry);
 			return (
 				collector
-					.stream()
-					.filter((Holder<? extends DependencyView> registryEntry) -> {
-						return (
-							registryEntry.value() instanceof ColumnEntry columnEntry &&
-							generator.columnEntryRegistry.voronoiManager.getEnablingSettings(columnEntry).isEmpty() &&
-							columnEntry.hasField()
-						);
-					})
-					.map(UnregisteredObjectException::getID)
-					.map(Identifier::toString)
-					.map(String::intern)
-					.toArray(String[]::new)
+				.stream()
+				.filter((Holder<? extends DependencyView> registryEntry) -> {
+					return (
+						registryEntry.value() instanceof ColumnEntry columnEntry &&
+						columnEntry.hasFieldSetterAndFlag()
+					);
+				})
+				.map(values::get)
+				.toArray(ColumnValueInfo[]::new)
 			);
 		}
 	}

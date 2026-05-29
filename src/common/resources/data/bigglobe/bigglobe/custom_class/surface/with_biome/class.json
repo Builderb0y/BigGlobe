@@ -1,0 +1,5 @@
+{
+	"element_type": "class/normal",
+	"name": "BiomeSurfaceStates",
+	"extends": "bigglobe:surface/multi/class"
+}

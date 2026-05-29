@@ -1,13 +1,29 @@
 {
 	"type": "simple_3d",
 	"state": "'minecraft:air'",
-	"condition": "`bigglobe:nether/bubble`.noise(y) < 0.5I",
+	"condition": "`bigglobe:nether/bubble_type`.noise(column, y) < 0.5I",
 	"valid": {
 		"min_y": "`bigglobe:nether/min_y` + 16",
 		"max_y": "`bigglobe:nether/max_y` - 16"
 	},
 	"before_children": {
-		"file": "bigglobe:world_preset/nether_surface_placement"
+		"includes": [
+			"bigglobe:world_preset/place_surface"
+		],
+		"source": [
+			"if (`bigglobe:nether/is_center`:",
+				"int minIteration = `bigglobe:nether/min_y`",
+				"int maxIteration = `bigglobe:nether/max_y`",
+				"int y = maxIteration",
+				"while (y >= minIteration:",
+					"int nextY = getBottomOfSegment(y - 1)",
+					"if (getBlockState(y).isAir():",
+						"placeSurface(y, `bigglobe:nether/bubble_type`.surface(column, y))",
+					")",
+					"y = nextY",
+				")",
+			")"
+		]
 	},
 	"children": [
 		"bigglobe:nether/lava_ocean"

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.bigglobe.rendering.lods.ColumnBlockGetter;
 import builderb0y.bigglobe.rendering.lods.GenerationPipeline;
 import builderb0y.bigglobe.rendering.lods.LodGenerator;

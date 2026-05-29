@@ -3,10 +3,10 @@ package builderb0y.bigglobe.randomSources;
 import java.util.random.RandomGenerator;
 import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.VerifySorted;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYRNGScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnYRNGScript;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTrait;
 
 public class ScriptedRandomSource implements RandomSource {
 

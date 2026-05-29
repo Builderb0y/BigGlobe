@@ -1,0 +1,9 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:cave_systems/base/class",
+	"name": "surface",
+	"return_type": "bigglobe:surface/cave/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" }
+	]
+}

@@ -13,7 +13,7 @@
 				"),",
 				"true",
 			")",
-			"while (isYLevelValid(originY) && getBlockState(x, y, z).isAir():",
+			"while (isYLevelValid(y) && getBlockState(x, y, z).isAir():",
 				"setBlockState(x, y, z, state)",
 				"--y",
 			")",

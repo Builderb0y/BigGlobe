@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": -0.125,
 		"max": 0.125,
-		"trait": "bigglobe:temperature_at_sea_level"
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:temperature_at_sea_level"
+		}
 	},
 	"if_true": "bigglobe:islands/skyland_foliage_feature/test_hot",
 	"if_false": "bigglobe:islands/skyland_foliage_feature/test_cold"

@@ -9,7 +9,7 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.SimpleDelayedCompileable;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.SimpleDelayedCompileable;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.ItemScriptEnvironment;

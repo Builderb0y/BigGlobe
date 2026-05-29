@@ -1,0 +1,9 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:rock_fillers/base/class",
+	"impl_type": "bigglobe:rock_fillers/tuff/class",
+	"name": "TUFF",
+	"field_values": {
+		"state": "minecraft:tuff"
+	}
+}

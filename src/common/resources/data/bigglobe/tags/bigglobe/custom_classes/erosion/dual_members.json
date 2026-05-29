@@ -1,8 +1,0 @@
-{
-	"replace": "false",
-	"values": [
-		"bigglobe:erosion/dual/field_high",
-		"bigglobe:erosion/dual/field_low",
-		"bigglobe:erosion/dual/constructor_high_low"
-	]
-}

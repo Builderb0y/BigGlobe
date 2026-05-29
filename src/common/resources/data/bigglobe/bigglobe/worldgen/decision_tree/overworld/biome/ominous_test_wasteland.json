@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": -0.375,
 		"max": -0.625,
-		"trait": "bigglobe:foliage_at_surface"
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:foliage_at_surface"
+		}
 	},
 	"if_true": "bigglobe:overworld/biome/ominous_wasteland",
 	"if_false": "bigglobe:overworld/biome/ominous_plains"

@@ -4,5 +4,5 @@
 		"type": "double",
 		"is_3d": false
 	},
-	"script": "island.soft_distance / island.euclidean_distance * 128.0L"
+	"script": "island.softDistance / island.euclideanDistance * 128.0L"
 }

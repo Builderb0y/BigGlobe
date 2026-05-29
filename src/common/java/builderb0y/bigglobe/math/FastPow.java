@@ -85,7 +85,7 @@ public class FastPow {
 	) {
 
 		public Class<? extends FastPowOperator> operatorClass() {
-			return this.lookup.lookupClass().asSubclass(FastPowOperator.class);
+			return this.operator.getClass();
 		}
 
 		public int power() {
@@ -268,7 +268,7 @@ public class FastPow {
 	//////////////////////////////// bytecode generation ////////////////////////////////
 
 	//only used when synchronized on CACHE, so it's safe to have this be non-atomic.
-	public static int counter;
+	public static volatile int counter;
 
 	public static CacheEntry createCacheEntry(int power) {
 		assert Thread.holdsLock(CACHE);
@@ -428,10 +428,10 @@ public class FastPow {
 			return new CacheEntry(
 				lookup,
 				(FastPowOperator)(lookup.findConstructor(operatorClass, MethodType.methodType(void.class)).invoke()),
-				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", MethodType.methodType(int.class, int.class))),
-				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", MethodType.methodType(long.class, long.class))),
-				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", MethodType.methodType(float.class, float.class))),
-				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", MethodType.methodType(double.class, double.class)))
+				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", INT_METHOD_TYPE)),
+				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", LONG_METHOD_TYPE)),
+				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", FLOAT_METHOD_TYPE)),
+				new ConstantCallSite(lookup.findStatic(operatorClass, "pow", DOUBLE_METHOD_TYPE))
 			);
 		}
 		catch (Throwable throwable) {

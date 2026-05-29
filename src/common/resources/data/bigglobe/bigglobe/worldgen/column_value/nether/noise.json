@@ -1,0 +1,39 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"double*(",
+			"caveNoise = `bubble/raw_cave_noise`",
+			"caveWidth = `bubble/cave_width`",
+			"adjustedCaves = 1.0L - 1.0L / (caveNoise / caveWidth ^ 2 + 1.0L)",
+			"top = unmixSmoother(",
+				"double(mid_y + cavern_fade_radius),",
+				"double(mid_y - cavern_fade_radius),",
+				"double(y)",
+			")",
+			"bottom = ((1.0L - bubble.softDistance) * y) ^ 2 / 256.0L + 1.0L",
+			"terrainNoise = mixLinear(",
+				"bubble_type.noise(column, y),",
+				"noise_edge,",
+				"unmixSmoother(0.875L, 1.0L, bubble.softDistance)",
+			")",
+			"adjustedTerrain = mixLinear(1.0I, terrainNoise, `bubble/cavern_scalar`(y))",
+			"result = adjustedCaves * adjustedTerrain + top / bottom",
+		")",
+		"int lavaLevel = bubble_type.lavaLevel",
+		"if (y < lavaLevel:",
+			"result += unmixLinear(lavaLevel, min_y + 16.0L, y) ^ 2",
+		")",
+		"else if (y > max_y - 32:",
+			"result += unmixLinear(max_y - 32.0L, max_y - 16.0L, y) ^ 2",
+		")",
+		"float(result)"
+	],
+	"valid": {
+		"min_y": "min_y + 16",
+		"max_y": "max_y - 16"
+	}
+}

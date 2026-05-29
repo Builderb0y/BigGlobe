@@ -13,7 +13,7 @@
 				"int y = baseY | (worldSeed # 16x5EBDEDC4EE513888UL).newSeed(placementX, placementZ, baseY).nextInt(32)",
 				"BlockState originState = getBlockState(originX, y, originZ)",
 				"if (originState.isAir():",
-					"if (getBlockState(originX, y - 1, originZ) == `bigglobe:nether/bubble`.surface_state:",
+					"if (getBlockState(originX, y - 1, originZ) ==. 'bigglobe:ashen_netherrack':",
 						"random.if (1.0I / 128.0I:",
 							"placeFeature(originX, y, originZ, 'bigglobe:nether/flowers/hot')",
 						")",

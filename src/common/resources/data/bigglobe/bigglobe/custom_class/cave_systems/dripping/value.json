@@ -1,0 +1,12 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:cave_systems/base/class",
+	"impl_type": "bigglobe:cave_systems/dripping/class",
+	"name": "DRIPPING",
+	"field_values": {
+		"weight": 0.125,
+		"biome": "bigglobe:dripping_cave",
+		"decorator": "bigglobe:overworld/caves/dripping_decorator",
+		"systemDepth": 512
+	}
+}

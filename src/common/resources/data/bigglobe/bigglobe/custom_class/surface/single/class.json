@@ -1,5 +1,4 @@
 {
 	"element_type": "class/normal",
-	"name": "SurfaceState",
-	"members": "#bigglobe:surface/single_members"
+	"name": "SurfaceState"
 }

@@ -1,0 +1,10 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:rock_stripes/mesa/class",
+	"impl_type": "bigglobe:rock_stripes/mesa/class",
+	"name": "RED_SANDSTONE",
+	"field_values": {
+		"weight": 4.0,
+		"state": "minecraft:red_sandstone"
+	}
+}

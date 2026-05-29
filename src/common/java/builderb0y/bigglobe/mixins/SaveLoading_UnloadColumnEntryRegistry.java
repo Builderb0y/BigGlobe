@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 
 @Mixin(WorldLoader.class)
 public class SaveLoading_UnloadColumnEntryRegistry {
@@ -25,7 +26,7 @@ public class SaveLoading_UnloadColumnEntryRegistry {
 		Executor applyExecutor,
 		CallbackInfoReturnable<CompletableFuture<?>> callback
 	) {
-		ColumnEntryRegistry.Loading.reset();
+		builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.Loading.reset();
 	}
 
 	@ModifyReturnValue(method = "load", at = @At("RETURN"))

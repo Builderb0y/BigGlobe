@@ -1,9 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:nether_bubbles/nether_wastes/property_noise",
-		"bigglobe:nether_bubbles/nether_wastes/property_biome",
-		"bigglobe:nether_bubbles/nether_wastes/property_decorator",
-		"bigglobe:nether_bubbles/nether_wastes/property_surface"
-	]
-}

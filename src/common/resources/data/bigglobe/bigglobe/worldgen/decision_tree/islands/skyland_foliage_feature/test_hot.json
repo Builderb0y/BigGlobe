@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": 0.5,
 		"max": 0.75,
-		"trait": "bigglobe:temperature_at_sea_level"
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:temperature_at_sea_level"
+		}
 	},
 	"if_true": "bigglobe:overworld/foliage_feature/no_feature",
 	"if_false": "bigglobe:islands/skyland_foliage_feature/warm_test_ominous"

@@ -1,0 +1,6 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"name": "decorator",
+	"field_type": "configured_feature"
+}

@@ -1,65 +1,66 @@
 package builderb0y.bigglobe.classes.spec;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+
+import net.minecraft.core.Holder;
 
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
-import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
-import builderb0y.bigglobe.classes.compile.OverrideTracker;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
-import static builderb0y.scripting.bytecode.InsnTrees.*;
-
 public abstract class MemberSpec extends ElementSpec {
 
-	public abstract void track(OverrideTracker tracker) throws CustomClassFormatException;
+	public final Holder<ElementSpec> owner;
+	public BaseClassSpec owner(ClassHierarchy hierarchy) {
+		return requireType(this.owner, BaseClassSpec.class, () -> hierarchy.idOf(this) + " > owner");
+	}
 
-	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {}
+	public MemberSpec(Holder<ElementSpec> owner) {
+		this.owner = owner;
+	}
 
-	public void create(ClassHierarchy hierarchy, BaseClassSpec owner) {}
+	@Override
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.of(this.owner);
+	}
 
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {}
+	@Override
+	@MustBeInvokedByOverriders
+	public void reference(ClassHierarchy hierarchy) throws DetailedException {
+		super.reference(hierarchy);
+		this.owner(hierarchy).members.add(hierarchy.entryOf(this));
+	}
 
 	public static final Consumer<MutableScriptEnvironment> NO_EXTRAS = (MutableScriptEnvironment environment) -> {};
 
 	public static void compile(
 		ClassHierarchy hierarchy,
-		BaseClassSpec owner,
 		MethodCompileContext methodContext,
 		ScriptUsage code,
-		InsnTree loadY,
+		InsnTree loadCustomClass,
 		MutableDependencyView dependencies,
 		Consumer<MutableScriptEnvironment> extra
 	)
-		throws ScriptParsingException {
+	throws ScriptParsingException {
 		hierarchy.registry.setMethodCode(
 			methodContext,
 			code,
 			null,
-			/*
-			new DirectCastInsnTree(
-				getField(
-					load("this", owner.getTypeInfo()),
-					owner.baseColumnField()
-				),
-				hierarchy.registry.columnCompileContext.columnTypeInfo(),
-				false
-			),
-			*/
-			loadY,
-			load("this", owner.getTypeInfo()),
+			null,
+			loadCustomClass,
+			null,
 			dependencies,
 			extra
 		);
 	}
-
-	public abstract void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass);
 
 	@Override
 	public abstract String toString();

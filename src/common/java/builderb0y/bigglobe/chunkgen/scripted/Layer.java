@@ -9,12 +9,13 @@ import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SimpleDependencyView;
 
+//todo: rename class to TerrainLayer.
 @UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependencyView {
 

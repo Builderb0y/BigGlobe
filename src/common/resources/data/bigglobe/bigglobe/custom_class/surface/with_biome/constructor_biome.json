@@ -1,0 +1,12 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:surface/with_biome/class",
+	"name": "create",
+	"return_type": "bigglobe:surface/with_biome/class",
+	"parameters": [
+		{ "name": "biome", "type": "biome" }
+	],
+	"code": [
+		"BiomeSurfaceStates.new().=$biome(biome)"
+	]
+}

@@ -65,18 +65,20 @@ public class CastingSupport {
 			}
 		};
 
-	@Deprecated
-	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
+	public static ExpressionParser dummyParser() {
 		class HelperParserHolder {
 
 			public static final ExpressionParser
 				PRIMITIVE_CAST_HELPER = new ExpressionParser("", null, null, 0);
 		}
+		return HelperParserHolder.PRIMITIVE_CAST_HELPER;
+	}
+
+	public static InsnTree primitiveCast(InsnTree value, TypeInfo type) {
 		if (value.getTypeInfo().equals(type)) {
 			return value;
 		}
-		//passing in a null parser is NOT recommended, but in this case it is safe.
-		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(HelperParserHolder.PRIMITIVE_CAST_HELPER, value, type, false, false);
+		InsnTree casted = BuiltinScriptEnvironment.INSTANCE.cast(dummyParser(), value, type, false, false);
 		if (casted != null) return casted;
 		else throw new IllegalArgumentException("Can't primitively cast " + value.describe() + " to " + type);
 	}

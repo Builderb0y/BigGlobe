@@ -1,15 +1,29 @@
 {
 	"type": "simple_2d",
 	"state": "'minecraft:stone'",
+	"before_children": {
+		"includes": [
+			"bigglobe:world_preset/place_surface",
+			"bigglobe:world_preset/overworld_dh_glacier_placement"
+		],
+		"source": [
+			"placeSurface(world_traits.`bigglobe:y_level_on_surface`, `bigglobe:overworld/surface_states`)"
+		]
+	},
+	"after_children": {
+		"includes": [
+			"bigglobe:include/generate_snow"
+		],
+		"source": [
+			"int surfaceY = world_traits.`bigglobe:y_level_on_surface`",
+			"if (world_traits.`bigglobe:exact_surface_y` > world_traits.`bigglobe:sea_level` && columnSeed(16xD8C346BDF1997FC2UL).nextBoolean(world_traits.`bigglobe:snow_chance`):",
+				"generateSnow(surfaceY, world_traits.`bigglobe:snow_y`)",
+			")"
+		]
+	},
 	"valid": {
 		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
 		"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 8)"
-	},
-	"after_children": {
-		"file": "bigglobe:world_preset/islands_surface_placement",
-		"includes": [
-			"bigglobe:include/generate_snow"
-		]
 	},
 	"children": [
 		"bigglobe:islands/the_core",

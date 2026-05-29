@@ -1,6 +1,0 @@
-{
-	"element_type": "method/override",
-	"override": "bigglobe:cave_systems/base/property_noise",
-	"get": "`bigglobe:overworld/caves/easy_noise`(y)",
-	"set": "`bigglobe:overworld/caves/easy_noise`(y) = value"
-}

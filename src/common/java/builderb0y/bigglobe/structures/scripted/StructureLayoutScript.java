@@ -4,11 +4,11 @@ import java.util.random.RandomGenerator;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -71,7 +71,7 @@ public interface StructureLayoutScript extends Script {
 				.configureEnvironment(SymmetryScriptEnvironment.create(LOAD_RANDOM))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
-					registry.setupExternalEnvironment(
+					registry.setupEnvironment(
 						environment
 						.addVariableLoad("worldSeed", TypeInfos.LONG)
 						.addFieldGet(ScriptedStructure.Piece.class, "data")
@@ -85,7 +85,7 @@ public interface StructureLayoutScript extends Script {
 						.addType("ScriptStructurePlacement", StructurePlacementScriptEntry.class)
 						.addVariableLoad("pieces", type(CheckedList.class))
 						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-						.configure(ScriptedColumn.hintsEnvironment())
+						.configure(ScriptedColumn.baseEnvironment(null, loadLookup, registry.columnCompileContext.columnTypeInfo()))
 						.addVariable("distantHorizons", Handlers.builder(StructureLayoutScript.class, "distantHorizons").addImplicitArgument(load("hints", type(Hints.class))).buildVariable()),
 
 						new ExternalEnvironmentParams()

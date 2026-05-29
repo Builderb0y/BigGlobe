@@ -17,7 +17,7 @@
 							"float limit = ((1.0I - float(scaledY)) / -1.83I ;(almost perfectly tangent according to desmos)) ^ 2",
 							"curve = mixLinear(curve, limit, noise)",
 						")",
-						"`bigglobe:nether/bubble`.noise(absY) += curve",
+						"`bigglobe:nether/noise`(absY) += curve",
 					")",
 				")",
 			")",

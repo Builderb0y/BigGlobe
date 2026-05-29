@@ -1,0 +1,13 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": -1.0,
+		"max":  0.0,
+		"value": {
+			"type": "column_value",
+			"column_value": "bigglobe:overworld/rocks/core_gradient"
+		}
+	},
+	"if_true": "bigglobe:overworld/rock_filler/core",
+	"if_false": "bigglobe:overworld/rock_filler/deepslate"
+}

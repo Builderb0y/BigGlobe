@@ -1,5 +1,6 @@
 {
 	"element_type": "field/normal",
+	"owner": "bigglobe:surface/single/class",
 	"name": "depth",
 	"field_type": "int",
 	"default": "1"

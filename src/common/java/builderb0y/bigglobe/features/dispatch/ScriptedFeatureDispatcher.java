@@ -7,9 +7,10 @@ import net.minecraft.core.Holder;
 
 import builderb0y.autocodec.annotations.Alias;
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
@@ -75,6 +76,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+				.configureEnvironment(ScriptedColumn.baseEnvironment(null, WORLD.loadSelf, registry.columnCompileContext.columnTypeInfo()))
 				.configureEnvironment((MutableScriptEnvironment environment) -> {
 					for (String name : new String[] {
 						"minModifiableX",
@@ -92,8 +94,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 					}) {
 						environment.addVariable(name, Handlers.builder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
 					}
-					environment.addVariable("distantHorizons", WORLD.distantHorizons);
-					registry.setupExternalEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
+					registry.setupEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
 				.parse(new ScriptClassLoader(registry.loader))

@@ -1,6 +1,5 @@
 {
-	"element_type": "class/normal",
+	"element_type": "class/enum",
 	"name": "FrozenCaveSystem",
-	"extends": "bigglobe:cave_systems/base_medium/class",
-	"members": "#bigglobe:cave_systems/frozen_members"
+	"extends": "bigglobe:cave_systems/medium/class"
 }

@@ -1,7 +1,9 @@
 package builderb0y.bigglobe.columns.scripted2.entries;
 
+import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.classes.spec.ElementSpec;
+import builderb0y.bigglobe.classes.spec.MemberSpec;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.Valid;
@@ -19,7 +21,16 @@ public class ScriptedColumnEntry extends LoopColumnEntry {
 	}
 
 	@Override
-	public InsnTree makeComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
-		return this.makeCaller(registry, "compute_" + context.internalName, this.script, ElementSpec.asType(this.params.type()).getTypeInfo());
+	public InsnTree makeComputer(ColumnEntryRegistry registry, ColumnEntryContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+		return registry.parseCode(
+			context.computer,
+			this.script,
+			registry.columnCompileContext.loadColumn(),
+			loadY,
+			null,
+			registry.idOf(this),
+			this.dependencies,
+			MemberSpec.NO_EXTRAS
+		);
 	}
 }

@@ -15,10 +15,10 @@ import net.minecraft.world.level.biome.Climate.Sampler;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnYToBiomeScript;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Params;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 

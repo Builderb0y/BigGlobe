@@ -4,9 +4,9 @@ import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
-import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTraits;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
@@ -31,32 +31,24 @@ public class ConstantColumnEntry extends ColumnEntry {
 	}
 
 	@Override
-	public void createContext(ColumnEntryRegistry registry) throws ColumnValueException {
+	public void createRepresentation(ColumnEntryRegistry registry) throws DetailedException {
+		super.createRepresentation(registry);
 		ColumnEntryContext context = new ColumnEntryContext();
 		context.uniquifier = registry.columnCompileContext.clazz.memberUniquifier++;
 		context.internalName = ColumnCompileContext.internalName(UnregisteredObjectException.getID(registry.entryOf(this)), context.uniquifier);
 		context.mainGetter = registry.columnCompileContext.clazz.newMethod(
 			ACC_PUBLIC,
 			"get_" + context.internalName,
-			ElementSpec.asType(this.params.type()).getTypeInfo()
+			this.typeInfo(registry)
 		);
 		registry.columnCompileContext.setCompileContext(this, context);
 	}
 
 	@Override
-	public void compile(ColumnEntryRegistry registry) throws ColumnValueException, ScriptParsingException {
+	public void compile(ColumnEntryRegistry registry) throws DetailedException {
+		super.compile(registry);
 		ColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
-		try {
-			ElementSpec.asType(this.params.type()).parseConstant(registry.classHierarchy, this.value, load("this", registry.columnCompileContext.columnTypeInfo())).emitBytecode(context.mainGetter);
-		}
-		catch (ConstantFormatException exception) {
-			throw new ColumnValueException(exception);
-		}
+		return_(this.params.typeSpec(registry, this).parseConstant(registry.classHierarchy, this.value)).emitBytecode(context.mainGetter);
 		context.mainGetter.endCode();
-	}
-
-	@Override
-	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies(Holder<? extends DependencyView> self, WorldTraits traits) {
-		return Stream.empty();
 	}
 }

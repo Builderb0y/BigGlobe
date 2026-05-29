@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "`bigglobe:overworld/is_mesa`"
+		"type": "column_value",
+		"column_value": "bigglobe:overworld/is_mesa"
 	},
 	"if_true": "bigglobe:overworld/surface_state/hot_wasteland",
 	"if_false": "bigglobe:overworld/surface_state/hot_test_barely"

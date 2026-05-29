@@ -4,10 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.data.Data;
-import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
-import builderb0y.bigglobe.columns.scripted.types.ColumnValueType.TypeContext;
+import builderb0y.bigglobe.columns.scripted2.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted2.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted2.types.ColumnValueType;
+import builderb0y.bigglobe.columns.scripted2.types.ColumnValueType.TypeContext;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeNumberArray;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeObjectArray;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodInfo;

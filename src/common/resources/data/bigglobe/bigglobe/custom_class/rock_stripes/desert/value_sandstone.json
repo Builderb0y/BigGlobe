@@ -1,0 +1,10 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:rock_stripes/desert/class",
+	"impl_type": "bigglobe:rock_stripes/desert/class",
+	"name": "SANDSTONE",
+	"field_values": {
+		"weight": 4.0,
+		"state": "minecraft:sandstone"
+	}
+}

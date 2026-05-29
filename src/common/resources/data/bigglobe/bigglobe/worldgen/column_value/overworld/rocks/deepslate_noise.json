@@ -16,7 +16,7 @@
 	"valid": {
 		"where": "hints.usage !=. 'heightmap'",
 		"min_y": "rock_min_y",
-		"max_y": "world_traits.`bigglobe:y_level_on_surface`",
+		"max_y": "hints.isLod ? world_traits.`bigglobe:y_level_on_surface` : floorInt(world_traits.`bigglobe:approximate_surface_y`) - 128",
 		"fallback": 0.0
 	}
 }

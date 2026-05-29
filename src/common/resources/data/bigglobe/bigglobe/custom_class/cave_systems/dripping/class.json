@@ -1,6 +1,5 @@
 {
-	"element_type": "class/normal",
+	"element_type": "class/enum",
 	"name": "DrippingCaveSystem",
-	"extends": "bigglobe:cave_systems/base_hard/class",
-	"members": "#bigglobe:cave_systems/dripping_members"
+	"extends": "bigglobe:cave_systems/hard/class"
 }

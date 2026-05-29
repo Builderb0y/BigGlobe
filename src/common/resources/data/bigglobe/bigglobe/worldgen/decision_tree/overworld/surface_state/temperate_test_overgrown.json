@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "world_traits.`bigglobe:foliage_at_surface`"
+		"type": "world_trait",
+		"world_trait": "bigglobe:foliage_at_surface"
 	},
 	"if_true": "bigglobe:overworld/surface_state/overgrown_test_forest",
 	"if_false": "bigglobe:overworld/surface_state/temperate"

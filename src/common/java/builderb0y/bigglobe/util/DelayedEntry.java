@@ -9,8 +9,7 @@ import net.minecraft.resources.Identifier;
 @Wrapper
 public class DelayedEntry {
 
-	public final @NotNull
-	@VerifyNotEmpty String encoding;
+	public final @NotNull @VerifyNotEmpty String encoding;
 	public final @NotNull Identifier id;
 
 	public DelayedEntry(@NotNull String encoding) {
@@ -27,10 +26,10 @@ public class DelayedEntry {
 		this.id = id;
 		this.encoding = (
 			isTag
-				? '#' + id.toString()
-				: id.toString()
+			? '#' + id.toString()
+			: id.toString()
 		)
-							.intern();
+		.intern();
 	}
 
 	public String encoding() {

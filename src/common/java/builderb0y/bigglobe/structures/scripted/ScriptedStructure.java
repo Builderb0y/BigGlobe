@@ -31,8 +31,8 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.UseSuperClass;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
 import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -48,7 +48,6 @@ import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.util.WorldUtil;
-import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class ScriptedStructure extends BigGlobeStructure implements RawGenerationStructure {
 

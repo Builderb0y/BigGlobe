@@ -1,8 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:nether_bubbles/crimson_forest/property_biome",
-		"bigglobe:nether_bubbles/crimson_forest/property_decorator",
-		"bigglobe:nether_bubbles/crimson_forest/property_surface"
-	]
-}

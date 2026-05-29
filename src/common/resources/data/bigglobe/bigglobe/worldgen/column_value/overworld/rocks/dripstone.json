@@ -1,9 +1,0 @@
-{
-	"type": "script",
-	"params": {
-		"type": "float",
-		"is_3d": true
-	},
-	"script": "dripstone_noise - float(world_traits.`bigglobe:approximate_surface_y` - world_traits.`bigglobe:sea_level`) / 64.0I",
-	"cache": false
-}

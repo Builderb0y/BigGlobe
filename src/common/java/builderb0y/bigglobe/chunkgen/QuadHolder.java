@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.chunkgen;
 
+import java.lang.invoke.MethodHandle;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -7,8 +9,9 @@ import net.minecraft.world.level.block.LiquidBlock;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Params;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider.Catcher;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -82,11 +85,13 @@ public class QuadHolder<T> {
 			this.object11.setParamsUnchecked(params.at(x + step, z + step));
 		}
 
-		public void preComputeColumnValue(String name) throws Throwable {
-			this.object00.preComputeColumnValue(name);
-			this.object01.preComputeColumnValue(name);
-			this.object10.preComputeColumnValue(name);
-			this.object11.preComputeColumnValue(name);
+		public void preComputeColumnValue(ColumnValueInfo info) throws Throwable {
+			//I checked the bytecode and *not* having a manual cast here is fine,
+			//but I don't want this to break if javac ever changes its generics handling.
+			info.preComputer().invokeExact((ScriptedColumn)(this.object00));
+			info.preComputer().invokeExact((ScriptedColumn)(this.object01));
+			info.preComputer().invokeExact((ScriptedColumn)(this.object10));
+			info.preComputer().invokeExact((ScriptedColumn)(this.object11));
 		}
 
 		public void override(Catcher overrider, ScriptStructures structures) {

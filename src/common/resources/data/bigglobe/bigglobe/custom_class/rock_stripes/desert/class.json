@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "DesertRockStripe",
+	"extends": "bigglobe:rock_stripes/base/class"
+}

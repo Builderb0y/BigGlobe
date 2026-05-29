@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/easy/class",
+	"override": "bigglobe:cave_systems/base/method_get_noise",
+	"code": [
+		"column.`bigglobe:overworld/caves/easy_noise`(y)"
+	]
+}

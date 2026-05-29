@@ -23,6 +23,8 @@ public class AndConditionTree implements ConditionTree {
 				return ConstantConditionTree.of(leftConstant.value & rightConstant.value);
 			}
 			else {
+				//true && variable -> simplify to just variable.
+				//false && variable -> simplify to just false.
 				return leftConstant.value ? right : leftConstant;
 			}
 		}

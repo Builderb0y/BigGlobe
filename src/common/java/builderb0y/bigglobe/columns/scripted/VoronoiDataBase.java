@@ -2,6 +2,7 @@ package builderb0y.bigglobe.columns.scripted;
 
 import org.jetbrains.annotations.Nullable;
 
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;

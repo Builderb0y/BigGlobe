@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.optimization.ClassOptimizer;
 
@@ -98,6 +99,11 @@ public class ScriptClassLoader extends ClassLoader {
 	}
 
 	public void recursiveAddClasses(ClassCompileContext clazz, Path dumpDirectory, String source) {
+		for (MethodCompileContext method : clazz.innerMethods) {
+			if (!method.scopes.stack.isEmpty()) {
+				throw new IllegalStateException(clazz.node.name + '.' + method.node.name + "() has not had its scope fully popped yet!");
+			}
+		}
 		ClassOptimizer.DEFAULT.optimize(clazz.node);
 
 		if (dumpDirectory != null) try {

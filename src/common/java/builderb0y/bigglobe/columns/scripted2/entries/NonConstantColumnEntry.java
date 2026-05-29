@@ -2,23 +2,27 @@ package builderb0y.bigglobe.columns.scripted2.entries;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import net.minecraft.core.Holder;
 import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.EmptyData;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeObjectArray;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeArray;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeNumberArray;
+import builderb0y.bigglobe.columns.scripted2.MappedRangeObjectArray;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
-import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.classes.spec.MemberSpec;
 import builderb0y.bigglobe.classes.spec.TypeSpec;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.columns.scripted2.*;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTraits;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
@@ -30,7 +34,6 @@ import builderb0y.scripting.bytecode.tree.conditions.IntCompareConditionTree;
 import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.IfInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.StoreInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.BitwiseOrInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.SubtractInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -40,26 +43,27 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public abstract class NonConstantColumnEntry extends ColumnEntry implements SetBasedMutableDependencyView {
+@SuppressWarnings("DataFlowIssue")
+public abstract class NonConstantColumnEntry extends ColumnEntry {
 
 	public final @VerifyNullable Valid valid;
 	public final @DefaultBoolean(true) boolean cache;
-	public final transient Set<Holder<? extends DependencyView>> dependencies;
+	public final transient SetBasedMutableDependencyView dependencies;
 
 	public NonConstantColumnEntry(AccessSchema params, @VerifyNullable Valid valid, boolean cache) {
 		super(params);
 		this.cache = cache;
 		this.valid = valid;
-		this.dependencies = new HashSet<>();
+		this.dependencies = SetBasedMutableDependencyView.from(new HashSet<>());
 	}
 
 	@Override
-	public Set<Holder<? extends DependencyView>> getDependencies() {
-		return this.dependencies;
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.concat(super.streamDirectDependencies(), this.dependencies.streamDirectDependencies());
 	}
 
 	@Override
-	public void verify(ColumnEntryRegistry registry) throws ColumnValueException {
+	public void verify(ColumnEntryRegistry registry) throws DetailedException {
 		super.verify(registry);
 		if (this.params.is_3d() && this.cache && (this.valid == null || this.valid.min_y() == null || this.valid.max_y() == null)) {
 			BigGlobeMod.LOGGER.warn("Upper or lower bound not specified for column value " + UnregisteredObjectException.getID(registry.entryOf(this)) + ", and caching is enabled. This may result in poor worldgen performance, as it may compute more Y levels than intended.");
@@ -67,30 +71,39 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 	}
 
 	@Override
-	public void createContext(ColumnEntryRegistry registry) throws ColumnValueException {
+	public void createRepresentation(ColumnEntryRegistry registry) throws DetailedException {
+		super.createRepresentation(registry);
 		ClassCompileContext clazz = registry.columnCompileContext.clazz;
-		NonConstantColumnEntryContext context = new NonConstantColumnEntryContext();
+		ColumnEntryContext context = new ColumnEntryContext();
 		context.uniquifier = clazz.memberUniquifier++;
-		context.internalName = ColumnCompileContext.internalName(UnregisteredObjectException.getID(registry.entryOf(this)), context.uniquifier);
+		if (this.hasFieldSetterAndFlag()) {
+			context.flagsIndex = registry.columnCompileContext.nextFlagsIndex();
+		}
+		context.internalName = ColumnCompileContext.internalName(registry.idOf(this), context.uniquifier);
 		LazyVarInfo[] maybeY = this.params.is_3d() ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty();
-		TypeInfo valueType = ElementSpec.asType(this.params.type()).getTypeInfo();
-		context.mainGetter = clazz.newMethod(ACC_PUBLIC, "get_" + context.internalName, valueType, maybeY);
-		this.populateContextFieldAndSetter(context, clazz, valueType, maybeY);
+		TypeInfo valueType = this.params.typeInfo(registry, this);
+		this.populateContext(context, clazz, valueType, maybeY);
 		registry.columnCompileContext.setCompileContext(this, context);
 	}
 
-	public void populateContextFieldAndSetter(NonConstantColumnEntryContext context, ClassCompileContext clazz, TypeInfo valueType, LazyVarInfo[] maybeY) {
+	public void populateContext(ColumnEntryContext context, ClassCompileContext clazz, TypeInfo valueType, LazyVarInfo[] maybeY) {
+		context.mainGetter = clazz.newMethod(
+			ACC_PUBLIC,
+			"get_" + context.internalName,
+			valueType,
+			maybeY
+		);
 		if (this.hasFieldSetterAndFlag()) {
 			context.valueField = clazz.newField(
 				this.params.is_3d() ? ACC_PUBLIC | ACC_FINAL : ACC_PUBLIC,
 				context.internalName,
 				this.params.is_3d()
-					? (
+				? (
 					valueType.isObject()
 					? MappedRangeObjectArray.TYPE
-					: MappedRangeNumberArray.TYPE
+					: MappedRangeNumberArray.INFO.type
 				)
-					: valueType
+				: valueType
 			);
 			context.mainSetter = clazz.newMethod(
 				ACC_PUBLIC,
@@ -98,105 +111,225 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 				TypeInfos.VOID,
 				ObjectArrays.concat(maybeY, new LazyVarInfo("value", valueType))
 			);
+			context.preComputer = clazz.newMethod(
+				ACC_PUBLIC,
+				"preCompute_" + context.internalName,
+				TypeInfos.VOID
+			);
 		}
+		context.computer = clazz.newMethod(
+			ACC_PUBLIC,
+			"compute_" + context.internalName,
+			valueType,
+			maybeY
+		);
 	}
 
 	@Override
-	public void compile(ColumnEntryRegistry registry) throws ColumnValueException, ScriptParsingException {
-		NonConstantColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
-		if (!this.params.is_3d()) {
-			this.compile2D(registry, context);
-		}
-		else if (this.hasFieldSetterAndFlag()) {
-			this.compile3DCached(registry, context);
+	public void compile(ColumnEntryRegistry registry) throws DetailedException {
+		super.compile(registry);
+		ColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
+		if (this.params.is_3d()) {
+			if (this.hasFieldSetterAndFlag()) {
+				this.compile3DCached(registry, context);
+			}
+			else {
+				this.compile3DUncached(registry, context);
+			}
 		}
 		else {
-			this.compile3DUncached(registry, context);
+			if (this.hasFieldSetterAndFlag()) {
+				this.compile2DCached(registry, context);
+			}
+			else {
+				this.compile2DUncached(registry, context);
+			}
 		}
 	}
 
-	public void compile2D(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
-		TypeSpec valueType = ElementSpec.asType(this.params.type());
+	/**
+	TYPE compute(:
+		...
+	)
+
+	void preCompute(:
+		int oldFlags = this.flags_xxx
+		int newFlags = oldFlags | flag
+		if (oldFlags != newFlags:
+			this.flags_xxx = newFlags
+			this.field_xxx = validWhere() ? this.compute() : fallback
+		)
+	)
+
+	TYPE get(:
+		this.preCompute()
+		return(this.field_xxx)
+	)
+
+	void set(TYPE value:
+		this.backingField = value
+	)
+	*/
+	public void compile2DCached(ColumnEntryRegistry registry, ColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
+		return_(this.makeComputer(registry, context, null)).emitBytecode(context.computer);
+		context.computer.endCode();
+		TypeSpec valueType = this.params.typeSpec(registry, this);
 		TypeInfo valueTypeInfo = valueType.getTypeInfo();
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
-		LazyVarInfo value = context.mainGetter.scopes.addVariable("value", valueTypeInfo);
-		InsnTree computer = this.makeComputer(registry, context);
-		if (this.hasValid()) {
-			/**
-			validWhere() ? <computer> : fallback
-			*/
-			InsnTree fallback;
-			try {
-				fallback = valueType.parseConstant(registry.classHierarchy, this.valid.fallback(), loadColumn);
-			}
-			catch (ConstantFormatException exception) {
-				throw new ColumnValueException(exception);
-			}
-			computer = new IfElseInsnTree(
+		InsnTree fallback;
+		try {
+			fallback = (
+				this.valid != null && this.valid.fallback() != null
+				? valueType.parseConstant(registry.classHierarchy, this.valid.fallback())
+				: ldcAbsent(valueTypeInfo)
+			);
+		}
+		catch (ConstantFormatException exception) {
+			throw new ColumnValueException(exception);
+		}
+		/**
+		validWhere() ? compute() : fallback
+		*/
+		InsnTree logic = invokeInstance(loadColumn, context.computer.info);
+		if (this.valid != null && this.valid.where() != null) {
+			logic = new IfElseInsnTree(
 				new BooleanToConditionTree(
-					this.makeCaller(registry, "validWhere", this.valid.where(), TypeInfos.BOOLEAN)
+					this.makeCaller(registry, "validWhere", this.valid.where(), null, TypeInfos.BOOLEAN)
 				),
-				computer,
+				logic,
 				fallback,
 				valueTypeInfo
 			);
 		}
+		LazyVarInfo oldFlags = context.preComputer.scopes.addVariable("oldFlags", TypeInfos.INT);
+		LazyVarInfo newFlags = context.preComputer.scopes.addVariable("newFlags", TypeInfos.INT);
+		FieldInfo flagsField = registry.columnCompileContext.flagsField(context.flagsIndex());
+		int flagsBitmask = registry.columnCompileContext.flagsFieldBitmask(context.flagsIndex());
 		/**
-		TYPE value = validWhere() ? <computer> : fallback
-		*/
-		computer = new StoreInsnTree(value, computer);
-		if (this.hasFieldSetterAndFlag()) {
-			LazyVarInfo oldFlags = context.mainGetter.scopes.addVariable("oldFlags", TypeInfos.INT);
-			LazyVarInfo newFlags = context.mainGetter.scopes.addVariable("newFlags", TypeInfos.INT);
-			FieldInfo flagsField = registry.columnCompileContext.flagsField(context.uniquifier);
-			int flagsBitmask = registry.columnCompileContext.flagsFieldBitmask(context.uniquifier);
-			/**
-			TYPE value
-			int oldFlags = this.flags_xxx
-			int newFlags = oldFlags | flag
-			if (oldFlags != newFlags:
-			this.flags_xxx = newFlags
-			value = validWhere() ? <computer> : fallback
-			)
-			else (
-			value = backingField
-			)
-			*/
-			computer = seq(
-				store(oldFlags, getField(loadColumn, flagsField)),
-				store(newFlags, new BitwiseOrInsnTree(load(oldFlags), ldc(flagsBitmask), IOR)),
-				new IfElseInsnTree(
-					IntCompareConditionTree.notEqual(load(oldFlags), load(newFlags)),
-					seq(
-						putField(loadColumn, flagsField, load(newFlags)),
-						computer,
-						putField(loadColumn, context.valueField.info, load(value))
-					),
-					store(value, getField(loadColumn, context.valueField.info)),
-					TypeInfos.VOID
-				)
-			);
-		}
-		/**
-		TYPE value
 		int oldFlags = this.flags_xxx
 		int newFlags = oldFlags | flag
 		if (oldFlags != newFlags:
-		this.flags_xxx = newFlags
-		value = validWhere() ? <computer> : fallback
+			this.flags_xxx = newFlags
+			this.field_xxx = validWhere() ? compute() : fallback
 		)
-		else (
-		value = backingField
-		)
-		return(value)
 		*/
-		seq(computer, return_(load(value))).emitBytecode(context.mainGetter);
+		logic = seq(
+			store(oldFlags, getField(loadColumn, flagsField)),
+			store(newFlags, new BitwiseOrInsnTree(load(oldFlags), ldc(flagsBitmask), IOR)),
+			new IfInsnTree(
+				IntCompareConditionTree.notEqual(load(oldFlags), load(newFlags)),
+				seq(
+					putField(loadColumn, flagsField, load(newFlags)),
+					putField(loadColumn, context.valueField.info, logic)
+				)
+			)
+		);
+		return_(logic).emitBytecode(context.preComputer);
+		context.preComputer.endCode();
+		/**
+		preCompute()
+		return(this.field_xxx)
+		*/
+		seq(
+			invokeInstance(loadColumn, context.preComputer.info),
+			return_(getField(loadColumn, context.valueField.info))
+		)
+		.emitBytecode(context.mainGetter);
+		context.mainGetter.endCode();
+
+		return_(
+			putField(
+				loadColumn,
+				context.valueField.info,
+				load("value", valueTypeInfo)
+			)
+		)
+		.emitBytecode(context.mainSetter);
+		context.mainSetter.endCode();
+	}
+
+	/**
+	TYPE compute(:
+		...
+	)
+
+	TYPE get(:
+		return(this.validWhere() ? compute() : fallback)
+	)
+	*/
+	public void compile2DUncached(ColumnEntryRegistry registry, ColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
+		return_(this.makeComputer(registry, context, null)).emitBytecode(context.computer);
+		context.computer.endCode();
+		TypeSpec valueType = this.params.typeSpec(registry, this);
+		TypeInfo valueTypeInfo = valueType.getTypeInfo();
+		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
+		InsnTree fallback;
+		try {
+			fallback = (
+				this.valid != null && this.valid.fallback() != null
+				? valueType.parseConstant(registry.classHierarchy, this.valid.fallback())
+				: ldcAbsent(valueTypeInfo)
+			);
+		}
+		catch (ConstantFormatException exception) {
+			throw new ColumnValueException(exception);
+		}
+		InsnTree logic = invokeInstance(loadColumn, context.computer.info);
+		if (this.valid != null && this.valid.where() != null) {
+			logic = new IfElseInsnTree(
+				new BooleanToConditionTree(
+					this.makeCaller(registry, "validWhere", this.valid.where(), null, TypeInfos.BOOLEAN)
+				),
+				logic,
+				fallback,
+				valueTypeInfo
+			);
+		}
+		return_(logic).emitBytecode(context.mainGetter);
 		context.mainGetter.endCode();
 	}
 
-	public void compile3DCached(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
+	/**
+	void preCompute(:
+		int oldFlags = this.flags_xxx
+		int newFlags = oldFlags | flag
+		if (oldFlags != newFlags:
+			this.flags_xxx = newFlags
+			if (validWhere():
+				if (backingField.reallocate(this, minY(), maxY()):
+					<computer>
+				)
+			)
+			else (
+				backingField.invalidate()
+			)
+		)
+	)
+
+	TYPE get(int y:
+		this.preCompute()
+		if (backingField.valid:
+			if (y >= backingField.minCached && y < backingField.maxCached:
+				return(array.array.get(y - array.minCached))
+			)
+			if (y >= backingField.minAccessible && y < backingField.maxAccessible:
+				return(compute(y))
+			)
+		)
+		return(fallback)
+	)
+
+	void set(int y, TYPE value:
+		if (backingField.valid && y >= backingField.minCached && y < backingField.maxCached:
+			array.array.set(y - array.minCached, value)
+		)
+	)
+	*/
+	public void compile3DCached(ColumnEntryRegistry registry, ColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
 		LazyVarInfo y = new LazyVarInfo("y", TypeInfos.INT);
-		TypeSpec valueType = ElementSpec.asType(this.params.type());
+		return_(this.makeComputer(registry, context, load(y))).emitBytecode(context.computer);
+		context.computer.endCode();
+		TypeSpec valueType = this.params.typeSpec(registry, this);
 		TypeInfo valueTypeInfo = valueType.getTypeInfo();
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree getBackingField = getField(loadColumn, context.valueField.info);
@@ -219,8 +352,8 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 				case OBJECT, ARRAY -> newInstance(MappedRangeObjectArray.CONSTRUCTOR, newArrayWithLength(TypeInfo.makeArray(valueTypeInfo), ldc(0)));
 			}
 		)
-			.emitBytecode(registry.columnCompileContext.constructor);
-		InsnTree computer = this.makeBulkComputer(registry, context);
+		.emitBytecode(registry.columnCompileContext.constructor);
+		InsnTree preCompute = this.makeBulkComputer(registry, context);
 		/** backingField.reallocate(this, minY(), maxY()) */
 		InsnTree reallocate;
 		if (this.valid != null) {
@@ -230,8 +363,8 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 						getBackingField,
 						MappedRangeArray.INFO.reallocateBoth,
 						loadColumn,
-						this.makeCaller(registry, "validMinY", this.valid.min_y(), TypeInfos.INT),
-						this.makeCaller(registry, "validMaxY", this.valid.max_y(), TypeInfos.INT)
+						this.makeCaller(registry, "validMinY", this.valid.min_y(), null, TypeInfos.INT),
+						this.makeCaller(registry, "validMaxY", this.valid.max_y(), null, TypeInfos.INT)
 					);
 				}
 				else {
@@ -239,7 +372,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 						getBackingField,
 						MappedRangeArray.INFO.reallocateMin,
 						loadColumn,
-						this.makeCaller(registry, "validMinY", this.valid.min_y(), TypeInfos.INT)
+						this.makeCaller(registry, "validMinY", this.valid.min_y(), null, TypeInfos.INT)
 					);
 				}
 			}
@@ -249,7 +382,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 						getBackingField,
 						MappedRangeArray.INFO.reallocateMax,
 						loadColumn,
-						this.makeCaller(registry, "validMaxY", this.valid.max_y(), TypeInfos.INT)
+						this.makeCaller(registry, "validMaxY", this.valid.max_y(), null, TypeInfos.INT)
 					);
 				}
 				else {
@@ -270,144 +403,236 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 		}
 		/**
 		if (backingField.reallocate(this, minY(), maxY()):
-		<computer>
+			<computer>
 		)
 		*/
-		computer = new IfInsnTree(new BooleanToConditionTree(reallocate), computer);
+		preCompute = new IfInsnTree(new BooleanToConditionTree(reallocate), preCompute);
 		if (this.valid != null && this.valid.where() != null) {
 			/**
 			if (validWhere():
-			if (backingField.reallocate(this, minY(), maxY()):
-			<computer>
-			)
+				if (backingField.reallocate(this, minY(), maxY()):
+					<computer>
+				)
 			)
 			else (
-			backingField.invalidate()
+				backingField.invalidate()
 			)
 			*/
-			computer = new IfElseInsnTree(
+			preCompute = new IfElseInsnTree(
 				new BooleanToConditionTree(
-					this.makeCaller(registry, "validWhere", this.valid.where(), TypeInfos.BOOLEAN)
+					this.makeCaller(registry, "validWhere", this.valid.where(), null, TypeInfos.BOOLEAN)
 				),
-				computer,
+				preCompute,
 				invokeInstance(getBackingField, MappedRangeArray.INFO.invalidate),
 				TypeInfos.VOID
 			);
 		}
-		LazyVarInfo oldFlags = context.mainGetter.scopes.addVariable("oldFlags", TypeInfos.INT);
-		LazyVarInfo newFlags = context.mainGetter.scopes.addVariable("newFlags", TypeInfos.INT);
-		FieldInfo flagsField = registry.columnCompileContext.flagsField(context.uniquifier);
-		int flagsBitmask = registry.columnCompileContext.flagsFieldBitmask(context.uniquifier);
+		LazyVarInfo oldFlags = context.preComputer.scopes.addVariable("oldFlags", TypeInfos.INT);
+		LazyVarInfo newFlags = context.preComputer.scopes.addVariable("newFlags", TypeInfos.INT);
+		FieldInfo flagsField = registry.columnCompileContext.flagsField(context.flagsIndex());
+		int flagsBitmask = registry.columnCompileContext.flagsFieldBitmask(context.flagsIndex());
 		/**
 		int oldFlags = this.flags_xxx
 		int newFlags = oldFlags | flag
 		if (oldFlags != newFlags:
-		this.flags_xxx = newFlags
-		if (validWhere():
-		if (backingField.reallocate(this, minY(), maxY()):
-		<computer>
-		)
-		)
-		else (
-		backingField.invalidate()
-		)
+			this.flags_xxx = newFlags
+			if (validWhere():
+				if (backingField.reallocate(this, minY(), maxY()):
+					<computer>
+				)
+			)
+			else (
+				backingField.invalidate()
+			)
 		)
 		*/
-		computer = seq(
+		preCompute = seq(
 			store(oldFlags, getField(loadColumn, flagsField)),
 			store(newFlags, new BitwiseOrInsnTree(load(oldFlags), ldc(flagsBitmask), IOR)),
 			new IfInsnTree(
 				IntCompareConditionTree.notEqual(load(oldFlags), load(newFlags)),
 				seq(
 					putField(loadColumn, flagsField, load(newFlags)),
-					computer
+					preCompute
 				)
 			)
 		);
-		/**
-		int oldFlags = this.flags_xxx
-		int newFlags = oldFlags | flag
-		if (oldFlags != newFlags:
-		this.flags_xxx = newFlags
-		if (validWhere():
-		if (backingField.reallocate(this, minY(), maxY()):
-		<computer>
-		)
-		)
-		else (
-		backingField.invalidate()
-		)
-		)
-		if (backingField.valid:
-		if (y >= backingField.minCached && y < backingField.maxCached:
-		return(array.array.get(y - array.minCached))
-		)
-		if (y >= backingField.minAccessible && y < backingField.maxAccessible:
-		return(compute(y))
-		)
-		)
-		return(fallback)
-		*/
+		return_(preCompute).emitBytecode(context.preComputer);
+		context.preComputer.endCode();
+
+		InsnTree callPrecompute = invokeInstance(
+			loadColumn,
+			context.preComputer.info
+		);
+
 		InsnTree fallback;
 		try {
-			fallback = valueType.parseConstant(registry.classHierarchy, this.valid != null ? this.valid.fallback() : EmptyData.INSTANCE, loadColumn);
+			fallback = valueType.parseConstant(registry.classHierarchy, this.valid != null ? this.valid.fallback() : EmptyData.INSTANCE);
 		}
 		catch (ConstantFormatException exception) {
 			throw new ColumnValueException(exception);
 		}
-		seq(
-			computer,
-			new IfInsnTree(
+
+		/**
+		return(array.array.get(y - array.minCached))
+		*/
+		InsnTree getFromCache = return_(
+			switch (valueTypeInfo.getSort()) {
+				case VOID -> throw new IllegalStateException("void array");
+				case BOOLEAN -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetZ, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case BYTE -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetB, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case CHAR -> throw new UnsupportedOperationException("char array");
+				case SHORT -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetS, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case INT -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetI, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case LONG -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetL, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case FLOAT -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetF, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case DOUBLE -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.INFO.array), NumberArray.INFO.implGetD, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
+				case OBJECT, ARRAY -> new DirectCastInsnTree(arrayLoad(getField(getBackingField, MappedRangeObjectArray.ARRAY), new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB)), valueTypeInfo, false);
+			}
+		);
+		/**
+		if (y >= backingField.minCached && y < backingField.maxCached:
+			return(array.array.get(y - array.minCached))
+		)
+		*/
+		getFromCache = new IfInsnTree(
+			and(
+				IntCompareConditionTree.greaterThanOrEqual(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached)),
+				IntCompareConditionTree.lessThan(load(y), getField(getBackingField, MappedRangeArray.INFO.maxCached))
+			),
+			getFromCache
+		);
+
+		/**
+		return(compute(y))
+		*/
+		InsnTree cacheMiss = return_(
+			invokeInstance(
+				loadColumn,
+				context.computer.info,
+				load(y)
+			)
+		);
+		outer:
+		if (this.valid != null) {
+			ConditionTree uncachedRange;
+			if (this.valid.min_y() != null) {
+				if (this.valid.max_y() != null) {
+					uncachedRange = and(
+						IntCompareConditionTree.greaterThanOrEqual(load(y), getField(getBackingField, MappedRangeArray.INFO.minAccessible)),
+						IntCompareConditionTree.lessThan(load(y), getField(getBackingField, MappedRangeArray.INFO.maxAccessible))
+					);
+				}
+				else {
+					uncachedRange = IntCompareConditionTree.greaterThanOrEqual(load(y), getField(getBackingField, MappedRangeArray.INFO.minAccessible));
+				}
+			}
+			else {
+				if (this.valid.max_y() != null) {
+					uncachedRange = IntCompareConditionTree.lessThan(load(y), getField(getBackingField, MappedRangeArray.INFO.maxAccessible));
+				}
+				else {
+					break outer;
+				}
+			}
+			/**
+			if (y >= backingField.minAccessible && y < backingField.maxAccessible:
+				return(compute(y))
+			)
+			*/
+			cacheMiss = new IfInsnTree(uncachedRange, cacheMiss);
+		}
+
+		/**
+		if (y >= backingField.minCached && y < backingField.maxCached:
+			return(array.array.get(y - array.minCached))
+		)
+		if (y >= backingField.minAccessible && y < backingField.maxAccessible:
+			return(compute(y))
+		)
+		*/
+		InsnTree getWhenValid = seq(getFromCache, cacheMiss);
+		if (this.valid != null && this.valid.where() != null) {
+			/**
+			if (backingField.valid:
+				if (y >= backingField.minCached && y < backingField.maxCached:
+					return(array.array.get(y - array.minCached))
+				)
+				if (y >= backingField.minAccessible && y < backingField.maxAccessible:
+					return(compute(y))
+				)
+			)
+			*/
+			getWhenValid = new IfInsnTree(
 				new BooleanToConditionTree(
 					getField(getBackingField, MappedRangeArray.INFO.valid)
 				),
-				seq(
-					new IfInsnTree(
-						and(
-							IntCompareConditionTree.greaterThanOrEqual(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached)),
-							IntCompareConditionTree.lessThan(load(y), getField(getBackingField, MappedRangeArray.INFO.maxCached))
-						),
-						return_(
-							switch (valueTypeInfo.getSort()) {
-								case VOID -> throw new IllegalStateException("void array");
-								case BOOLEAN -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetZ, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case BYTE -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetB, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case CHAR -> throw new UnsupportedOperationException("char array");
-								case SHORT -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetS, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case INT -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetI, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case LONG -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetL, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case FLOAT -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetF, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case DOUBLE -> invokeInstance(getField(getBackingField, MappedRangeNumberArray.ARRAY), NumberArray.INFO.implGetD, new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB));
-								case OBJECT, ARRAY -> new DirectCastInsnTree(arrayLoad(getField(getBackingField, MappedRangeObjectArray.ARRAY), new SubtractInsnTree(load(y), getField(getBackingField, MappedRangeArray.INFO.minCached), ISUB)), valueTypeInfo, false);
-							}
-						)
-					),
-					new IfInsnTree(
-						and(
-							IntCompareConditionTree.greaterThanOrEqual(load(y), getField(getBackingField, MappedRangeArray.INFO.minAccessible)),
-							IntCompareConditionTree.lessThan(load(y), getField(getBackingField, MappedRangeArray.INFO.maxAccessible))
-						),
-						return_(this.makeComputer(registry, context))
-					)
-				)
-			),
-			return_(fallback)
+				getWhenValid
+			);
+		}
+
+		/**
+		this.preCompute()
+		if (backingField.valid:
+			if (y >= backingField.minCached && y < backingField.maxCached:
+				return(array.array.get(y - array.minCached))
+			)
+			if (y >= backingField.minAccessible && y < backingField.maxAccessible:
+				return(compute(y))
+			)
 		)
-			.emitBytecode(context.mainGetter);
+		return(fallback)
+		*/
+		seq(callPrecompute, getWhenValid, return_(fallback)).emitBytecode(context.mainGetter);
 		context.mainGetter.endCode();
+
+		/**
+		this.backingField.trySet(y, value)
+		*/
+		return_(
+			invokeInstance(
+				getBackingField,
+				switch (valueTypeInfo.getSort()) {
+					case VOID -> throw new IllegalStateException("void array");
+					case BOOLEAN -> MappedRangeNumberArray.INFO.trySetZ;
+					case BYTE -> MappedRangeNumberArray.INFO.trySetB;
+					case CHAR -> throw new UnsupportedOperationException("char array");
+					case SHORT -> MappedRangeNumberArray.INFO.trySetS;
+					case INT -> MappedRangeNumberArray.INFO.trySetI;
+					case LONG -> MappedRangeNumberArray.INFO.trySetL;
+					case FLOAT -> MappedRangeNumberArray.INFO.trySetF;
+					case DOUBLE -> MappedRangeNumberArray.INFO.trySetD;
+					case OBJECT, ARRAY -> MappedRangeObjectArray.TRY_SET;
+				},
+				load("y", TypeInfos.INT),
+				load("value", valueTypeInfo)
+			)
+		)
+		.emitBytecode(context.mainSetter);
+		context.mainSetter.endCode();
 	}
 
-	public void compile3DUncached(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
+	/**
+	TYPE get(int y:
+		if (this.validWhere() && y >= this.validMinY() && y < this.validMaxY():
+			return(compute(y))
+		)
+	)
+	*/
+	public void compile3DUncached(ColumnEntryRegistry registry, ColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
 		LazyVarInfo y = new LazyVarInfo("y", TypeInfos.INT);
-		TypeSpec valueType = ElementSpec.asType(this.params.type());
+		return_(this.makeComputer(registry, context, load(y))).emitBytecode(context.computer);
+		context.computer.endCode();
+
+		TypeSpec valueType = this.params.typeSpec(registry, this);
 		TypeInfo valueTypeInfo = valueType.getTypeInfo();
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
-		InsnTree computer = this.makeComputer(registry, context);
+		InsnTree computer = invokeInstance(loadColumn, context.computer.info, load(y));
 		if (this.hasValid()) {
 			ConditionTree condition = ConstantConditionTree.TRUE;
 			if (this.valid.where() != null) {
 				condition = new BooleanToConditionTree(
-					this.makeCaller(registry, "validWhere", this.valid.where(), TypeInfos.BOOLEAN)
+					this.makeCaller(registry, "validWhere", this.valid.where(), null, TypeInfos.BOOLEAN)
 				);
 			}
 			if (this.valid.min_y() != null) {
@@ -415,7 +640,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 					condition,
 					IntCompareConditionTree.greaterThanOrEqual(
 						load(y),
-						this.makeCaller(registry, "validMinY", this.valid.min_y(), TypeInfos.INT)
+						this.makeCaller(registry, "validMinY", this.valid.min_y(), null, TypeInfos.INT)
 					)
 				);
 			}
@@ -424,55 +649,58 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 					condition,
 					IntCompareConditionTree.lessThan(
 						load(y),
-						this.makeCaller(registry, "validMaxY", this.valid.max_y(), TypeInfos.INT)
+						this.makeCaller(registry, "validMaxY", this.valid.max_y(), null, TypeInfos.INT)
 					)
 				);
 			}
-			/**
-			validWhere() && y >= validMinY() && y < validMaxY() ? <computer> : fallback
-			*/
+			InsnTree fallback;
 			try {
-				computer = new IfElseInsnTree(
-					condition,
-					computer,
-					valueType.parseConstant(
-						registry.classHierarchy,
-						this.valid.fallback(),
-						loadColumn
-					),
-					valueTypeInfo
+				fallback = valueType.parseConstant(
+					registry.classHierarchy,
+					this.valid.fallback()
 				);
 			}
 			catch (ConstantFormatException exception) {
 				throw new ColumnValueException(exception);
 			}
+			/**
+			validWhere() && y >= validMinY() && y < validMaxY() ? <computer> : fallback
+			*/
+			computer = new IfElseInsnTree(
+				condition,
+				computer,
+				fallback,
+				valueTypeInfo
+			);
 		}
 		return_(computer).emitBytecode(context.mainGetter);
 		context.mainGetter.endCode();
 	}
 
-	public InsnTree makeCaller(ColumnEntryRegistry registry, String prefix, ScriptUsage code, TypeInfo returnType) throws ScriptParsingException {
+	public InsnTree makeCaller(ColumnEntryRegistry registry, String prefix, ScriptUsage code, @Nullable InsnTree loadY, TypeInfo returnType) throws ScriptParsingException {
 		MethodCompileContext method = registry.columnCompileContext.clazz.newMethod(
 			ACC_PUBLIC,
-			prefix + "_" + registry.columnCompileContext.<NonConstantColumnEntryContext>getCompileContext(this).internalName,
-			returnType
+			prefix + "_" + registry.columnCompileContext.getCompileContext(this).internalName,
+			returnType,
+			loadY != null ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty()
 		);
 		LoadInsnTree loadColumn = load("this", registry.columnCompileContext.columnTypeInfo());
 		registry.setMethodCode(
 			method,
 			code,
 			loadColumn,
+			loadY != null ? load("y", TypeInfos.INT) : null,
 			null,
-			null,
-			this,
+			registry.idOf(this),
+			this.dependencies,
 			MemberSpec.NO_EXTRAS
 		);
-		return invokeInstance(loadColumn, method.info);
+		return invokeInstance(loadColumn, method.info, nonnull(loadY));
 	}
 
-	public abstract InsnTree makeComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException;
+	public abstract InsnTree makeComputer(ColumnEntryRegistry registry, ColumnEntryContext context, @Nullable InsnTree loadY) throws ScriptParsingException;
 
-	public abstract InsnTree makeBulkComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException;
+	public abstract InsnTree makeBulkComputer(ColumnEntryRegistry registry, ColumnEntryContext context) throws ScriptParsingException;
 
 	@Override
 	public boolean hasFieldSetterAndFlag() {
@@ -481,10 +709,5 @@ public abstract class NonConstantColumnEntry extends ColumnEntry implements SetB
 
 	public boolean hasValid() {
 		return this.valid != null && this.valid.isUseful(this.params.is_3d());
-	}
-
-	public static class NonConstantColumnEntryContext extends ColumnEntryContext {
-
-		public @Nullable FieldCompileContext valueField;
 	}
 }

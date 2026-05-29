@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import builderb0y.bigglobe.classes.ElementSpecTypes;
 import builderb0y.bigglobe.classes.spec.*;
 import builderb0y.bigglobe.classes.spec.BaseMethodSpec.MethodSpecDesc;
-import builderb0y.bigglobe.classes.spec.ConstructorSpec.ConstructorContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.bigglobe.util.UnregisteredObjectException.getID;
@@ -63,7 +62,7 @@ public class OverrideTracker {
 		this.addReservedMethod(new MethodSpecDesc(name, Arrays.asList(parameters)));
 	}
 
-	public void addNormalField(FieldSpec field) throws CustomClassFormatException {
+	public void addField(BaseFieldSpec field) throws CustomClassFormatException {
 		Holder<ElementSpec> entry = this.hierarchy.entryOf(field);
 		TrackedProperty existingProperty = this.properties.get(field.name);
 		if (existingProperty != null) {
@@ -127,7 +126,7 @@ public class OverrideTracker {
 			}
 		}
 
-		TypeInfo typeInfo = ElementSpec.asType(property.getPropertyType()).getTypeInfo();
+		TypeInfo typeInfo = property.getPropertyTypeSpec(this.hierarchy).getTypeInfo();
 		TrackedMethod existingSetter = this.methods.get(new MethodSpecDesc(property.name(), Collections.singletonList(typeInfo)));
 		if (existingSetter != null) {
 			if (existingSetter.type == TrackedMethod.Type.RESERVED) {
@@ -188,21 +187,6 @@ public class OverrideTracker {
 		this.properties.put(property.name, new TrackedProperty(this.owner, entry, TrackedProperty.Type.NORMAL, property.isSettable()));
 	}
 
-	public void addConstructor(ConstructorSpec constructor) throws CustomClassFormatException {
-		Holder<ElementSpec> entry = this.hierarchy.entryOf(constructor);
-		ConstructorContext context = ((BaseClassSpec)(this.owner.value())).getCompileContext(constructor);
-		TrackedMethod existing = this.methods.get(context.descriptor);
-		if (existing != null) {
-			if (existing.type == TrackedMethod.Type.RESERVED) {
-				throw new CustomClassFormatException("Constructor " + context.descriptor + " is reserved.");
-			}
-			else if (existing.owner == this.owner) {
-				throw new CustomClassFormatException("Constructor " + getID(entry) + " in class " + getID(this.owner) + " conflicts with " + getID(existing.declaration));
-			}
-		}
-		this.methods.put(context.descriptor, new TrackedMethod(this.owner, entry, TrackedMethod.Type.CONSTRUCTOR));
-	}
-
 	public void checkPropertyConflicts(BaseMethodSpec method) throws CustomClassFormatException {
 		Holder<ElementSpec> entry = this.hierarchy.entryOf(method);
 		MethodSpecDesc desc = method.getDescriptor();
@@ -233,7 +217,7 @@ public class OverrideTracker {
 			else if (existingMethod.owner == this.owner) {
 				throw new CustomClassFormatException("Multiple methods named " + method.name() + " in class " + getID(this.owner) + " with parameters " + desc.parameters() + ": [" + getID(entry) + ", " + getID(existingMethod.declaration) + ']');
 			}
-			else if (existingMethod.type != TrackedMethod.Type.CONSTRUCTOR) {
+			else /*if (existingMethod.type != TrackedMethod.Type.CONSTRUCTOR)*/ {
 				throw new CustomClassFormatException("Method " + getID(entry) + " in class " + getID(this.owner) + " conflicts with method " + getID(existingMethod.declaration) + " in class " + getID(existingMethod.owner));
 			}
 		}
@@ -252,7 +236,7 @@ public class OverrideTracker {
 			else if (existingMethod.owner == this.owner) {
 				throw new CustomClassFormatException("Multiple methods named " + desc.name() + " in class " + getID(this.owner) + " with parameters " + desc.parameters() + ": [" + getID(entry) + ", " + getID(existingMethod.declaration) + ']');
 			}
-			else if (existingMethod.type != TrackedMethod.Type.CONSTRUCTOR) {
+			else /*if (existingMethod.type != TrackedMethod.Type.CONSTRUCTOR)*/ {
 				throw new CustomClassFormatException("Method " + getID(entry) + " in class " + getID(this.owner) + " overrides method " + getID(existingMethod.declaration) + " in class " + getID(existingMethod.owner) + " but has a type of " + ElementSpecTypes.METHOD_ABSTRACT + ". Abstract methods cannot (currently) override other methods.");
 			}
 		}
@@ -280,6 +264,22 @@ public class OverrideTracker {
 		this.methods.put(desc, new TrackedMethod(this.owner, entry, TrackedMethod.Type.NORMAL));
 	}
 
+	public void addStaticMethod(StaticMethodSpec method) throws CustomClassFormatException {
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(method);
+		MethodSpecDesc desc = method.getDescriptor();
+		TrackedMethod existingMethod = this.methods.get(desc);
+		if (existingMethod != null) {
+			if (existingMethod.type == TrackedMethod.Type.RESERVED) {
+				throw new CustomClassFormatException("Method " + desc + " is reserved.");
+			}
+			else if (existingMethod.owner == this.owner) {
+				throw new CustomClassFormatException("Multiple methods named " + desc.name() + " in class " + getID(this.owner) + " with parameters " + desc.parameters() + ": [" + getID(entry) + ", " + getID(existingMethod.declaration) + ']');
+			}
+		}
+		this.checkPropertyConflicts(method);
+		this.methods.put(desc, new TrackedMethod(this.owner, entry, TrackedMethod.Type.STATIC));
+	}
+
 	public static record TrackedField(
 		Holder<ElementSpec> owner,
 		Holder<ElementSpec> declaration,
@@ -301,7 +301,8 @@ public class OverrideTracker {
 		public static enum Type {
 			NORMAL,
 			ABSTRACT,
-			CONSTRUCTOR,
+			STATIC,
+			//CONSTRUCTOR,
 			//override counts as normal.
 			RESERVED;
 		}

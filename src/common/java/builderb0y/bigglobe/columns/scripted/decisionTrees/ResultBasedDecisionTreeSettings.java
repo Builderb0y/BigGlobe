@@ -2,8 +2,8 @@ package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
-import builderb0y.bigglobe.columns.scripted.decisionTrees.results.DecisionTreeResult;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.decisionTrees.results.DecisionTreeResult;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
 

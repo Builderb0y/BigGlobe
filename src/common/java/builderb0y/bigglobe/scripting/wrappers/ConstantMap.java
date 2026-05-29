@@ -1,11 +1,14 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.*;
+import java.util.function.Function;
 
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Mth;
 
 public class ConstantMap<K, V> extends AbstractMap<K, V> {
 
@@ -39,20 +42,23 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ConstantMap(Object... keysAndValues) {
-		int keyValueLength = keysAndValues.length;
-		if ((keyValueLength & 1) != 0) {
-			throw new IllegalArgumentException("Odd number of arguments");
+	public ConstantMap(Contents<K, V> contents) {
+		Objects.requireNonNull(contents, "contents");
+		int size = contents.size();
+		if (size == 0) {
+			this.keys = (K[])(ObjectArrays.EMPTY_ARRAY);
+			this.values = (V[])(ObjectArrays.EMPTY_ARRAY);
+			this.order = IntArrays.EMPTY_ARRAY;
+			return;
 		}
-		int capacity = Integer.highestOneBit(keyValueLength);
+		int capacity = Mth.smallestEncompassingPowerOfTwo(size + (size >> 2) + 1);
 		int mask = capacity - 1;
-		int size = keyValueLength >>> 1;
 		Object[] keys = new Object[capacity];
 		Object[] values = new Object[capacity];
 		int[] order = new int[size];
-		for (int orderIndex = 0, keyValueIndex = 0; keyValueIndex < keyValueLength; ) {
-			Object key = wrap(keysAndValues[keyValueIndex++]);
-			Object value = keysAndValues[keyValueIndex++];
+		for (int orderIndex = 0; orderIndex < size; orderIndex++) {
+			Object key = wrap(contents.getKey(orderIndex));
+			Object value = contents.getValue(orderIndex);
 			int position = key.hashCode();
 			position ^= position >>> 16;
 			position &= mask;
@@ -64,11 +70,69 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 			}
 			keys[position] = key;
 			values[position] = value;
-			order[orderIndex++] = position;
+			order[orderIndex] = position;
 		}
 		this.keys = (K[])(keys);
 		this.values = (V[])(values);
 		this.order = order;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ConstantMap(Object... keysAndValues) {
+		this(new Contents<>() {
+
+			@Override
+			public int size() {
+				return keysAndValues.length >>> 1;
+			}
+
+			@Override
+			public K getKey(int index) {
+				return (K)(keysAndValues[index << 1]);
+			}
+
+			@Override
+			public V getValue(int index) {
+				return (V)(keysAndValues[(index << 1) | 1]);
+			}
+		});
+	}
+
+	@SafeVarargs
+	public <T> ConstantMap(
+		Function<? super T, ? extends K> keyExtractor,
+		Function<? super T, ? extends V> valueExtractor,
+		T... elements
+	) {
+		Objects.requireNonNull(keyExtractor, "keyExtractor");
+		Objects.requireNonNull(valueExtractor, "valueExtractor");
+		Objects.requireNonNull(elements, "elements");
+		this(new Contents<>() {
+
+			@Override
+			public int size() {
+				return elements.length;
+			}
+
+			@Override
+			public K getKey(int index) {
+				return keyExtractor.apply(elements[index]);
+			}
+
+			@Override
+			public V getValue(int index) {
+				return valueExtractor.apply(elements[index]);
+			}
+		});
+	}
+
+	public static interface Contents<K, V> {
+
+		public abstract int size();
+
+		public abstract K getKey(int index);
+
+		public abstract V getValue(int index);
 	}
 
 	@Override

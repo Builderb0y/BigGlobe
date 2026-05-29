@@ -2,6 +2,7 @@ package builderb0y.scripting.util;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,14 +50,34 @@ public class TypeInfos {
 		}
 	}
 
+	@Deprecated
+	public static TypeInfo widenUntilSame() {
+		throw new NoSuchElementException();
+	}
+
+	@Deprecated
+	public static TypeInfo widenUntilSame(TypeInfo first) {
+		checkNumber(first);
+		return first;
+	}
+
 	public static TypeInfo widenUntilSame(TypeInfo first, TypeInfo second) {
 		checkNumber(first);
 		checkNumber(second);
 		return Sort.VALUES[Math.max(first.getSort().ordinal(), second.getSort().ordinal())].canonicalInstance;
 	}
 
+	public static TypeInfo widenUntilSame(TypeInfo... types) {
+		int ordinal = 0;
+		for (TypeInfo type : types) {
+			checkNumber(type);
+			ordinal = Math.max(ordinal, type.getSort().ordinal());
+		}
+		return Sort.VALUES[ordinal].canonicalInstance;
+	}
+
 	public static TypeInfo widenUntilSame(Stream<TypeInfo> stream) {
-		return Sort.VALUES[stream.peek(TypeInfos::checkNumber).mapToInt(type -> type.getSort().ordinal()).max().orElseThrow()].canonicalInstance;
+		return Sort.VALUES[stream.peek(TypeInfos::checkNumber).mapToInt((TypeInfo type) -> type.getSort().ordinal()).max().orElseThrow()].canonicalInstance;
 	}
 
 	public static TypeInfo widenUntilSameInt(TypeInfo first, TypeInfo second) {

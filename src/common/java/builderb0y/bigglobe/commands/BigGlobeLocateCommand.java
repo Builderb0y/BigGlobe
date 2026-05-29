@@ -21,8 +21,8 @@ import net.minecraft.world.phys.Vec3;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript.Catcher;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToBooleanScript;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToDoubleScript.Catcher;
 import builderb0y.bigglobe.commands.LocateMinMaxCommand.CompareMode;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.AdditiveRecurrenceIterator2D;

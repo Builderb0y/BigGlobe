@@ -1,0 +1,13 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"+ columnSeed(16x85D7EF6558756020UL).nextFloat(3.0I, 7.0I) ;base randomness",
+		"+ (`bigglobe:overworld/raw/foliage_noise` * 2.0I) ;more depth when foliage is high",
+		"- (`bigglobe:overworld/mountainness` * 8.0L) ;less depth when Y level is high",
+		"- (`bigglobe:overworld/hilliness` * world_traits.`bigglobe:eroded_foliage` * 4.0L) ;more depth in valleys"
+	]
+}

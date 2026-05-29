@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:temperature_at_surface"
+		},
 		"min": 0.0625,
-		"max": 0.125,
-		"trait": "bigglobe:temperature_at_surface"
+		"max": 0.125
 	},
 	"if_true": "bigglobe:overworld/surface_state/hot",
 	"if_false": "bigglobe:overworld/surface_state/hot_barely"

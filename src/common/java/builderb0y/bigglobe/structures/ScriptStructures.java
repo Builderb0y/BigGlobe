@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ConfiguredColumnFactory;
 import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
 import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusCache;
 import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;

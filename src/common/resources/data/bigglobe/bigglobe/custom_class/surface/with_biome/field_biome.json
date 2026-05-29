@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:surface/with_biome/class",
+	"name": "biome",
+	"field_type": "biome"
+}

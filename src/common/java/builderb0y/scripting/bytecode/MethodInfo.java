@@ -82,6 +82,18 @@ public class MethodInfo implements BytecodeEmitter {
 		return new Handle(handleType, this.owner.getInternalName(), this.name, this.getDescriptor(), this.isInterface());
 	}
 
+	public Handle toHandle() {
+		return this.toHandle(this.handleType());
+	}
+
+	public int handleType() {
+		if (this.isStatic()) return H_INVOKESTATIC;
+		if (this.name.equals("<init>")) return H_NEWINVOKESPECIAL;
+		if (this.isInterface()) return H_INVOKEINTERFACE;
+		if (this.isPrivate()) return H_INVOKESPECIAL;
+		return H_INVOKEVIRTUAL;
+	}
+
 	public void emit(MethodCompileContext method, int opcode) {
 		method.node.visitMethodInsn(opcode, this.owner.getInternalName(), this.name, this.getDescriptor(), this.isInterface());
 	}

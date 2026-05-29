@@ -1,9 +1,0 @@
-{
-	"replace": "false",
-	"values": [
-		"bigglobe:erosion/single/field_y",
-		"bigglobe:erosion/single/field_dx",
-		"bigglobe:erosion/single/field_dz",
-		"bigglobe:erosion/single/constructor_y_dx_dz"
-	]
-}

@@ -1,16 +1,30 @@
 package builderb0y.bigglobe.columns.scripted2.entries;
 
+import java.util.stream.Stream;
+
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.classes.compile.StagedCompileable;
+import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTraits;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
@@ -24,7 +38,24 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
-public abstract class ColumnEntry implements CoderRegistryTyped<ColumnEntry>, DependencyView {
+@UseCoder(name = "REGISTRY", in = ColumnEntry.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
+public abstract class ColumnEntry extends StagedCompileable<ColumnEntryRegistry> implements CoderRegistryTyped<ColumnEntry>, SimpleDependencyView {
+
+	public static class Testing {
+
+		//set to true by junit.
+		public static boolean TESTING;
+	}
+	public static final @UnknownNullability CoderRegistry<ColumnEntry> REGISTRY = Testing.TESTING ? null : new CoderRegistry<>(BigGlobeMod.modID("column_value"));
+	static {
+		if (REGISTRY != null) {
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),          ConstantColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("noise"),                NoiseColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"),            ScriptedColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("decision_tree"), DecisionTreeColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"),            VoronoiColumnEntry.class);
+		}
+	}
 
 	public final AccessSchema params;
 
@@ -32,17 +63,24 @@ public abstract class ColumnEntry implements CoderRegistryTyped<ColumnEntry>, De
 		this.params = params;
 	}
 
+	@Override
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.of(this.params.type());
+	}
+
+	public TypeInfo typeInfo(ColumnEntryRegistry registry) {
+		return this.params.typeInfo(registry, this);
+	}
+
 	public abstract boolean hasFieldSetterAndFlag();
 
-	public void verify(ColumnEntryRegistry registry) throws ColumnValueException {
-		if (ElementSpec.asType(this.params.type()).getTypeInfo().isVoid()) {
+	@Override
+	public void verify(ColumnEntryRegistry registry) throws DetailedException {
+		super.verify(registry);
+		if (this.params.typeInfo(registry, this).isVoid()) {
 			throw new ColumnValueException("Void-typed column entry: " + UnregisteredObjectException.getID(registry.entryOf(this)));
 		}
 	}
-
-	public abstract void createContext(ColumnEntryRegistry registry) throws ColumnValueException;
-
-	public abstract void compile(ColumnEntryRegistry registry) throws ColumnValueException, ScriptParsingException;
 
 	public void setupEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		Identifier selfID = UnregisteredObjectException.getID(registry.entryOf(this));
@@ -88,75 +126,59 @@ public abstract class ColumnEntry implements CoderRegistryTyped<ColumnEntry>, De
 		Holder<ColumnEntry> self = registry.entryOf(this);
 		ColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
 		MethodInfo getter = context.mainGetter.info;
-		MethodInfo setter = context.mainSetter != null ? context.mainSetter.info : null;
+		MethodInfo setter = params.mutable && context.mainSetter != null ? context.mainSetter.info : null;
 		boolean is3D = this.params.is_3d();
-		environment.addMethod(
-			getter.owner, name, new MethodHandler.Named(
-				"methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
+		environment.addMethod(getter.owner, name, new MethodHandler.Named(
+			"methodInvoke: " + getter,
+			(ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
 				if (mode != GetMethodMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser.input);
 				if (params.dependencies != null) params.dependencies.addDependency(self);
-				return params.resolveColumn(parser, name_, is3D, false, getter, setter, arguments);
+				return params.resolveColumn(parser, name_, is3D, false, getter, setter, receiver, arguments);
 			}
-			)
-		);
-		if (params.loadColumn != null) {
-			environment.addFunction(
-				name, new FunctionHandler.Named(
-					"methodInvoke: " + getter, (ExpressionParser parser, String name_, InsnTree... arguments) -> {
-					if (params.dependencies != null) params.dependencies.addDependency(self);
-					return params.resolveColumn(parser, name_, is3D, false, getter, setter, arguments);
-				}
-				)
-			);
-		}
-		if (params.requiresNoArguments(is3D)) {
-			environment.addField(
-				getter.owner, name, new FieldHandler.Named(
-					"methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name_, GetFieldMode mode) -> {
+		));
+		environment.addFunction(name, new FunctionHandler.Named(
+			"functionInvoke: " + getter,
+			(ExpressionParser parser, String name_, InsnTree... arguments) -> {
+				if (params.dependencies != null) params.dependencies.addDependency(self);
+				return params.resolveColumn(parser, name_, is3D, false, getter, setter, null, arguments);
+			}
+		));
+		if (params.requiresNoArguments(is3D, true)) {
+			environment.addField(getter.owner, name, new FieldHandler.Named(
+				"fieldInvoke: " + getter,
+				(ExpressionParser parser, InsnTree receiver, String name_, GetFieldMode mode) -> {
 					if (mode != GetFieldMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser.input);
 					if (params.dependencies != null) params.dependencies.addDependency(self);
-					return params.resolveColumn(parser, name_, is3D, false, getter, setter).tree();
+					return params.resolveColumn(parser, name_, is3D, false, getter, setter, receiver).tree();
 				}
-				)
-			);
-			if (params.loadColumn != null) {
-				environment.addVariable(
-					name, new VariableHandler.Named(
-						"methodInvoke: " + getter, (ExpressionParser parser, String name_) -> {
-						if (params.dependencies != null) params.dependencies.addDependency(self);
-						return params.resolveColumn(parser, name_, is3D, false, getter, setter).tree();
-					}
-					)
-				);
-			}
+			));
 		}
-	}
-
-	public static enum CompileStep {
-		VERIFY("verifying", ColumnEntry::verify),
-		CREATE_CONTEXT("creating context", ColumnEntry::createContext),
-		COMPILE("compiling", ColumnEntry::compile);
-
-		public final String description;
-		public final CompileAction action;
-
-		CompileStep(String description, CompileAction action) {
-			this.description = description;
-			this.action = action;
-		}
-
-		@FunctionalInterface
-		public static interface CompileAction {
-
-			public abstract void execute(ColumnEntry columnEntry, ColumnEntryRegistry registry) throws Exception;
+		if (params.requiresNoArguments(is3D, false)) {
+			environment.addVariable(name, new VariableHandler.Named(
+				"variableInvoke: " + getter,
+				(ExpressionParser parser, String name_) -> {
+					if (params.dependencies != null) params.dependencies.addDependency(self);
+					return params.resolveColumn(parser, name_, is3D, false, getter, setter, null).tree();
+				}
+			));
 		}
 	}
 
 	public static class ColumnEntryContext {
 
 		public int uniquifier;
+		@Deprecated
+		public int flagsIndex = -1;
 		public String internalName;
 		public MethodCompileContext mainGetter;
 		public @Nullable MethodCompileContext mainSetter;
+		public @Nullable MethodCompileContext preComputer;
+		public @Nullable MethodCompileContext computer;
+		public @Nullable FieldCompileContext valueField;
+
+		public int flagsIndex() {
+			if (this.flagsIndex >= 0) return this.flagsIndex;
+			else throw new IllegalStateException("flagsIndex not set!");
+		}
 	}
 }

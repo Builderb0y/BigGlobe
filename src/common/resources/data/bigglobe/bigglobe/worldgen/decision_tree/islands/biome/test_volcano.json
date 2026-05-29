@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "`bigglobe:islands/is_volcano`"
+		"type": "column_value",
+		"column_value": "bigglobe:islands/is_volcano"
 	},
 	"if_true": "bigglobe:islands/biome/volcano",
 	"if_false": "bigglobe:islands/biome/test_hot"

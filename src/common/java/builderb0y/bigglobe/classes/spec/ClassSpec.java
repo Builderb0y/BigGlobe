@@ -1,77 +1,111 @@
 package builderb0y.bigglobe.classes.spec;
 
+import java.lang.invoke.ConstantBootstraps;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.util.LinkedHashSet;
+
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.data.Data;
-import builderb0y.autocodec.data.MapData;
-import builderb0y.bigglobe.classes.compile.ClassHierarchy;
-import builderb0y.bigglobe.classes.compile.ConstantFormatException;
 import builderb0y.bigglobe.classes.ScriptObject;
-import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.classes.compile.*;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.tree.ConstantValue.DynamicConstantValue;
+import builderb0y.scripting.bytecode.tree.ConstantValue.HandleConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.TypeHandler;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
-import net.minecraft.core.Holder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ClassSpec extends BaseClassSpec {
 
+	@Override
+	public ClassSpec parent(ClassHierarchy hierarchy) {
+		return requireType(this.parent, ClassSpec.class, () -> hierarchy.idOf(this) + " > extends");
+	}
+
 	public ClassSpec(
 		@IdentifierName String name,
 		boolean isAbstract,
-		@Nullable Holder<ElementSpec> parent,
-		DelayedEntryList<ElementSpec> members
+		@Nullable Holder<ElementSpec> parent
 	) {
-		super(name, isAbstract, parent, members);
+		super(name, isAbstract, parent);
 	}
 
 	@Override
-	public void createClass(ClassHierarchy hierarchy) {
-		super.createClass(hierarchy);
+	@MustBeInvokedByOverriders
+	public void verify(ClassHierarchy hierarchy) throws DetailedException {
+		if (this.parent != null) this.parent(hierarchy);
+		super.verify(hierarchy);
+	}
+
+	@Override
+	@MustBeInvokedByOverriders
+	public void createRepresentation(ClassHierarchy hierarchy) throws DetailedException {
+		super.createRepresentation(hierarchy);
 		this.primaryConstructor = this.classCompileContext.newMethod(
 			ACC_PUBLIC,
 			"<init>",
 			TypeInfos.VOID
 		);
+	}
+
+	@Override
+	@MustBeInvokedByOverriders
+	public void compile(ClassHierarchy hierarchy) throws DetailedException {
 		invokeInstance(
 			load("this", this.getTypeInfo()),
 			new MethodInfo(
 				ACC_PUBLIC,
-				this.parent != null
-					? asType(this.parent).getTypeInfo()
-					: this.defaultSuperClass(),
+				this.getParentTypeInfo(hierarchy),
 				"<init>",
 				TypeInfos.VOID
 			)
 		)
-			.emitBytecode(this.primaryConstructor);
-	}
-
-	@Override
-	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {
-		this.applyDefaultFields(hierarchy, load("this", this.getTypeInfo()));
+		.emitBytecode(this.primaryConstructor);
+		super.compile(hierarchy);
 		this.primaryConstructor.node.visitInsn(RETURN);
 		this.primaryConstructor.endCode();
-		super.compileMembers(hierarchy);
 	}
 
+	public static final MethodInfo CONSTANT_INVOKER = MethodInfo.findMethod(
+		ConstantBootstraps.class,
+		"invoke",
+		Object.class,
+		MethodHandles.Lookup.class,
+		String.class,
+		Class.class,
+		MethodHandle.class,
+		Object[].class
+	);
+
 	@Override
-	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) throws ConstantFormatException {
-		if (this.isAbstract) {
-			throw new IllegalArgumentException("Can't create constant for abstract class " + UnregisteredObjectException.getID(hierarchy.entryOf(this)));
+	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data) throws ConstantFormatException {
+		if (data.isEmpty()) {
+			return ldc(null, this.getTypeInfo());
 		}
-		MapData map = data.tryAsMap();
-		if (map == null) {
-			throw new IllegalArgumentException("Not a map: " + data);
+		else if (this.getMembers(BaseFieldSpec.class, true).findAny().isEmpty()) {
+			return ldc(
+				new DynamicConstantValue(
+					this.getTypeInfo(),
+					CONSTANT_INVOKER,
+					new HandleConstantValue(this.getTypeInfo(), this.primaryConstructor.info)
+				)
+			);
 		}
-		InsnTree result = newInstance(this.primaryConstructor.info, loadColumn);
-		result = this.applyFields(hierarchy, loadColumn, map, result);
-		return result;
+		else {
+			throw new ConstantFormatException("Can't create constant for class " + hierarchy.idOf(this) + " because this class has at least one field.");
+		}
 	}
 
 	@Override
@@ -80,9 +114,8 @@ public class ClassSpec extends BaseClassSpec {
 	}
 
 	@Override
-	@MustBeInvokedByOverriders
-	public void addReservedMembers() {
-		super.addReservedMembers();
-		this.overrideTracker.addReservedField("column");
+	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		super.setupEnvironment(self, environment, params);
+		environment.addQualifiedConstructor(this.primaryConstructor.info);
 	}
 }

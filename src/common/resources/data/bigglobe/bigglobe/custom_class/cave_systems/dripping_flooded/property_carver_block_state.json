@@ -1,5 +1,0 @@
-{
-	"element_type": "property/override",
-	"name": "bigglobe:cave_systems/base/property_carver_block_state",
-	"get": "'minecraft:water[level=0]'"
-}

@@ -1,6 +1,0 @@
-{
-	"element_type": "property/normal",
-	"name": "dungeonFeature",
-	"property_type": "configured_feature",
-	"get": "'bigglobe:overworld/caves/random_dungeon'"
-}

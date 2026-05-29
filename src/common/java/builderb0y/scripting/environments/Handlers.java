@@ -18,6 +18,7 @@ import builderb0y.scripting.bytecode.Typeable;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.BaseInvokeInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NormalInvokeInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
@@ -60,6 +61,7 @@ public class Handlers {
 		public boolean addedAsNested;
 		public boolean pure;
 		public Callback callback;
+		public TypeInfo explicitCast;
 
 		public Builder() {
 			this.arguments = new ArrayList<>(8);
@@ -72,6 +74,11 @@ public class Handlers {
 		public abstract Builder returnClass(Class<?> clazz);
 
 		public abstract Builder returnType(TypeInfo type);
+
+		public Builder explicitCast(TypeInfo type) {
+			this.explicitCast = type;
+			return this;
+		}
 
 		public Builder addReceiverArgument(Class<?> clazz) {
 			if (this.usesArguments() || this.usesReceiver()) {
@@ -128,24 +135,28 @@ public class Handlers {
 
 		public Builder addArguments(Object... args) {
 			for (Object arg : args) {
-				if (arg instanceof Class<?> clazz) this.addRequiredArgument(clazz);
-				else if (arg instanceof TypeInfo type) this.addRequiredArgument(type);
-				else if (arg instanceof InsnTree tree) this.addImplicitArgument(tree);
-				else if (arg instanceof Builder builder) this.addNestedArgument(builder);
-				else if (arg instanceof ReceiverArgument argument) this.addReceiverArgument(argument.type);
-				else if (arg instanceof Character character) this.addRequiredArgument(TypeInfo.parse(character.charValue()));
-				else if (arg instanceof CharSequence string) {
-					for (TypeInfo type : TypeInfo.parseAll(string)) {
-						this.addRequiredArgument(type);
+				switch (arg) {
+					case Class<?> clazz -> this.addRequiredArgument(clazz);
+					case TypeInfo type -> this.addRequiredArgument(type);
+					case InsnTree tree -> this.addImplicitArgument(tree);
+					case Builder builder -> this.addNestedArgument(builder);
+					case ReceiverArgument argument -> this.addReceiverArgument(argument.type);
+					case Character character -> this.addRequiredArgument(TypeInfo.parse(character.charValue()));
+					case CharSequence string -> {
+						for (TypeInfo type : TypeInfo.parseAll(string)) {
+							this.addRequiredArgument(type);
+						}
 					}
+					case null, default -> throw new IllegalArgumentException("Unrecognized argument: " + arg);
 				}
-				else throw new IllegalArgumentException("Unrecognized argument: " + arg);
 			}
 			return this.invalidateCache();
 		}
 
 		public Builder callback(Callback callback) {
-			this.callback = this.callback == null ? callback : Callback.combine(this.callback, callback);
+			if (callback != null) {
+				this.callback = this.callback == null ? callback : Callback.combine(this.callback, callback);
+			}
 			return this;
 		}
 
@@ -250,18 +261,17 @@ public class Handlers {
 				requiredCasting |= castResult.requiredCasting();
 			}
 			MethodInfo resolution = this.resolve();
+			InsnTree tree;
 			if (resolution.isStatic()) {
-				CastResult result = new CastResult(invokeStatic(resolution, runtimeArgs), requiredCasting);
-				if (this.callback != null) this.callback.onReferenced(parser, result);
-				return result;
+				tree = invokeStatic(resolution, runtimeArgs);
 			}
 			else {
-				InsnTree runtimeReceiver = runtimeArgs[0];
-				runtimeArgs = Arrays.copyOfRange(runtimeArgs, 1, toLength);
-				CastResult result = new CastResult(invokeInstance(runtimeReceiver, resolution, runtimeArgs), requiredCasting);
-				if (this.callback != null) this.callback.onReferenced(parser, result);
-				return result;
+				tree = new NormalInvokeInsnTree(resolution, runtimeArgs);
 			}
+			if (this.explicitCast != null) tree = tree.cast(parser, this.explicitCast, CastMode.EXPLICIT_THROW, false);
+			CastResult result = new CastResult(tree, requiredCasting);
+			if (this.callback != null) this.callback.onReferenced(parser, result);
+			return result;
 		}
 
 		@Override

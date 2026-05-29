@@ -5,8 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"double height = beachy_surface_height",
-		"unless (is_floating: height -= erosion.terrain.y * erosion_multiplier)",
-		"height"
+		"erosion.?y ?: beachy_surface_height"
 	]
 }

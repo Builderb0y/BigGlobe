@@ -1,0 +1,10 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"name": "surface",
+	"return_type": "bigglobe:surface/multi/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" },
+		{ "name": "y",      "type": "int"            }
+	]
+}

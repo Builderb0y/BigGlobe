@@ -1,4 +1,4 @@
-if (`bigglobe:nether/is_center` && BlockState*(state := `bigglobe:nether/bubble`.surface_state) != null:
+if (`bigglobe:nether/is_center` && BlockState*(state := `bigglobe:nether/bubble`.surface) != null:
 	int minIteration = `bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`
 	int maxIteration = `bigglobe:nether/max_y`
 	for (int y = maxIteration, (y := getBottomOfSegment(y - 1)) >= minIteration, noop:

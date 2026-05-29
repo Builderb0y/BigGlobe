@@ -1,6 +1,7 @@
 {
 	"element_type": "field/normal",
+	"owner": "bigglobe:surface/multi/class",
 	"name": "layers",
-	"field_type": "list",
+	"field_type": "array_list",
 	"default": "ArrayList.new(4)"
 }

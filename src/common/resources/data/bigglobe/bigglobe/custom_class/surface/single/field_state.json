@@ -1,5 +1,6 @@
 {
 	"element_type": "field/normal",
+	"owner": "bigglobe:surface/single/class",
 	"name": "state",
 	"field_type": "block_state"
 }

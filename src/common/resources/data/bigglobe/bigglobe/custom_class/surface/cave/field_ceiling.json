@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:surface/cave/class",
+	"name": "ceiling",
+	"field_type": "bigglobe:surface/multi/class"
+}

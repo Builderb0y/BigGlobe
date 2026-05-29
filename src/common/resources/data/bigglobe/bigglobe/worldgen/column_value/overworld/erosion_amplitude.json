@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"`bigglobe:overworld/obelisk_terrain_suppression` * 128.0L * (1.0L - 1.0L / (`raw/river/macro` ^ 2 * 16.0L + 1.0L))"
+	]
+}

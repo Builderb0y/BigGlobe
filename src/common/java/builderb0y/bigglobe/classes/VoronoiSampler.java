@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.classes;
 
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -53,31 +53,35 @@ public class VoronoiSampler {
 
 		public void addAllTo(MutableScriptEnvironment environment, TypeInfo columnType) {
 			environment
-				.addFieldInvoke("cellX", this.cellX)
-				.addFieldInvoke("cellZ", this.cellZ)
-				.addFieldInvoke("centerX", this.centerX)
-				.addFieldInvoke("centerZ", this.centerZ)
-				.addFieldInvoke("softDistanceSquared", this.softDistanceSquared)
-				.addFieldInvoke("dxSoftDistanceSquared", this.dxSoftDistanceSquared)
-				.addFieldInvoke("dzSoftDistanceSquared", this.dzSoftDistanceSquared)
-				.addFieldInvoke("softDistance", this.softDistance)
-				.addFieldInvoke("dxSoftDistance", this.dxSoftDistance)
-				.addFieldInvoke("dzSoftDistance", this.dzSoftDistance)
-				.addFieldInvoke("hardDistanceSquared", this.hardDistanceSquared)
-				.addFieldInvoke("hardDistance", this.hardDistance)
-				.addFieldInvoke("euclideanDistanceSquared", this.euclideanDistanceSquared)
-				.addFieldInvoke("euclideanDistance", this.euclideanDistance)
-				.addField(
-					this.type, "centerColumn", new FieldHandler.Named(
-						"centerColumn", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+			.addType("VoronoiCell", this.type)
+			.addFieldInvoke("cellX", this.cellX)
+			.addFieldInvoke("cellZ", this.cellZ)
+			.addFieldInvoke("centerX", this.centerX)
+			.addFieldInvoke("centerZ", this.centerZ)
+			.addFieldInvoke("softDistanceSquared", this.softDistanceSquared)
+			.addFieldInvoke("dxSoftDistanceSquared", this.dxSoftDistanceSquared)
+			.addFieldInvoke("dzSoftDistanceSquared", this.dzSoftDistanceSquared)
+			.addFieldInvoke("softDistance", this.softDistance)
+			.addFieldInvoke("dxSoftDistance", this.dxSoftDistance)
+			.addFieldInvoke("dzSoftDistance", this.dzSoftDistance)
+			.addFieldInvoke("hardDistanceSquared", this.hardDistanceSquared)
+			.addFieldInvoke("hardDistance", this.hardDistance)
+			.addFieldInvoke("euclideanDistanceSquared", this.euclideanDistanceSquared)
+			.addFieldInvoke("euclideanDistance", this.euclideanDistance)
+			.addField(
+				this.type,
+				"centerColumn",
+				new FieldHandler.Named(
+					"centerColumn",
+					(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 						return switch (mode) {
 							case NORMAL, NULLABLE -> mode.makeInvoker(parser, receiver, this.centerColumn).cast(parser, columnType, CastMode.EXPLICIT_THROW, false);
 							case RECEIVER, NULLABLE_RECEIVER -> receiver;
 						};
 					}
-					)
 				)
-				.addMethodInvoke("nextSeed", this.nextSeed);
+			)
+			.addMethodInvoke("nextSeed", this.nextSeed);
 		}
 	}
 
@@ -89,14 +93,14 @@ public class VoronoiSampler {
 	public int flags;
 	public final Derivative2D
 		softDistanceSquared = new Derivative2D(),
-		softDistance = new Derivative2D();
+		softDistance        = new Derivative2D();
 	public double hardDistance, euclideanDistance;
 	public SeedPoint center;
 	public Cell cell;
 
 	public VoronoiSampler(VoronoiDiagram2D diagram, ScriptedColumn column) {
 		this.diagram = diagram;
-		this.column = column;
+		this.column  = column;
 	}
 
 	public void clear() {

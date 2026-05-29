@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"columnSeed(16xF6332BDF97DCE9F4UL).nextFloat(3.0I, 7.0I)"
+	]
+}

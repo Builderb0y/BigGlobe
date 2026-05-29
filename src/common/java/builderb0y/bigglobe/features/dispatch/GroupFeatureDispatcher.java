@@ -3,7 +3,7 @@ package builderb0y.bigglobe.features.dispatch;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 

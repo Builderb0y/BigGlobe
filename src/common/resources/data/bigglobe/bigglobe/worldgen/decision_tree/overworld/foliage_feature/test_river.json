@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "world_traits.`bigglobe:in_river`"
+		"type": "world_trait",
+		"world_trait": "bigglobe:in_river"
 	},
 	"if_true": "bigglobe:overworld/foliage_feature/no_feature",
 	"if_false": "bigglobe:overworld/foliage_feature/test_beach"

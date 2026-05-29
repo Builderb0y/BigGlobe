@@ -1,9 +1,0 @@
-{
-	"replace": false,
-	"values": [
-		"bigglobe:cave_systems/mushroom/property_biome",
-		"bigglobe:cave_systems/mushroom/property_decorator",
-		"bigglobe:cave_systems/mushroom/property_floor_states",
-		"bigglobe:cave_systems/common/property_no_ceiling"
-	]
-}

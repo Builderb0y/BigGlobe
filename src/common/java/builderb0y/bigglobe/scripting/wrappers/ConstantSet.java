@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 
+import net.minecraft.util.Mth;
+
 public class ConstantSet<K> extends AbstractSet<K> {
 
 	public final K[] keys;
@@ -21,7 +23,12 @@ public class ConstantSet<K> extends AbstractSet<K> {
 	@SuppressWarnings("unchecked")
 	public ConstantSet(Object... args) {
 		int size = args.length;
-		int capacity = Integer.highestOneBit(size << 1);
+		if (size == 0) {
+			this.keys = (K[])(ObjectArrays.EMPTY_ARRAY);
+			this.order = IntArrays.EMPTY_ARRAY;
+			return;
+		}
+		int capacity = Mth.smallestEncompassingPowerOfTwo(size + (size >> 2) + 1);
 		int mask = capacity - 1;
 		Object[] keys = new Object[capacity];
 		int[] order = new int[size];

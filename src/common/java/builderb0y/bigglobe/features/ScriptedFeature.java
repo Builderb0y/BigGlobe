@@ -22,10 +22,10 @@ import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
@@ -45,7 +45,6 @@ import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -81,6 +80,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	@Override
 	public boolean place(FeaturePlaceContext<Config> context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			WorldGenLevel originalWorld = context.level();
 			BlockPos origin = context.origin();
 			Permuter permuter = Permuter.from(context.random());
 			Symmetry symmetry = this.getSymmetry(context.config(), permuter);
@@ -97,23 +97,23 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					origin.getZ() + 127
 				);
 			}
-			else if (context.level() instanceof Level) {
+			else if (originalWorld instanceof Level) {
 				box = new BoundingBox(
 					origin.getX() - 128,
-					HeightLimitViewVersions.getMinY(context.level()),
+					HeightLimitViewVersions.getMinY(originalWorld),
 					origin.getZ() - 128,
 					origin.getX() + 127,
-					HeightLimitViewVersions.getMaxY(context.level()),
+					HeightLimitViewVersions.getMaxY(originalWorld),
 					origin.getZ() + 127
 				);
 			}
 			else {
 				box = new BoundingBox(
 					(chunkX - 1) << 4,
-					HeightLimitViewVersions.getMinY(context.level()),
+					HeightLimitViewVersions.getMinY(originalWorld),
 					(chunkZ - 1) << 4,
 					((chunkX + 1) << 4) | 15,
-					HeightLimitViewVersions.getMaxY(context.level()),
+					HeightLimitViewVersions.getMaxY(originalWorld),
 					((chunkZ + 1) << 4) | 15
 				);
 			}
@@ -123,14 +123,14 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				box
 			);
 			WorldGenLevel world = switch (context.config().queueType) {
-				case NONE -> context.level();
+				case NONE -> originalWorld;
 				case BASIC -> new BlockQueueStructureWorldAccess(
-					context.level(),
+					originalWorld,
 					new BlockQueue(Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)
 				);
 				case DELAYED -> (
 					new BlockQueueStructureWorldAccess(
-						context.level(),
+						originalWorld,
 						new SerializableBlockQueue(
 							origin.getX(),
 							origin.getY(),
@@ -142,7 +142,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						@Override
 						public void setBlockState(BlockPos pos, BlockState state) {
 							BlockState oldState = this.getWorldState(pos);
-							if (SerializableBlockQueue.canImplicitlyReplace(oldState)) {
+							if (SerializableBlockQueue.canImplicitlyReplace(originalWorld, pos, oldState)) {
 								this.queue.queueBlock(pos, state);
 							}
 							else {
@@ -162,7 +162,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			wrapper.featureSalt = permuter.nextLong();
 			if (context.config().script.generate(wrapper)) {
 				if (context.config().queueType != QueueType.NONE) {
-					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.level());
+					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(originalWorld);
 				}
 				return true;
 			}
@@ -222,7 +222,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						registry.setupExternalEnvironment(
+						registry.setupEnvironment(
 							environment
 							.addVariableConstant("originX", 0)
 							.addVariableConstant("originY", 0)
@@ -231,8 +231,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 							.addVariable("placementY", WORLD.originY)
 							.addVariable("placementZ", WORLD.originZ)
 							.addVariable("hints", WORLD.hints)
-							.configure(ScriptedColumn.hintsEnvironment())
-							.addVariable("distantHorizons", WORLD.distantHorizons)
+							.configure(ScriptedColumn.baseEnvironment(
+								null,
+								WORLD.loadSelf,
+								registry.columnCompileContext.columnTypeInfo()
+							))
 							.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
 							.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT")))),
 
@@ -275,8 +278,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		public final ScriptedFeatureImplementation.Catcher script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
-		public final @DefaultString("none")
-		@UseName("queue") QueueType queueType;
+		public final @DefaultString("none") @UseName("queue") QueueType queueType;
 
 		public Config(
 			ScriptedFeatureImplementation.Catcher script,

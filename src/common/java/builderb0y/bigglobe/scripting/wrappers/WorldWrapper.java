@@ -26,11 +26,12 @@ import org.joml.Vector3d;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ConfiguredColumnFactory;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.WorldInfo;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
@@ -65,8 +66,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			minValidYLevel,
 			maxValidYLevel,
 			hints,
-			distantHorizons,
-			surfaceOnly,
 			originX,
 			originY,
 			originZ;
@@ -91,14 +90,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			return invokeInstance(loadWorld, this.hints);
 		}
 
-		public InsnTree distantHorizons(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.distantHorizons);
-		}
-
-		public InsnTree surfaceOnly(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.surfaceOnly);
-		}
-
 		public InsnTree originX(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.originX);
 		}
@@ -120,7 +111,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			random,
 			seed,
 			hints,
-			distantHorizons,
 			originX,
 			originY,
 			originZ;
@@ -184,7 +174,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		this.overriders = from.overriders;
 	}
 
-	public static record AutoOverride(ScriptStructures[] structures, Holder<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
+	public static record AutoOverride(ScriptStructures[] structures, Holder<ColumnValueOverrider.Entry>[] overriders, ColumnValueInfo[] preFetch) {
 
 		public AutoOverride {
 			if (structures.length != overriders.length) {
@@ -193,13 +183,12 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 
 		public void override(ScriptedColumn column) {
-			for (String name : this.preFetch)
-				try {
-					column.preComputeColumnValue(name);
-				}
-				catch (Throwable throwable) {
-					BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
-				}
+			for (ColumnValueInfo info : this.preFetch) try {
+				info.preComputer().invokeExact(column);
+			}
+			catch (Throwable throwable) {
+				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
+			}
 			for (int index = 0; index < this.structures.length; index++) {
 				this.overriders[index].value().script.override(column, this.structures[index]);
 			}
@@ -296,17 +285,10 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return this.columnFactory.hints();
 	}
 
-	@Deprecated
-	public boolean distantHorizons() {
-		return this.columnFactory.hints().isLod();
-	}
-
-	@Deprecated
-	public boolean surfaceOnly() {
-		return !this.columnFactory.hints().fill();
-	}
-
 	public BlockState getBlockState(int x, int y, int z) {
+		if (this.isInCrashRange(y)) {
+			throw new IllegalArgumentException("The provided Y coordinate is very far outside the world height limit. The script may be searching for blocks in a column that has none.");
+		}
 		BlockPos pos = this.immutablePos(x, y, z);
 		return pos == null ? BlockStates.AIR : this.coordination.unmodifyState(this.world.getBlockState(pos));
 	}
@@ -458,10 +440,12 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
-		BlockPos pos = this.mutablePos(x, y, z);
-		if (pos != null) {
-			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ this.featureSalt, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
-			return this.world.placeFeature(pos, feature.object(), permuter.mojang());
+		if (feature != null) {
+			BlockPos pos = this.mutablePos(x, y, z);
+			if (pos != null) {
+				Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ this.featureSalt, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
+				return this.world.placeFeature(pos, feature.object(), permuter.mojang());
+			}
 		}
 		return false;
 	}
@@ -495,6 +479,11 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public boolean isYLevelValid(int y) {
 		return !this.world.isOutsideBuildHeight(y + this.coordination.transformation.offsetY());
+	}
+
+	public boolean isInCrashRange(int y) {
+		y += this.coordination.transformation.offsetY();
+		return y < HeightLimitViewVersions.getMinY(this.world) - 64 || y >= HeightLimitViewVersions.getMaxY(this.world) + 64;
 	}
 
 	public boolean isPositionValid(int x, int y, int z) {

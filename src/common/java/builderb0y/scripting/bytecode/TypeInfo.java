@@ -525,6 +525,10 @@ public class TypeInfo {
 		return TypeInfos.UNBOXING.containsKey(this);
 	}
 
+	public boolean isBoolean() {
+		return this.getSort() == Sort.BOOLEAN;
+	}
+
 	public TypeInfo box() {
 		return TypeInfos.box(this);
 	}

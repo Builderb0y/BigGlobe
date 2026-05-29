@@ -1,0 +1,9 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/lush/class",
+	"override": "bigglobe:cave_systems/base/method_surface",
+	"code": [
+		"SurfaceStates surface = new().$add('minecraft:moss_block', defaultSurfaceDepth(column))",
+		"CaveSurfaceStates.create(surface, surface)"
+	]
+}

@@ -1,14 +1,7 @@
 {
 	"type": "script",
 	"params": {
-		"type": {
-			"type": "class",
-			"name": "LakeSurfaceStates",
-			"fields": [
-				{ "name": "top",   "type": "block_state" },
-				{ "name": "under", "type": "block_state" }
-			]
-		},
+		"type": "bigglobe:surface/multi/class",
 		"is_3d": false
 	},
 	"script": "null ;populated by overrider."

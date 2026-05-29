@@ -1,12 +1,16 @@
 package builderb0y.bigglobe.classes.spec;
 
 import java.util.*;
+import java.util.stream.Stream;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.BlockState;
+
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -14,10 +18,12 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.classes.*;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
-import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
+import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.compile.OverrideTracker;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -39,14 +45,26 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class BuiltinTypeSpec extends TypeSpec {
 
 	public final BuiltinJavaType java_type;
-	public TypeInfo columnType;
+	public transient TypeInfo columnType;
 
 	public BuiltinTypeSpec(BuiltinJavaType java_type) {
 		this.java_type = java_type;
 	}
 
 	@Override
-	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		return Stream.empty();
+	}
+
+	@Override
+	@MustBeInvokedByOverriders
+	public void reference(ClassHierarchy hierarchy) throws DetailedException {
+		super.reference(hierarchy);
+		hierarchy.rootTypes.add(hierarchy.entryOf(this));
+	}
+
+	@Override
+	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws DetailedException {
 		super.createTypeInfo(hierarchy, cyclicDetector);
 		this.columnType = hierarchy.registry.columnCompileContext.columnTypeInfo();
 	}
@@ -56,7 +74,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 		if (this.columnType == null) {
 			throw new IllegalStateException("Haven't created scripted column type info yet!");
 		}
-		if (this.java_type == BuiltinJavaType.COLUMN) {
+		if (this.java_type == BuiltinJavaType.COLUMN_STORAGE) {
 			return this.columnType;
 		}
 		return this.java_type.typeInfo;
@@ -70,12 +88,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 	}
 
 	@Override
-	public @Nullable OverrideTracker getOverrideTracker() {
-		return null;
-	}
-
-	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, @Nullable InsnTree loadCustomClass) {
+	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		//no-op. these types are already provided by BuiltinScriptEnvironment, JavaUtilScriptEnvironment, and MinecraftScriptEnvironment.
 	}
 
@@ -85,8 +98,8 @@ public class BuiltinTypeSpec extends TypeSpec {
 	}
 
 	@Override
-	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data, InsnTree loadColumn) throws ConstantFormatException {
-		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
+	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data) throws ConstantFormatException {
+		if (data.isEmpty()) return ldcZero(this.getTypeInfo());
 		return switch (this.java_type) {
 			case BYTE -> ldc(asNumber(data).byteValue());
 			case SHORT -> ldc(asNumber(data).shortValue());
@@ -99,12 +112,13 @@ public class BuiltinTypeSpec extends TypeSpec {
 			case BLOCK -> ldc(registry(hierarchy, data, Registries.BLOCK).value(), BlockWrapper.TYPE);
 			case BLOCK_TAG -> ldc(new BlockTag(tag(hierarchy, data, Registries.BLOCK)), BlockTag.TYPE);
 			case BLOCK_STATE -> ldc(blockState(hierarchy, data), BlockStateWrapper.TYPE);
-			case BIOME -> ldc(new BiomeEntry(registry(hierarchy, data, Registries.BIOME)), BiomeEntry.TYPE);
-			case BIOME_TAG -> ldc(new BiomeTag(tag(hierarchy, data, Registries.BIOME)), BiomeTag.TYPE);
-			case CONFIGURED_FEATURE -> ldc(new ConfiguredFeatureEntry(registry(hierarchy, data, Registries.CONFIGURED_FEATURE)), ConfiguredFeatureEntry.TYPE);
-			case CONFIGURED_FEATURE_TAG -> ldc(new ConfiguredFeatureTag(tag(hierarchy, data, Registries.CONFIGURED_FEATURE)), ConfiguredFeatureTag.TYPE);
-			case WOOD_PALETTE -> ldc(new WoodPaletteEntry(registry(hierarchy, data, BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)), WoodPaletteEntry.INFO.type);
-			case WOOD_PALETTE_TAG -> ldc(new WoodPaletteTag(tag(hierarchy, data, BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)), WoodPaletteTag.TYPE);
+
+			case BIOME -> ldc(BiomeEntry.of(asString(data).value, hierarchy.registry.constantFlags()), BiomeEntry.TYPE);
+			case BIOME_TAG -> ldc(BiomeTag.of(hierarchy.registry.constantFlags(), asString(data).value), BiomeTag.TYPE);
+			case CONFIGURED_FEATURE -> ldc(ConfiguredFeatureEntry.of(asString(data).value, hierarchy.registry.constantFlags()), ConfiguredFeatureEntry.TYPE);
+			case CONFIGURED_FEATURE_TAG -> ldc(ConfiguredFeatureTag.of(hierarchy.registry.constantFlags(), asString(data).value), ConfiguredFeatureTag.TYPE);
+			case WOOD_PALETTE -> ldc(WoodPaletteEntry.of(asString(data).value, hierarchy.registry.constantFlags()), WoodPaletteEntry.INFO.type);
+			case WOOD_PALETTE_TAG -> ldc(WoodPaletteTag.of(hierarchy.registry.constantFlags(), asString(data).value), WoodPaletteTag.TYPE);
 
 			default -> throw new ConstantFormatException("Can't create a constant of type " + this.java_type.lowerCaseName);
 		};
@@ -139,19 +153,19 @@ public class BuiltinTypeSpec extends TypeSpec {
 			result = new DelayedEntryList<>(
 				hierarchy.registry.registries.getRegistry(registryKey),
 				list
-					.value
-					.stream()
-					.map((Data data_) -> {
-						try {
-							return asString(data_);
-						}
-						catch (ConstantFormatException exception) {
-							throw AutoCodecUtil.rethrow(exception);
-						}
-					})
-					.map((StringData string) -> string.value)
-					.map(DelayedEntry::new)
-					.toList()
+				.value
+				.stream()
+				.map((Data data_) -> {
+					try {
+						return asString(data_);
+					}
+					catch (ConstantFormatException exception) {
+						throw AutoCodecUtil.rethrow(exception);
+					}
+				})
+				.map((StringData string) -> string.value)
+				.map(DelayedEntry::new)
+				.toList()
 			);
 		}
 		else {
@@ -166,9 +180,10 @@ public class BuiltinTypeSpec extends TypeSpec {
 
 	public static BlockState blockState(ClassHierarchy hierarchy, Data data) throws ConstantFormatException {
 		return (
-			BlockStateCoder.decodeStateWithMissingErrors(hierarchy.registry.registries.getRegistry(Registries.BLOCK), asString(data).value)
-				.unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new)
-				.state()
+			BlockStateCoder
+			.decodeStateWithMissingErrors(hierarchy.registry.registries.getRegistry(Registries.BLOCK), asString(data).value)
+			.unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new)
+			.state()
 		);
 	}
 
@@ -228,7 +243,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 		TAG(TagWrapper.TYPE),
 
 		//columns
-		COLUMN(ScriptedColumn.INFO.type),
+		COLUMN_STORAGE(ScriptedColumn.INFO.type),
 		VORONOI(VoronoiSampler.INFO.type),
 		;
 

@@ -1,5 +1,0 @@
-{
-	"element_type": "property/override",
-	"override": "bigglobe:nether_bubbles/base/property_biome",
-	"get": "'bigglobe:warped_forest'"
-}

@@ -6,9 +6,12 @@ import java.util.Arrays;
 import java.util.Map;
 import net.minecraft.resources.Identifier;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+
 import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry.ColumnEntryContext;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptClassLoader;
@@ -21,7 +24,7 @@ public class ColumnCompileContext {
 	public ColumnEntryRegistry registry;
 	public ClassCompileContext clazz;
 	public MethodCompileContext constructor;
-	public Map<ColumnEntry, Object> memberContexts;
+	public Map<ColumnEntry, ColumnEntryContext> memberContexts;
 	public int flagsIndex;
 
 	public ColumnCompileContext(ColumnEntryRegistry registry) {
@@ -53,7 +56,7 @@ public class ColumnCompileContext {
 				),
 				ScriptedColumn.CONSTRUCTOR_INFO.loaders
 			)
-				.emitBytecode(this.constructor);
+			.emitBytecode(this.constructor);
 		}
 		{
 			MethodCompileContext lookup = this.clazz.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
@@ -67,46 +70,36 @@ public class ColumnCompileContext {
 				newInstance(
 					this.constructor.info,
 					Arrays
-						.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
-						.map(Parameter::getName)
-						.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
-						.map((FieldInfo field) -> getField(loadSelf, field))
-						.toArray(InsnTree[]::new)
+					.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
+					.map(Parameter::getName)
+					.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
+					.map((FieldInfo field) -> getField(loadSelf, field))
+					.toArray(InsnTree[]::new)
 				)
 			)
-				.emitBytecode(blankCopy);
+			.emitBytecode(blankCopy);
 			blankCopy.endCode();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> T getCompileContext(ColumnEntry spec) {
-		return (T)(this.memberContexts.get(spec));
+	public ColumnEntryContext getCompileContext(ColumnEntry spec) {
+		return this.memberContexts.get(spec);
 	}
 
-	public void setCompileContext(ColumnEntry spec, Object value) {
+	public void setCompileContext(ColumnEntry spec, ColumnEntryContext value) {
 		this.memberContexts.put(spec, value);
 	}
 
 	public void link(ScriptClassLoader loader) {
-		MethodCompileContext clear = this.clazz.newMethod(ACC_PUBLIC, "clear", TypeInfos.VOID);
-		for (int index = 0, max = this.flagsIndex >>> 5; index <= max; index++) {
-			FieldCompileContext flagsField = this.clazz.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
-			putField(this.loadColumn(), flagsField.info, ldc(0)).emitBytecode(clear);
-		}
-		clear.node.visitInsn(RETURN);
-		clear.endCode();
-		this.constructor.node.visitInsn(RETURN);
-		this.constructor.endCode();
 		loader.recursiveAddClasses(this.clazz, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null);
 	}
 
 	public static String internalName(Identifier selfID, int uniquifier) {
 		StringBuilder builder = (
 			new StringBuilder(selfID.getNamespace().length() + selfID.getPath().length() + 16)
-				.append(selfID.getNamespace())
-				.append('_')
-				.append(selfID.getPath())
+			.append(selfID.getNamespace())
+			.append('_')
+			.append(selfID.getPath())
 		);
 		for (int index = 0, length = builder.length(); index < length; index++) {
 			char old = builder.charAt(index);
@@ -127,6 +120,10 @@ public class ColumnCompileContext {
 		return this.flagsIndex++;
 	}
 
+	public FieldInfo flagsField(int index) {
+		return new FieldInfo(ACC_PUBLIC, this.clazz.info, "flags_" + (index >>> 5), TypeInfos.INT);
+	}
+
 	public TypeInfo columnTypeInfo() {
 		return this.clazz.info;
 	}
@@ -135,7 +132,24 @@ public class ColumnCompileContext {
 		return load("this", this.columnTypeInfo());
 	}
 
-	public FieldInfo flagsField(int index) {
-		return new FieldInfo(ACC_PUBLIC, this.clazz.info, "flags_" + (index >>> 5), TypeInfos.INT);
+	public InsnTree loadSeed(@Nullable InsnTree salt) {
+		return (
+			salt != null
+			? ScriptedColumn.INFO.saltedSeed(this.loadColumn(), salt)
+			: ScriptedColumn.INFO.baseSeed(this.loadColumn())
+		);
+	}
+
+	public void prepareForLink() {
+		MethodCompileContext clear = this.clazz.newMethod(ACC_PUBLIC, "clear", TypeInfos.VOID);
+		for (int index = 0, max = this.flagsIndex >>> 5; index <= max; index++) {
+			FieldCompileContext flagsField = this.clazz.newField(ACC_PUBLIC, "flags_" + index, TypeInfos.INT);
+			putField(this.loadColumn(), flagsField.info, ldc(0)).emitBytecode(clear);
+		}
+		clear.node.visitInsn(RETURN);
+		clear.endCode();
+
+		this.constructor.node.visitInsn(Opcodes.RETURN);
+		this.constructor.endCode();
 	}
 }

@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/valley_of_souls/class",
+	"name": "VALLEY_OF_SOULS",
+	"field_values": {
+		"weight": 0.75,
+		"biome": "bigglobe:valley_of_souls",
+		"decorator": "bigglobe:nether/decorators/valley_of_souls"
+	}
+}

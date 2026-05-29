@@ -1,0 +1,12 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/mushroom/class",
+	"override": "bigglobe:cave_systems/base/method_surface",
+	"code": [
+		"SurfaceStates surface = new()",
+		"int depth = defaultSurfaceDepth(column)",
+		"if (depth > 1: surface.add('minecraft:dirt', depth))",
+		"if (depth > 0: surface.add('minecraft:mycelium[snowy=false]', 1))",
+		"return(CaveSurfaceStates.create(surface, SurfaceStates.new()))"
+	]
+}

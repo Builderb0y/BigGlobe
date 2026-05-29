@@ -1,0 +1,12 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/molten/class",
+	"override": "bigglobe:cave_systems/base/method_surface",
+	"code": [
+		"SurfaceStates surface = new()",
+		"int depth = defaultSurfaceDepth(column)",
+		"if (depth > 1: surface.add('minecraft:basalt[axis=y]', depth))",
+		"if (depth > 0: surface.add('minecraft:blackstone', 1))",
+		"return(CaveSurfaceStates.create(surface, surface))"
+	]
+}

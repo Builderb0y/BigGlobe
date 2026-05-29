@@ -1,6 +1,6 @@
 {
 	"result": {
-		"type": "scripted",
+		"type": "script",
 		"script": [
 			"`bigglobe:overworld/wood_palette`.?features.?('natural_surface')"
 		]

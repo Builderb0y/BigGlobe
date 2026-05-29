@@ -1,15 +1,23 @@
 package builderb0y.bigglobe.classes.spec;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+
 import net.minecraft.core.Holder;
-import org.jetbrains.annotations.Nullable;
-import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
-import builderb0y.bigglobe.classes.compile.OverrideTracker;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.classes.compile.ClassHierarchy;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
+import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -18,30 +26,27 @@ public class AbstractPropertySpec extends BasePropertySpec {
 
 	public final @IdentifierName String name;
 	public final Holder<ElementSpec> property_type;
+	@Override
+	public TypeSpec getPropertyTypeSpec(ClassHierarchy hierarchy) {
+		return requireType(this.property_type, TypeSpec.class, () -> hierarchy.idOf(this) + " > property_type");
+	}
 	public final boolean settable;
-	public final @DefaultBoolean(false) boolean is_3d;
-	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public AbstractPropertySpec(
+		Holder<ElementSpec> owner,
 		@IdentifierName String name,
 		Holder<ElementSpec> property_type,
-		boolean settable,
-		boolean is3d
+		boolean settable
 	) {
+		super(owner);
 		this.name = name;
 		this.property_type = property_type;
 		this.settable = settable;
-		this.is_3d = is3d;
 	}
 
 	@Override
 	public boolean isSettable() {
 		return this.settable;
-	}
-
-	@Override
-	public boolean is3D() {
-		return this.is_3d;
 	}
 
 	@Override
@@ -55,23 +60,45 @@ public class AbstractPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public void track(OverrideTracker tracker) throws CustomClassFormatException {
-		tracker.addAbstractProperty(this);
+	@MustBeInvokedByOverriders
+	public void verify(ClassHierarchy hierarchy) throws DetailedException {
+		super.verify(hierarchy);
+		this.owner(hierarchy).overrideTracker.addAbstractProperty(this);
 	}
 
 	@Override
-	public void setupEnvironment(MutableScriptEnvironment environment, BaseClassSpec owner, @Nullable InsnTree loadCustomClass) {
-		PropertyCompileContext propertyContext = owner.getCompileContext(this);
+	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+		InsnTree loadCustomClass = params.loadCustomClass;
+		TypeInfo owner = this.context.get.clazz.info;
+		MethodInfo getter = this.context.get.info;
 		if (this.settable) {
-			environment.addFieldGetterSetter(propertyContext.get.clazz.info, this.name, propertyContext.get.info, propertyContext.set.info);
-			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
-				environment.addVariableGetterSetter(loadCustomClass, this.name, propertyContext.get.info, propertyContext.set.info);
+			MethodInfo setter = this.context.set.info;
+			environment.addField(
+				owner,
+				this.name,
+				new FieldHandler.Named(
+					"getter: " + getter + ", setter: " + setter,
+					(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+						if (getter.isDeprecated() || setter.isDeprecated()) {
+							BigGlobeMod.LOGGER.warn("Deprecated field used: " + this.name + '\n' + parser.input.getSourceForError());
+						}
+						if (params.dependencies != null) params.dependencies.addDependency(self);
+						return mode.makeGetterSetter(parser, receiver, getter, setter);
+					}
+				)
+			);
+			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(owner)) {
+				InsnTree tree = new GetterSetterInsnTree(loadCustomClass, getter, setter);
+				environment.addVariable(this.name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name) -> {
+					if (params.dependencies != null) params.dependencies.addDependency(self);
+					return tree;
+				}));
 			}
 		}
 		else {
-			environment.addFieldInvoke(propertyContext.get.info);
-			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(propertyContext.get.clazz.info)) {
-				environment.addVariableInvoke(loadCustomClass, propertyContext.get.info);
+			environment.addField(getter.owner, getter.name, Handlers.builder(getter).addReceiverArgument(getter.owner).callback(params.dependencyCallback(self)).buildField());
+			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(owner)) {
+				environment.addVariable(getter.name, Handlers.builder(getter).addImplicitArgument(loadCustomClass).callback(params.dependencyCallback(self)).buildVariable());
 			}
 		}
 	}
@@ -79,10 +106,5 @@ public class AbstractPropertySpec extends BasePropertySpec {
 	@Override
 	public String name() {
 		return this.name;
-	}
-
-	@Override
-	public Set<Holder<? extends DependencyView>> getDependencies() {
-		return this.dependencies;
 	}
 }

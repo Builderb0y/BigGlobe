@@ -443,21 +443,23 @@ public class RandomScriptEnvironment {
 					"randomSwitch",
 					TypeInfos.INT,
 					Stream.concat(
-							Stream.of(receiver.getTypeInfo()),
-							weights
-								.stream()
-								.filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic())
-								.map(InsnTree::getTypeInfo)
-						)
-						.toArray(TypeInfo.ARRAY_FACTORY)
+						Stream.of(receiver.getTypeInfo()),
+						weights
+						.stream()
+						.filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic())
+						.map(InsnTree::getTypeInfo)
+					)
+					.toArray(TypeInfo.ARRAY_FACTORY)
 				);
-				ConstantValue[] constantArgs = Stream.concat(
+				ConstantValue[] constantArgs = (
+					Stream.concat(
 						Stream.of(constant(weightType)),
 						weights
-							.stream()
-							.map((InsnTree tree) -> tree.getConstantValue().isConstantOrDynamic() ? tree.getConstantValue() : constant(0, tree.getTypeInfo()))
+						.stream()
+						.map((InsnTree tree) -> tree.getConstantValue().isConstantOrDynamic() ? tree.getConstantValue() : constant(0, tree.getTypeInfo()))
 					)
-												.toArray(ConstantValue.ARRAY_FACTORY);
+					.toArray(ConstantValue.ARRAY_FACTORY)
+				);
 				InsnTree[] runtimeArgs = weights.stream().filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic()).toArray(InsnTree.ARRAY_FACTORY);
 				selector = (InsnTree actualReceiver) -> switch_(
 					parser,
@@ -474,14 +476,14 @@ public class RandomScriptEnvironment {
 				throw new ScriptParsingException("Expected ',' or ':'", parser.input);
 			}
 			return (
-				switch (mode) {
+				(switch (mode) {
 					case NORMAL -> MemberKeywordMode.NORMAL;
 					case NULLABLE -> MemberKeywordMode.NULLABLE;
 					case RECEIVER -> MemberKeywordMode.RECEIVER;
 					case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
-				}
-			)
-					.apply(receiver, selector);
+				})
+				.apply(receiver, selector)
+			);
 		};
 	}
 }

@@ -101,7 +101,7 @@ public class BlockQueue {
 				world.setBlock(pos.set(entry.getLongKey()), entry.getValue(), this.flags);
 			}
 			if (!this.queuedBlockEntities.isEmpty()) for (
-														ObjectIterator<Long2ObjectMap.Entry<BlockEntity>> iterator = this.queuedBlockEntities.long2ObjectEntrySet().fastIterator();
+				ObjectIterator<Long2ObjectMap.Entry<BlockEntity>> iterator = this.queuedBlockEntities.long2ObjectEntrySet().fastIterator();
 				iterator.hasNext();
 			) {
 				Long2ObjectMap.Entry<BlockEntity> entry = iterator.next();

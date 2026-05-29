@@ -8,12 +8,12 @@ import org.objectweb.asm.Type;
 import net.minecraft.core.Holder;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ScriptColumnEntryParser;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.SetBasedMutableDependencyView;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
@@ -25,6 +25,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
@@ -81,10 +82,10 @@ public interface SurfaceScript extends Script {
 				new LazyVarInfo("segments", type(BlockSegmentList.class))
 			};
 			LazyVarInfo[] actualParams = {
-				new LazyVarInfo("mainColumn", registry.columnContext.columnType()),
-				new LazyVarInfo("adjacentColumnX", registry.columnContext.columnType()),
-				new LazyVarInfo("adjacentColumnZ", registry.columnContext.columnType()),
-				new LazyVarInfo("adjacentColumnXZ", registry.columnContext.columnType()),
+				new LazyVarInfo("mainColumn", registry.columnCompileContext.columnTypeInfo()),
+				new LazyVarInfo("adjacentColumnX", registry.columnCompileContext.columnTypeInfo()),
+				new LazyVarInfo("adjacentColumnZ", registry.columnCompileContext.columnTypeInfo()),
+				new LazyVarInfo("adjacentColumnXZ", registry.columnCompileContext.columnTypeInfo()),
 				new LazyVarInfo("segments", type(BlockSegmentList.class))
 			};
 			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, "generateSurface", TypeInfos.VOID, actualParams);
@@ -94,35 +95,36 @@ public interface SurfaceScript extends Script {
 				invokeInstance(
 					load("this", clazz.info),
 					actualMethod.info,
-					new DirectCastInsnTree(load("mainColumn", type(ScriptedColumn.class)), registry.columnContext.columnType(), false),
-					new DirectCastInsnTree(load("adjacentColumnX", type(ScriptedColumn.class)), registry.columnContext.columnType(), false),
-					new DirectCastInsnTree(load("adjacentColumnZ", type(ScriptedColumn.class)), registry.columnContext.columnType(), false),
-					new DirectCastInsnTree(load("adjacentColumnXZ", type(ScriptedColumn.class)), registry.columnContext.columnType(), false),
+					new DirectCastInsnTree(load("mainColumn", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
+					new DirectCastInsnTree(load("adjacentColumnX", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
+					new DirectCastInsnTree(load("adjacentColumnZ", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
+					new DirectCastInsnTree(load("adjacentColumnXZ", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
 					load("segments", type(BlockSegmentList.class))
 				)
 			)
 				.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
-			LoadInsnTree loadMainColumn = load("mainColumn", registry.columnContext.columnType());
+			LoadInsnTree loadMainColumn = load("mainColumn", registry.columnCompileContext.columnTypeInfo());
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.configure(MinecraftScriptEnvironment.create())
-					.configure(GridScriptEnvironment.createWithSeed(registry.columnContext.loadSeed(null)))
-					.configure(ScriptedColumn.baseEnvironment(loadMainColumn))
-					.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-					.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
-					.addKeyword("dx", createDxDz(registry, false))
-					.addKeyword("dz", createDxDz(registry, true))
-					.addAll(ColorScriptEnvironment.ENVIRONMENT)
+				.addAll(MathScriptEnvironment.INSTANCE)
+				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+				.configure(MinecraftScriptEnvironment.create())
+				.configure(JavaUtilScriptEnvironment.withoutRandom())
+				.configure(GridScriptEnvironment.createWithSeed(registry.columnCompileContext.loadSeed(null)))
+				.configure(ScriptedColumn.baseEnvironment(loadMainColumn, null, loadMainColumn.variable.type))
+				.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+				.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+				.addKeyword("dx", createDxDz(registry, false))
+				.addKeyword("dz", createDxDz(registry, true))
+				.addAll(ColorScriptEnvironment.ENVIRONMENT)
 				;
-				registry.setupExternalEnvironment(
+				registry.setupEnvironment(
 					environment,
 					new ExternalEnvironmentParams()
-						.withColumn(loadMainColumn)
-						.trackDependencies(this)
+					.withColumn(loadMainColumn)
+					.trackDependencies(this)
 				);
 			});
 			parser.parseEntireInput().emitBytecode(actualMethod);
@@ -151,7 +153,7 @@ public interface SurfaceScript extends Script {
 					parser.input.expectAfterWhitespace('(');
 					parser.environment.user().push();
 
-					InsnTree result = new DerivativeMethodDefiner(parser, "derivative_" + parser.clazz.memberUniquifier++).createDerivative(registry.columnContext.columnType(), z);
+					InsnTree result = new DerivativeMethodDefiner(parser, "derivative_" + parser.clazz.memberUniquifier++).createDerivative(registry.columnCompileContext.columnTypeInfo(), z);
 					parser.environment.user().pop();
 
 					return result;

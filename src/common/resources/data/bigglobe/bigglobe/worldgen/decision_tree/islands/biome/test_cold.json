@@ -1,7 +1,7 @@
 {
 	"condition": {
-		"type": "script_chance",
-		"script": "`bigglobe:islands/skyland_snow_chance`"
+		"type": "column_value",
+		"column_value": "bigglobe:islands/skyland_snow_chance"
 	},
 	"if_true": "bigglobe:overworld/biome/cold_test_light_forest",
 	"if_false": "bigglobe:overworld/biome/temperate_test_magical"

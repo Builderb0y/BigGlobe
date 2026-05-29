@@ -11,11 +11,11 @@ import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ScriptColumnEntryParser;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.scripted2.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
@@ -25,6 +25,7 @@ import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironme
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
+import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -99,7 +100,7 @@ public class ScriptedLayer extends Layer {
 					new LazyVarInfo("blocks", type(BlockSegmentList.class))
 				};
 				LazyVarInfo[] actualParams = {
-					new LazyVarInfo("column", registry.columnContext.columnType()),
+					new LazyVarInfo("column", registry.columnCompileContext.columnTypeInfo()),
 					new LazyVarInfo("blocks", type(BlockSegmentList.class))
 				};
 				MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, "emitSegments", TypeInfos.VOID, actualParams);
@@ -108,30 +109,31 @@ public class ScriptedLayer extends Layer {
 					invokeInstance(
 						load("this", clazz.info),
 						actualMethod.info,
-						new DirectCastInsnTree(load("column", type(ScriptedColumn.class)), registry.columnContext.columnType(), false),
+						new DirectCastInsnTree(load("column", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
 						load("blocks", type(BlockSegmentList.class))
 					)
 				)
 					.emitBytecode(bridgeMethod);
 				bridgeMethod.endCode();
 
-				LoadInsnTree loadColumn = load("column", registry.columnContext.columnType());
+				LoadInsnTree loadColumn = load("column", registry.columnCompileContext.columnTypeInfo());
 				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
 					environment
-						.addAll(MathScriptEnvironment.INSTANCE)
-						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-						.configure(MinecraftScriptEnvironment.create())
-						.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
-						.configure(ScriptedColumn.baseEnvironment(loadColumn))
-						.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-						.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
-						.addAll(ColorScriptEnvironment.ENVIRONMENT)
+					.addAll(MathScriptEnvironment.INSTANCE)
+					.configure(JavaUtilScriptEnvironment.withoutRandom())
+					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+					.configure(MinecraftScriptEnvironment.create())
+					.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
+					.configure(ScriptedColumn.baseEnvironment(loadColumn, null, loadColumn.variable.type))
+					.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+					.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+					.addAll(ColorScriptEnvironment.ENVIRONMENT)
 					;
-					registry.setupExternalEnvironment(
+					registry.setupEnvironment(
 						environment,
 						new ExternalEnvironmentParams()
-							.withColumn(loadColumn)
-							.trackDependencies(this)
+						.withColumn(loadColumn)
+						.trackDependencies(this)
 					);
 				});
 				parser.parseEntireInput().emitBytecode(actualMethod);

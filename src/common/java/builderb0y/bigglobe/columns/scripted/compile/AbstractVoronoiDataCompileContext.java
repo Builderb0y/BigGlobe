@@ -4,9 +4,9 @@ import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo.Mutability;
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.UnresolvedColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
+import builderb0y.bigglobe.columns.scripted2.ColumnValueHolder.ColumnValueInfo.Mutability;
+import builderb0y.bigglobe.columns.scripted2.ColumnValueHolder.UnresolvedColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted2.VoronoiDataBase;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.tree.InsnTree;

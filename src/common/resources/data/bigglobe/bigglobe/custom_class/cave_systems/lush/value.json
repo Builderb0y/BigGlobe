@@ -1,0 +1,13 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:cave_systems/base/class",
+	"impl_type": "bigglobe:cave_systems/lush/class",
+	"name": "LUSH",
+	"field_values": {
+		"weight": 0.5,
+		"dungeonFeature": null,
+		"decorator": "bigglobe:overworld/caves/lush_decorator",
+		"biome": "bigglobe:lush_cave",
+		"systemDepth": 256
+	}
+}

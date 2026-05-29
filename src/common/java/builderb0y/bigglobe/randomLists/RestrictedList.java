@@ -2,7 +2,7 @@ package builderb0y.bigglobe.randomLists;
 
 import java.util.List;
 
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 import builderb0y.bigglobe.randomLists.IRandomList.RandomAccessRandomList;
 
 public class RestrictedList<E extends IRestrictedListElement> extends AbstractRandomList<E> implements RandomAccessRandomList<E> {

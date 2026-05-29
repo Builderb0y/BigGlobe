@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
 import builderb0y.autocodec.data.Data;
-import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
+import builderb0y.bigglobe.columns.scripted2.compile.ColumnCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 

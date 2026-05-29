@@ -76,7 +76,7 @@
 				},
 				"biome_source": {
 					"type": "bigglobe:scripted",
-					"script": "`bigglobe:nether/bubble`.biome",
+					"script": "`bigglobe:nether/bubble_type`.biome",
 					"all_possible_biomes": "#bigglobe:nether"
 				},
 				"overriders": "#bigglobe:nether",

@@ -1,11 +1,14 @@
 {
 	"condition": {
-		"type": "threshold",
+		"type": "curve_range",
+		"value": {
+			"type": "column_value",
+			"column_value": "bigglobe:end/foliage"
+		},
 		"min": 0.25,
 		"max": 0.5,
-		"smooth_min": false,
-		"smooth_max": true,
-		"column_value": "bigglobe:end/foliage"
+		"smooth_min": 0,
+		"smooth_max": 1
 	},
 	"if_true": "bigglobe:end/surface/chorus",
 	"if_false": "bigglobe:end/surface/overgrown"

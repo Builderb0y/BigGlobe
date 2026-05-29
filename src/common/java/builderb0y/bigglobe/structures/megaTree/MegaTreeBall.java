@@ -5,7 +5,6 @@ import org.joml.Vector3d;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
@@ -22,14 +21,13 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToDoubleScript;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
@@ -38,7 +36,6 @@ import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 

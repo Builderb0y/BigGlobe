@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.columns.scripted2;
 
-public class ColumnValueException extends Exception {
+import builderb0y.bigglobe.classes.compile.DetailedException;
+
+public class ColumnValueException extends DetailedException {
 
 	public ColumnValueException() {}
 

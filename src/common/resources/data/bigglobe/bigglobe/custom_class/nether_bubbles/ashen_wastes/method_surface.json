@@ -1,0 +1,10 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:nether_bubbles/ashen_wastes/class",
+	"override": "bigglobe:nether_bubbles/base/method_surface",
+	"code": [
+		"defaultHasSurface(column, y)",
+		"? SurfaceStates.new().$add('bigglobe:ashen_netherrack', 1)",
+		": SurfaceStates.new()"
+	]
+}

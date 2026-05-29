@@ -1447,21 +1447,21 @@ public class ExpressionParser {
 		}
 		return (
 			this
-				.environment
-				.listIdentifiers()
-				.map((IdentifierDescriptor descriptor) -> {
-					StringSimilarity similarity = StringSimilarity.compare(identifier, descriptor.name());
-					return similarity.compareTo(StringSimilarity.NO_MATCH) > 0 ? new DescribedStringSimilarity(descriptor, similarity) : null;
-				})
-				.filter(Objects::nonNull)
-				.sorted(Comparator.reverseOrder())
-				.limit(10L)
-				.map((DescribedStringSimilarity described) -> "\t" + described.descriptor.value())
-				.collect(Collectors.joining(
-					"\n",
-					prefix + "\nCandidates:\n",
-					'\n' + suffix
-				))
+			.environment
+			.listIdentifiers()
+			.map((IdentifierDescriptor descriptor) -> {
+				StringSimilarity similarity = StringSimilarity.compare(identifier, descriptor.name());
+				return similarity.compareTo(StringSimilarity.NO_MATCH) > 0 ? new DescribedStringSimilarity(descriptor, similarity) : null;
+			})
+			.filter(Objects::nonNull)
+			.sorted(Comparator.reverseOrder())
+			.limit(10L)
+			.map((DescribedStringSimilarity described) -> "\t" + described.descriptor.value())
+			.collect(Collectors.joining(
+				"\n",
+				prefix + "\nCandidates:\n",
+				'\n' + suffix
+			))
 		);
 	}
 

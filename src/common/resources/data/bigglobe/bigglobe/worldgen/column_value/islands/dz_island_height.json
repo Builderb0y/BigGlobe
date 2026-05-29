@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"(d_curved_island_height * island.dz_soft_distance) ?: 0.0L"
+		"(d_curved_island_height * island.dzSoftDistance) ?: 0.0L"
 	],
 	"cache": false
 }

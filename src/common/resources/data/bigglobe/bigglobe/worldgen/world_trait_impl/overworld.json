@@ -1,15 +1,15 @@
 {
 	"bigglobe:biome":                    "`bigglobe:overworld/biome`",
-	"bigglobe:cave_decorator":           "`bigglobe:overworld/cave`.decorator",
-	"bigglobe:cave_dungeon_decorator":   "`bigglobe:overworld/cave`.dungeon_feature",
-	"bigglobe:cave_min_y":               "higherInt(`bigglobe:overworld/exact_surface_y` - `bigglobe:overworld/cave`.depth)",
-	"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
-	"bigglobe:cave_surface_data":        "OverworldCaveCell*(cell := `bigglobe:overworld/cave`),, CaveSurfaceData.new(cell.surface_depth, cell.floor_states, cell.ceiling_states)",
+	"bigglobe:cave_decorator":           "`bigglobe:overworld/cave_type`.decorator",
+	"bigglobe:cave_dungeon_decorator":   "`bigglobe:overworld/cave_type`.dungeonFeature",
+	"bigglobe:cave_min_y":               "higherInt(`bigglobe:overworld/cave_type`.minY(column))",
+	"bigglobe:cave_max_y":               "  ceilInt(`bigglobe:overworld/cave_type`.maxY(column))",
+	"bigglobe:cave_surface_depth":       "`bigglobe:overworld/caves/surface_depth_noise`",
 	"bigglobe:core_min_y":               "-912I",
 	"bigglobe:core_max_y":               "-784I",
 	"bigglobe:deep_dark_min_y":          "-752I",
 	"bigglobe:deep_dark_max_y":          "-624I",
-	"bigglobe:eroded_foliage":           "`bigglobe:overworld/eroded_foliage`",
+	"bigglobe:eroded_foliage":           "`bigglobe:overworld/eroded_foliage`.y.as(float)",
 	"bigglobe:foliage_at":               "`bigglobe:overworld/raw/foliage`",
 	"bigglobe:foliage_at_sea_level":     "`bigglobe:overworld/raw/foliage`",
 	"bigglobe:humidity_at":              "`bigglobe:overworld/humidity`",
@@ -45,10 +45,6 @@
 		"get": "`bigglobe:overworld/approximate_surface_y`",
 		"set": "`bigglobe:overworld/approximate_surface_y` = value"
 	},
-	"bigglobe:automatic_slope_surface_y": {
-		"get": "`bigglobe:overworld/slope_surface_y`",
-		"set": "`bigglobe:overworld/slope_surface_y` = value"
-	},
 	"bigglobe:automatic_exact_surface_y": {
 		"get": "`bigglobe:overworld/exact_surface_y`",
 		"set": "`bigglobe:overworld/exact_surface_y` = value"
@@ -58,8 +54,8 @@
 		"set": "`bigglobe:overworld/foliage` = value"
 	},
 	"bigglobe:cave_noise": {
-		"get": "`bigglobe:overworld/cave`.noise(y)",
-		"set": "`bigglobe:overworld/cave`.noise(y) = value"
+		"get": "`bigglobe:overworld/cave_type`.getNoise(column, y)",
+		"set": "`bigglobe:overworld/cave_type`.setNoise(column, y, value)"
 	},
 	"bigglobe:exact_surface_y": {
 		"get": "`bigglobe:overworld/exact_surface_y`",
@@ -72,10 +68,6 @@
 	"bigglobe:river_water_y": {
 		"get": "`bigglobe:overworld/river_water_y`",
 		"set": "`bigglobe:overworld/river_water_y` = value"
-	},
-	"bigglobe:slope_surface_y": {
-		"get": "`bigglobe:overworld/slope_surface_y`",
-		"set": "`bigglobe:overworld/slope_surface_y` = value"
 	},
 	"bigglobe:snow_y": {
 		"get": "`bigglobe:overworld/snow_y`",

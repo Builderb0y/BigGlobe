@@ -1,0 +1,20 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:eroder/class",
+		"is_3d": false
+	},
+	"script": [
+		"SnowEroder",
+		".new()",
+		".$=x(x)",
+		".$=z(z)",
+		".$=seed(worldSeed # 16xB305F6533FB64C54UL)",
+		".$=dx(exp_skyland_height_noise * dx_skyland_height_noise)",
+		".$=dz(exp_skyland_height_noise * dz_skyland_height_noise)",
+		".$erodeAll(4.0L, 64.0L, 64.0L)"
+	],
+	"valid": {
+		"where": "is_floating"
+	}
+}

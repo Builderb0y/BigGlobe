@@ -1,9 +1,8 @@
 {
 	"result": {
-		"type": "constant",
-		"value": {
-			"surfaceState": "minecraft:red_sand",
-			"subsurfaceState": "minecraft:red_sand"
-		}
+		"type": "script",
+		"script": [
+			"SurfaceStates.new().$add('minecraft:red_sand', floorInt(`bigglobe:overworld/default_surface_depth`))"
+		]
 	}
 }

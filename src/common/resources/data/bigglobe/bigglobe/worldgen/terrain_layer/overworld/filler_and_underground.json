@@ -1,18 +1,75 @@
 {
-	"type": "simple_2d",
-	"state": "'minecraft:stone'",
+	"type": "scripted",
+	"script": [
+		"int minFillY = world_traits.`bigglobe:min_y`",
+		"int maxFillY = world_traits.`bigglobe:y_level_on_surface`",
+		"BlockState getState(int fakeY:",
+			"if ((worldSeed # 16x3776aab989cb90d6UL).newSeed(fakeY).nextBoolean(unmixSmooth(double(maxFillY - 32), double(maxFillY - 16), double(fakeY))) && Set*(stripes := `bigglobe:overworld/rock_stripes`) != null:",
+				"BlockState state = 'minecraft:stone'",
+				"double terracottaOffset = `bigglobe:overworld/terracotta_offset` * `bigglobe:overworld/raw/mountainness`",
+				"int seedY = fakeY + floorInt(terracottaOffset)",
+				"long seed = (worldSeed # 16x1d1bd7a23a42b200UL).newSeed(seedY)",
+				"float totalWeight = 0.0I",
+				"for (RockStripe stripe in stripes:",
+					"if ((seed := seed.newSeed()).nextFloat(totalWeight :+ stripe.weight) < stripe.weight:",
+						"state = stripe.state",
+					")",
+				")",
+				"return(state)",
+			")",
+			"else (",
+				"return(`bigglobe:overworld/rocks/filler`(fakeY))",
+			")",
+			";(",
+				"float bestWeight = `bigglobe:overworld/rocks/stone`(fakeY)",
+				"float weight = 0.0I",
+				"if ((weight := `bigglobe:overworld/rocks/andesite` (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:andesite'         )",
+				"if ((weight := `bigglobe:overworld/rocks/calcite`  (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:calcite'          )",
+				"if ((weight := `bigglobe:overworld/rocks/deepslate`(fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:deepslate[axis=y]')",
+				"if ((weight := `bigglobe:overworld/rocks/diorite`  (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:diorite'          )",
+				"if ((weight := `bigglobe:overworld/rocks/dripstone`(fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:dripstone_block'  )",
+				"if ((weight := `bigglobe:overworld/rocks/granite`  (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:granite'          )",
+				"if ((weight := `bigglobe:overworld/rocks/tuff`     (fakeY)) > bestWeight: bestWeight = weight,, state = 'minecraft:tuff'             )",
+				"return(state)",
+			")",
+		")",
+		"setBlockStates(world_traits.`bigglobe:min_y`, minFillY, 'minecraft:stone')",
+		"if (hints.isLod:",
+			"BlockState state = getState(world_traits.`bigglobe:y_level_in_surface`)",
+			"setBlockStates(minFillY, maxFillY, state)",
+		")",
+		"else (",
+			"BlockState prevState = getState(minFillY)",
+			"int prevY = minFillY",
+			"for (int y in range[minFillY, maxFillY):",
+				"BlockState nextState = getState(y)",
+				"if (nextState != prevState:",
+					"setBlockStates(prevY, y, prevState)",
+					"prevY = y",
+					"prevState = nextState",
+				")",
+			")",
+			"setBlockStates(prevY, maxFillY, prevState)",
+		")"
+	],
 	"before_children": {
-		"file": "bigglobe:world_preset/overworld_dh_glacier_placement"
+		"includes": [
+			"bigglobe:world_preset/place_surface",
+			"bigglobe:world_preset/overworld_dh_glacier_placement"
+		],
+		"source": [
+			"placeSurface(world_traits.`bigglobe:y_level_on_surface`, `bigglobe:overworld/surface_states`)"
+		]
 	},
 	"after_children": {
+		"includes": [
+			"bigglobe:include/generate_snow"
+		],
 		"source": [
 			"int surfaceY = world_traits.`bigglobe:y_level_on_surface`",
 			"if (world_traits.`bigglobe:exact_surface_y` > world_traits.`bigglobe:sea_level` && columnSeed(16xD8C346BDF1997FC2UL).nextBoolean(world_traits.`bigglobe:snow_chance`):",
 				"generateSnow(surfaceY, world_traits.`bigglobe:snow_y`)",
 			")"
-		],
-		"includes": [
-			"bigglobe:include/generate_snow"
 		]
 	},
 	"valid": {
@@ -20,9 +77,8 @@
 		"min_y": "world_traits.`bigglobe:min_y`"
 	},
 	"children": [
-		"bigglobe:overworld/the_core",
+		"bigglobe:overworld/core_carver",
 		"bigglobe:overworld/deep_dark_carver",
-		"bigglobe:overworld/cave_carver",
-		"bigglobe:overworld/rock_types"
+		"bigglobe:overworld/cave_carver"
 	]
 }

@@ -1,4 +1,13 @@
 {
-	"element_type": "constructor/normal",
-	"values": [ "state", "depth" ]
+	"element_type": "method/static",
+	"owner": "bigglobe:surface/single/class",
+	"name": "create",
+	"return_type": "bigglobe:surface/single/class",
+	"parameters": [
+		{ "name": "state", "type": "block_state" },
+		{ "name": "depth", "type": "int"         }
+	],
+	"code": [
+		"SurfaceState.new().=$state(state).=$depth(depth)"
+	]
 }

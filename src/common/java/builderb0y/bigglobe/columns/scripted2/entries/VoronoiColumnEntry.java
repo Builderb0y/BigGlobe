@@ -1,16 +1,16 @@
 package builderb0y.bigglobe.columns.scripted2.entries;
 
+import org.jetbrains.annotations.Nullable;
+
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.classes.VoronoiSampler;
+import builderb0y.bigglobe.classes.compile.DetailedException;
+import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
 import builderb0y.bigglobe.columns.scripted2.Valid;
 import builderb0y.bigglobe.settings.VoronoiDiagram2D;
-import builderb0y.scripting.bytecode.ClassCompileContext;
-import builderb0y.scripting.bytecode.LazyVarInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.ReceiverInvokeInsnTree;
@@ -32,9 +32,9 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 	}
 
 	@Override
-	public void verify(ColumnEntryRegistry registry) throws ColumnValueException {
+	public void verify(ColumnEntryRegistry registry) throws DetailedException {
 		super.verify(registry);
-		if (!ElementSpec.asType(this.params.type()).getTypeInfo().equals(VoronoiSampler.INFO.type)) {
+		if (!this.typeInfo(registry).equals(VoronoiSampler.INFO.type)) {
 			throw new ColumnValueException("Voronoi params type must be 'voronoi'.");
 		}
 		if (this.params.is_3d()) {
@@ -43,18 +43,9 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 	}
 
 	@Override
-	public void populateContextFieldAndSetter(NonConstantColumnEntryContext context, ClassCompileContext clazz, TypeInfo valueType, LazyVarInfo[] maybeY) {
-		context.valueField = clazz.newField(
-			ACC_PUBLIC | ACC_FINAL,
-			context.internalName,
-			valueType
-		);
-	}
-
-	@Override
-	public void compile(ColumnEntryRegistry registry) throws ColumnValueException, ScriptParsingException {
+	public void compile(ColumnEntryRegistry registry) throws DetailedException {
 		LoadInsnTree loadSelf = load("this", registry.columnCompileContext.columnTypeInfo());
-		NonConstantColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
+		ColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
 		putField(
 			loadSelf,
 			context.valueField.info,
@@ -64,17 +55,17 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 				loadSelf
 			)
 		)
-			.emitBytecode(registry.columnCompileContext.constructor);
+		.emitBytecode(registry.columnCompileContext.constructor);
 		super.compile(registry);
 	}
 
 	@Override
-	public InsnTree makeComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
-		return new ReceiverInvokeInsnTree(getField(registry.columnCompileContext.loadColumn(), context.valueField.info), VoronoiSampler.INFO.clear);
+	public InsnTree makeComputer(ColumnEntryRegistry registry, ColumnEntryContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+		return newInstance(VoronoiSampler.CONSTRUCTOR.methodInfo, ldc(this.diagram, type(VoronoiDiagram2D.class)), registry.columnCompileContext.loadColumn());
 	}
 
 	@Override
-	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
+	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, ColumnEntryContext context) throws ScriptParsingException {
 		throw new UnsupportedOperationException();
 	}
 }

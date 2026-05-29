@@ -1,0 +1,18 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:eroder/class",
+		"is_3d": false
+	},
+	"script": [
+		"SnowEroder",
+		".new()",
+		".$=x(x)",
+		".$=z(z)",
+		".$=seed(worldSeed # 16xC3C1DD243EC7D72BUL)",
+		".$=y(approximate_surface_y)",
+		".$=dx(`raw/dx_heightmap`)",
+		".$=dz(`raw/dz_heightmap`)",
+		".$erodeAll(4.0L, 512.0L, erosion_amplitude)"
+	]
+}

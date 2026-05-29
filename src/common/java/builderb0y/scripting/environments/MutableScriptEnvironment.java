@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.scripting.bytecode.*;
@@ -42,7 +43,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public Map<NamedType,      List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
 	public Map<String,               KeywordHandler.Named > keywords = new HashMap<>(16);
 	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords = new HashMap<>(16);
-	public Map<String,                           TypeInfo > types = new HashMap<>(16);
+	public Map<String,                  TypeHandler.Named > types = new HashMap<>(16);
 	//         from           to
 	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters = new HashMap<>(64);
 
@@ -92,7 +93,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 					});
 				}),
 
-				this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
+				this.types.entrySet().stream().map((Map.Entry<String, TypeHandler.Named> entry) -> {
 					return prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
 				}),
 
@@ -106,7 +107,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 					});
 				})
 			)
-				.flatMap(Function.identity());
+			.flatMap(Function.identity());
 	}
 
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
@@ -189,7 +190,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addAllTypes(MutableScriptEnvironment that) {
 		if (!that.types.isEmpty()) {
-			for (Map.Entry<String, TypeInfo> entry : that.types.entrySet()) {
+			for (Map.Entry<String, TypeHandler.Named> entry : that.types.entrySet()) {
 				if (this.types.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
 					throw new IllegalArgumentException("Type '" + entry.getKey() + "' is already defined in this scope");
 				}
@@ -768,11 +769,15 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// types ////////////////////////////////
 
-	public MutableScriptEnvironment addType(String name, TypeInfo type) {
-		if (this.types.putIfAbsent(name, type) != null) {
+	public MutableScriptEnvironment addType(String name, TypeHandler.Named handler) {
+		if (this.types.putIfAbsent(name, handler) != null) {
 			throw new IllegalArgumentException("Type " + name + " is already defined in this scope");
 		}
 		return this;
+	}
+
+	public MutableScriptEnvironment addType(String name, TypeInfo type) {
+		return this.addType(name, new TypeHandler.Named(type.toString(), (ExpressionParser parser, String name_) -> type));
 	}
 
 	public MutableScriptEnvironment addType(String name, Class<?> type) {
@@ -967,11 +972,14 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addQualifiedConstructor(MethodInfo constructor) {
 		return this.addQualifiedFunction(
-			constructor.owner, "new", new FunctionHandler.Named(
-				"constructor: " + constructor, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
-				return castArguments == null ? null : new CastResult(newInstance(constructor, castArguments), castArguments != arguments);
-			}
+			constructor.owner,
+			"new",
+			new FunctionHandler.Named(
+				"constructor: " + constructor,
+				(ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
+					return castArguments == null ? null : new CastResult(newInstance(constructor, castArguments), castArguments != arguments);
+				}
 			)
 		);
 	}
@@ -1257,7 +1265,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	@Override
 	public @Nullable TypeInfo getType(ExpressionParser parser, String name) throws ScriptParsingException {
-		return this.types.get(name);
+		TypeHandler.Named handler = this.types.get(name);
+		return handler == null ? null : handler.create(parser, name);
 	}
 
 	@Override
@@ -1306,6 +1315,25 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////////////////////// handlers ////////////////////////////////
 
 	public static record CastResult(InsnTree tree, boolean requiredCasting) {}
+
+	@FunctionalInterface
+	public static interface TypeHandler {
+
+		public abstract @Nullable TypeInfo create(ExpressionParser parser, String name) throws ScriptParsingException;
+
+		public static record Named(String name, TypeHandler handler) implements TypeHandler {
+
+			@Override
+			public @Nullable TypeInfo create(ExpressionParser parser, String name) throws ScriptParsingException {
+				return this.handler.create(parser, name);
+			}
+
+			@Override
+			public @NonNull String toString() {
+				return this.name;
+			}
+		}
+	}
 
 	@FunctionalInterface
 	public static interface VariableHandler {

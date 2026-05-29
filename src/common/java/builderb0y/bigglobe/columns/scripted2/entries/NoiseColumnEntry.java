@@ -19,23 +19,17 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
-import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
-import builderb0y.bigglobe.columns.scripted2.AccessSchema;
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
-import builderb0y.bigglobe.columns.scripted2.Valid;
+import builderb0y.bigglobe.columns.scripted2.*;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.settings.Seed;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.CastingSupport;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -61,64 +55,71 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 	}
 
 	@Override
-	public void verify(ColumnEntryRegistry registry) throws ColumnValueException {
+	public void verify(ColumnEntryRegistry registry) throws DetailedException {
 		super.verify(registry);
-		if (!ElementSpec.asType(this.params.type()).getTypeInfo().isFloat()) {
+		if (!this.typeInfo(registry).isFloat()) {
 			throw new ColumnValueException("Noise-based column values must be of type float or double.");
 		}
 	}
 
 	@Override
-	public InsnTree makeComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
+	public InsnTree makeComputer(ColumnEntryRegistry registry, ColumnEntryContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		if (this.params.is_3d()) {
 			/**
 			this.grid3D.getValue(
-			this.seed(registry),
-			column.x,
-			y,
-			column.z
+				this.seed(registry),
+				column.x,
+				y,
+				column.z
 			)
 			*/
-			return invokeInstance(
-				ldc(this.grid3D, type(Grid3D.class)),
-				Grid3D.INFO.getValue,
-				ldc(this.seed(registry)),
-				invokeInstance(loadColumn, ScriptedColumn.INFO.x),
-				load("y", TypeInfos.INT),
-				invokeInstance(loadColumn, ScriptedColumn.INFO.z)
+			return CastingSupport.primitiveCast(
+				invokeInstance(
+					ldc(this.grid3D, type(Grid3D.class)),
+					Grid3D.INFO.getValue,
+					ldc(this.seed(registry)),
+					invokeInstance(loadColumn, ScriptedColumn.INFO.x),
+					loadY,
+					invokeInstance(loadColumn, ScriptedColumn.INFO.z)
+				),
+				this.typeInfo(registry)
 			);
 		}
 		else {
 			/**
 			this.grid2D.getValue(
-			this.seed(registry),
-			column.x,
-			column.z
+				this.seed(registry),
+				column.x,
+				column.z
 			)
 			*/
-			return invokeInstance(
-				ldc(this.grid2D, type(Grid2D.class)),
-				Grid2D.INFO.getValue,
-				ldc(this.seed(registry)),
-				invokeInstance(loadColumn, ScriptedColumn.INFO.x),
-				invokeInstance(loadColumn, ScriptedColumn.INFO.z)
+			return CastingSupport.primitiveCast(
+				invokeInstance(
+					ldc(this.grid2D, type(Grid2D.class)),
+					Grid2D.INFO.getValue,
+					ldc(this.seed(registry)),
+					invokeInstance(loadColumn, ScriptedColumn.INFO.x),
+					invokeInstance(loadColumn, ScriptedColumn.INFO.z)
+				),
+				this.typeInfo(registry)
 			);
 		}
 	}
 
 	@Override
-	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, NonConstantColumnEntryContext context) throws ScriptParsingException {
+	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, ColumnEntryContext context) throws ScriptParsingException {
 		assert this.params.is_3d() : "Requesting bulk computer for 2D noise";
 		LoadInsnTree loadColumn = load("this", registry.columnCompileContext.columnTypeInfo());
 		InsnTree loadMappedArray = getField(loadColumn, context.valueField.info);
 		/**
 		this.grid3D.getBulkY(
-		this.seed(registry),
-		column.x,
-		column.backingArray.minCached,
-		column.z,
-		column.backingArray.cachedPrefix()
+			this.seed(registry),
+			column.x,
+			column.backingArray.minCached,
+			column.z,
+			column.backingArray.cachedPrefix()
+		)
 		*/
 		return invokeInstance(
 			ldc(this.grid3D, type(Grid3D.class)),
@@ -127,12 +128,12 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 			invokeInstance(loadColumn, ScriptedColumn.INFO.x),
 			getField(loadMappedArray, MappedRangeArray.INFO.minCached),
 			invokeInstance(loadColumn, ScriptedColumn.INFO.z),
-			invokeInstance(loadMappedArray, MappedRangeNumberArray.CACHED_PREFIX)
+			invokeInstance(loadMappedArray, MappedRangeNumberArray.INFO.cachedPrefix)
 		);
 	}
 
 	public long seed(ColumnEntryRegistry registry) {
-		return this.seed != null ? this.seed.value : Permuter.permute(0L, UnregisteredObjectException.getID(registry.entryOf(this)));
+		return this.seed != null ? this.seed.value : Permuter.permute(0L, registry.idOf(this));
 	}
 
 	/**

@@ -1,0 +1,7 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:rock_stripes/base/class",
+	"name": "weight",
+	"field_type": "float",
+	"default": 1.0
+}

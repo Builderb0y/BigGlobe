@@ -1,0 +1,6 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/generic/class",
+	"override": "bigglobe:cave_systems/base/method_surface",
+	"code": "CaveSurfaceStates.create(SurfaceStates.new(), SurfaceStates.new())"
+}

@@ -10,13 +10,13 @@ import net.minecraft.resources.Identifier;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import org.jetbrains.annotations.Nullable;
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo.Mutability;
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.UnresolvedColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.columns.scripted2.ColumnValueHolder.ColumnValueInfo.Mutability;
+import builderb0y.bigglobe.columns.scripted2.ColumnValueHolder.UnresolvedColumnValueInfo;
+import builderb0y.bigglobe.columns.scripted2.ScriptColumnEntryParser;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyView.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -114,24 +114,24 @@ public abstract class DataCompileContext {
 	)
 		throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method, parserFlags)
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.configureEnvironment(JavaUtilScriptEnvironment.noAllocateNoModify())
-			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.configureEnvironment(MinecraftScriptEnvironment.create())
-			.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
-			.configureEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
-			.configureEnvironment((MutableScriptEnvironment environment) -> {
-				if (includeY) {
-					environment.addVariableLoad("y", TypeInfos.INT);
-					this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies, caller);
-				}
-				else {
-					this.root().registry.setupInternalEnvironment(environment, this, null, dependencies, caller);
-				}
-			})
-			.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-			.parseEntireInput()
-			.emitBytecode(method);
+		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.configureEnvironment(JavaUtilScriptEnvironment.noAllocateNoModify())
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+		.configureEnvironment(MinecraftScriptEnvironment.create())
+		.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
+		.configureEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
+		.configureEnvironment((MutableScriptEnvironment environment) -> {
+			if (includeY) {
+				environment.addVariableLoad("y", TypeInfos.INT);
+				this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies, caller);
+			}
+			else {
+				this.root().registry.setupInternalEnvironment(environment, this, null, dependencies, caller);
+			}
+		})
+		.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+		.parseEntireInput()
+		.emitBytecode(method);
 		method.endCode();
 	}
 

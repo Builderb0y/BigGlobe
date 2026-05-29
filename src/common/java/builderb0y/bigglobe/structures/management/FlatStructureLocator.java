@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.structures.management;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,8 +31,8 @@ import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride.Bound
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;

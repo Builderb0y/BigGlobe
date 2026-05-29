@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.columns.restrictions;
 
 import builderb0y.autocodec.util.TypeFormatter;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
 
 public class NotColumnRestriction implements ColumnRestriction {
 

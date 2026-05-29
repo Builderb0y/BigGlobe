@@ -8,6 +8,7 @@ import java.util.function.BinaryOperator;
 
 import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
@@ -168,6 +169,21 @@ public class InsnTrees implements ExtendedOpcodes {
 		};
 	}
 
+	public static ConstantValue constantZero(TypeInfo type) {
+		return switch (type.getSort()) {
+			case BYTE -> constant((byte)(0));
+			case CHAR -> constant((char)(0));
+			case SHORT -> constant((short)(0));
+			case INT -> constant((int)(0));
+			case LONG -> constant((long)(0));
+			case FLOAT -> constant((float)(0.0F));
+			case DOUBLE -> constant((double)(0.0D));
+			case BOOLEAN -> constant(false);
+			case OBJECT, ARRAY -> constant(null, type);
+			case VOID -> throw new IllegalArgumentException("Void-typed field");
+		};
+	}
+
 	public static InsnTree ldc(boolean value) {
 		return new ConstantInsnTree(constant(value));
 	}
@@ -222,6 +238,22 @@ public class InsnTrees implements ExtendedOpcodes {
 
 	public static InsnTree ldcAbsent(TypeInfo type) {
 		return ldc(constantAbsent(type));
+	}
+
+	public static InsnTree ldcZero(TypeInfo type) {
+		return ldc(constantZero(type));
+	}
+
+	public static InsnTree[] nonnull(@Nullable InsnTree tree) {
+		return tree != null ? new InsnTree[] { tree } : InsnTree.ARRAY_FACTORY.empty();
+	}
+
+	public static LazyVarInfo[] nonnull(@Nullable LazyVarInfo info) {
+		return info != null ? new LazyVarInfo[] { info } : LazyVarInfo.ARRAY_FACTORY.empty();
+	}
+
+	public static InsnTree[] loadNonNull(@Nullable LazyVarInfo info) {
+		return info != null ? new InsnTree[] { load(info) } : InsnTree.ARRAY_FACTORY.empty();
 	}
 
 	public static LoadInsnTree load(LazyVarInfo variable) {

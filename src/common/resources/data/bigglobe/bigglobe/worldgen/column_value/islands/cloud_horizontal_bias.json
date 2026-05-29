@@ -4,5 +4,5 @@
 		"type": "float",
 		"is_3d": false
 	},
-	"script": "float(((island.soft_distance_squared - cloud_horizontal_center) / cloud_horizontal_extent) ^ 2)"
+	"script": "float(((island.softDistanceSquared - cloud_horizontal_center) / cloud_horizontal_extent) ^ 2)"
 }

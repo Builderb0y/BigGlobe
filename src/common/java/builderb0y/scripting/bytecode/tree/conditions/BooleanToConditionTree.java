@@ -1,5 +1,6 @@
 package builderb0y.scripting.bytecode.tree.conditions;
 
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
@@ -10,6 +11,9 @@ import builderb0y.scripting.util.TypeInfos;
 public class BooleanToConditionTree extends IntCompareZeroConditionTree {
 
 	public BooleanToConditionTree(InsnTree condition) {
+		if (condition.getTypeInfo().getSort() != Sort.BOOLEAN) {
+			throw new IllegalArgumentException("Not a boolean: " + condition);
+		}
 		super(condition, IFNE);
 	}
 

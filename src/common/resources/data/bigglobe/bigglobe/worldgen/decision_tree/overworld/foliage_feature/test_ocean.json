@@ -1,9 +1,12 @@
 {
 	"condition": {
-		"type": "world_trait_threshold",
+		"type": "curve_range",
 		"min": -4.0,
 		"max": -8.0,
-		"trait": "bigglobe:exact_surface_y"
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:exact_surface_y"
+		}
 	},
 	"if_true": "bigglobe:overworld/foliage_feature/ocean_test_warm",
 	"if_false": "bigglobe:overworld/foliage_feature/no_feature"

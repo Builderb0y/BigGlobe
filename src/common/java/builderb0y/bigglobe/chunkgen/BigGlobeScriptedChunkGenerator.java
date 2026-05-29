@@ -7,13 +7,11 @@ import java.lang.invoke.VarHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.base.Predicates;
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,7 +53,6 @@ import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.*;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride.BoundingBoxType;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -74,7 +71,6 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ColorScript;
@@ -87,24 +83,19 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript.Catcher;
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder;
-import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyAnalyzer;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
-import builderb0y.bigglobe.columns.scripted.traits.TraitLoader;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnRandomToBooleanScript;
+import builderb0y.bigglobe.columns.scripted2.ColumnScript.ColumnToBooleanScript.Catcher;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumn.*;
+import builderb0y.bigglobe.columns.scripted2.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted2.dependencies.CyclicDependencyAnalyzer;
+import builderb0y.bigglobe.columns.scripted2.dependencies.DependencyDepthSorter;
+import builderb0y.bigglobe.columns.scripted2.traits.TraitLoader;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTraitProvider;
+import builderb0y.bigglobe.columns.scripted2.traits.WorldTraits;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -112,7 +103,6 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
 import builderb0y.bigglobe.mixins.StructureStart_ChildrenGetter;
@@ -134,6 +124,7 @@ import builderb0y.bigglobe.structures.management.FlatStructureLocator;
 import builderb0y.bigglobe.structures.management.StructureLocator;
 import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
 import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
@@ -280,7 +271,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient long columnSeed;
 	public transient boolean seedSet;
 	public transient Pattern displayPattern;
-	public transient DisplayEntry rootDebugDisplay;
+	public transient List<ColumnValueInfo> rootDebugDisplay;
 
 	public transient ChunkGeneratorStructureState structureState;
 	public transient boolean structuresEnabled;
@@ -315,7 +306,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.world_traits       = world_traits;
 		this.extraSpawnRegistry = extraSpawnRegistry;
 		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
-		this.rootDebugDisplay   = new DisplayEntry(this);
+		this.rootDebugDisplay   = Collections.emptyList();
 		this.extraSpawns        = Collections.synchronizedMap(new HashMap<>(64));
 	}
 
@@ -335,7 +326,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.compiledWorldTraits = from.compiledWorldTraits;
 		this.extraSpawnRegistry  = from.extraSpawnRegistry;
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
-		this.rootDebugDisplay    = new DisplayEntry(this);
+		this.rootDebugDisplay    = Collections.emptyList();
 		this.structuresEnabled   = from.structuresEnabled;
 		this.extraSpawns         = from.extraSpawns;
 	}
@@ -797,7 +788,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				int chunkMaxY = HeightLimitViewVersions.getMaxY(chunk);
 				ScriptedColumn[] columns;
 				try {
-					columns = this.columnEntryRegistry.chunkReuseColumns.take();
+					columns = this.columnEntryRegistry.chunkGeneratorColumns.take();
 				}
 				catch (InterruptedException exception) {
 					BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
@@ -820,8 +811,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									QuadColumn quadColumn = new QuadColumn();
 									quadColumn.loadFromArray(columns, baseIndex, 16);
 									quadColumn.at(params, quadX, quadZ, 1);
-									for (String name : this.getOverriders().rawColumnValueDependencies) try {
-										quadColumn.preComputeColumnValue(name);
+									for (ColumnValueInfo info : this.getOverriders().rawColumnValueDependencies) try {
+										quadColumn.preComputeColumnValue(info);
 									}
 									catch (Throwable throwable) {
 										BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
@@ -950,7 +941,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					);
 				}
 				finally {
-					this.columnEntryRegistry.chunkReuseColumns.add(columns);
+					this.columnEntryRegistry.chunkGeneratorColumns.add(columns);
 				}
 			},
 			Util.backgroundExecutor()
@@ -992,7 +983,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		);
 		ScriptedColumn[] columns;
 		try {
-			columns = this.columnEntryRegistry.chunkReuseColumns.take();
+			columns = this.columnEntryRegistry.chunkGeneratorColumns.take();
 		}
 		catch (InterruptedException exception) {
 			BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
@@ -1026,7 +1017,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			ScriptedColumnLookup.GLOBAL.run(worldWrapper, () -> this.feature_dispatcher.generateNormal(worldWrapper));
 		}
 		finally {
-			this.columnEntryRegistry.chunkReuseColumns.add(columns);
+			this.columnEntryRegistry.chunkGeneratorColumns.add(columns);
 		}
 	}
 
@@ -1364,96 +1355,37 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public void
-
-	addDebugScreenInfo
-
-		(List<String> text, RandomState noiseConfig, BlockPos pos) {
-		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints()));
-		this.rootDebugDisplay.forEach(column, pos.getY(), (String id, Object value) -> text.add(id + ": " + value));
+	public void	addDebugScreenInfo(List<String> text, RandomState noiseConfig, BlockPos pos) {
+		if (!this.rootDebugDisplay.isEmpty()) {
+			ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints()));
+			for (Iterator<ColumnValueInfo> iterator = this.rootDebugDisplay.iterator(); iterator.hasNext();) {
+				ColumnValueInfo entry = iterator.next();
+				try {
+					text.add(entry.toString() + ": " + entry.getter().invokeExact(column, pos.getY()));
+				}
+				catch (Throwable throwable) {
+					BigGlobeMod.LOGGER.warn("Exception querying column value:", throwable);
+					iterator.remove();
+				}
+			}
+		}
 	}
 
 	public void setDisplay(String regex) {
-		this.displayPattern = regex != null ? Pattern.compile(regex) : null;
-		this.rootDebugDisplay.recomputeChildren(this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, 0, 0, ColumnUsage.GENERIC.normalHints())));
-	}
-
-	public static class DisplayEntry {
-
-		public static final ObjectArrayFactory<DisplayEntry> ARRAY_FACTORY = new ObjectArrayFactory<>(DisplayEntry.class);
-
-		public BigGlobeScriptedChunkGenerator generator;
-		public String name, id;
-		public Class<?> expectedValueType;
-		public DisplayEntry[] children;
-
-		public DisplayEntry(BigGlobeScriptedChunkGenerator generator, String name, String id) {
-			this.generator = generator;
-			this.name = name;
-			this.id = id;
-			this.children = ARRAY_FACTORY.empty();
+		if (regex != null) {
+			this.displayPattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+			this.rootDebugDisplay = (
+				ScriptedColumn.getColumnValues(this.columnEntryRegistry)
+				.values()
+				.stream()
+				.filter((ColumnValueInfo info) -> this.displayPattern.matcher(info.toString()).find())
+				.sorted(Comparator.comparing(ColumnValueInfo::toString))
+				.collect(Collectors.toCollection(ArrayList<ColumnValueInfo>::new)) //ensure mutable.
+			);
 		}
-
-		public DisplayEntry(BigGlobeScriptedChunkGenerator generator) {
-			this(generator, "", "");
-		}
-
-		@Override
-		public String toString() {
-			return "DisplayEntry: { name: " + this.name + ", id: " + this.id + ", expectedValueType: " + this.expectedValueType + " }";
-		}
-
-		public void forEach(ColumnValueHolder holder, int y, BiConsumer<String, Object> results) {
-			try {
-				Object value;
-				if (this.id.isEmpty()) {
-					value = holder;
-				}
-				else {
-					value = holder.getColumnValue(this.id, y);
-					//don't recurse into voronoi.center_column.
-					if (value instanceof ScriptedColumn) {
-						return;
-					}
-					results.accept(this.name, value);
-				}
-				if (value != null) {
-					if (this.expectedValueType != value.getClass()) {
-						this.expectedValueType = value.getClass();
-						this.recomputeChildren(value);
-					}
-					if (value instanceof ColumnValueHolder nextHolder) {
-						for (DisplayEntry child : this.children) {
-							child.forEach(nextHolder, y, results);
-						}
-					}
-				}
-			}
-			catch (Throwable throwable) {
-				results.accept(this.id, throwable.toString());
-			}
-		}
-
-		public void recomputeChildren(Object value) {
-			if (
-				this.generator.displayPattern != null &&
-				value instanceof ColumnValueHolder holder
-			) {
-				record NameId(String name, String id) {}
-				this.children = (
-					holder
-						.getColumnValues()
-						.stream()
-						.map(ColumnValueInfo::name)
-						.map((String id) -> new NameId(this.name.isEmpty() ? id : this.name + '.' + id, id))
-						.filter((NameId nameId) -> this.generator.displayPattern.matcher(nameId.name).find())
-						.map((NameId nameId) -> new DisplayEntry(this.generator, nameId.name, nameId.id))
-						.toArray(ARRAY_FACTORY)
-				);
-			}
-			else {
-				this.children = ARRAY_FACTORY.empty();
-			}
+		else {
+			this.displayPattern = null;
+			this.rootDebugDisplay = Collections.emptyList();
 		}
 	}
 }

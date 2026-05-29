@@ -1,5 +1,0 @@
-{
-	"element_type": "property/override",
-	"override": "bigglobe:cave_systems/base/property_decorator",
-	"get": "'bigglobe:overworld/caves/generic_decorator'"
-}

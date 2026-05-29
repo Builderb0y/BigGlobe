@@ -1,0 +1,12 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:eroder/foliage/class",
+	"override": "bigglobe:eroder/method_erode_all",
+	"code": [
+		"mask = 1.0L - 1.0L / ((dx ^ 2 + dz ^ 2) * 2.0L + 1.0L)",
+		"for (double wavelength = maxWavelength, wavelength >= minWavelength, wavelength *= 0.5L:",
+			"if (dx ^ 2 + dz ^ 2 == 0.0L: return())",
+			"erode(wavelength, 1.0L)",
+		")"
+	]
+}
