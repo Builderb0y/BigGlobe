@@ -1,12 +1,7 @@
 {
 	"condition": {
-		"type": "curve_range",
-		"min": -0.0625,
-		"max":  0.0625,
-		"value": {
-			"type": "world_trait",
-			"world_trait": "bigglobe:humidity_at_surface"
-		}
+		"type": "script",
+		"script": "world_traits.`bigglobe:humidity_at_surface` > 0.0I"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/birch",
 	"if_false": "bigglobe:overworld/wood_palette/oak"

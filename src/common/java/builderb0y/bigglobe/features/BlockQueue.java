@@ -45,8 +45,8 @@ public class BlockQueue {
 	public BlockQueue(boolean causeBlockUpdates) {
 		this.flags = (
 			causeBlockUpdates
-				? Block.UPDATE_ALL
-				: Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
+			? Block.UPDATE_ALL
+			: Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
 		);
 	}
 
@@ -139,13 +139,13 @@ public class BlockQueue {
 	public String toString() {
 		return (
 			TypeFormatter.appendSimpleClassUnchecked(
-					new StringBuilder(32),
-					this.getClass()
-				)
-				.append(": { flags: ").append(this.flags)
-				.append(", size: ").append(this.queuedBlocks.size())
-				.append(" }")
-				.toString()
+				new StringBuilder(32),
+				this.getClass()
+			)
+			.append(": { flags: ").append(this.flags)
+			.append(", size: ").append(this.queuedBlocks.size())
+			.append(" }")
+			.toString()
 		);
 	}
 

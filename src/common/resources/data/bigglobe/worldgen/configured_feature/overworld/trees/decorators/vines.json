@@ -6,7 +6,7 @@
 			"int*(x = 0, y = 0, z = 0)",
 			"state = state.with(",
 				"random.switch (",
-					"(x =  1,, 'north'),",
+					"(z =  1,, 'north'),",
 					"(z = -1,, 'south'),",
 					"(x = -1,, 'east'),",
 					"(x =  1,, 'west')",

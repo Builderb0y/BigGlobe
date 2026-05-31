@@ -139,9 +139,8 @@ V6:
 		this will require manually specifying the size of the feature in json.
 	imported objects.
 		when variable or function is called, if there are no matches, try fields and methods on imported objects.
-	to (re)move:
-		remove ConstructorSpec.txt
-		move scripted2 package back into scripted location.
+	structures are weirdly inconsistent in whether or not they spawn somewhere.
+		structures may appear or vanish when reloading the world.
 
 LODs:
 	shader support.
@@ -151,8 +150,6 @@ json classes:
 		* json-defined interfaces.
 			* interface inheritance.
 			* classes implementing multiple interfaces.
-		* json-defined enums.
-			* tag controlling the enum values.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.

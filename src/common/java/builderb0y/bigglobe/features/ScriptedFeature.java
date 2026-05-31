@@ -6,26 +6,33 @@ import java.util.random.RandomGenerator;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.autocodec.annotations.DefaultString;
-import builderb0y.autocodec.annotations.UseName;
-import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
+import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
+import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
@@ -34,8 +41,12 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
+import builderb0y.bigglobe.util.Tripwire;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
+import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -80,99 +91,95 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	@Override
 	public boolean place(FeaturePlaceContext<Config> context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			WorldGenLevel originalWorld = context.level();
-			BlockPos origin = context.origin();
-			Permuter permuter = Permuter.from(context.random());
-			Symmetry symmetry = this.getSymmetry(context.config(), permuter);
-			int chunkX = origin.getX() >> 4;
-			int chunkZ = origin.getZ() >> 4;
-			BoundingBox box;
-			if (context.config().queueType == QueueType.DELAYED) {
-				box = new BoundingBox(
-					origin.getX() - 128,
-					origin.getY() - 128,
-					origin.getZ() - 128,
-					origin.getX() + 127,
-					origin.getY() + 127,
-					origin.getZ() + 127
-				);
-			}
-			else if (originalWorld instanceof Level) {
-				box = new BoundingBox(
-					origin.getX() - 128,
-					HeightLimitViewVersions.getMinY(originalWorld),
-					origin.getZ() - 128,
-					origin.getX() + 127,
-					HeightLimitViewVersions.getMaxY(originalWorld),
-					origin.getZ() + 127
-				);
+			if (context.config().queueType == QueueType.DELAYED && !DistantHorizonsCompat.isOnDistantHorizonThread() && !(context.level() instanceof ServerLevel)) {
+				return delay(context);
 			}
 			else {
-				box = new BoundingBox(
-					(chunkX - 1) << 4,
+				WorldGenLevel originalWorld = context.level();
+				BlockPos origin = context.origin();
+				Permuter permuter = Permuter.from(context.random());
+				Symmetry symmetry = this.getSymmetry(context.config(), permuter);
+				int radius = context.config().max_radius_in_blocks;
+				BoundingBox mutableArea = new BoundingBox(
+					origin.getX() - radius,
 					HeightLimitViewVersions.getMinY(originalWorld),
-					(chunkZ - 1) << 4,
-					((chunkX + 1) << 4) | 15,
-					HeightLimitViewVersions.getMaxY(originalWorld),
-					((chunkZ + 1) << 4) | 15
+					origin.getZ() - radius,
+					origin.getX() + radius,
+					HeightLimitViewVersions.getMaxY(originalWorld) - 1,
+					origin.getZ() + radius
 				);
-			}
-			Coordination coordination = new Coordination(
-				new SymmetricOffset(origin.getX(), origin.getY(), origin.getZ(), symmetry),
-				box,
-				box
-			);
-			WorldGenLevel world = switch (context.config().queueType) {
-				case NONE -> originalWorld;
-				case BASIC -> new BlockQueueStructureWorldAccess(
-					originalWorld,
-					new BlockQueue(Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)
+				BoundingBox immutableArea = new BoundingBox(
+					mutableArea.minX() & ~15,
+					mutableArea.minY(),
+					mutableArea.minZ() & ~15,
+					mutableArea.maxX() | 15,
+					mutableArea.maxY(),
+					mutableArea.maxZ() | 15
 				);
-				case DELAYED -> (
-					new BlockQueueStructureWorldAccess(
+				Coordination coordination = new Coordination(
+					new SymmetricOffset(origin.getX(), origin.getY(), origin.getZ(), symmetry),
+					mutableArea,
+					immutableArea
+				);
+				WorldGenLevel fakeWorld = (
+					context.config().queueType == QueueType.BASIC
+					? new BlockQueueStructureWorldAccess(
 						originalWorld,
-						new SerializableBlockQueue(
-							origin.getX(),
-							origin.getY(),
-							origin.getZ(),
-							Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
-						)
-					) {
-
-						@Override
-						public void setBlockState(BlockPos pos, BlockState state) {
-							BlockState oldState = this.getWorldState(pos);
-							if (SerializableBlockQueue.canImplicitlyReplace(originalWorld, pos, oldState)) {
-								this.queue.queueBlock(pos, state);
-							}
-							else {
-								this.queue.queueReplacement(pos, oldState, state);
-							}
-						}
-					}
+						new BlockQueue(false)
+					)
+					: originalWorld
 				);
-			};
-			WorldWrapper wrapper = new WorldWrapper(
-				new WorldDelegator(world),
-				generator,
-				permuter,
-				coordination,
-				ColumnUsage.FEATURES.maybeDhHints()
-			);
-			wrapper.featureSalt = permuter.nextLong();
-			if (context.config().script.generate(wrapper)) {
-				if (context.config().queueType != QueueType.NONE) {
-					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(originalWorld);
+				WorldWrapper wrapper = new WorldWrapper(
+					new WorldDelegator(fakeWorld),
+					generator,
+					permuter,
+					coordination,
+					ColumnUsage.FEATURES.maybeDhHints()
+				);
+				wrapper.featureSalt = permuter.nextLong();
+				if (context.config().script.generate(wrapper)) {
+					if (context.config().queueType == QueueType.BASIC) {
+						((BlockQueueStructureWorldAccess)(fakeWorld)).queue.placeQueuedBlocks(originalWorld);
+					}
+					return true;
 				}
-				return true;
-			}
-			else {
-				return false;
+				else {
+					return false;
+				}
 			}
 		}
 		else {
 			return false;
 		}
+	}
+
+	public static boolean delay(FeaturePlaceContext<? extends SizedDelayedFeatureConfig> context) {
+		WorldGenLevel originalWorld = context.level();
+		BlockPos origin = context.origin();
+		ConfiguredFeature<?, ?> feature = context.topFeature().orElse(null);
+		if (feature != null) {
+			Identifier id = RegistryVersions.getRegistry(originalWorld.registryAccess(), Registries.CONFIGURED_FEATURE).getKey(feature);
+			if (id != null) {
+				BlockState oldState = originalWorld.getBlockState(origin);
+				BlockEntity oldBlockEntity = originalWorld.getBlockEntity(origin);
+				CompoundTag oldBlockData = oldBlockEntity == null ? null : BlockEntityVersions.writeToNbt(oldBlockEntity);
+				WorldUtil.setBlockState(originalWorld, origin, BlockStates.DELAYED_GENERATION, Block.UPDATE_CLIENTS);
+				DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(originalWorld, origin, DelayedGenerationBlockEntity.class);
+				if (blockEntity != null) {
+					blockEntity.feature = id;
+					blockEntity.oldState = oldState;
+					blockEntity.oldBlockData = oldBlockData;
+				}
+				return true;
+			}
+			else if (Tripwire.isEnabled()) {
+				Tripwire.logWithStackTrace("Attempt to place unregistered ScriptedFeature");
+			}
+		}
+		else if (Tripwire.isEnabled()) {
+			Tripwire.logWithStackTrace("Attempt to place ScriptedFeature from a FeaturePlaceContext which lacks a ConfiguredFeature.");
+		}
+		return false;
 	}
 
 	@Override
@@ -273,23 +280,40 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		}
 	}
 
-	public static class Config implements FeatureConfiguration {
+	@UseVerifier(name = "verify", in = Config.class, usage = MemberUsage.METHOD_IS_HANDLER)
+	public static class Config implements FeatureConfiguration, SizedDelayedFeatureConfig {
 
 		public final ScriptedFeatureImplementation.Catcher script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
 		public final @DefaultString("none") @UseName("queue") QueueType queueType;
+		public final @DefaultInt(16) int max_radius_in_blocks;
 
 		public Config(
 			ScriptedFeatureImplementation.Catcher script,
 			boolean rotate_randomly,
 			boolean flip_randomly,
-			QueueType queueType
+			QueueType queueType,
+			int max_radius_in_blocks
 		) {
-			this.script          = script;
-			this.rotate_randomly = rotate_randomly;
-			this.flip_randomly   = flip_randomly;
-			this.queueType       = queueType;
+			this.script               = script;
+			this.rotate_randomly      = rotate_randomly;
+			this.flip_randomly        = flip_randomly;
+			this.queueType            = queueType;
+			this.max_radius_in_blocks = max_radius_in_blocks;
+		}
+
+		public static <T_Encoded> void verify(VerifyContext<T_Encoded, Config> context) throws VerifyException {
+			Config config = context.object;
+			if (config == null) return;
+			if (config.max_radius_in_blocks > 16 && config.queueType != QueueType.DELAYED) {
+				throw new VerifyException(() -> "queue must be 'delayed' when max_radius_in_blocks is greater than 16.");
+			}
+		}
+
+		@Override
+		public int getMaxRadiusInBlocks() {
+			return this.max_radius_in_blocks;
 		}
 	}
 

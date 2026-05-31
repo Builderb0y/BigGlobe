@@ -10,9 +10,9 @@ int computeBiomeTint(boolean foliage, float volcano:
 	)
 
 	if (foliage:
-		r -= 0.25I
-		g -= 0.25I
-		b -= 0.25I
+		r -= 0.0625I
+		g -= 0.0625I
+		b -= 0.0625I
 	)
 
 	r = r / sqrt(r ^ 2 + 1.0I).as(float) * 0.5I + 0.5I

@@ -1,6 +1,5 @@
 {
 	"type": "column_value",
-	"feature_generation": false,
 	"script": {
 		"source": [
 			"for (StructureStart start in structures:",
@@ -31,7 +30,7 @@
 
 					"setSurfaceFoliage(start.minY, lakeChance)",
 					"(worldSeed # 16x73675EE7D46B59A3UL).newSeed(x, z).unless (lakeChance:",
-						"world_traits.`bigglobe:automatic_lake_surface_states`(start.minY) = (",
+						"world_traits.`bigglobe:automatic_surface_states_override`(start.minY) = (",
 							"SurfaceStates.new().$add(",
 								"BlockState(piece.data.subsurface.asString()),",
 								"floorInt(`bigglobe:overworld/default_surface_depth`)",

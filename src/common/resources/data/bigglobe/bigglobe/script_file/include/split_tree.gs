@@ -126,12 +126,14 @@ void tree(
 			double*(
 				sinBranch = sin(branch * tau / count)
 				cosBranch = cos(branch * tau / count)
-				;if I really wanted each branch to be half the length of the previous one,
-				;I would divide by sqrt(2) too. but 0.5 on its own seems to produce decent results.
-				x3 = x2 + (dx + offsetX * cosBranch + sideX * sinBranch) * dr * 0.5L
-				y3 = y2 + (dy + offsetY * cosBranch + sideY * sinBranch) * dr * 0.5L
-				z3 = z2 + (dz + offsetZ * cosBranch + sideZ * sinBranch) * dr * 0.5L
+				x3 = dx + offsetX * cosBranch + sideX * sinBranch
+				y3 = dy + offsetY * cosBranch + sideY * sinBranch + 0.25L
+				z3 = dz + offsetZ * cosBranch + sideZ * sinBranch
+				r3 = sqrt(0.5L) * dr / sqrt(x3 ^ 2 + y3 ^ 2 + z3 ^ 2)
 			)
+			x3 = x2 + x3 * r3
+			y3 = y2 + y3 * r3
+			z3 = z2 + z3 * r3
 			tree(
 				x2, y2, z2, r2,
 				x3, y3, z3, r2 * 0.75L + 0.25L,

@@ -5,7 +5,7 @@
 		"double*(",
 			"centerX = originX + random.nextDouble()",
 			"centerZ = originZ + random.nextDouble()",
-			"height = max(foliage * 24.0I * random.nextFloat() + 12.0I, 12.0I)",
+			"height = 12.0L - 6.0L * foliage * fastLog2(max(random.nextDouble(), 2x1.0p-8L))",
 			"radius = height / 12.0",
 		")",
 		"generateTree(",

@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:acacia",
-		"height": "fastExp2(world_traits.`bigglobe:foliage_at` + 3.0I) * random.nextDouble() + 4.0L",
+		"height": "8.0L - 4.0L * max(world_traits.`bigglobe:foliage_at`, 0.0I) * fastLog2(max(random.nextDouble(), 2x1.0p-8L))",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"thickness": "mixLinear(max(height * 0.09375L, minThickness), minThickness, fraction)",
@@ -37,6 +37,8 @@
 			"minecraft:sand":            "minecraft:sand",
 			"minecraft:red_sand":        "minecraft:red_sand",
 			"bigglobe:overgrown_sand":   "minecraft:sand"
-		}
+		},
+		"delay_generation": true,
+		"max_radius_in_blocks": 32
 	}
 }

@@ -117,13 +117,12 @@ public class ExternalEnvironmentParams {
 		boolean hasTraits,
 		MethodInfo valueGetter,
 		@Nullable MethodInfo valueSetter,
-		@Nullable InsnTree columnReceiver,
+		@Nullable InsnTree loadColumn,
 		InsnTree... arguments
 	)
 		throws ScriptParsingException {
-		InsnTree loadColumn = this.loadColumn;
 		if (loadColumn == null) {
-			loadColumn = columnReceiver;
+			loadColumn = this.loadColumn;
 		}
 		if (arguments.length != 0 && arguments[0].getTypeInfo().extendsOrImplements(ScriptedColumn.INFO.type)) {
 			loadColumn = arguments[0];

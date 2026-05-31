@@ -33,9 +33,9 @@
 		"get": "`bigglobe:overworld/approximate_surface_y`",
 		"set": "`bigglobe:overworld/approximate_surface_y` = value"
 	},
-	"bigglobe:automatic_lake_surface_states": {
-		"get": "`bigglobe:overworld/lake_surface_states`",
-		"set": "`bigglobe:overworld/lake_surface_states` = value"
+	"bigglobe:automatic_surface_states_override": {
+		"get": "`bigglobe:overworld/surface_states_override`",
+		"set": "`bigglobe:overworld/surface_states_override` = value"
 	},
 	"bigglobe:automatic_snow_y": {
 		"get": "`bigglobe:overworld/snow_y`",

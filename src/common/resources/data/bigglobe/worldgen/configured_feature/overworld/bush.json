@@ -4,6 +4,7 @@
 		"script": {
 			"debug_name": "ConfiguredFeatureOverworldBush",
 			"source": [
+				"if (`bigglobe:overworld/surface_states_override` != null: return(false))",
 				";handle caves that intersect the surface.",
 				"int y = 0",
 				"while (isYLevelValid(y - 1) && getBlockState(0, y - 1, 0).isReplaceable():",

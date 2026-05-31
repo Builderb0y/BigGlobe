@@ -14,6 +14,7 @@
 	],
 	"valid": {
 		"min_y": "world_traits.`bigglobe:min_y`",
-		"max_y": "world_traits.`bigglobe:deep_dark_min_y`"
+		"max_y": "world_traits.`bigglobe:deep_dark_min_y`",
+		"fallback": -1.0
 	}
 }

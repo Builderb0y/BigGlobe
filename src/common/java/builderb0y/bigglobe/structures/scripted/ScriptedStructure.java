@@ -16,6 +16,7 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -73,9 +74,10 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		long seed = context.random().nextLong();
 		int x = context.chunkPos().getMinBlockX() | context.random().nextInt(16);
 		int z = context.chunkPos().getMinBlockZ() | context.random().nextInt(16);
+		int y = generator.getFirstFreeHeight(x, z, Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState());
 		return Optional.of(
 			new GenerationStub(
-				new BlockPos(x, 0, z),
+				new BlockPos(x, y, z),
 				(StructurePiecesBuilder collector) -> {
 					Permuter permuter = new Permuter(seed);
 					ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(

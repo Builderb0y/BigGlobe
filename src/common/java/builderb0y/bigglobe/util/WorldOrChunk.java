@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.util;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import net.minecraft.core.BlockPos;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.material.FluidState;
@@ -116,12 +118,17 @@ public interface WorldOrChunk extends BlockGetter {
 		}
 
 		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random) {
-			return feature.place(
-				this.world,
-				((ServerChunkCache)(this.world.getChunkSource())).getGenerator(),
-				random,
-				pos
+			return feature.feature().place(
+				new FeaturePlaceContext(
+					Optional.of(feature),
+					this.world,
+					((ServerChunkCache)(this.world.getChunkSource())).getGenerator(),
+					random,
+					pos,
+					feature.config()
+				)
 			);
 		}
 

@@ -1,12 +1,7 @@
 {
 	"condition": {
-		"type": "curve_range",
-		"min": -0.015625,
-		"max":  0.015625,
-		"value": {
-			"type": "world_trait",
-			"world_trait": "bigglobe:temperature_at_surface"
-		}
+		"type": "script",
+		"script": "world_traits.`bigglobe:temperature_at_surface` > 0.0I"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/test_hot",
 	"if_false": "bigglobe:overworld/wood_palette/test_cold"

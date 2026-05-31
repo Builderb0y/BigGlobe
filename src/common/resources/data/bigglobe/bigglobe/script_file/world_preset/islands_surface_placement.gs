@@ -29,20 +29,20 @@ if (`bigglobe:islands/is_volcano`:
 	)
 )
 
-if (`bigglobe:overworld/lake_surface_states` != null:
+if (`bigglobe:overworld/surface_states_override` != null:
 	setBlockStates(
 		surfaceY - (seed := seed.newSeed()).nextInt(3, 7),
 		surfaceY,
-		`bigglobe:overworld/lake_surface_states`.under
+		`bigglobe:overworld/surface_states_override`.under
 	)
 )
 
-if (`bigglobe:overworld/lake_surface_states` != null:
+if (`bigglobe:overworld/surface_states_override` != null:
 	if (int*(depth := int(rawDepth)) > 0:
 		setBlockStates(
 			surfaceY - depth,
 			surfaceY,
-			`bigglobe:overworld/lake_surface_states`.top
+			`bigglobe:overworld/surface_states_override`.top
 		)
 	)
 )

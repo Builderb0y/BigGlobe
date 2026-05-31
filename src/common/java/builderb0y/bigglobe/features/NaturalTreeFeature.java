@@ -3,20 +3,30 @@ package builderb0y.bigglobe.features;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
@@ -26,6 +36,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
+import builderb0y.bigglobe.features.ScriptedFeature.QueueType;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -37,6 +48,8 @@ import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 
@@ -52,7 +65,11 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	public boolean place(FeaturePlaceContext<Config> context) {
 		Config config = context.config();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		if (config.delay_generation && distantHorizons) return false;
+		if (config.delay_generation) {
+			if (!distantHorizons && !(context.level() instanceof ServerLevel)) {
+				return ScriptedFeature.delay(context);
+			}
+		}
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		Permuter permuter = Permuter.from(context.random());
 		BlockPos origin = context.origin();
@@ -99,21 +116,51 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 					new ShelfDecorator(
 						shelves,
 						branchesConfig != null
-							? branchesConfig.startFracY
-							: config.stump != null
-							? config.stump.cutoff_frac.minValue()
-							: 1.0D,
+						? branchesConfig.startFracY
+						: config.stump != null
+						? config.stump.cutoff_frac.minValue()
+						: 1.0D,
 						shelves.totalWeight
 					)
 				);
 			}
 		}
+		int radius = config.max_radius_in_blocks;
+		BoundingBox box = new BoundingBox(
+			origin.getX() - radius,
+			HeightLimitViewVersions.getMinY(context.level()),
+			origin.getZ() - radius,
+			origin.getX() + radius,
+			HeightLimitViewVersions.getMaxY(context.level()),
+			origin.getZ() + radius
+		);
 		return new TreeGenerator(
 			columns,
 			context.level(),
-			config.delay_generation
-			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
-			: new BlockQueue(false),
+			new BlockQueue(false) {
+
+				public boolean warned;
+
+				@Override
+				public void queueBlock(long pos, BlockState state) {
+					if (box.isInside(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos))) {
+						super.queueBlock(pos, state);
+					}
+					else if (!this.warned) {
+						this.warned = true;
+						String name;
+						ConfiguredFeature<?, ?> feature = context.topFeature().orElse(null);
+						if (feature != null) {
+							Identifier identifier = RegistryVersions.getRegistry(context.level().registryAccess(), Registries.CONFIGURED_FEATURE).getKey(feature);
+							name = identifier != null ? identifier.toString() : "<unknown>";
+						}
+						else {
+							name = "<unknown>";
+						}
+						BigGlobeMod.LOGGER.warn("Natural tree feature " + name + " is too large! Consider increasing max_radius_in_blocks.");
+					}
+				}
+			},
 			permuter,
 			config.palette.value(),
 			config.ground_replacements,
@@ -129,6 +176,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 
 	public static record Config(
 		@DefaultBoolean(false) boolean delay_generation,
+		@DefaultInt(16) int max_radius_in_blocks,
 		Holder<WoodPalette> palette,
 		BlockState2ObjectMap<BlockState> ground_replacements,
 		ColumnRandomYToDoubleScript.Catcher height,
@@ -138,7 +186,13 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@VerifyNullable Decorations decorations,
 		@VerifyNullable Stump stump
 	)
-		implements FeatureConfiguration {}
+	implements FeatureConfiguration, SizedDelayedFeatureConfig {
+
+		@Override
+		public int getMaxRadiusInBlocks() {
+			return this.max_radius_in_blocks;
+		}
+	}
 
 	public static record Stump(
 		RandomSource cutoff_frac

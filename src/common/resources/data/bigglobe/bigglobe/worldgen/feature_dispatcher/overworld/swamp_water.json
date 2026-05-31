@@ -11,7 +11,7 @@
 				"z = minModifiableZ | random.nextInt(16)",
 				"y = world_traits.`bigglobe:y_level_in_surface`(x, z)",
 			")",
-			"if (`bigglobe:overworld/lake_surface_states`(x, z) == null:",
+			"if (`bigglobe:overworld/surface_states_override`(x, z) == null:",
 				"placeFeature(x, y, z, 'bigglobe:overworld/swamp_water')",
 			")",
 		")"

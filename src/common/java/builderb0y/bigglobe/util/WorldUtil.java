@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -193,5 +194,26 @@ public class WorldUtil {
 
 	public static boolean isReplaceableNonFluid(BlockGetter world, BlockPos pos) {
 		return isReplaceableNonFluid(world.getBlockState(pos));
+	}
+
+	/**
+	vanilla logic considers a chunk to be "loaded" when it's
+	close enough to a player that it "should" be loaded,
+	even if it hasn't been generated yet.
+	*/
+	public static boolean isAreaLoaded(ServerLevel world, BoundingBox box) {
+		int
+			minX = box.minX() >> 4,
+			minZ = box.minZ() >> 4,
+			maxX = box.maxX() >> 4,
+			maxZ = box.maxZ() >> 4;
+		for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+			for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+				if (world.getChunkSource().getChunkNow(chunkX, chunkZ) == null) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

@@ -165,13 +165,13 @@ public class FastMath {
 
 		public static final double
 			LOGE2 = Math.log(2.0D), //ln(2)
-			LOG2E = 1.0D / LOGE2, //log2(e)
+			LOG2E =  1.0D / LOGE2, //log2(e)
 			TERM0 = -2.816159410743029D,
-			TERM1 = 5.136019940826246D,
+			TERM1 =  5.136019940826246D,
 			TERM2 = -3.5965971344845508D,
-			TERM3 = 1.651994396722813D,
+			TERM3 =  1.651994396722813D,
 			TERM4 = -0.42017514047089418D,
-			TERM5 = 0.044917348149390499D;
+			TERM5 =  0.044917348149390499D;
 
 		public static double fastLog2(double value) {
 			if (!(value >= Double.MIN_NORMAL)) {
@@ -180,7 +180,7 @@ public class FastMath {
 			if (value == Double.POSITIVE_INFINITY) return Double.POSITIVE_INFINITY;
 
 			long bits = Double.doubleToRawLongBits(value);
-			long exponent = ((bits & 0x7FF0000000000000L) >>> 52) - 1023;
+			long exponent = ((bits & 0x7FF0000000000000L) >>> 52) - 1023L;
 			bits = (bits & ~0x7FF0000000000000L) | (1023L << 52);
 			double result = Double.longBitsToDouble(bits);
 			result = ((((TERM5 * result + TERM4) * result + TERM3) * result + TERM2) * result + TERM1) * result + TERM0;

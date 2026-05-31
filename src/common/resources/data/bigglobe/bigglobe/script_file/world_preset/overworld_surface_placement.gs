@@ -50,11 +50,11 @@ if (surfaceY.isBetween[minY, maxY]:
 		int depth = (seed := seed.newSeed()).nextInt(3, 7)
 		setBlockStates(surfaceY - depth, surfaceY, 'minecraft:gravel')
 	)
-	if (`bigglobe:overworld/lake_surface_states` != null:
+	if (`bigglobe:overworld/surface_states_override` != null:
 		setBlockStates(
 			surfaceY - (seed := seed.newSeed()).nextInt(3, 7),
 			surfaceY,
-			`bigglobe:overworld/lake_surface_states`.under
+			`bigglobe:overworld/surface_states_override`.under
 		)
 	)
 	int depth = floorInt(
@@ -64,11 +64,11 @@ if (surfaceY.isBetween[minY, maxY]:
 		- (`bigglobe:overworld/hilliness` * world_traits.`bigglobe:eroded_foliage` * 4.0L) ;more depth in valleys
 	)
 	if (depth > 0:
-		if (`bigglobe:overworld/lake_surface_states` != null:
+		if (`bigglobe:overworld/surface_states_override` != null:
 			setBlockStates(
 				surfaceY - depth,
 				surfaceY,
-				`bigglobe:overworld/lake_surface_states`.top
+				`bigglobe:overworld/surface_states_override`.top
 			)
 		)
 		else (

@@ -21,6 +21,8 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
+import static builderb0y.scripting.bytecode.InsnTrees.*;
+
 @UseCoder(name = "REGISTRY", in = ResultProvider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface ResultProvider extends SimpleDependencyView, CoderRegistryTyped<ResultProvider> {
 

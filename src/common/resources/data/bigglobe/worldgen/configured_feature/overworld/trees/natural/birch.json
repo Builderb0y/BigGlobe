@@ -2,7 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"palette": "minecraft:birch",
-		"height": "fastExp2(world_traits.`bigglobe:foliage_at` + 3.0I) * random.nextDouble() + 8.0L",
+		"height": "12.0L - 6.0L * max(world_traits.`bigglobe:foliage_at`, 0.0I) * fastLog2(max(random.nextDouble(), 2x1.0p-8L))",
 		"trunk": {
 			"type": "bigglobe:straight",
 			"thickness": "mixLinear(max(height * 0.0625L, minThickness), minThickness, fraction)",
@@ -40,6 +40,8 @@
 			"minecraft:rooted_dirt":     "minecraft:rooted_dirt",
 			"minecraft:mud":             "minecraft:mud",
 			"minecraft:packed_mud":      "minecraft:packed_mud"
-		}
+		},
+		"delay_generation": true,
+		"max_radius_in_blocks": 16
 	}
 }

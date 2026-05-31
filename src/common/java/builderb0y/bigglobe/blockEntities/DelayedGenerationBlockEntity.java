@@ -1,27 +1,37 @@
 package builderb0y.bigglobe.blockEntities;
 
-import java.util.Objects;
+import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
-import builderb0y.bigglobe.features.SerializableBlockQueue;
+import builderb0y.bigglobe.features.SizedDelayedFeatureConfig;
+import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.DataHelper;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
 
-	public @Nullable SerializableBlockQueue blockQueue;
+	public @Nullable Identifier feature;
 	public @Nullable BlockState oldState;
 	public @Nullable CompoundTag oldBlockData;
 
@@ -33,33 +43,66 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		this(BigGlobeBlockEntityTypes.DELAYED_GENERATION, pos, state);
 	}
 
-	@SuppressWarnings("deprecation")
-	public void tick() {
-		BlockPos pos = this.worldPosition;
-		Level world = Objects.requireNonNull(this.level, "world");
-		if (this.blockQueue == null) {
-			BigGlobeMod.LOGGER.warn("Missing block queue at " + pos);
-			world.setBlockAndUpdate(pos, BlockStates.AIR);
-			return;
-		}
-		if (world.hasChunksAt(this.blockQueue.minX, this.blockQueue.minY, this.blockQueue.minZ, this.blockQueue.maxX, this.blockQueue.maxY, this.blockQueue.maxZ)) {
-			world.setBlockAndUpdate(pos, this.oldState != null ? this.oldState : BlockStates.AIR);
+	public void revert(ServerLevel world) {
+		if (this.oldState != null) {
+			world.setBlock(this.worldPosition, this.oldState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 			if (this.oldBlockData != null) {
-				BlockEntity blockEntity = world.getBlockEntity(pos);
+				BlockEntity blockEntity = world.getBlockEntity(this.worldPosition);
 				if (blockEntity != null) BlockEntityVersions.readFromNbt(blockEntity, this.oldBlockData);
 			}
-			if (!this.blockQueue.hasSpace(world)) {
-				return;
-			}
-			this.blockQueue.actuallyPlaceQueuedBlocks(world);
+		}
+		else {
+			world.setBlock(this.worldPosition, BlockStates.AIR, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+		}
+	}
+
+	@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
+	public void tick() {
+		BlockPos pos = this.worldPosition;
+		if (!(this.level instanceof ServerLevel world)) {
+			return;
+		}
+		if (this.feature == null) {
+			BigGlobeMod.LOGGER.warn("Missing feature at " + pos);
+			this.revert(world);
+			return;
+		}
+		ConfiguredFeature<?, ?> feature = RegistryVersions.getRegistry(world.registryAccess(), Registries.CONFIGURED_FEATURE).getOptional(this.feature).orElse(null);
+		if (feature == null) {
+			BigGlobeMod.LOGGER.warn("Unknown feature " + this.feature + " at " + this.worldPosition);
+			this.revert(world);
+			return;
+		}
+		int range;
+		if (feature.config() instanceof SizedDelayedFeatureConfig sizedConfig) {
+			range = sizedConfig.getMaxRadiusInBlocks();
+		}
+		else {
+			range = 16;
+		}
+		range++; //ensure space for updating neighbors too.
+
+		if (WorldUtil.isAreaLoaded(
+			world,
+			new BoundingBox(
+				pos.getX() - range,
+				pos.getY() - range,
+				pos.getZ() - range,
+				pos.getX() + range,
+				pos.getY() + range,
+				pos.getZ() + range
+			)
+		)) {
+			this.revert(world);
+			feature.feature().place(new FeaturePlaceContext(Optional.of(feature), world, world.getChunkSource().getGenerator(), RandomSource.create(Permuter.permute(world.getSeed() ^ 0xc99e62371fba6cecL, pos)), pos, feature.config()));
 		}
 	}
 
 	public static final DataHelper<DelayedGenerationBlockEntity> DATA_HELPER = (
 		new DataHelper<>(DelayedGenerationBlockEntity.class)
-			.begin("queue").fieldAccessor("blockQueue", true).add()
-			.begin("old_state").fieldAccessor("oldState", true).add()
-			.begin("oldBlockData").fieldAccessor("oldBlockData", false).codec(CompoundTag.CODEC).add()
+		.begin("feature").fieldAccessor("feature", true).add()
+		.begin("old_state").fieldAccessor("oldState", true).add()
+		.begin("oldBlockData").fieldAccessor("oldBlockData", false).codec(CompoundTag.CODEC).add()
 	);
 
 	@Override

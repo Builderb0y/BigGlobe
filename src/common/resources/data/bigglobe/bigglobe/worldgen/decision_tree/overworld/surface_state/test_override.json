@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "`bigglobe:overworld/surface_states_override` != null"
+	},
+	"if_true": "bigglobe:overworld/surface_state/override",
+	"if_false": "bigglobe:overworld/surface_state/test_beach"
+}

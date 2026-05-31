@@ -17,7 +17,7 @@
 			"if (maxFrac < 2.0I:",
 				"if (maxFrac <= 1.0I:",
 					"maxFrac = 1.0I",
-					"`bigglobe:overworld/lake_surface_states` = SurfaceStates.new()",
+					"`bigglobe:overworld/surface_states_override` = SurfaceStates.new()",
 				")",
 				"int startY = piece.data.startY",
 				"float curve = float(1.0L - sqrt(1.0I - (2.0I - maxFrac) ^ 2))",

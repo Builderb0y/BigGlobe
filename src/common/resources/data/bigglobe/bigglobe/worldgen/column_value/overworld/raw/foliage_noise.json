@@ -7,6 +7,7 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
+			{ "type": "constant", "value": 0.25 },
 			{ "type": "cubic", "scale": 512, "amplitude": 0.5    },
 			{ "type": "cubic", "scale": 256, "amplitude": 0.25   },
 			{ "type": "cubic", "scale": 128, "amplitude": 0.125  },

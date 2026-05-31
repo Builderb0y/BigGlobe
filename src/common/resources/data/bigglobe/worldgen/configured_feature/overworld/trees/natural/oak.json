@@ -13,6 +13,8 @@
 					")"
 				]
 			}
-		}
+		},
+		"queue": "delayed",
+		"max_radius_in_blocks": 64
 	}
 }
