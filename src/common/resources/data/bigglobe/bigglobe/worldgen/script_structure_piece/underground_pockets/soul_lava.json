@@ -2,7 +2,9 @@
 	"raw_placement": {
 		"template": "bigglobe:underground_pocket_fill_with_fluid",
 		"inputs": {
-			"STATE": "'bigglobe:soul_lava[level=0]'"
+			"FLUID_STATE": "'bigglobe:soul_lava[level=0]'",
+			"SURFACE_FIND": "BlockTag()",
+			"SURFACE_REPLACE": "null"
 		}
 	},
 	"placement": "noop"

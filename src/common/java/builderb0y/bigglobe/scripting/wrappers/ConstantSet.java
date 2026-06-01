@@ -3,13 +3,15 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.SequencedSet;
 
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
+import org.jspecify.annotations.NonNull;
 
 import net.minecraft.util.Mth;
 
-public class ConstantSet<K> extends AbstractSet<K> {
+public class ConstantSet<K> extends AbstractSet<K> implements SequencedSet<K> {
 
 	public final K[] keys;
 	public final int[] order;
@@ -79,6 +81,11 @@ public class ConstantSet<K> extends AbstractSet<K> {
 		return this.new ConstantSetIterator();
 	}
 
+	@Override
+	public @NonNull SequencedSet<K> reversed() {
+		return this.new ReversedView();
+	}
+
 	public class ConstantSetIterator implements Iterator<K> {
 
 		public int index;
@@ -92,6 +99,46 @@ public class ConstantSet<K> extends AbstractSet<K> {
 		public K next() {
 			if (this.index >= ConstantSet.this.order.length) throw new NoSuchElementException();
 			int position = ConstantSet.this.order[this.index++];
+			return ConstantMap.unwrap(ConstantSet.this.keys[position]);
+		}
+	}
+
+	public class ReversedView extends AbstractSet<K> implements SequencedSet<K> {
+
+		@Override
+		public @NonNull SequencedSet<K> reversed() {
+			return ConstantSet.this;
+		}
+
+		@Override
+		public int size() {
+			return ConstantSet.this.size();
+		}
+
+		@Override
+		public Iterator<K> iterator() {
+			return ConstantSet.this.new ReversedIterator();
+		}
+
+		@Override
+		public boolean contains(Object element) {
+			return ConstantSet.this.getPosition(element) >= 0;
+		}
+	}
+
+	public class ReversedIterator implements Iterator<K> {
+
+		public int index = ConstantSet.this.size() - 1;
+
+		@Override
+		public boolean hasNext() {
+			return this.index >= 0;
+		}
+
+		@Override
+		public K next() {
+			if (this.index < 0) throw new NoSuchElementException();
+			int position = ConstantSet.this.order[this.index--];
 			return ConstantMap.unwrap(ConstantSet.this.keys[position]);
 		}
 	}

@@ -77,7 +77,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 
 	public KeywordHandler.Named makeKeyword() {
 		return new KeywordHandler.Named(
-			this.tagTypeName + "(element1 [, element2, ...])",
+			this.tagTypeName + "(element1, element2, ...)",
 			(ExpressionParser parser, String name) -> {
 				boolean nullable = parser.input.hasOperatorAfterWhitespace("?");
 				if (parser.input.peekAfterWhitespace() != '(') {
@@ -86,18 +86,25 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 				}
 				CommaSeparatedExpressions expressions = CommaSeparatedExpressions.parse(parser);
 				return switch (expressions.arguments().length) {
-					case 0 -> throw new ScriptParsingException("At least one element is required", parser.input);
-					case 1 -> expressions.maybeWrap(expressions.arguments()[0].cast(parser, this.tagType, CastMode.EXPLICIT_THROW, nullable));
+					case 0 -> {
+						yield ldc(
+							this.bootstrapConstant,
+							constant(AbstractConstantFactory.flags(parser, nullable))
+						);
+					}
+					case 1 -> {
+						yield expressions.maybeWrap(expressions.arguments()[0].cast(parser, this.tagType, CastMode.EXPLICIT_THROW, nullable));
+					}
 					default -> {
 						InsnTree[] strings = Arrays.stream(expressions.arguments()).map((InsnTree tree) -> tree.cast(parser, TypeInfos.STRING, CastMode.IMPLICIT_THROW, false)).toArray(InsnTree[]::new);
 						if (Arrays.stream(strings).map(InsnTree::getConstantValue).allMatch(ConstantValue::isConstantOrDynamic)) {
 							yield ldc(
 								this.bootstrapConstant,
 								Stream.concat(
-										Stream.of(constant(AbstractConstantFactory.flags(parser, nullable))),
-										Arrays.stream(strings).map(InsnTree::getConstantValue)
-									)
-									.toArray(ConstantValue[]::new)
+									Stream.of(constant(AbstractConstantFactory.flags(parser, nullable))),
+									Arrays.stream(strings).map(InsnTree::getConstantValue)
+								)
+								.toArray(ConstantValue[]::new)
 							);
 						}
 						else {

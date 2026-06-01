@@ -7,10 +7,11 @@ import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import net.minecraft.util.Mth;
 
-public class ConstantMap<K, V> extends AbstractMap<K, V> {
+public class ConstantMap<K, V> extends AbstractMap<K, V> implements SequencedMap<K, V> {
 
 	public static final Object NULL = new Object() {
 
@@ -188,11 +189,16 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	@Override
-	public @NotNull Set<Map.Entry<K, V>> entrySet() {
+	public SequencedMap<K, V> reversed() {
+		return this.new ReversedView();
+	}
+
+	@Override
+	public @NotNull SequencedSet<Map.Entry<K, V>> entrySet() {
 		return this.entrySet == null ? this.entrySet = this.new EntrySet() : this.entrySet;
 	}
 
-	public class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+	public class EntrySet extends AbstractSet<Map.Entry<K, V>> implements SequencedSet<Map.Entry<K, V>> {
 
 		@Override
 		public Iterator<Map.Entry<K, V>> iterator() {
@@ -211,6 +217,34 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 				return position >= 0 && Objects.equals(entry.getValue(), ConstantMap.this.values[position]);
 			}
 			return false;
+		}
+
+		@Override
+		public @NonNull SequencedSet<Map.Entry<K, V>> reversed() {
+			return this.new ReversedEntrySet();
+		}
+
+		public class ReversedEntrySet extends AbstractSet<Map.Entry<K, V>> implements SequencedSet<Map.Entry<K, V>> {
+
+			@Override
+			public boolean contains(Object o) {
+				return EntrySet.this.contains(o);
+			}
+
+			@Override
+			public Iterator<Map.Entry<K, V>> iterator() {
+				return ConstantMap.this.new ReversedEntryIterator();
+			}
+
+			@Override
+			public int size() {
+				return ConstantMap.this.size();
+			}
+
+			@Override
+			public @NonNull SequencedSet<Map.Entry<K, V>> reversed() {
+				return EntrySet.this;
+			}
 		}
 	}
 
@@ -255,6 +289,61 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 		@Override
 		public String toString() {
 			return this.getKey() + " -> " + this.getValue();
+		}
+	}
+
+	public class ReversedView extends AbstractMap<K, V> implements SequencedMap<K, V> {
+
+		@Override
+		public int size() {
+			return ConstantMap.this.size();
+		}
+
+		@Override
+		public boolean containsKey(Object key) {
+			return ConstantMap.this.containsKey(key);
+		}
+
+		@Override
+		public boolean containsValue(Object value) {
+			return ConstantMap.this.containsValue(value);
+		}
+
+		@Override
+		public V get(Object key) {
+			return ConstantMap.this.get(key);
+		}
+
+		@Override
+		public V getOrDefault(Object key, V defaultValue) {
+			return ConstantMap.this.getOrDefault(key, defaultValue);
+		}
+
+		@Override
+		public @NonNull Set<Entry<K, V>> entrySet() {
+			return ConstantMap.this.entrySet().reversed();
+		}
+
+		@Override
+		public SequencedMap<K, V> reversed() {
+			return ConstantMap.this;
+		}
+	}
+
+	public class ReversedEntryIterator implements Iterator<Map.Entry<K, V>> {
+
+		public int index = ConstantMap.this.size() - 1;
+
+		@Override
+		public boolean hasNext() {
+			return this.index >= 0;
+		}
+
+		@Override
+		public Map.Entry<K, V> next() {
+			if (this.index < 0) throw new NoSuchElementException();
+			int position = ConstantMap.this.order[this.index--];
+			return new ConstantMap.Entry<>(unwrap(ConstantMap.this.keys[position]), ConstantMap.this.values[position]);
 		}
 	}
 }

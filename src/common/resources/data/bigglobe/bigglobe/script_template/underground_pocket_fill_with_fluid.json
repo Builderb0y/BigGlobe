@@ -13,15 +13,29 @@
 			")",
 			"if (radius2 <= peek2:",
 				"int minWaterY = ceilInt(midY - sqrt(peek2 - radius2) * (maxY - midY))",
-				"for (int y in range[minWaterY, waterLevel]:",
+				"boolean hadWater = false",
+				"for outer (int y in -range[minWaterY, waterLevel]:",
 					"if (getBlockState(x, y, z).isAir():",
-						"setBlockState(x, y, z, STATE)",
+						"setBlockState(x, y, z, FLUID_STATE)",
+						"hadWater = true",
+					")",
+					"else if (hadWater:",
+						"for (int y2 in -range[y - random.nextInt(4), y]:",
+							"if (getBlockState(x, y2, z).isIn(SURFACE_FIND):",
+								"setBlockState(x, y2, z, SURFACE_REPLACE)",
+							")",
+							"else (",
+								"break(outer)",
+							")",
+						")",
 					")",
 				")",
 			")",
 		")"
 	],
 	"inputs": [
-		{ "name": "STATE", "type": "BlockState" }
+		{ "name": "FLUID_STATE",     "type": "BlockState" },
+		{ "name": "SURFACE_FIND",    "type": "BlockTag"   },
+		{ "name": "SURFACE_REPLACE", "type": "BlockState" }
 	]
 }

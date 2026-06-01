@@ -69,7 +69,6 @@ high priority:
 	make slingshots able to throw splash/lingering potions.
 
 V6:
-	add new json classes.
 	LOD renderer improvements:
 		make ingesting work in multiplayer.
 	islands world type:
@@ -81,7 +80,6 @@ V6:
 		this will probably require some hacks for dragon flight logic.
 		also end crystal spike generation.
 	new "rock layers" for nether too?
-	make nether surface depth a bubble property.
 	structure dispatchers?
 		2D and 3D variants.
 	remove all but one biome?
@@ -128,19 +126,13 @@ V6:
 		make originX/Y/Z zero for scripted structure placements too.
 		make structure overriders have a filter too, like column value overriders.
 		transition structure max size from chunks to blocks.
-	exclude snow_layer from LOD mipping?
 	write unit test to verify that jspecify is not used.
 	test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
-	make ConstantSet and ConstantMap implement SequencedSet and SequencedMap, respectively.
-	put clay in underground water pockets so that axolotls can spawn.
-	make delayed features record the ID of the feature to place,
-		and then call that feature to place in a live world,
-		instead of placing in worldgen and copying blocks to live world once loaded.
-		this will require manually specifying the size of the feature in json.
 	imported objects.
 		when variable or function is called, if there are no matches, try fields and methods on imported objects.
 	structures are weirdly inconsistent in whether or not they spawn somewhere.
 		structures may appear or vanish when reloading the world.
+	use custom classes for split and cone tree generation.
 
 LODs:
 	shader support.
