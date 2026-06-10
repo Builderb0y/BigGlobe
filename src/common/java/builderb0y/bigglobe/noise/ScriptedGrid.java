@@ -416,17 +416,21 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			return Stream.concat(
 				IntStream.range('x', 'x' + this.gridTypeInfo.dimensions).mapToObj((int c) -> {
 					return new IdentifierDescriptor(
-						String.valueOf((char)(c)), TaskLogger.lazyMessage(() -> {
-						return "int " + (char)(c) + ": the " + (char)(c) + " coordinate of the current position";
-					})
+						null,
+						String.valueOf((char)(c)),
+						TaskLogger.lazyMessage(() -> {
+							return "int " + (char)(c) + ": the " + (char)(c) + " coordinate of the current position";
+						})
 					);
 				}),
 
 				this.inputs.values().stream().map((Input input) -> {
 					return new IdentifierDescriptor(
-						input.name, TaskLogger.lazyMessage(() -> {
-						return "double " + input.name + ": user-defined input @ " + input.index;
-					})
+						null,
+						input.name,
+						TaskLogger.lazyMessage(() -> {
+							return "double " + input.name + ": user-defined input @ " + input.index;
+						})
 					);
 				})
 			);

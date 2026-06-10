@@ -67,32 +67,22 @@ public class NormalPropertySpec extends BasePropertySpec {
 		if (this.isSettable()) {
 			MethodInfo setter = this.context.set.info;
 			environment.addField(
-				owner,
-				this.name,
 				new FieldHandler.Named(
+					owner,
+					this.name,
 					"getter: " + getter + ", setter: " + setter,
+					params.dependencyCallback(self),
 					(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 						if (getter.isDeprecated() || setter.isDeprecated()) {
 							BigGlobeMod.LOGGER.warn("Deprecated field used: " + this.name + '\n' + parser.input.getSourceForError());
 						}
-						if (params.dependencies != null) params.dependencies.addDependency(self);
 						return mode.makeGetterSetter(parser, receiver, getter, setter);
 					}
 				)
 			);
-			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(owner)) {
-				InsnTree tree = new GetterSetterInsnTree(loadCustomClass, getter, setter);
-				environment.addVariable(this.name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name) -> {
-					if (params.dependencies != null) params.dependencies.addDependency(self);
-					return tree;
-				}));
-			}
 		}
 		else {
-			environment.addField(getter.owner, getter.name, Handlers.builder(getter).addReceiverArgument(getter.owner).callback(params.dependencyCallback(self)).buildField());
-			if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(owner)) {
-				environment.addVariable(getter.name, Handlers.builder(getter).addImplicitArgument(loadCustomClass).callback(params.dependencyCallback(self)).buildVariable());
-			}
+			environment.addField(Handlers.methodBuilder(getter).addReceiverArgument(getter.owner).onUsed(params.dependencyCallback(self)).buildField());
 		}
 	}
 

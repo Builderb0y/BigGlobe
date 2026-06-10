@@ -131,20 +131,15 @@ public interface ColumnScript extends Script {
 
 		public abstract Class<S> getScriptClass();
 
-		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+		public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
+			MutableScriptEnvironment environment = parser.environment.mutable();
 			environment
-				.addAll(MathScriptEnvironment.INSTANCE)
-				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
-				.configure(
-					parameters.random != null
-					? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
-					: MinecraftScriptEnvironment.create()
-				)
-				.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn), null, parameters.actualColumn.type))
-				.addAll(ColorScriptEnvironment.ENVIRONMENT);
+			.addAll(MathScriptEnvironment.INSTANCE)
+			.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+			.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
+			.addAll(ColorScriptEnvironment.ENVIRONMENT);
 			if (parameters.y != null) environment.addVariableLoad(parameters.y);
-			if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
+			if (parameters.random != null) parser.addImportedValue("random", load(parameters.random));
 		}
 
 		public boolean isColumnMutable() {
@@ -170,34 +165,33 @@ public interface ColumnScript extends Script {
 					load("this", clazz.info),
 					actualMethod.info,
 					IntStream
-						.range(0, parameters.paramCount)
-						.mapToObj((int index) -> {
-							LazyVarInfo
-								from = parameters.bridgeParams[index],
-								to = parameters.actualParams[index];
-							InsnTree loader = load(from);
-							if (!from.equals(to)) {
-								loader = new DirectCastInsnTree(loader, to.type, false);
-							}
-							return loader;
-						})
-						.toArray(InsnTree.ARRAY_FACTORY)
+					.range(0, parameters.paramCount)
+					.mapToObj((int index) -> {
+						LazyVarInfo
+							from = parameters.bridgeParams[index],
+							to = parameters.actualParams[index];
+						InsnTree loader = load(from);
+						if (!from.equals(to)) {
+							loader = new DirectCastInsnTree(loader, to.type, false);
+						}
+						return loader;
+					})
+					.toArray(InsnTree.ARRAY_FACTORY)
 				)
 			)
 			.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
-			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
-				this.addExtraFunctionsToEnvironment(parameters, environment);
-				registry.setupEnvironment(
-					environment,
-					new ExternalEnvironmentParams()
-					.withColumn(load(parameters.actualColumn))
-					.withY(parameters.y != null ? load(parameters.y) : null)
-					.mutable(this.isColumnMutable())
-					.trackDependencies(this)
-				);
-			});
+			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod, registry.parserFlags());
+			this.addExtraFunctionsToEnvironment(parameters, parser);
+			registry.setupEnvironment(
+				parser,
+				new ExternalEnvironmentParams()
+				.withColumn(load(parameters.actualColumn))
+				.withY(parameters.y != null ? load(parameters.y) : null)
+				.mutable(this.isColumnMutable())
+				.trackDependencies(this)
+			);
 			parser.parseEntireInput().emitBytecode(actualMethod);
 			actualMethod.endCode();
 
@@ -1060,9 +1054,9 @@ public interface ColumnScript extends Script {
 			}
 
 			@Override
-			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
-				super.addExtraFunctionsToEnvironment(parameters, environment);
-				environment.addVariableLoad("randomSeed", TypeInfos.LONG);
+			public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
+				super.addExtraFunctionsToEnvironment(parameters, parser);
+				parser.environment.mutable().addVariableLoad("randomSeed", TypeInfos.LONG);
 			}
 
 			@Override

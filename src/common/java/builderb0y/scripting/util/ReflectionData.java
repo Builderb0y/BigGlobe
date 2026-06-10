@@ -1,9 +1,6 @@
 package builderb0y.scripting.util;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -157,23 +154,23 @@ public class ReflectionData {
 		throw new IllegalArgumentException("No such constructor of type " + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(", ", "(", ")")) + " in " + this.clazz);
 	}
 
-	public Field findDeclaredField(String name, Predicate<Field> predicate) {
+	public Field findDeclaredField(String name, Predicate<? super Field> predicate) {
 		return this.find(this.getDeclaredFields(name), predicate, name, "field");
 	}
 
-	public Field findDerivedField(String name, Predicate<Field> predicate) {
+	public Field findDerivedField(String name, Predicate<? super Field> predicate) {
 		return this.find(this.getDerivedFields(name), predicate, name, "field");
 	}
 
-	public Method findDeclaredMethod(String name, Predicate<Method> predicate) {
+	public Method findDeclaredMethod(String name, Predicate<? super Method> predicate) {
 		return this.find(this.getDeclaredMethods(name), predicate, name, "method");
 	}
 
-	public Method findDerivedMethod(String name, Predicate<Method> predicate) {
+	public Method findDerivedMethod(String name, Predicate<? super Method> predicate) {
 		return this.find(this.getDerivedMethods(name), predicate, name, "method");
 	}
 
-	public Constructor<?> findConstructor(Predicate<Constructor<?>> predicate) {
+	public Constructor<?> findConstructor(Predicate<? super Constructor<?>> predicate) {
 		List<Constructor<?>> list = this.getConstructors();
 		Constructor<?> found = null;
 		for (Constructor<?> element : list) {
@@ -188,7 +185,11 @@ public class ReflectionData {
 		return found;
 	}
 
-	public <T> T find(List<T> list, Predicate<T> predicate, String name, String type) {
+	public Executable findDeclaredExecutable(String name, Predicate<? super Executable> predicate) {
+		return name.equals("<init>") ? this.findConstructor(predicate) : this.findDeclaredMethod(name, predicate);
+	}
+
+	public <T> T find(List<T> list, Predicate<? super T> predicate, String name, String type) {
 		T found = null;
 		for (T element : list) {
 			if (predicate.test(element)) {

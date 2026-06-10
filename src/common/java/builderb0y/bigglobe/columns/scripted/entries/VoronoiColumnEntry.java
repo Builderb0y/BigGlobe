@@ -32,7 +32,7 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 	@Override
 	public void verify(ColumnEntryRegistry registry) throws DetailedException {
 		super.verify(registry);
-		if (!this.typeInfo(registry).equals(VoronoiSampler.INFO.type)) {
+		if (!this.typeInfo(registry).equals(VoronoiSampler.TYPE)) {
 			throw new ColumnValueException("Voronoi params type must be 'voronoi'.");
 		}
 		if (this.params.is_3d()) {

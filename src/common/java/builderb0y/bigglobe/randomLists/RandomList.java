@@ -81,7 +81,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			}
 			else {
 				int index = 0;
-				for (WeightedIterator<? extends E> iterator = other.iterator(); iterator.hasNext(); ) {
+				for (WeightedIterator<? extends E> iterator = other.iterator(); iterator.hasNext();) {
 					this.elements[index] = iterator.next();
 					totalWeight += (this.weights[index] = iterator.getWeight());
 				}

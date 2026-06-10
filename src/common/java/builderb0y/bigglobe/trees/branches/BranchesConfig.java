@@ -82,6 +82,7 @@ public class BranchesConfig {
 		}
 		double length = (
 			this.lengthGetter.evaluate(
+				generator.centerColumn,
 				((double)(index)) / ((double)(this.branchCount)),
 				generator.random
 			)
@@ -91,8 +92,8 @@ public class BranchesConfig {
 		long seed = generator.random.nextLong();
 		this.currentBranch = (
 			this.thickBranches
-				? new ThickBranchConfig(angle, length, seed)
-				: new BranchConfig(angle, length, seed)
+			? new ThickBranchConfig(angle, length, seed)
+			: new BranchConfig(angle, length, seed)
 		);
 	}
 }

@@ -1,0 +1,7 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "leavesToPlace",
+	"field_type": "map",
+	"default": "HashMap.new(1024)"
+}

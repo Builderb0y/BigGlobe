@@ -44,6 +44,7 @@ public class NormalMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
+	@MustBeInvokedByOverriders
 	public void verify(ClassHierarchy hierarchy) throws DetailedException {
 		super.verify(hierarchy);
 		this.owner(hierarchy).overrideTracker.addInstanceMethod(this);
@@ -52,11 +53,7 @@ public class NormalMethodSpec extends BaseMethodSpec {
 	@Override
 	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		MethodInfo methodInfo = this.context.info;
-		environment.addMethod(methodInfo.owner, methodInfo.name, Handlers.builder(methodInfo).addReceiverArgument(methodInfo.owner).addArguments((Object[])(methodInfo.paramTypes)).callback(params.dependencyCallback(self)).buildMethod());
-		InsnTree loadCustomClass = params.loadCustomClass;
-		if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(this.context.clazz.info)) {
-			environment.addFunction(methodInfo.name, Handlers.builder(methodInfo).addImplicitArgument(loadCustomClass).addArguments((Object[])(methodInfo.paramTypes)).callback(params.dependencyCallback(self)).buildFunction());
-		}
+		environment.addMethod(Handlers.methodBuilder(methodInfo).addReceiverArgument(methodInfo.owner).addArguments((Object[])(methodInfo.paramTypes)).onUsed(params.dependencyCallback(self)).buildMethod());
 	}
 
 	@Override

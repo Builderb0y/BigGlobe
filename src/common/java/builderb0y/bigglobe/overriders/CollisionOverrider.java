@@ -1,17 +1,20 @@
 package builderb0y.bigglobe.overriders;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.*;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnScript;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
-import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
-import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.TemplateScriptParser;
@@ -46,25 +49,25 @@ public interface CollisionOverrider extends ColumnScript {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(CollisionOverrider.class, this.usage, registry.parserFlags())
-				.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(RandomScriptEnvironment.BASE)
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.create())
-				.configureEnvironment(MinecraftScriptEnvironment.create())
 				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
-				.addEnvironment(WoodPaletteScriptEnvironment.BASE)
-				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
+				.configure((ExpressionParser parser) -> {
+					parser
+					.environment
+					.mutable()
+					.addFieldGet(ScriptedStructure.Piece.class, "data")
+					.addVariableLoad("currentStart", StructureStartWrapper.TYPE)
+					.addVariableLoad("otherStart", StructureStartWrapper.TYPE)
+					;
 					registry.setupEnvironment(
-						environment
-						.addFieldGet(ScriptedStructure.Piece.class, "data")
-						.addVariableLoad("currentStart", StructureStartWrapper.TYPE)
-						.addVariableLoad("otherStart", StructureStartWrapper.TYPE)
-						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-						.configure(ScriptedColumn.baseEnvironment(null, loadLookup, registry.columnCompileContext.columnTypeInfo())),
-						new ExternalEnvironmentParams().withLookup(loadLookup)
+						parser,
+						new ExternalEnvironmentParams().withLookup(
+							"columns",
+							load("columns", type(ScriptedColumnLookup.class))
+						)
 					);
 				})
 				.parse(new ScriptClassLoader(registry.loader))

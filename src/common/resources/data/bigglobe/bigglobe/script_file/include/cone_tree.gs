@@ -1,4 +1,3 @@
-class Pos(int*(x, y, z))
 HashMap positions = new(1024)
 void generateTree(double*(centerX, centerZ, bottomR), int*(minY, maxY), WoodPalette woodPalette:
 	double*(
@@ -37,7 +36,7 @@ void generateTree(double*(centerX, centerZ, bottomR), int*(minY, maxY), WoodPale
 				for (double dist = 0.0L, dist <= branchR, x += addX,, z += addZ,, dist += rcpMagnitude:
 					int*(fx = floorInt(x), fz = floorInt(z))
 					if (BlockState existing = getBlockState(fx, y, fz),, existing.isReplaceable() || existing.isIn('#bigglobe:tree_branch_replaceables'):
-						positions.(Pos.new(fx, y, fz)) = palette.woodState(axis: axis)
+						positions.(BlockPos.new(fx, y, fz)) = palette.woodState(axis: axis)
 					)
 					else (
 						abort()
@@ -68,7 +67,7 @@ void generateTree(double*(centerX, centerZ, bottomR), int*(minY, maxY), WoodPale
 		:
 			if (y < maxY && (x + 0.5L - centerX) ^ 2 + (z + 0.5L - centerZ) ^ 2 < logR ^ 2:
 				if (BlockState existing = getBlockState(x, y, z),, existing.isReplaceable() || existing.isIn('#bigglobe:tree_trunk_replaceables'):
-					positions.(Pos.new(x, y, z)) = woodPalette.logState(random, axis: 'y')
+					positions.(BlockPos.new(x, y, z)) = woodPalette.logState(random, axis: 'y')
 					placedAny = true
 				)
 				else if (y >= minY + 4:
@@ -77,7 +76,7 @@ void generateTree(double*(centerX, centerZ, bottomR), int*(minY, maxY), WoodPale
 			)
 			else if (fraction >= 0.25 && (x + 0.5L - leafX) ^ 2 + (z + 0.5L - leafZ) ^ 2 < leafR ^ 2:
 				if (BlockState existing = getBlockState(x, y, z),, existing.isReplaceable() || existing.isIn('#bigglobe:tree_leaf_replaceables'):
-					positions.putIfAbsent(Pos.new(x, y, z), woodPalette.leavesState(random, distance: 1, persistent: false, waterlogged: false))
+					positions.putIfAbsent(BlockPos.new(x, y, z), woodPalette.leavesState(random, distance: 1, persistent: false, waterlogged: false))
 				)
 			)
 		)
@@ -93,7 +92,7 @@ void generateTree(double*(centerX, centerZ, bottomR), int*(minY, maxY), WoodPale
 )
 
 void placeTree(:
-	for (Pos pos, BlockState state in positions:
+	for (BlockPos pos, BlockState state in positions:
 		setBlockState(pos.x, pos.y, pos.z, state)
 		if (!state.isAir() && random.nextBoolean(world_traits.`bigglobe:snow_chance_at`(pos.x, pos.y + 1, pos.z)):
 			if (getBlockState(pos.x, pos.y + 1, pos.z).isAir():
@@ -104,7 +103,7 @@ void placeTree(:
 )
 
 void placeDecorations(:
-	for (Pos pos, BlockState state in positions:
+	for (BlockPos pos, BlockState state in positions:
 		ConfiguredFeature decoration = decorations.(state.getBlock())
 		if (decoration != null:
 			placeFeature(pos.x, pos.y, pos.z, decoration)

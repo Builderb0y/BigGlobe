@@ -9,6 +9,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
@@ -30,6 +31,7 @@ import static builderb0y.bigglobe.math.BigGlobeMath.*;
 public class TreeGenerator {
 
 	public final ScriptedColumnLookup columns;
+	public final ScriptedColumn centerColumn;
 	public final BlockQueueStructureWorldAccess worldQueue;
 	public final Permuter random;
 	public final WoodPalette palette;
@@ -40,26 +42,28 @@ public class TreeGenerator {
 	public final @Nullable RandomSource stumpThreshold;
 
 	public TreeGenerator(
-		ScriptedColumnLookup columns,
-		WorldGenLevel world,
-		BlockQueue queue,
-		Permuter random,
-		WoodPalette palette,
+		ScriptedColumnLookup             columns,
+		ScriptedColumn                   centerColumn,
+		WorldGenLevel                    world,
+		BlockQueue                       queue,
+		Permuter                         random,
+		WoodPalette                      palette,
 		BlockState2ObjectMap<BlockState> groundReplacements,
-		TrunkConfig trunk,
-		@Nullable BranchesConfig branches,
-		DecoratorConfig decorators,
-		@Nullable RandomSource stumpThreshold
+		TrunkConfig                      trunk,
+		@Nullable BranchesConfig         branches,
+		DecoratorConfig                  decorators,
+		@Nullable RandomSource           stumpThreshold
 	) {
-		this.columns = columns;
-		this.worldQueue = queue.createWorld(world);
-		this.random = random;
-		this.palette = palette;
+		this.columns            = columns;
+		this.centerColumn       = centerColumn;
+		this.worldQueue         = queue.createWorld(world);
+		this.random             = random;
+		this.palette            = palette;
 		this.groundReplacements = groundReplacements;
-		this.trunk = trunk;
-		this.branches = branches;
-		this.decorators = decorators;
-		this.stumpThreshold = stumpThreshold;
+		this.trunk              = trunk;
+		this.branches           = branches;
+		this.decorators         = decorators;
+		this.stumpThreshold     = stumpThreshold;
 	}
 
 	public boolean generate() {

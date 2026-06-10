@@ -13,11 +13,13 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
-import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
@@ -27,13 +29,8 @@ import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -119,32 +116,31 @@ public class ScriptedStructurePlacement extends StructurePlacement implements Sm
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(StructurePlacementScript.class, this.usage, registry.parserFlags())
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addEnvironment(RandomScriptEnvironment.BASE)
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
-					.addEnvironment(WoodPaletteScriptEnvironment.BASE)
-					.configureEnvironment(MinecraftScriptEnvironment.create())
 					.configureEnvironment(StructureScriptEnvironment.live())
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
+					.configure((ExpressionParser parser) -> {
 						LoadInsnTree loadLookup = load("columns", InsnTrees.type(ScriptedColumnLookup.class));
+						parser
+						.environment
+						.mutable()
+						.addVariableLoad("starts", TypeInfo.of(List.class))
+						.addVariableLoad("worldSeed", TypeInfos.LONG)
+						.addVariableLoad("regionMinX", TypeInfos.INT)
+						.addVariableLoad("regionMinY", TypeInfos.INT)
+						.addVariableLoad("regionMinZ", TypeInfos.INT)
+						.addVariableLoad("regionMaxX", TypeInfos.INT)
+						.addVariableLoad("regionMaxY", TypeInfos.INT)
+						.addVariableLoad("regionMaxZ", TypeInfos.INT)
+						.addFunction(Handlers.methodBuilder(ScriptedStructurePlacement.class, "createNear").exposedName("createStartNear").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
+						.addFunction(Handlers.methodBuilder(ScriptedStructurePlacement.class, "createAt").exposedName("createStartAt").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
+						.addMethod(Handlers.methodBuilder(ScriptedStructurePlacement.class, "override").addReceiverArgument(StructureStartWrapper.class).addImplicitArgument(load("context", TypeInfo.of(Context.class))).buildMethod())
+						.addVariableRenamedInvoke(loadLookup, "hints", ScriptedColumnLookup.HINTS)
+						;
 						registry.setupEnvironment(
-							environment
-							.addVariableLoad("starts", TypeInfo.of(List.class))
-							.addVariableLoad("worldSeed", TypeInfos.LONG)
-							.addVariableLoad("regionMinX", TypeInfos.INT)
-							.addVariableLoad("regionMinY", TypeInfos.INT)
-							.addVariableLoad("regionMinZ", TypeInfos.INT)
-							.addVariableLoad("regionMaxX", TypeInfos.INT)
-							.addVariableLoad("regionMaxY", TypeInfos.INT)
-							.addVariableLoad("regionMaxZ", TypeInfos.INT)
-							.addFunction("createStartNear", Handlers.builder(ScriptedStructurePlacement.class, "createNear").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
-							.addFunction("createStartAt", Handlers.builder(ScriptedStructurePlacement.class, "createAt").addArguments(load("context", TypeInfo.of(Context.class)), "III", StructureEntry.class).buildFunction())
-							.addMethod(InsnTrees.type(StructureStartWrapper.class), "override", Handlers.builder(ScriptedStructurePlacement.class, "override").addReceiverArgument(StructureStartWrapper.class).addImplicitArgument(load("context", TypeInfo.of(Context.class))).buildMethod())
-							.addVariableRenamedInvoke(loadLookup, "hints", ScriptedColumnLookup.HINTS)
-							.configure(ScriptedColumn.baseEnvironment(null, loadLookup, registry.columnCompileContext.columnTypeInfo())),
-							new ExternalEnvironmentParams().withLookup(loadLookup)
+							parser,
+							new ExternalEnvironmentParams().withLookup("columns", loadLookup)
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)

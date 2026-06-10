@@ -5,19 +5,22 @@ import java.util.random.RandomGenerator;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.*;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnScript;
+import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
-import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
-import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.TemplateScriptParser;
@@ -74,39 +77,36 @@ public interface StructureOverrider extends ColumnScript {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			LoadInsnTree loadRandom = load("random", type(RandomGenerator.class));
+			LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
 			this.script = (
 				new TemplateScriptParser<>(StructureOverrider.class, this.usage, registry.parserFlags())
-				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(loadRandom))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.configureEnvironment(RandomScriptEnvironment.create(loadRandom))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(load("seed", TypeInfos.LONG)))
-				.configureEnvironment(MinecraftScriptEnvironment.createWithRandom(loadRandom))
 				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
-				.configureEnvironment(WoodPaletteScriptEnvironment.create(loadRandom))
-				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
+				.configure((ExpressionParser parser) -> {
+					parser
+					.environment
+					.mutable()
+					.addFieldGet(ScriptedStructure.Piece.class, "data")
+					.addVariableLoad("start", StructureStartWrapper.TYPE)
+					.addMethodInvokeStatics(StructureOverrider.class, "move", "moveToRange")
+					.addMethod(
+						Handlers
+						.methodBuilder(StructureOverrider.class, "moveToRange")
+						.addReceiverArgument(StructureStartWrapper.class)
+						.addArguments("II", loadRandom)
+						.buildMethod()
+					)
+					.addVariable(Handlers.methodBuilder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
+					;
 					registry.setupEnvironment(
-						environment
-						.addFieldGet(ScriptedStructure.Piece.class, "data")
-						.addVariableLoad("start", StructureStartWrapper.TYPE)
-						.addMethodInvokeStatics(StructureOverrider.class, "move", "moveToRange")
-						.addMethod(
-							type(StructureStartWrapper.class),
-							"moveToRange",
-							Handlers
-							.builder(StructureOverrider.class, "moveToRange")
-							.addReceiverArgument(StructureStartWrapper.class)
-							.addArguments("II", loadRandom)
-							.buildMethod()
-						)
-						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-						.configure(ScriptedColumn.baseEnvironment(null, loadLookup, registry.columnCompileContext.columnTypeInfo()))
-						.addVariableRenamedInvoke(load("hints", type(Hints.class)), "distantHorizons", MethodInfo.getMethod(Hints.class, "isLod")),
-						new ExternalEnvironmentParams().withLookup(loadLookup)
+						parser,
+						new ExternalEnvironmentParams().withLookup("columns", loadLookup)
 					);
 				})
+				.addImportedValue("random", load("random", type(RandomGenerator.class)))
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

@@ -6,8 +6,11 @@ import net.minecraft.resources.ResourceKey;
 
 import builderb0y.bigglobe.scripting.wrappers.tags.TagWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.TypeInfo;
 
 public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
+
+	public static final TypeInfo TYPE = TypeInfo.of(EntryWrapper.class);
 
 	public final Holder<T_Raw> entry;
 

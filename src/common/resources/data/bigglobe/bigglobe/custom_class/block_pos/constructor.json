@@ -1,0 +1,14 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:block_pos/class",
+	"name": "at",
+	"return_type": "bigglobe:block_pos/class",
+	"parameters": [
+		{ "name": "x", "type": "int" },
+		{ "name": "y", "type": "int" },
+		{ "name": "z", "type": "int" }
+	],
+	"code": [
+		"BlockPos.new().$=x(x).$=y(y).$=z(z)"
+	]
+}

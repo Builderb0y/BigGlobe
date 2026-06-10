@@ -142,16 +142,18 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		return this.client ? AbstractConstantFactory.CLIENT : 0;
 	}
 
-	public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params) {
+		MutableScriptEnvironment environment = parser.environment.mutable();
 		this.classHierarchy.setupEnvironment(environment, params);
-		this.traitManager.setupEnvironment(environment, params);
+		this.traitManager.setupEnvironment(parser, params);
 		for (ColumnEntry entry : this.columnEntryLookup.keySet()) {
-			entry.setupEnvironment(this, environment, params);
+			entry.setupEnvironment(this, parser, params);
 		}
-	}
-
-	public Consumer<MutableScriptEnvironment> environmentSetterUpper(ExternalEnvironmentParams params) {
-		return (MutableScriptEnvironment environment) -> this.setupEnvironment(environment, params);
+		parser
+		.addImportedValue("this", params.loadCustomClass)
+		.addImportedValue("column", params.loadColumn)
+		.addImportedValue(params.loadLookupName, params.loadLookup)
+		;
 	}
 
 	@Override
@@ -188,33 +190,27 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		Consumer<MutableScriptEnvironment> extra
 	)
 	throws ScriptParsingException {
-		return (
-			new ScriptColumnEntryParser(code, method.clazz, method, this.parserFlags())
-			.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.configureEnvironment(MinecraftScriptEnvironment.create())
-			.addEnvironment(SymmetryScriptEnvironment.INSTANCE)
-			.configureEnvironment(NbtScriptEnvironment.createMutable())
-			.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
-			.addEnvironment(RandomScriptEnvironment.BASE)
-			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-			.configureEnvironment(ScriptedColumn.baseEnvironment(loadColumn, null, this.columnCompileContext.columnTypeInfo()))
-			.configureEnvironment(this.environmentSetterUpper(
-				new ExternalEnvironmentParams()
-				.withColumn(loadColumn)
-				.withY(loadY)
-				.mutable()
-				.withCaller(caller)
-				.trackDependencies(dependencies)
-				.withCustomClass(loadCustomClass)
-			))
-			.configureEnvironment((MutableScriptEnvironment environment) -> {
-				if (loadY != null) environment.addVariable("y", loadY);
-			})
-			.configureEnvironment(extra)
-			.parseEntireInput()
+		ScriptColumnEntryParser parser = new ScriptColumnEntryParser(code, method.clazz, method, this.parserFlags());
+		parser
+		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(SymmetryScriptEnvironment.INSTANCE)
+		.configureEnvironment(NbtScriptEnvironment.createMutable())
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+		.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+		;
+		this.setupEnvironment(
+			parser
+			,
+			new ExternalEnvironmentParams()
+			.withColumn(loadColumn)
+			.withY(loadY)
+			.mutable()
+			.withCaller(caller)
+			.trackDependencies(dependencies)
+			.withCustomClass(loadCustomClass)
 		);
+		if (loadY != null) parser.environment.mutable().addVariable("y", loadY);
+		return parser.configureEnvironment(extra).parseEntireInput();
 	}
 
 	public void setMethodCode(

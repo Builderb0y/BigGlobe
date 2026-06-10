@@ -8,6 +8,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
+import builderb0y.bigglobe.classes.spec.BuiltinType;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.SimpleDelayedCompileable;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
@@ -61,7 +62,7 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage, 0)
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(BuiltinType.universal())
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
@@ -100,7 +101,7 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage, 0)
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.configureEnvironment(BuiltinType.universal())
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(ItemScriptEnvironment.INSTANCE)
 					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
@@ -140,16 +141,16 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage, 0)
-						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-						.configureEnvironment(NbtScriptEnvironment.createMutable())
-						.addEnvironment(ItemScriptEnvironment.INSTANCE)
-						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-						.configureEnvironment((MutableScriptEnvironment environment) ->
-							environment
-							.addVariableLoad("input", type(CraftingGrid.class))
-							.addVariableLoad("output", type(CraftingGrid.class))
-						)
-						.parse(new ScriptClassLoader())
+					.configureEnvironment(BuiltinType.universal())
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
+					.addEnvironment(ItemScriptEnvironment.INSTANCE)
+					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
+					.configureEnvironment((MutableScriptEnvironment environment) ->
+						environment
+						.addVariableLoad("input", type(CraftingGrid.class))
+						.addVariableLoad("output", type(CraftingGrid.class))
+					)
+					.parse(new ScriptClassLoader())
 				);
 			}
 

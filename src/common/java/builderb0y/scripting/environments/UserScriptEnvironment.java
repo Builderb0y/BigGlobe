@@ -25,11 +25,11 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class UserScriptEnvironment implements ScriptEnvironment {
 
 	public ExpressionParser parser;
-	public StackMap<String, PendingLocal> variables;
-	public StackMap<NamedType, FieldInfo> fields;
-	public StackMap<String, List<FunctionHandler>> functions;
-	public StackMap<NamedType, List<MethodHandler>> methods;
-	public StackMap<String, TypeInfo> types;
+	public StackMap<String,    PendingLocal>          variables;
+	public StackMap<NamedType, FieldInfo>             fields;
+	public StackMap<String,    List<FunctionHandler>> functions;
+	public StackMap<NamedType, List<MethodHandler>>   methods;
+	public StackMap<String,    TypeInfo>              types;
 	public Set<DelayedMethod> delayedMethods;
 
 	public UserScriptEnvironment() {
@@ -53,31 +53,31 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public Stream<IdentifierDescriptor> listIdentifiers() {
 		return Stream.of(
-				this.variables.entrySet().stream().map((Map.Entry<String, PendingLocal> entry) -> {
-					return MutableScriptEnvironment.prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
-				}),
+			this.variables.entrySet().stream().map((Map.Entry<String, PendingLocal> entry) -> {
+				return MutableScriptEnvironment.prefix(null, "Variable", entry.getKey(), entry.getKey(), entry.getValue());
+			}),
 
-				this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldInfo> entry) -> {
-					return MutableScriptEnvironment.prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
-				}),
+			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldInfo> entry) -> {
+				return MutableScriptEnvironment.prefix(entry.getKey().owner, "Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+			}),
 
-				this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler>> entry) -> {
-					return entry.getValue().stream().map((FunctionHandler handler) -> {
-						return MutableScriptEnvironment.prefix("Function", entry.getKey(), entry.getKey(), handler);
-					});
-				}),
+			this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler>> entry) -> {
+				return entry.getValue().stream().map((FunctionHandler handler) -> {
+					return MutableScriptEnvironment.prefix(null, "Function", entry.getKey(), entry.getKey(), handler);
+				});
+			}),
 
-				this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler>> entry) -> {
-					return entry.getValue().stream().map((MethodHandler handler) -> {
-						return MutableScriptEnvironment.prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
-					});
-				}),
+			this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler>> entry) -> {
+				return entry.getValue().stream().map((MethodHandler handler) -> {
+					return MutableScriptEnvironment.prefix(entry.getKey().owner, "Method", entry.getKey().name, entry.getKey().toString(), handler);
+				});
+			}),
 
-				this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
-					return MutableScriptEnvironment.prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
-				})
-			)
-				.flatMap(Function.identity());
+			this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
+				return MutableScriptEnvironment.prefix(null, "Type", entry.getKey(), entry.getKey(), entry.getValue());
+			})
+		)
+		.flatMap(Function.identity());
 	}
 
 	public void reserveVariable(String name) {
@@ -111,8 +111,8 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		if (old != null) throw new IllegalArgumentException("Variable '" + name + "' has already been declared in this scope.");
 	}
 
-	public void addFunction(String name, FunctionHandler functionHandler) {
-		this.functions.computeIfAbsent(name, (String ignored) -> new ArrayList<>(4)).add(functionHandler);
+	public void addFunction(FunctionHandler.Named functionHandler) {
+		this.functions.computeIfAbsent(functionHandler.name(), (String ignored) -> new ArrayList<>(4)).add(functionHandler);
 	}
 
 	public void addFieldGetterAndSetter(FieldInfo field) {
@@ -140,30 +140,21 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 		);
 	}
 
-	public void addMethod(TypeInfo owner, String name, MethodHandler handler) {
-		this.methods.computeIfAbsent(new NamedType(owner, name), (NamedType ignored) -> new ArrayList<>(4)).add(handler);
+	public void addMethod(MethodHandler.Named handler) {
+		this.methods.computeIfAbsent(new NamedType(handler.owner(), handler.name()), (NamedType ignored) -> new ArrayList<>(4)).add(handler);
 	}
 
-	public void addClassFunction(String name, MethodHandler methodHandler) {
-		this.methods.computeIfAbsent(new NamedType(TypeInfos.CLASS, name), (NamedType ignored) -> new ArrayList<>(4)).add(methodHandler);
-	}
-
-	public void addClassFunction(TypeInfo type, String name, MethodInfo method) {
-		this.addClassFunction(
-			name, (ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
-				ConstantValue constant = receiver.getConstantValue();
-				if (constant.isConstant() && constant.asJavaObject().equals(type)) {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-					if (castArguments != null) return new CastResult(mode.makeInvoker(parser, method, castArguments), castArguments != arguments);
-				}
-				return null;
-			}
-		);
+	public void addClassFunction(MethodHandler.Named methodHandler) {
+		this.methods.computeIfAbsent(new NamedType(TypeInfos.CLASS, methodHandler.name()), (NamedType ignored) -> new ArrayList<>(4)).add(methodHandler);
 	}
 
 	public void addConstructor(TypeInfo type, MethodInfo method) {
-		this.addClassFunction(
-			"new", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+		this.addClassFunction(new MethodHandler.Named(
+			TypeInfos.CLASS,
+			"new",
+			type.getSimpleClassName() + ".new()",
+			null,
+			(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 				ConstantValue constant = receiver.getConstantValue();
 				if (constant.isConstant() && constant.asJavaObject().equals(type)) {
 					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
@@ -171,7 +162,7 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 				}
 				return null;
 			}
-		);
+		));
 	}
 
 	//////////////////////////////// getters ////////////////////////////////

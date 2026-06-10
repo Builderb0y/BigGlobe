@@ -1,12 +1,11 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": {
-			"template": "bigglobe:split_tree_artificial",
-			"inputs": {
-				"palette": "'minecraft:oak'",
-				"requireValidGround": "false"
-			}
-		}
+		"script": [
+			"SplitTreeGenerator",
+			".create(world, random, 'minecraft:oak')",
+			".=$requireValidGround(true)",
+			".placeNatural(originX, originY, originZ)"
+		]
 	}
 }

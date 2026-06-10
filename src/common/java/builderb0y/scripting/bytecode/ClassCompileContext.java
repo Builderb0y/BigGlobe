@@ -170,7 +170,7 @@ public class ClassCompileContext {
 	}
 
 	public FieldCompileContext newField(FieldInfo info) {
-		return this.newField(info.access, info.name, info.type);
+		return this.newField(info.access(), info.name, info.type);
 	}
 
 	public FieldCompileContext newField(int access, String name, TypeInfo type) {

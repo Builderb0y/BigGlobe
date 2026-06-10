@@ -12,15 +12,11 @@ import org.objectweb.asm.Type;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
-import builderb0y.bigglobe.columns.scripted.ColumnCompileContext;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
@@ -111,19 +107,15 @@ public class TraitManager {
 				info.getter.setCode(
 					this.columnEntryRegistry.parserFlags(),
 					entry.value().fallback().getSource(),
-					(MutableScriptEnvironment environment) -> {
-						environment
+					(ExpressionParser parser) -> {
+						parser
+						.environment
+						.mutable()
 						.addAll(MathScriptEnvironment.INSTANCE)
 						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-						.configure(MinecraftScriptEnvironment.create())
-						.configure(ScriptedColumn.baseEnvironment(
-							load("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()),
-							null,
-							this.columnEntryRegistry.columnCompileContext.columnTypeInfo()
-						))
 						.addAll(ColorScriptEnvironment.ENVIRONMENT);
 						this.columnEntryRegistry.setupEnvironment(
-							environment,
+							parser,
 							new ExternalEnvironmentParams()
 							.withColumn(load("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()))
 							.withY(entry.value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
@@ -198,16 +190,15 @@ public class TraitManager {
 			implGetter.setCode(
 				this.columnEntryRegistry.parserFlags(),
 				entry.getValue().get().getSource(),
-				(MutableScriptEnvironment environment) -> {
+				(ExpressionParser parser) -> {
+					MutableScriptEnvironment environment = parser.environment.mutable();
 					environment
-						.addAll(MathScriptEnvironment.INSTANCE)
-						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-						.configure(MinecraftScriptEnvironment.create())
-						.configure(ScriptedColumn.baseEnvironment(load(column), null, column.type))
-						.addAll(ColorScriptEnvironment.ENVIRONMENT);
+					.addAll(MathScriptEnvironment.INSTANCE)
+					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+					.addAll(ColorScriptEnvironment.ENVIRONMENT);
 					if (y != null) environment.addVariableLoad(y);
 					this.columnEntryRegistry.setupEnvironment(
-						environment,
+						parser,
 						new ExternalEnvironmentParams()
 						.withColumn(load("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()))
 						.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
@@ -228,17 +219,16 @@ public class TraitManager {
 				implSetter.setCode(
 					this.columnEntryRegistry.parserFlags(),
 					entry.getValue().set().getSource(),
-					(MutableScriptEnvironment environment) -> {
+					(ExpressionParser parser) -> {
+						MutableScriptEnvironment environment = parser.environment.mutable();
 						environment
 						.addAll(MathScriptEnvironment.INSTANCE)
 						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-						.configure(MinecraftScriptEnvironment.create())
-						.configure(ScriptedColumn.baseEnvironment(load(column), null, column.type))
 						.addAll(ColorScriptEnvironment.ENVIRONMENT)
 						.addVariableLoad(value);
 						if (y != null) environment.addVariableLoad(y);
 						this.columnEntryRegistry.setupEnvironment(
-							environment,
+							parser,
 							new ExternalEnvironmentParams()
 							.withColumn(load("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()))
 							.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
@@ -267,18 +257,36 @@ public class TraitManager {
 		}
 	}
 
-	public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params) {
+		MutableScriptEnvironment environment = parser.environment.mutable();
 		environment
-		.addVariableConstant("world_traits", this.baseTraitsClass.info)
 		.addField(
-			this.columnEntryRegistry.columnCompileContext.columnTypeInfo(),
-			"world_traits",
-			new FieldHandler.Named("column.world_traits", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
-				return switch (mode) {
-					case NORMAL, NULLABLE -> new WorldTraitInsnTreeHack(receiver);
-					case RECEIVER, NULLABLE_RECEIVER -> receiver;
-				};
-			})
+			new FieldHandler.Named(
+				this.columnEntryRegistry.columnCompileContext.columnTypeInfo(),
+				"world_traits",
+				"column.world_traits",
+				null,
+				(ExpressionParser parser_, InsnTree receiver, String name, GetFieldMode mode) -> {
+					return switch (mode) {
+						case NORMAL, NULLABLE -> new WorldTraitInsnTreeHack(receiver);
+						case RECEIVER, NULLABLE_RECEIVER -> receiver;
+					};
+				}
+			)
+		)
+		.addField(
+			new FieldHandler.Named(
+				ScriptedColumnLookup.TYPE,
+				"world_traits",
+				"lookup.world_traits",
+				null,
+				(ExpressionParser parser_, InsnTree receiver, String name, GetFieldMode mode) -> {
+					return switch (mode) {
+						case NORMAL, NULLABLE -> new WorldTraitInsnTreeHack(receiver);
+						case RECEIVER, NULLABLE_RECEIVER -> receiver;
+					};
+				}
+			)
 		);
 		for (Holder<WorldTrait> entry : this.traits.values()) {
 			String name = UnregisteredObjectException.getID(entry).toString();
@@ -286,56 +294,60 @@ public class TraitManager {
 			MethodInfo getter = info.getter.info;
 			MethodInfo setter = info.setter.info;
 			boolean is3D = entry.value().schema().is_3d();
-			environment.addMethod(WorldTraitClassHack.TYPE, name, new MethodHandler.Named(
-				"column.world_traits.`" + name + '`' + params.getPossibleArguments(is3D, true),
-				(ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
-					if (receiver.getConstantValue() instanceof WorldTraitConstantValueHack hack) {
-						if (params.dependencies != null) params.dependencies.addDependency(entry);
-						return params.resolveColumn(parser, name1, is3D, true, getter, setter, hack.column, arguments);
-					}
-					else {
-						throw new ScriptParsingException("Somehow obtained a WorldTraitClassHack in an unexpected way...", parser.input);
-					}
-				}
-			));
-			if (params.requiresNoArguments(is3D, true)) {
-				environment.addField(WorldTraitClassHack.TYPE, name, new FieldHandler.Named(
-					"column.world_traits.`" + name + '`' + params.getPossibleArguments(is3D, true),
-					(ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
+			environment.addMethod(
+				new MethodHandler.Named(
+					WorldTraitClassHack.TYPE,
+					name,
+					"column.world_traits.`" + name + "`(int*(x, y, z))",
+					params.dependencyCallback(entry),
+					(ExpressionParser parser_, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
 						if (receiver.getConstantValue() instanceof WorldTraitConstantValueHack hack) {
-							if (params.dependencies != null) params.dependencies.addDependency(entry);
-							return params.resolveColumn(parser, name1, is3D, true, getter, setter, hack.column).tree();
+							return params.resolveColumn(parser_, name_, is3D, true, getter, setter, hack.receiver, arguments);
 						}
 						else {
 							throw new ScriptParsingException("Somehow obtained a WorldTraitClassHack in an unexpected way...", parser.input);
 						}
 					}
-				));
-			}
-			environment.addQualifiedFunction(
-				this.baseTraitsClass.info,
-				name,
-				new FunctionHandler.Named(
-					"world_traits.`" + name + '`' + params.getPossibleArguments(is3D, false),
-					(ExpressionParser parser, String name1, InsnTree... arguments) -> {
-						if (params.dependencies != null) params.dependencies.addDependency(entry);
-						return params.resolveColumn(parser, name1, is3D, true, getter, setter, null, arguments);
+				)
+			);
+			environment.addField(
+				new FieldHandler.Named(
+					WorldTraitClassHack.TYPE,
+					name,
+					"column.world_traits.`" + name + "`(int*(x, y, z))",
+					params.dependencyCallback(entry),
+					(ExpressionParser parser_, InsnTree receiver, String name1, GetFieldMode mode) -> {
+						if (receiver.getConstantValue() instanceof WorldTraitConstantValueHack hack) {
+							return params.resolveColumn(parser_, name1, is3D, true, getter, setter, hack.receiver).tree();
+						}
+						else {
+							throw new ScriptParsingException("Somehow obtained a WorldTraitClassHack in an unexpected way...", parser.input);
+						}
 					}
 				)
 			);
-			if (params.requiresNoArguments(is3D, false)) {
-				environment.addQualifiedVariable(
-					this.baseTraitsClass.info,
+			environment.addQualifiedFunction(
+				this.baseTraitsClass.info,
+				new FunctionHandler.Named(
 					name,
-					new VariableHandler.Named(
-						"world_traits.`" + name + '`',
-						(ExpressionParser parser, String name1) -> {
-							if (params.dependencies != null) params.dependencies.addDependency(entry);
-							return params.resolveColumn(parser, name1, is3D, true, getter, setter, null).tree();
-						}
-					)
-				);
-			}
+					"world_traits.`" + name + "`(int*(x, y, z))",
+					params.dependencyCallback(entry),
+					(ExpressionParser parser_, String name1, InsnTree... arguments) -> {
+						return params.resolveColumn(parser_, name1, is3D, true, getter, setter, null, arguments);
+					}
+				)
+			);
+			environment.addQualifiedVariable(
+				this.baseTraitsClass.info,
+				new VariableHandler.Named(
+					name,
+					"world_traits.`" + name + '`',
+					params.dependencyCallback(entry),
+					(ExpressionParser parser_, String name1) -> {
+						return params.resolveColumn(parser_, name1, is3D, true, getter, setter, null).tree();
+					}
+				)
+			);
 		}
 	}
 
@@ -347,10 +359,10 @@ public class TraitManager {
 	//must be able to continue working when wrapped in a group or scope or line number or whatever.
 	public static class WorldTraitConstantValueHack extends NonConstantValue {
 
-		public final InsnTree column;
+		public final InsnTree receiver;
 
-		public WorldTraitConstantValueHack(InsnTree column) {
-			this.column = column;
+		public WorldTraitConstantValueHack(InsnTree receiver) {
+			this.receiver = receiver;
 		}
 	}
 
@@ -358,8 +370,8 @@ public class TraitManager {
 
 		public final WorldTraitConstantValueHack constantValueHack;
 
-		public WorldTraitInsnTreeHack(InsnTree column) {
-			this.constantValueHack = new WorldTraitConstantValueHack(column);
+		public WorldTraitInsnTreeHack(InsnTree receiver) {
+			this.constantValueHack = new WorldTraitConstantValueHack(receiver);
 		}
 
 		@Override

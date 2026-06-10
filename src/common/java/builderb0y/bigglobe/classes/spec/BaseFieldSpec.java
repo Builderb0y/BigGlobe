@@ -16,14 +16,10 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
-import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
-import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 public abstract class BaseFieldSpec extends MemberSpec {
@@ -75,19 +71,7 @@ public abstract class BaseFieldSpec extends MemberSpec {
 	@Override
 	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		FieldInfo fieldInfo = this.context.field.info;
-		environment.addField(fieldInfo.owner, fieldInfo.name, new FieldHandler.Named(fieldInfo.toString(), (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
-			if (params.dependencies != null) params.dependencies.addDependency(self);
-			return mode.makeField(parser, receiver, fieldInfo);
-		}
-		));
-		InsnTree loadCustomClass = params.loadCustomClass;
-		if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(this.context.field.clazz.info)) {
-			InsnTree tree = InsnTrees.getField(loadCustomClass, fieldInfo);
-			environment.addVariable(fieldInfo.name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name) -> {
-				if (params.dependencies != null) params.dependencies.addDependency(self);
-				return tree;
-			}));
-		}
+		environment.addField(Handlers.fieldBuilder(fieldInfo).onUsed(params.dependencyCallback(self)).addReceiverArgument(fieldInfo.owner).buildField());
 	}
 
 	public abstract @Nullable InsnTree getDefaultValue(ClassHierarchy hierarchy) throws DetailedException;

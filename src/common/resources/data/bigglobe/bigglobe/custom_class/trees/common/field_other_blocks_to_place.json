@@ -1,0 +1,7 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "otherBlocksToPlace",
+	"field_type": "map",
+	"default": "HashMap.new()"
+}

@@ -129,8 +129,11 @@ public class GridScriptEnvironment {
 			.addMethodInvoke("fillDouble", NumberArray.INFO.fillFromToD)
 
 			.addMethod(
-				type(NumberArray.class), "", new MethodHandler.Named(
+				new MethodHandler.Named(
+					type(NumberArray.class),
+					"",
 					"Automatic-precision getter and setter for NumberArray",
+					null,
 					(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree castArgument = ScriptEnvironment.castArgument(parser, "", TypeInfos.INT, CastMode.IMPLICIT_THROW, arguments);
 						return new CastResult(new NumberArrayGetterInsnTree(receiver, castArgument, TypeInfos.DOUBLE), castArgument != arguments[0]);
@@ -151,19 +154,19 @@ public class GridScriptEnvironment {
 	public static Consumer<MutableScriptEnvironment> createWithSeed(InsnTree loadSeed) {
 		return (MutableScriptEnvironment environment) -> {
 			environment
-				.configure(create())
+			.configure(create())
 
-				.addMethod(type(Grid1D.class), "getValue", Handlers.builder(Grid1D.class, "getValue").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I').buildMethod())
-				.addMethod(type(Grid1D.class), "getValuesX", Handlers.builder(Grid1D.class, "getBulkX").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I', NumberArray.class).buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid1D.class, "getValue").exposedName("getValue").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I').buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid1D.class, "getBulkX").exposedName("getValuesX").addReceiverArgument(Grid1D.class).addArguments(loadSeed, 'I', NumberArray.class).buildMethod())
 
-				.addMethod(type(Grid2D.class), "getValue", Handlers.builder(Grid2D.class, "getValue").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II").buildMethod())
-				.addMethod(type(Grid2D.class), "getValuesX", Handlers.builder(Grid2D.class, "getBulkX").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II", NumberArray.class).buildMethod())
-				.addMethod(type(Grid2D.class), "getValuesY", Handlers.builder(Grid2D.class, "getBulkY").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II", NumberArray.class).buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid2D.class, "getValue").exposedName("getValue").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II").buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid2D.class, "getBulkX").exposedName("getValuesX").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II", NumberArray.class).buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid2D.class, "getBulkY").exposedName("getValuesY").addReceiverArgument(Grid2D.class).addArguments(loadSeed, "II", NumberArray.class).buildMethod())
 
-				.addMethod(type(Grid3D.class), "getValue", Handlers.builder(Grid3D.class, "getValue").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III").buildMethod())
-				.addMethod(type(Grid3D.class), "getValuesX", Handlers.builder(Grid3D.class, "getBulkX").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
-				.addMethod(type(Grid3D.class), "getValuesY", Handlers.builder(Grid3D.class, "getBulkY").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
-				.addMethod(type(Grid3D.class), "getValuesZ", Handlers.builder(Grid3D.class, "getBulkZ").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid3D.class, "getValue").exposedName("getValue").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III").buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid3D.class, "getBulkX").exposedName("getValuesX").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid3D.class, "getBulkY").exposedName("getValuesY").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
+			.addMethod(Handlers.methodBuilder(Grid3D.class, "getBulkZ").exposedName("getValuesZ").addReceiverArgument(Grid3D.class).addArguments(loadSeed, "III", NumberArray.class).buildMethod())
 			;
 		};
 	}

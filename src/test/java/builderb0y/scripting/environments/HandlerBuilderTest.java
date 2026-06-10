@@ -21,8 +21,7 @@ public class HandlerBuilderTest extends TestCommon {
 			new ScriptParser<>(IntSupplier.class, "addOne(1i)")
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment.addFunction(
-					"addOne",
-					Handlers.inCaller("add1").addRequiredArgument(int.class).buildFunction()
+					Handlers.methodInCaller("add1").exposedName("addOne").addRequiredArgument(int.class).buildFunction()
 				);
 			})
 			.parse(new ScriptClassLoader())
@@ -33,9 +32,7 @@ public class HandlerBuilderTest extends TestCommon {
 			new ScriptParser<>(IntSupplier.class, "1i .addOne()")
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment.addMethod(
-					type(int.class),
-					"addOne",
-					Handlers.inCaller("add1").addReceiverArgument(int.class).buildMethod()
+					Handlers.methodInCaller("add1").exposedName("addOne").addReceiverArgument(int.class).buildMethod()
 				);
 			})
 			.parse(new ScriptClassLoader())
@@ -46,9 +43,8 @@ public class HandlerBuilderTest extends TestCommon {
 			new ScriptParser<>(IntSupplier.class, "addOne(1i)")
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment.addFunction(
-					"addOne",
-					Handlers.inCaller("add1").addNestedArgument(
-						Handlers.inCaller("newBox").addRequiredArgument(int.class)
+					Handlers.methodInCaller("add1").exposedName("addOne").addNestedArgument(
+						Handlers.methodInCaller("newBox").addRequiredArgument(int.class)
 					)
 					.buildFunction()
 				);
@@ -61,9 +57,7 @@ public class HandlerBuilderTest extends TestCommon {
 			new ScriptParser<>(IntSupplier.class, "1i .plusOne")
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment.addField(
-					TypeInfos.INT,
-					"plusOne",
-					Handlers.inCaller("add1").addReceiverArgument(TypeInfos.INT).buildField()
+					Handlers.methodInCaller("add1").exposedName("addOne").addReceiverArgument(TypeInfos.INT).buildField()
 				);
 			})
 			.parse(new ScriptClassLoader())
@@ -74,8 +68,7 @@ public class HandlerBuilderTest extends TestCommon {
 			new ScriptParser<>(IntSupplier.class, "two")
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment.addVariable(
-					"two",
-					Handlers.inCaller("add1").addImplicitArgument(ldc(1)).buildVariable()
+					Handlers.methodInCaller("add1").exposedName("two").addImplicitArgument(ldc(1)).buildVariable()
 				);
 			})
 			.parse(new ScriptClassLoader())

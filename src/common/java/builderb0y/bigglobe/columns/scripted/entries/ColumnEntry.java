@@ -15,10 +15,7 @@ import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.compile.StagedCompileable;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnValueException;
-import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -29,9 +26,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -81,13 +76,13 @@ public abstract class ColumnEntry extends StagedCompileable<ColumnEntryRegistry>
 		}
 	}
 
-	public void setupEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(ColumnEntryRegistry registry, ExpressionParser parser, ExternalEnvironmentParams params) {
 		Identifier selfID = UnregisteredObjectException.getID(registry.entryOf(this));
-		this.implSetupEnvironment(registry, environment, params, selfID.toString());
+		this.implSetupEnvironment(registry, parser, params, selfID.toString());
 		if (params.caller != null && params.caller.getNamespace().equals(selfID.getNamespace())) {
 			int start = relativize(selfID.getPath(), params.caller.getPath());
 			if (start >= 0) {
-				this.implSetupEnvironment(registry, environment, params, selfID.getPath().substring(start));
+				this.implSetupEnvironment(registry, parser, params, selfID.getPath().substring(start));
 			}
 		}
 	}
@@ -121,46 +116,53 @@ public abstract class ColumnEntry extends StagedCompileable<ColumnEntryRegistry>
 		}
 	}
 
-	public void implSetupEnvironment(ColumnEntryRegistry registry, MutableScriptEnvironment environment, ExternalEnvironmentParams params, String name) {
+	public void implSetupEnvironment(ColumnEntryRegistry registry, ExpressionParser parser, ExternalEnvironmentParams params, String name) {
 		Holder<ColumnEntry> self = registry.entryOf(this);
 		ColumnEntryContext context = registry.columnCompileContext.getCompileContext(this);
 		MethodInfo getter = context.mainGetter.info;
 		MethodInfo setter = params.mutable && context.mainSetter != null ? context.mainSetter.info : null;
 		boolean is3D = this.params.is_3d();
-		environment.addMethod(getter.owner, name, new MethodHandler.Named(
+		MutableScriptEnvironment environment = parser.environment.mutable();
+		environment.addMethod(new MethodHandler.Named(
+			getter.owner,
+			name,
 			"methodInvoke: " + getter,
-			(ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
-				if (mode != GetMethodMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser.input);
-				if (params.dependencies != null) params.dependencies.addDependency(self);
-				return params.resolveColumn(parser, name_, is3D, false, getter, setter, receiver, arguments);
+			params.dependencyCallback(self),
+			(ExpressionParser parser_, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
+				if (mode != GetMethodMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser_.input);
+				return params.resolveColumn(parser_, name_, is3D, false, getter, setter, receiver, arguments);
 			}
 		));
-		environment.addFunction(name, new FunctionHandler.Named(
-			"functionInvoke: " + getter,
-			(ExpressionParser parser, String name_, InsnTree... arguments) -> {
-				if (params.dependencies != null) params.dependencies.addDependency(self);
-				return params.resolveColumn(parser, name_, is3D, false, getter, setter, null, arguments);
+		environment.addMethod(new MethodHandler.Named(
+			ScriptedColumnLookup.TYPE,
+			name,
+			"methodInvoke: " + getter,
+			params.dependencyCallback(self),
+			(ExpressionParser parser_, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
+				if (mode != GetMethodMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser_.input);
+				return params.resolveColumn(parser_, name_, is3D, false, getter, setter, receiver, arguments);
 			}
 		));
-		if (params.requiresNoArguments(is3D, true)) {
-			environment.addField(getter.owner, name, new FieldHandler.Named(
-				"fieldInvoke: " + getter,
-				(ExpressionParser parser, InsnTree receiver, String name_, GetFieldMode mode) -> {
-					if (mode != GetFieldMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser.input);
-					if (params.dependencies != null) params.dependencies.addDependency(self);
-					return params.resolveColumn(parser, name_, is3D, false, getter, setter, receiver).tree();
-				}
-			));
-		}
-		if (params.requiresNoArguments(is3D, false)) {
-			environment.addVariable(name, new VariableHandler.Named(
-				"variableInvoke: " + getter,
-				(ExpressionParser parser, String name_) -> {
-					if (params.dependencies != null) params.dependencies.addDependency(self);
-					return params.resolveColumn(parser, name_, is3D, false, getter, setter, null).tree();
-				}
-			));
-		}
+		environment.addField(new FieldHandler.Named(
+			getter.owner,
+			name,
+			"fieldInvoke: " + getter,
+			params.dependencyCallback(self),
+			(ExpressionParser parser_, InsnTree receiver, String name_, GetFieldMode mode) -> {
+				if (mode != GetFieldMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser_.input);
+				return params.resolveColumn(parser_, name_, is3D, false, getter, setter, receiver).tree();
+			}
+		));
+		environment.addField(new FieldHandler.Named(
+			ScriptedColumnLookup.TYPE,
+			name,
+			"fieldInvoke: " + getter,
+			params.dependencyCallback(self),
+			(ExpressionParser parser_, InsnTree receiver, String name_, GetFieldMode mode) -> {
+				if (mode != GetFieldMode.NORMAL) throw new ScriptParsingException("Nullable and receiver syntax is not supported for column value accessing", parser_.input);
+				return params.resolveColumn(parser_, name_, is3D, false, getter, setter, receiver).tree();
+			}
+		));
 	}
 
 	public static class ColumnEntryContext {

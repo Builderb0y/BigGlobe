@@ -1,0 +1,23 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:trees/split/class",
+	"override": "bigglobe:trees/common/method_generate_artificial_from_center",
+	"code": [
+		"double trunkHeight = radius * 4.0L",
+		"double*(",
+			"slantAngle = random.nextDouble(tau)",
+			"slantRadius = random.nextDouble(0.25L)",
+			"topX = centerX + trunkHeight * cos(slantAngle) * slantRadius",
+			"topY = centerY + trunkHeight",
+			"topZ = centerZ + trunkHeight * sin(slantAngle) * slantRadius",
+		")",
+		"generateBranchRecursive(",
+			"centerX, centerY, centerZ, radius,",
+			"topX, topY, topZ, radius * 0.75L + 0.25L,",
+			";2.0 controls the max radius,",
+			";and 0.6 ensures that radius = 1 maps to foliageRadius = 1.25.",
+			"2.0L * radius / (radius + 0.6L),",
+			"0",
+		")"
+	]
+}

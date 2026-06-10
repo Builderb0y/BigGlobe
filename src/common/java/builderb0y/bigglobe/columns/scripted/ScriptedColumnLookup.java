@@ -9,10 +9,14 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFacto
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.BetterScopedValue;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 
 public interface ScriptedColumnLookup {
 
-	public static final BetterScopedValue<ScriptedColumnLookup> GLOBAL = new BetterScopedValue<>();
+	public static final BetterScopedValue<ScriptedColumnLookup>
+		GLOBAL = new BetterScopedValue<>();
+	public static final TypeInfo
+		TYPE = TypeInfo.of(ScriptedColumnLookup.class);
 	public static final MethodInfo
 		LOOKUP_COLUMN = MethodInfo.inCaller("lookupColumn"),
 		HINTS = MethodInfo.inCaller("getHints");

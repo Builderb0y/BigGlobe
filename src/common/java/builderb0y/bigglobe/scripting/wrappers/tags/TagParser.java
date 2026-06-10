@@ -13,10 +13,7 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.*;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -26,7 +23,7 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class TagParser implements Consumer<MutableScriptEnvironment> {
+public class TagParser {
 
 	public final String tagTypeName, elementTypeName;
 	public final TypeInfo tagType, elementType;
@@ -42,12 +39,15 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 		this.isIn = isIn;
 	}
 
-	@Override
-	public void accept(MutableScriptEnvironment environment) {
+	public void configure(MutableScriptEnvironment environment, UsageCallback callback) {
 		environment
-			.addCast(type(String.class), this.tagType, true, this.makeCaster())
-			.addKeyword(this.tagTypeName, this.makeKeyword())
-			.addMethod(this.elementType, "isIn", this.makeIsIn());
+		.addCast(type(String.class), this.tagType, true, this.makeCaster())
+		.addKeyword(this.makeKeyword(callback))
+		.addMethod(this.makeIsIn(callback));
+	}
+
+	public Consumer<MutableScriptEnvironment> configurator(UsageCallback callback) {
+		return (MutableScriptEnvironment environment) -> this.configure(environment, callback);
 	}
 
 	public CastHandler.Named makeCaster() {
@@ -75,9 +75,11 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 		);
 	}
 
-	public KeywordHandler.Named makeKeyword() {
+	public KeywordHandler.Named makeKeyword(UsageCallback callback) {
 		return new KeywordHandler.Named(
+			this.tagTypeName,
 			this.tagTypeName + "(element1, element2, ...)",
+			callback,
 			(ExpressionParser parser, String name) -> {
 				boolean nullable = parser.input.hasOperatorAfterWhitespace("?");
 				if (parser.input.peekAfterWhitespace() != '(') {
@@ -120,9 +122,12 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 		);
 	}
 
-	public MethodHandler.Named makeIsIn() {
+	public MethodHandler.Named makeIsIn(UsageCallback callback) {
 		return new MethodHandler.Named(
+			this.elementType,
+			"isIn",
 			this.elementTypeName + ".isIn(element1 [, element2, ...])",
+			callback,
 			(
 				ExpressionParser parser,
 				InsnTree receiver,
@@ -146,10 +151,10 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 							tagArgument = ldc(
 								this.bootstrapConstant,
 								Stream.concat(
-										Stream.of(constant(AbstractConstantFactory.flags(parser, false))),
-										Arrays.stream(strings).map(InsnTree::getConstantValue)
-									)
-									.toArray(ConstantValue[]::new)
+									Stream.of(constant(AbstractConstantFactory.flags(parser, false))),
+									Arrays.stream(strings).map(InsnTree::getConstantValue)
+								)
+								.toArray(ConstantValue[]::new)
 							);
 						}
 						else {

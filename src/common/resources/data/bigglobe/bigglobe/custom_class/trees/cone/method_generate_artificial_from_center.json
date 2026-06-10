@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:trees/cone/class",
+	"override": "bigglobe:trees/common/method_generate_artificial_from_center",
+	"code": [
+		"generate(centerX, centerZ, radius, centerY, centerY + random.roundInt(radius * 12.0))"
+	]
+}

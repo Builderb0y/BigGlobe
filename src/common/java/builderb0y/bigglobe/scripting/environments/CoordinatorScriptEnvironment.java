@@ -28,6 +28,8 @@ import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
+import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -44,79 +46,82 @@ public class CoordinatorScriptEnvironment {
 
 	public static final MutableScriptEnvironment BASE = (
 		new MutableScriptEnvironment()
-			.addType("Coordinator", Coordinator.class)
-			.addQualifiedFunction(
-				type(Coordinator.class),
+		.addType("Coordinator", Coordinator.class)
+		.addQualifiedFunction(
+			type(Coordinator.class),
+			new FunctionHandler.Named(
 				"allOf",
-				new FunctionHandler.Named(
-					"Coordinator.allOf(Coordinator... coordinators)",
-					(parser, name, arguments) -> {
-						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, "allOf", types(Coordinator.class, arguments.length), CastMode.IMPLICIT_NULL, arguments);
-						if (castArguments == null) return null;
-						InsnTree array = newArrayWithContents(parser, type(Coordinator[].class), castArguments);
-						return new CastResult(invokeStatic(ALL_OF, array), castArguments != arguments);
-					}
-				)
+				"Coordinator.allOf(Coordinator... coordinators)",
+				null,
+				(ExpressionParser parser, String name, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, "allOf", types(Coordinator.class, arguments.length), CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments == null) return null;
+					InsnTree array = newArrayWithContents(parser, type(Coordinator[].class), castArguments);
+					return new CastResult(invokeStatic(ALL_OF, array), castArguments != arguments);
+				}
 			)
-			.addMethodInvokeSpecific(Coordinator.class, "setBlockState", void.class, int.class, int.class, int.class, BlockState.class)
-			.addMethodInvokeSpecific(Coordinator.class, "setBlockStateCuboid", void.class, int.class, int.class, int.class, int.class, int.class, int.class, BlockState.class)
-			.addMethodInvokeSpecific(Coordinator.class, "setBlockStateLine", void.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, BlockState.class)
-			.addMethodInvokeStatics(CoordinatorScriptEnvironment.class, "setBlockData", "setBlockDataLine", "setBlockDataCuboid", "mergeBlockData", "mergeBlockDataLine", "mergeBlockDataCuboid")
-			.addMethod(
+		)
+		.addMethodInvokeSpecific(Coordinator.class, "setBlockState", void.class, int.class, int.class, int.class, BlockState.class)
+		.addMethodInvokeSpecific(Coordinator.class, "setBlockStateCuboid", void.class, int.class, int.class, int.class, int.class, int.class, int.class, BlockState.class)
+		.addMethodInvokeSpecific(Coordinator.class, "setBlockStateLine", void.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, BlockState.class)
+		.addMethodInvokeStatics(CoordinatorScriptEnvironment.class, "setBlockData", "setBlockDataLine", "setBlockDataCuboid", "mergeBlockData", "mergeBlockDataLine", "mergeBlockDataCuboid")
+		.addMethod(
+			new MethodHandler.Named(
 				type(Coordinator.class),
 				"translate",
-				new MethodHandler.Named(
-					"translate(int... offsets ;(number of offsets must be divisible by 3))",
-					(parser, receiver, name, mode, arguments) -> {
-						if (arguments.length % 3 != 0) return null;
-						InsnTree[] offsets = ScriptEnvironment.castArguments(parser, "translate", types("I".repeat(arguments.length)), CastMode.IMPLICIT_NULL, arguments);
-						if (offsets == null) return null;
-						if (offsets.length == 3) {
-							return new CastResult(invokeInstance(receiver, TRANSLATE, offsets), offsets != arguments);
-						}
-						else {
-							InsnTree array = newArrayWithContents(parser, type(int[].class), offsets);
-							return new CastResult(invokeInstance(receiver, MULTI_TRANSLATE, array), offsets != arguments);
-						}
+				"translate(int... offsets ;(number of offsets must be divisible by 3))",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+					if (arguments.length % 3 != 0) return null;
+					InsnTree[] offsets = ScriptEnvironment.castArguments(parser, "translate", types("I".repeat(arguments.length)), CastMode.IMPLICIT_NULL, arguments);
+					if (offsets == null) return null;
+					if (offsets.length == 3) {
+						return new CastResult(invokeInstance(receiver, TRANSLATE, offsets), offsets != arguments);
 					}
-				)
+					else {
+						InsnTree array = newArrayWithContents(parser, type(int[].class), offsets);
+						return new CastResult(invokeInstance(receiver, MULTI_TRANSLATE, array), offsets != arguments);
+					}
+				}
 			)
-			.addMethod(
+		)
+		.addMethod(
+			new MethodHandler.Named(
 				type(Coordinator.class),
 				"symmetrify",
-				new MethodHandler.Named(
-					"symmetrify(Symmetry...)",
-					(parser, receiver, name, mode, arguments) -> {
-						InsnTree[] symmetries = ScriptEnvironment.castArguments(parser, "symmetrify", types(Symmetry.class, arguments.length), CastMode.IMPLICIT_NULL, arguments);
-						if (symmetries == null) return null;
-						return new CastResult(
-							switch (symmetries.length) {
-								case 1 -> invokeInstance(receiver, SYMMETRIFY_1, symmetries);
-								case 2 -> invokeInstance(receiver, SYMMETRIFY_2, symmetries);
-								case 4 -> invokeInstance(receiver, SYMMETRIFY_4, symmetries);
-								default -> invokeInstance(receiver, SYMMETRIFY_VARARGS, newArrayWithContents(parser, type(Symmetry[].class), symmetries));
-							},
-							symmetries != arguments
-						);
-					}
-				)
+				"symmetrify(Symmetry...)",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+					InsnTree[] symmetries = ScriptEnvironment.castArguments(parser, "symmetrify", types(Symmetry.class, arguments.length), CastMode.IMPLICIT_NULL, arguments);
+					if (symmetries == null) return null;
+					return new CastResult(
+						switch (symmetries.length) {
+							case 1 -> invokeInstance(receiver, SYMMETRIFY_1, symmetries);
+							case 2 -> invokeInstance(receiver, SYMMETRIFY_2, symmetries);
+							case 4 -> invokeInstance(receiver, SYMMETRIFY_4, symmetries);
+							default -> invokeInstance(receiver, SYMMETRIFY_VARARGS, newArrayWithContents(parser, type(Symmetry[].class), symmetries));
+						},
+						symmetries != arguments
+					);
+				}
 			)
-			.addMethod(type(Coordinator.class), "rotate1x", Handlers.builder(Coordinator.class, "rotate1x").addReceiverArgument(Coordinator.class).addNestedArgument(Handlers.builder(Directions.class, "scriptRotation").addRequiredArgument(int.class)).buildMethod())
-			.addMethodInvokeSpecific(Coordinator.class, "rotate2x180", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "rotate4x90", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "flip1X", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "flip1Z", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "flip2X", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "flip2Z", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "flip4XZ", Coordinator.class)
-			.addMethodInvokeSpecific(Coordinator.class, "stack", Coordinator.class, int.class, int.class, int.class, int.class)
-			.addMethodInvokeSpecific(Coordinator.class, "inBox", Coordinator.class, int.class, int.class, int.class, int.class, int.class, int.class)
-			.addMethodMultiInvokeStatic(CoordinatorScriptEnvironment.class, "summon")
+		)
+		.addMethod(Handlers.methodBuilder(Coordinator.class, "rotate1x").addReceiverArgument(Coordinator.class).addNestedArgument(Handlers.methodBuilder(Directions.class, "scriptRotation").addRequiredArgument(int.class)).buildMethod())
+		.addMethodInvokeSpecific(Coordinator.class, "rotate2x180", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "rotate4x90", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "flip1X", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "flip1Z", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "flip2X", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "flip2Z", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "flip4XZ", Coordinator.class)
+		.addMethodInvokeSpecific(Coordinator.class, "stack", Coordinator.class, int.class, int.class, int.class, int.class)
+		.addMethodInvokeSpecific(Coordinator.class, "inBox", Coordinator.class, int.class, int.class, int.class, int.class, int.class, int.class)
+		.addMethodMultiInvokeStatic(CoordinatorScriptEnvironment.class, "summon")
 	);
 
 	public static Consumer<MutableScriptEnvironment> create(InsnTree loadWorld) {
 		return (MutableScriptEnvironment environment) -> {
-			environment.addAll(BASE).addQualifiedFunction(type(Coordinator.class), "new", Handlers.builder(WorldWrapper.class, "coordinator").addImplicitArgument(loadWorld).buildFunction());
+			environment.addAll(BASE).addQualifiedFunction(type(Coordinator.class), Handlers.methodBuilder(WorldWrapper.class, "coordinator").exposedName("new").addImplicitArgument(loadWorld).buildFunction());
 		};
 	}
 

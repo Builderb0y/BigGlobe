@@ -24,10 +24,11 @@ public class StatelessRandomScriptEnvironment {
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()
 		.addMethod(
-			type(long.class),
-			"newSeed",
 			new MethodHandler.Named(
+				type(long.class),
+				"newSeed",
 				"long.newSeed(int...)",
+				null,
 				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					//primitive long will never be null, so I don't need to check the mode here.
 					if (arguments.length == 0) {
@@ -63,26 +64,34 @@ public class StatelessRandomScriptEnvironment {
 		.addMethodInvokeStatic("roundLong", RandomScriptEnvironment.PERMUTER_INFO.roundRandomlyLD)
 
 		.addMemberKeyword(
-			TypeInfos.LONG,
-			"if",
 			new MemberKeywordHandler.Named(
+				TypeInfos.LONG,
+				"if",
 				"seed.if (chance: body)",
+				null,
 				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					return wrapSeedIf(parser, receiver, false, mode);
 				}
 			)
 		)
 		.addMemberKeyword(
-			TypeInfos.LONG,
-			"unless",
 			new MemberKeywordHandler.Named(
+				TypeInfos.LONG,
+				"unless",
 				"seed.unless (chance: body)",
+				null,
 				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					return wrapSeedIf(parser, receiver, true, mode);
 				}
 			)
 		)
-		.addMemberKeyword(TypeInfos.LONG, "switch", new MemberKeywordHandler.Named("seed.switch(case1, case2, ...) or seed.switch(weight1: case1, weight2: case2, ...)", RandomScriptEnvironment.randomSwitch()))
+		.addMemberKeyword(new MemberKeywordHandler.Named(
+			TypeInfos.LONG,
+			"switch",
+			"seed.switch(case1, case2, ...) or seed.switch(weight1: case1, weight2: case2, ...)",
+			null,
+			RandomScriptEnvironment.randomSwitch()
+		))
 	);
 
 	public static InsnTree wrapSeedIf(ExpressionParser parser, InsnTree seed, boolean negate, MemberKeywordMode mode) throws ScriptParsingException {

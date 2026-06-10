@@ -133,6 +133,14 @@ V6:
 	structures are weirdly inconsistent in whether or not they spawn somewhere.
 		structures may appear or vanish when reloading the world.
 	use custom classes for split and cone tree generation.
+	make it so that you can switch on custom enums.
+	more grass everywhere. especially where foliage is low.
+	make ball_of_string_remove recipe NOT match if the ball is empty.
+	rename my RandomSource class to RandomSupplier, so as not to conflict with minecraft's RandomSource class.
+	remove deprecated methods from MutableScriptEnvironment.
+	rename JavaUtilScriptEnvironment to JavaUtilExtensions.
+	remove legacy tree generation code now that it's been made into a custom class.
+	fix unit tests now that a bunch of environments got migrated to BuiltinType's.
 
 LODs:
 	shader support.
@@ -142,9 +150,14 @@ json classes:
 		* json-defined interfaces.
 			* interface inheritance.
 			* classes implementing multiple interfaces.
+		* migrate existing environments to builtin types.
+			* for example, have a World builtin type which is a WorldWrapper, and have it be a valid parameter on custom methods.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.
+	missing builtin types:
+		primitive box classes (Integer, etc.)
+		NBT elements.
 	need to fix:
 
 changelog:
@@ -153,6 +166,7 @@ changelog:
 	* Nether walls between biomes now only extend up to Y 512, making traversal at higher Y levels easier.
 	* Overworld biomes now have new sky and fog colors.
 	# For data pack developers
+	* Added new json-defined custom class system, supporting inheritance, object-oriented design, and can be used in most other scripts.
 	* All Big Globe custom registries are now in the `bigglobe` namespace.
 		* Previously, they were in the "minecraft" namespace, which meant that you had paths like `/data/namespace/bigglobe_whatever/...`.
 		* Now, every registry added by Big Globe is in a folder named "bigglobe". So you get paths like `/data/namespace/bigglobe/whatever/...`.

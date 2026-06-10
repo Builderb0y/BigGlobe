@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "world",
+	"field_type": "world"
+}

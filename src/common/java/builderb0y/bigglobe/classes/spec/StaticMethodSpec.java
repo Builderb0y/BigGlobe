@@ -69,11 +69,7 @@ public class StaticMethodSpec extends BaseMethodSpec {
 		TypeInfo owner = ((TypeSpec)(this.owner.value())).getTypeInfo();
 		environment.addQualifiedFunction(
 			owner,
-			methodInfo.name,
-			new FunctionHandler.Named(
-				"invokeStatic: " + methodInfo,
-				Handlers.builder(methodInfo).addArguments((Object[])(methodInfo.paramTypes)).callback(params.dependencyCallback(self)).buildFunction()
-			)
+			Handlers.methodWithoutReceiver(methodInfo).onUsed(params.dependencyCallback(self)).buildFunction()
 		);
 	}
 

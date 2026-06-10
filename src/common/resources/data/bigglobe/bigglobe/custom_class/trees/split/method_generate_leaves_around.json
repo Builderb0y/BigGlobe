@@ -1,0 +1,25 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:trees/split/class",
+	"name": "generateLeavesAround",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "x", "type": "double" },
+		{ "name": "y", "type": "double" },
+		{ "name": "z", "type": "double" },
+		{ "name": "r", "type": "double" }
+	],
+	"code": [
+		"repeat (random.roundInt(r ^ 3 * 32.0L):",
+			"int*(",
+				"blockX = roundInt(x + random.nextGaussian() * r)",
+				"blockY = roundInt(y + random.nextGaussian() * r)",
+				"blockZ = roundInt(z + random.nextGaussian() * r)",
+			")",
+			"BlockState existing = world.getBlockState(blockX, blockY, blockZ)",
+			"if (existing.isReplaceable() || existing.isIn('#bigglobe:tree_leaf_replaceables'):",
+				"leavesToPlace.putIfAbsent(BlockPos.at(blockX, blockY, blockZ), palette.leavesState(random, distance: 1, persistent: false, waterlogged: false))",
+			")",
+		")"
+	]
+}

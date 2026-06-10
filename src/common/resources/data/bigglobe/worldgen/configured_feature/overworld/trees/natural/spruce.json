@@ -1,12 +1,11 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": {
-			"template": "bigglobe:cone_tree_natural",
-			"inputs": {
-				"palette": "'minecraft:spruce'",
-				"requireValidGround": "true"
-			}
-		}
+		"script": [
+			"ConeTreeGenerator",
+			".create(world, random, 'minecraft:spruce')",
+			".=$requireValidGround(true)",
+			".placeNatural(originX, originY, originZ)"
+		]
 	}
 }

@@ -1,0 +1,21 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "groundReplacements",
+	"field_type": "map",
+	"default": [
+		"ConstantMap.new(",
+			"Block('minecraft:grass_block'    ): BlockState('minecraft:dirt'       ),",
+			"Block('minecraft:podzol'         ): BlockState('minecraft:dirt'       ),",
+			"Block('bigglobe:overgrown_podzol'): BlockState('minecraft:dirt'       ),",
+			"Block('minecraft:farmland'       ): BlockState('minecraft:dirt'       ),",
+			"Block('minecraft:coarse_dirt'    ): BlockState('minecraft:coarse_dirt'),",
+			"Block('minecraft:rooted_dirt'    ): BlockState('minecraft:rooted_dirt'),",
+			"Block('minecraft:mud'            ): BlockState('minecraft:mud'        ),",
+			"Block('minecraft:packed_mud'     ): BlockState('minecraft:packed_mud' ),",
+			"Block('minecraft:sand'           ): BlockState('minecraft:sand'       ),",
+			"Block('minecraft:red_sand'       ): BlockState('minecraft:red_sand'   ),",
+			"Block('bigglobe:overgrown_sand'  ): BlockState('minecraft:sand'       )",
+		")"
+	]
+}

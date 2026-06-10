@@ -38,18 +38,18 @@ public class MethodCompileContext {
 		}
 	}
 
-	public void appendCode(int flags, String code, Consumer<MutableScriptEnvironment> environment) {
+	public void appendCode(int flags, String code, Consumer<ExpressionParser> setup) {
 		try {
-			new ExpressionParser(code, this.clazz, this, flags).configureEnvironment(environment).parseRemainingInput(false, false).emitBytecode(this);
+			new ExpressionParser(code, this.clazz, this, flags).configure(setup).parseRemainingInput(false, false).emitBytecode(this);
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception);
 		}
 	}
 
-	public void setCode(int flags, String code, Consumer<MutableScriptEnvironment> environment) {
+	public void setCode(int flags, String code, Consumer<ExpressionParser> setup) {
 		try {
-			new ExpressionParser(code, this.clazz, this, flags).configureEnvironment(environment).parseEntireInput().emitBytecode(this);
+			new ExpressionParser(code, this.clazz, this, flags).configure(setup).parseEntireInput().emitBytecode(this);
 		}
 		catch (ScriptParsingException exception) {
 			throw new RuntimeException(exception);

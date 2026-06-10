@@ -19,7 +19,6 @@ import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.WoodPaletteScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.DelegatingStructure;
 import builderb0y.bigglobe.structures.ScriptStructures;
@@ -28,8 +27,6 @@ import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
@@ -227,26 +224,30 @@ public interface ColumnValueOverrider extends ColumnScript {
 		}
 
 		@Override
-		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
-			super.addExtraFunctionsToEnvironment(parameters, environment);
+		public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
+			super.addExtraFunctionsToEnvironment(parameters, parser);
 			InsnTree loadColumn = load(parameters.actualColumn);
-			environment
+			parser
+			.environment
+			.mutable()
 			.configure(StructureScriptEnvironment.live())
 			.configure(NbtScriptEnvironment.createImmutable())
 			.addFieldGet(ScriptedStructure.Piece.class, "data")
 			.addVariableLoad("structures", type(ScriptStructures.class))
-			.configure(JavaUtilScriptEnvironment.withoutRandom())
-			.addAll(WoodPaletteScriptEnvironment.BASE);
+			;
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);
-					environment.addFunction(
-						name, new FunctionHandler.Named(
-							info.toString(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-							InsnTree[] prefixedArguments = ObjectArrays.concat(loadColumn, arguments);
-							InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, info, CastMode.IMPLICIT_NULL, prefixedArguments);
-							return castArguments == null ? null : new CastResult(invokeStatic(info, castArguments), castArguments != prefixedArguments);
-						}
+					parser.environment.mutable().addFunction(
+						new FunctionHandler.Named(
+							name,
+							info.toString(),
+							null,
+							(ExpressionParser parser_, String name_, InsnTree... arguments) -> {
+								InsnTree[] prefixedArguments = ObjectArrays.concat(loadColumn, arguments);
+								InsnTree[] castArguments = ScriptEnvironment.castArguments(parser_, info, CastMode.IMPLICIT_NULL, prefixedArguments);
+								return castArguments == null ? null : new CastResult(invokeStatic(info, castArguments), castArguments != prefixedArguments);
+							}
 						)
 					);
 				}

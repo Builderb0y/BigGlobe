@@ -42,24 +42,16 @@ public interface IRandomList<E> extends List<E> {
 
 	public abstract double getWeight(int index);
 
-	/**
-	returns the old weight at this index, to be compliant with List.set(int, E).
-	*/
+	/** returns the old weight at this index, to be compliant with List.set(int, E). */
 	public abstract double setWeight(int index, double weight);
 
-	/**
-	returns true, to be compliant with List.add(E).
-	*/
+	/** returns true, to be compliant with List.add(E). */
 	public abstract boolean add(E element, double weight);
 
-	/**
-	returns void, to be compliant with List.add(int, E).
-	*/
+	/** returns void, to be compliant with List.add(int, E). */
 	public abstract void add(int index, E element, double weight);
 
-	/**
-	returns the old element at this index, to be compliant with List.set(int, E).
-	*/
+	/** returns the old element at this index, to be compliant with List.set(int, E). */
 	public abstract E set(int index, E element, double weight);
 
 	public default void replaceAllWeights(ToDoubleFunction<? super E> operator) {

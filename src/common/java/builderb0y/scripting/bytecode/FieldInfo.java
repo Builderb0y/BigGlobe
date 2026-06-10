@@ -11,6 +11,7 @@ public class FieldInfo implements Typeable {
 
 	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
+	@Deprecated
 	public final int access;
 	public final TypeInfo owner;
 	public final String name;
@@ -46,7 +47,9 @@ public class FieldInfo implements Typeable {
 
 	public static FieldInfo forField(Field field) {
 		return new FieldInfo(
-			field.getModifiers(),
+			field.isAnnotationPresent(Deprecated.class)
+			? field.getModifiers() |  ACC_DEPRECATED
+			: field.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(field.getDeclaringClass()),
 			field.getName(),
 			TypeInfo.of(field.getGenericType())
@@ -56,6 +59,22 @@ public class FieldInfo implements Typeable {
 	@Override
 	public TypeInfo getTypeInfo() {
 		return this.type;
+	}
+
+	public FieldInfo deprecated() {
+		return this.isDeprecated() ? this : new FieldInfo(this.access | ACC_DEPRECATED, this.owner, this.name, this.type);
+	}
+
+	public FieldInfo notDeprecated() {
+		return !this.isDeprecated() ? this : new FieldInfo(this.access & ~ACC_DEPRECATED, this.owner, this.name, this.type);
+	}
+
+	public boolean isDeprecated() {
+		return (this.access & ACC_DEPRECATED) != 0;
+	}
+
+	public int access() {
+		return this.access & ~ACC_DEPRECATED;
 	}
 
 	public boolean isStatic() {

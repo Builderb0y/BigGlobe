@@ -12,6 +12,7 @@ import org.objectweb.asm.Type;
 
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.util.TypeInfos;
@@ -131,6 +132,18 @@ public class ScriptParser<I> extends ExpressionParser {
 	@SuppressWarnings("unchecked")
 	public ScriptParser<I> configureEnvironment(Consumer<MutableScriptEnvironment> configurator) {
 		return (ScriptParser<I>)(super.configureEnvironment(configurator));
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ScriptParser<I> addImportedValue(String name, InsnTree value) {
+		return (ScriptParser<I>)(super.addImportedValue(name, value));
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ScriptParser<I> configure(Consumer<ExpressionParser> configurator) {
+		return (ScriptParser<I>)(super.configure(configurator));
 	}
 
 	public static Method findImplementingMethod(Class<?> implementingClass) {

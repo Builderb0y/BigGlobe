@@ -46,19 +46,22 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 			.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
 			.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
 			.addFunction(
-				"mod", new FunctionHandler.Named(
-					"mod(a, b)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					if (arguments.length != 2) return null;
-					return new CastResult(mod(parser, arguments[0], arguments[1]), false);
-				}
+				new FunctionHandler.Named(
+					"mod",
+					"mod(a, b)",
+					null,
+					(ExpressionParser parser, String name, InsnTree... arguments) -> {
+						if (arguments.length != 2) return null;
+						return new CastResult(mod(parser, arguments[0], arguments[1]), false);
+					}
 				)
 			)
-			.addFunction("isNaN", createNaN(true))
-			.addFunction("isNotNaN", createNaN(false))
+			.addFunction(createNaN(true))
+			.addFunction(createNaN(false))
 			.addFunctionInvokeStatics(Float.class, "isInfinite", "isFinite")
 			.addFunctionInvokeStatics(Double.class, "isInfinite", "isFinite")
-			.addFunction("min", createReducer())
-			.addFunction("max", createReducer())
+			.addFunction(createReducer(false))
+			.addFunction(createReducer(true))
 			.addFunctionMultiInvokeStatics(Interpolator.class, "mixLinear", "mixClamp", "mixSmooth", "mixSmoother", "unmixLinear", "unmixClamp", "unmixSmooth", "unmixSmoother", "clamp")
 			.addFunctionRenamedMultiInvokeStatic("smooth", Interpolator.class, "smoothClamp")
 			.addFunctionRenamedMultiInvokeStatic("smoother", Interpolator.class, "smootherClamp")
@@ -78,31 +81,37 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 
 	public static FunctionHandler.Named createNaN(boolean nan) {
 		return new FunctionHandler.Named(
-			nan ? "isNaN(value)" : "isNotNan(value)", (parser, name, arguments) -> {
-			if (arguments.length != 1) return null;
-			if (arguments[0].getTypeInfo().isFloat()) {
-				return new CastResult(bool(new NaNConditionTree(arguments[0], nan)), false);
+			nan ? "isNaN" : "isNotNaN",
+			nan ? "isNaN(value)" : "isNotNaN(value)",
+			null,
+			(ExpressionParser parser, String name, InsnTree... arguments) -> {
+				if (arguments.length != 1) return null;
+				if (arguments[0].getTypeInfo().isFloat()) {
+					return new CastResult(bool(new NaNConditionTree(arguments[0], nan)), false);
+				}
+				else {
+					return null;
+				}
 			}
-			else {
-				return null;
-			}
-		}
 		);
 	}
 
-	public static FunctionHandler.Named createReducer() {
+	public static FunctionHandler.Named createReducer(boolean max) {
 		return new FunctionHandler.Named(
-			"min/max(value1, value2, ...)", (parser, name, arguments) -> {
-			if (arguments.length < 2) throw new ScriptParsingException(name + "() requires at least 2 arguments", parser.input);
-			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
-			return new CastResult(
-				new ReduceInsnTree(
-					new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(type.isFloat() ? MathScriptEnvironment.class : Math.class), name, type, type, type),
-					ScriptEnvironment.castArgumentsSameType(parser, name, type, CastMode.IMPLICIT_THROW, arguments)
-				),
-				false
-			);
-		}
+			max ? "max" : "min",
+			(max ? "max" : "min") + "(value1, value2, ...)",
+			null,
+			(ExpressionParser parser, String name, InsnTree... arguments) -> {
+				if (arguments.length < 2) throw new ScriptParsingException(name + "() requires at least 2 arguments", parser.input);
+				TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
+				return new CastResult(
+					new ReduceInsnTree(
+						new MethodInfo(ACC_PUBLIC | ACC_STATIC | ACC_PURE, type(type.isFloat() ? MathScriptEnvironment.class : Math.class), name, type, type, type),
+						ScriptEnvironment.castArgumentsSameType(parser, name, type, CastMode.IMPLICIT_THROW, arguments)
+					),
+					false
+				);
+			}
 		);
 	}
 

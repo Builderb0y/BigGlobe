@@ -12,7 +12,7 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.scripting.wrappers.BlockStateWrapper;
 import builderb0y.bigglobe.settings.Seed;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -102,19 +102,21 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 			}
 
 			@Override
-			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
-				super.addExtraFunctionsToEnvironment(parameters, environment);
-				environment
-					.addVariableLoad("oldState", BlockStateWrapper.TYPE)
-					.addVariableLoad("blockX", TypeInfos.INT)
-					//.addVariableLoad("blockY", TypeInfos.INT) //defined automatically by super method.
-					.addVariableLoad("blockZ", TypeInfos.INT)
-					.addVariableLoad("blockSeed", TypeInfos.LONG)
-					.addVariableLoad("centerX", TypeInfos.DOUBLE)
-					.addVariableLoad("centerY", TypeInfos.DOUBLE)
-					.addVariableLoad("centerZ", TypeInfos.DOUBLE)
-					.addVariableLoad("radius", TypeInfos.DOUBLE)
-					.addVariableLoad("radialFraction", TypeInfos.DOUBLE)
+			public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
+				super.addExtraFunctionsToEnvironment(parameters, parser);
+				parser
+				.environment
+				.mutable()
+				.addVariableLoad("oldState", BlockStateWrapper.TYPE)
+				.addVariableLoad("blockX", TypeInfos.INT)
+				//.addVariableLoad("blockY", TypeInfos.INT) //defined automatically by super method.
+				.addVariableLoad("blockZ", TypeInfos.INT)
+				.addVariableLoad("blockSeed", TypeInfos.LONG)
+				.addVariableLoad("centerX", TypeInfos.DOUBLE)
+				.addVariableLoad("centerY", TypeInfos.DOUBLE)
+				.addVariableLoad("centerZ", TypeInfos.DOUBLE)
+				.addVariableLoad("radius", TypeInfos.DOUBLE)
+				.addVariableLoad("radialFraction", TypeInfos.DOUBLE)
 				;
 			}
 

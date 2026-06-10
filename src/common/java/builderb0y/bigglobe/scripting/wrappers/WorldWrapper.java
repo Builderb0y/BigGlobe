@@ -59,7 +59,6 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class WorldWrapper implements ScriptedColumnLookup {
 
 	public static final Info INFO = new Info();
-
 	public static class Info extends InfoHolder {
 
 		public FieldInfo
@@ -107,7 +106,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
-
 	public static class BoundInfo extends BoundInfoHolder {
 
 		public InsnTree
@@ -587,15 +585,15 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public Coordinator coordinator() {
 		return (
 			this
-				.world
-				.coordinator()
-				.inBox(this.coordination.mutableArea, false)
-				.translate(
-					this.coordination.transformation.offsetX(),
-					this.coordination.transformation.offsetY(),
-					this.coordination.transformation.offsetZ()
-				)
-				.symmetric(this.coordination.transformation.symmetry())
+			.world
+			.coordinator()
+			.inBox(this.coordination.mutableArea, false)
+			.translate(
+				this.coordination.transformation.offsetX(),
+				this.coordination.transformation.offsetY(),
+				this.coordination.transformation.offsetZ()
+			)
+			.symmetric(this.coordination.transformation.symmetry())
 		);
 	}
 

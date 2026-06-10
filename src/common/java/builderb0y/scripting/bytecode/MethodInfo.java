@@ -2,6 +2,7 @@ package builderb0y.scripting.bytecode;
 
 import java.lang.StackWalker.Option;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
@@ -88,7 +89,7 @@ public class MethodInfo implements BytecodeEmitter {
 
 	public int handleType() {
 		if (this.isStatic()) return H_INVOKESTATIC;
-		if (this.name.equals("<init>")) return H_NEWINVOKESPECIAL;
+		if (this.isConstructor()) return H_NEWINVOKESPECIAL;
 		if (this.isInterface()) return H_INVOKEINTERFACE;
 		if (this.isPrivate()) return H_INVOKESPECIAL;
 		return H_INVOKEVIRTUAL;
@@ -107,6 +108,10 @@ public class MethodInfo implements BytecodeEmitter {
 		return this.access & ~(PURE | ACC_DEPRECATED);
 	}
 
+	public boolean isConstructor() {
+		return this.name.equals("<init>");
+	}
+
 	public boolean isStatic() {
 		return (this.access & ACC_STATIC) != 0;
 	}
@@ -117,7 +122,7 @@ public class MethodInfo implements BytecodeEmitter {
 
 	public int getInvokeOpcode() {
 		if (this.isStatic()) return INVOKESTATIC;
-		if (this.isPrivate() || this.name.equals("<init>")) return INVOKESPECIAL;
+		if (this.isPrivate() || this.isConstructor()) return INVOKESPECIAL;
 		if (this.isInterface()) return INVOKEINTERFACE;
 		return INVOKEVIRTUAL;
 	}
@@ -157,8 +162,8 @@ public class MethodInfo implements BytecodeEmitter {
 	public static MethodInfo forMethod(Method method) {
 		return new MethodInfo(
 			method.isAnnotationPresent(Deprecated.class)
-				? method.getModifiers() | ACC_DEPRECATED
-				: method.getModifiers() & ~ACC_DEPRECATED,
+			? method.getModifiers() |  ACC_DEPRECATED
+			: method.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(method.getDeclaringClass()),
 			method.getName(),
 			TypeInfo.of(method.getGenericReturnType()),
@@ -181,13 +186,20 @@ public class MethodInfo implements BytecodeEmitter {
 	public static MethodInfo forConstructor(Constructor<?> constructor) {
 		return new MethodInfo(
 			constructor.isAnnotationPresent(Deprecated.class)
-				? constructor.getModifiers() | ACC_DEPRECATED
-				: constructor.getModifiers() & ~ACC_DEPRECATED,
+			? constructor.getModifiers() |  ACC_DEPRECATED
+			: constructor.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(constructor.getDeclaringClass()),
 			"<init>",
 			TypeInfos.VOID,
 			TypeInfo.allOf(constructor.getGenericParameterTypes())
 		);
+	}
+
+	public static MethodInfo forExecutable(Executable executable) {
+		return switch (executable) {
+			case Method method -> forMethod(method);
+			case Constructor<?> constructor -> forConstructor(constructor);
+		};
 	}
 
 	@Override

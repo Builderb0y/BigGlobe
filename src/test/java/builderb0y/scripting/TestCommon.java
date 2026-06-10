@@ -11,7 +11,6 @@ import org.opentest4j.AssertionFailedError;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.util.ThrowingRunnable;
 import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
@@ -50,7 +49,6 @@ public class TestCommon {
 		return (
 			new ScriptParser<>(ObjectSupplier.class, input)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 			.parse(new ScriptClassLoader())
 			.getAsObject()
 		);
@@ -60,7 +58,6 @@ public class TestCommon {
 		ScriptParser<?> parser = (
 			new ScriptParser<>(implementationClass, input)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
 		);
 		parser.toBytecode();
 		int[] actualOpcodes = (
@@ -83,42 +80,32 @@ public class TestCommon {
 	I remember there being an annotation to specify the max time a test is allowed to run for,
 	but I can't find that annotation now. so I'm implementing that logic more manually.
 	*/
-	@SuppressWarnings("deprecation")
-	public static void runTestWithTimeLimit(long miliseconds, ThrowingRunnable<Throwable> test) {
-		Thread[] threads = new Thread[2];
+	public static void runTestWithTimeLimit(long milliseconds, ThrowingRunnable<Throwable> test) {
 		Throwable[] stackTrace = new Throwable[1];
-		threads[0] = new Thread(() -> {
+		Thread thread = new Thread(() -> {
 			try {
 				test.run();
 			}
 			catch (Throwable throwable) {
 				stackTrace[0] = throwable;
 			}
-			finally {
-				threads[1].interrupt();
-			}
 		});
-		threads[1] = new Thread(() -> {
-			try {
-				Thread.sleep(miliseconds);
-				Throwable throwable = new AssertionFailedError("Infinite loop");
-				throwable.setStackTrace(threads[0].getStackTrace());
-				stackTrace[0] = throwable;
-				threads[0].stop();
-			}
-			catch (InterruptedException expected) {}
-		});
-		threads[0].start();
-		threads[1].start();
+		thread.start();
 		try {
-			threads[0].join();
-			threads[1].join();
+			thread.join(milliseconds);
 		}
 		catch (InterruptedException exception) {
-			throw new RuntimeException("who interrupted the junit thread?", exception);
+			exception.printStackTrace();
 		}
-		if (stackTrace[0] != null) {
-			throw AutoCodecUtil.rethrow(stackTrace[0]);
+		finally {
+			if (thread.isAlive()) {
+				AssertionFailedError error = new AssertionFailedError("Infinite loop");
+				error.setStackTrace(thread.getStackTrace());
+				error.addSuppressed(new AssertionFailedError("Calling thread stack trace:"));
+				error.printStackTrace();
+				System.err.println("Since java removed Thread.stop(), I have no choice but to halt the entire JVM instead. Consider this test failed. See the above stack trace for more info.");
+				Runtime.getRuntime().halt(1);
+			}
 		}
 	}
 }

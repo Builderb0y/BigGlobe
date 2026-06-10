@@ -177,12 +177,12 @@ public class BlockStateWrapper {
 		return state.setValue((Property)(property), (Comparable)(value));
 	}
 
-	public static boolean canPlaceAt(WorldWrapper world, BlockState state, int x, int y, int z) {
+	public static boolean canPlaceAt(BlockState state, WorldWrapper world, int x, int y, int z) {
 		BlockPos pos = world.immutablePos(x, y, z);
 		return pos != null && BlockStateVersions.isReplaceable(world.world.getBlockState(pos)) && world.world.canPlace(pos, state);
 	}
 
-	public static boolean canStayAt(WorldWrapper world, BlockState state, int x, int y, int z) {
+	public static boolean canStayAt(BlockState state, WorldWrapper world, int x, int y, int z) {
 		BlockPos pos = world.immutablePos(x, y, z);
 		return pos == null || world.world.canPlace(pos, state);
 	}

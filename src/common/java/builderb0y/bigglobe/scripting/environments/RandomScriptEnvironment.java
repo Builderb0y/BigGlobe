@@ -2,7 +2,6 @@ package builderb0y.bigglobe.scripting.environments;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
@@ -22,9 +21,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode.MemberKeywordFunction;
@@ -41,7 +38,20 @@ public class RandomScriptEnvironment {
 
 	public static class RandomGeneratorInfo extends InfoHolder {
 
-		public MethodInfo nextBoolean;
+		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = {})
+		public MethodInfo nextInt;
+		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = { int.class })
+		public MethodInfo nextIntBound;
+		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = { int.class, int.class })
+		public MethodInfo nextIntOriginBound;
+
+		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = {})
+		public MethodInfo nextLong;
+		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = { long.class })
+		public MethodInfo nextLongBound;
+		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = { long.class, long.class })
+		public MethodInfo nextLongOriginBound;
+
 		@Disambiguate(name = "nextFloat", returnType = float.class, paramTypes = {})
 		public MethodInfo nextFloat;
 		@Disambiguate(name = "nextFloat", returnType = float.class, paramTypes = { float.class })
@@ -56,25 +66,13 @@ public class RandomScriptEnvironment {
 		@Disambiguate(name = "nextDouble", returnType = double.class, paramTypes = { double.class, double.class })
 		public MethodInfo nextDoubleOriginBound;
 
-		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = {})
-		public MethodInfo nextInt;
-		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = { int.class })
-		public MethodInfo nextIntBound;
-		@Disambiguate(name = "nextInt", returnType = int.class, paramTypes = { int.class, int.class })
-		public MethodInfo nextIntOriginBound;
-		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = {})
-		public MethodInfo nextLong;
-
-		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = { long.class })
-		public MethodInfo nextLongBound;
-		@Disambiguate(name = "nextLong", returnType = long.class, paramTypes = { long.class, long.class })
-		public MethodInfo nextLongOriginBound;
 		@Disambiguate(name = "nextGaussian", returnType = double.class, paramTypes = {})
 		public MethodInfo nextGaussian;
-
 		@Disambiguate(name = "nextGaussian", returnType = double.class, paramTypes = { double.class, double.class })
 		public MethodInfo nextGaussianMeanDev;
 		public MethodInfo nextExponential;
+
+		public MethodInfo nextBoolean;
 
 		public RandomGeneratorInfo() {
 			super(RandomGenerator.class);
@@ -104,7 +102,7 @@ public class RandomScriptEnvironment {
 		@Disambiguate(name = "nextBoundedLong", returnType = long.class, paramTypes = { long.class, long.class, long.class })
 		public MethodInfo nextLongOriginBound;
 
-		@Disambiguate(name = "nextPositiveFloat", returnType = float.class, paramTypes = { long.class })
+		@Disambiguate(name = "nextUniformFloat", returnType = float.class, paramTypes = { long.class })
 		public MethodInfo nextUniformFloat;
 		public MethodInfo toUniformFloat, nextPositiveFloat, toPositiveFloat;
 		@Disambiguate(name = "nextBoundedFloat", returnType = float.class, paramTypes = { long.class, float.class })
@@ -262,61 +260,6 @@ public class RandomScriptEnvironment {
 	}
 
 	public static final MethodInfo ASSERT_FAIL = MethodInfo.findConstructor(AssertionError.class, String.class);
-
-	public static final MutableScriptEnvironment BASE = (
-		new MutableScriptEnvironment()
-			.addType("Random", RandomGenerator.class)
-			.addQualifiedFunction(
-				type(RandomGenerator.class), "new", new FunctionHandler.Named(
-					"Random.new(long [, int...])", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					if (arguments.length == 0) return null;
-					CastResult seed = createSeed(parser, arguments);
-					return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
-				}
-				)
-			)
-			.addMethodInvoke("nextInt", RNG_INFO.nextInt)
-			.addMethodInvoke("nextInt", RNG_INFO.nextIntBound)
-			.addMethodInvoke("nextInt", RNG_INFO.nextIntOriginBound)
-			.addMethodInvoke("nextLong", RNG_INFO.nextLong)
-			.addMethodInvoke("nextLong", RNG_INFO.nextLongBound)
-			.addMethodInvoke("nextLong", RNG_INFO.nextLongOriginBound)
-			.addMethodInvoke("nextFloat", RNG_INFO.nextFloat)
-			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatBound)
-			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatOriginBound)
-			.addMethodInvoke("nextDouble", RNG_INFO.nextDouble)
-			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
-			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
-			.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
-			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanF)
-			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanD)
-			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
-			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
-			.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
-			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
-			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
-			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
-			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
-			.addMemberKeyword(
-				type(RandomGenerator.class), "if", new MemberKeywordHandler.Named(
-					"random.if (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-					return wrapRandomIf(parser, receiver, false, mode);
-				}
-				)
-			)
-			.addMemberKeyword(
-				type(RandomGenerator.class), "unless", new MemberKeywordHandler.Named(
-					"random.unless (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-					return wrapRandomIf(parser, receiver, true, mode);
-				}
-				)
-			)
-			.addMemberKeyword(type(RandomGenerator.class), "switch", new MemberKeywordHandler.Named("random.switch(case1, case2, ...) or random.switch(weight1: case1, weight2: case2, ...)", randomSwitch()))
-	);
-
-	public static Consumer<MutableScriptEnvironment> create(InsnTree loader) {
-		return (MutableScriptEnvironment environment) -> environment.addAll(BASE).addVariable("random", loader);
-	}
 
 	public static CastResult createSeed(ExpressionParser parser, InsnTree... arguments) {
 		InsnTree seed = arguments[0].cast(parser, TypeInfos.LONG, CastMode.IMPLICIT_THROW, false);

@@ -55,13 +55,13 @@ public class StructureTemplateScriptEnvironment {
 				.addFunctionMultiInvoke(loadWorld, WorldWrapper.class, "placeStructureTemplate")
 				.addQualifiedFunction(
 					type(StructurePlaceSettings.class),
-					"new",
-					Handlers.builder(
-							WorldWrapper.class,
-							"newStructurePlacementData"
-						)
-						.addImplicitArgument(loadWorld)
-						.buildFunction()
+					Handlers.methodBuilder(
+						WorldWrapper.class,
+						"newStructurePlacementData"
+					)
+					.exposedName("new")
+					.addImplicitArgument(loadWorld)
+					.buildFunction()
 				)
 			;
 		};

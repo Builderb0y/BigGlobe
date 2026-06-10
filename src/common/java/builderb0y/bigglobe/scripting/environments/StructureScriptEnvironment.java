@@ -40,9 +40,9 @@ public class StructureScriptEnvironment {
 		.addCastConstant(StructureEntry.CONSTANT_FACTORY, true)
 		.addCastConstant(StructureTypeEntry.CONSTANT_FACTORY, true)
 		.addCastConstant(StructurePieceTypeEntry.CONSTANT_FACTORY, true)
-		.configure(StructureTag.PARSER)
-		.configure(StructureTypeTag.PARSER)
-		.configure(StructurePieceTypeTag.PARSER)
+		.configure(StructureTag.PARSER.configurator(null))
+		.configure(StructureTypeTag.PARSER.configurator(null))
+		.configure(StructurePieceTypeTag.PARSER.configurator(null))
 	);
 
 	public static final MutableScriptEnvironment EXTRA = (
@@ -58,7 +58,7 @@ public class StructureScriptEnvironment {
 		.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetZ", "placement")
 
 		.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
-		.configure(StructurePlacementScriptTag.PARSER)
+		.configure(StructurePlacementScriptTag.PARSER.configurator(null))
 	);
 
 	public static Consumer<MutableScriptEnvironment> basicTypes() {

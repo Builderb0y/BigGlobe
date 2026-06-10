@@ -1,0 +1,8 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "decorate",
+	"return_type": "void",
+	"parameters": [],
+	"code": "noop"
+}

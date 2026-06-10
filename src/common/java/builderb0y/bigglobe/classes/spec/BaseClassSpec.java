@@ -255,11 +255,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 
 	@Override
 	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		TypeInfo type = this.getTypeInfo();
-		environment.addType(this.name(), new TypeHandler.Named(type.toString(), (ExpressionParser parser, String name) -> {
-			if (params.dependencies != null) params.dependencies.addDependency(self);
-			return type;
-		}));
+		environment.addType(this.name(), params.dependencyCallback(self), this.getTypeInfo());
 	}
 
 	public void define(ScriptClassLoader loader) {

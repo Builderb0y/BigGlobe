@@ -1,0 +1,17 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "placeArtificial",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "originX", "type": "int" },
+		{ "name": "originY", "type": "int" },
+		{ "name": "originZ", "type": "int" }
+	],
+	"code": [
+		"generateArtificial(originX, originY, originZ).if (",
+			"placeQueuedBlocks()",
+			"decorate()",
+		")"
+	]
+}

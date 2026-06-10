@@ -1,0 +1,14 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:trees/oak/class",
+	"name": "create",
+	"return_type": "bigglobe:trees/oak/class",
+	"parameters": [
+		{ "name": "world",   "type": "world"        },
+		{ "name": "random",  "type": "random"       },
+		{ "name": "palette", "type": "wood_palette" }
+	],
+	"code": [
+		"OakTreeGenerator.new().=$world(world).=$random(random).=$palette(palette)"
+	]
+}

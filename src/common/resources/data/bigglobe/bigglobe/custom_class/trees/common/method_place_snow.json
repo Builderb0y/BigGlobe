@@ -1,0 +1,23 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "placeSnow",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"boolean canSnowAt(BlockPos pos:",
+			"world.getBlockState(pos.x, pos.y + 1, pos.z).isAir() &&",
+			"random.nextBoolean(world.world_traits.`bigglobe:snow_chance_at`(pos.x, pos.y + 1, pos.z))",
+		")",
+		"for (BlockPos pos in logsToPlace.keySet():",
+			"if (canSnowAt(pos):",
+				"world.setBlockState(pos.x, pos.y + 1, pos.z, 'minecraft:snow[layers=1]')",
+			")",
+		")",
+		"for (BlockPos pos in leavesToPlace.keySet():",
+			"if (canSnowAt(pos):",
+				"world.setBlockState(pos.x, pos.y + 1, pos.z, 'minecraft:snow[layers=1]')",
+			")",
+		")"
+	]
+}

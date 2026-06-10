@@ -113,29 +113,27 @@ public class ScriptedLayer extends Layer {
 						load("blocks", type(BlockSegmentList.class))
 					)
 				)
-					.emitBytecode(bridgeMethod);
+				.emitBytecode(bridgeMethod);
 				bridgeMethod.endCode();
 
 				LoadInsnTree loadColumn = load("column", registry.columnCompileContext.columnTypeInfo());
-				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
-					environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.configure(JavaUtilScriptEnvironment.withoutRandom())
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.configure(MinecraftScriptEnvironment.create())
-					.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
-					.configure(ScriptedColumn.baseEnvironment(loadColumn, null, loadColumn.variable.type))
-					.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-					.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
-					.addAll(ColorScriptEnvironment.ENVIRONMENT)
-					;
-					registry.setupEnvironment(
-						environment,
-						new ExternalEnvironmentParams()
-						.withColumn(loadColumn)
-						.trackDependencies(this)
-					);
-				});
+				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags());
+				parser
+				.environment
+				.mutable()
+				.addAll(MathScriptEnvironment.INSTANCE)
+				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+				.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
+				.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+				.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+				.addAll(ColorScriptEnvironment.ENVIRONMENT)
+				;
+				registry.setupEnvironment(
+					parser,
+					new ExternalEnvironmentParams()
+					.withColumn(loadColumn)
+					.trackDependencies(this)
+				);
 				parser.parseEntireInput().emitBytecode(actualMethod);
 				actualMethod.endCode();
 

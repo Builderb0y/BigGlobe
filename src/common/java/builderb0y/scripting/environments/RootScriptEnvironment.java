@@ -1,11 +1,15 @@
 package builderb0y.scripting.environments;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -16,6 +20,18 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 		USER_INDEX = 0,
 		MUTABLE_INDEX = 1;
 
+	//not the most efficient data structure,
+	//but I expect it to be small,
+	//so the inefficiencies are probably not significant.
+	public List<ImportedObject> importedObjects = new ArrayList<>();
+
+	public static record ImportedObject(String name, InsnTree object) {
+
+		public TypeInfo getTypeInfo() {
+			return this.object.getTypeInfo();
+		}
+	}
+
 	public RootScriptEnvironment() {
 		this.environments.add(new UserScriptEnvironment());
 		this.environments.add(new MutableScriptEnvironment().addAll(BuiltinScriptEnvironment.INSTANCE));
@@ -25,6 +41,57 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 		super(from);
 		this.environments.set(USER_INDEX, new UserScriptEnvironment(from.user()));
 		this.environments.set(MUTABLE_INDEX, new MutableScriptEnvironment().addAll(from.mutable()));
+		this.importedObjects.addAll(from.importedObjects);
+	}
+
+	public void importObject(String name, InsnTree object) {
+		ImportedObject toAdd = new ImportedObject(name, object);
+		for (ImportedObject existing : this.importedObjects) {
+			if (existing.getTypeInfo().equals(object.getTypeInfo())) {
+				throw new IllegalStateException("Object of type " + object.getTypeInfo() + " is already imported. (attempting to replace " + existing + " with " + toAdd + ")");
+			}
+		}
+		this.mutable().addVariable(name, object);
+		this.importedObjects.add(toAdd);
+	}
+
+	public @Nullable InsnTree getImportedObject(TypeInfo type) {
+		for (ImportedObject object : this.importedObjects) {
+			if (object.getTypeInfo().extendsOrImplements(type)) {
+				return object.object;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
+		InsnTree result = super.getVariable(parser, name);
+		if (result == null) {
+			for (ImportedObject object : this.importedObjects) {
+				InsnTree newResult = super.getField(parser, object.object, name, GetFieldMode.NORMAL);
+				if (newResult != null) {
+					if (result == null) result = newResult;
+					else throw new ScriptParsingException("Ambiguous variable matches fields on more than one imported object", parser.input);
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
+		InsnTree result = super.getFunction(parser, name, arguments);
+		if (result == null) {
+			for (ImportedObject object : this.importedObjects) {
+				InsnTree newResult = super.getMethod(parser, object.object, name, GetMethodMode.NORMAL, arguments);
+				if (newResult != null) {
+					if (result == null) result = newResult;
+					else throw new ScriptParsingException("Ambiguous function call matches methods on more than one imported object", parser.input);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -75,14 +142,14 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 			//we expect to have generic objects needing to be
 			//cast to primitives every now and then.
 			TypeInfo castTo = switch (to.getSort()) {
-				case BYTE -> TypeInfos.BYTE_WRAPPER;
-				case SHORT -> TypeInfos.SHORT_WRAPPER;
-				case INT -> TypeInfos.INT_WRAPPER;
-				case LONG -> TypeInfos.LONG_WRAPPER;
-				case FLOAT -> TypeInfos.FLOAT_WRAPPER;
-				case DOUBLE -> TypeInfos.DOUBLE_WRAPPER;
-				case CHAR -> TypeInfos.CHAR_WRAPPER;
-				case BOOLEAN -> TypeInfos.BOOLEAN_WRAPPER;
+				case BYTE                -> TypeInfos.BYTE_WRAPPER;
+				case SHORT               -> TypeInfos.SHORT_WRAPPER;
+				case INT                 -> TypeInfos.INT_WRAPPER;
+				case LONG                -> TypeInfos.LONG_WRAPPER;
+				case FLOAT               -> TypeInfos.FLOAT_WRAPPER;
+				case DOUBLE              -> TypeInfos.DOUBLE_WRAPPER;
+				case CHAR                -> TypeInfos.CHAR_WRAPPER;
+				case BOOLEAN             -> TypeInfos.BOOLEAN_WRAPPER;
 				case VOID, OBJECT, ARRAY -> null;
 			};
 			if (castTo != null && castTo.extendsOrImplements(from)) {

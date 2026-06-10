@@ -102,9 +102,10 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			DelayedMethod method = this.newMethod;
 			TypeInfo callerInfo = this.parser.clazz.info;
 			this.parser.environment.user().addFunction(
-				this.methodName,
-				new Named(
+				new FunctionHandler.Named(
+					this.methodName,
 					"User function: " + this.returnType.getClassName() + ' ' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
+					null,
 					this.parser.method.info.isStatic()
 						? (ExpressionParser parser, String name, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
@@ -161,10 +162,11 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			TypeInfo callerInfo = this.parser.clazz.info;
 			TypeInfo typeBeingExtended = this.typeBeingExtended;
 			this.parser.environment.user().addMethod(
-				typeBeingExtended,
-				this.methodName,
 				new MethodHandler.Named(
+					typeBeingExtended,
+					this.methodName,
 					"User extension method: " + this.returnType.getClassName() + ' ' + this.typeBeingExtended.getClassName() + '.' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
+					null,
 					this.parser.method.info.isStatic()
 						? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
@@ -286,7 +288,9 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				"return",
 				Collections.singletonList(
 					new FunctionHandler.Named(
+						"return",
 						"invalid (return not supported inside derivative block)",
+						null,
 						(ExpressionParser parser1, String name1, InsnTree... arguments) -> {
 							throw new ScriptParsingException("For technical reasons, you cannot return from inside a derivative block", parser1.input);
 						}
@@ -295,7 +299,9 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			);
 			List<FunctionHandler.Named> higherOrderDerivatives = Collections.singletonList(
 				new FunctionHandler.Named(
+					"return",
 					"invalid (higher order derivatives not supported)",
+					null,
 					(ExpressionParser parser1, String name1, InsnTree... arguments) -> {
 						throw new ScriptParsingException("Higher order derivatives are not supported.", parser1.input);
 					}

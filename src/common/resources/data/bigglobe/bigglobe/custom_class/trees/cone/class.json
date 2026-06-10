@@ -1,0 +1,5 @@
+{
+	"element_type": "class/normal",
+	"name": "ConeTreeGenerator",
+	"extends": "bigglobe:trees/common/class"
+}

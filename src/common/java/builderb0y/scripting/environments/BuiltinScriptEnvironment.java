@@ -40,68 +40,71 @@ public class BuiltinScriptEnvironment {
 
 	public static final MethodInfo
 		STRING_CONCAT_FACTORY = MethodInfo.getMethod(StringConcatFactory.class, "makeConcat"),
-		PRINTLN_BOOLEAN = MethodInfo.findMethod(PrintSink.class, "println", void.class, boolean.class),
-		PRINTLN_CHAR = MethodInfo.findMethod(PrintSink.class, "println", void.class, char.class),
-		PRINTLN_INT = MethodInfo.findMethod(PrintSink.class, "println", void.class, int.class),
-		PRINTLN_LONG = MethodInfo.findMethod(PrintSink.class, "println", void.class, long.class),
-		PRINTLN_FLOAT = MethodInfo.findMethod(PrintSink.class, "println", void.class, float.class),
-		PRINTLN_DOUBLE = MethodInfo.findMethod(PrintSink.class, "println", void.class, double.class),
-		PRINTLN_STRING = MethodInfo.findMethod(PrintSink.class, "println", void.class, String.class),
-		PRINTLN_OBJECT = MethodInfo.findMethod(PrintSink.class, "println", void.class, Object.class);
+		PRINTLN_BOOLEAN       = MethodInfo.findMethod(PrintSink.class, "println", void.class, boolean.class),
+		PRINTLN_CHAR          = MethodInfo.findMethod(PrintSink.class, "println", void.class, char   .class),
+		PRINTLN_INT           = MethodInfo.findMethod(PrintSink.class, "println", void.class, int    .class),
+		PRINTLN_LONG          = MethodInfo.findMethod(PrintSink.class, "println", void.class, long   .class),
+		PRINTLN_FLOAT         = MethodInfo.findMethod(PrintSink.class, "println", void.class, float  .class),
+		PRINTLN_DOUBLE        = MethodInfo.findMethod(PrintSink.class, "println", void.class, double .class),
+		PRINTLN_STRING        = MethodInfo.findMethod(PrintSink.class, "println", void.class, String .class),
+		PRINTLN_OBJECT        = MethodInfo.findMethod(PrintSink.class, "println", void.class, Object .class);
 	public static final FieldInfo
 		PRINTER_FIELD = FieldInfo.getField(BuiltinScriptEnvironment.class, "PRINTER");
 
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()
 
-			//////////////// variables ////////////////
+		//////////////// variables ////////////////
 
-			.addVariable("true", ldc(true))
-			.addVariable("yes", ldc(true))
-			.addVariable("false", ldc(false))
-			.addVariable("no", ldc(false))
-			.addVariable("noop", noop)
-			.addVariable("null", ldc(null, TypeInfos.OBJECT.generic()))
+		.addVariable("true",  ldc(true))
+		.addVariable("yes",   ldc(true))
+		.addVariable("false", ldc(false))
+		.addVariable("no",    ldc(false))
+		.addVariable("noop",  noop)
+		.addVariable("null",  ldc(null, TypeInfos.OBJECT.generic()))
 
-			//////////////// types ////////////////
+		//////////////// types ////////////////
 
-			.addType("boolean", TypeInfos.BOOLEAN)
-			.addType("byte", TypeInfos.BYTE)
-			.addType("short", TypeInfos.SHORT)
-			.addType("int", TypeInfos.INT)
-			.addType("long", TypeInfos.LONG)
-			.addType("float", TypeInfos.FLOAT)
-			.addType("double", TypeInfos.DOUBLE)
-			.addType("char", TypeInfos.CHAR)
-			.addType("void", TypeInfos.VOID)
+		.addType("boolean", TypeInfos.BOOLEAN)
+		.addType("byte",    TypeInfos.BYTE)
+		.addType("short",   TypeInfos.SHORT)
+		.addType("int",     TypeInfos.INT)
+		.addType("long",    TypeInfos.LONG)
+		.addType("float",   TypeInfos.FLOAT)
+		.addType("double",  TypeInfos.DOUBLE)
+		.addType("char",    TypeInfos.CHAR)
+		.addType("void",    TypeInfos.VOID)
 
-			.addType("Boolean", TypeInfos.BOOLEAN_WRAPPER)
-			.addType("Byte", TypeInfos.BYTE_WRAPPER)
-			.addType("Short", TypeInfos.SHORT_WRAPPER)
-			.addType("Integer", TypeInfos.INT_WRAPPER)
-			.addType("Long", TypeInfos.LONG_WRAPPER)
-			.addType("Float", TypeInfos.FLOAT_WRAPPER)
-			.addType("Double", TypeInfos.DOUBLE_WRAPPER)
-			.addType("Character", TypeInfos.CHAR_WRAPPER)
-			.addType("Void", TypeInfos.VOID_WRAPPER)
-			.addType("Number", TypeInfos.NUMBER)
+		.addType("Boolean",   TypeInfos.BOOLEAN_WRAPPER)
+		.addType("Byte",      TypeInfos.   BYTE_WRAPPER)
+		.addType("Short",     TypeInfos.  SHORT_WRAPPER)
+		.addType("Integer",   TypeInfos.    INT_WRAPPER)
+		.addType("Long",      TypeInfos.   LONG_WRAPPER)
+		.addType("Float",     TypeInfos.  FLOAT_WRAPPER)
+		.addType("Double",    TypeInfos. DOUBLE_WRAPPER)
+		.addType("Character", TypeInfos.   CHAR_WRAPPER)
+		.addType("Void",      TypeInfos.   VOID_WRAPPER)
+		.addType("Number",    TypeInfos.NUMBER)
 
-			.addType("Object", TypeInfos.OBJECT)
-			.addType("Comparable", TypeInfos.COMPARABLE)
-			.addType("String", TypeInfos.STRING)
-			//.addType("Throwable",  TypeInfos.THROWABLE)
-			.addType("Class", TypeInfos.CLASS)
+		.addType("Object"    , TypeInfos.OBJECT)
+		.addType("Comparable", TypeInfos.COMPARABLE)
+		.addType("String",     TypeInfos.STRING)
+		//.addType("Throwable",  TypeInfos.THROWABLE)
+		.addType("Class",      TypeInfos.CLASS)
 
-			.addType("MinecraftVersion", type(MinecraftVersion.class))
-			.addCastConstant(MinecraftVersion.CONSTANT_FACTORY, true)
-			.addFieldInvokes(MinecraftVersion.class, "major", "minor", "bugfix")
-			.addQualifiedVariableGetStatic(MinecraftVersion.class, "CURRENT")
+		.addType("MinecraftVersion", type(MinecraftVersion.class))
+		.addCastConstant(MinecraftVersion.CONSTANT_FACTORY, true)
+		.addFieldInvokes(MinecraftVersion.class, "major", "minor", "bugfix")
+		.addQualifiedVariableGetStatic(MinecraftVersion.class, "CURRENT")
 
-			//////////////// functions ////////////////
+		//////////////// functions ////////////////
 
-			.addFunction(
-				"return", new FunctionHandler.Named(
-					"return(optional value)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+		.addFunction(
+			new FunctionHandler.Named(
+				"return",
+				"return(optional value)",
+				null,
+				(ExpressionParser parser, String name, InsnTree... arguments) -> {
 					return new CastResult(
 						parser.createReturn(
 							switch (arguments.length) {
@@ -113,57 +116,84 @@ public class BuiltinScriptEnvironment {
 						false
 					);
 				}
-				)
 			)
-			/*
-			.addFunction("throw", (parser, name, arguments) -> {
-				InsnTree toThrow = ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments);
-				return new CastResult(throw_(toThrow), toThrow != arguments[0]);
-			})
-			*/
-			.addFunction("print", makePrint())
+		)
+		/*
+		.addFunction("throw", (parser, name, arguments) -> {
+			InsnTree toThrow = ScriptEnvironment.castArgument(parser, name, TypeInfos.THROWABLE, CastMode.IMPLICIT_THROW, arguments);
+			return new CastResult(throw_(toThrow), toThrow != arguments[0]);
+		})
+		*/
+		.addFunction(makePrint())
 
-			//////////////// keywords ////////////////
+		//////////////// keywords ////////////////
 
-			.addKeyword("var", makeVar())
-			.addKeyword("class", makeClass())
-			.addKeyword("if", new KeywordHandler.Named("if (condition: body)", (ExpressionParser parser, String name) -> nextIfElse(parser, false)))
-			.addKeyword("unless", new KeywordHandler.Named("unless (condition: body)", (ExpressionParser parser, String name) -> nextIfElse(parser, true)))
-			.addMemberKeyword(
-				TypeInfos.BOOLEAN, "if", new MemberKeywordHandler.Named(
-					"condition.if (body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		.addKeyword(makeVar())
+		.addKeyword(makeClass())
+		.addKeyword(new KeywordHandler.Named(
+			"if",
+			"if (condition: body)",
+			null,
+			(ExpressionParser parser, String name) -> nextIfElse(parser, false)
+		))
+		.addKeyword(new KeywordHandler.Named(
+			"unless",
+			"unless (condition: body)",
+			null,
+			(ExpressionParser parser, String name) -> nextIfElse(parser, true)
+		))
+		.addMemberKeyword(
+			new MemberKeywordHandler.Named(
+				TypeInfos.BOOLEAN,
+				"if",
+				"condition.if (body)",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					return nextIfElse(receiver, parser, false);
 				}
-				)
 			)
-			.addMemberKeyword(
-				TypeInfos.BOOLEAN, "unless", new MemberKeywordHandler.Named(
-					"condition.unless (body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		)
+		.addMemberKeyword(
+			new MemberKeywordHandler.Named(
+				TypeInfos.BOOLEAN,
+				"unless",
+				"condition.unless (body)",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					return nextIfElse(receiver, parser, true);
 				}
-				)
 			)
-			.addKeyword(
-				"while", new KeywordHandler.Named(
-					"while (condition: body)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"while",
+				"while (condition: body)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 					ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 					return while_(loopName, whileStatement.condition(), whileStatement.body());
 				}
-				)
 			)
-			.addKeyword(
-				"until", new KeywordHandler.Named(
-					"until (condition: body)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"until",
+				"until (condition: body)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 					ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
 					return while_(loopName, not(whileStatement.condition()), whileStatement.body());
 				}
-				)
 			)
-			.addKeyword(
-				"do", new KeywordHandler.Named(
-					"do while|until (condition: body)", (ExpressionParser parser, String name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"do",
+				"do while|until (condition: body)",
+				null,
+				(ExpressionParser parser, String name) -> switch (parser.input.readIdentifierAfterWhitespace()) {
 					case "while" -> {
 						LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 						ConditionBodySyntax whileStatement = ConditionBodySyntax.parse(parser);
@@ -176,266 +206,309 @@ public class BuiltinScriptEnvironment {
 					}
 					default -> throw new ScriptParsingException("Expected 'while' or 'until' after 'do'", parser.input);
 				}
-				)
 			)
-			.addKeyword(
-				"repeat", new KeywordHandler.Named(
-					"repeat (times: body)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"repeat",
+				"repeat (times: body)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 					ScriptBodySyntax repeatStatement = ScriptBodySyntax.parse(parser, (InsnTree count, ExpressionParser parser1) -> count.cast(parser1, TypeInfos.INT, CastMode.IMPLICIT_THROW, false));
 					return WhileInsnTree.createRepeat(parser, loopName, repeatStatement.expression(), repeatStatement.body());
 				}
-				)
 			)
-			.addKeyword(
-				"for", new KeywordHandler.Named(
-					"for (loop: body)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"for",
+				"for (loop: body)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					return ForLoopSyntax.parse(parser);
 				}
-				)
 			)
-			.addKeyword(
-				"switch", new KeywordHandler.Named(
-					"switch (value: cases)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"switch",
+				"switch (value: cases)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					SwitchBodySyntax switchBody = SwitchBodySyntax.parse(parser);
 					return switchBody.maybeWrap(switch_(parser, switchBody.value(), switchBody.cases()));
 				}
-				)
 			)
-			.addKeyword(
-				"block", new KeywordHandler.Named(
-					"block (body)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"block",
+				"block (body)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					LoopName loopName = LoopName.of(parser.input.readIdentifierOrNullAfterWhitespace());
 					return block(loopName, ParenthesizedScript.parse(parser).contents());
 				}
-				)
 			)
-			.addKeyword(
-				"break", new KeywordHandler.Named(
-					"break(optional label)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"break",
+				"break(optional label)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					parser.input.expectAfterWhitespace('(');
 					String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 					parser.input.expectAfterWhitespace(')');
 					return new BreakInsnTree(loopName);
 				}
-				)
 			)
-			.addKeyword(
-				"continue", new KeywordHandler.Named(
-					"continue(optional label)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"continue",
+				"continue(optional label)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					parser.input.expectAfterWhitespace('(');
 					String loopName = parser.input.readIdentifierOrNullAfterWhitespace();
 					parser.input.expectAfterWhitespace(')');
 					return new ContinueInsnTree(loopName);
 				}
-				)
 			)
-			.addKeyword(
-				"compare", new KeywordHandler.Named(
-					"compare (value1, value2: cases)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"compare",
+				"compare (value1, value2: cases)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					return CompareSyntax.parse(parser).buildInsnTree();
 				}
-				)
 			)
-			.addKeyword(
-				"noscope", new KeywordHandler.Named(
-					"noscope(declarations)", (ExpressionParser parser, String name) -> {
+		)
+		.addKeyword(
+			new KeywordHandler.Named(
+				"noscope",
+				"noscope(declarations)",
+				null,
+				(ExpressionParser parser, String name) -> {
 					parser.input.expectAfterWhitespace('(');
 					InsnTree tree = parser.nextScript();
 					parser.input.expectAfterWhitespace(')');
 					return tree;
 				}
-				)
 			)
+		)
 
-			//////////////// member keywords ////////////////
+		//////////////// member keywords ////////////////
 
-			.addMemberKeyword(
-				TypeInfos.OBJECT, "is", new MemberKeywordHandler.Named(
-					"value.is(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		.addMemberKeyword(
+			new MemberKeywordHandler.Named(
+				TypeInfos.OBJECT,
+				"is",
+				"value.is(Type)",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					TypeInfo type = nextParenthesizedType(parser);
 					if (type.isPrimitive()) {
 						throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
 					}
 					return instanceOf(receiver, type);
 				}
-				)
 			)
-			.addMemberKeyword(
-				TypeInfos.OBJECT, "isnt", new MemberKeywordHandler.Named(
-					"value.isnt(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		)
+		.addMemberKeyword(
+			new MemberKeywordHandler.Named(
+				TypeInfos.OBJECT,
+				"isnt",
+				"value.isnt(Type)",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					TypeInfo type = nextParenthesizedType(parser);
 					if (type.isPrimitive()) {
 						throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
 					}
 					return not(parser, instanceOf(receiver, type));
 				}
-				)
 			)
-			.addMemberKeyword(
-				null, "as", new MemberKeywordHandler.Named(
-					"value.as(Type)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+		)
+		.addMemberKeyword(
+			new MemberKeywordHandler.Named(
+				null,
+				"as",
+				"value.as(Type)",
+				null,
+				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 					boolean nullable = parser.input.hasOperatorAfterWhitespace("?");
 					return receiver.cast(parser, nextParenthesizedType(parser), CastMode.EXPLICIT_THROW, nullable);
 				}
-				)
 			)
-			.addMemberKeyword(TypeInfos.BYTE, "isBetween", makeBetween())
-			.addMemberKeyword(TypeInfos.SHORT, "isBetween", makeBetween())
-			.addMemberKeyword(TypeInfos.INT, "isBetween", makeBetween())
-			.addMemberKeyword(TypeInfos.LONG, "isBetween", makeBetween())
-			.addMemberKeyword(TypeInfos.FLOAT, "isBetween", makeBetween())
-			.addMemberKeyword(TypeInfos.DOUBLE, "isBetween", makeBetween())
-			.addMemberKeyword(TypeInfos.CHAR, "isBetween", makeBetween())
+		)
+		.addMemberKeyword(makeBetween(TypeInfos.BYTE  ))
+		.addMemberKeyword(makeBetween(TypeInfos.SHORT ))
+		.addMemberKeyword(makeBetween(TypeInfos.INT   ))
+		.addMemberKeyword(makeBetween(TypeInfos.LONG  ))
+		.addMemberKeyword(makeBetween(TypeInfos.FLOAT ))
+		.addMemberKeyword(makeBetween(TypeInfos.DOUBLE))
+		.addMemberKeyword(makeBetween(TypeInfos.CHAR  ))
 
-			//////////////// casting ////////////////
+		//////////////// casting ////////////////
 
-			//boolean
-			.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.BYTE, false)
-			.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.CHAR, false)
-			.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.SHORT, false)
-			.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.INT, false)
-			.addCast(TypeInfos.BOOLEAN, TypeInfos.LONG, false, CastingSupport.I2L.changeInput(TypeInfos.BOOLEAN))
-			.addCast(TypeInfos.BOOLEAN, TypeInfos.FLOAT, false, CastingSupport.I2F.changeInput(TypeInfos.BOOLEAN))
-			.addCast(TypeInfos.BOOLEAN, TypeInfos.DOUBLE, false, CastingSupport.I2D.changeInput(TypeInfos.BOOLEAN))
-			//byte
-			//.addCast(TypeInfos.BYTE, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
-			.addCastIdentity(TypeInfos.BYTE, TypeInfos.CHAR, true)
-			.addCastIdentity(TypeInfos.BYTE, TypeInfos.SHORT, true)
-			.addCastIdentity(TypeInfos.BYTE, TypeInfos.INT, true)
-			.addCast(TypeInfos.BYTE, TypeInfos.LONG, true, CastingSupport.I2L)
-			.addCast(TypeInfos.BYTE, TypeInfos.FLOAT, true, CastingSupport.I2F)
-			.addCast(TypeInfos.BYTE, TypeInfos.DOUBLE, true, CastingSupport.I2D)
-			//char
-			//.addCast(TypeInfos.CHAR, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
-			.addCast(TypeInfos.CHAR, TypeInfos.BYTE, false, CastingSupport.I2B)
-			.addCast(TypeInfos.CHAR, TypeInfos.SHORT, true, CastingSupport.I2S)
-			.addCastIdentity(TypeInfos.CHAR, TypeInfos.INT, true)
-			.addCast(TypeInfos.CHAR, TypeInfos.LONG, true, CastingSupport.I2L)
-			.addCast(TypeInfos.CHAR, TypeInfos.FLOAT, true, CastingSupport.I2F)
-			.addCast(TypeInfos.CHAR, TypeInfos.DOUBLE, true, CastingSupport.I2D)
-			//short
-			//.addCast(TypeInfos.SHORT, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
-			.addCast(TypeInfos.SHORT, TypeInfos.BYTE, false, CastingSupport.I2B)
-			.addCast(TypeInfos.SHORT, TypeInfos.CHAR, false, CastingSupport.I2C)
-			.addCastIdentity(TypeInfos.SHORT, TypeInfos.INT, true)
-			.addCast(TypeInfos.SHORT, TypeInfos.LONG, true, CastingSupport.I2L)
-			.addCast(TypeInfos.SHORT, TypeInfos.FLOAT, true, CastingSupport.I2F)
-			.addCast(TypeInfos.SHORT, TypeInfos.DOUBLE, true, CastingSupport.I2D)
-			//int
-			//.addCast(CastingSupport.I2Z)
-			.addCast(CastingSupport.I2B)
-			.addCast(CastingSupport.I2C)
-			.addCast(CastingSupport.I2S)
-			.addCast(CastingSupport.I2L)
-			.addCast(CastingSupport.I2F)
-			.addCast(CastingSupport.I2D)
-			//long
-			//.addCast(CastingSupport.L2Z)
-			.addCasts(CastingSupport.L2I, CastingSupport.I2B)
-			.addCasts(CastingSupport.L2I, CastingSupport.I2C)
-			.addCasts(CastingSupport.L2I, CastingSupport.I2S)
-			.addCast(CastingSupport.L2I)
-			.addCast(CastingSupport.L2F)
-			.addCast(CastingSupport.L2D)
-			//float
-			.addCast(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, CastingSupport.F2Z)
-			.addCasts(CastingSupport.F2I, CastingSupport.I2B)
-			.addCasts(CastingSupport.F2I, CastingSupport.I2C)
-			.addCasts(CastingSupport.F2I, CastingSupport.I2S)
-			.addCast(CastingSupport.F2I)
-			.addCast(CastingSupport.F2L)
-			.addCast(CastingSupport.F2D)
-			//double
-			.addCast(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, CastingSupport.D2Z)
-			.addCasts(CastingSupport.D2I, CastingSupport.I2B)
-			.addCasts(CastingSupport.D2I, CastingSupport.I2C)
-			.addCasts(CastingSupport.D2I, CastingSupport.I2S)
-			.addCast(CastingSupport.D2I)
-			.addCast(CastingSupport.D2L)
-			.addCast(CastingSupport.D2F)
-			//boxing
-			.addCastConstant(CastingSupport.BYTE_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.SHORT_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.INT_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.LONG_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.FLOAT_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.DOUBLE_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.CHAR_CONSTANT_FACTORY, true)
-			.addCastConstant(CastingSupport.BOOLEAN_CONSTANT_FACTORY, true)
-			/*
-			.addCastInvokeStatic(Byte     .class, "valueOf", true, Byte     .class, byte     .class)
-			.addCastInvokeStatic(Short    .class, "valueOf", true, Short    .class, short    .class)
-			.addCastInvokeStatic(Integer  .class, "valueOf", true, Integer  .class, int      .class)
-			.addCastInvokeStatic(Long     .class, "valueOf", true, Long     .class, long     .class)
-			.addCastInvokeStatic(Float    .class, "valueOf", true, Float    .class, float    .class)
-			.addCastInvokeStatic(Double   .class, "valueOf", true, Double   .class, double   .class)
-			.addCastInvokeStatic(Character.class, "valueOf", true, Character.class, char     .class)
-			.addCastInvokeStatic(Boolean  .class, "valueOf", true, Boolean  .class, boolean  .class)
-			*/
-			//unboxing
-			.addCast(TypeInfos.BYTE_WRAPPER, TypeInfos.BYTE, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Byte.class, "byteValue")))
-			.addCast(TypeInfos.SHORT_WRAPPER, TypeInfos.SHORT, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Short.class, "shortValue")))
-			.addCast(TypeInfos.INT_WRAPPER, TypeInfos.INT, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Integer.class, "intValue")))
-			.addCast(TypeInfos.LONG_WRAPPER, TypeInfos.LONG, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Long.class, "longValue")))
-			.addCast(TypeInfos.FLOAT_WRAPPER, TypeInfos.FLOAT, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Float.class, "floatValue")))
-			.addCast(TypeInfos.DOUBLE_WRAPPER, TypeInfos.DOUBLE, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Double.class, "doubleValue")))
-			.addCast(TypeInfos.CHAR_WRAPPER, TypeInfos.CHAR, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Character.class, "charValue")))
-			.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Boolean.class, "booleanValue")))
-			//toString
-			.addCast(TypeInfos.BYTE, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Byte.class, "toString", String.class, byte.class)))
-			.addCast(TypeInfos.SHORT, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Short.class, "toString", String.class, short.class)))
-			.addCast(TypeInfos.INT, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Integer.class, "toString", String.class, int.class)))
-			.addCast(TypeInfos.LONG, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Long.class, "toString", String.class, long.class)))
-			.addCast(TypeInfos.FLOAT, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Float.class, "toString", String.class, float.class)))
-			.addCast(TypeInfos.DOUBLE, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Double.class, "toString", String.class, double.class)))
-			.addCast(TypeInfos.CHAR, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Character.class, "toString", String.class, char.class)))
-			.addCast(TypeInfos.BOOLEAN, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Boolean.class, "toString", String.class, boolean.class)))
-			.addCast(TypeInfos.OBJECT, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Objects.class, "toString", String.class, Object.class)))
+		//boolean
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.BYTE,  false)
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.CHAR,  false)
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.SHORT, false)
+		.addCastIdentity(TypeInfos.BOOLEAN, TypeInfos.INT,   false)
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.LONG,   false, CastingSupport.I2L.changeInput(TypeInfos.BOOLEAN))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.FLOAT,  false, CastingSupport.I2F.changeInput(TypeInfos.BOOLEAN))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.DOUBLE, false, CastingSupport.I2D.changeInput(TypeInfos.BOOLEAN))
+		//byte
+		//.addCast(TypeInfos.BYTE, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
+		.addCastIdentity(TypeInfos.BYTE, TypeInfos.CHAR,  true)
+		.addCastIdentity(TypeInfos.BYTE, TypeInfos.SHORT, true)
+		.addCastIdentity(TypeInfos.BYTE, TypeInfos.INT,   true)
+		.addCast(TypeInfos.BYTE, TypeInfos.LONG,   true, CastingSupport.I2L)
+		.addCast(TypeInfos.BYTE, TypeInfos.FLOAT,  true, CastingSupport.I2F)
+		.addCast(TypeInfos.BYTE, TypeInfos.DOUBLE, true, CastingSupport.I2D)
+		//char
+		//.addCast(TypeInfos.CHAR, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
+		.addCast(TypeInfos.CHAR, TypeInfos.BYTE,   false, CastingSupport.I2B)
+		.addCast(TypeInfos.CHAR, TypeInfos.SHORT,  true,  CastingSupport.I2S)
+		.addCastIdentity(TypeInfos.CHAR, TypeInfos.INT, true)
+		.addCast(TypeInfos.CHAR, TypeInfos.LONG,   true,  CastingSupport.I2L)
+		.addCast(TypeInfos.CHAR, TypeInfos.FLOAT,  true,  CastingSupport.I2F)
+		.addCast(TypeInfos.CHAR, TypeInfos.DOUBLE, true,  CastingSupport.I2D)
+		//short
+		//.addCast(TypeInfos.SHORT, TypeInfos.BOOLEAN, false, CastingSupport.I2Z)
+		.addCast(TypeInfos.SHORT, TypeInfos.BYTE,   false, CastingSupport.I2B)
+		.addCast(TypeInfos.SHORT, TypeInfos.CHAR,   false, CastingSupport.I2C)
+		.addCastIdentity(TypeInfos.SHORT, TypeInfos.INT, true)
+		.addCast(TypeInfos.SHORT, TypeInfos.LONG,   true,  CastingSupport.I2L)
+		.addCast(TypeInfos.SHORT, TypeInfos.FLOAT,  true,  CastingSupport.I2F)
+		.addCast(TypeInfos.SHORT, TypeInfos.DOUBLE, true,  CastingSupport.I2D)
+		//int
+		//.addCast(CastingSupport.I2Z)
+		.addCast(CastingSupport.I2B)
+		.addCast(CastingSupport.I2C)
+		.addCast(CastingSupport.I2S)
+		.addCast(CastingSupport.I2L)
+		.addCast(CastingSupport.I2F)
+		.addCast(CastingSupport.I2D)
+		//long
+		//.addCast(CastingSupport.L2Z)
+		.addCasts(CastingSupport.L2I, CastingSupport.I2B)
+		.addCasts(CastingSupport.L2I, CastingSupport.I2C)
+		.addCasts(CastingSupport.L2I, CastingSupport.I2S)
+		.addCast(CastingSupport.L2I)
+		.addCast(CastingSupport.L2F)
+		.addCast(CastingSupport.L2D)
+		//float
+		.addCast(TypeInfos.FLOAT, TypeInfos.BOOLEAN, false, CastingSupport.F2Z)
+		.addCasts(CastingSupport.F2I, CastingSupport.I2B)
+		.addCasts(CastingSupport.F2I, CastingSupport.I2C)
+		.addCasts(CastingSupport.F2I, CastingSupport.I2S)
+		.addCast(CastingSupport.F2I)
+		.addCast(CastingSupport.F2L)
+		.addCast(CastingSupport.F2D)
+		//double
+		.addCast(TypeInfos.DOUBLE, TypeInfos.BOOLEAN, false, CastingSupport.D2Z)
+		.addCasts(CastingSupport.D2I, CastingSupport.I2B)
+		.addCasts(CastingSupport.D2I, CastingSupport.I2C)
+		.addCasts(CastingSupport.D2I, CastingSupport.I2S)
+		.addCast(CastingSupport.D2I)
+		.addCast(CastingSupport.D2L)
+		.addCast(CastingSupport.D2F)
+		//boxing
+		.addCastConstant(CastingSupport.   BYTE_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.  SHORT_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.    INT_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.   LONG_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.  FLOAT_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport. DOUBLE_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.   CHAR_CONSTANT_FACTORY, true)
+		.addCastConstant(CastingSupport.BOOLEAN_CONSTANT_FACTORY, true)
+		/*
+		.addCastInvokeStatic(Byte     .class, "valueOf", true, Byte     .class, byte     .class)
+		.addCastInvokeStatic(Short    .class, "valueOf", true, Short    .class, short    .class)
+		.addCastInvokeStatic(Integer  .class, "valueOf", true, Integer  .class, int      .class)
+		.addCastInvokeStatic(Long     .class, "valueOf", true, Long     .class, long     .class)
+		.addCastInvokeStatic(Float    .class, "valueOf", true, Float    .class, float    .class)
+		.addCastInvokeStatic(Double   .class, "valueOf", true, Double   .class, double   .class)
+		.addCastInvokeStatic(Character.class, "valueOf", true, Character.class, char     .class)
+		.addCastInvokeStatic(Boolean  .class, "valueOf", true, Boolean  .class, boolean  .class)
+		*/
+		//unboxing
+		.addCast(TypeInfos.   BYTE_WRAPPER, TypeInfos.BYTE,    true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Byte.class, "byteValue")))
+		.addCast(TypeInfos.  SHORT_WRAPPER, TypeInfos.SHORT,   true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Short.class, "shortValue")))
+		.addCast(TypeInfos.    INT_WRAPPER, TypeInfos.INT,     true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Integer.class, "intValue")))
+		.addCast(TypeInfos.   LONG_WRAPPER, TypeInfos.LONG,    true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Long.class, "longValue")))
+		.addCast(TypeInfos.  FLOAT_WRAPPER, TypeInfos.FLOAT,   true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Float.class, "floatValue")))
+		.addCast(TypeInfos. DOUBLE_WRAPPER, TypeInfos.DOUBLE,  true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Double.class, "doubleValue")))
+		.addCast(TypeInfos.   CHAR_WRAPPER, TypeInfos.CHAR,    true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Character.class, "charValue")))
+		.addCast(TypeInfos.BOOLEAN_WRAPPER, TypeInfos.BOOLEAN, true, CastingSupport.invokeVirtual(MethodInfo.getMethod(Boolean.class, "booleanValue")))
+		//toString
+		.addCast(TypeInfos.BYTE,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Byte.class, "toString", String.class, byte.class)))
+		.addCast(TypeInfos.SHORT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Short.class, "toString", String.class, short.class)))
+		.addCast(TypeInfos.INT,     TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Integer.class, "toString", String.class, int.class)))
+		.addCast(TypeInfos.LONG,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Long.class, "toString", String.class, long.class)))
+		.addCast(TypeInfos.FLOAT,   TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Float.class, "toString", String.class, float.class)))
+		.addCast(TypeInfos.DOUBLE,  TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Double.class, "toString", String.class, double.class)))
+		.addCast(TypeInfos.CHAR,    TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Character.class, "toString", String.class, char.class)))
+		.addCast(TypeInfos.BOOLEAN, TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Boolean.class, "toString", String.class, boolean.class)))
+		.addCast(TypeInfos.OBJECT,  TypeInfos.STRING, true, CastingSupport.invokeStatic(MethodInfo.findMethod(Objects.class, "toString", String.class, Object.class)))
 
-			//////////////// casting with round mode ////////////////
+		//////////////// casting with round mode ////////////////
 
-			.addFunctionMultiInvokeStatics(CastingSupport.class, "floorInt", "ceilInt", "floorLong", "ceilLong", "roundInt", "roundLong", "higherInt", "higherLong", "lowerInt", "lowerLong", "truncInt", "truncLong")
-			.addFunction("floorInt", makeIdentity("floorInt(int value)", TypeInfos.INT))
-			.addFunction("floorLong", makeOpcode("floorLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
-			.addFunction("floorLong", makeIdentity("floorLong(long value)", TypeInfos.LONG))
-			.addFunction("ceilInt", makeIdentity("ceilInt(int value)", TypeInfos.INT))
-			.addFunction("ceilLong", makeOpcode("ceilLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
-			.addFunction("ceilLong", makeIdentity("ceilLong(long value)", TypeInfos.LONG))
-			.addFunction("roundInt", makeIdentity("roundInt(int value)", TypeInfos.INT))
-			.addFunction("roundLong", makeOpcode("roundLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
-			.addFunction("roundLong", makeIdentity("roundLong(long value)", TypeInfos.LONG))
-			.addFunction("truncInt", makeIdentity("truncInt(int value)", TypeInfos.INT))
-			.addFunction("truncLong", makeOpcode("truncLong(int value)", TypeInfos.INT, TypeInfos.LONG, I2L))
-			.addFunction("truncLong", makeIdentity("truncLong(long value)", TypeInfos.LONG))
-			.addFunction("truncInt", makeOpcode("truncInt(float value)", TypeInfos.FLOAT, TypeInfos.INT, F2I))
-			.addFunction("truncInt", makeOpcode("truncInt(double value)", TypeInfos.DOUBLE, TypeInfos.INT, D2I))
-			.addFunction("truncLong", makeOpcode("truncLong(float value)", TypeInfos.FLOAT, TypeInfos.LONG, F2L))
-			.addFunction("truncLong", makeOpcode("truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
+		.addFunctionMultiInvokeStatics(CastingSupport.class, "floorInt", "ceilInt", "floorLong", "ceilLong", "roundInt", "roundLong", "higherInt", "higherLong", "lowerInt", "lowerLong", "truncInt", "truncLong")
+		.addFunction(makeIdentity("floorInt",  "floorInt(int value)",     TypeInfos.INT))
+		.addFunction(makeOpcode  ("floorLong", "floorLong(int value)",    TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction(makeIdentity("floorLong", "floorLong(long value)",   TypeInfos.LONG))
+		.addFunction(makeIdentity("ceilInt",   "ceilInt(int value)",      TypeInfos.INT))
+		.addFunction(makeOpcode  ("ceilLong",  "ceilLong(int value)",     TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction(makeIdentity("ceilLong",  "ceilLong(long value)",    TypeInfos.LONG))
+		.addFunction(makeIdentity("roundInt",  "roundInt(int value)",     TypeInfos.INT))
+		.addFunction(makeOpcode  ("roundLong", "roundLong(int value)",    TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction(makeIdentity("roundLong", "roundLong(long value)",   TypeInfos.LONG))
+		.addFunction(makeIdentity("truncInt",  "truncInt(int value)",     TypeInfos.INT))
+		.addFunction(makeOpcode  ("truncLong", "truncLong(int value)",    TypeInfos.INT, TypeInfos.LONG, I2L))
+		.addFunction(makeIdentity("truncLong", "truncLong(long value)",   TypeInfos.LONG))
+		.addFunction(makeOpcode  ("truncInt",  "truncInt(float value)",   TypeInfos.FLOAT,  TypeInfos.INT,  F2I))
+		.addFunction(makeOpcode  ("truncInt",  "truncInt(double value)",  TypeInfos.DOUBLE, TypeInfos.INT,  D2I))
+		.addFunction(makeOpcode  ("truncLong", "truncLong(float value)",  TypeInfos.FLOAT,  TypeInfos.LONG, F2L))
+		.addFunction(makeOpcode  ("truncLong", "truncLong(double value)", TypeInfos.DOUBLE, TypeInfos.LONG, D2L))
 
-			//////////////// breakpoint ////////////////
-			.addFunctionInvokeStatic(BuiltinScriptEnvironment.class, "breakpoint")
+		//////////////// breakpoint ////////////////
+
+		.addFunctionInvokeStatic(BuiltinScriptEnvironment.class, "breakpoint")
 	);
 
-	public static FunctionHandler.Named makeOpcode(String name, TypeInfo from, TypeInfo to, int opcode) {
+	public static FunctionHandler.Named makeOpcode(String name, String description, TypeInfo from, TypeInfo to, int opcode) {
 		return new FunctionHandler.Named(
-			name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
-				return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
+			name,
+			description,
+			null,
+			(ExpressionParser parser, String name1, InsnTree... arguments) -> {
+				if (arguments.length == 1 && arguments[0].getTypeInfo().equals(from)) {
+					return new CastResult(new OpcodeCastInsnTree(arguments[0], opcode, to), false);
+				}
+				return null;
 			}
-			return null;
-		}
 		);
 	}
 
-	public static FunctionHandler.Named makeIdentity(String name, TypeInfo type) {
+	public static FunctionHandler.Named makeIdentity(String name, String description, TypeInfo type) {
 		return new FunctionHandler.Named(
-			name, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-			if (arguments.length == 1 && arguments[0].getTypeInfo().equals(type)) {
-				return new CastResult(arguments[0], false);
+			name,
+			description,
+			null,
+			(ExpressionParser parser, String name1, InsnTree... arguments) -> {
+				if (arguments.length == 1 && arguments[0].getTypeInfo().equals(type)) {
+					return new CastResult(arguments[0], false);
+				}
+				return null;
 			}
-			return null;
-		}
 		);
 	}
 
@@ -450,58 +523,63 @@ public class BuiltinScriptEnvironment {
 
 	public static FunctionHandler.Named makePrint() {
 		return new FunctionHandler.Named(
-			"builtin function print(anything)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-			if (arguments.length == 0) {
-				throw new ScriptParsingException("Not allowed to print nothing", parser.input);
-			}
-			InsnTree loadOut = getStatic(PRINTER_FIELD);
-			if (arguments.length == 1) {
-				return new CastResult(
-					switch (arguments[0].getTypeInfo().getSort()) {
-						case VOID -> throw new ScriptParsingException("Attempt to print void", parser.input);
-						case BYTE, SHORT -> invokeInstance(loadOut, PRINTLN_INT, arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false));
-						case INT -> invokeInstance(loadOut, PRINTLN_INT, arguments);
-						case LONG -> invokeInstance(loadOut, PRINTLN_LONG, arguments);
-						case FLOAT -> invokeInstance(loadOut, PRINTLN_FLOAT, arguments);
-						case DOUBLE -> invokeInstance(loadOut, PRINTLN_DOUBLE, arguments);
-						case CHAR -> invokeInstance(loadOut, PRINTLN_CHAR, arguments);
-						case BOOLEAN -> invokeInstance(loadOut, PRINTLN_BOOLEAN, arguments);
-						case ARRAY, OBJECT -> invokeInstance(loadOut, PRINTLN_OBJECT, arguments);
-					},
-					false
-				);
-			}
-			else {
-				return new CastResult(
-					invokeInstance(
-						loadOut,
-						PRINTLN_STRING,
-						invokeDynamic(
-							STRING_CONCAT_FACTORY,
-							new MethodInfo(
-								ACC_PUBLIC | ACC_STATIC,
-								TypeInfos.OBJECT, //ignored
-								"concat",
-								TypeInfos.STRING,
-								Arrays
+			"print",
+			"builtin function print(anything)",
+			null,
+			(ExpressionParser parser, String name, InsnTree... arguments) -> {
+				if (arguments.length == 0) {
+					throw new ScriptParsingException("Not allowed to print nothing", parser.input);
+				}
+				InsnTree loadOut = getStatic(PRINTER_FIELD);
+				if (arguments.length == 1) {
+					return new CastResult(
+						switch (arguments[0].getTypeInfo().getSort()) {
+							case VOID          -> throw new ScriptParsingException("Attempt to print void", parser.input);
+							case BYTE, SHORT   -> invokeInstance(loadOut, PRINTLN_INT,     arguments[0].cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false));
+							case INT           -> invokeInstance(loadOut, PRINTLN_INT,     arguments);
+							case LONG          -> invokeInstance(loadOut, PRINTLN_LONG,    arguments);
+							case FLOAT         -> invokeInstance(loadOut, PRINTLN_FLOAT,   arguments);
+							case DOUBLE        -> invokeInstance(loadOut, PRINTLN_DOUBLE,  arguments);
+							case CHAR          -> invokeInstance(loadOut, PRINTLN_CHAR,    arguments);
+							case BOOLEAN       -> invokeInstance(loadOut, PRINTLN_BOOLEAN, arguments);
+							case ARRAY, OBJECT -> invokeInstance(loadOut, PRINTLN_OBJECT,  arguments);
+						},
+						false
+					);
+				}
+				else {
+					return new CastResult(
+						invokeInstance(
+							loadOut,
+							PRINTLN_STRING,
+							invokeDynamic(
+								STRING_CONCAT_FACTORY,
+								new MethodInfo(
+									ACC_PUBLIC | ACC_STATIC,
+									TypeInfos.OBJECT, //ignored
+									"concat",
+									TypeInfos.STRING,
+									Arrays
 									.stream(arguments)
 									.map(InsnTree::getTypeInfo)
 									.toArray(TypeInfo.ARRAY_FACTORY)
-							),
-							ConstantValue.ARRAY_FACTORY.empty(),
-							arguments
-						)
-					),
-					false
-				);
+								),
+								ConstantValue.ARRAY_FACTORY.empty(),
+								arguments
+							)
+						),
+						false
+					);
+				}
 			}
-		}
 		);
 	}
 
 	public static KeywordHandler.Named makeVar() {
 		return new KeywordHandler.Named(
+			"var",
 			"var name = value",
+			null,
 			(ExpressionParser parser, String name) -> {
 				if (parser.input.hasOperatorAfterWhitespace("*")) {
 					return MultiDeclarationSyntax.parse(parser, null).sequence();
@@ -523,8 +601,8 @@ public class BuiltinScriptEnvironment {
 					LazyVarInfo variable = new LazyVarInfo(varName, initializer.getTypeInfo());
 					return (
 						reuse
-							? new VariableDeclarePostAssignInsnTree(variable, initializer)
-							: new VariableDeclareAssignInsnTree(variable, initializer)
+						? new VariableDeclarePostAssignInsnTree(variable, initializer)
+						: new VariableDeclareAssignInsnTree(variable, initializer)
 					);
 				}
 			}
@@ -533,7 +611,9 @@ public class BuiltinScriptEnvironment {
 
 	public static KeywordHandler.Named makeClass() {
 		return new KeywordHandler.Named(
+			"class",
 			"class Name(fields)",
+			null,
 			(ExpressionParser parser, String name) -> {
 				String className = parser.verifyName(parser.input.expectIdentifierAfterWhitespace(), "class");
 				parser.checkType(className);
@@ -543,9 +623,12 @@ public class BuiltinScriptEnvironment {
 		);
 	}
 
-	public static MemberKeywordHandler.Named makeBetween() {
+	public static MemberKeywordHandler.Named makeBetween(TypeInfo owner) {
 		return new MemberKeywordHandler.Named(
+			owner,
+			"isBetween",
 			"value.isBetween[lowerBound, upperBound)",
+			null,
 			(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
 				return switch (mode) {
 					case NORMAL, NULLABLE -> {
@@ -566,13 +649,13 @@ public class BuiltinScriptEnvironment {
 		if (negate) condition = not(condition);
 		return (
 			elseStatement != null
-				? ifElse(
+			? ifElse(
 				parser,
 				condition,
 				ifStatement.body(),
 				elseStatement
 			)
-				: ifThen(
+			: ifThen(
 				condition,
 				ifStatement.body()
 			)

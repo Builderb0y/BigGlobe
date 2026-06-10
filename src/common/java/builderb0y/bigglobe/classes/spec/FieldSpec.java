@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
@@ -29,16 +30,39 @@ public class FieldSpec extends BaseFieldSpec {
 	}
 
 	public final @VerifyNullable @UseName("default") ScriptUsage defaultValue;
+	public final @DefaultBoolean(true) boolean include_in_equals, include_in_hash_code, include_in_to_string;
 	public final transient SetBasedMutableDependencyView dependencies = SetBasedMutableDependencyView.from(new HashSet<>());
 
-	public FieldSpec(Holder<ElementSpec> owner, @IdentifierName String name, Holder<ElementSpec> field_type, @VerifyNullable ScriptUsage defaultValue) {
+	public FieldSpec(
+		Holder<ElementSpec> owner,
+		@IdentifierName String name,
+		Holder<ElementSpec> field_type,
+		@VerifyNullable ScriptUsage defaultValue,
+		boolean include_in_equals,
+		boolean include_in_hash_code,
+		boolean include_in_to_string
+	) {
 		super(owner, name, field_type);
 		this.defaultValue = defaultValue;
+		this.include_in_equals = include_in_equals;
+		this.include_in_hash_code = include_in_hash_code;
+		this.include_in_to_string = include_in_to_string;
 	}
 
 	@Override
 	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return Stream.concat(super.streamDirectDependencies(), this.dependencies.streamDirectDependencies());
+	}
+
+	@Override
+	@MustBeInvokedByOverriders
+	public void reference(ClassHierarchy hierarchy) throws DetailedException {
+		super.reference(hierarchy);
+		ClassSpec owner = this.owner(hierarchy);
+		Holder<ElementSpec> self = hierarchy.entryOf(this);
+		if (this.include_in_equals) owner.fieldsForEquals.add(self);
+		if (this.include_in_hash_code) owner.fieldsForHashCode.add(self);
+		if (this.include_in_to_string) owner.fieldsForToString.add(self);
 	}
 
 	@Override

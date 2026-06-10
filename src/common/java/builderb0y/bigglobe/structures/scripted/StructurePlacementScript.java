@@ -7,13 +7,8 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -43,45 +38,46 @@ public interface StructurePlacementScript extends Script {
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
-				new TemplateScriptParser<>(StructurePlacementScript.class, usage, registry.parserFlags())
-				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+				new TemplateScriptParser<>(StructurePlacementScript.class, this.usage, registry.parserFlags())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
 				.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
 				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment(NbtScriptEnvironment.createImmutable())
-				.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-				.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-				.configureEnvironment((MutableScriptEnvironment environment) -> {
+				.configure((ExpressionParser parser) -> {
+					parser
+					.environment
+					.mutable()
+					.addVariableLoad("minX", TypeInfos.INT)
+					.addVariableLoad("minY", TypeInfos.INT)
+					.addVariableLoad("minZ", TypeInfos.INT)
+					.addVariableLoad("maxX", TypeInfos.INT)
+					.addVariableLoad("maxY", TypeInfos.INT)
+					.addVariableLoad("maxZ", TypeInfos.INT)
+					.addVariableLoad("midX", TypeInfos.INT)
+					.addVariableLoad("midY", TypeInfos.INT)
+					.addVariableLoad("midZ", TypeInfos.INT)
+					.addVariableLoad("chunkMinX", TypeInfos.INT)
+					.addVariableLoad("chunkMinY", TypeInfos.INT)
+					.addVariableLoad("chunkMinZ", TypeInfos.INT)
+					.addVariableLoad("chunkMaxX", TypeInfos.INT)
+					.addVariableLoad("chunkMaxY", TypeInfos.INT)
+					.addVariableLoad("chunkMaxZ", TypeInfos.INT)
+					.addVariableLoad("piece", type(ScriptedStructure.Piece.class))
+					.addVariableGetField(load("piece", type(ScriptedStructure.Piece.class)), ScriptedStructure.Piece.class, "data")
+					;
 					registry.setupEnvironment(
-						environment
-						.addVariableLoad("minX", TypeInfos.INT)
-						.addVariableLoad("minY", TypeInfos.INT)
-						.addVariableLoad("minZ", TypeInfos.INT)
-						.addVariableLoad("maxX", TypeInfos.INT)
-						.addVariableLoad("maxY", TypeInfos.INT)
-						.addVariableLoad("maxZ", TypeInfos.INT)
-						.addVariableLoad("midX", TypeInfos.INT)
-						.addVariableLoad("midY", TypeInfos.INT)
-						.addVariableLoad("midZ", TypeInfos.INT)
-						.addVariableLoad("chunkMinX", TypeInfos.INT)
-						.addVariableLoad("chunkMinY", TypeInfos.INT)
-						.addVariableLoad("chunkMinZ", TypeInfos.INT)
-						.addVariableLoad("chunkMaxX", TypeInfos.INT)
-						.addVariableLoad("chunkMaxY", TypeInfos.INT)
-						.addVariableLoad("chunkMaxZ", TypeInfos.INT)
-						.addVariableLoad("piece", type(ScriptedStructure.Piece.class))
-						.addVariableGetField(load("piece", type(ScriptedStructure.Piece.class)), ScriptedStructure.Piece.class, "data"),
+						parser,
 						new ExternalEnvironmentParams()
-						.withLookup(WORLD.loadSelf)
+						.withLookup("world", WORLD.loadSelf)
 						.offsetY(WORLD.originY)
 					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.addImportedValue("random", WORLD.random)
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

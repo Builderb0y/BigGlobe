@@ -1,0 +1,12 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:trees/common/class",
+	"name": "generateArtificial",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "centerX", "type": "double" },
+		{ "name": "centerY", "type": "int"    },
+		{ "name": "centerZ", "type": "double" },
+		{ "name": "radius",  "type": "double" }
+	]
+}

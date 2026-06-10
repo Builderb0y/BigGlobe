@@ -3,7 +3,7 @@ package builderb0y.bigglobe.columns.restrictions;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript.Catcher;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 public class ScriptColumnRestriction implements ColumnRestriction {
@@ -27,9 +27,9 @@ public class ScriptColumnRestriction implements ColumnRestriction {
 		}
 
 		@Override
-		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
-			super.addExtraFunctionsToEnvironment(parameters, environment);
-			environment.addFunctionInvokeStatics(RangeColumnRestriction.class, "bandLinear", "bandSmooth");
+		public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
+			super.addExtraFunctionsToEnvironment(parameters, parser);
+			parser.environment.mutable().addFunctionInvokeStatics(RangeColumnRestriction.class, "bandLinear", "bandSmooth");
 		}
 	}
 }

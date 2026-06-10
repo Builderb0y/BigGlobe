@@ -30,7 +30,6 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -48,13 +47,8 @@ import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -218,36 +212,30 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage, registry.parserFlags())
-					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
 					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
+					.configure((ExpressionParser parser) -> {
+						parser
+						.environment
+						.mutable()
+						.addVariableConstant("originX", 0)
+						.addVariableConstant("originY", 0)
+						.addVariableConstant("originZ", 0)
+						.addVariable("placementX", WORLD.originX)
+						.addVariable("placementY", WORLD.originY)
+						.addVariable("placementZ", WORLD.originZ)
+						.addVariable("hints", WORLD.hints)
+						.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
+						.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT"))))
+						;
 						registry.setupEnvironment(
-							environment
-							.addVariableConstant("originX", 0)
-							.addVariableConstant("originY", 0)
-							.addVariableConstant("originZ", 0)
-							.addVariable("placementX", WORLD.originX)
-							.addVariable("placementY", WORLD.originY)
-							.addVariable("placementZ", WORLD.originZ)
-							.addVariable("hints", WORLD.hints)
-							.configure(ScriptedColumn.baseEnvironment(
-								null,
-								WORLD.loadSelf,
-								registry.columnCompileContext.columnTypeInfo()
-							))
-							.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
-							.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT")))),
-
+							parser,
 							new ExternalEnvironmentParams()
-							.withLookup(WORLD.loadSelf)
+							.withLookup("world", WORLD.loadSelf)
 							//world handles translations.
 							.withXZ(ldc(0), ldc(0))
 							.withY(ldc(0))
@@ -255,6 +243,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+					.addImportedValue("random", WORLD.random)
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}

@@ -1,0 +1,5 @@
+{
+	"element_type": "class/normal",
+	"name": "OakTreeGenerator",
+	"extends": "bigglobe:trees/split/class"
+}

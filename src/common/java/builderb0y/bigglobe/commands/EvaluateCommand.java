@@ -36,10 +36,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.SourceScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -121,27 +118,24 @@ public class EvaluateCommand {
 							else return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW, false));
 						}
 					}
-					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-					.configureEnvironment(ScriptedColumn.baseEnvironment(null, WORLD.loadSelf, registry.columnCompileContext.columnTypeInfo()))
 					.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
 					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-					.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						environment
+					.configure((ExpressionParser parser) -> {
+						parser
+						.environment
+						.mutable()
 						.addVariableLoad("originX", TypeInfos.INT)
 						.addVariableLoad("originY", TypeInfos.INT)
 						.addVariableLoad("originZ", TypeInfos.INT);
 						registry.setupEnvironment(
-							environment,
+							parser,
 							new ExternalEnvironmentParams()
-							.withLookup(WORLD.loadSelf)
+							.withLookup("world", WORLD.loadSelf)
 							.withXZ(
 								load("originX", TypeInfos.INT),
 								load("originZ", TypeInfos.INT)

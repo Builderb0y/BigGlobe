@@ -15,20 +15,20 @@ public class SymmetryScriptEnvironment {
 
 	public static final MutableScriptEnvironment INSTANCE = (
 		new MutableScriptEnvironment()
-			.addType("Symmetry", Symmetry.class)
-			.addCastConstant(FieldConstantFactory.forEnum(Symmetry.class), true)
-			.addQualifiedVariableGetStatics(Symmetry.class, Arrays.stream(Symmetry.VALUES).map(Symmetry::name).toArray(String[]::new))
-			.addMethodMultiInvokes(Symmetry.class, "getX", "getZ", "apply", "andThen", "compose", "inverse")
-			.addQualifiedFunctionInvokeStatics(Symmetry.class, "rotation", "randomRotation", "flip", "randomFlip", "randomRotationAndFlip")
+		.addType("Symmetry", Symmetry.class)
+		.addCastConstant(FieldConstantFactory.forEnum(Symmetry.class), true)
+		.addQualifiedVariableGetStatics(Symmetry.class, Arrays.stream(Symmetry.VALUES).map(Symmetry::name).toArray(String[]::new))
+		.addMethodMultiInvokes(Symmetry.class, "getX", "getZ", "apply", "andThen", "compose", "inverse")
+		.addQualifiedFunctionInvokeStatics(Symmetry.class, "rotation", "randomRotation", "flip", "randomFlip", "randomRotationAndFlip")
 	);
 
 	public static Consumer<MutableScriptEnvironment> create(InsnTree loadRandom) {
 		return (MutableScriptEnvironment environment) -> {
 			environment
-				.addAll(INSTANCE)
-				.addQualifiedFunction(type(Symmetry.class), "randomRotation", Handlers.builder(Symmetry.class, "randomRotation").addImplicitArgument(loadRandom).buildFunction())
-				.addQualifiedFunction(type(Symmetry.class), "randomFlip", Handlers.builder(Symmetry.class, "randomFlip").addImplicitArgument(loadRandom).buildFunction())
-				.addQualifiedFunction(type(Symmetry.class), "randomRotationAndFlip", Handlers.builder(Symmetry.class, "randomRotationAndFlip").addImplicitArgument(loadRandom).buildFunction())
+			.addAll(INSTANCE)
+			.addQualifiedFunction(type(Symmetry.class), Handlers.methodBuilder(Symmetry.class, "randomRotation").addImplicitArgument(loadRandom).buildFunction())
+			.addQualifiedFunction(type(Symmetry.class), Handlers.methodBuilder(Symmetry.class, "randomFlip").addImplicitArgument(loadRandom).buildFunction())
+			.addQualifiedFunction(type(Symmetry.class), Handlers.methodBuilder(Symmetry.class, "randomRotationAndFlip").addImplicitArgument(loadRandom).buildFunction())
 			;
 		};
 	}

@@ -6,7 +6,6 @@ import java.lang.invoke.MethodType;
 import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,6 @@ import net.minecraft.world.level.LevelHeightAccessor;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.classes.VoronoiSampler;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryContext;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
@@ -31,8 +29,6 @@ import builderb0y.scripting.bytecode.FieldConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.CollectionTransformer;
 import builderb0y.scripting.util.InfoHolder;
 
@@ -108,48 +104,6 @@ public abstract class ScriptedColumn {
 		public InsnTree saltedPositionedSeed3D(InsnTree loadColumn, InsnTree salt, InsnTree y) {
 			return invokeInstance(loadColumn, this.saltedPositionedSeed3D, salt, y);
 		}
-	}
-
-	public static Consumer<MutableScriptEnvironment> baseEnvironment(@Nullable InsnTree loadColumn, @Nullable InsnTree columnLookup, TypeInfo columnType) {
-		return (MutableScriptEnvironment environment) -> {
-			environment.addType("ColumnStorage", columnType);
-			if (loadColumn != null) {
-				environment
-				.addVariable("column", loadColumn)
-				.addVariable("x", INFO.x(loadColumn))
-				.addVariable("z", INFO.z(loadColumn))
-				.addVariable("minCachedYLevel", INFO.minY(loadColumn))
-				.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
-				.addVariable("hints", INFO.hints(loadColumn))
-				.addVariable("worldSeed", INFO.baseSeed(loadColumn))
-				.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
-				.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
-				.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
-				;
-			}
-			if (columnLookup != null) {
-				environment.addFunction("columnAt", Handlers.builder(ScriptedColumnLookup.LOOKUP_COLUMN).addArguments(columnLookup, "II").explicitCast(columnType).buildFunction());
-			}
-
-			environment
-			.addFieldInvoke("x", INFO.x)
-			.addFieldInvoke("z", INFO.z)
-			.addFieldInvoke("minCachedYLevel", INFO.minY)
-			.addFieldInvoke("maxCachedYLevel", INFO.maxY)
-			.addFieldInvoke("hints", INFO.hints)
-			.addFieldInvoke("worldSeed", INFO.baseSeed)
-			.addMethodInvoke("worldSeed", INFO.saltedBaseSeed)
-			.addFieldInvoke("columnSeed", INFO.positionedSeed)
-			.addMethodInvoke("columnSeed", INFO.saltedPositionedSeed)
-
-			.addType("Hints", Hints.class)
-			.addFieldInvokes(Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate")
-			.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
-
-			;
-
-			VoronoiSampler.INFO.addAllTo(environment, columnType);
-		};
 	}
 
 	public static final ConstructorInfo CONSTRUCTOR_INFO = new ConstructorInfo(ScriptedColumn.class);

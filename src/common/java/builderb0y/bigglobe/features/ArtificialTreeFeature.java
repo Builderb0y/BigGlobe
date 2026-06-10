@@ -22,7 +22,7 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
@@ -32,9 +32,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.scripting.ScriptCatcher;
-import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape.Catcher;
@@ -45,16 +42,9 @@ import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.scripting.environments.MathScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
-
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config> {
 
@@ -104,9 +94,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		centerX += Permuter.nextUniformDouble(permuter) * 0.5D;
 		centerZ += Permuter.nextUniformDouble(permuter) * 0.5D;
 		double baseRadius = Math.sqrt(saplingCount / Math.PI);
-		int trunkHeight = config.height.getHeight(baseRadius, permuter);
-		if (trunkHeight <= 0) return false;
 		column = generator.newColumn(world, BigGlobeMath.floorI(centerX), BigGlobeMath.floorI(centerZ), ColumnUsage.GENERIC.normalHints());
+		int trunkHeight = config.height.getHeight(column, baseRadius, permuter);
+		if (trunkHeight <= 0) return false;
 		TrunkConfig trunkConfig = config.trunk.create(
 			column,
 			centerX,
@@ -130,6 +120,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		ScriptedColumnLookup.Impl columns = generator.newColumnLookup(world, ColumnUsage.FEATURES.maybeDhHints());
 		return new TreeGenerator(
 			columns,
+			column,
 			world,
 			blockQueue,
 			permuter,
@@ -140,7 +131,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			decorationsBuilder.build(),
 			null
 		)
-				.generate();
+		.generate();
 	}
 
 	public static record Config(
@@ -192,37 +183,32 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 
 	public static record BallLeaves(BlockState inner_state) {}
 
-	public static interface TreeHeightScript extends Script {
+	public static interface TreeHeightScript extends ColumnScript {
 
-		public abstract int getHeight(double baseRadius, RandomGenerator random);
+		public abstract int getHeight(ScriptedColumn column, double baseRadius, RandomGenerator random);
 
 		@Wrapper
-		public static class Catcher extends ScriptCatcher<TreeHeightScript> implements TreeHeightScript {
+		public static class Catcher extends BaseCatcher<TreeHeightScript> implements TreeHeightScript {
 
 			public Catcher(ScriptUsage usage) {
 				super(usage);
 			}
 
 			@Override
-			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-				this.script = (
-					new TemplateScriptParser<>(TreeHeightScript.class, this.usage, registry.parserFlags())
-						.addEnvironment(MathScriptEnvironment.INSTANCE)
-						.configureEnvironment(RandomScriptEnvironment.create(
-							load("random", type(RandomGenerator.class))
-						))
-						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-						.configureEnvironment((MutableScriptEnvironment environment) -> {
-							environment.addVariableLoad("baseRadius", TypeInfos.DOUBLE);
-						})
-						.parse(new ScriptClassLoader())
-				);
+			public Class<TreeHeightScript> getScriptClass() {
+				return TreeHeightScript.class;
 			}
 
 			@Override
-			public int getHeight(double baseRadius, RandomGenerator random) {
+			public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
+				super.addExtraFunctionsToEnvironment(parameters, parser);
+				parser.environment.mutable().addVariableLoad("baseRadius", TypeInfos.DOUBLE);
+			}
+
+			@Override
+			public int getHeight(ScriptedColumn column, double baseRadius, RandomGenerator random) {
 				try {
-					return this.script.getHeight(baseRadius, random);
+					return this.script.getHeight(column, baseRadius, random);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);

@@ -1,0 +1,7 @@
+{
+	"element_type": "property/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "maxSaplings",
+	"property_type": "int",
+	"get": "64"
+}

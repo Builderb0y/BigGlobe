@@ -1,19 +1,12 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": {
-			"template": "bigglobe:split_tree_natural",
-			"inputs": {
-				"palette": "'minecraft:oak'",
-				"requireValidGround": "true",
-				"decorations": [
-					"ConstantMap.new(",
-						"Block('minecraft:oak_wood'  ): ConfiguredFeature('bigglobe:overworld/trees/decorators/vines_half_chance'),",
-						"Block('minecraft:oak_leaves'): ConfiguredFeature('bigglobe:overworld/trees/decorators/beehive_16th_chance')",
-					")"
-				]
-			}
-		},
+		"script": [
+			"OakTreeGenerator",
+			".create(world, random, 'minecraft:oak')",
+			".=$requireValidGround(true)",
+			".placeNatural(originX, originY, originZ)"
+		],
 		"queue": "delayed",
 		"max_radius_in_blocks": 64
 	}

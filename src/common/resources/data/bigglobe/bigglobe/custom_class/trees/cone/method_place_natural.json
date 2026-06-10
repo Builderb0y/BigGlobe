@@ -1,0 +1,26 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:trees/cone/class",
+	"name": "placeNatural",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "originX", "type": "int" },
+		{ "name": "originY", "type": "int" },
+		{ "name": "originZ", "type": "int" }
+	],
+	"code": [
+		"if (groundReplacements.(world.getBlockState(originX, originY - 1, originZ).getBlock()) == null: return(false))",
+		"float foliage = world.world_traits.`bigglobe:foliage_at`(originX, originY, originZ)",
+		"double*(",
+			"centerX = originX + random.nextDouble()",
+			"centerZ = originZ + random.nextDouble()",
+			"height = 12.0L - 12.0L * max(foliage, 0.0I) * fastLog2(max(random.nextDouble(), 2x1.0p-8L))",
+			"radius = height / 12.0",
+		")",
+		"generate(centerX, centerZ, radius, originY, originY + random.roundInt(height)).if (",
+			"placeQueuedBlocks()",
+			"placeSnow()",
+			"decorate()",
+		")"
+	]
+}

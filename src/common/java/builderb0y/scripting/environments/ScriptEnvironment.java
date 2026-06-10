@@ -68,6 +68,7 @@ public interface ScriptEnvironment {
 	public static enum GetFieldMode {
 
 		NORMAL {
+
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new NormalInstanceGetFieldInsnTree(receiver, field);
@@ -90,6 +91,7 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE {
+
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new NullableInstanceGetFieldInsnTree(receiver, field);
@@ -112,6 +114,7 @@ public interface ScriptEnvironment {
 		},
 
 		RECEIVER {
+
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new ReceiverInstanceGetFieldInsnTree(receiver, field);
@@ -134,6 +137,7 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE_RECEIVER {
+
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new NullableReceiverInstanceGetFieldInsnTree(receiver, field);
@@ -161,6 +165,15 @@ public interface ScriptEnvironment {
 				case NULLABLE -> NULLABLE;
 				case RECEIVER -> RECEIVER;
 				case NULLABLE_RECEIVER -> NULLABLE_RECEIVER;
+			};
+		}
+
+		public CommonMode toCommon() {
+			return switch (this) {
+				case NORMAL -> CommonMode.NORMAL;
+				case NULLABLE -> CommonMode.NULLABLE;
+				case RECEIVER -> CommonMode.RECEIVER;
+				case NULLABLE_RECEIVER -> CommonMode.NULLABLE_RECEIVER;
 			};
 		}
 
@@ -208,6 +221,7 @@ public interface ScriptEnvironment {
 	public static enum GetMethodMode {
 
 		NORMAL {
+
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new NormalInvokeInsnTree(method, extraArguments);
@@ -215,6 +229,7 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE {
+
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new NullableInvokeInsnTree(method, extraArguments);
@@ -222,6 +237,7 @@ public interface ScriptEnvironment {
 		},
 
 		RECEIVER {
+
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new ReceiverInvokeInsnTree(method, extraArguments);
@@ -229,6 +245,7 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE_RECEIVER {
+
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new NullableReceiverInvokeInsnTree(method, extraArguments);
@@ -241,6 +258,15 @@ public interface ScriptEnvironment {
 				case NULLABLE -> NULLABLE;
 				case RECEIVER -> RECEIVER;
 				case NULLABLE_RECEIVER -> NULLABLE_RECEIVER;
+			};
+		}
+
+		public CommonMode toCommon() {
+			return switch (this) {
+				case NORMAL -> CommonMode.NORMAL;
+				case NULLABLE -> CommonMode.NULLABLE;
+				case RECEIVER -> CommonMode.RECEIVER;
+				case NULLABLE_RECEIVER -> CommonMode.NULLABLE_RECEIVER;
 			};
 		}
 
@@ -276,6 +302,7 @@ public interface ScriptEnvironment {
 	public static enum MemberKeywordMode {
 
 		NORMAL {
+
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return function.apply(receiver);
@@ -283,6 +310,7 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE {
+
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return new NullMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
@@ -290,6 +318,7 @@ public interface ScriptEnvironment {
 		},
 
 		RECEIVER {
+
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return new ReceiverMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
@@ -297,6 +326,7 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE_RECEIVER {
+
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return new NullableReceiverMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
@@ -352,7 +382,7 @@ public interface ScriptEnvironment {
 
 	public abstract Stream<IdentifierDescriptor> listIdentifiers();
 
-	public record IdentifierDescriptor(String name, Object value) {}
+	public record IdentifierDescriptor(@Nullable TypeInfo owner, String name, Object value) {}
 
 	public static InsnTree[] castArguments(ExpressionParser parser, MethodInfo method, CastMode mode, InsnTree... arguments) {
 		return castArguments(parser, method.name, method.paramTypes, mode, arguments);

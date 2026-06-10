@@ -9,7 +9,6 @@ import builderb0y.autocodec.annotations.Alias;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -18,16 +17,10 @@ import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.Script;
-import builderb0y.scripting.parsing.ScriptClassLoader;
-import builderb0y.scripting.parsing.ScriptParsingException;
-import builderb0y.scripting.parsing.TemplateScriptParser;
+import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-
-import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 
@@ -66,18 +59,14 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(ScriptedFeatureDispatcherImpl.class, this.usage, registry.parserFlags())
-				.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
 				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
-				.configureEnvironment(RandomScriptEnvironment.create(load("random", type(RandomGenerator.class))))
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-				.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-				.configureEnvironment(ScriptedColumn.baseEnvironment(null, WORLD.loadSelf, registry.columnCompileContext.columnTypeInfo()))
-				.configureEnvironment((MutableScriptEnvironment environment) -> {
+				.configure((ExpressionParser parser) -> {
+					MutableScriptEnvironment environment = parser.environment.mutable();
 					for (String name : new String[] {
 						"minModifiableX",
 						"minModifiableY",
@@ -92,11 +81,16 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 						"maxAccessibleY",
 						"maxAccessibleZ",
 					}) {
-						environment.addVariable(name, Handlers.builder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
+						environment.addVariable(Handlers.methodBuilder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
 					}
-					registry.setupEnvironment(environment, new ExternalEnvironmentParams().withLookup(WORLD.loadSelf));
+					registry.setupEnvironment(
+						parser,
+						new ExternalEnvironmentParams()
+						.withLookup("world", WORLD.loadSelf)
+					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.addImportedValue("random", WORLD.random)
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

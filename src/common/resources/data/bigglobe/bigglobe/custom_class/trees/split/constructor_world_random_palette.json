@@ -1,0 +1,14 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:trees/split/class",
+	"name": "create",
+	"return_type": "bigglobe:trees/split/class",
+	"parameters": [
+		{ "name": "world",   "type": "world"        },
+		{ "name": "random",  "type": "random"       },
+		{ "name": "palette", "type": "wood_palette" }
+	],
+	"code": [
+		"SplitTreeGenerator.new().=$world(world).=$random(random).=$palette(palette)"
+	]
+}

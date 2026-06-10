@@ -37,6 +37,16 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 	}
 
 	@Override
+	public TemplateScriptParser<I> addImportedValue(String name, InsnTree value) {
+		return (TemplateScriptParser<I>)(super.addImportedValue(name, value));
+	}
+
+	@Override
+	public TemplateScriptParser<I> configure(Consumer<ExpressionParser> configurator) {
+		return (TemplateScriptParser<I>)(super.configure(configurator));
+	}
+
+	@Override
 	public InsnTree parseEntireInput() throws ScriptParsingException {
 		if (this.usage.getTemplate() != null) {
 			ArrayBuilder<InsnTree> initializers = parseInitializers(this, this.usage);
@@ -105,9 +115,14 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 				throw new ScriptParsingException("Unknown type: " + input.type(), null);
 			}
 			ExpressionParser parserCopy = new InnerMethodExpressionParser(parser, inputSource, type);
-			FunctionHandler.Named handler = new FunctionHandler.Named("invalid", (ExpressionParser parser_, String name, InsnTree... arguments) -> {
-				throw new ScriptParsingException(name + " is not allowed in script inputs", parser_.input);
-			});
+			FunctionHandler.Named handler = new FunctionHandler.Named(
+				"return",
+				"invalid",
+				null,
+				(ExpressionParser parser_, String name, InsnTree... arguments) -> {
+					throw new ScriptParsingException(name + " is not allowed in script inputs", parser_.input);
+				}
+			);
 			parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
 			parser.environment.user().reserveVariable(input.name(), type);
 			InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW, false);

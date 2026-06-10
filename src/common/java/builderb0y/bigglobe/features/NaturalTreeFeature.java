@@ -136,6 +136,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		);
 		return new TreeGenerator(
 			columns,
+			column,
 			context.level(),
 			new BlockQueue(false) {
 

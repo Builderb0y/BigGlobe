@@ -83,6 +83,7 @@ public abstract class BaseMethodSpec extends MemberSpec {
 	public abstract int accessFlags();
 
 	@Override
+	@MustBeInvokedByOverriders
 	public void verify(ClassHierarchy hierarchy) throws DetailedException {
 		super.verify(hierarchy);
 		Set<String> parameters = new ObjectOpenHashSet<>(this.getParameters().length);

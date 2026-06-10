@@ -125,6 +125,16 @@ public class ExpressionParser {
 		return this;
 	}
 
+	public ExpressionParser configure(Consumer<ExpressionParser> configurator) {
+		configurator.accept(this);
+		return this;
+	}
+
+	public ExpressionParser addImportedValue(String name, InsnTree value) {
+		if (value != null) this.environment.importObject(name, value);
+		return this;
+	}
+
 	public void checkVariable(String name) throws ScriptParsingException {
 		if (this.environment.getVariable(this, name) != null) {
 			throw new ScriptParsingException("Variable '" + name + "' is already defined in this scope", this.input);
@@ -937,7 +947,7 @@ public class ExpressionParser {
 				if (isAssign) {
 					InsnTree assignable = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
 					if (assignable == null) {
-						throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
+						throw new ScriptParsingException(this.listCandidates(left.getTypeInfo(), memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 					}
 					this.beginCodeBlock();
 					InsnTree value = this.nextScript();
@@ -953,14 +963,14 @@ public class ExpressionParser {
 							CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 							result = this.environment.getMethod(this, left, memberName, GetMethodMode.from(mode), arguments.arguments());
 							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
+								throw new ScriptParsingException(this.listCandidates(left.getTypeInfo(), memberName, "Unknown method or incorrect arguments: " + memberName, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + left.describe() + '.' + memberName + "(", ")"))), this.input);
 							}
 							result = arguments.maybeWrap(result);
 						}
 						else {
 							result = this.environment.getField(this, left, memberName, GetFieldMode.from(mode));
 							if (result == null) {
-								throw new ScriptParsingException(this.listCandidates(memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
+								throw new ScriptParsingException(this.listCandidates(left.getTypeInfo(), memberName, "Unknown field: " + memberName, "Actual form: " + left.describe() + '.' + memberName), this.input);
 							}
 						}
 					}
@@ -1380,12 +1390,12 @@ public class ExpressionParser {
 					CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 					result = this.environment.getFunction(this, name, arguments.arguments());
 					if (result != null) return arguments.maybeWrap(result);
-					throw new ScriptParsingException(this.listCandidates(name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
+					throw new ScriptParsingException(this.listCandidates(null, name, "Unknown function or incorrect arguments: " + name, Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + name + '(', ")"))), this.input);
 				}
 				else { //variable.
 					InsnTree variable = this.environment.getVariable(this, name);
 					if (variable != null) return variable;
-					throw new ScriptParsingException(this.listCandidates(name, "Unknown variable: " + name, "Actual form: " + name), this.input);
+					throw new ScriptParsingException(this.listCandidates(null, name, "Unknown variable: " + name, "Actual form: " + name), this.input);
 				}
 			}
 		}
@@ -1415,7 +1425,7 @@ public class ExpressionParser {
 				CommaSeparatedExpressions arguments = CommaSeparatedExpressions.parse(this);
 				InsnTree expression = this.environment.getMethod(this, ldc(variableType), "new", GetMethodMode.NORMAL, arguments.arguments());
 				if (expression == null) {
-					throw new ScriptParsingException(this.listCandidates("new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
+					throw new ScriptParsingException(this.listCandidates(variableType, "new", "Incorrect arguments for new()", Arrays.stream(arguments.arguments()).map(InsnTree::describe).collect(Collectors.joining(", ", "Actual form: " + ldc(variableType).describe() + ".new(", ")"))), this.input);
 				}
 				return this.finishNextMember(arguments.maybeWrap(expression));
 			}
@@ -1437,12 +1447,25 @@ public class ExpressionParser {
 		return return_(value.cast(this, this.getMainReturnType(), CastMode.IMPLICIT_THROW, false));
 	}
 
-	public String listCandidates(String identifier, String prefix, String suffix) {
-		record DescribedStringSimilarity(IdentifierDescriptor descriptor, StringSimilarity similarity) implements Comparable<DescribedStringSimilarity> {
+	public String listCandidates(TypeInfo owner, String identifier, String prefix, String suffix) {
+		class DescribedStringSimilarity implements Comparable<DescribedStringSimilarity> {
+
+			public final IdentifierDescriptor descriptor;
+			public final StringSimilarity similarity;
+
+			public DescribedStringSimilarity(IdentifierDescriptor descriptor, StringSimilarity similarity) {
+				this.descriptor = descriptor;
+				this.similarity = similarity;
+			}
+
+			public boolean ownerMatches() {
+				return owner == null || this.descriptor.owner() == null || owner.equals(this.descriptor.owner());
+			}
 
 			@Override
 			public int compareTo(@NotNull DescribedStringSimilarity that) {
-				return this.similarity.compareTo(that.similarity);
+				int compare = this.similarity.compareTo(that.similarity);
+				return compare != 0 ? compare : Boolean.compare(this.ownerMatches(), that.ownerMatches());
 			}
 		}
 		return (

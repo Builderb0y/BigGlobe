@@ -1,0 +1,41 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:trees/common/class",
+	"name": "generateArtificial",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "originX", "type": "int" },
+		{ "name": "originY", "type": "int" },
+		{ "name": "originZ", "type": "int" }
+	],
+	"code": [
+		"unless (palette.saplingBlocks.contains(world.getBlockState(originX, originY, originZ).getBlock()): return(false))",
+		"ArrayDeque toCheck = new(8)",
+		"BlockPos origin = BlockPos.at(originX, originY, originZ)",
+		"toCheck.add(origin)",
+		"otherBlocksToPlace.(origin) = BlockState('minecraft:air')",
+		"double*(centerX = originX, centerZ = originZ)",
+		"while outer (BlockPos*(pos := toCheck.pollFirst()) != null:",
+			"for (int shift in range[0, 4):",
+				"int offsetX = 2x01110000 << (30 - shift << 1) >> 30",
+				"int offsetZ = 2x00000111 << (30 - shift << 1) >> 30",
+				"BlockPos offsetPos = BlockPos.at(pos.x + offsetX, pos.y, pos.z + offsetZ)",
+				"if (!otherBlocksToPlace.containsKey(offsetPos) && palette.saplingBlocks.contains(world.getBlockState(offsetPos.x, offsetPos.y, offsetPos.z).getBlock()):",
+					"otherBlocksToPlace.(offsetPos) = BlockState('minecraft:air')",
+					"centerX += offsetPos.x",
+					"centerZ += offsetPos.z",
+					"if (otherBlocksToPlace.size() >= maxSaplings: break(outer))",
+					"toCheck.addLast(offsetPos)",
+				")",
+			")",
+		")",
+		"double saplingCount = otherBlocksToPlace.size()",
+		"centerX = centerX / saplingCount + 0.5L",
+		"centerZ = centerZ / saplingCount + 0.5L",
+		"centerX += random.nextDouble(-0.5L, +0.5L)",
+		"centerZ += random.nextDouble(-0.5L, +0.5L)",
+		";enforce minimum radius of 1.0 for 1 sapling.",
+		"double baseRadius = sqrt((saplingCount + pi - 1.0L) / pi)",
+		"return(generateArtificial(centerX, originY, centerZ, baseRadius))"
+	]
+}

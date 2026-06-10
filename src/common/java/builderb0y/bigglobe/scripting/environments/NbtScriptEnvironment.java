@@ -94,23 +94,29 @@ public class NbtScriptEnvironment {
 			.addCastInvokeStatic(NbtScriptEnvironment.class, "asString", true)
 
 			.addFunctionInvokeStatics(NbtScriptEnvironment.class, "nbtBoolean", "nbtByte", "nbtShort", "nbtInt", "nbtLong", "nbtFloat", "nbtDouble", "nbtString")
-			.addFunction("nbtByteArray", array(NBT_BYTE_ARRAY_CONSTRUCTOR))
-			.addFunction("nbtIntArray", array(NBT_INT_ARRAY_CONSTRUCTOR))
-			.addFunction("nbtLongArray", array(NBT_LONG_ARRAY_CONSTRUCTOR))
+			.addFunction(array(NBT_BYTE_ARRAY_CONSTRUCTOR))
+			.addFunction(array(NBT_INT_ARRAY_CONSTRUCTOR))
+			.addFunction(array(NBT_LONG_ARRAY_CONSTRUCTOR))
 			.addFunction(
-				"nbtList", new FunctionHandler.Named(
-					"nbtList(element1, element2, ...)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, repeat(NBT_ELEMENT_TYPE, arguments.length), CastMode.IMPLICIT_THROW, arguments);
-					return new CastResult(new ListBuilderInsnTree(castArguments), arguments != castArguments);
-				}
+				new FunctionHandler.Named(
+					"nbtList",
+					"nbtList(element1, element2, ...)",
+					null,
+					(ExpressionParser parser, String name, InsnTree... arguments) -> {
+						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, repeat(NBT_ELEMENT_TYPE, arguments.length), CastMode.IMPLICIT_THROW, arguments);
+						return new CastResult(new ListBuilderInsnTree(castArguments), arguments != castArguments);
+					}
 				)
 			)
 			.addKeyword(
-				"nbtCompound", new KeywordHandler.Named(
-					"nbtCompound(key1: value1, key2: value2, ...)", (ExpressionParser parser, String name) -> {
-					NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE, null);
-					return namedValues.maybeWrap(new CompoundBuilderInsnTree(namedValues.values()));
-				}
+				new KeywordHandler.Named(
+					"nbtCompound",
+					"nbtCompound(key1: value1, key2: value2, ...)",
+					null,
+					(ExpressionParser parser, String name) -> {
+						NamedValues namedValues = NamedValues.parse(parser, NBT_ELEMENT_TYPE, null);
+						return namedValues.maybeWrap(new CompoundBuilderInsnTree(namedValues.values()));
+					}
 				)
 			)
 
@@ -126,29 +132,37 @@ public class NbtScriptEnvironment {
 			environment
 				.configure(createCommon())
 				.addMethod(
-					NBT_ELEMENT_TYPE, "", new MethodHandler.Named(
-						"element.(key or index)", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-						if (arguments.length != 1) {
-							throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
+					new MethodHandler.Named(
+						NBT_ELEMENT_TYPE,
+						"",
+						"element.(key or index)",
+						null,
+						(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+							if (arguments.length != 1) {
+								throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
+							}
+							InsnTree nameOrIndex = arguments[0];
+							if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
+								return new CastResult(invokeStatic(GET_MEMBER, receiver, nameOrIndex), false);
+							}
+							else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
+								return new CastResult(invokeStatic(GET_ELEMENT, receiver, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false)), false);
+							}
+							else {
+								throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
+							}
 						}
-						InsnTree nameOrIndex = arguments[0];
-						if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
-							return new CastResult(invokeStatic(GET_MEMBER, receiver, nameOrIndex), false);
-						}
-						else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-							return new CastResult(invokeStatic(GET_ELEMENT, receiver, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false)), false);
-						}
-						else {
-							throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
-						}
-					}
 					)
 				)
 				.addField(
-					NBT_ELEMENT_TYPE, null, new FieldHandler.Named(
-						"compound.key", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
-						return invokeStatic(GET_MEMBER, receiver, ldc(name));
-					}
+					new FieldHandler.Named(
+						NBT_ELEMENT_TYPE,
+						null,
+						"compound.key",
+						null,
+						(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+							return invokeStatic(GET_MEMBER, receiver, ldc(name));
+						}
 					)
 				)
 			;
@@ -160,27 +174,35 @@ public class NbtScriptEnvironment {
 			environment
 				.configure(createCommon())
 				.addMethod(
-					NBT_ELEMENT_TYPE, "", new MethodHandler.Named(
-						"element.(key or index)", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-						if (arguments.length != 1) {
-							throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
+					new MethodHandler.Named(
+						NBT_ELEMENT_TYPE,
+						"",
+						"element.(key or index)",
+						null,
+						(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+							if (arguments.length != 1) {
+								throw new ScriptParsingException("Wrong number of arguments: expected 1, got " + arguments.length, parser.input);
+							}
+							InsnTree nameOrIndex = arguments[0];
+							if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
+								return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
+							}
+							else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
+								return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false), SET_ELEMENT, "NbtElement", mode), false);
+							}
+							else {
+								throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
+							}
 						}
-						InsnTree nameOrIndex = arguments[0];
-						if (nameOrIndex.getTypeInfo().equals(TypeInfos.STRING)) {
-							return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_MEMBER, nameOrIndex, SET_MEMBER, "NbtElement", mode), false);
-						}
-						else if (nameOrIndex.getTypeInfo().isSingleWidthInt()) {
-							return new CastResult(NormalListMapGetterInsnTree.from(receiver, GET_ELEMENT, nameOrIndex.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false), SET_ELEMENT, "NbtElement", mode), false);
-						}
-						else {
-							throw new ScriptParsingException("Indexing an NBT element requires a String or int as the key", parser.input);
-						}
-					}
 					)
 				)
 				.addField(
-					NBT_ELEMENT_TYPE, null, new FieldHandler.Named(
-						"compound.key", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+					new FieldHandler.Named(
+						NBT_ELEMENT_TYPE,
+						null,
+						"compound.key",
+						null,
+						(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 						return NormalListMapGetterInsnTree.from(
 							receiver, GET_MEMBER, ldc(name), SET_MEMBER, "NbtElement", switch (mode) {
 								case NORMAL -> GetMethodMode.NORMAL;
@@ -338,17 +360,20 @@ public class NbtScriptEnvironment {
 
 	public static FunctionHandler.Named array(MethodInfo method) {
 		return new FunctionHandler.Named(
-			"NBT array constructor: " + method, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-			return new CastResult(
-				invokeStatic(
-					method,
-					arguments.length == 1 && arguments[0].getTypeInfo().equals(method.paramTypes[0])
+			method.name,
+			"NBT array constructor: " + method,
+			null,
+			(ExpressionParser parser, String name, InsnTree... arguments) -> {
+				return new CastResult(
+					invokeStatic(
+						method,
+						arguments.length == 1 && arguments[0].getTypeInfo().equals(method.paramTypes[0])
 						? arguments
 						: new InsnTree[] { newArrayWithContents(parser, method.paramTypes[0], arguments) }
-				),
-				false
-			);
-		}
+					),
+					false
+				);
+			}
 		);
 	}
 

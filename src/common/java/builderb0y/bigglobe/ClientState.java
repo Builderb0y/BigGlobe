@@ -73,14 +73,13 @@ import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.rendering.lods.LodMesher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.FileScriptUsage;
 import builderb0y.scripting.parsing.input.ScriptFileResolver;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedInclude;
@@ -503,8 +502,8 @@ public class ClientState {
 
 			public void addAllTo(MutableScriptEnvironment environment) {
 				environment
-					.addFunctionInvokeStatic(this.getDefaultGrassColor)
-					.addFunctionInvokeStatic(this.getDefaultFoliageColor)
+				.addFunctionInvokeStatic(this.getDefaultGrassColor)
+				.addFunctionInvokeStatic(this.getDefaultFoliageColor)
 				;
 			}
 		}
@@ -549,21 +548,15 @@ public class ClientState {
 			}
 
 			@Override
-			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+			public void addExtraFunctionsToEnvironment(ImplParameters parameters, ExpressionParser parser) {
 				//don't call super, because I don't want to deal with syncing grids.
+				MutableScriptEnvironment environment = parser.environment.mutable();
 				environment
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-				//.addAll(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
-				.configure(
-					parameters.random != null
-					? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
-					: MinecraftScriptEnvironment.create()
-				)
-				.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn), null, parameters.actualColumn.type))
 				.addAll(ColorScriptEnvironment.ENVIRONMENT);
 				if (parameters.y != null) environment.addVariableLoad(parameters.y);
-				if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
+				if (parameters.random != null) parser.addImportedValue("random", load(parameters.random));
 				INFO.addAllTo(environment);
 			}
 		}

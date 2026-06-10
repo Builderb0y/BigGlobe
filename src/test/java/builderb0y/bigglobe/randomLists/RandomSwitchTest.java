@@ -28,7 +28,6 @@ public class RandomSwitchTest {
 	public void testWeighted(RandomGenerator random, String source) throws Throwable {
 		RandomToIntScript script = (
 			new ScriptParser<>(RandomToIntScript.class, source)
-			.configureEnvironment(RandomScriptEnvironment.create(InsnTrees.load("random", InsnTrees.type(RandomGenerator.class))))
 			.parse(new ScriptClassLoader())
 		);
 		int sum = 0;
@@ -103,7 +102,6 @@ public class RandomSwitchTest {
 	public void testUniformRandom() throws Throwable {
 		RandomToIntScript script = (
 			new ScriptParser<>(RandomToIntScript.class, "random.switch (1, 2)")
-			.configureEnvironment(RandomScriptEnvironment.create(InsnTrees.load("random", InsnTrees.type(RandomGenerator.class))))
 			.parse(new ScriptClassLoader())
 		);
 		RandomGenerator random = new Permuter(12345L);

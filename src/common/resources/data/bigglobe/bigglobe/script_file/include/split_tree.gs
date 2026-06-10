@@ -11,9 +11,9 @@ void branch(double*(x1, y1, z1, r1, x2, y2, z2, r2), WoodPalette woodPalette, in
 		minX = higherInt(min(x1 - r1, x2 - r2))
 		minY =  floorInt(min(y1 - r1, y2 - r2)) ;one block lower for ground replacements.
 		minZ = higherInt(min(z1 - r1, z2 - r2))
-		maxX = lowerInt(max(x1 + r1, x2 + r2))
-		maxY = lowerInt(max(y1 + r1, y2 + r2))
-		maxZ = lowerInt(max(z1 + r1, z2 + r2))
+		maxX =  lowerInt(max(x1 + r1, x2 + r2))
+		maxY =  lowerInt(max(y1 + r1, y2 + r2))
+		maxZ =  lowerInt(max(z1 + r1, z2 + r2))
 	)
 	for (
 		int z in range[minZ, maxZ],
