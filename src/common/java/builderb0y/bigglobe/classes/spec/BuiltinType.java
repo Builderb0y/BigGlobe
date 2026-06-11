@@ -84,7 +84,7 @@ public abstract class BuiltinType implements Named {
 
 	@UnknownNullability
 	public static final LookupCoder<Identifier, BuiltinType> CODER = (
-		Export.EXPORTING
+		Export.EXPORTING || JUnit.TESTING
 		? null
 		: new LookupCoder<>(
 			ReifiedType.from(BuiltinType.class),
@@ -94,6 +94,7 @@ public abstract class BuiltinType implements Named {
 	public static final List<BuiltinType> UNIVERSAL = (
 		Export.EXPORTING ? null : new ArrayList<>()
 	);
+	public static final BuiltinType RANDOM;
 
 	public static Consumer<MutableScriptEnvironment> universal() {
 		return (MutableScriptEnvironment environment) -> {
@@ -806,7 +807,7 @@ public abstract class BuiltinType implements Named {
 				;
 			}
 		});
-		registerUniversal("random", new Typed("Random", RandomGenerator.class) {
+		registerUniversal("random", RANDOM = new Typed("Random", RandomGenerator.class) {
 
 			public static final MethodInfo PERMUTER_CONSTRUCTOR = MethodInfo.findConstructor(Permuter.class, long.class);
 
@@ -1218,8 +1219,8 @@ public abstract class BuiltinType implements Named {
 	}
 
 	public static void register(String name, BuiltinType type, boolean universal) {
-		if (CODER != null) {
-			CODER.add(BigGlobeMod.modID(name), type);
+		if (!Export.EXPORTING) {
+			if (!JUnit.TESTING) CODER.add(BigGlobeMod.modID(name), type);
 			if (universal) UNIVERSAL.add(type);
 		}
 		else {
@@ -1266,5 +1267,10 @@ public abstract class BuiltinType implements Named {
 				toDelete.forEach(System.out::println);
 			}
 		}
+	}
+
+	public static class JUnit {
+
+		public static boolean TESTING = false;
 	}
 }

@@ -21,6 +21,7 @@ public class DetailedException extends Exception {
 
 	public DetailedException(Throwable cause) {
 		super(cause);
+		if (cause != null) this.messageParts.add(cause.getLocalizedMessage());
 	}
 
 	public DetailedException(String message, Throwable cause) {

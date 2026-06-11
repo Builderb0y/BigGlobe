@@ -57,7 +57,7 @@ public class HandlerBuilderTest extends TestCommon {
 			new ScriptParser<>(IntSupplier.class, "1i .plusOne")
 			.configureEnvironment((MutableScriptEnvironment environment) -> {
 				environment.addField(
-					Handlers.methodInCaller("add1").exposedName("addOne").addReceiverArgument(TypeInfos.INT).buildField()
+					Handlers.methodInCaller("add1").exposedName("plusOne").addReceiverArgument(TypeInfos.INT).buildField()
 				);
 			})
 			.parse(new ScriptClassLoader())

@@ -18,7 +18,7 @@ import builderb0y.scripting.bytecode.TypeInfo;
 public class ConfiguredFeatureEntry extends EntryWrapper<ConfiguredFeature<?, ?>, ConfiguredFeatureTag> {
 
 	public static final TypeInfo TYPE = TypeInfo.of(ConfiguredFeatureEntry.class);
-	public static final @UnknownNullability ConfiguredFeature<?, ?> EMPTY = BuiltinType.Export.EXPORTING ? null : new ConfiguredFeature<>(Feature.NO_OP, NoneFeatureConfiguration.INSTANCE);
+	public static final @UnknownNullability ConfiguredFeature<?, ?> EMPTY = BuiltinType.CODER != null ? new ConfiguredFeature<>(Feature.NO_OP, NoneFeatureConfiguration.INSTANCE) : null;
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
 	public ConfiguredFeatureEntry(Holder<ConfiguredFeature<?, ?>> entry) {

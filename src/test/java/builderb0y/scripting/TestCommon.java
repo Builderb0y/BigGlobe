@@ -9,9 +9,11 @@ import org.objectweb.asm.util.Printer;
 import org.opentest4j.AssertionFailedError;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
+import builderb0y.bigglobe.classes.spec.BuiltinType;
 import builderb0y.bigglobe.util.ThrowingRunnable;
 import builderb0y.scripting.ScriptInterfaces.ObjectSupplier;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.parsing.ScriptParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
@@ -46,9 +48,16 @@ public class TestCommon {
 	}
 
 	public static Object evaluate(String input) throws ScriptParsingException {
+		BuiltinType.JUnit.TESTING = true;
 		return (
 			new ScriptParser<>(ObjectSupplier.class, input)
 			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				for (BuiltinType type : BuiltinType.UNIVERSAL) {
+					type.setupEnvironment(environment);
+				}
+				environment.addMethodInvoke(Object.class, "getClass");
+			})
 			.parse(new ScriptClassLoader())
 			.getAsObject()
 		);

@@ -80,6 +80,9 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> implements SequencedMap
 
 	@SuppressWarnings("unchecked")
 	public ConstantMap(Object... keysAndValues) {
+		if ((keysAndValues.length & 1) != 0) {
+			throw new IllegalArgumentException("key/value array has odd length.");
+		}
 		this(new Contents<>() {
 
 			@Override

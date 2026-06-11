@@ -5,6 +5,7 @@ import java.util.random.RandomGenerator;
 
 import org.junit.jupiter.api.Test;
 
+import builderb0y.bigglobe.classes.spec.BuiltinType;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -28,6 +29,10 @@ public class RandomSwitchTest {
 	public void testWeighted(RandomGenerator random, String source) throws Throwable {
 		RandomToIntScript script = (
 			new ScriptParser<>(RandomToIntScript.class, source)
+			.configureEnvironment(BuiltinType.RANDOM::setupEnvironment)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("random", TypeInfo.of(RandomGenerator.class));
+			})
 			.parse(new ScriptClassLoader())
 		);
 		int sum = 0;
@@ -46,9 +51,11 @@ public class RandomSwitchTest {
 	}
 
 	public void testWeighted(String source) throws Throwable {
+		BuiltinType.JUnit.TESTING = true;
 		SeedToIntScript script = (
 			new ScriptParser<>(SeedToIntScript.class, source)
 			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+			.configureEnvironment(BuiltinType.RANDOM::setupEnvironment)
 			.configureEnvironment((MutableScriptEnvironment environment) -> environment.addVariableLoad("seed", TypeInfos.LONG))
 			.parse(new ScriptClassLoader())
 		);
@@ -100,8 +107,13 @@ public class RandomSwitchTest {
 
 	@Test
 	public void testUniformRandom() throws Throwable {
+		BuiltinType.JUnit.TESTING = true;
 		RandomToIntScript script = (
 			new ScriptParser<>(RandomToIntScript.class, "random.switch (1, 2)")
+			.configureEnvironment(BuiltinType.RANDOM::setupEnvironment)
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				environment.addVariableLoad("random", TypeInfo.of(RandomGenerator.class));
+			})
 			.parse(new ScriptClassLoader())
 		);
 		RandomGenerator random = new Permuter(12345L);

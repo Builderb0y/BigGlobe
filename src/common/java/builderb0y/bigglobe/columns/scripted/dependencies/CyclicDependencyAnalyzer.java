@@ -17,8 +17,8 @@ public class CyclicDependencyAnalyzer extends GenericCyclicDependencyAnalyzer<Ho
 	}
 
 	@Override
-	public boolean areCyclesFatal(Holder<? extends DependencyView> object) {
-		return object.value() instanceof ColumnEntry;
+	public boolean areCyclesFatal(Holder<? extends DependencyView> node) {
+		return node.value() instanceof ColumnEntry;
 	}
 
 	@Override
