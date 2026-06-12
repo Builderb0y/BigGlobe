@@ -77,6 +77,11 @@ public class DevDebugCommand {
 					.literal("structurePos")
 					.executes(DevDebugCommand::displayStructurePosStructures)
 				)
+				.then(
+					Commands
+					.literal("clear")
+					.executes(DevDebugCommand::clearStructures)
+				)
 			)
 		);
 	}
@@ -166,6 +171,15 @@ public class DevDebugCommand {
 		caches.getIntersecting(params).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
 		BigGlobeMod.LOGGER.info("\tINTERSECTING POSITION:");
 		locator.getStructuresIntersecting(params).map(StructureStartWrapper::originalID).map(Identifier::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
+	}
+
+	public static int clearStructures(CommandContext<CommandSourceStack> context) {
+		if (context.getSource().getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.structureLocator() instanceof FlatStructureLocator locator) {
+			locator.caches.clear();
+			locator.mostRecentCache = null;
+			return 1;
+		}
+		return 0;
 	}
 
 	public static int displaySingleOreChance(CommandContext<CommandSourceStack> context) {

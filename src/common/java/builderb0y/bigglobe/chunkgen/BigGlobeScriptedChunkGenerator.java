@@ -749,7 +749,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	@Override
 	public CompletableFuture<ChunkAccess> fillFromNoise(
-
 		Blender blender,
 		RandomState noiseConfig,
 		StructureManager structureAccessor,

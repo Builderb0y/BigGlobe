@@ -440,8 +440,8 @@ public class FlatStructureLocator extends StructureLocator {
 
 		public static Comparator<StructurePos> comparingByDistanceTo(BlockPos blockPos) {
 			return Comparator.comparingLong((StructurePos structurePos) -> {
-				int dx = Mth.clamp(blockPos.getX(), structurePos.minBlockX(), structurePos.maxBlockXInclusive());
-				int dz = Mth.clamp(blockPos.getZ(), structurePos.minBlockZ(), structurePos.maxBlockZInclusive());
+				int dx = Mth.clamp(blockPos.getX(), structurePos.minBlockX(), structurePos.maxBlockXInclusive()) - blockPos.getX();
+				int dz = Mth.clamp(blockPos.getZ(), structurePos.minBlockZ(), structurePos.maxBlockZInclusive()) - blockPos.getZ();
 				return BigGlobeMath.squareL(dx, dz);
 			});
 		}
@@ -574,7 +574,7 @@ public class FlatStructureLocator extends StructureLocator {
 
 		public Stream<ChunkSortedStructurePieces> getFiltered(Params params) {
 			Map<Holder<Structure>, List<ChunkSortedStructurePieces>> filtered = this.filtered.getOrSetBlocking(() -> {
-				List<ChunkSortedStructurePieces> unfiltered = this.getUnfiltered(params).toList();
+				List<ChunkSortedStructurePieces> unfiltered = this.getUnfiltered(params.searchFor(this.locator().allStructures())).toList();
 				if (unfiltered.isEmpty()) return Collections.emptyMap();
 				BoundingBox union = BoundingBox.encapsulatingBoxes(unfiltered.stream().map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box())::iterator).orElseThrow();
 				BoundingBox centerArea = new BoundingBox(
