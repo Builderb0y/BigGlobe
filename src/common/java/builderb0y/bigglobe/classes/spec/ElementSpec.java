@@ -17,6 +17,7 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 @UseCoder(name = "REGISTRY", in = ElementSpec.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public abstract class ElementSpec extends StagedCompileable<ClassHierarchy> implements Named, CoderRegistryTyped<ElementSpec>, SimpleDependencyView {
@@ -59,5 +60,5 @@ public abstract class ElementSpec extends StagedCompileable<ClassHierarchy> impl
 		}
 	}
 
-	public abstract void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params);
+	public abstract void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params);
 }

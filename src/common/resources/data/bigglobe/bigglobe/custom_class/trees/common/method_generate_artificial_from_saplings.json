@@ -9,7 +9,7 @@
 		{ "name": "originZ", "type": "int" }
 	],
 	"code": [
-		"unless (palette.saplingBlocks.contains(world.getBlockState(originX, originY, originZ).getBlock()): return(false))",
+		"unless (palette.saplingBlocks.contains(getBlockState(originX, originY, originZ).getBlock()): return(false))",
 		"ArrayDeque toCheck = new(8)",
 		"BlockPos origin = BlockPos.at(originX, originY, originZ)",
 		"toCheck.add(origin)",
@@ -20,7 +20,7 @@
 				"int offsetX = 2x01110000 << (30 - shift << 1) >> 30",
 				"int offsetZ = 2x00000111 << (30 - shift << 1) >> 30",
 				"BlockPos offsetPos = BlockPos.at(pos.x + offsetX, pos.y, pos.z + offsetZ)",
-				"if (!otherBlocksToPlace.containsKey(offsetPos) && palette.saplingBlocks.contains(world.getBlockState(offsetPos.x, offsetPos.y, offsetPos.z).getBlock()):",
+				"if (!otherBlocksToPlace.containsKey(offsetPos) && palette.saplingBlocks.contains(getBlockState(offsetPos.x, offsetPos.y, offsetPos.z).getBlock()):",
 					"otherBlocksToPlace.(offsetPos) = BlockState('minecraft:air')",
 					"centerX += offsetPos.x",
 					"centerZ += offsetPos.z",

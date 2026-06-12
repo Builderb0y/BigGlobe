@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.CustomClassFormatException;
@@ -19,8 +21,10 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
+
+import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public abstract class BaseFieldSpec extends MemberSpec {
 
@@ -33,12 +37,14 @@ public abstract class BaseFieldSpec extends MemberSpec {
 	public TypeSpec fieldType(ClassHierarchy hierarchy) {
 		return requireType(this.field_type, TypeSpec.class, () -> hierarchy.idOf(this) + " > field_type");
 	}
+	public final @DefaultBoolean(false) @UseName("import") boolean import_;
 	public transient Context context;
 
-	public BaseFieldSpec(Holder<ElementSpec> owner, @IdentifierName String name, Holder<ElementSpec> field_type) {
+	public BaseFieldSpec(Holder<ElementSpec> owner, @IdentifierName String name, Holder<ElementSpec> field_type, boolean import_) {
 		super(owner);
 		this.name = name;
 		this.field_type = field_type;
+		this.import_ = import_;
 	}
 
 	@Override
@@ -69,9 +75,14 @@ public abstract class BaseFieldSpec extends MemberSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		FieldInfo fieldInfo = this.context.field.info;
-		environment.addField(Handlers.fieldBuilder(fieldInfo).onUsed(params.dependencyCallback(self)).addReceiverArgument(fieldInfo.owner).buildField());
+		if (this.import_ && params.loadCustomClass != null && params.loadCustomClass.getTypeInfo().extendsOrImplements(fieldInfo.owner)) {
+			parser.environment.importObject(fieldInfo.name, getField(params.loadCustomClass, fieldInfo), params.dependencyCallback(self));
+		}
+		else {
+			parser.environment.mutable().addField(Handlers.fieldBuilder(fieldInfo).onUsed(params.dependencyCallback(self)).addReceiverArgument(fieldInfo.owner).buildField());
+		}
 	}
 
 	public abstract @Nullable InsnTree getDefaultValue(ClassHierarchy hierarchy) throws DetailedException;

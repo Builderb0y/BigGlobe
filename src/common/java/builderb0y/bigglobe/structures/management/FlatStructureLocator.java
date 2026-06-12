@@ -358,7 +358,7 @@ public class FlatStructureLocator extends StructureLocator {
 	}
 
 	public static boolean canRunImmediately() {
-		return Thread.currentThread() instanceof ForkJoinWorkerThread || BigGlobeMod.getCurrentServer().isSameThread();
+		return Thread.currentThread() instanceof ForkJoinWorkerThread;
 	}
 
 	public static record StructurePos(int x, int z) {

@@ -8,7 +8,7 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -44,13 +44,9 @@ public class AbstractMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		MethodInfo methodInfo = this.context.info;
-		environment.addMethod(Handlers.methodBuilder(methodInfo).addReceiverArgument(methodInfo.owner).addArguments((Object[])(methodInfo.paramTypes)).onUsed(params.dependencyCallback(self)).buildMethod());
-		InsnTree loadCustomClass = params.loadCustomClass;
-		if (loadCustomClass != null && loadCustomClass.getTypeInfo().extendsOrImplements(this.context.clazz.info)) {
-			environment.addFunction(Handlers.methodBuilder(methodInfo).addImplicitArgument(loadCustomClass).addArguments((Object[])(methodInfo.paramTypes)).onUsed(params.dependencyCallback(self)).buildFunction());
-		}
+		parser.environment.mutable().addMethod(Handlers.methodBuilder(methodInfo).addReceiverArgument(methodInfo.owner).addArguments((Object[])(methodInfo.paramTypes)).onUsed(params.dependencyCallback(self)).buildMethod());
 	}
 
 	@Override

@@ -29,8 +29,6 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.TypeHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptClassLoader;
@@ -254,8 +252,8 @@ public abstract class BaseClassSpec extends TypeSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		environment.addType(this.name(), params.dependencyCallback(self), this.getTypeInfo());
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
+		parser.environment.mutable().addType(this.name(), params.dependencyCallback(self), this.getTypeInfo());
 	}
 
 	public void define(ScriptClassLoader loader) {

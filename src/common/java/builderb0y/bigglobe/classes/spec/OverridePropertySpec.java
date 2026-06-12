@@ -12,7 +12,7 @@ import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -66,8 +66,8 @@ public class OverridePropertySpec extends BasePropertySpec {
 	public void compile(ClassHierarchy hierarchy) throws DetailedException {
 		super.compile(hierarchy);
 		compile(hierarchy, this.context.get, this.get, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, NO_EXTRAS);
-		if (this.set != null) compile(hierarchy,  this.context.set, this.set, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, (MutableScriptEnvironment environment) -> {
-			environment.addVariableLoad("value", this.getPropertyTypeSpec(hierarchy).getTypeInfo());
+		if (this.set != null) compile(hierarchy,  this.context.set, this.set, load("this", this.owner(hierarchy).getTypeInfo()), this.dependencies, (ExpressionParser parser) -> {
+			parser.environment.mutable().addVariableLoad("value", this.getPropertyTypeSpec(hierarchy).getTypeInfo());
 		});
 	}
 
@@ -87,7 +87,7 @@ public class OverridePropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		//no-op. base method can be called as-is.
 	}
 

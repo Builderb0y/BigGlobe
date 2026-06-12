@@ -25,6 +25,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.NewArrayWithContentsInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -199,8 +200,9 @@ public class EnumClassSpec extends BaseClassSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		super.setupEnvironment(self, environment, params);
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
+		super.setupEnvironment(self, parser, params);
+		MutableScriptEnvironment environment = parser.environment.mutable();
 		if (this.valueSet != null) environment.addQualifiedVariableGetStatic("valueSet", this.valueSet.info);
 		if (this.valueMap != null) environment.addQualifiedVariableGetStatic("valueMap", this.valueMap.info);
 		if (this.valueOf  != null) environment.addQualifiedFunctionInvokeStatic("valueOf", this.valueOf.info);

@@ -28,9 +28,10 @@ public class ConstantFieldSpec extends BaseFieldSpec {
 		Holder<ElementSpec> owner,
 		@IdentifierName String name,
 		Holder<ElementSpec> field_type,
+		boolean import_,
 		@VerifyNullable Data defaultValue
 	) {
-		super(owner, name, field_type);
+		super(owner, name, field_type, import_);
 		this.defaultValue = defaultValue;
 	}
 

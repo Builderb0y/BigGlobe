@@ -9,8 +9,8 @@
 		{ "name": "originZ", "type": "int" }
 	],
 	"code": [
-		"if (groundReplacements.(world.getBlockState(originX, originY - 1, originZ).getBlock()) == null: return(false))",
-		"float foliage = world.world_traits.`bigglobe:foliage_at`(originX, originY, originZ)",
+		"if (groundReplacements.(getBlockState(originX, originY - 1, originZ).getBlock()) == null: return(false))",
+		"float foliage = world_traits.`bigglobe:foliage_at`(originX, originY, originZ)",
 		"double*(",
 			"centerX = originX + random.nextDouble()",
 			"centerZ = originZ + random.nextDouble()",

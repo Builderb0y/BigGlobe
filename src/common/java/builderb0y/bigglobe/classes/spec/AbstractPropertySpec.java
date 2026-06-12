@@ -11,11 +11,8 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.GetterSetterInsnTree;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
 import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
@@ -67,29 +64,28 @@ public class AbstractPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		InsnTree loadCustomClass = params.loadCustomClass;
-		TypeInfo owner = this.context.get.clazz.info;
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		MethodInfo getter = this.context.get.info;
 		if (this.settable) {
+			TypeInfo owner = this.context.get.clazz.info;
 			MethodInfo setter = this.context.set.info;
-			environment.addField(
+			parser.environment.mutable().addField(
 				new FieldHandler.Named(
 					owner,
 					this.name,
 					this.name + ": getter: " + getter + ", setter: " + setter,
 					params.dependencyCallback(self),
-					(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+					(ExpressionParser parser_, InsnTree receiver, String name, GetFieldMode mode) -> {
 						if (getter.isDeprecated() || setter.isDeprecated()) {
-							BigGlobeMod.LOGGER.warn("Deprecated field used: " + this.name + '\n' + parser.input.getSourceForError());
+							BigGlobeMod.LOGGER.warn("Deprecated field used: " + this.name + '\n' + parser_.input.getSourceForError());
 						}
-						return mode.makeGetterSetter(parser, receiver, getter, setter);
+						return mode.makeGetterSetter(parser_, receiver, getter, setter);
 					}
 				)
 			);
 		}
 		else {
-			environment.addField(Handlers.methodBuilder(getter).addReceiverArgument(getter.owner).onUsed(params.dependencyCallback(self)).buildField());
+			parser.environment.mutable().addField(Handlers.methodBuilder(getter).addReceiverArgument(getter.owner).onUsed(params.dependencyCallback(self)).buildField());
 		}
 	}
 

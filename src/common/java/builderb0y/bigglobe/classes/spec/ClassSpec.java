@@ -28,8 +28,7 @@ import builderb0y.scripting.bytecode.tree.conditions.*;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.AddInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
-import builderb0y.scripting.environments.BuiltinScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.util.ArrayBuilder;
 import builderb0y.scripting.util.ArrayExtensions;
@@ -277,8 +276,8 @@ public class ClassSpec extends BaseClassSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		super.setupEnvironment(self, environment, params);
-		environment.addQualifiedConstructor(this.primaryConstructor.info);
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
+		super.setupEnvironment(self, parser, params);
+		parser.environment.mutable().addQualifiedConstructor(this.primaryConstructor.info);
 	}
 }

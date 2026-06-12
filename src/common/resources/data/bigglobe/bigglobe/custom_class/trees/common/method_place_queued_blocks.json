@@ -6,14 +6,14 @@
 	"parameters": [],
 	"code": [
 		"for (BlockPos pos, BlockState state in otherBlocksToPlace:",
-			"world.setBlockState(pos.x, pos.y, pos.z, state)",
+			"setBlockState(pos.x, pos.y, pos.z, state)",
 		")",
 		"for (BlockPos pos, BlockState state in logsToPlace:",
-			"world.setBlockState(pos.x, pos.y, pos.z, state)",
+			"setBlockState(pos.x, pos.y, pos.z, state)",
 		")",
 		"for (BlockPos pos, BlockState state in leavesToPlace:",
-			"if (world.getBlockState(pos.x, pos.y, pos.z).isReplaceable():",
-				"world.setBlockState(pos.x, pos.y, pos.z, state)",
+			"if (getBlockState(pos.x, pos.y, pos.z).isReplaceable():",
+				"setBlockState(pos.x, pos.y, pos.z, state)",
 			")",
 		")"
 	]

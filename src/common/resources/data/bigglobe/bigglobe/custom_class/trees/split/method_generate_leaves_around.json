@@ -16,7 +16,7 @@
 				"blockY = roundInt(y + random.nextGaussian() * r)",
 				"blockZ = roundInt(z + random.nextGaussian() * r)",
 			")",
-			"BlockState existing = world.getBlockState(blockX, blockY, blockZ)",
+			"BlockState existing = getBlockState(blockX, blockY, blockZ)",
 			"if (existing.isReplaceable() || existing.isIn('#bigglobe:tree_leaf_replaceables'):",
 				"leavesToPlace.putIfAbsent(BlockPos.at(blockX, blockY, blockZ), palette.leavesState(random, distance: 1, persistent: false, waterlogged: false))",
 			")",

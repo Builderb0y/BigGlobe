@@ -98,8 +98,8 @@ public class ExternalEnvironmentParams {
 			if (mode != null) {
 				return new Access(mode, receiver);
 			}
-			InsnTree column = parser.environment.getImportedObject(ScriptedColumn.INFO.type);
-			InsnTree lookup = parser.environment.getImportedObject(ScriptedColumnLookup.TYPE);
+			InsnTree column = parser.environment.getImportedObject(parser, ScriptedColumn.INFO.type);
+			InsnTree lookup = parser.environment.getImportedObject(parser, ScriptedColumnLookup.TYPE);
 			return from(column, lookup);
 		}
 

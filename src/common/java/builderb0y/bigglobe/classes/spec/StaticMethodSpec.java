@@ -8,8 +8,7 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
@@ -64,10 +63,10 @@ public class StaticMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		MethodInfo methodInfo = this.context.info;
 		TypeInfo owner = ((TypeSpec)(this.owner.value())).getTypeInfo();
-		environment.addQualifiedFunction(
+		parser.environment.mutable().addQualifiedFunction(
 			owner,
 			Handlers.methodWithoutReceiver(methodInfo).onUsed(params.dependencyCallback(self)).buildFunction()
 		);
@@ -76,9 +75,15 @@ public class StaticMethodSpec extends BaseMethodSpec {
 	@Override
 	public void compile(ClassHierarchy hierarchy) throws DetailedException {
 		super.compile(hierarchy);
-		this.compile(hierarchy, this.code, null, (MutableScriptEnvironment environment) -> {
+		this.compile(hierarchy, this.code, null, (ExpressionParser parser) -> {
 			for (ParameterSpec parameter : this.parameters) {
-				environment.addVariableLoad(parameter.name, parameter.typeInfo());
+				if (parameter.import_) {
+					//will automatically add variable to MutableScriptEnvironment.
+					parser.addImportedValue(parameter.name, load(parameter.name, parameter.typeInfo()));
+				}
+				else {
+					parser.environment.mutable().addVariableLoad(parameter.name, parameter.typeInfo());
+				}
 			}
 		});
 	}

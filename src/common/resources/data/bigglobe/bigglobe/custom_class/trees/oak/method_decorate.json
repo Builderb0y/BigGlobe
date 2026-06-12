@@ -5,12 +5,12 @@
 	"code": [
 		"for (BlockPos pos in logsToPlace.keySet():",
 			"random.if (",
-				"world.placeFeature(pos.x, pos.y, pos.z, 'bigglobe:overworld/trees/decorators/vines')",
+				"placeFeature(pos.x, pos.y, pos.z, 'bigglobe:overworld/trees/decorators/vines')",
 			")",
 		")",
 		"for (BlockPos pos in leavesToPlace.keySet():",
 			"random.if (1.0I / 16.0I:",
-				"world.placeFeature(pos.x, pos.y, pos.z, 'bigglobe:overworld/trees/decorators/beehive')",
+				"placeFeature(pos.x, pos.y, pos.z, 'bigglobe:overworld/trees/decorators/beehive')",
 			")",
 		")"
 	]

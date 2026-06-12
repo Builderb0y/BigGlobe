@@ -10,7 +10,7 @@ import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -64,15 +64,21 @@ public class OverrideMethodSpec extends BaseMethodSpec {
 	@MustBeInvokedByOverriders
 	public void compile(ClassHierarchy hierarchy) throws DetailedException {
 		super.compile(hierarchy);
-		this.compile(hierarchy, this.code, load("this", this.owner(hierarchy).getTypeInfo()), (MutableScriptEnvironment environment) -> {
+		this.compile(hierarchy, this.code, load("this", this.owner(hierarchy).getTypeInfo()), (ExpressionParser parser) -> {
 			for (ParameterSpec parameter : this.getParameters()) {
-				environment.addVariableLoad(parameter.name, parameter.typeInfo());
+				if (parameter.import_) {
+					//will automatically add variable to MutableScriptEnvironment.
+					parser.addImportedValue(parameter.name, load(parameter.name, parameter.typeInfo()));
+				}
+				else {
+					parser.environment.mutable().addVariableLoad(parameter.name, parameter.typeInfo());
+				}
 			}
 		});
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		//no-op. base method can be called as-is.
 	}
 

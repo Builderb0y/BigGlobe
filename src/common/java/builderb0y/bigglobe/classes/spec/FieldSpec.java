@@ -37,12 +37,13 @@ public class FieldSpec extends BaseFieldSpec {
 		Holder<ElementSpec> owner,
 		@IdentifierName String name,
 		Holder<ElementSpec> field_type,
+		boolean import_,
 		@VerifyNullable ScriptUsage defaultValue,
 		boolean include_in_equals,
 		boolean include_in_hash_code,
 		boolean include_in_to_string
 	) {
-		super(owner, name, field_type);
+		super(owner, name, field_type, import_);
 		this.defaultValue = defaultValue;
 		this.include_in_equals = include_in_equals;
 		this.include_in_hash_code = include_in_hash_code;

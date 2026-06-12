@@ -15,7 +15,7 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -63,8 +63,8 @@ public class BuiltinTypeSpec extends TypeSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		this.java_type.setupEnvironment(environment, params, self);
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
+		this.java_type.setupEnvironment(parser, params, self);
 	}
 
 	@Override

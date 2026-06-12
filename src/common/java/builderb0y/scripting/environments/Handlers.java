@@ -874,7 +874,7 @@ public class Handlers {
 
 		@Override
 		public @Nullable GatherResult getFrom(ExpressionParser parser, InsnTree receiver, InsnTree[] providedArgs) {
-			InsnTree object = parser.environment.getImportedObject(this.type);
+			InsnTree object = parser.environment.getImportedObject(parser, this.type);
 			return object != null ? new SimpleGatherResult(false, object) : null;
 		}
 

@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.core.Holder;
 
+import builderb0y.autocodec.annotations.DefaultBoolean;
+import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.classes.Named;
@@ -29,6 +31,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
@@ -117,7 +120,7 @@ public abstract class BaseMethodSpec extends MemberSpec {
 		ClassHierarchy hierarchy,
 		ScriptUsage code,
 		InsnTree loadCustomClass,
-		Consumer<MutableScriptEnvironment> extra
+		Consumer<ExpressionParser> extra
 	)
 	throws ScriptParsingException {
 		compile(
@@ -147,10 +150,12 @@ public abstract class BaseMethodSpec extends MemberSpec {
 		public TypeSpec typeSpec() {
 			return ElementSpec.requireType(this.type, TypeSpec.class, () -> "parameter type");
 		}
+		public final @DefaultBoolean(false) @UseName("import") boolean import_;
 
-		public ParameterSpec(String name, Holder<ElementSpec> type) {
+		public ParameterSpec(String name, Holder<ElementSpec> type, boolean import_) {
 			this.name = name;
 			this.type = type;
+			this.import_ = import_;
 		}
 
 		public void verify() throws CustomClassFormatException {

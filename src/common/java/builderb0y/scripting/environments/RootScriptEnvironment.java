@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
+import builderb0y.scripting.environments.MutableScriptEnvironment.UsageCallback;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
@@ -25,7 +26,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 	//so the inefficiencies are probably not significant.
 	public List<ImportedObject> importedObjects = new ArrayList<>();
 
-	public static record ImportedObject(String name, InsnTree object) {
+	public static record ImportedObject(String name, InsnTree object, UsageCallback callback) {
 
 		public TypeInfo getTypeInfo() {
 			return this.object.getTypeInfo();
@@ -45,7 +46,11 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 	}
 
 	public void importObject(String name, InsnTree object) {
-		ImportedObject toAdd = new ImportedObject(name, object);
+		this.importObject(name, object, null);
+	}
+
+	public void importObject(String name, InsnTree object, UsageCallback callback) {
+		ImportedObject toAdd = new ImportedObject(name, object, callback);
 		for (ImportedObject existing : this.importedObjects) {
 			if (existing.getTypeInfo().equals(object.getTypeInfo())) {
 				throw new IllegalStateException("Object of type " + object.getTypeInfo() + " is already imported. (attempting to replace " + existing + " with " + toAdd + ")");
@@ -55,9 +60,12 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 		this.importedObjects.add(toAdd);
 	}
 
-	public @Nullable InsnTree getImportedObject(TypeInfo type) {
+	public @Nullable InsnTree getImportedObject(ExpressionParser parser, TypeInfo type) {
 		for (ImportedObject object : this.importedObjects) {
 			if (object.getTypeInfo().extendsOrImplements(type)) {
+				if (object.callback != null) {
+					object.callback.onUsed(parser, object.name);
+				}
 				return object.object;
 			}
 		}
@@ -68,12 +76,16 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
 		InsnTree result = super.getVariable(parser, name);
 		if (result == null) {
+			ImportedObject chosen = null;
 			for (ImportedObject object : this.importedObjects) {
 				InsnTree newResult = super.getField(parser, object.object, name, GetFieldMode.NORMAL);
 				if (newResult != null) {
-					if (result == null) result = newResult;
+					if (result == null) { result = newResult; chosen = object; }
 					else throw new ScriptParsingException("Ambiguous variable matches fields on more than one imported object", parser.input);
 				}
+			}
+			if (chosen != null && chosen.callback != null) {
+				chosen.callback.onUsed(parser, name);
 			}
 		}
 		return result;
@@ -83,12 +95,16 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 	public @Nullable InsnTree getFunction(ExpressionParser parser, String name, InsnTree... arguments) throws ScriptParsingException {
 		InsnTree result = super.getFunction(parser, name, arguments);
 		if (result == null) {
-			for (ImportedObject object : this.importedObjects) {
+			ImportedObject chosen = null;
+			for (RootScriptEnvironment.ImportedObject object : this.importedObjects) {
 				InsnTree newResult = super.getMethod(parser, object.object, name, GetMethodMode.NORMAL, arguments);
 				if (newResult != null) {
-					if (result == null) result = newResult;
+					if (result == null) { result = newResult; chosen = object; }
 					else throw new ScriptParsingException("Ambiguous function call matches methods on more than one imported object", parser.input);
 				}
+			}
+			if (chosen != null && chosen.callback != null) {
+				chosen.callback.onUsed(parser, name);
 			}
 		}
 		return result;

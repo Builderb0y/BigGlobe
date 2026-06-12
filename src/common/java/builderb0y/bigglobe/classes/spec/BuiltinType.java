@@ -125,8 +125,8 @@ public abstract class BuiltinType implements Named {
 
 	public abstract void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback);
 
-	public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
-		this.setupEnvironment(environment, params.dependencyCallback(referencingType));
+	public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
+		this.setupEnvironment(parser.environment.mutable(), params.dependencyCallback(referencingType));
 	}
 
 	public abstract TypeInfo getTypeInfo(BuiltinTypeSpec spec);
@@ -231,8 +231,9 @@ public abstract class BuiltinType implements Named {
 			}
 
 			@Override
-			public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
+			public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
 				UsageCallback callback = params.dependencyCallback(referencingType);
+				MutableScriptEnvironment environment = parser.environment.mutable();
 				environment.addType(this.exposedName, callback, this.type);
 				this.setupEnvironment(environment, callback);
 			}
@@ -260,7 +261,7 @@ public abstract class BuiltinType implements Named {
 			}
 
 			@Override
-			public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
+			public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
 
 			}
 
@@ -1059,32 +1060,30 @@ public abstract class BuiltinType implements Named {
 							"palette." + baseName + "State(optional Random random or long seed, property1: value1, property2: value2, ...)",
 							callback,
 							(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-								return mode.apply(
-									receiver, (InsnTree actualReceiver) -> {
-										PrefixedNamedValues namedValues = PrefixedNamedValues.parse(parser, null, TypeInfos.COMPARABLE, null);
-										InsnTree loadRandomOrSeed = namedValues.prefix();
+								return mode.apply(receiver, (InsnTree actualReceiver) -> {
+									PrefixedNamedValues namedValues = PrefixedNamedValues.parse(parser, null, TypeInfos.COMPARABLE, null);
+									InsnTree loadRandomOrSeed = namedValues.prefix();
+									if (loadRandomOrSeed == null) {
+										loadRandomOrSeed = parser.environment.getImportedObject(parser, type(RandomGenerator.class));
 										if (loadRandomOrSeed == null) {
-											loadRandomOrSeed = parser.environment.getImportedObject(type(RandomGenerator.class));
-											if (loadRandomOrSeed == null) {
-												throw new ScriptParsingException("Implicit random is not available. Specify your own random or seed.", parser.input);
-											}
+											throw new ScriptParsingException("Implicit random is not available. Specify your own random or seed.", parser.input);
 										}
-										InsnTree tree;
-										if (loadRandomOrSeed.getTypeInfo().equals(TypeInfos.LONG)) {
-											tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getSeededState, loadRandomOrSeed, loadType);
-										}
-										else if (loadRandomOrSeed.getTypeInfo().extendsOrImplements(type(RandomGenerator.class))) {
-											tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getRandomState, loadRandomOrSeed, loadType);
-										}
-										else {
-											throw new ScriptParsingException("Expected long or Random, got " + loadRandomOrSeed.getTypeInfo(), parser.input);
-										}
-										for (NamedValue value : namedValues.values()) {
-											tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(value.name()), value.value());
-										}
-										return namedValues.maybeWrap(tree);
 									}
-								);
+									InsnTree tree;
+									if (loadRandomOrSeed.getTypeInfo().equals(TypeInfos.LONG)) {
+										tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getSeededState, loadRandomOrSeed, loadType);
+									}
+									else if (loadRandomOrSeed.getTypeInfo().extendsOrImplements(type(RandomGenerator.class))) {
+										tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getRandomState, loadRandomOrSeed, loadType);
+									}
+									else {
+										throw new ScriptParsingException("Expected long or Random, got " + loadRandomOrSeed.getTypeInfo(), parser.input);
+									}
+									for (NamedValue value : namedValues.values()) {
+										tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(value.name()), value.value());
+									}
+									return namedValues.maybeWrap(tree);
+								});
 							}
 						)
 					);
@@ -1124,8 +1123,9 @@ public abstract class BuiltinType implements Named {
 			}
 
 			@Override
-			public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
+			public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
 				UsageCallback callback = params.dependencyCallback(referencingType);
+				MutableScriptEnvironment environment = parser.environment.mutable();
 				environment
 				.addType("ColumnStorage", callback, ((BuiltinTypeSpec)(referencingType.value())).columnType)
 				.addField(Handlers.methodBuilder(ScriptedColumn.class, "baseSeed").onUsed(callback).exposedName("worldSeed").addReceiverArgument(ScriptedColumn.INFO.type).buildField())
@@ -1163,9 +1163,11 @@ public abstract class BuiltinType implements Named {
 			}
 
 			@Override
-			public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
+			public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
 				UsageCallback callback = params.dependencyCallback(referencingType);
-				environment
+				parser
+				.environment
+				.mutable()
 				.addType(this.exposedName, callback, this.type)
 				.addMethod(Handlers.methodBuilder(ScriptedColumnLookup.LOOKUP_COLUMN).onUsed(callback).exposedName("columnAt").addReceiverArgument(this.type).addArguments("II").explicitCast(((BuiltinTypeSpec)(referencingType.value())).columnType).buildMethod());
 			}
@@ -1178,8 +1180,9 @@ public abstract class BuiltinType implements Named {
 			}
 
 			@Override
-			public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
+			public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
 				UsageCallback callback = params.dependencyCallback(referencingType);
+				MutableScriptEnvironment environment = parser.environment.mutable();
 				environment
 				.addType("VoronoiCell", callback, this.type)
 				.addField(Handlers.methodWithReceiver(VoronoiSampler.class, "centerColumn").onUsed(callback).explicitCast(((BuiltinTypeSpec)(referencingType.value())).columnType).buildField());

@@ -13,6 +13,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
@@ -39,7 +40,7 @@ public abstract class MemberSpec extends ElementSpec {
 		this.owner(hierarchy).members.add(hierarchy.entryOf(this));
 	}
 
-	public static final Consumer<MutableScriptEnvironment> NO_EXTRAS = (MutableScriptEnvironment environment) -> {};
+	public static final Consumer<ExpressionParser> NO_EXTRAS = (ExpressionParser environment) -> {};
 
 	public static void compile(
 		ClassHierarchy hierarchy,
@@ -47,7 +48,7 @@ public abstract class MemberSpec extends ElementSpec {
 		ScriptUsage code,
 		InsnTree loadCustomClass,
 		MutableDependencyView dependencies,
-		Consumer<MutableScriptEnvironment> extra
+		Consumer<ExpressionParser> extra
 	)
 	throws ScriptParsingException {
 		hierarchy.registry.setMethodCode(

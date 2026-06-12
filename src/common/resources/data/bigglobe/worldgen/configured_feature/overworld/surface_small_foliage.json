@@ -11,8 +11,9 @@
 					"else if (getBlockState(0, y - 1, 0).isReplaceable(): --y,, continue())",
 				")",
 
-				";sigmoid curve",
-				"double adjustedFoliage = 0.5 / (fastExp(-4.0 * world_traits.`bigglobe:foliage_at_surface`) + 1.0)",
+				"double adjustedFoliage = world_traits.`bigglobe:foliage_at_surface`",
+				"adjustedFoliage /= sqrt(adjustedFoliage ^ 2 + 1.0)",
+				"adjustedFoliage = adjustedFoliage * 0.5L + 0.5L",
 				"random.unless(adjustedFoliage: return(false))",
 
 				"BlockState existingState = getBlockState(0, y, 0)",

@@ -143,8 +143,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 	}
 
 	public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params) {
-		MutableScriptEnvironment environment = parser.environment.mutable();
-		this.classHierarchy.setupEnvironment(environment, params);
+		this.classHierarchy.setupEnvironment(parser, params);
 		this.traitManager.setupEnvironment(parser, params);
 		for (ColumnEntry entry : this.columnEntryLookup.keySet()) {
 			entry.setupEnvironment(this, parser, params);
@@ -187,7 +186,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		@Nullable InsnTree loadCustomClass,
 		@Nullable Identifier caller,
 		MutableDependencyView dependencies,
-		Consumer<MutableScriptEnvironment> extra
+		Consumer<ExpressionParser> extra
 	)
 	throws ScriptParsingException {
 		ScriptColumnEntryParser parser = new ScriptColumnEntryParser(code, method.clazz, method, this.parserFlags());
@@ -210,7 +209,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 			.withCustomClass(loadCustomClass)
 		);
 		if (loadY != null) parser.environment.mutable().addVariable("y", loadY);
-		return parser.configureEnvironment(extra).parseEntireInput();
+		return parser.configure(extra).parseEntireInput();
 	}
 
 	public void setMethodCode(
@@ -221,7 +220,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		@Nullable InsnTree loadCustomClass,
 		@Nullable Identifier caller,
 		MutableDependencyView dependencies,
-		Consumer<MutableScriptEnvironment> extra
+		Consumer<ExpressionParser> extra
 	)
 	throws ScriptParsingException {
 		this.parseCode(method, code, loadColumn, loadY, loadCustomClass, caller, dependencies, extra).emitBytecode(method);

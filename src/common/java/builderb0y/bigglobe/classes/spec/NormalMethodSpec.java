@@ -8,9 +8,8 @@ import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
@@ -51,18 +50,24 @@ public class NormalMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
 		MethodInfo methodInfo = this.context.info;
-		environment.addMethod(Handlers.methodBuilder(methodInfo).addReceiverArgument(methodInfo.owner).addArguments((Object[])(methodInfo.paramTypes)).onUsed(params.dependencyCallback(self)).buildMethod());
+		parser.environment.mutable().addMethod(Handlers.methodBuilder(methodInfo).addReceiverArgument(methodInfo.owner).addArguments((Object[])(methodInfo.paramTypes)).onUsed(params.dependencyCallback(self)).buildMethod());
 	}
 
 	@Override
 	@MustBeInvokedByOverriders
 	public void compile(ClassHierarchy hierarchy) throws DetailedException {
 		super.compile(hierarchy);
-		this.compile(hierarchy, this.code, load("this", this.owner(hierarchy).getTypeInfo()), (MutableScriptEnvironment environment) -> {
+		this.compile(hierarchy, this.code, load("this", this.owner(hierarchy).getTypeInfo()), (ExpressionParser parser) -> {
 			for (ParameterSpec parameter : this.parameters) {
-				environment.addVariableLoad(parameter.name, parameter.typeInfo());
+				if (parameter.import_) {
+					//will automatically add variable to MutableScriptEnvironment.
+					parser.addImportedValue(parameter.name, load(parameter.name, parameter.typeInfo()));
+				}
+				else {
+					parser.environment.mutable().addVariableLoad(parameter.name, parameter.typeInfo());
+				}
 			}
 		});
 	}

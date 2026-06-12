@@ -43,6 +43,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConstantConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.SubtractInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
@@ -265,8 +266,8 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		@Override
 		public InsnTree emitChance(DecisionTreeContext context, Holder<DecisionTreeSpec> caller, long seedSalt, boolean clamp) throws ScriptParsingException, ConstantFormatException {
 			MethodCompileContext method = context.newMethod("decision_tree_value_", caller, TypeInfos.DOUBLE);
-			context.columnEntryRegistry.setMethodCode(method, this.script, context.loadColumn(), context.yArgument(), null, null, this, (MutableScriptEnvironment environment) -> {
-				environment.addVariable("fuzzSeed", context.loadSeed(ldc(seedSalt)));
+			context.columnEntryRegistry.setMethodCode(method, this.script, context.loadColumn(), context.yArgument(), null, null, this, (ExpressionParser parser) -> {
+				parser.environment.mutable().addVariable("fuzzSeed", context.loadSeed(ldc(seedSalt)));
 			});
 			InsnTree result = invokeInstance(context.loadColumn(), method.info, context.yArguments());
 			if (clamp) result = clamp(result);
@@ -276,8 +277,8 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		@Override
 		public ConditionTree emitBoolean(DecisionTreeContext context, Holder<DecisionTreeSpec> caller, long seedSalt) throws ScriptParsingException, ConstantFormatException {
 			MethodCompileContext method = context.newMethod("decision_tree_value_", caller, TypeInfos.BOOLEAN);
-			context.columnEntryRegistry.setMethodCode(method, this.script, context.loadColumn(), context.yArgument(), null, null, this, (MutableScriptEnvironment environment) -> {
-				environment.addVariable("fuzzSeed", context.loadSeed(ldc(seedSalt)));
+			context.columnEntryRegistry.setMethodCode(method, this.script, context.loadColumn(), context.yArgument(), null, null, this, (ExpressionParser parser) -> {
+				parser.environment.mutable().addVariable("fuzzSeed", context.loadSeed(ldc(seedSalt)));
 			});
 			InsnTree result = invokeInstance(context.loadColumn(), method.info, context.yArguments());
 			return ConditionProvider.chanceToBoolean(context, result, seedSalt, context.is3D);

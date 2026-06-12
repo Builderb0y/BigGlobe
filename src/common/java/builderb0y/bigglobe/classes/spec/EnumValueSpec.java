@@ -19,7 +19,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -134,8 +134,8 @@ public class EnumValueSpec extends MemberSpec {
 	}
 
 	@Override
-	public void setupEnvironment(Holder<ElementSpec> self, MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
-		environment.addQualifiedVariableGetStatic(((BaseClassSpec)(this.owner.value())).getTypeInfo(), this.name, this.context.info);
+	public void setupEnvironment(Holder<ElementSpec> self, ExpressionParser parser, ExternalEnvironmentParams params) {
+		parser.environment.mutable().addQualifiedVariableGetStatic(((BaseClassSpec)(this.owner.value())).getTypeInfo(), this.name, this.context.info);
 	}
 
 	@Override

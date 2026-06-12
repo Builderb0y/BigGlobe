@@ -24,6 +24,7 @@ import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 
 public class ClassHierarchy extends BulkStagedCompiler<ClassHierarchy, ElementSpec> {
@@ -83,9 +84,9 @@ public class ClassHierarchy extends BulkStagedCompiler<ClassHierarchy, ElementSp
 		}
 	}
 
-	public void setupEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
+	public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params) {
 		for (Holder<ElementSpec> type : this.elements.values()) {
-			type.value().setupEnvironment(type, environment, params);
+			type.value().setupEnvironment(type, parser, params);
 		}
 	}
 
