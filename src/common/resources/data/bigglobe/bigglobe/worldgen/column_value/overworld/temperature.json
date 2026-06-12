@@ -6,7 +6,7 @@
 	},
 	"script": [
 		"float*(",
-			"t1 = `raw/temperature` * float(`raw/river/macro`)",
+			"t1 = uncurved_temperature",
 			"t2 = t1 ^ 2",
 		")",
 		"return(((1.875I * t2 - 5.25I) * t2 + 4.375I) * t2 * t1)"

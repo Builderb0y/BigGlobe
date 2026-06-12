@@ -4,7 +4,6 @@
 		"script": [
 			"SplitTreeGenerator",
 			".create(world, random, 'minecraft:oak')",
-			".=$requireValidGround(true)",
 			".placeNatural(originX, originY, originZ)"
 		]
 	}

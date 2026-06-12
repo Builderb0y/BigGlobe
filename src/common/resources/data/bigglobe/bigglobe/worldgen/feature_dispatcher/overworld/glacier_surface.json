@@ -11,7 +11,9 @@
 					"z = minModifiableZ | random.nextInt(16)",
 					"y = floorInt(`bigglobe:overworld/glacier_max_y`(x, z))",
 				")",
-				"placeFeature(x, y, z, 'bigglobe:overworld/ice_spike')",
+				"if (world_traits.`bigglobe:y_level_on_surface`(x, z) < y:",
+					"placeFeature(x, y, z, 'bigglobe:overworld/ice_spike')",
+				")",
 			")",
 		")"
 	]

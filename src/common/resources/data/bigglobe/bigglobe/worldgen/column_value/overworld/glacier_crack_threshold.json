@@ -5,17 +5,6 @@
 		"is_3d": false
 	},
 	"script": [
-		"min(",
-			"unmixLinear(-0.125I, -0.25I, world_traits.`bigglobe:temperature_at_sea_level`),",
-			"float(unmixLinear(",
-				"sea_level,",
-				"sea_level - 64.0L,",
-				"`raw/heightmap`",
-			"))",
-		")"
-	],
-	"valid": {
-		"where": "`raw/heightmap` < sea_level",
-		"fallback": 0.0
-	}
+		"unmixLinear(-0.125I, -0.25I, world_traits.`bigglobe:temperature_at_sea_level`)"
+	]
 }

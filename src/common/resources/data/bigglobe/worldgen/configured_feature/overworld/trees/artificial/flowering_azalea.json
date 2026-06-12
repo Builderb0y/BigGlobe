@@ -1,12 +1,10 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": {
-			"template": "bigglobe:split_tree_artificial",
-			"inputs": {
-				"palette": "'minecraft:flowering_azalea'",
-				"requireValidGround": "false"
-			}
-		}
+		"script": [
+			"SplitTreeGenerator",
+			".create(world, random, 'minecraft:flowering_azalea')",
+			".placeNatural(originX, originY, originZ)"
+		]
 	}
 }

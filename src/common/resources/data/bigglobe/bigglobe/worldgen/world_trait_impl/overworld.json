@@ -23,10 +23,11 @@
 	"bigglobe:min_y":                    "-1024I",
 	"bigglobe:max_y":                    " 1024I",
 	"bigglobe:sea_level":                "0I",
-	"bigglobe:snow_chance_at":           "world_traits.`bigglobe:approximate_surface_y` < world_traits.`bigglobe:sea_level` ? 0.0I : world_traits.`bigglobe:snow_chance`",
+	"bigglobe:snow_chance_at":           "world_traits.`bigglobe:exact_surface_y` < world_traits.`bigglobe:sea_level` ? 0.0I : world_traits.`bigglobe:snow_chance`",
 	"bigglobe:temperature_at":           "`bigglobe:overworld/temperature`",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/temperature`",
 	"bigglobe:temperature_at_surface":   "`bigglobe:overworld/temperature`",
+	"bigglobe:uncurved_temperature_at":  "`bigglobe:overworld/uncurved_temperature`",
 	"bigglobe:wood_palette":             "`bigglobe:overworld/wood_palette`",
 	"bigglobe:automatic_surface_states": "`bigglobe:overworld/surface_states`",
 	"bigglobe:approximate_surface_y": {

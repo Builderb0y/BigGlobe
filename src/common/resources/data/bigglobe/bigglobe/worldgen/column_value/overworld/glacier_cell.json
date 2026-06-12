@@ -5,10 +5,7 @@
 		"is_3d": false
 	},
 	"diagram": {
-		"distance": 64,
-		"variation": 48
-	},
-	"valid": {
-		"where": "glacier_crack_threshold > 0.0L"
+		"distance": 48,
+		"variation": 32
 	}
 }

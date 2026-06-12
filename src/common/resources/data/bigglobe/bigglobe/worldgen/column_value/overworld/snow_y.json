@@ -6,9 +6,6 @@
 	},
 	"script": [
 		"float t = world_traits.`bigglobe:temperature_at_surface`",
-		"float r2 = float(mountainness)",
-		"float accum = r2",
-		"t *= 1.0I + accum + (accum :* r2) + (accum :* r2) + (accum :* r2)",
 		"mixLinear(",
 			"world_traits.`bigglobe:exact_surface_y`,",
 			"eroded_snow.y + (t * -64.0I - 4.0I),",
