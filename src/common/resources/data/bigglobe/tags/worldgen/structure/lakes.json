@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:water_lake",
-		"bigglobe:lava_lake"
+		"bigglobe:lava_lake",
+		"bigglobe:dry_lake"
 	]
 }

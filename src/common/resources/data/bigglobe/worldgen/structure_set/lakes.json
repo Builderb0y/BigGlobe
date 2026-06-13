@@ -7,6 +7,7 @@
 	},
 	"structures": [
 		{ "weight": 2, "structure": "bigglobe:water_lake" },
-		{ "weight": 1, "structure": "bigglobe:lava_lake" }
+		{ "weight": 1, "structure": "bigglobe:lava_lake" },
+		{ "weight": 1, "structure": "bigglobe:dry_lake" }
 	]
 }

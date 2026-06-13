@@ -5,8 +5,9 @@
 		"is_3d": false
 	},
 	"script": [
+		"double slope = sqrt(`river/dx_macro` ^ 2 + `river/dz_macro` ^ 2) * 1024.0L",
 		"double curve(double value:",
-			"1.0L - 1.0L / (value ^ 4 + 1.0L)",
+			"1.0L - 1.0L / ((value / slope) ^ 4 + 1.0L)",
 		")",
 		"double*(",
 			"h = heightmap",

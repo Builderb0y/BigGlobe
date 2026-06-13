@@ -40,7 +40,6 @@ where I left off:
 	middle clicking a waypoint no longer works.
 		this is because all this logic was moved to server-side,
 		and waypoint entities don't exist server-side.
-	non-voronoi caves that resemble the surface.
 	warm and cold ocean biomes.
 		make tropical fish only spawn in warm oceans.
 	new tree script:
@@ -69,73 +68,87 @@ high priority:
 	make slingshots able to throw splash/lingering potions.
 
 V6:
-	LOD renderer improvements:
-		make ingesting work in multiplayer.
-	islands world type:
-		add glaciers.
-	fix Data mutability paradigm in AutoCodec.
-	dynamic block segment types?
-	random.between[low, high).
-	separate dragon nest for each stronghold?
-		this will probably require some hacks for dragon flight logic.
-		also end crystal spike generation.
-	new "rock layers" for nether too?
-	structure dispatchers?
-		2D and 3D variants.
-	remove all but one biome?
-		probably need at least 3 for rain vs. snow vs. no weather rendering.
-		structures will need dispatchers.
-			inject structure dispatchers into structure sets,
-			override method in scripted structure set.
-		mob spawning will need to become scripted somehow.
-	slopes biome.
-		pine trees?
-			green-ish bark, birch-ish inside. desaturated.
-			spawns on sloped surfaces like mountains.
-				only tree that can spawn on stone.
-			also requires temperate-ish temperatures.
-			shaped like new plans for spruce, but with more sparse branches.
-		goats.
-	half (16-bit float) storage mode in NumberArray.
-	prevent mushrooms from spawning inside and on top of obelisks.
-	expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
-		add setFluidState() to WorldWrapper which modifies waterlogged property.
-		ideally block states and fluid states should be completely separate.
-	test and ensure mangrove trees (and any other trees that can spawn on mud) can't spawn in lakes.
-	change syntax of weighted random switches:
-		random.switch (
-			weight(1.0: body)
-			weight(0.5: body)
-			weight(0.25: body)
-			default(body)
-		)
-		leave uniform weights alone.
-	update recipes to modern schemas, remove JsonDataLoader_BackwardsCompatibleRecipes mixin.
-	remove BigGlobeEntityRenderer.
-	update AutoCodec.
-	remove script templates?
-		replace with custom classes that just take parameters?
-	find and remove requirement status on tag elements that are marked as "required": false.
-	remove/inline everything in "versions" folder.
-	see if I still need JIJ extraction now that loom just uses implementation().
-	islands world type needs new rock terrain layers.
-	tweak islands as necessary to account for changes in erosion system.
-		and new mesa system.
-		and new biome tint system.
-	structures:
-		make originX/Y/Z zero for scripted structure placements too.
-		make structure overriders have a filter too, like column value overriders.
-		transition structure max size from chunks to blocks.
-	write unit test to verify that jspecify is not used.
-	test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
-	structures are weirdly inconsistent in whether or not they spawn somewhere.
-		structures may appear or vanish when reloading the world.
-	make it so that you can switch on custom enums.
-	more grass everywhere. especially where foliage is low.
-	make ball_of_string_remove recipe NOT match if the ball is empty.
-	rename my RandomSource class to RandomSupplier, so as not to conflict with minecraft's RandomSource class.
-	remove deprecated methods from MutableScriptEnvironment.
-	rename JavaUtilScriptEnvironment to JavaUtilExtensions.
+	not urgent:
+		LOD renderer improvements:
+			make ingesting work in multiplayer.
+		fix Data mutability paradigm in AutoCodec.
+		dynamic block segment types?
+		random.between[low, high).
+		separate dragon nest for each stronghold?
+			this will probably require some hacks for dragon flight logic.
+			also end crystal spike generation.
+		new "rock layers" for nether too?
+		3D structure dispatcher.
+		half (16-bit float) storage mode in NumberArray.
+		expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
+			add setFluidState() to WorldWrapper which modifies waterlogged property.
+			ideally block states and fluid states should be completely separate.
+		update recipes to modern schemas, remove JsonDataLoader_BackwardsCompatibleRecipes mixin.
+		remove BigGlobeEntityRenderer.
+		update AutoCodec.
+		remove script templates?
+			replace with custom classes that just take parameters?
+		remove/inline everything in "versions" folder.
+		see if I still need JIJ extraction now that loom just uses implementation().
+		structures:
+			make structure overriders have a filter too, like column value overriders.
+			transition structure max size from chunks to blocks.
+		write unit test to verify that jspecify is not used.
+		rename my RandomSource class to RandomSupplier, so as not to conflict with minecraft's RandomSource class.
+		remove deprecated methods from MutableScriptEnvironment.
+		rename JavaUtilScriptEnvironment to JavaUtilExtensions.
+	maybe urgent:
+		islands world type:
+			add glaciers.
+			biome per island.
+			new rock terrain layers.
+			and new mesa system.
+			and new biome tint system.
+		change syntax of weighted random switches:
+			random.switch (
+				weight(1.0: body)
+				weight(0.5: body)
+				weight(0.25: body)
+				default(body)
+			)
+			leave uniform weights alone.
+		test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
+		make it so that you can switch on custom enums.
+		make ball_of_string_remove recipe NOT match if the ball is empty.
+	urgent:
+		reduce number of biomes:
+			list:
+				core
+					no mob spawns.
+				deep dark
+					no mob spawns.
+				ocean
+				river
+				beach
+				plains
+				forest
+					small chance of bogged.
+				desert
+					small chance of husk and parched.
+				mesa
+					small chance of husk and parched.
+				icy
+					small chance of stray.
+				mountain
+					pine trees?
+						green-ish bark, birch-ish inside. desaturated.
+						spawns on sloped surfaces like mountains.
+							only tree that can spawn on stone.
+						also requires temperate-ish temperatures.
+						shaped like new plans for spruce, but with more sparse branches.
+					goats.
+				volcano (islands world type)
+			structures will need dispatchers.
+				inject structure dispatchers into structure sets,
+				override method in scripted structure set.
+			mob spawning will need to become scripted somehow.
+		non-voronoi caves that resemble the surface.
+		FlatStructureManager *still* deadlocks :(
 
 LODs:
 	shader support.

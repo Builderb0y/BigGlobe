@@ -1,8 +1,0 @@
-{
-	"result": {
-		"type": "script",
-		"script": [
-			"SurfaceStates.new().$add('minecraft:mud', floorInt(`bigglobe:overworld/default_surface_depth`))"
-		]
-	}
-}
