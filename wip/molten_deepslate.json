@@ -1,0 +1,672 @@
+{
+	"version": 15,
+	"parameter_sets": {
+		"groups": [
+			{
+				"name": "Global",
+				"selected": "Default",
+				"variations": [
+					"Default"
+				]
+			}
+		]
+	},
+	"layer_graph": {
+		"showing_layer": "molten",
+		"selected_layer": "molten",
+		"layers": [
+			{
+				"name": "deepslate_top.png",
+				"gridX": 0,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "manual",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {},
+					"image": {
+						"width": 16,
+						"height": 16,
+						"pixels": "H4sIAAAAAAAA/72WOw7CMBBEc7JwKQ5AFW4Q2nCHcIdwk9BDj7DkZoX09DSCYouV7fV+ZsYe5/kyfmxZrofTMIzbdu/W/HW9dWv+8flqNk3n5u/7o9tXv56n+NWv8Wx+dD/VX9dpf8237rf9qOvVr/WST/nY8zSfut/Gp3iEv+oTPiyeaV6WLxYvhD/qX8o3Wrd8sXi1/Ej5bOtL87X3pfps9dLOy8an+6w+2PeH+p/qreVPio9Un1M9I9/2n9Zp/rYewp/V27QfKd6oftpv+WT5/mv+UT2E51S/7H81zTfVixR/Kb4svi2+LJ6tfvxbX9L3OdUXmjfVb33K374v9r9j+WP/L/a/DPm8AfvrXU0AEAAA"
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "heat",
+				"gridX": 0,
+				"gridY": 2,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "passthrough",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "maxBrightness",
+				"gridX": 1,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "gradient_remap",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"per_channel": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"preserve_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"from_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"from_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "heat"
+									}
+								}
+							}
+						},
+						"to_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"to_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.5, 0.5, 0.5, 1.0 ]
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "gray",
+				"gridX": 2,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "gradient_remap",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"per_channel": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"preserve_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"from_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.239215686917305, 0.239215686917305, 0.26274511218070984, 1.0 ]
+									}
+								}
+							}
+						},
+						"from_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.45490196347236633, 0.45490196347236633, 0.45490196347236633, 1.0 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "deepslate_top.png"
+									}
+								}
+							}
+						},
+						"to_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "maxBrightness"
+									}
+								}
+							}
+						},
+						"to_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "blur",
+				"gridX": 3,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "convolve",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"linear": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"bounds": {
+						"group": "Global",
+						"variations": {
+							"Default": {
+								"horizontal": "WRAP",
+								"vertical": "WRAP"
+							}
+						}
+					},
+					"normalize": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"alpha_weighting": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"weights": {
+						"group": "Global",
+						"variations": {
+							"Default": {
+								"shape": "SEPARABLE",
+								"preset": "MANUAL",
+								"radius": 1,
+								"weights": [
+									{ "x": -1, "y": 0, "weight": 1.0 },
+									{ "x": 0, "y": 0, "weight": 4.0 },
+									{ "x": 1, "y": 0, "weight": 1.0 }
+								]
+							}
+						}
+					},
+					"dependencies": {
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "gray"
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "coefficients",
+				"gridX": 3,
+				"gridY": 1,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "gradient_remap",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"per_channel": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"preserve_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"from_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.0, 0.0, 0.0, 0.0 ]
+									}
+								}
+							}
+						},
+						"from_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "heat"
+									}
+								}
+							}
+						},
+						"to_end": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.75, 0.5, 0.25, 0.5 ]
+									}
+								}
+							}
+						},
+						"to_start": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.5, 0.5, 0.5, 0.5 ]
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "molten",
+				"gridX": 4,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "cliff",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dual": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"linear": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {
+						"strength": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "coefficients"
+									}
+								}
+							}
+						},
+						"midpoint": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 0.5, 0.5, 0.5, 0.5 ]
+									}
+								}
+							}
+						},
+						"main": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "blur"
+									}
+								}
+							}
+						},
+						"mask": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						}
+					}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			}
+		]
+	},
+	"animation": {
+		"frames": 1
+	}
+}

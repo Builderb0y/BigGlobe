@@ -1,19 +1,9 @@
 {
-	"type": "script",
+	"type": "decision_tree",
 	"params": {
 		"type": "bigglobe:cave_systems/base/class",
 		"is_3d": false
 	},
-	"script": [
-		"VoronoiCell cell = cave",
-		"long seed = (worldSeed # 16xA5E1AD697A7E3AA5UL).newSeed(cell.cellX, cell.cellZ)",
-		"float totalWeight = 0.0I",
-		"CaveSystem result = null",
-		"for (CaveSystem type in CaveSystem.valueSet:",
-			"if (type.weight > 0.0I && (seed := seed.newSeed()).nextFloat(totalWeight :+ type.weight) < type.weight:",
-				"result = type",
-			")",
-		")",
-		"result"
-	]
+	"has_border": true,
+	"root": "bigglobe:overworld/cave_type/test_ocean"
 }

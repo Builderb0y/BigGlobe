@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
@@ -15,7 +16,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
 import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.spec.MemberSpec;
-import builderb0y.bigglobe.classes.spec.TypeSpec;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -66,8 +66,9 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 	}
 
 	@Override
-	public void createRepresentation(ColumnEntryRegistry registry) throws DetailedException {
-		super.createRepresentation(registry);
+	@MustBeInvokedByOverriders
+	public void createTypeInfo(ColumnEntryRegistry registry) throws DetailedException {
+		super.createTypeInfo(registry);
 		ClassCompileContext clazz = registry.columnCompileContext.clazz;
 		ColumnEntryContext context = new ColumnEntryContext();
 		context.uniquifier = clazz.memberUniquifier++;
@@ -76,12 +77,12 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 		}
 		context.internalName = ColumnCompileContext.internalName(registry.idOf(this), context.uniquifier);
 		LazyVarInfo[] maybeY = this.params.is_3d() ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty();
-		TypeInfo valueType = this.params.typeInfo(registry, this);
-		this.populateContext(context, clazz, valueType, maybeY);
 		registry.columnCompileContext.setCompileContext(this, context);
+		this.populateContext(registry, context, clazz, maybeY);
 	}
 
-	public void populateContext(ColumnEntryContext context, ClassCompileContext clazz, TypeInfo valueType, LazyVarInfo[] maybeY) {
+	public void populateContext(ColumnEntryRegistry registry, ColumnEntryContext context, ClassCompileContext clazz, LazyVarInfo[] maybeY) {
+		TypeInfo valueType = this.getTypeInfo(registry);
 		context.mainGetter = clazz.newMethod(
 			ACC_PUBLIC,
 			"get_" + context.internalName,
@@ -168,14 +169,13 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 	public void compile2DCached(ColumnEntryRegistry registry, ColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
 		return_(this.makeComputer(registry, context, null)).emitBytecode(context.computer);
 		context.computer.endCode();
-		TypeSpec valueType = this.params.typeSpec(registry, this);
-		TypeInfo valueTypeInfo = valueType.getTypeInfo();
+		TypeInfo valueTypeInfo = this.getTypeInfo(registry);
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree fallback;
 		try {
 			fallback = (
 				this.valid != null && this.valid.fallback() != null
-				? valueType.parseConstant(registry.classHierarchy, this.valid.fallback())
+				? this.parseConstant(registry, this.valid.fallback())
 				: ldcAbsent(valueTypeInfo)
 			);
 		}
@@ -255,14 +255,13 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 	public void compile2DUncached(ColumnEntryRegistry registry, ColumnEntryContext context) throws ColumnValueException, ScriptParsingException {
 		return_(this.makeComputer(registry, context, null)).emitBytecode(context.computer);
 		context.computer.endCode();
-		TypeSpec valueType = this.params.typeSpec(registry, this);
-		TypeInfo valueTypeInfo = valueType.getTypeInfo();
+		TypeInfo valueTypeInfo = this.getTypeInfo(registry);
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree fallback;
 		try {
 			fallback = (
 				this.valid != null && this.valid.fallback() != null
-				? valueType.parseConstant(registry.classHierarchy, this.valid.fallback())
+				? this.parseConstant(registry, this.valid.fallback())
 				: ldcAbsent(valueTypeInfo)
 			);
 		}
@@ -324,8 +323,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 		LazyVarInfo y = new LazyVarInfo("y", TypeInfos.INT);
 		return_(this.makeComputer(registry, context, load(y))).emitBytecode(context.computer);
 		context.computer.endCode();
-		TypeSpec valueType = this.params.typeSpec(registry, this);
-		TypeInfo valueTypeInfo = valueType.getTypeInfo();
+		TypeInfo valueTypeInfo = this.getTypeInfo(registry);
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree getBackingField = getField(loadColumn, context.valueField.info);
 		/**
@@ -462,7 +460,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 
 		InsnTree fallback;
 		try {
-			fallback = valueType.parseConstant(registry.classHierarchy, this.valid != null ? this.valid.fallback() : EmptyData.INSTANCE);
+			fallback = this.parseConstant(registry, this.valid != null ? this.valid.fallback() : EmptyData.INSTANCE);
 		}
 		catch (ConstantFormatException exception) {
 			throw new ColumnValueException(exception);
@@ -619,8 +617,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 		return_(this.makeComputer(registry, context, load(y))).emitBytecode(context.computer);
 		context.computer.endCode();
 
-		TypeSpec valueType = this.params.typeSpec(registry, this);
-		TypeInfo valueTypeInfo = valueType.getTypeInfo();
+		TypeInfo valueTypeInfo = this.getTypeInfo(registry);
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree computer = invokeInstance(loadColumn, context.computer.info, load(y));
 		if (this.hasValid()) {
@@ -650,10 +647,7 @@ public abstract class NonConstantColumnEntry extends ColumnEntry {
 			}
 			InsnTree fallback;
 			try {
-				fallback = valueType.parseConstant(
-					registry.classHierarchy,
-					this.valid.fallback()
-				);
+				fallback = this.parseConstant(registry, this.valid.fallback());
 			}
 			catch (ConstantFormatException exception) {
 				throw new ColumnValueException(exception);

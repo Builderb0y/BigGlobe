@@ -4,7 +4,6 @@
 	"impl_type": "bigglobe:cave_systems/frozen/class",
 	"name": "FROZEN",
 	"field_values": {
-		"weight": 0.75,
 		"biome": "bigglobe:frozen_cave",
 		"decorator": "bigglobe:overworld/caves/frozen_decorator",
 		"dungeonFeature": "bigglobe:overworld/caves/random_dungeon_frozen",

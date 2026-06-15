@@ -139,7 +139,7 @@ public class ClassCompileContext {
 		return writer.toString();
 	}
 
-	public void addNoArgConstructor(int access) {
+	public MethodCompileContext addNoArgConstructor(int access) {
 		MethodCompileContext constructor = this.newMethod(access, "<init>", TypeInfos.VOID);
 		LazyVarInfo self = new LazyVarInfo("this", constructor.clazz.info);
 		return_(
@@ -151,6 +151,7 @@ public class ClassCompileContext {
 		)
 		.emitBytecode(constructor);
 		constructor.endCode();
+		return constructor;
 	}
 
 	public void addToString(String string) {

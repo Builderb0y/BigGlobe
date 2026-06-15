@@ -56,7 +56,7 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 	@Override
 	public void verify(ColumnEntryRegistry registry) throws DetailedException {
 		super.verify(registry);
-		if (!this.typeInfo(registry).isFloat()) {
+		if (!this.getTypeInfo(registry).isFloat()) {
 			throw new ColumnValueException("Noise-based column values must be of type float or double.");
 		}
 	}
@@ -82,7 +82,7 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 					loadY,
 					invokeInstance(loadColumn, ScriptedColumn.INFO.z)
 				),
-				this.typeInfo(registry)
+				this.getTypeInfo(registry)
 			);
 		}
 		else {
@@ -101,7 +101,7 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 					invokeInstance(loadColumn, ScriptedColumn.INFO.x),
 					invokeInstance(loadColumn, ScriptedColumn.INFO.z)
 				),
-				this.typeInfo(registry)
+				this.getTypeInfo(registry)
 			);
 		}
 	}

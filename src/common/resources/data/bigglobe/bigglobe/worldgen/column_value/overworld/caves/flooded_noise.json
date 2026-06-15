@@ -1,0 +1,29 @@
+{
+	"type": "bigglobe:script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"float curve(float valueSquared, float width:",
+			"float curve = valueSquared / (valueSquared + width ^ 2)",
+			"curve += float(1.0L - `bigglobe:overworld/cave_type`.border)",
+			"float bottomExclusion = float(unmixLinear(",
+				"world_traits.`bigglobe:approximate_surface_y` - hard_depth + width,",
+				"world_traits.`bigglobe:approximate_surface_y` - hard_depth,",
+				"y",
+			"))",
+			"if (bottomExclusion > 0.0I: curve += bottomExclusion ^ 2)",
+			"return(curve)",
+		")",
+		"return(",
+			"curve(unbiased_primary_noise, hard_width)",
+			"* curve(unbiased_secondary_noise, 8.0I)",
+		")"
+	],
+	"valid": {
+		"min_y": "world_traits.`bigglobe:cave_min_y`",
+		"max_y": "world_traits.`bigglobe:cave_max_y`",
+		"fallback": 1.0
+	}
+}

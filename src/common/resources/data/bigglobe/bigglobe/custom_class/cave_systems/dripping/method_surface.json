@@ -2,8 +2,5 @@
 	"element_type": "method/override",
 	"owner": "bigglobe:cave_systems/dripping/class",
 	"override": "bigglobe:cave_systems/base/method_surface",
-	"code": [
-		"SurfaceStates surface = new().$add('minecraft:dripstone_block', defaultSurfaceDepth(column))",
-		"CaveSurfaceStates.create(surface, surface)"
-	]
+	"code": "CaveSurfaceStates.create(SurfaceStates.new(), SurfaceStates.new())"
 }

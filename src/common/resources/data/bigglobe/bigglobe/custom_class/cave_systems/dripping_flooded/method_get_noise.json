@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:cave_systems/dripping_flooded/class",
+	"override": "bigglobe:cave_systems/hard/method_get_noise",
+	"code": [
+		"column.`bigglobe:overworld/caves/flooded_noise`(y)"
+	]
+}

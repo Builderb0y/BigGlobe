@@ -1,10 +1,9 @@
 {
 	"element_type": "field/enum",
-	"owner": "bigglobe:cave_systems/sandy/class",
+	"owner": "bigglobe:cave_systems/base/class",
 	"impl_type": "bigglobe:cave_systems/sandy/class",
 	"name": "SANDY",
 	"field_values": {
-		"weight": 0.75,
 		"biome": "bigglobe:sandy_cave",
 		"decorator": "bigglobe:overworld/caves/sandy_decorator",
 		"dungeonFeature": "bigglobe:overworld/caves/random_dungeon_sandy",

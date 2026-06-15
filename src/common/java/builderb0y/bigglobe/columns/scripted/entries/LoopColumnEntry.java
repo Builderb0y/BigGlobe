@@ -28,7 +28,7 @@ public abstract class LoopColumnEntry extends NonConstantColumnEntry {
 	public InsnTree makeBulkComputer(ColumnEntryRegistry registry, ColumnEntryContext context) throws ScriptParsingException {
 		InsnTree loadColumn = registry.columnCompileContext.loadColumn();
 		InsnTree loadMappedArray = getField(loadColumn, context.valueField.info);
-		TypeInfo elementType = this.typeInfo(registry);
+		TypeInfo elementType = this.getTypeInfo(registry);
 		InsnTree getRawArray = getField(loadMappedArray, elementType.isObject() ? MappedRangeObjectArray.ARRAY : MappedRangeNumberArray.INFO.array);
 		VariableDeclareAssignInsnTree rawArray = new VariableDeclareAssignInsnTree(new LazyVarInfo("array", getRawArray.getTypeInfo()), getRawArray);
 		LazyVarInfo iterY = new LazyVarInfo("iterY", TypeInfos.INT);

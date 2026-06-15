@@ -19,7 +19,7 @@ public class ReceiverObjectUpdaterInsnTree extends AbstractObjectUpdaterInsnTree
 	public static void checkUsage(CombinedMode mode) {
 		switch (mode.order) {
 			case VOID -> {}
-			case PRE -> throw new IllegalArgumentException("Can't return receiver and pre at the same time.");
+			case PRE  -> throw new IllegalArgumentException("Can't return receiver and pre at the same time.");
 			case POST -> throw new IllegalArgumentException("Can't return receiver and post at the same time.");
 		}
 	}

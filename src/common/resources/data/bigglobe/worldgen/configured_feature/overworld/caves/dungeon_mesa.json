@@ -1,0 +1,12 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"template": "bigglobe:dungeon_feature",
+			"inputs": {
+				"STATE": "random.if ('minecraft:red_sandstone') else ('minecraft:red_sand')",
+				"ENTITY_TYPE": "random.nextBoolean() ? 'minecraft:parched' : 'minecraft:husk'"
+			}
+		}
+	}
+}

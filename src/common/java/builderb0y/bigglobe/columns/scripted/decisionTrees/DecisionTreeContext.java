@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ObjectArrays;
+
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
@@ -15,6 +17,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.dependencies.CyclicDependencyException;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.LazyVarInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -27,9 +30,10 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class DecisionTreeContext {
 
 	public final ColumnEntryRegistry columnEntryRegistry;
+	public final Holder<ColumnEntry> columnEntry;
 	public final Map<Holder<DecisionTreeSpec>, Holder<DecisionTreeSpec>> patches;
 	public final TypeSpec expectedType;
-	public final boolean is3D;
+	public final boolean is3D, hasBorder;
 	public final Map<Holder<DecisionTreeSpec>, InsnTree> decisionTreeInvokers;
 	/**
 	under normal circumstances, I would use CyclicDependencyAnalyzer
@@ -44,19 +48,23 @@ public class DecisionTreeContext {
 
 	public DecisionTreeContext(
 		ColumnEntryRegistry columnEntryRegistry,
+		Holder<ColumnEntry> columnEntry,
 		Map<Holder<DecisionTreeSpec>, Holder<DecisionTreeSpec>> patches,
 		TypeSpec type,
-		boolean is3D
+		boolean is3D,
+		boolean hasBorder
 	) {
 		this.columnEntryRegistry = columnEntryRegistry;
+		this.columnEntry = columnEntry;
 		this.patches = patches;
 		this.expectedType = type;
 		this.is3D = is3D;
+		this.hasBorder = hasBorder;
 		this.decisionTreeInvokers = new HashMap<>();
 		this.stack = new LinkedHashSet<>();
 	}
 
-	public MethodCompileContext newMethod(String baseName, Holder<DecisionTreeSpec> self, TypeInfo returnType) {
+	public MethodCompileContext newMethod(String baseName, Holder<DecisionTreeSpec> self, TypeInfo returnType, LazyVarInfo... extraParameters) {
 		return this.columnEntryRegistry.columnCompileContext.clazz.newMethod(
 			ACC_PUBLIC,
 			baseName + ColumnCompileContext.internalName(
@@ -64,7 +72,7 @@ public class DecisionTreeContext {
 				this.columnEntryRegistry.columnCompileContext.clazz.memberUniquifier++
 			),
 			returnType,
-			this.yParameters()
+			this.yParametersWith(extraParameters)
 		);
 	}
 
@@ -76,8 +84,38 @@ public class DecisionTreeContext {
 		return this.is3D ? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) } : LazyVarInfo.ARRAY_FACTORY.empty();
 	}
 
+	public LazyVarInfo[] yParametersWith(LazyVarInfo... extra) {
+		if (this.is3D) {
+			LazyVarInfo y = new LazyVarInfo("y", TypeInfos.INT);
+			if (extra.length != 0) {
+				return ObjectArrays.concat(y, extra);
+			}
+			else {
+				return new LazyVarInfo[] { y };
+			}
+		}
+		else {
+			return extra;
+		}
+	}
+
 	public static InsnTree[] yArguments(boolean is3D) {
 		return is3D ? new InsnTree[] { load("y", TypeInfos.INT) } : InsnTree.ARRAY_FACTORY.empty();
+	}
+
+	public InsnTree[] yArgumentsWith(boolean is3D, InsnTree... extra) {
+		if (is3D) {
+			InsnTree y = load("y", TypeInfos.INT);
+			if (extra.length != 0) {
+				return ObjectArrays.concat(y, extra);
+			}
+			else {
+				return new InsnTree[] { y };
+			}
+		}
+		else {
+			return extra;
+		}
 	}
 
 	public InsnTree[] yArguments() {

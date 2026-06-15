@@ -212,8 +212,9 @@ public class EnumClassSpec extends BaseClassSpec {
 	public InsnTree parseConstant(ClassHierarchy hierarchy, Data data) throws ConstantFormatException {
 		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
 		String name = BuiltinType.asString(data).value;
-		if (this.values.get(name) != null) {
-			return getStatic(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, this.getTypeInfo(), name, this.getTypeInfo());
+		Holder<ElementSpec> holder = this.values.get(name);
+		if (holder != null) {
+			return getStatic(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, this.getTypeInfo(), name, ((EnumValueSpec)(holder.value())).implType(hierarchy).getTypeInfo());
 		}
 		else {
 			throw new ConstantFormatException("Unknown enum " + name + " of type " + hierarchy.idOf(this));

@@ -5,7 +5,7 @@
 			"template": "bigglobe:dungeon_feature",
 			"inputs": {
 				"STATE": "random.if ('minecraft:sandstone') else ('minecraft:sand')",
-				"ENTITY_TYPE": "random.nextBoolean() ? 'minecraft:skeleton' : 'minecraft:husk'"
+				"ENTITY_TYPE": "random.nextBoolean() ? 'minecraft:parched' : 'minecraft:husk'"
 			}
 		}
 	}

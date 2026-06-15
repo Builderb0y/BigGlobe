@@ -236,6 +236,8 @@ public class BigGlobeAutoCodec {
 				@Override
 				public void setup() {
 					super.setup();
+					this.removeFactory(UseCoderFactory.INSTANCE);
+					this.addFactoryAfter(DefaultEmptyCoder.Factory.INSTANCE, UseCoderFactory.INSTANCE);
 					this.addFactoryToStart(UseSuperClass.Coder.Factory.INSTANCE);
 					this.addFactoryBefore(LookupCoderFactory.class, GridRegistryEntryCoder.Factory.INSTANCE);
 					this.addFactoryAfter(LookupCoderFactory.class, RegistryEntryCoder.Factory.INSTANCE);

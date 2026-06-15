@@ -7,12 +7,7 @@
 	"script": [
 		"float curve(float valueSquared, float width:",
 			"float curve = valueSquared / (valueSquared + width ^ 2)",
-			"float edgeExclusion = unmixLinear(",
-				"`bigglobe:overworld/cave_system_size` - width * 2.0I,",
-				"float(`bigglobe:overworld/cave_system_size`),",
-				"float(`bigglobe:overworld/cave`.softDistance) * float(`bigglobe:overworld/cave_system_size`)",
-			")",
-			"if (edgeExclusion > 0.0I: curve += edgeExclusion ^ 2)",
+			"curve += float(1.0L - `bigglobe:overworld/cave_type`.border)",
 			"float bottomExclusion = float(unmixLinear(",
 				"world_traits.`bigglobe:approximate_surface_y` - medium_depth + width,",
 				"world_traits.`bigglobe:approximate_surface_y` - medium_depth,",

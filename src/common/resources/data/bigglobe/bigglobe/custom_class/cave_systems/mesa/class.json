@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "MesaCaveSystem",
+	"extends": "bigglobe:cave_systems/medium/class"
+}

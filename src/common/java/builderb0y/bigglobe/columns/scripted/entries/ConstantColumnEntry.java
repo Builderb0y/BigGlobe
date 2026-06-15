@@ -32,7 +32,7 @@ public class ConstantColumnEntry extends ColumnEntry {
 		context.mainGetter = registry.columnCompileContext.clazz.newMethod(
 			ACC_PUBLIC,
 			"get_" + context.internalName,
-			this.typeInfo(registry)
+			this.getTypeInfo(registry)
 		);
 		registry.columnCompileContext.setCompileContext(this, context);
 	}

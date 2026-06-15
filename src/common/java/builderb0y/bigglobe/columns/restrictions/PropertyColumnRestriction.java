@@ -38,7 +38,7 @@ public abstract class PropertyColumnRestriction extends ScriptErrorCatcher.Impl 
 
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
-		TypeInfo type = this.property.value().typeInfo(registry);
+		TypeInfo type = this.property.value().getTypeInfo(registry);
 		Class<?> fromClass = switch (type.getSort()) {
 			case FLOAT -> float.class;
 			case DOUBLE -> double.class;

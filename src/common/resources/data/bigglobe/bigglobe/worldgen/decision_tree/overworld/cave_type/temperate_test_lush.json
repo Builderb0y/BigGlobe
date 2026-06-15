@@ -1,0 +1,12 @@
+{
+	"border": {
+		"type": "saturate",
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:foliage_at_surface"
+		},
+		"scalar": 16.0
+	},
+	"if_positive": "bigglobe:overworld/cave_type/lush",
+	"if_negative": "bigglobe:overworld/cave_type/generic"
+}

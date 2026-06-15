@@ -32,6 +32,13 @@ public class ConditionDecisionTreeSpec implements DecisionTreeSpec {
 
 	@Override
 	public InsnTree emitTree(DecisionTreeContext context, Holder<DecisionTreeSpec> self) throws ScriptParsingException, ConstantFormatException {
+		if (context.hasBorder) throw new IllegalArgumentException(
+			"Decision tree " +
+			UnregisteredObjectException.getID(self) +
+			" does not have a border, but was used by column value " +
+			UnregisteredObjectException.getID(context.columnEntry) +
+			", which has a border."
+		);
 		MethodCompileContext branch = context.newMethod("decision_tree_condition_", self, context.expectedTypeInfo());
 		ifElse(
 			CastingSupport.dummyParser(),

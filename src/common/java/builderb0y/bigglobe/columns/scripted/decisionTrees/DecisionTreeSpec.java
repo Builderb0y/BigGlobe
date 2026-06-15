@@ -19,6 +19,7 @@ public interface DecisionTreeSpec extends CoderRegistryTyped<DecisionTreeSpec>, 
 	public static final TypelessCoderRegistry<DecisionTreeSpec> REGISTRY = new TypelessCoderRegistry<>(ReifiedType.from(DecisionTreeSpec.class), BigGlobeAutoCodec.AUTO_CODEC);
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.register(ConditionDecisionTreeSpec.class);
+		REGISTRY.register(   BorderDecisionTreeSpec.class);
 		REGISTRY.register(   ResultDecisionTreeSpec.class);
 	}};
 

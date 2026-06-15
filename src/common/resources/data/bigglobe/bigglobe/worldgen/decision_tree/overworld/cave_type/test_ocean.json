@@ -1,0 +1,16 @@
+{
+	"border": {
+		"type": "saturate",
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:approximate_surface_y"
+		},
+		"offset": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:sea_level"
+		},
+		"scalar": 0.0625
+	},
+	"if_positive": "bigglobe:overworld/cave_type/land_test_frozen",
+	"if_negative": "bigglobe:overworld/cave_type/ocean_test_flooded"
+}

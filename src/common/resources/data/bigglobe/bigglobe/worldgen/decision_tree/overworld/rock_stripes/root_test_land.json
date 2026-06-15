@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "world_trait",
+		"world_trait": "bigglobe:is_beach"
+	},
+	"if_true": "bigglobe:overworld/rock_stripes/none",
+	"if_false": "bigglobe:overworld/rock_stripes/land_test_desert"
+}

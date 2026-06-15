@@ -27,6 +27,7 @@ import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.classes.BorderedValue;
 import builderb0y.bigglobe.classes.Named;
 import builderb0y.bigglobe.classes.VoronoiSampler;
 import builderb0y.bigglobe.classes.compile.ClassHierarchy;
@@ -1187,6 +1188,13 @@ public abstract class BuiltinType implements Named {
 				.addType("VoronoiCell", callback, this.type)
 				.addField(Handlers.methodWithReceiver(VoronoiSampler.class, "centerColumn").onUsed(callback).explicitCast(((BuiltinTypeSpec)(referencingType.value())).columnType).buildField());
 				addFields(environment, callback, VoronoiSampler.class, "cellX", "cellZ", "centerX", "centerZ", "softDistanceSquared", "dxSoftDistanceSquared", "dzSoftDistanceSquared", "softDistance", "dxSoftDistance", "dzSoftDistance", "hardDistanceSquared", "hardDistance", "euclideanDistanceSquared", "euclideanDistance");
+			}
+		});
+		register("bordered_value", new Typed("BorderedValue", BorderedValue.class) {
+
+			@Override
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment.addField(Handlers.fieldBuilder(BorderedValue.class, "border").onUsed(callback).addReceiverArgument(this.type).buildField());
 			}
 		});
 		register("world", new Typed("World", WorldWrapper.class) {

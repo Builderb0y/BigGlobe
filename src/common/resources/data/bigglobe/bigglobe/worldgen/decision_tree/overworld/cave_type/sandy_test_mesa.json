@@ -1,0 +1,10 @@
+{
+	"border": {
+		"type": "script",
+		"script": [
+			"`bigglobe:overworld/raw/river/macro` > 0.0L ? 1.0L : -1.0L"
+		]
+	},
+	"if_positive": "bigglobe:overworld/cave_type/mesa",
+	"if_negative": "bigglobe:overworld/cave_type/desert"
+}

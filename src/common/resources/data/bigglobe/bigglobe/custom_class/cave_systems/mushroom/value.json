@@ -4,7 +4,6 @@
 	"impl_type": "bigglobe:cave_systems/mushroom/class",
 	"name": "MUSHROOM",
 	"field_values": {
-		"weight": 0.5,
 		"decorator": "bigglobe:overworld/caves/mushroom_decorator",
 		"biome": "bigglobe:mushroom_cave",
 		"systemDepth": 256

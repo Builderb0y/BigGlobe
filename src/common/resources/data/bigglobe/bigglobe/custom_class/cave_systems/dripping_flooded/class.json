@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "FloodedDrippingCaveSystem",
+	"extends": "bigglobe:cave_systems/dripping/class"
+}

@@ -42,11 +42,6 @@ where I left off:
 		and waypoint entities don't exist server-side.
 	warm and cold ocean biomes.
 		make tropical fish only spawn in warm oceans.
-	new tree script:
-		make vines only on oak trunks, not branches.
-		missing decoration:
-			mushroom shelves.
-			mangrove propagules.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -147,8 +142,15 @@ V6:
 				inject structure dispatchers into structure sets,
 				override method in scripted structure set.
 			mob spawning will need to become scripted somehow.
-		non-voronoi caves that resemble the surface.
-		FlatStructureManager *still* deadlocks :(
+			organize biome json files by dimension.
+		split tree generator:
+			missing decoration:
+				mushroom shelves.
+				mangrove propagules.
+		FlatStructureLocator *still* deadlocks :(
+		verify that FlatStructureLocator handles C2ME being absent correctly.
+		why do I have curved temperature again?
+		mushrooms spawn in deserts. they should probably not do that.
 
 LODs:
 	shader support.

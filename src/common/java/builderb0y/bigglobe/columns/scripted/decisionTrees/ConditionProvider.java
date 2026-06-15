@@ -42,7 +42,6 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConstantConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.SubtractInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
@@ -169,7 +168,7 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		@Override
 		public InsnTree emitChance(DecisionTreeContext context, Holder<DecisionTreeSpec> caller, long seedSalt, boolean clamp) throws ScriptParsingException, ConstantFormatException {
 			ColumnEntry columnEntry = this.column_value.value();
-			TypeInfo existingType = columnEntry.typeInfo(context.columnEntryRegistry);
+			TypeInfo existingType = columnEntry.getTypeInfo(context.columnEntryRegistry);
 			if (!existingType.isFloat()) {
 				throw new ScriptParsingException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is not a floating point value.", null);
 			}
@@ -186,7 +185,7 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		@Override
 		public ConditionTree emitBoolean(DecisionTreeContext context, Holder<DecisionTreeSpec> caller, long seedSalt) throws ScriptParsingException, ConstantFormatException {
 			ColumnEntry columnEntry = this.column_value.value();
-			TypeInfo existingType = columnEntry.typeInfo(context.columnEntryRegistry);
+			TypeInfo existingType = columnEntry.getTypeInfo(context.columnEntryRegistry);
 			if (!existingType.isFloat() && !existingType.isBoolean()) {
 				throw new ScriptParsingException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is not a floating point value or a boolean.", null);
 			}
@@ -292,8 +291,8 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 
 	public static record CurveConditionProvider(
 		ConditionProvider value,
-		@DefaultFloat(0.0F) ConditionProvider min,
-		@DefaultFloat(1.0F) ConditionProvider max,
+		@DefaultFloat(value = 0.0F, mode = DefaultMode.ENCODED) ConditionProvider min,
+		@DefaultFloat(value = 1.0F, mode = DefaultMode.ENCODED) ConditionProvider max,
 		@DefaultInt(1) @VerifyIntRange(min = 0) int smooth_min,
 		@DefaultInt(1) @VerifyIntRange(min = 0) int smooth_max
 	)

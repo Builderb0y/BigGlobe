@@ -10,7 +10,9 @@ import net.minecraft.resources.Identifier;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.classes.compile.ConstantFormatException;
 import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.classes.compile.StagedCompileable;
 import builderb0y.bigglobe.codecs.CoderRegistry;
@@ -19,10 +21,7 @@ import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.FieldCompileContext;
-import builderb0y.scripting.bytecode.MethodCompileContext;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
@@ -62,8 +61,12 @@ public abstract class ColumnEntry extends StagedCompileable<ColumnEntryRegistry>
 		return Stream.of(this.params.type());
 	}
 
-	public TypeInfo typeInfo(ColumnEntryRegistry registry) {
+	public TypeInfo getTypeInfo(ColumnEntryRegistry registry) {
 		return this.params.typeInfo(registry, this);
+	}
+
+	public InsnTree parseConstant(ColumnEntryRegistry registry, Data data) throws ConstantFormatException {
+		return this.params.typeSpec(registry, this).parseConstant(registry.classHierarchy, data);
 	}
 
 	public abstract boolean hasFieldSetterAndFlag();
@@ -71,7 +74,7 @@ public abstract class ColumnEntry extends StagedCompileable<ColumnEntryRegistry>
 	@Override
 	public void verify(ColumnEntryRegistry registry) throws DetailedException {
 		super.verify(registry);
-		if (this.params.typeInfo(registry, this).isVoid()) {
+		if (this.getTypeInfo(registry).isVoid()) {
 			throw new ColumnValueException("Void-typed column entry: " + UnregisteredObjectException.getID(registry.entryOf(this)));
 		}
 	}
@@ -171,11 +174,16 @@ public abstract class ColumnEntry extends StagedCompileable<ColumnEntryRegistry>
 		@Deprecated
 		public int flagsIndex = -1;
 		public String internalName;
+		public @Nullable FieldCompileContext valueField;
+
 		public MethodCompileContext mainGetter;
 		public @Nullable MethodCompileContext mainSetter;
 		public @Nullable MethodCompileContext preComputer;
 		public @Nullable MethodCompileContext computer;
-		public @Nullable FieldCompileContext valueField;
+
+		public @Nullable ClassCompileContext borderClass;
+		public @Nullable FieldCompileContext borderValueField;
+		public @Nullable MethodCompileContext borderConstructor;
 
 		public int flagsIndex() {
 			if (this.flagsIndex >= 0) return this.flagsIndex;
