@@ -149,8 +149,8 @@ V6:
 				mangrove propagules.
 		FlatStructureLocator *still* deadlocks :(
 		verify that FlatStructureLocator handles C2ME being absent correctly.
-		why do I have curved temperature again?
 		mushrooms spawn in deserts. they should probably not do that.
+		snow can spawn in deserts.
 
 LODs:
 	shader support.

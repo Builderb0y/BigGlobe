@@ -3,9 +3,9 @@
 		"type": "saturate",
 		"value": {
 			"type": "world_trait",
-			"world_trait": "bigglobe:uncurved_temperature_at_surface"
+			"world_trait": "bigglobe:temperature_at_surface"
 		},
-		"offset": -0.25,
+		"offset": -0.125,
 		"scalar": 64.0
 	},
 	"if_positive": "bigglobe:overworld/cave_type/land_test_hot",

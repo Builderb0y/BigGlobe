@@ -27,9 +27,6 @@
 	"bigglobe:temperature_at":                    "`bigglobe:overworld/temperature`",
 	"bigglobe:temperature_at_sea_level":          "`bigglobe:overworld/temperature`",
 	"bigglobe:temperature_at_surface":            "`bigglobe:overworld/temperature`",
-	"bigglobe:uncurved_temperature_at":           "`bigglobe:overworld/uncurved_temperature`",
-	"bigglobe:uncurved_temperature_at_sea_level": "`bigglobe:overworld/uncurved_temperature`",
-	"bigglobe:uncurved_temperature_at_surface":   "`bigglobe:overworld/uncurved_temperature`",
 	"bigglobe:wood_palette":                      "`bigglobe:overworld/wood_palette`",
 	"bigglobe:automatic_surface_states":          "`bigglobe:overworld/surface_states`",
 	"bigglobe:approximate_surface_y": {

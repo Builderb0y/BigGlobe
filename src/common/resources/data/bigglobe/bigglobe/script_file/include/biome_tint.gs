@@ -1,6 +1,6 @@
 int computeBiomeTint(boolean foliage, float volcano:
 	float*(
-		t = world_traits.`bigglobe:uncurved_temperature_at`
+		t = world_traits.`bigglobe:temperature_at`
 		h = world_traits.`bigglobe:humidity_at`
 		m = world_traits.`bigglobe:magicalness`
 

@@ -1,5 +1,0 @@
-{
-	"type": "float",
-	"is_3d": false,
-	"default": "world_traits.`bigglobe:temperature_at_surface`"
-}
