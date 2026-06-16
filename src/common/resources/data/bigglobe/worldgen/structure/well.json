@@ -10,7 +10,7 @@
 
 		"int type = 0",
 		"if (biome.isIn('#bigglobe:hot'):",
-			"if (biome ==. 'bigglobe:hot_wasteland':",
+			"if (biome ==. 'bigglobe:overworld/mesa':",
 				"type = 2",
 				"palette = null",
 			")",

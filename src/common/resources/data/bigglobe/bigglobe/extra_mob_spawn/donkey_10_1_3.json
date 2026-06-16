@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:temperate_plains"
-	],
-	"type": "minecraft:donkey",
-	"weight": 10,
-	"minCount": 1,
-	"maxCount": 3
-}

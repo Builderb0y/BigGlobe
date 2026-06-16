@@ -5,7 +5,7 @@
 	"name": "VALLEY_OF_SOULS",
 	"field_values": {
 		"weight": 0.75,
-		"biome": "bigglobe:valley_of_souls",
+		"biome": "bigglobe:nether/valley_of_souls",
 		"decorator": "bigglobe:nether/decorators/valley_of_souls"
 	}
 }

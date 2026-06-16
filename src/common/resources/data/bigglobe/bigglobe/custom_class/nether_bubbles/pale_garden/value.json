@@ -5,7 +5,7 @@
 	"name": "PALE_GARDEN",
 	"field_values": {
 		"weight": 0.75,
-		"biome": "bigglobe:pale_garden",
+		"biome": "bigglobe:nether/pale_garden",
 		"decorator": "bigglobe:nether/decorators/pale_garden"
 	}
 }

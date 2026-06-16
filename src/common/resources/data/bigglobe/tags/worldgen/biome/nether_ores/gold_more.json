@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:crimson_forest",
-		"bigglobe:warped_forest"
+		"bigglobe:nether/crimson_forest",
+		"bigglobe:nether/warped_forest"
 	]
 }

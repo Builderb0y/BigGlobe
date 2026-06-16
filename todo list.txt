@@ -110,39 +110,25 @@ V6:
 		test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
 		make it so that you can switch on custom enums.
 		make ball_of_string_remove recipe NOT match if the ball is empty.
+		scripted extra mob spawns:
+			structure:
+			{
+				"order": 1000,
+				"script": [
+					"if (y < world_traits.`bigglobe:deep_dark_max_y`:",
+						"spawns.clear()",
+					")"
+				]
+			}
+		darkslate.
 	urgent:
 		reduce number of biomes:
-			list:
-				core
-					no mob spawns.
-				deep dark
-					no mob spawns.
-				ocean
-				river
-				beach
-				plains
-				forest
-					small chance of bogged.
-				desert
-					small chance of husk and parched.
-				mesa
-					small chance of husk and parched.
-				icy
-					small chance of stray.
-				mountain
-					pine trees?
-						green-ish bark, birch-ish inside. desaturated.
-						spawns on sloped surfaces like mountains.
-							only tree that can spawn on stone.
-						also requires temperate-ish temperatures.
-						shaped like new plans for spruce, but with more sparse branches.
-					goats.
-				volcano (islands world type)
 			structures will need dispatchers.
 				inject structure dispatchers into structure sets,
 				override method in scripted structure set.
 			mob spawning will need to become scripted somehow.
-			organize biome json files by dimension.
+			verify that all mobs and structures still spawn.
+			verify that sky and fog colors are correct.
 		split tree generator:
 			missing decoration:
 				mushroom shelves.
@@ -160,8 +146,7 @@ json classes:
 		* json-defined interfaces.
 			* interface inheritance.
 			* classes implementing multiple interfaces.
-		* migrate existing environments to builtin types.
-			* for example, have a World builtin type which is a WorldWrapper, and have it be a valid parameter on custom methods.
+		* migrate more existing environments to builtin types.
 	non-goals:
 		* messing with classes defined in script source code, like `class Pos(int*(x, y, z))`.
 			* it is a long-term goal of mine to allow method declarations inside such classes, and to allow extending and overriding other script-defined classes eventually, but it's not what I'm talking about in the rest of this wall-of-text.

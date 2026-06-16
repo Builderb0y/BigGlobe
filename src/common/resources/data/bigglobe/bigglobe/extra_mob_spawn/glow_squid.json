@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"#bigglobe:overworld_except_volcano"
+	],
+	"type": "minecraft:glow_squid",
+	"weight": 100,
+	"minCount": 2,
+	"maxCount": 4
+}

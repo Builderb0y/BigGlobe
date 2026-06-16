@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script",
-		"script": "`bigglobe:overworld/is_desert`"
-	},
-	"if_true": "bigglobe:overworld/biome/hot_test_light_forest",
-	"if_false": "bigglobe:overworld/biome/warm_test_ominous"
-}

@@ -1,6 +1,6 @@
 {
 	"result": {
 		"type": "constant",
-		"value": "bigglobe:ocean"
+		"value": "bigglobe:overworld/ocean"
 	}
 }

@@ -1,0 +1,15 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"value": {
+			"type": "column_value",
+			"column_value": "bigglobe:end/foliage"
+		},
+		"min": 0.0,
+		"max": 0.25,
+		"smooth_min": 1,
+		"smooth_max": 0
+	},
+	"if_true": "bigglobe:end/surface/overgrown_test_chorus",
+	"if_false": "bigglobe:end/surface/plains"
+}

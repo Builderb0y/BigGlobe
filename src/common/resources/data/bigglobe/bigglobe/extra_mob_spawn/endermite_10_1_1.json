@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:warped_forest"
-	],
-	"type": "minecraft:endermite",
-	"weight": 10,
-	"minCount": 1,
-	"maxCount": 1
-}

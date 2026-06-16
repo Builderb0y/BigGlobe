@@ -6,7 +6,6 @@
 	"field_values": {
 		"dungeonFeature": "bigglobe:overworld/caves/random_dungeon",
 		"decorator": "bigglobe:overworld/caves/generic_decorator",
-		"biome": "bigglobe:generic_cave",
 		"systemDepth": 384
 	}
 }

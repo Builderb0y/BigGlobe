@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script",
-		"script": "`bigglobe:overworld/glacier_cell`.?hardDistance < `bigglobe:overworld/glacier_crack_threshold`"
-	},
-	"if_true": "bigglobe:overworld/biome/glacier",
-	"if_false": "bigglobe:overworld/biome/shallow_ocean_test_ocean"
-}

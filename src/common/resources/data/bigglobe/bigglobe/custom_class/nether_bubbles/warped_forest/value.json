@@ -5,7 +5,7 @@
 	"name": "WARPED_FOREST",
 	"field_values": {
 		"weight": 0.25,
-		"biome": "bigglobe:warped_forest",
+		"biome": "bigglobe:nether/warped_forest",
 		"decorator": "bigglobe:nether/decorators/warped_forest"
 	}
 }

@@ -1,10 +1,10 @@
 {
 	"replace": false,
 	"values": [
+		"#bigglobe:underground",
 		"#bigglobe:land_except_volcano",
-		"#bigglobe:beach",
-		"#bigglobe:ocean",
-		"bigglobe:river",
-		"#bigglobe:underground"
+		"bigglobe:overworld/beach",
+		"bigglobe:overworld/ocean",
+		"bigglobe:overworld/river"
 	]
 }

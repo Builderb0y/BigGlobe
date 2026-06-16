@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"#bigglobe:has_hostile_mobs"
+	],
+	"type": "minecraft:creeper",
+	"weight": 100,
+	"minCount": 2,
+	"maxCount": 4
+}

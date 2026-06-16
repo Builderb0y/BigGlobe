@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "script",
+		"script": [
+			"y < world_traits.`bigglobe:y_level_on_surface` - 16I"
+		]
+	},
+	"if_true": "bigglobe:overworld/biome/underground_test_deep_dark",
+	"if_false": "bigglobe:overworld/biome/not_deep_dark_test_river"
+}

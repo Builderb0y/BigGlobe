@@ -5,7 +5,6 @@
 	"name": "MOLTEN",
 	"field_values": {
 		"decorator": "bigglobe:overworld/caves/molten_decorator",
-		"biome": "bigglobe:molten_cave",
 		"systemDepth": 256
 	}
 }

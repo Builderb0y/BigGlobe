@@ -1,10 +1,10 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:chorus_forest",
-		"bigglobe:end_mountain",
-		"bigglobe:end_plains",
-		"bigglobe:overgrown_end",
-		"bigglobe:the_void"
+		"bigglobe:end/chorus_forest",
+		"bigglobe:end/end_mountain",
+		"bigglobe:end/end_plains",
+		"bigglobe:end/overgrown_end",
+		"bigglobe:end/the_void"
 	]
 }

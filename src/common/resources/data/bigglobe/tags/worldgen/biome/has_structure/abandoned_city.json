@@ -1,8 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:cold",
-		"#bigglobe:temperate",
-		"#bigglobe:warm"
+		"#bigglobe:icy",
+		"#bigglobe:temperate"
 	]
 }

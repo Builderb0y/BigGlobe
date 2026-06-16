@@ -4,7 +4,6 @@
 	"impl_type": "bigglobe:cave_systems/dripping_flooded/class",
 	"name": "DRIPPING_FLOODED",
 	"field_values": {
-		"biome": "bigglobe:dripping_cave",
 		"decorator": "bigglobe:overworld/caves/dripping_decorator",
 		"carverBlockState": "minecraft:water[level=0]",
 		"systemDepth": 512

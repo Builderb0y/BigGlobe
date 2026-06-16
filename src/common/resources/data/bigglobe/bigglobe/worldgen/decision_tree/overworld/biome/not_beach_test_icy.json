@@ -1,0 +1,15 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": 0.0,
+		"max": 1.0,
+		"smooth_min": 0,
+		"smooth_max": 0,
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:snow_chance"
+		}
+	},
+	"if_true": "bigglobe:overworld/biome/icy_test_forest",
+	"if_false": "bigglobe:overworld/biome/not_icy_test_desert"
+}

@@ -6,7 +6,6 @@
 	"field_values": {
 		"dungeonFeature": null,
 		"decorator": "bigglobe:overworld/caves/lush_decorator",
-		"biome": "bigglobe:lush_cave",
 		"systemDepth": 256
 	}
 }

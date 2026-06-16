@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:glacier"
-	],
-	"type": "minecraft:cod",
-	"weight": 15,
-	"minCount": 3,
-	"maxCount": 6
-}

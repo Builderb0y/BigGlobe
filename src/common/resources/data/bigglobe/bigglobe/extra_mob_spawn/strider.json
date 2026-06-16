@@ -1,0 +1,14 @@
+{
+	"biomes": [
+		"bigglobe:nether/ashen_wastes",
+		"bigglobe:nether/crimson_forest",
+		"bigglobe:nether/inferno",
+		"bigglobe:nether/nether_wastes",
+		"bigglobe:nether/valley_of_souls",
+		"bigglobe:nether/warped_forest"
+	],
+	"type": "minecraft:strider",
+	"weight": 100,
+	"minCount": 1,
+	"maxCount": 2
+}

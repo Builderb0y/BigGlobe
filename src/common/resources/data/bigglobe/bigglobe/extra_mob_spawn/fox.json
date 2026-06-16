@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"#bigglobe:icy"
+	],
+	"type": "minecraft:fox",
+	"weight": 60,
+	"minCount": 1,
+	"maxCount": 2
+}

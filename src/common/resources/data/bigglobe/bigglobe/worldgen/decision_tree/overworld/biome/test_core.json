@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script",
-		"script": "y <= -768"
-	},
-	"if_true": "bigglobe:overworld/biome/the_core",
-	"if_false": "bigglobe:overworld/biome/deep_dark"
-}

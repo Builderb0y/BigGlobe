@@ -1,0 +1,13 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": 64.0,
+		"max": 128.0,
+		"value": {
+			"type": "column_value",
+			"column_value": "bigglobe:end/mountain_thickness"
+		}
+	},
+	"if_true": "bigglobe:end/surface/mountain",
+	"if_false": "bigglobe:end/surface/not_mountain_test_overgrown"
+}

@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:overworld/ocean"
+	],
+	"type": "minecraft:cod",
+	"weight": 100,
+	"minCount": 3,
+	"maxCount": 6
+}

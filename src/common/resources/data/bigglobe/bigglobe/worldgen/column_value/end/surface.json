@@ -4,5 +4,5 @@
 		"type": "bigglobe:surface/with_biome/class",
 		"is_3d": false
 	},
-	"root": "bigglobe:end/surface/test_terrain"
+	"root": "bigglobe:end/surface/root_test_terrain"
 }

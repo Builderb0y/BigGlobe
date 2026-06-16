@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:valley_of_souls"
-	],
-	"type": "minecraft:ghast",
-	"weight": 200,
-	"minCount": 1,
-	"maxCount": 1
-}

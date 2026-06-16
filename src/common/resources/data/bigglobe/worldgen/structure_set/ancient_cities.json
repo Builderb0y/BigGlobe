@@ -2,8 +2,8 @@
 	"placement": {
 		"type": "minecraft:random_spread",
 		"salt": 676327501,
-		"separation": 12,
-		"spacing": 16
+		"separation": 16,
+		"spacing": 32
 	},
 	"structures": [
 		{ "structure": "bigglobe:vanilla/ancient_city", "weight": 1 }

@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "script",
-		"script": "`bigglobe:overworld/is_mesa`"
-	},
-	"if_true": "bigglobe:overworld/biome/hot_wasteland",
-	"if_false": "bigglobe:overworld/biome/hot_plains"
-}

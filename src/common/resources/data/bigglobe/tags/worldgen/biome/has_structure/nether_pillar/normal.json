@@ -1,8 +1,8 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:ashen_wastes",
-		"bigglobe:crimson_forest",
-		"bigglobe:warped_forest"
+		"bigglobe:nether/ashen_wastes",
+		"bigglobe:nether/crimson_forest",
+		"bigglobe:nether/warped_forest"
 	]
 }

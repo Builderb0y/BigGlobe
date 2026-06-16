@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:overworld/forest"
+	],
+	"type": "minecraft:bogged",
+	"weight": 10,
+	"minCount": 2,
+	"maxCount": 4
+}

@@ -1,0 +1,10 @@
+{
+	"biomes": [
+		"#bigglobe:temperate",
+		"#bigglobe:icy"
+	],
+	"type": "minecraft:sheep",
+	"weight": 100,
+	"minCount": 2,
+	"maxCount": 4
+}

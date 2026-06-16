@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:overworld/plains"
+	],
+	"type": "minecraft:horse",
+	"weight": 40,
+	"minCount": 1,
+	"maxCount": 3
+}

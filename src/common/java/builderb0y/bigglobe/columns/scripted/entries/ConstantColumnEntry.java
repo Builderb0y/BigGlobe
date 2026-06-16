@@ -6,6 +6,8 @@ import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -32,7 +34,10 @@ public class ConstantColumnEntry extends ColumnEntry {
 		context.mainGetter = registry.columnCompileContext.clazz.newMethod(
 			ACC_PUBLIC,
 			"get_" + context.internalName,
-			this.getTypeInfo(registry)
+			this.getTypeInfo(registry),
+			this.params.is_3d()
+			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) }
+			: LazyVarInfo.ARRAY_FACTORY.empty()
 		);
 		registry.columnCompileContext.setCompileContext(this, context);
 	}

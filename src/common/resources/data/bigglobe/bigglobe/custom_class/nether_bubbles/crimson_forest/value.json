@@ -5,7 +5,7 @@
 	"name": "CRIMSON_FOREST",
 	"field_values": {
 		"weight": 1.0,
-		"biome": "bigglobe:crimson_forest",
+		"biome": "bigglobe:nether/crimson_forest",
 		"decorator": "bigglobe:nether/decorators/crimson_forest"
 	}
 }

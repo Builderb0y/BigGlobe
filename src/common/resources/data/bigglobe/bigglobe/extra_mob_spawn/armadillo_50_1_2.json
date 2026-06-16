@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:hot_plains"
-	],
-	"type": "minecraft:armadillo",
-	"weight": 50,
-	"minCount": 1,
-	"maxCount": 2
-}

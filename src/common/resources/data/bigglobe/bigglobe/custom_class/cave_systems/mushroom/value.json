@@ -5,7 +5,6 @@
 	"name": "MUSHROOM",
 	"field_values": {
 		"decorator": "bigglobe:overworld/caves/mushroom_decorator",
-		"biome": "bigglobe:mushroom_cave",
 		"systemDepth": 256
 	}
 }

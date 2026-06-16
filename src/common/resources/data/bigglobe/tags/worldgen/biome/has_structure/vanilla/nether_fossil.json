@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:valley_of_souls",
-		"bigglobe:nether_wastes"
+		"bigglobe:nether/valley_of_souls",
+		"bigglobe:nether/nether_wastes"
 	]
 }

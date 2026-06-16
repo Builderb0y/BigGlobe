@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:swamp_forest"
-	],
-	"type": "minecraft:bogged",
-	"weight": 75,
-	"minCount": 2,
-	"maxCount": 4
-}

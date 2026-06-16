@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "column_value",
+		"column_value": "bigglobe:overworld/is_desert"
+	},
+	"if_true": "bigglobe:overworld/biome/desert_test_mesa",
+	"if_false": "bigglobe:overworld/biome/temperate_test_forest"
+}

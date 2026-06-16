@@ -1,0 +1,13 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": 8.0,
+		"max": 4.0,
+		"value": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:exact_surface_y"
+		}
+	},
+	"if_true": "bigglobe:overworld/biome/beach",
+	"if_false": "bigglobe:overworld/biome/not_beach_test_icy"
+}

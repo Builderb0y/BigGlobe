@@ -1,12 +1,12 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:ashen_wastes",
-		"bigglobe:crimson_forest",
-		"bigglobe:warped_forest",
-		"bigglobe:pale_garden",
-		"bigglobe:nether_wastes",
-		"bigglobe:inferno",
-		"bigglobe:valley_of_souls"
+		"bigglobe:nether/ashen_wastes",
+		"bigglobe:nether/crimson_forest",
+		"bigglobe:nether/warped_forest",
+		"bigglobe:nether/pale_garden",
+		"bigglobe:nether/nether_wastes",
+		"bigglobe:nether/inferno",
+		"bigglobe:nether/valley_of_souls"
 	]
 }

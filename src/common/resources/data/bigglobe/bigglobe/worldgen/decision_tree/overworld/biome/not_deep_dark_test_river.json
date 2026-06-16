@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "world_traits.`bigglobe:in_river`"
+	},
+	"if_true": "bigglobe:overworld/biome/river",
+	"if_false": "bigglobe:overworld/biome/not_river_test_ocean"
+}

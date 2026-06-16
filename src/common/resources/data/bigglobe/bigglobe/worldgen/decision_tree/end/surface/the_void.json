@@ -2,7 +2,7 @@
 	"result": {
 		"type": "script",
 		"script": [
-			"BiomeSurfaceStates.create('bigglobe:the_void')"
+			"BiomeSurfaceStates.create('bigglobe:end/the_void')"
 		]
 	}
 }

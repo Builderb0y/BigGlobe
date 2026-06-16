@@ -1,6 +1,6 @@
 {
 	"result": {
 		"type": "script",
-		"script": "BiomeSurfaceStates.create('bigglobe:dragons_nest')"
+		"script": "BiomeSurfaceStates.create('bigglobe:end/dragons_nest')"
 	}
 }

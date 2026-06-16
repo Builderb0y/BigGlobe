@@ -7,7 +7,7 @@
 				"int sampleX = floorInt(originX + fastCos(angle) * RADIUS)",
 				"int sampleZ = floorInt(originZ + fastSin(angle) * RADIUS)",
 				"double sampleY = world_traits.`bigglobe:lake_y`(sampleX, sampleZ)",
-				"if (world_traits.`bigglobe:biome`(sampleX, int(sampleY), sampleZ) ==. 'bigglobe:river':",
+				"if (world_traits.`bigglobe:in_river`(sampleX, sampleZ):",
 					"RADIUS -= 16",
 					"continue(radiusLoop)",
 				")",

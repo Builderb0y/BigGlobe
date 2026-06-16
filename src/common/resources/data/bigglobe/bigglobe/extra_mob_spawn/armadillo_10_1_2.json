@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:hot_wasteland"
-	],
-	"type": "minecraft:armadillo",
-	"weight": 10,
-	"minCount": 1,
-	"maxCount": 2
-}

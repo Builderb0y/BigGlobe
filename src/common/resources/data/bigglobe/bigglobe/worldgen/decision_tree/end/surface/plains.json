@@ -2,7 +2,7 @@
 	"result": {
 		"type": "script",
 		"script": [
-			"BiomeSurfaceStates.create('bigglobe:end_plains')"
+			"BiomeSurfaceStates.create('bigglobe:end/end_plains')"
 		]
 	}
 }

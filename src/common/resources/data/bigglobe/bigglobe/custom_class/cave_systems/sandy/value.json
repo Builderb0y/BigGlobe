@@ -4,7 +4,6 @@
 	"impl_type": "bigglobe:cave_systems/sandy/class",
 	"name": "SANDY",
 	"field_values": {
-		"biome": "bigglobe:sandy_cave",
 		"decorator": "bigglobe:overworld/caves/sandy_decorator",
 		"dungeonFeature": "bigglobe:overworld/caves/random_dungeon_sandy",
 		"systemDepth": 384

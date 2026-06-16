@@ -4,7 +4,6 @@
 	"impl_type": "bigglobe:cave_systems/mesa/class",
 	"name": "MESA",
 	"field_values": {
-		"biome": "bigglobe:sandy_cave",
 		"decorator": "bigglobe:overworld/caves/mesa_decorator",
 		"dungeonFeature": "bigglobe:overworld/caves/random_dungeon_mesa",
 		"systemDepth": 384

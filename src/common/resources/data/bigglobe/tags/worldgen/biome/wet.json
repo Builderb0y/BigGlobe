@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:ocean",
-		"bigglobe:river"
+		"bigglobe:overworld/ocean",
+		"bigglobe:overworld/river"
 	]
 }

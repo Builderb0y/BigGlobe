@@ -5,7 +5,7 @@
 	"name": "INFERNO",
 	"field_values": {
 		"weight": 0.5,
-		"biome": "bigglobe:inferno",
+		"biome": "bigglobe:nether/inferno",
 		"decorator": "bigglobe:nether/decorators/inferno",
 		"lava_level": 128
 	}

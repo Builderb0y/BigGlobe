@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
+		"#bigglobe:land",
 		"#bigglobe:underground"
 	]
 }

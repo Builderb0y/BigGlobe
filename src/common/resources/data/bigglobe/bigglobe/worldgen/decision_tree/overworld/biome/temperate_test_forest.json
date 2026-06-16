@@ -1,0 +1,10 @@
+{
+	"condition": {
+		"type": "script",
+		"script": [
+			"world_traits.`bigglobe:foliage_at` > 0.0I"
+		]
+	},
+	"if_true": "bigglobe:overworld/biome/forest",
+	"if_false": "bigglobe:overworld/biome/plains"
+}

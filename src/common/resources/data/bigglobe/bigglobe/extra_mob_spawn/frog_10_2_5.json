@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:swamp_forest"
-	],
-	"type": "minecraft:frog",
-	"weight": 10,
-	"minCount": 2,
-	"maxCount": 5
-}

@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:ashen_wastes",
-		"bigglobe:pale_garden"
+		"bigglobe:nether/ashen_wastes",
+		"bigglobe:nether/pale_garden"
 	]
 }

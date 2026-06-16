@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"#bigglobe:icy"
+	],
+	"type": "minecraft:stray",
+	"weight": 20,
+	"minCount": 2,
+	"maxCount": 4
+}

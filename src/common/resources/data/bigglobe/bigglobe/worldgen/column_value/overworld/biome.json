@@ -4,6 +4,5 @@
 		"type": "biome",
 		"is_3d": true
 	},
-	"root": "bigglobe:overworld/biome/test_deep_dark",
-	"cache": false
+	"root": "bigglobe:overworld/biome/underground_test_deep_dark"
 }

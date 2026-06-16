@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:overworld/beach"
+	],
+	"type": "minecraft:turtle",
+	"weight": 10,
+	"minCount": 2,
+	"maxCount": 4
+}

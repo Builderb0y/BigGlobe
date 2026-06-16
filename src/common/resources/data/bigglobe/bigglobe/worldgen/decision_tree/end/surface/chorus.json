@@ -2,7 +2,7 @@
 	"result": {
 		"type": "script",
 		"script": [
-			"BiomeSurfaceStates.create('bigglobe:chorus_forest').$add('bigglobe:chorus_nylium', 1)"
+			"BiomeSurfaceStates.create('bigglobe:end/chorus_forest').$add('bigglobe:chorus_nylium', 1)"
 		]
 	}
 }
