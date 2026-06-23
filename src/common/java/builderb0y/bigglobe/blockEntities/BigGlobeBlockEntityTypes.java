@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlocks;
 
 public class BigGlobeBlockEntityTypes {
 

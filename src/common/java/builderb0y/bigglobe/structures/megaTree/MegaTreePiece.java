@@ -24,8 +24,8 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;

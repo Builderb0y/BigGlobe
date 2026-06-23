@@ -19,7 +19,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;

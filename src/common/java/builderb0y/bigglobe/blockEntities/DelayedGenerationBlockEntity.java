@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.features.SizedDelayedFeatureConfig;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.WorldUtil;

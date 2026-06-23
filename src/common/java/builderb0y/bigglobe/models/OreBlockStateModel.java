@@ -21,7 +21,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
 import builderb0y.bigglobe.util.BetterScopedValue;
 import builderb0y.bigglobe.util.Directions;
 

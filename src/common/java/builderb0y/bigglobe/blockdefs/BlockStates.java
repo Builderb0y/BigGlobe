@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.blocks;
+package builderb0y.bigglobe.blockdefs;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Blocks;
@@ -27,7 +27,7 @@ public class BlockStates {
 		WATER = Blocks.WATER.defaultBlockState(),
 		LAVA = Blocks.LAVA.defaultBlockState(),
 
-	NETHERRACK = Blocks.NETHERRACK.defaultBlockState(),
+		NETHERRACK = Blocks.NETHERRACK.defaultBlockState(),
 		NETHER_BRICKS = Blocks.NETHER_BRICKS.defaultBlockState(),
 		CRACKED_NETHER_BRICKS = Blocks.CRACKED_NETHER_BRICKS.defaultBlockState(),
 		CHISELED_NETHER_BRICKS = Blocks.CHISELED_NETHER_BRICKS.defaultBlockState(),
@@ -36,7 +36,7 @@ public class BlockStates {
 		CRYING_OBSIDIAN = Blocks.CRYING_OBSIDIAN.defaultBlockState(),
 		SOUL_SAND = Blocks.SOUL_SAND.defaultBlockState(),
 
-	DELAYED_GENERATION = BigGlobeBlocks.DELAYED_GENERATION.defaultBlockState();
+		DELAYED_GENERATION = BigGlobeBlocks.DELAYED_GENERATION.defaultBlockState();
 
 	/**
 	the syntax for {@link BlockState#setValue(Property, Comparable)}

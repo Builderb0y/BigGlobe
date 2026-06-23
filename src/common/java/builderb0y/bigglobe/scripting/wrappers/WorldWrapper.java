@@ -27,7 +27,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;

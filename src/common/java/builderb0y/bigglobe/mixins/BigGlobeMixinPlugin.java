@@ -127,7 +127,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		Set<String> unconfigurable = new HashSet<>();
 		unconfigurable.add(mixinPackage + ".BigGlobeConfig_ImplementConfigData");
 		unconfigurable.add(mixinPackage + ".Biome_DownfallAccessor");
-		unconfigurable.add(mixinPackage + ".BlockEntityType_AddBlockHook");
 		unconfigurable.add(mixinPackage + ".BlockView_ExposeDimension");
 		unconfigurable.add(mixinPackage + ".ChunkRegion_UseCreateFlag");
 		unconfigurable.add(mixinPackage + ".ConcentricRingsStructurePlacement_MakeSmart");

@@ -21,6 +21,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import builderb0y.bigglobe.blockdefs.BlockStates;
+
 public abstract class SurfaceMaterialDecorationBlock extends Block implements SimpleWaterloggedBlock {
 
 	@Override

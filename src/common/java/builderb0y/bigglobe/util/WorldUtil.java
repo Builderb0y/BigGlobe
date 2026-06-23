@@ -18,7 +18,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
-import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
@@ -86,7 +85,7 @@ public class WorldUtil {
 		}
 		else {
 			ResourceKey<BlockEntityType<?>> id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).orElse(null);
-			String name = id != null ? id.toString() : "(unregistered: " + type + " for block(s): " + ((MutableBlockEntityType)(type)).bigglobe_getBlocks() + ')';
+			String name = id != null ? id.toString() : "(unregistered: " + type + ")";
 			BigGlobeMod.LOGGER.warn("Expected " + name + " at " + pos + " in " + world + ", but got " + blockEntity + " instead.");
 			return null;
 		}

@@ -23,7 +23,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.portal.PortalForcer;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.util.NetherPortalUtil;
 

@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
 
 @Mixin(SugarCaneBlock.class)
 public class SugarCaneBlock_MakePlaceableOnGravel {

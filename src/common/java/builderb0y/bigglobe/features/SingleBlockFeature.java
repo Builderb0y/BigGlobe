@@ -37,7 +37,7 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.features.SingleBlockFeature.Config;
 import builderb0y.bigglobe.mixins.PlantBlock_CanPlantOnTopAccess;

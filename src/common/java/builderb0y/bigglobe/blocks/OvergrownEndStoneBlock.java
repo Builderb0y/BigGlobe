@@ -9,6 +9,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.blockdefs.EndBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class OvergrownEndStoneBlock extends Block implements BonemealableBlock {
@@ -42,6 +44,6 @@ public class OvergrownEndStoneBlock extends Block implements BonemealableBlock {
 
 	@Override
 	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
-		world.setBlockAndUpdate(pos, BigGlobeBlocks.CHORUS_NYLIUM.defaultBlockState());
+		world.setBlockAndUpdate(pos, EndBlocks.CHORUS_NYLIUM.defaultBlockState());
 	}
 }

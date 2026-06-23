@@ -4,7 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlocks;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.f3.BigGlobeDebugHudEntries;

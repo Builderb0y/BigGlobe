@@ -44,7 +44,7 @@ import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;

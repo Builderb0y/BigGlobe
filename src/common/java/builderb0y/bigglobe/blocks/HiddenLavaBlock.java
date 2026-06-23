@@ -8,6 +8,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 /**

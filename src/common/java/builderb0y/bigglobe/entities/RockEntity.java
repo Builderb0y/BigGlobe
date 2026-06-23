@@ -25,8 +25,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
+import builderb0y.bigglobe.blockdefs.OverworldBlocks;
 import builderb0y.bigglobe.blocks.RockBlock;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.items.BigGlobeItems;
@@ -135,11 +135,11 @@ public class RockEntity extends ThrowableItemProjectile {
 		BlockPos placePos = blockHitResult.getBlockPos().above();
 		BlockState existingState = EntityVersions.getWorld(this).getBlockState(placePos);
 		int rocks;
-		if (existingState.is(BigGlobeBlocks.ROCK) && (rocks = existingState.getValue(RockBlock.ROCKS)) < 6) {
+		if (existingState.is(OverworldBlocks.ROCK) && (rocks = existingState.getValue(RockBlock.ROCKS)) < 6) {
 			EntityVersions.getWorld(this).setBlockAndUpdate(placePos, existingState.setValue(RockBlock.ROCKS, rocks + 1));
 		}
 		else {
-			SingleBlockFeature.place(EntityVersions.getWorld(this), placePos, BigGlobeBlocks.ROCK.defaultBlockState(), SingleBlockFeature.IS_REPLACEABLE);
+			SingleBlockFeature.place(EntityVersions.getWorld(this), placePos, OverworldBlocks.ROCK.defaultBlockState(), SingleBlockFeature.IS_REPLACEABLE);
 		}
 		SoundType group = SoundType.STONE;
 		EntityVersions.getWorld(this).playSound(null, placePos, group.getBreakSound(), SoundSource.BLOCKS, group.getVolume() * 0.5F + 0.5F, group.getPitch() * 0.8F);

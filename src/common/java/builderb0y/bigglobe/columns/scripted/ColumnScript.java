@@ -18,7 +18,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.noise.NumberArray;

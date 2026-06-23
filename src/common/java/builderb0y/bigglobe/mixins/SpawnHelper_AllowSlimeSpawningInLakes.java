@@ -14,7 +14,7 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.structures.BigGlobeStructureTags;
 import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.SpawnEntryVersions;

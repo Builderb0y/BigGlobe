@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
 
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;

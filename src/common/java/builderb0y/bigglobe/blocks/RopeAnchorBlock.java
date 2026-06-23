@@ -32,7 +32,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.ActionResultVersions;
 
-import static builderb0y.bigglobe.blocks.BigGlobeBlocks.SPELUNKING_ROPE;
+import static builderb0y.bigglobe.blockdefs.BigGlobeBlocks.SPELUNKING_ROPE;
 
 public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 

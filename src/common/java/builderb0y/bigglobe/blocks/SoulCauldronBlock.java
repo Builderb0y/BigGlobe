@@ -17,6 +17,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.blockdefs.NetherBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
@@ -26,7 +28,7 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 
 	public static final CauldronInteraction
 		FILL_WITH_SOUL_LAVA = (BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) -> {
-			return CauldronInteractions.emptyBucket(world, pos, player, hand, stack, BigGlobeBlocks.SOUL_CAULDRON.defaultBlockState(), SoundEvents.BUCKET_EMPTY_LAVA);
+			return CauldronInteractions.emptyBucket(world, pos, player, hand, stack, NetherBlocks.SOUL_CAULDRON.defaultBlockState(), SoundEvents.BUCKET_EMPTY_LAVA);
 		},
 		EMPTY_SOUL_LAVA_CAULDRON = (BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) -> {
 			return CauldronInteractions.fillBucket(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.BUCKET_FILL_LAVA);

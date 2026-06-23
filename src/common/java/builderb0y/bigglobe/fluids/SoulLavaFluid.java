@@ -23,7 +23,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+
+import builderb0y.bigglobe.blockdefs.NetherBlocks;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.GameruleVersions;
 
@@ -97,7 +98,7 @@ public abstract class SoulLavaFluid extends FlowingFluid {
 
 	@Override
 	public BlockState createLegacyBlock(FluidState state) {
-		return BigGlobeBlocks.SOUL_LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
+		return NetherBlocks.SOUL_LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.*;
 
+import builderb0y.bigglobe.blockdefs.BigGlobeBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;

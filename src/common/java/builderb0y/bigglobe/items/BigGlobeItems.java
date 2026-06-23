@@ -37,8 +37,7 @@ import net.minecraft.world.level.storage.loot.entries.TagEntry;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blockdefs.*;
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.versions.ItemStackVersions;
@@ -57,11 +56,11 @@ public class BigGlobeItems {
 	//*/
 	@SuppressWarnings("unused")
 	public static final BlockItem
-		OVERGROWN_SAND = registerPlacer(BigGlobeBlocks.OVERGROWN_SAND),
-		OVERGROWN_PODZOL = registerPlacer(BigGlobeBlocks.OVERGROWN_PODZOL),
-		ROSE = registerPlacer(BigGlobeBlocks.ROSE),
-		SHORT_GRASS = registerPlacer(BigGlobeBlocks.SHORT_GRASS),
-		MUSHROOM_SPORES = registerPlacer(BigGlobeBlocks.MUSHROOM_SPORES),
+		OVERGROWN_SAND = registerPlacer(OverworldBlocks.OVERGROWN_SAND),
+		OVERGROWN_PODZOL = registerPlacer(OverworldBlocks.OVERGROWN_PODZOL),
+		ROSE = registerPlacer(OverworldBlocks.ROSE),
+		SHORT_GRASS = registerPlacer(OverworldBlocks.SHORT_GRASS),
+		MUSHROOM_SPORES = registerPlacer(OverworldBlocks.MUSHROOM_SPORES),
 		ROPE_ANCHOR = registerPlacer(BigGlobeBlocks.ROPE_ANCHOR),
 		SPELUNKING_ROPE = register(
 			"spelunking_rope",
@@ -76,88 +75,88 @@ public class BigGlobeItems {
 
 			)
 		),
-		CRYSTALLINE_PRISMARINE = registerPlacer(BigGlobeBlocks.CRYSTALLINE_PRISMARINE),
-		SLATED_PRISMARINE = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
-		SLATED_PRISMARINE_SLAB = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
-		SLATED_PRISMARINE_STAIRS = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
-		ROCK = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings(BigGlobeBlocks.ROCK))),
-		ANCIENT_AUTOMATA = registerPlacer(BigGlobeBlocks.ANCIENT_AUTOMATA),
-		AUTOMATA = registerPlacer(BigGlobeBlocks.AUTOMATA),
-		RED_WILDFLOWERS = registerPlacer(BigGlobeBlocks.RED_WILDFLOWERS),
-		BLUEBONNETS = registerPlacer(BigGlobeBlocks.BLUEBONNETS),
-		VIOLETS = registerPlacer(BigGlobeBlocks.VIOLETS),
-		ASHEN_NETHERRACK = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
-		SULFUR_ORE = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
-		SULFUR_BLOCK = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
-		WART_WEED = registerPlacer(BigGlobeBlocks.WART_WEED),
-		CHARRED_GRASS = registerPlacer(BigGlobeBlocks.CHARRED_GRASS),
-		BLAZING_BLOSSOM = registerPlacer(BigGlobeBlocks.BLAZING_BLOSSOM),
-		SOUL_SILVERPETAL = registerPlacer(BigGlobeBlocks.SOUL_SILVERPETAL),
-		GLOWING_GOLDENROD = registerPlacer(BigGlobeBlocks.GLOWING_GOLDENROD),
-		CHARRED_PLANKS = registerPlacer(BigGlobeBlocks.CHARRED_PLANKS),
-		CHARRED_SAPLING = registerPlacer(BigGlobeBlocks.CHARRED_SAPLING),
-		CHARRED_LOG = registerPlacer(BigGlobeBlocks.CHARRED_LOG),
-		STRIPPED_CHARRED_LOG = registerPlacer(BigGlobeBlocks.STRIPPED_CHARRED_LOG),
-		CHARRED_WOOD = registerPlacer(BigGlobeBlocks.CHARRED_WOOD),
-		STRIPPED_CHARRED_WOOD = registerPlacer(BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
-		CHARRED_LEAVES = registerPlacer(BigGlobeBlocks.CHARRED_LEAVES),
+		CRYSTALLINE_PRISMARINE = registerPlacer(OverworldBlocks.CRYSTALLINE_PRISMARINE),
+		SLATED_PRISMARINE = registerPlacer(OverworldBlocks.SLATED_PRISMARINE),
+		SLATED_PRISMARINE_SLAB = registerPlacer(OverworldBlocks.SLATED_PRISMARINE_SLAB),
+		SLATED_PRISMARINE_STAIRS = registerPlacer(OverworldBlocks.SLATED_PRISMARINE_STAIRS),
+		ROCK = register("rock", new RockItem(OverworldBlocks.ROCK, settings(OverworldBlocks.ROCK))),
+		ANCIENT_AUTOMATA = registerPlacer(OverworldBlocks.ANCIENT_AUTOMATA),
+		AUTOMATA = registerPlacer(OverworldBlocks.AUTOMATA),
+		RED_WILDFLOWERS = registerPlacer(OverworldBlocks.RED_WILDFLOWERS),
+		BLUEBONNETS = registerPlacer(OverworldBlocks.BLUEBONNETS),
+		VIOLETS = registerPlacer(OverworldBlocks.VIOLETS),
+		ASHEN_NETHERRACK = registerPlacer(NetherBlocks.ASHEN_NETHERRACK),
+		SULFUR_ORE = registerPlacer(NetherBlocks.SULFUR_ORE),
+		SULFUR_BLOCK = registerPlacer(NetherBlocks.SULFUR_BLOCK),
+		WART_WEED = registerPlacer(NetherBlocks.WART_WEED),
+		CHARRED_GRASS = registerPlacer(NetherBlocks.CHARRED_GRASS),
+		BLAZING_BLOSSOM = registerPlacer(NetherBlocks.BLAZING_BLOSSOM),
+		SOUL_SILVERPETAL = registerPlacer(NetherBlocks.SOUL_SILVERPETAL),
+		GLOWING_GOLDENROD = registerPlacer(NetherBlocks.GLOWING_GOLDENROD),
+		CHARRED_PLANKS = registerPlacer(CharredBlocks.CHARRED_PLANKS),
+		CHARRED_SAPLING = registerPlacer(CharredBlocks.CHARRED_SAPLING),
+		CHARRED_LOG = registerPlacer(CharredBlocks.CHARRED_LOG),
+		STRIPPED_CHARRED_LOG = registerPlacer(CharredBlocks.STRIPPED_CHARRED_LOG),
+		CHARRED_WOOD = registerPlacer(CharredBlocks.CHARRED_WOOD),
+		STRIPPED_CHARRED_WOOD = registerPlacer(CharredBlocks.STRIPPED_CHARRED_WOOD),
+		CHARRED_LEAVES = registerPlacer(CharredBlocks.CHARRED_LEAVES),
 		CHARRED_SIGN = register(
 			"charred_sign",
 			new ColoredSignItem(
-				settings(BigGlobeBlocks.CHARRED_SIGN).stacksTo(16),
-				BigGlobeBlocks.CHARRED_SIGN,
-				BigGlobeBlocks.CHARRED_WALL_SIGN,
+				settings(CharredBlocks.CHARRED_SIGN).stacksTo(16),
+				CharredBlocks.CHARRED_SIGN,
+				CharredBlocks.CHARRED_WALL_SIGN,
 				DyeColor.LIGHT_GRAY
 			)
 		),
 		CHARRED_HANGING_SIGN = register(
 			"charred_hanging_sign",
 			new ColoredHangingSignItem(
-				settings(BigGlobeBlocks.CHARRED_HANGING_SIGN).stacksTo(16),
-				BigGlobeBlocks.CHARRED_HANGING_SIGN,
-				BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN,
+				settings(CharredBlocks.CHARRED_HANGING_SIGN).stacksTo(16),
+				CharredBlocks.CHARRED_HANGING_SIGN,
+				CharredBlocks.CHARRED_WALL_HANGING_SIGN,
 				DyeColor.LIGHT_GRAY
 			)
 		),
-		CHARRED_PRESSURE_PLATE = registerPlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE),
-		CHARRED_TRAPDOOR = registerPlacer(BigGlobeBlocks.CHARRED_TRAPDOOR),
-		CHARRED_STAIRS = registerPlacer(BigGlobeBlocks.CHARRED_STAIRS),
-		CHARRED_BUTTON = registerPlacer(BigGlobeBlocks.CHARRED_BUTTON),
-		CHARRED_SLAB = registerPlacer(BigGlobeBlocks.CHARRED_SLAB),
-		CHARRED_FENCE_GATE = registerPlacer(BigGlobeBlocks.CHARRED_FENCE_GATE),
-		CHARRED_FENCE = registerPlacer(BigGlobeBlocks.CHARRED_FENCE),
+		CHARRED_PRESSURE_PLATE = registerPlacer(CharredBlocks.CHARRED_PRESSURE_PLATE),
+		CHARRED_TRAPDOOR = registerPlacer(CharredBlocks.CHARRED_TRAPDOOR),
+		CHARRED_STAIRS = registerPlacer(CharredBlocks.CHARRED_STAIRS),
+		CHARRED_BUTTON = registerPlacer(CharredBlocks.CHARRED_BUTTON),
+		CHARRED_SLAB = registerPlacer(CharredBlocks.CHARRED_SLAB),
+		CHARRED_FENCE_GATE = registerPlacer(CharredBlocks.CHARRED_FENCE_GATE),
+		CHARRED_FENCE = registerPlacer(CharredBlocks.CHARRED_FENCE),
 		CHARRED_DOOR = register(
 			"charred_door",
 			new DoubleHighBlockItem(
-				BigGlobeBlocks.CHARRED_DOOR,
-				settings(BigGlobeBlocks.CHARRED_DOOR)
+				CharredBlocks.CHARRED_DOOR,
+				settings(CharredBlocks.CHARRED_DOOR)
 			)
 		),
 
-	CHARRED_SHELF = registerPlacer(BigGlobeBlocks.CHARRED_SHELF),
+	CHARRED_SHELF = registerPlacer(CharredBlocks.CHARRED_SHELF),
 
-	SOUL_MAGMA = registerPlacer(BigGlobeBlocks.SOUl_MAGMA),
-		ROUGH_QUARTZ = registerPlacer(BigGlobeBlocks.ROUGH_QUARTZ),
-		BUDDING_QUARTZ = registerPlacer(BigGlobeBlocks.BUDDING_QUARTZ),
-		SMALL_QUARTZ_BUD = registerPlacer(BigGlobeBlocks.SMALL_QUARTZ_BUD),
-		MEDIUM_QUARTZ_BUD = registerPlacer(BigGlobeBlocks.MEDIUM_QUARTZ_BUD),
-		LARGE_QUARTZ_BUD = registerPlacer(BigGlobeBlocks.LARGE_QUARTZ_BUD),
-		QUARTZ_CLUSTER = registerPlacer(BigGlobeBlocks.QUARTZ_CLUSTER),
-		PALE_NETHERRACK = registerPlacer(BigGlobeBlocks.PALE_NETHERRACK),
-		CHORUS_NYLIUM = registerPlacer(BigGlobeBlocks.CHORUS_NYLIUM),
-		OVERGROWN_END_STONE = registerPlacer(BigGlobeBlocks.OVERGROWN_END_STONE),
-		TALL_CHORUS_SPORES = registerPlacer(BigGlobeBlocks.TALL_CHORUS_SPORES),
-		MEDIUM_CHORUS_SPORES = registerPlacer(BigGlobeBlocks.MEDIUM_CHORUS_SPORES),
-		SHORT_CHORUS_SPORES = registerPlacer(BigGlobeBlocks.SHORT_CHORUS_SPORES),
-		VOIDMETAL_BLOCK = registerPlacer(BigGlobeBlocks.VOIDMETAL_BLOCK);
+	SOUL_MAGMA = registerPlacer(NetherBlocks.SOUl_MAGMA),
+		ROUGH_QUARTZ = registerPlacer(NetherBlocks.ROUGH_QUARTZ),
+		BUDDING_QUARTZ = registerPlacer(NetherBlocks.BUDDING_QUARTZ),
+		SMALL_QUARTZ_BUD = registerPlacer(NetherBlocks.SMALL_QUARTZ_BUD),
+		MEDIUM_QUARTZ_BUD = registerPlacer(NetherBlocks.MEDIUM_QUARTZ_BUD),
+		LARGE_QUARTZ_BUD = registerPlacer(NetherBlocks.LARGE_QUARTZ_BUD),
+		QUARTZ_CLUSTER = registerPlacer(NetherBlocks.QUARTZ_CLUSTER),
+		PALE_NETHERRACK = registerPlacer(NetherBlocks.PALE_NETHERRACK),
+		CHORUS_NYLIUM = registerPlacer(EndBlocks.CHORUS_NYLIUM),
+		OVERGROWN_END_STONE = registerPlacer(EndBlocks.OVERGROWN_END_STONE),
+		TALL_CHORUS_SPORES = registerPlacer(EndBlocks.TALL_CHORUS_SPORES),
+		MEDIUM_CHORUS_SPORES = registerPlacer(EndBlocks.MEDIUM_CHORUS_SPORES),
+		SHORT_CHORUS_SPORES = registerPlacer(EndBlocks.SHORT_CHORUS_SPORES),
+		VOIDMETAL_BLOCK = registerPlacer(EndBlocks.VOIDMETAL_BLOCK);
 	public static final EnumMap<CloudColor, BlockItem>
 		CLOUDS = new EnumMap<>(CloudColor.class),
 		VOID_CLOUDS = new EnumMap<>(CloudColor.class);
 
 	static {
 		for (CloudColor color : CloudColor.VALUES) {
-			Block normalBlock = BigGlobeBlocks.CLOUDS.get(color);
-			Block voidBlock = BigGlobeBlocks.VOID_CLOUDS.get(color);
+			Block normalBlock = OverworldBlocks.CLOUDS.get(color);
+			Block voidBlock = EndBlocks.VOID_CLOUDS.get(color);
 			CLOUDS.put(color, registerPlacer(normalBlock));
 			VOID_CLOUDS.put(color, registerPlacer(voidBlock));
 		}
@@ -167,7 +166,7 @@ public class BigGlobeItems {
 
 	static {
 		for (int heat = 1; heat <= 8; heat++) {
-			MOLTEN_ROCKS[heat - 1] = registerPlacer(BigGlobeBlocks.MOLTEN_ROCKS[heat - 1]);
+			MOLTEN_ROCKS[heat - 1] = registerPlacer(OverworldBlocks.MOLTEN_ROCKS[heat - 1]);
 		}
 	}
 

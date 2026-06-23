@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 

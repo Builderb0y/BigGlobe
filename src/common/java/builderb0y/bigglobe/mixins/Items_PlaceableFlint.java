@@ -16,7 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Items;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlocks.VanillaBlocks;
+import builderb0y.bigglobe.blockdefs.VanillaBlocks;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 
 @Mixin(Items.class)

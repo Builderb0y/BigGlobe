@@ -17,7 +17,7 @@ import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.phys.shapes.Shapes;
 
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 

@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BuddingAmethystBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+
+import builderb0y.bigglobe.blockdefs.NetherBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.util.Directions;
 
@@ -37,16 +39,16 @@ public class BuddingQuartzBlock extends BuddingAmethystBlock {
 		BlockState adjacentState = world.getBlockState(adjacentPos);
 		Block blockToPlace;
 		if (canClusterGrowAtState(adjacentState)) {
-			blockToPlace = BigGlobeBlocks.SMALL_QUARTZ_BUD;
+			blockToPlace = NetherBlocks.SMALL_QUARTZ_BUD;
 		}
-		else if (adjacentState.is(BigGlobeBlocks.SMALL_QUARTZ_BUD) && adjacentState.getValue(AmethystClusterBlock.FACING) == direction) {
-			blockToPlace = BigGlobeBlocks.MEDIUM_QUARTZ_BUD;
+		else if (adjacentState.is(NetherBlocks.SMALL_QUARTZ_BUD) && adjacentState.getValue(AmethystClusterBlock.FACING) == direction) {
+			blockToPlace = NetherBlocks.MEDIUM_QUARTZ_BUD;
 		}
-		else if (adjacentState.is(BigGlobeBlocks.MEDIUM_QUARTZ_BUD) && adjacentState.getValue(AmethystClusterBlock.FACING) == direction) {
-			blockToPlace = BigGlobeBlocks.LARGE_QUARTZ_BUD;
+		else if (adjacentState.is(NetherBlocks.MEDIUM_QUARTZ_BUD) && adjacentState.getValue(AmethystClusterBlock.FACING) == direction) {
+			blockToPlace = NetherBlocks.LARGE_QUARTZ_BUD;
 		}
-		else if (adjacentState.is(BigGlobeBlocks.LARGE_QUARTZ_BUD) && adjacentState.getValue(AmethystClusterBlock.FACING) == direction) {
-			blockToPlace = BigGlobeBlocks.QUARTZ_CLUSTER;
+		else if (adjacentState.is(NetherBlocks.LARGE_QUARTZ_BUD) && adjacentState.getValue(AmethystClusterBlock.FACING) == direction) {
+			blockToPlace = NetherBlocks.QUARTZ_CLUSTER;
 		}
 		else {
 			blockToPlace = null;

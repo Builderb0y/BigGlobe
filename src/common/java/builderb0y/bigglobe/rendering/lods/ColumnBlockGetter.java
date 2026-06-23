@@ -18,7 +18,7 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 
 import builderb0y.bigglobe.ClientState.ColorScript;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.ColorOverrides;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;

@@ -18,7 +18,7 @@ import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.phys.shapes.Shapes;
 import builderb0y.autocodec.util.DFUVersions;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList;

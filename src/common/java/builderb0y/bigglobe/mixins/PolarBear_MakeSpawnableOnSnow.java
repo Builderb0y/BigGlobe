@@ -12,10 +12,9 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.polarbear.PolarBear;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
 @Mixin(PolarBear.class)

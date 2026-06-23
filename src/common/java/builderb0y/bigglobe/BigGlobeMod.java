@@ -42,7 +42,7 @@ import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.storage.LevelStorageSource;
 
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlocks;
 import builderb0y.bigglobe.blocks.SoulCauldronBlock;
 import builderb0y.bigglobe.brewing.BigGlobeBrewing;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;

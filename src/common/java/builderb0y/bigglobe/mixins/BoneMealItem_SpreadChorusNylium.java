@@ -12,8 +12,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
-import builderb0y.bigglobe.blocks.BigGlobeBlocks;
+import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
+import builderb0y.bigglobe.blockdefs.EndBlocks;
 
 @Mixin(BoneMealItem.class)
 public class BoneMealItem_SpreadChorusNylium {
@@ -28,7 +28,7 @@ public class BoneMealItem_SpreadChorusNylium {
 					for (mutablePos.setX(pos.getX() - 1); mutablePos.getX() <= pos.getX() + 1; mutablePos.setX(mutablePos.getX() + 1)) {
 						if (mutablePos.getX() == pos.getX() && mutablePos.getY() == pos.getY() && mutablePos.getZ() == pos.getZ()) continue;
 						if (world.getBlockState(mutablePos).is(BigGlobeBlockTags.END_STONE_SPREADABLE)) {
-							world.setBlockAndUpdate(pos, BigGlobeBlocks.OVERGROWN_END_STONE.defaultBlockState());
+							world.setBlockAndUpdate(pos, EndBlocks.OVERGROWN_END_STONE.defaultBlockState());
 							callback.setReturnValue(Boolean.TRUE);
 							return;
 						}

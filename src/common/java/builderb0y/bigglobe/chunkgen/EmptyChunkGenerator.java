@@ -32,7 +32,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 @AddPseudoField("biome_source")

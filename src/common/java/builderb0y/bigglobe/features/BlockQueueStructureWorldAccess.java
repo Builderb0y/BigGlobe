@@ -42,7 +42,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
 
-import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.blockdefs.BlockStates;
 
 public class BlockQueueStructureWorldAccess implements WorldGenLevel {
 

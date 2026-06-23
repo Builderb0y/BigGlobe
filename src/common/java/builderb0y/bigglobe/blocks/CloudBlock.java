@@ -13,6 +13,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
+import builderb0y.bigglobe.blockdefs.EndBlocks;
+import builderb0y.bigglobe.blockdefs.OverworldBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.AuraBottleItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
@@ -45,7 +48,7 @@ public class CloudBlock extends Block {
 			if (this.color != CloudColor.BLANK) {
 				if (stack.getItem() == Items.GLASS_BOTTLE) {
 					if (!world.isClientSide()) {
-						world.setBlockAndUpdate(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(CloudColor.BLANK).defaultBlockState());
+						world.setBlockAndUpdate(pos, (this.isVoid ? EndBlocks.VOID_CLOUDS : OverworldBlocks.CLOUDS).get(CloudColor.BLANK).defaultBlockState());
 						player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
 					}
 					return ActionResultVersions.ITEM_SUCCESS;
@@ -54,7 +57,7 @@ public class CloudBlock extends Block {
 			else {
 				if (stack.getItem() instanceof AuraBottleItem bottle) {
 					if (!world.isClientSide()) {
-						world.setBlockAndUpdate(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(bottle.color).defaultBlockState());
+						world.setBlockAndUpdate(pos, (this.isVoid ? EndBlocks.VOID_CLOUDS : OverworldBlocks.CLOUDS).get(bottle.color).defaultBlockState());
 						player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
 					}
 					return ActionResultVersions.ITEM_SUCCESS;
