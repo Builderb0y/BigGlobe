@@ -113,6 +113,7 @@ public class BigGlobeBlocks {
 	}
 
 	public static void init() {
+		VanillaBlocks.init();
 		OverworldBlocks.init();
 		NetherBlocks.init();
 		EndBlocks.init();

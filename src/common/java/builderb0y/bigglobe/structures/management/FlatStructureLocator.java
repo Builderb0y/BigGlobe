@@ -120,8 +120,7 @@ public class FlatStructureLocator extends StructureLocator {
 			return (
 				structures
 				.stream()
-				.map((Holder<Structure> key) -> this.structureToSets.getOrDefault(key, Collections.emptyList()))
-				.flatMap(List<Holder<StructureSet>>::stream)
+				.flatMap((Holder<Structure> key) -> this.structureToSets.getOrDefault(key, Collections.emptyList()).stream())
 				.flatMap((Holder<StructureSet> set) -> (
 					(
 						(SmartStructurePlacement)(

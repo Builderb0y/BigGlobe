@@ -118,7 +118,6 @@ V6:
 				override method in scripted structure set.
 			mob spawning will need to become scripted somehow.
 			verify that all mobs and structures still spawn.
-			verify that sky and fog colors are correct.
 		split tree generator:
 			missing decoration:
 				mushroom shelves.
