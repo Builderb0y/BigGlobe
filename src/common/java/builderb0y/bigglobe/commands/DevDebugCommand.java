@@ -2,20 +2,28 @@ package builderb0y.bigglobe.commands;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.loader.api.FabricLoader;
+
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.commands.arguments.StringRepresentableArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -28,7 +36,10 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.spawning.SpawnMap;
+import builderb0y.bigglobe.spawning.SpawnMap.SpawnParams;
 import builderb0y.bigglobe.structures.management.FlatStructureLocator;
 import builderb0y.bigglobe.structures.management.FlatStructureLocator.StructureCaches;
 import builderb0y.bigglobe.structures.management.FlatStructureLocator.StructurePos;
@@ -44,7 +55,7 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DevDebugCommand {
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
 		if (!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
 		dispatcher.register(
 			Commands
@@ -83,7 +94,61 @@ public class DevDebugCommand {
 					.executes(DevDebugCommand::clearStructures)
 				)
 			)
+			.then(
+				Commands
+				.literal("entity_spawn_weights")
+				.then(
+					Commands
+					.literal("category")
+					.then(
+						Commands
+						.argument("category", new MobCategoryArgument())
+						.executes(DevDebugCommand::printEntitySpawnWeightsForCategory)
+					)
+				)
+				.then(
+					Commands
+					.literal("entityType")
+					.then(
+						Commands
+						.argument("entityType", new ResourceArgument<>(context, Registries.ENTITY_TYPE))
+						.executes(DevDebugCommand::printEntitySpawnWeightsForType)
+					)
+				)
+			)
 		);
+	}
+
+	public static class MobCategoryArgument extends StringRepresentableArgument<MobCategory> {
+
+		public MobCategoryArgument() {
+			super(MobCategory.CODEC, MobCategory::values);
+		}
+	}
+
+	public static int printEntitySpawnWeightsForCategory(CommandContext<CommandSourceStack> context) {
+		ServerLevel world = context.getSource().getLevel();
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			BlockPos pos = BlockPos.containing(context.getSource().getPosition());
+			SpawnMap map = generator.spawnTweakers.getRawSpawnEntries(generator, pos, context.getArgument("category", MobCategory.class), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
+			for (Map.Entry<EntityType<?>, SpawnParams> entry : map.backingMap.entrySet()) {
+				BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(entry.getKey().builtInRegistryHolder()) + ": " + entry.getValue());
+			}
+			return 1;
+		}
+		return 0;
+	}
+
+	public static int printEntitySpawnWeightsForType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerLevel world = context.getSource().getLevel();
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			BlockPos pos = BlockPos.containing(context.getSource().getPosition());
+			EntityType<?> type = ResourceArgument.getEntityType(context, "entityType").value();
+			SpawnMap map = generator.spawnTweakers.getRawSpawnEntries(generator, pos, type.getCategory(), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
+			BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(type.builtInRegistryHolder()) + ": " + map.backingMap.get(type));
+			return 1;
+		}
+		return 0;
 	}
 
 	public static int displayBlockStructures(CommandContext<CommandSourceStack> context) {

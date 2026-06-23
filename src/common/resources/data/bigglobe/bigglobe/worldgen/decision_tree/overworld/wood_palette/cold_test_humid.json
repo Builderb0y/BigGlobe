@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "world_traits.`bigglobe:humidity_at_surface` > 0.0I"
+	},
+	"if_true": "bigglobe:overworld/wood_palette/dark_oak",
+	"if_false": "bigglobe:overworld/wood_palette/spruce"
+}

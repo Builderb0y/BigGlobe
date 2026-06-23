@@ -408,6 +408,9 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 					return load(name, TypeInfos.INT);
 				}
 			}
+			else if (name.equals("seed")) {
+				return load("seed", TypeInfos.LONG);
+			}
 			return this.inputs.containsKey(name) ? load(name, TypeInfos.DOUBLE) : null;
 		}
 

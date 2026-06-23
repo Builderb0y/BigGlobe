@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:land_except_volcano"
-	],
-	"type": "minecraft:rabbit",
-	"weight": 100,
-	"minCount": 2,
-	"maxCount": 4
-}

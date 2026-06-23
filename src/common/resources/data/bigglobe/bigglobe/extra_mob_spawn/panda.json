@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:overworld/forest"
-	],
-	"type": "minecraft:panda",
-	"weight": 1,
-	"minCount": 1,
-	"maxCount": 1
-}

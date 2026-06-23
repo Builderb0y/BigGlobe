@@ -261,7 +261,7 @@ implements Collector<T_Element, T_Map, T_Map> {
 				map1 = map2;
 				map2 = tmp;
 			}
-			if (map1 instanceof ConcurrentMap<?, ?>) {
+			if (map1 instanceof ConcurrentMap<?, ?> && map2.size() >= 256) {
 				T_Map map1_ = map1;
 				map2.entrySet().parallelStream().forEach((Map.Entry<T_Key, T_Values> entry) -> {
 					map1_.merge(entry.getKey(), entry.getValue(), this.downstream.combiner());

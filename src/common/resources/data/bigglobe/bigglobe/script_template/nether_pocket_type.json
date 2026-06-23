@@ -22,7 +22,7 @@
 		"if (maxY > minY:",
 			"repeat (16:",
 				"double centerY = random.nextDouble(minY, maxY)",
-				"if (column.`bigglobe:nether/bubble_type`.noise(column, int(centerY)) > 0.5I:",
+				"if (column.`bigglobe:nether/noise`(int(centerY)) > 0.5I:",
 					"pieces.add(",
 						"ScriptStructurePiece.new(",
 							"originX - horizontalSize,",

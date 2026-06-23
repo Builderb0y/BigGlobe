@@ -1,0 +1,15 @@
+{
+	"biomes": [
+		"#bigglobe:overworld"
+	],
+	"primary_entity": "minecraft:cod",
+	"script": [
+		"if (y.isBetween[world_traits.`bigglobe:y_level_on_surface`, world_traits.`bigglobe:sea_level`):",
+			"float temperature = world_traits.`bigglobe:temperature_at`",
+			"int count = random.nextBetween[3, 6]",
+			"spawnMap.('minecraft:cod').=$weight(fastExp2(-((8.0I * temperature) ^ 2))).=$count(count)",
+			"spawnMap.('minecraft:salmon').=$weight(1.0I / (fastExp2(32.0I * temperature) + 1.0I)).=$count(count)",
+			"spawnMap.('minecraft:tropical_fish').=$weight(1.0I / (fastExp2(-32.0I * temperature) + 1.0I)).=$count(count)",
+		")"
+	]
+}

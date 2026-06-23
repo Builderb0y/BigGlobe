@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"+ chasm_threshold_horizontal",
+		"* chasm_threshold_vertical",
+		"+ float(`bigglobe:overworld/cave_type`.border - 1.0L) * 0.125I",
+		"- 1.0I / (",
+			"(worldSeed # 16xc11315c627c18e11UL)",
+			".newSeed(y - floorInt(chasm_min_y))",
+			".nextFloat(6.0I, 64.0I)",
+		") ^ 2"
+	],
+	"valid": {
+		"min_y": "world_traits.`bigglobe:chasm_min_y`",
+		"max_y": "world_traits.`bigglobe:chasm_max_y`"
+	}
+}

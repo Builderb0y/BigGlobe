@@ -9,8 +9,13 @@
 			"type": "script",
 			"script": [
 				"float bias = float(",
-					"(world_traits.`bigglobe:approximate_surface_y` - 256.0L - double(y)) / 128.0L",
+					"unmixLinear(",
+						"double(world_traits.`bigglobe:cave_min_y`),",
+						"double(world_traits.`bigglobe:chasm_max_y`),",
+						"double(y)",
+					")",
 				")",
+				"* 2.0I - 1.0I",
 				"if (abs(bias) < 1.0I: bias += `bigglobe:overworld/rocks/deepslate_noise`)",
 				"return(bias)"
 			]

@@ -1,0 +1,25 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "script",
+		"min": -0.41015625,
+		"max": 0.25,
+		"script": [
+			"abs(base) - base ^ 2"
+		],
+		"inputs": {
+			"base": {
+				"type": "sum",
+				"layers": [
+					{ "type": "smooth", "scale": 256, "amplitude": 0.75 },
+					{ "type": "smooth", "scale": 128, "amplitude": 0.375 },
+					{ "type": "smooth", "scale":  64, "amplitude": 0.1875 }
+				]
+			}
+		}
+	}
+}

@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:has_hostile_mobs"
-	],
-	"type": "minecraft:enderman",
-	"weight": 5,
-	"minCount": 1,
-	"maxCount": 3
-}

@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
@@ -74,7 +75,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		long seed = context.random().nextLong();
 		int x = context.chunkPos().getMinBlockX() | context.random().nextInt(16);
 		int z = context.chunkPos().getMinBlockZ() | context.random().nextInt(16);
-		int y = generator.getFirstFreeHeight(x, z, Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState());
+		int y = Mth.clamp(generator.getFirstOccupiedHeight(x, z, Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState()), generator.height.min_y(), generator.height.max_y() - 1);
 		return Optional.of(
 			new GenerationStub(
 				new BlockPos(x, y, z),

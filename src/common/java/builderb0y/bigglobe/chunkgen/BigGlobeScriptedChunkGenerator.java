@@ -99,7 +99,6 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
@@ -115,7 +114,7 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.AutoOverride;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
-import builderb0y.bigglobe.spawning.ExtraSpawn;
+import builderb0y.bigglobe.spawning.SpawnTweakers;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
 import builderb0y.bigglobe.structures.ScriptStructures;
@@ -262,10 +261,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient Map<Holder<WorldTrait>, WorldTraitProvider> loadedWorldTraits;
 	public transient WorldTraits compiledWorldTraits;
 	public transient ColumnEntryRegistry columnEntryRegistry;
-	public final BetterRegistry<ExtraSpawn> extraSpawnRegistry;
 
-	public static record BiomeSpawnGroup(Holder<Biome> biome, MobCategory spawnGroup) {}
-	public final transient Map<BiomeSpawnGroup, WeightedList<SpawnerData>> extraSpawns;
+	public final SpawnTweakers spawnTweakers;
 
 	public transient SortedOverriders actualOverriders;
 	public transient long columnSeed;
@@ -289,7 +286,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		DelayedEntryList<Overrider> overriders,
 		GameMechanics               game_mechanics,
 		@VerifyNullable Identifier  world_traits,
-		BetterRegistry<ExtraSpawn>  extraSpawnRegistry
+		SpawnTweakers spawnTweakers
 	)
 	throws VerifyException {
 		super(biome_source);
@@ -304,10 +301,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.overriders         = overriders;
 		this.game_mechanics     = game_mechanics;
 		this.world_traits       = world_traits;
-		this.extraSpawnRegistry = extraSpawnRegistry;
+		this.spawnTweakers      = spawnTweakers;
 		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
 		this.rootDebugDisplay   = Collections.emptyList();
-		this.extraSpawns        = Collections.synchronizedMap(new HashMap<>(64));
 	}
 
 	@Hidden //copy constructor.
@@ -324,11 +320,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.world_traits        = from.world_traits;
 		this.loadedWorldTraits   = from.loadedWorldTraits;
 		this.compiledWorldTraits = from.compiledWorldTraits;
-		this.extraSpawnRegistry  = from.extraSpawnRegistry;
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
 		this.rootDebugDisplay    = Collections.emptyList();
 		this.structuresEnabled   = from.structuresEnabled;
-		this.extraSpawns         = from.extraSpawns;
+		this.spawnTweakers       = from.spawnTweakers;
 	}
 
 	@Override
@@ -588,46 +583,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		//no-op.
 	}
 
-	public WeightedList<SpawnerData> getSpawnEntries(Holder<Biome> biome, MobCategory group) {
-		return this.extraSpawns.computeIfAbsent(
-			new BiomeSpawnGroup(biome, group), (BiomeSpawnGroup data) -> {
-				WeightedList<SpawnerData> base = data.biome.value().getMobSettings().getMobs(data.spawnGroup);
-				List<Weighted<SpawnerData>> extra = (
-					this
-						.extraSpawnRegistry
-						.streamEntries()
-						.map(Holder<ExtraSpawn>::value)
-						.filter((ExtraSpawn spawn) -> (
-							spawn.weight() > 0
-							&& spawn.type().value().getCategory() == data.spawnGroup
-							&& spawn.biomes().contains(data.biome)
-						))
-						.map(ExtraSpawn::toEntry)
-						.toList()
-				);
-				WeightedList<SpawnerData> result;
-				if (!extra.isEmpty()) {
-					if (base.isEmpty()) {
-						result = WeightedList.of(extra);
-					}
-					else {
-						List<Weighted<SpawnerData>> combined = new ArrayList<>(base.unwrap().size() + extra.size());
-						combined.addAll(base.unwrap());
-						combined.addAll(extra);
-						result = WeightedList.of(combined);
-					}
-				}
-				else {
-					result = base;
-				}
-				if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logExtraMobSpawns) {
-					BigGlobeMod.LOGGER.info(data.spawnGroup + " spawns for " + UnregisteredObjectException.getID(data.biome) + ": " + result.unwrap());
-				}
-				return result;
-			}
-		);
-	}
-
 	@Override
 	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager accessor, MobCategory group, BlockPos pos) {
 		if (((StructureAccessor_WorldAccess)(accessor)).bigglobe_getWorld() instanceof ServerLevel serverLevel) {
@@ -640,7 +595,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				pos,
 				group
 			);
-			return spawns != null ? spawns : this.getSpawnEntries(biome, group);
+			return spawns != null ? spawns : this.spawnTweakers.getSpawnEntries(this, pos, group, biome, Permuter.from(serverLevel.getRandom()));
 		}
 		else {
 			if (Tripwire.isEnabled()) {
@@ -655,23 +610,23 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public void spawnOriginalMobs(WorldGenRegion region) {
 		//copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenter();
-		Holder<Biome> registryEntry = region.getBiome(
-			new BlockPos(
-				chunkPos.getMinBlockX(),
-				this.getHeight(
-					this.newColumn(region, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), ColumnUsage.HEIGHTMAP.maybeDhHints()),
-					Types.OCEAN_FLOOR_WG,
-					region
-				),
-				chunkPos.getMinBlockZ()
-			)
+		BlockPos chunkCenter = new BlockPos(
+			chunkPos.getMinBlockX(),
+			this.getHeight(
+				this.newColumn(region, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), ColumnUsage.HEIGHTMAP.maybeDhHints()),
+				Types.OCEAN_FLOOR_WG,
+				region
+			),
+			chunkPos.getMinBlockZ()
 		);
+		Holder<Biome> registryEntry = region.getBiome(chunkCenter);
 		WorldgenRandom chunkRandom = new WorldgenRandom(new LegacyRandomSource(RandomSupport.generateUniqueSeed()));
 		chunkRandom.setDecorationSeed(region.getSeed(), chunkPos.getMinBlockX(), chunkPos.getMinBlockZ());
 
 		//inlined from SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
+		//reason: default method only considers biome and does not query chunk generator for mob list.
 		MobSpawnSettings spawnSettings = registryEntry.value().getMobSettings();
-		WeightedList<SpawnerData> pool = this.getSpawnEntries(registryEntry, MobCategory.CREATURE);
+		WeightedList<SpawnerData> pool = this.spawnTweakers.getSpawnEntries(this, chunkCenter, MobCategory.CREATURE, registryEntry, Permuter.from(chunkRandom));
 		if (!pool.isEmpty()) {
 			int i = chunkPos.getMinBlockX();
 			int j = chunkPos.getMinBlockZ();

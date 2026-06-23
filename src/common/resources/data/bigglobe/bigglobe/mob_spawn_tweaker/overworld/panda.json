@@ -1,0 +1,14 @@
+{
+	"biomes": [
+		"#bigglobe:overworld_except_volcano"
+	],
+	"primary_entity": "minecraft:panda",
+	"script": [
+		"float*(",
+			"temperature = world_traits.`bigglobe:temperature_at`",
+			"foliage = world_traits.`bigglobe:foliage_at`",
+			"temperatureFactor = 1.0I - (temperature * 8.0I) ^ 2",
+		")",
+		"spawnParams.=$weight(4.0I * temperatureFactor * max(foliage, 0.0I)).=$count(random.nextBetween[1, 2])"
+	]
+}

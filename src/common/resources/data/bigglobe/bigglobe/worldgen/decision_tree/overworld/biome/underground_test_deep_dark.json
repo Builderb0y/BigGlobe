@@ -1,8 +1,19 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "y <= world_traits.`bigglobe:deep_dark_max_y`"
+		"type": "curve_range",
+		"value": {
+			"type": "script",
+			"script": "y"
+		},
+		"min": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:chasm_min_y"
+		},
+		"max": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:deep_dark_max_y"
+		}
 	},
 	"if_true": "bigglobe:overworld/biome/deep_dark_test_core",
-	"if_false": "bigglobe:overworld/biome/cave"
+	"if_false": "bigglobe:overworld/biome/not_deep_dark_test_chasm"
 }

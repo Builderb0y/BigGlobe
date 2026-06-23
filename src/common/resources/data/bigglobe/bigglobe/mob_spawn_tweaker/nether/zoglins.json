@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:nether/ashen_wastes",
+		"bigglobe:nether/nether_wastes"
+	],
+	"primary_entity": "minecraft:hoglin",
+	"script": [
+		"int count = random.nextBetween[1, 2]",
+		"spawnParams.=$weight(0.25L).=$count(count)",
+		"spawnMap.('minecraft:zoglin').=$weight(0.5L).=$count(count)"
+	]
+}

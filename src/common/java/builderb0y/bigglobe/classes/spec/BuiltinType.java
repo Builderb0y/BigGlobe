@@ -48,10 +48,7 @@ import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.*;
-import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
-import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
-import builderb0y.bigglobe.scripting.wrappers.entries.EntryWrapper;
-import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
+import builderb0y.bigglobe.scripting.wrappers.entries.*;
 import builderb0y.bigglobe.scripting.wrappers.tags.*;
 import builderb0y.bigglobe.util.DelayedEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
@@ -257,13 +254,13 @@ public abstract class BuiltinType implements Named {
 			}
 
 			@Override
-			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+			public void setupEnvironment(MutableScriptEnvironment environment) {
 
 			}
 
 			@Override
-			public void setupEnvironment(ExpressionParser parser, ExternalEnvironmentParams params, Holder<ElementSpec> referencingType) {
-
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment.types.put(this.exposedName, new TypeHandler.Named(this.exposedName, this.type.toString(), callback, (ExpressionParser parser, String name_) -> this.type));
 			}
 
 			@Override
@@ -877,6 +874,13 @@ public abstract class BuiltinType implements Named {
 					callback,
 					RandomScriptEnvironment.randomSwitch()
 				))
+				.addMemberKeyword(new MemberKeywordHandler.Named(
+					type(RandomGenerator.class),
+					"nextBetween",
+					"random.nextBetween[min, max)",
+					callback,
+					RandomScriptEnvironment.nextBetween()
+				))
 				;
 			}
 		});
@@ -1037,6 +1041,35 @@ public abstract class BuiltinType implements Named {
 			@Override
 			public InsnTree parseConstant(ClassHierarchy hierarchy, BuiltinTypeSpec spec, Data data) throws ConstantFormatException {
 				return ldc(ConfiguredFeatureTag.of(hierarchy.registry.constantFlags(), asString(data).value), ConfiguredFeatureTag.TYPE);
+			}
+		});
+		register("entity_type", new Typed("EntityType", EntityTypeEntry.TYPE) {
+
+			@Override
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment.addCastConstant(EntityTypeEntry.CONSTANT_FACTORY, true);
+			}
+
+			@Override
+			public InsnTree parseConstant(ClassHierarchy hierarchy, BuiltinTypeSpec spec, Data data) throws ConstantFormatException {
+				return ldc(EntityTypeEntry.of(asString(data).value, hierarchy.registry.constantFlags()), EntityTypeEntry.TYPE);
+			}
+		});
+		register("entity_type_tag", new Typed("EntityTypeTag", EntityTypeTag.TYPE) {
+
+			@Override
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment
+				.addMethod(Handlers.methodBuilder(EntityTypeTag.class, "random").onUsed(callback).resultClass(EntityTypeEntry.class).addReceiverArgument(this.type).addImportedArgument(RandomGenerator.class).buildMethod())
+				.addMethod(Handlers.methodBuilder(EntityTypeTag.class, "random").onUsed(callback).resultClass(EntityTypeEntry.class).addReceiverArgument(this.type).addRequiredArgument(RandomGenerator.class).buildMethod())
+				.addMethod(Handlers.methodBuilder(EntityTypeTag.class, "random").onUsed(callback).resultClass(EntityTypeEntry.class).addReceiverArgument(this.type).addRequiredArgument(long.class).buildMethod())
+				;
+				EntityTypeTag.PARSER.configure(environment, callback);
+			}
+
+			@Override
+			public InsnTree parseConstant(ClassHierarchy hierarchy, BuiltinTypeSpec spec, Data data) throws ConstantFormatException {
+				return ldc(EntityTypeTag.of(hierarchy.registry.constantFlags(), asString(data).value), EntityTypeTag.TYPE);
 			}
 		});
 		register("wood_palette", new Typed("WoodPalette", WoodPaletteEntry.INFO.type) {

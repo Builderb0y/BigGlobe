@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:nether/pale_garden"
+	],
+	"primary_entity": "minecraft:creaking",
+	"script": [
+		"spawnParams.=$weight(1.0I).=$count(random.nextBetween[2, 4])"
+	]
+}

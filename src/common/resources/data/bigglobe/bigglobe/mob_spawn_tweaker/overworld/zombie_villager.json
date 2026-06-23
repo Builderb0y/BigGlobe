@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"#bigglobe:overworld"
+	],
+	"primary_entity": "minecraft:zombie_villager",
+	"script": [
+		"spawnParams.=$weight(0.015625L).=$count(1)"
+	]
+}

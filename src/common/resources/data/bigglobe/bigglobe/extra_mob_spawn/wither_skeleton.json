@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:nether/valley_of_souls"
-	],
-	"type": "minecraft:wither_skeleton",
-	"weight": 20,
-	"minCount": 2,
-	"maxCount": 4
-}

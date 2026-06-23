@@ -6,6 +6,8 @@
 	"field_values": {
 		"weight": 0.75,
 		"biome": "bigglobe:nether/valley_of_souls",
+		"filler": "minecraft:soul_soil",
+		"lavaFluid": "bigglobe:soul_lava[level=0]",
 		"decorator": "bigglobe:nether/decorators/valley_of_souls"
 	}
 }

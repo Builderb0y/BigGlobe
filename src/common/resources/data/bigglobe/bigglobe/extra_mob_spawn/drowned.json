@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:overworld/ocean"
-	],
-	"type": "minecraft:drowned",
-	"weight": 100,
-	"minCount": 2,
-	"maxCount": 4
-}

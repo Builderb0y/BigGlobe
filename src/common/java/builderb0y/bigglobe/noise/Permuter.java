@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 import it.unimi.dsi.fastutil.HashCommon;
+import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Range;
 
 import net.minecraft.core.Vec3i;
@@ -16,6 +17,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 
 import builderb0y.scripting.bytecode.CastingSupport;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.util.InfoHolder;
 
 /**
 the primary intention of this class is to use the
@@ -572,7 +575,17 @@ public class Permuter implements RandomGenerator {
 	@throws IllegalArgumentException if max is less than or equal to min.
 	*/
 	public static int nextBoundedInt(long seed, int min, int max) {
-		return nextBoundedInt(seed, max - min) + min;
+		if (max <= min) throw new IllegalArgumentException("max must be greater than min");
+		int bound = max - min;
+		if (bound > 0) {
+			return nextBoundedInt(seed, bound) + min;
+		}
+		else {
+			while (true) {
+				int result = nextUniformInt(seed += PHI64);
+				if (result >= min && result < max) return result;
+			}
+		}
 	}
 
 	/**
@@ -628,7 +641,17 @@ public class Permuter implements RandomGenerator {
 	@throws IllegalArgumentException if max is less than or equal to min.
 	*/
 	public static long nextBoundedLong(long seed, long min, long max) {
-		return nextBoundedLong(seed, max - min) + min;
+		if (max <= min) throw new IllegalArgumentException("max must be greater than min");
+		long bound = max - min;
+		if (bound > 0) {
+			return nextBoundedLong(seed, bound) + min;
+		}
+		else {
+			while (true) {
+				long result = nextUniformLong(seed += PHI64);
+				if (result >= min && result < max) return result;
+			}
+		}
 	}
 
 	/**
@@ -912,5 +935,424 @@ public class Permuter implements RandomGenerator {
 
 	public static <T> T choose(RandomGenerator random, List<T> values) {
 		return values.get(random.nextInt(values.size()));
+	}
+
+	public static final BetweenInfo BETWEEN_INFO = new BetweenInfo();
+	public static class BetweenInfo extends InfoHolder {
+
+		public static final int
+			FLAG_MIN_INCLUSIVE   = 1 << 0,
+			FLAG_MAX_INCLUSIVE   = 1 << 1,
+			FLAG_SEED_RECEIVER   = 0 << 2,
+			FLAG_RANDOM_RECEIVER = 1 << 2,
+			FLAG_INT_DESIRED     = 0 << 3,
+			FLAG_LONG_DESIRED    = 1 << 3,
+			FLAG_FLOAT_DESIRED   = 2 << 3,
+			FLAG_DOUBLE_DESIRED  = 3 << 3;
+
+		public MethodInfo
+			betweenSeedExclusiveExclusiveInt,
+			betweenSeedInclusiveExclusiveInt,
+			betweenSeedExclusiveInclusiveInt,
+			betweenSeedInclusiveInclusiveInt,
+			betweenRandomExclusiveExclusiveInt,
+			betweenRandomInclusiveExclusiveInt,
+			betweenRandomExclusiveInclusiveInt,
+			betweenRandomInclusiveInclusiveInt,
+			betweenSeedExclusiveExclusiveLong,
+			betweenSeedInclusiveExclusiveLong,
+			betweenSeedExclusiveInclusiveLong,
+			betweenSeedInclusiveInclusiveLong,
+			betweenRandomExclusiveExclusiveLong,
+			betweenRandomInclusiveExclusiveLong,
+			betweenRandomExclusiveInclusiveLong,
+			betweenRandomInclusiveInclusiveLong,
+			betweenSeedExclusiveExclusiveFloat,
+			betweenSeedInclusiveExclusiveFloat,
+			betweenSeedExclusiveInclusiveFloat,
+			betweenSeedInclusiveInclusiveFloat,
+			betweenRandomExclusiveExclusiveFloat,
+			betweenRandomInclusiveExclusiveFloat,
+			betweenRandomExclusiveInclusiveFloat,
+			betweenRandomInclusiveInclusiveFloat,
+			betweenSeedExclusiveExclusiveDouble,
+			betweenSeedInclusiveExclusiveDouble,
+			betweenSeedExclusiveInclusiveDouble,
+			betweenSeedInclusiveInclusiveDouble,
+			betweenRandomExclusiveExclusiveDouble,
+			betweenRandomInclusiveExclusiveDouble,
+			betweenRandomExclusiveInclusiveDouble,
+			betweenRandomInclusiveInclusiveDouble;
+
+		public MethodInfo getMethodFor(@MagicConstant(flagsFromClass = BetweenInfo.class) int flags) {
+			//rust can't do this hehe
+			return switch (flags) {
+				case FLAG_INT_DESIRED                                                                     -> this.betweenSeedExclusiveExclusiveInt;
+				case FLAG_INT_DESIRED                                                | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveExclusiveInt;
+				case FLAG_INT_DESIRED                           | FLAG_MAX_INCLUSIVE                      -> this.betweenSeedExclusiveInclusiveInt;
+				case FLAG_INT_DESIRED                           | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveInclusiveInt;
+				case FLAG_INT_DESIRED    | FLAG_RANDOM_RECEIVER                                           -> this.betweenRandomExclusiveExclusiveInt;
+				case FLAG_INT_DESIRED    | FLAG_RANDOM_RECEIVER                      | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveExclusiveInt;
+				case FLAG_INT_DESIRED    | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE                      -> this.betweenRandomExclusiveInclusiveInt;
+				case FLAG_INT_DESIRED    | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveInclusiveInt;
+				case FLAG_LONG_DESIRED                                                                    -> this.betweenSeedExclusiveExclusiveLong;
+				case FLAG_LONG_DESIRED                                               | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveExclusiveLong;
+				case FLAG_LONG_DESIRED                          | FLAG_MAX_INCLUSIVE                      -> this.betweenSeedExclusiveInclusiveLong;
+				case FLAG_LONG_DESIRED                          | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveInclusiveLong;
+				case FLAG_LONG_DESIRED   | FLAG_RANDOM_RECEIVER                                           -> this.betweenRandomExclusiveExclusiveLong;
+				case FLAG_LONG_DESIRED   | FLAG_RANDOM_RECEIVER                      | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveExclusiveLong;
+				case FLAG_LONG_DESIRED   | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE                      -> this.betweenRandomExclusiveInclusiveLong;
+				case FLAG_LONG_DESIRED   | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveInclusiveLong;
+				case FLAG_FLOAT_DESIRED                                                                   -> this.betweenSeedExclusiveExclusiveFloat;
+				case FLAG_FLOAT_DESIRED                                              | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveExclusiveFloat;
+				case FLAG_FLOAT_DESIRED                         | FLAG_MAX_INCLUSIVE                      -> this.betweenSeedExclusiveInclusiveFloat;
+				case FLAG_FLOAT_DESIRED                         | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveInclusiveFloat;
+				case FLAG_FLOAT_DESIRED  | FLAG_RANDOM_RECEIVER                                           -> this.betweenRandomExclusiveExclusiveFloat;
+				case FLAG_FLOAT_DESIRED  | FLAG_RANDOM_RECEIVER                      | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveExclusiveFloat;
+				case FLAG_FLOAT_DESIRED  | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE                      -> this.betweenRandomExclusiveInclusiveFloat;
+				case FLAG_FLOAT_DESIRED  | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveInclusiveFloat;
+				case FLAG_DOUBLE_DESIRED                                                                  -> this.betweenSeedExclusiveExclusiveDouble;
+				case FLAG_DOUBLE_DESIRED                                             | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveExclusiveDouble;
+				case FLAG_DOUBLE_DESIRED                        | FLAG_MAX_INCLUSIVE                      -> this.betweenSeedExclusiveInclusiveDouble;
+				case FLAG_DOUBLE_DESIRED                        | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenSeedInclusiveInclusiveDouble;
+				case FLAG_DOUBLE_DESIRED | FLAG_RANDOM_RECEIVER                                           -> this.betweenRandomExclusiveExclusiveDouble;
+				case FLAG_DOUBLE_DESIRED | FLAG_RANDOM_RECEIVER                      | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveExclusiveDouble;
+				case FLAG_DOUBLE_DESIRED | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE                      -> this.betweenRandomExclusiveInclusiveDouble;
+				case FLAG_DOUBLE_DESIRED | FLAG_RANDOM_RECEIVER | FLAG_MAX_INCLUSIVE | FLAG_MIN_INCLUSIVE -> this.betweenRandomInclusiveInclusiveDouble;
+				default -> throw new IllegalArgumentException(Integer.toBinaryString(flags));
+			};
+		}
+	}
+
+	public static int betweenRandomInclusiveExclusiveInt(RandomGenerator random, int min, int max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + ")");
+		return random.nextInt(min, max);
+	}
+
+	public static int betweenRandomInclusiveInclusiveInt(RandomGenerator random, int min, int max) {
+		if (max < min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + "]");
+		int bound = max - min + 1;
+		if (bound > 0) {
+			return random.nextInt(bound) + min;
+		}
+		else {
+			while (true) {
+				int result = random.nextInt();
+				if (result >= min && result <= max) return result;
+			}
+		}
+	}
+
+	public static int betweenRandomExclusiveExclusiveInt(RandomGenerator random, int min, int max) {
+		if (min == Integer.MAX_VALUE || max <= ++min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + ")");
+		int bound = max - min;
+		if (bound > 0) {
+			return random.nextInt(bound) + min;
+		}
+		else {
+			while (true) {
+				int result = random.nextInt();
+				if (result > min && result < max) return result;
+			}
+		}
+	}
+
+	public static int betweenRandomExclusiveInclusiveInt(RandomGenerator random, int min, int max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + "]");
+		int bound = max - min;
+		if (bound > 0) {
+			return random.nextInt(bound) + min + 1;
+		}
+		else {
+			while (true) {
+				int result = random.nextInt();
+				if (result > min && result <= max) return result;
+			}
+		}
+	}
+
+	public static int betweenSeedInclusiveExclusiveInt(long seed, int min, int max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + ")");
+		return nextBoundedInt(seed, min, max);
+	}
+
+	public static int betweenSeedInclusiveInclusiveInt(long seed, int min, int max) {
+		if (max < min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + "]");
+		int bound = max - min + 1;
+		if (bound > 0) {
+			return nextBoundedInt(seed, bound) + min;
+		}
+		else {
+			while (true) {
+				int result = nextUniformInt(seed += PHI64);
+				if (result >= min && result <= max) return result;
+			}
+		}
+	}
+
+	public static int betweenSeedExclusiveExclusiveInt(long seed, int min, int max) {
+		if (min == Integer.MAX_VALUE || max <= ++min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + ")");
+		int bound = max - min;
+		if (bound > 0) {
+			return nextBoundedInt(seed, bound) + min;
+		}
+		else {
+			while (true) {
+				int result = nextUniformInt(seed);
+				if (result > min && result < max) return result;
+			}
+		}
+	}
+
+	public static int betweenSeedExclusiveInclusiveInt(long seed, int min, int max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + "]");
+		int bound = max - min;
+		if (bound > 0) {
+			return nextBoundedInt(seed, bound) + min + 1;
+		}
+		else {
+			while (true) {
+				int result = nextUniformInt(seed);
+				if (result > min && result <= max) return result;
+			}
+		}
+	}
+
+	public static long betweenRandomInclusiveExclusiveLong(RandomGenerator random, long min, long max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + ")");
+		return random.nextLong(min, max);
+	}
+
+	public static long betweenRandomInclusiveInclusiveLong(RandomGenerator random, long min, long max) {
+		if (max < min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + "]");
+		long bound = max - min + 1L;
+		if (bound > 0L) {
+			return random.nextLong(bound) + min;
+		}
+		else {
+			while (true) {
+				long result = random.nextLong();
+				if (result >= min && result <= max) return result;
+			}
+		}
+	}
+
+	public static long betweenRandomExclusiveExclusiveLong(RandomGenerator random, long min, long max) {
+		if (min == Long.MAX_VALUE || max <= ++min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + ")");
+		long bound = max - min;
+		if (bound > 0L) {
+			return random.nextLong(bound) + min;
+		}
+		else {
+			while (true) {
+				long result = random.nextLong();
+				if (result > min && result < max) return result;
+			}
+		}
+	}
+
+	public static long betweenRandomExclusiveInclusiveLong(RandomGenerator random, long min, long max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + "]");
+		long bound = max - min;
+		if (bound > 0L) {
+			return random.nextLong(bound) + min + 1L;
+		}
+		else {
+			while (true) {
+				long result = random.nextLong();
+				if (result > min && result <= max) return result;
+			}
+		}
+	}
+
+	public static long betweenSeedInclusiveExclusiveLong(long seed, long min, long max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + ")");
+		return nextBoundedLong(seed, min, max);
+	}
+
+	public static long betweenSeedInclusiveInclusiveLong(long seed, long min, long max) {
+		if (max < min) throw new IllegalArgumentException("empty interval: [" + min + ", " + max + "]");
+		long bound = max - min + 1L;
+		if (bound > 0L) {
+			return nextBoundedLong(seed, bound) + min;
+		}
+		else {
+			while (true) {
+				long result = nextUniformLong(seed += PHI64);
+				if (result >= min && result <= max) return result;
+			}
+		}
+	}
+
+	public static long betweenSeedExclusiveExclusiveLong(long seed, long min, long max) {
+		if (min == Long.MAX_VALUE || max <= ++min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + ")");
+		long bound = max - min;
+		if (bound > 0L) {
+			return nextBoundedLong(seed, bound) + min;
+		}
+		else {
+			while (true) {
+				long result = nextUniformLong(seed += PHI64);
+				if (result > min && result < max) return result;
+			}
+		}
+	}
+
+	public static long betweenSeedExclusiveInclusiveLong(long seed, long min, long max) {
+		if (max <= min) throw new IllegalArgumentException("empty interval: (" + min + ", " + max + "]");
+		long bound = max - min;
+		if (bound > 0L) {
+			return nextBoundedLong(seed, bound) + min + 1L;
+		}
+		else {
+			while (true) {
+				long result = nextUniformLong(seed);
+				if (result > min && result <= max) return result;
+			}
+		}
+	}
+
+	public static float scaleBetween(float value, float min, float max) {
+		float range = max - min;
+		if (range < Float.POSITIVE_INFINITY) {
+			value = value * range + min;
+		}
+		else {
+			//if min is sufficiently close to -Float.MAX_VALUE
+			//and max is sufficiently close to +Float.MAX_VALUE,
+			//then the difference between them would overflow to infinity.
+			float halfMin = min * 0.5F;
+			float halfMax = max * 0.5F;
+			value = (value * (halfMax - halfMin) + halfMin) * 2.0F;
+		}
+		return value;
+	}
+
+	public static float nextInclusiveFloat(RandomGenerator random, float min, float max) {
+		return scaleBetween(random.nextInt((1 << 24) + 1) * 0x1.0p-24F, min, max);
+	}
+
+	public static float nextInclusiveFloat(long seed, float min, float max) {
+		return scaleBetween(nextBoundedInt(seed, (1 << 24) + 1) * 0x1.0p-24F, min, max);
+	}
+
+	public static float betweenRandomInclusiveInclusiveFloat(RandomGenerator random, float min, float max) {
+		if (!(max >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + "]");
+		return nextInclusiveFloat(random, min, max);
+	}
+
+	public static float betweenRandomInclusiveExclusiveFloat(RandomGenerator random, float min, float max) {
+		float max2 = Math.nextDown(max);
+		if (!(max2 >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + ")");
+		return nextInclusiveFloat(random, min, max2);
+	}
+
+	public static float betweenRandomExclusiveInclusiveFloat(RandomGenerator random, float min, float max) {
+		float min2 = Math.nextUp(min);
+		if (!(max >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + "]");
+		return nextInclusiveFloat(random, min2, max);
+	}
+
+	public static float betweenRandomExclusiveExclusiveFloat(RandomGenerator random, float min, float max) {
+		float min2 = Math.nextUp(min);
+		float max2 = Math.nextDown(max);
+		if (!(max2 >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + ")");
+		return nextInclusiveFloat(random, min2, max2);
+	}
+
+	public static float betweenSeedInclusiveInclusiveFloat(long seed, float min, float max) {
+		if (!(max >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + "]");
+		return nextInclusiveFloat(seed, min, max);
+	}
+
+	public static float betweenSeedInclusiveExclusiveFloat(long seed, float min, float max) {
+		float max2 = Math.nextDown(max);
+		if (!(max2 >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + ")");
+		return nextInclusiveFloat(seed, min, max2);
+	}
+
+	public static float betweenSeedExclusiveInclusiveFloat(long seed, float min, float max) {
+		float min2 = Math.nextUp(min);
+		if (!(max >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + "]");
+		return nextInclusiveFloat(seed, min2, max);
+	}
+
+	public static float betweenSeedExclusiveExclusiveFloat(long seed, float min, float max) {
+		float min2 = Math.nextUp(min);
+		float max2 = Math.nextDown(max);
+		if (!(max2 >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + ")");
+		return nextInclusiveFloat(seed, min2, max2);
+	}
+
+	public static double scaleBetween(double value, double min, double max) {
+		double range = max - min;
+		if (range < Double.POSITIVE_INFINITY) {
+			value = value * range + min;
+		}
+		else {
+			//if min is sufficiently close to -Double.MAX_VALUE
+			//and max is sufficiently close to +Double.MAX_VALUE,
+			//then the difference between them would overflow to infinity.
+			double halfMin = min * 0.5D;
+			double halfMax = max * 0.5D;
+			value = (value * (halfMax - halfMin) + halfMin) * 2.0D;
+		}
+		return value;
+	}
+
+	public static double nextInclusiveDouble(RandomGenerator random, double min, double max) {
+		return scaleBetween(random.nextLong((1L << 53) + 1L) * 0x1.0p-53D, min, max);
+	}
+
+	public static double nextInclusiveDouble(long seed, double min, double max) {
+		return scaleBetween(nextBoundedLong(seed, (1L << 53) + 1L) * 0x1.0p-53D, min, max);
+	}
+
+	public static double betweenRandomInclusiveInclusiveDouble(RandomGenerator random, double min, double max) {
+		if (!(max >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + "]");
+		return nextInclusiveDouble(random, min, max);
+	}
+
+	public static double betweenRandomInclusiveExclusiveDouble(RandomGenerator random, double min, double max) {
+		double max2 = Math.nextDown(max);
+		if (!(max2 >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + ")");
+		return nextInclusiveDouble(random, min, max2);
+	}
+
+	public static double betweenRandomExclusiveInclusiveDouble(RandomGenerator random, double min, double max) {
+		double min2 = Math.nextUp(min);
+		if (!(max >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + "]");
+		return nextInclusiveDouble(random, min2, max);
+	}
+
+	public static double betweenRandomExclusiveExclusiveDouble(RandomGenerator random, double min, double max) {
+		double min2 = Math.nextUp(min);
+		double max2 = Math.nextDown(max);
+		if (!(max2 >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + ")");
+		return nextInclusiveDouble(random, min2, max2);
+	}
+
+	public static double betweenSeedInclusiveInclusiveDouble(long seed, double min, double max) {
+		if (!(max >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + "]");
+		return nextInclusiveDouble(seed, min, max);
+	}
+
+	public static double betweenSeedInclusiveExclusiveDouble(long seed, double min, double max) {
+		double max2 = Math.nextDown(max);
+		if (!(max2 >= min)) throw new IllegalArgumentException("Empty interval: [" + min + ", " + max + ")");
+		return nextInclusiveDouble(seed, min, max2);
+	}
+
+	public static double betweenSeedExclusiveInclusiveDouble(long seed, double min, double max) {
+		double min2 = Math.nextUp(min);
+		if (!(max >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + "]");
+		return nextInclusiveDouble(seed, min2, max);
+	}
+
+	public static double betweenSeedExclusiveExclusiveDouble(long seed, double min, double max) {
+		double min2 = Math.nextUp(min);
+		double max2 = Math.nextDown(max);
+		if (!(max2 >= min2)) throw new IllegalArgumentException("Empty interval: (" + min + ", " + max + ")");
+		return nextInclusiveDouble(seed, min2, max2);
 	}
 }

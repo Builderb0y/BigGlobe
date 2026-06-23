@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"bigglobe:nether/valley_of_souls"
+	],
+	"primary_entity": "minecraft:skeleton",
+	"script": [
+		"int count = random.nextBetween[2, 4]",
+		"spawnParams.=$weight(1.0L).=$count(count)",
+		"spawnMap.('minecraft:wither_skeleton').=$weight(0.25L).=$count(count)"
+	]
+}

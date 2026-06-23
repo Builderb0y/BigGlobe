@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:nether/ashen_wastes"
-	],
-	"type": "minecraft:wither_skeleton",
-	"weight": 60,
-	"minCount": 2,
-	"maxCount": 4
-}

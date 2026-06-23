@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:nether/crimson_forest"
-	],
-	"type": "minecraft:zombified_piglin",
-	"weight": 10,
-	"minCount": 2,
-	"maxCount": 4
-}

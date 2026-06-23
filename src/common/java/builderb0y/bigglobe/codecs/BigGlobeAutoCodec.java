@@ -98,7 +98,7 @@ import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
-import builderb0y.bigglobe.spawning.ExtraSpawn;
+import builderb0y.bigglobe.spawning.SpawnTweaker;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.TextCoding;
@@ -174,7 +174,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<FeatureDispatcher>                FEATURE_DISPATCHER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (FeatureDispatcher       .class), BigGlobeDynamicRegistries.FEATURE_DISPATCHER_REGISTRY_KEY    );
 	public static final RegistryCoders<WorldTrait>                              WORLD_TRAIT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (WorldTrait              .class), BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY           );
 	public static final RegistryCoders<Layer>                                         LAYER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (Layer                   .class), BigGlobeDynamicRegistries.TERRAIN_LAYER_REGISTRY_KEY         );
-	public static final RegistryCoders<ExtraSpawn>                              EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (ExtraSpawn              .class), BigGlobeDynamicRegistries.EXTRA_MOB_SPAWN_REGISTRY_KEY       );
+	public static final RegistryCoders<SpawnTweaker>                            EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (SpawnTweaker            .class), BigGlobeDynamicRegistries.MOB_SPAWN_TWEAKER_REGISTRY_KEY     );
 	public static final RegistryCoders<?>[]                                         DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,

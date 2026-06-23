@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"#bigglobe:overworld_except_volcano"
+	],
+	"primary_entity": "minecraft:frog",
+	"script": [
+		"if (world_traits.`bigglobe:wood_palette` ==. 'minecraft:mangrove':",
+			"spawnParams.=$weight(sqrt(max(world_traits.`bigglobe:foliage_at`, 0.0I)) * 4.0I).=$count(random.nextBetween[1, 4])",
+		")"
+	]
+}

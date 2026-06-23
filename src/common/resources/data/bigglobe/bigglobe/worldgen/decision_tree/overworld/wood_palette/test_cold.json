@@ -10,6 +10,6 @@
 			"world_trait": "bigglobe:snow_chance"
 		}
 	},
-	"if_true": "bigglobe:overworld/wood_palette/cold_test_forest",
+	"if_true": "bigglobe:overworld/wood_palette/cold_test_humid",
 	"if_false": "bigglobe:overworld/wood_palette/test_warm"
 }

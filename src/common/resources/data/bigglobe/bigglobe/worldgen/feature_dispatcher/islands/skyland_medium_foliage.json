@@ -9,7 +9,7 @@
 				"if (`bigglobe:islands/has_skylands`(x, z):",
 					"int y = world_traits.`bigglobe:skyland_max_y`(x, z)",
 					"Biome biome = world_traits.`bigglobe:biome`(x, y, z)",
-					"if (biome.isIn('#bigglobe:hot'):",
+					"if (biome.isIn('#bigglobe:deserts'):",
 						"random.if (",
 							"float chance = max(`bigglobe:islands/skyland_foliage`(x, z) * 2.0I + 1.0I, 0.0I)",
 							"chance * 0.03125I / (chance + 1.0I)",

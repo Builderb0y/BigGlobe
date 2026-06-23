@@ -1,0 +1,9 @@
+{
+	"biomes": [
+		"bigglobe:nether/inferno"
+	],
+	"primary_entity": "minecraft:blaze",
+	"script": [
+		"spawnParams.=$weight(1.0L).=$count(random.nextInt(2, 5))"
+	]
+}

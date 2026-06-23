@@ -15,14 +15,14 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.overriders.Overrider;
-import builderb0y.bigglobe.spawning.ExtraSpawn;
+import builderb0y.bigglobe.spawning.SpawnTweaker;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
 
 	public static final ResourceKey<Registry<ElementSpec             >>           ELEMENT_SPEC_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("custom_class"));
-	public static final ResourceKey<Registry<ExtraSpawn              >>        EXTRA_MOB_SPAWN_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("extra_mob_spawn"));
+	public static final ResourceKey<Registry<SpawnTweaker            >>      MOB_SPAWN_TWEAKER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("mob_spawn_tweaker"));
 	public static final ResourceKey<Registry<Grid                    >>           NOISE_SOURCE_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("noise_source"));
 	public static final ResourceKey<Registry<ScriptTemplate          >>        SCRIPT_TEMPLATE_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("script_template"));
 	public static final ResourceKey<Registry<WoodPalette             >>           WOOD_PALETTE_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("wood_palette"));
@@ -36,7 +36,7 @@ public class BigGlobeDynamicRegistries {
 
 	public static void init() {
 		DynamicRegistries.register(          ELEMENT_SPEC_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ElementSpec             .class));
-		DynamicRegistries.register(       EXTRA_MOB_SPAWN_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ExtraSpawn              .class));
+		DynamicRegistries.register(     MOB_SPAWN_TWEAKER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SpawnTweaker            .class));
 		DynamicRegistries.register(          NOISE_SOURCE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Grid                    .class));
 		DynamicRegistries.register(       SCRIPT_TEMPLATE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ScriptTemplate          .class));
 		DynamicRegistries.register(          WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette             .class));

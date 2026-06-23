@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:has_hostile_mobs"
-	],
-	"type": "minecraft:skeleton",
-	"weight": 100,
-	"minCount": 2,
-	"maxCount": 4
-}

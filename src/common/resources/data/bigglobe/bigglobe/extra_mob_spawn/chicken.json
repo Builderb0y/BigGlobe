@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:land_except_volcano"
-	],
-	"type": "minecraft:chicken",
-	"weight": 100,
-	"minCount": 2,
-	"maxCount": 4
-}

@@ -1,0 +1,18 @@
+{
+	"biomes": [
+		"#bigglobe:nether"
+	],
+	"primary_entity": "minecraft:ghast",
+	"script": [
+		"spawnParams.count = 1",
+		"if (biome ==. 'bigglobe:nether/ashen_wastes':",
+			"spawnParams.weight = 0.5L",
+		")",
+		"else if (biome ==. 'bigglobe:nether/nether_wastes':",
+			"spawnParams.weight = 1.0L",
+		")",
+		"else if (biome ==. 'bigglobe:nether/valley_of_souls':",
+			"spawnParams.weight = 2.0L",
+		")"
+	]
+}

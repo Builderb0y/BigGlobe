@@ -1,13 +1,8 @@
 {
 	"condition": {
-		"type": "curve_range",
-		"min": -0.25,
-		"max": -0.375,
-		"value": {
-			"type": "world_trait",
-			"world_trait": "bigglobe:magicalness"
-		}
+		"type": "script",
+		"script": "world_traits.`bigglobe:humidity_at_surface` < 0.25I"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/mangrove",
-	"if_false": "bigglobe:overworld/wood_palette/warm_test_forest"
+	"if_false": "bigglobe:overworld/wood_palette/warm_test_humid"
 }

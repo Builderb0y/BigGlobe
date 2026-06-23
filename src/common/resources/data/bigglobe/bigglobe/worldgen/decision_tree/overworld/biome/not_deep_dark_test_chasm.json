@@ -1,0 +1,19 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"value": {
+			"type": "script",
+			"script": "y"
+		},
+		"min": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:cave_min_y"
+		},
+		"max": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:chasm_max_y"
+		}
+	},
+	"if_true": "bigglobe:overworld/biome/chasm",
+	"if_false": "bigglobe:overworld/biome/cave"
+}

@@ -27,6 +27,7 @@ import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode.MemberKeywordFunction;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.special.IntervalSyntax;
 import builderb0y.scripting.util.InfoHolder;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -418,15 +419,36 @@ public class RandomScriptEnvironment {
 			else {
 				throw new ScriptParsingException("Expected ',' or ':'", parser.input);
 			}
-			return (
-				(switch (mode) {
-					case NORMAL -> MemberKeywordMode.NORMAL;
-					case NULLABLE -> MemberKeywordMode.NULLABLE;
-					case RECEIVER -> MemberKeywordMode.RECEIVER;
-					case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
-				})
-				.apply(receiver, selector)
-			);
+			return mode.apply(receiver, selector);
+		};
+	}
+
+	public static MemberKeywordHandler nextBetween() {
+		return (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			int flags;
+			if (receiver.getTypeInfo().getSort() == Sort.LONG) {
+				flags = Permuter.BetweenInfo.FLAG_SEED_RECEIVER;
+			}
+			else if (receiver.getTypeInfo().extendsOrImplements(type(RandomGenerator.class))) {
+				flags = Permuter.BetweenInfo.FLAG_RANDOM_RECEIVER;
+			}
+			else {
+				throw new ScriptParsingException("Expected receiver to be of type long or Random, got " + receiver.getTypeInfo(), parser.input);
+			}
+			IntervalSyntax interval = IntervalSyntax.parse(parser);
+			TypeInfo desiredType = TypeInfos.widenUntilSameInt(interval.min().getTypeInfo(), interval.max().getTypeInfo());
+			InsnTree min = interval.min().cast(parser, desiredType, CastMode.IMPLICIT_THROW, false);
+			InsnTree max = interval.max().cast(parser, desiredType, CastMode.IMPLICIT_THROW, false);
+			if (interval.minInclusive()) flags |= Permuter.BetweenInfo.FLAG_MIN_INCLUSIVE;
+			if (interval.maxInclusive()) flags |= Permuter.BetweenInfo.FLAG_MAX_INCLUSIVE;
+			switch (desiredType.getSort()) {
+				case INT -> flags |= Permuter.BetweenInfo.FLAG_INT_DESIRED;
+				case LONG -> flags |= Permuter.BetweenInfo.FLAG_LONG_DESIRED;
+				case FLOAT -> flags |= Permuter.BetweenInfo.FLAG_FLOAT_DESIRED;
+				case DOUBLE -> flags |= Permuter.BetweenInfo.FLAG_DOUBLE_DESIRED;
+			}
+			int flags_ = flags;
+			return mode.apply(receiver, (InsnTree actualReceiver) -> invokeStatic(Permuter.BETWEEN_INFO.getMethodFor(flags_), actualReceiver, min, max));
 		};
 	}
 }

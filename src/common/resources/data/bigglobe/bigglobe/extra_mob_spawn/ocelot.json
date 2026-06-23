@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:overworld/forest"
-	],
-	"type": "minecraft:ocelot",
-	"weight": 20,
-	"minCount": 1,
-	"maxCount": 4
-}

@@ -67,6 +67,7 @@
 	"children": [
 		"bigglobe:overworld/core_carver",
 		"bigglobe:overworld/deep_dark_carver",
+		"bigglobe:overworld/chasm_carver",
 		"bigglobe:overworld/cave_carver"
 	]
 }

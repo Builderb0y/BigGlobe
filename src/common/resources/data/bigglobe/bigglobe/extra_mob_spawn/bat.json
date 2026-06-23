@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:overworld/cave"
-	],
-	"type": "minecraft:bat",
-	"weight": 100,
-	"minCount": 1,
-	"maxCount": 4
-}

@@ -7,16 +7,16 @@
 	"grid": {
 		"type": "sum",
 		"layers": [
-			{ "type": "smooth", "scaleX": 128, "scaleY": 32, "scaleZ": 128, "amplitude": 0.5 },
-			{ "type": "smooth", "scaleX":  64, "scaleY": 16, "scaleZ":  64, "amplitude": 0.25 },
-			{ "type": "smooth", "scaleX":  32, "scaleY":  8, "scaleZ":  32, "amplitude": 0.125 },
-			{ "type": "white_noise", "amplitude": 0.0625 }
+			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.4 },
+			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.2 },
+			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.1 },
+			{ "type": "white_noise", "amplitude": 0.3 }
 		]
 	},
 	"valid": {
 		"where": "hints.usage !=. 'heightmap'",
-		"min_y": "rock_min_y",
-		"max_y": "hints.isLod ? world_traits.`bigglobe:y_level_on_surface` : floorInt(world_traits.`bigglobe:approximate_surface_y`) - 128",
+		"min_y": "world_traits.`bigglobe:chasm_max_y`",
+		"max_y": "world_traits.`bigglobe:cave_min_y`",
 		"fallback": 0.0
 	}
 }

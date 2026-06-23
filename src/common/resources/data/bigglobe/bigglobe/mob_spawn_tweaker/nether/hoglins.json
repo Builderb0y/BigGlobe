@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"bigglobe:nether/crimson_forest",
+		"bigglobe:nether/warped_forest"
+	],
+	"primary_entity": "minecraft:hoglin",
+	"script": [
+		"int count = random.nextBetween[1, 4]",
+		"spawnParams.=$weight(0.5L).=$count(count)",
+		"spawnMap.('minecraft:zoglin').=$weight(0.25L).=$count(count)"
+	]
+}

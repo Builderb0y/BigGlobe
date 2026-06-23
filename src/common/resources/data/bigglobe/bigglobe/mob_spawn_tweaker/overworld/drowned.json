@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"#bigglobe:overworld"
+	],
+	"primary_entity": "minecraft:drowned",
+	"script": [
+		"if (y.isBetween[world_traits.`bigglobe:y_level_on_surface`, world_traits.`bigglobe:sea_level`):",
+			"spawnParams.=$weight(0.25I).=$count(random.nextBetween[2, 4])",
+		")"
+	]
+}

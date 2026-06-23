@@ -1,0 +1,15 @@
+{
+	"biomes": [
+		"#bigglobe:overworld"
+	],
+	"primary_entity": "minecraft:skeleton",
+	"script": [
+		"int count = random.nextBetween[2, 4]",
+		"float temperature = world_traits.`bigglobe:temperature_at`",
+		"float foliage = world_traits.`bigglobe:foliage_at`",
+		"spawnParams.=$weight(1.0L).=$count(count)",
+		"spawnMap.('minecraft:stray').=$weight(-0.125I - temperature).=$count(count)",
+		"spawnMap.('minecraft:parched').=$weight(0.125I + temperature).=$count(count)",
+		"spawnMap.('minecraft:bogged').=$weight(max(foliage, 0.0I) * max(1.0I - (temperature * 8.0I) ^ 2, 0.0I)).=$count(count)"
+	]
+}

@@ -170,8 +170,8 @@ public class WorldUtil {
 		int maxZ = Math.min(box1.maxZ(), box2.maxZ());
 		return (
 			maxX >= minX && maxY >= minY && maxZ >= minZ
-				? new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ)
-				: null
+			? new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ)
+			: null
 		);
 	}
 

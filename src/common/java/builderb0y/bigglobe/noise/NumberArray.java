@@ -104,7 +104,7 @@ public class NumberArray implements AutoCloseable {
 			allocateDoublesHeap,
 			allocateBooleansHeap,
 
-		allocateBytesDirectZero,
+			allocateBytesDirectZero,
 			allocateShortsDirectZero,
 			allocateIntsDirectZero,
 			allocateLongsDirectZero,
@@ -112,7 +112,7 @@ public class NumberArray implements AutoCloseable {
 			allocateDoublesDirectZero,
 			allocateBooleansDirectZero,
 
-		getB,
+			getB,
 			getS,
 			getI,
 			getL,
@@ -120,7 +120,7 @@ public class NumberArray implements AutoCloseable {
 			getD,
 			getZ,
 
-		implGetB,
+			implGetB,
 			implGetS,
 			implGetI,
 			implGetL,
@@ -128,7 +128,7 @@ public class NumberArray implements AutoCloseable {
 			implGetD,
 			implGetZ,
 
-		setB,
+			setB,
 			setS,
 			setI,
 			setL,
@@ -136,7 +136,7 @@ public class NumberArray implements AutoCloseable {
 			setD,
 			setZ,
 
-		implSetB,
+			implSetB,
 			implSetS,
 			implSetI,
 			implSetL,
@@ -144,7 +144,7 @@ public class NumberArray implements AutoCloseable {
 			implSetD,
 			implSetZ,
 
-		fillB,
+			fillB,
 			fillS,
 			fillI,
 			fillL,
@@ -152,7 +152,7 @@ public class NumberArray implements AutoCloseable {
 			fillD,
 			fillZ,
 
-		fillFromToB,
+			fillFromToB,
 			fillFromToS,
 			fillFromToI,
 			fillFromToL,
@@ -160,7 +160,7 @@ public class NumberArray implements AutoCloseable {
 			fillFromToD,
 			fillFromToZ,
 
-		length,
+			length,
 			prefix,
 			sliceFromTo,
 			sliceOffsetLength;

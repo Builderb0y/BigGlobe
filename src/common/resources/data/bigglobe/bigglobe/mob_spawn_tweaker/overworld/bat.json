@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"#bigglobe:overworld"
+	],
+	"primary_entity": "minecraft:bat",
+	"script": [
+		"if (y < world_traits.`bigglobe:y_level_on_surface` - 16:",
+			"spawnParams.=$weight(1.0L).=$count(random.nextBetween[1, 4])",
+		")"
+	]
+}

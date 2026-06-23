@@ -1,7 +1,18 @@
 {
 	"condition": {
-		"type": "script",
-		"script": "y <= -768"
+		"type": "curve_range",
+		"value": {
+			"type": "script",
+			"script": "y"
+		},
+		"min": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:deep_dark_min_y"
+		},
+		"max": {
+			"type": "world_trait",
+			"world_trait": "bigglobe:core_max_y"
+		}
 	},
 	"if_true": "bigglobe:overworld/biome/the_core",
 	"if_false": "bigglobe:overworld/biome/deep_dark"

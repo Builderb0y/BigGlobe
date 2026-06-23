@@ -58,4 +58,9 @@ public abstract class AbstractConstantFactory implements FunctionHandler {
 	public abstract InsnTree createConstant(ConstantValue constant, int flags);
 
 	public abstract InsnTree createNonConstant(InsnTree tree, int flags);
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + ": " + this.inType.getSimpleClassName() + " -> " + this.outType.getSimpleClassName();
+	}
 }

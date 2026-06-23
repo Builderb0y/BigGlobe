@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:deserts"
-	],
-	"type": "minecraft:parched",
-	"weight": 20,
-	"minCount": 2,
-	"maxCount": 4
-}

@@ -1,0 +1,24 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "project_y",
+		"1D_grid": {
+			"type": "sum",
+			"layers": [
+				{ "type": "constant", "value": 1.0 },
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.25    }, "scale": 64 },
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.125   }, "scale": 32 },
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.0625  }, "scale": 16 },
+				{ "type": "smooth_resample", "source": { "type": "binary", "amplitude": 0.03125 }, "scale":  8 }
+			]
+		}
+	},
+	"valid": {
+		"min_y": "world_traits.`bigglobe:chasm_min_y`",
+		"max_y": "world_traits.`bigglobe:chasm_max_y`"
+	}
+}

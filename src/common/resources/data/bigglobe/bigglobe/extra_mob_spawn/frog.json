@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"bigglobe:overworld/forest"
-	],
-	"type": "minecraft:frog",
-	"weight": 20,
-	"minCount": 2,
-	"maxCount": 5
-}

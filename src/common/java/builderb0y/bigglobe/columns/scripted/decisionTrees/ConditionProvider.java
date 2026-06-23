@@ -39,6 +39,7 @@ import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConstantConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.binary.SubtractInsnTree;
@@ -169,8 +170,8 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		public InsnTree emitChance(DecisionTreeContext context, Holder<DecisionTreeSpec> caller, long seedSalt, boolean clamp) throws ScriptParsingException, ConstantFormatException {
 			ColumnEntry columnEntry = this.column_value.value();
 			TypeInfo existingType = columnEntry.getTypeInfo(context.columnEntryRegistry);
-			if (!existingType.isFloat()) {
-				throw new ScriptParsingException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is not a floating point value.", null);
+			if (clamp ? !existingType.isFloat() : !existingType.isNumber()) {
+				throw new ScriptParsingException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is not a " + (clamp ? "floating point value." : "number."), null);
 			}
 			boolean is3D = columnEntry.params.is_3d();
 			if (is3D && !context.is3D) {
@@ -178,6 +179,9 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 			}
 			MethodCompileContext method = context.columnEntryRegistry.columnCompileContext.getCompileContext(columnEntry).mainGetter;
 			InsnTree result = invokeInstance(context.loadColumn(), method.info, is3D ? new InsnTree[] { load("y", TypeInfos.INT) } : InsnTree.ARRAY_FACTORY.empty());
+			if (!existingType.isFloat()) {
+				result = result.cast(CastingSupport.dummyParser(), TypeInfos.DOUBLE, CastMode.IMPLICIT_THROW, false);
+			}
 			if (clamp) result = clamp(result);
 			return result;
 		}
@@ -210,8 +214,8 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		public InsnTree emitChance(DecisionTreeContext context, Holder<DecisionTreeSpec> caller, long seedSalt, boolean clamp) throws ScriptParsingException, ConstantFormatException {
 			WorldTrait worldTrait = this.world_trait.value();
 			TypeInfo existingType = worldTrait.getTypeInfo(context.columnEntryRegistry.traitManager);
-			if (!existingType.isFloat()) {
-				throw new ScriptParsingException("World trait " + UnregisteredObjectException.getID(this.world_trait) + " is not a floating point value.", null);
+			if (clamp ? !existingType.isFloat() : !existingType.isNumber()) {
+				throw new ScriptParsingException("World trait " + UnregisteredObjectException.getID(this.world_trait) + " is not a " + (clamp ? "floating point value." : "number."), null);
 			}
 			boolean is3D = worldTrait.schema().is_3d();
 			if (is3D && !context.is3D) {
@@ -223,6 +227,9 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 				? new StandAloneTraits3DGetterInsnTree(context.loadColumn(), context.yArgument(), traitGetter, null)
 				: new StandAloneTraits2DGetterInsnTree(context.loadColumn(), traitGetter, null)
 			);
+			if (!existingType.isFloat()) {
+				result = result.cast(CastingSupport.dummyParser(), TypeInfos.DOUBLE, CastMode.IMPLICIT_THROW, false);
+			}
 			if (clamp) result = clamp(result);
 			return result;
 		}

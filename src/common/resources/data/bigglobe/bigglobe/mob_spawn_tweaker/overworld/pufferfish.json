@@ -1,0 +1,12 @@
+{
+	"biomes": [
+		"#bigglobe:overworld"
+	],
+	"primary_entity": "minecraft:pufferfish",
+	"script": [
+		"if (y.isBetween[world_traits.`bigglobe:y_level_on_surface`, world_traits.`bigglobe:sea_level`):",
+			"float temperature = world_traits.`bigglobe:temperature_at`",
+			"spawnParams.=$weight(1.0I / (fastExp2(-32.0I * temperature) + 1.0I)).=$count(random.nextBetween[3, 6])",
+		")"
+	]
+}

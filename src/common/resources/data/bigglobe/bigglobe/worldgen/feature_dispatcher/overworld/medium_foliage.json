@@ -21,13 +21,11 @@
 			")",
 			"else if (",
 				"!random.nextBoolean(world_traits.`bigglobe:snow_chance_at`(x, y, z)) &&",
-				"`bigglobe:overworld/is_forest`(x, y, z) &&",
+				"random.nextBoolean(max(world_traits.`bigglobe:foliage_at_surface`(x, z), 0.0I) ^ 2 * 0.125I) &&",
 				"!world_traits.`bigglobe:in_river`(x, z) &&",
 				"!world_traits.`bigglobe:is_beach`(x, z)",
 			":",
-				"random.if (0.125L:",
-					"placeFeature(x, y, z, 'bigglobe:overworld/bamboo')",
-				")",
+				"placeFeature(x, y, z, 'bigglobe:overworld/bamboo')",
 			")",
 		")"
 	]

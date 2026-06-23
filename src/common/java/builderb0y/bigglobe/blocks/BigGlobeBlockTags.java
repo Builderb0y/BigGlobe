@@ -35,6 +35,7 @@ public class BigGlobeBlockTags {
 		HIDDEN_LAVA_REPLACEABLES_BASALT     = of("hidden_lava_replaceables_basalt"),
 		HIDDEN_LAVA_REPLACEABLES_NETHERRACK = of("hidden_lava_replaceables_netherrack"),
 		MAGMA_BLOCKS                        = of("magma_blocks"),
+		POLAR_BEARS_SPAWNABLE_ON            = of("polar_bears_spawnable_on"),
 		QUARTZ_BUDS                         = of("quartz_buds"),
 		ROCK_BREAKABLE                      = of("rock_breakable"),
 		ROCK_PLACEABLE_ON_WORLDGEN          = of("rock_placeable_on_worldgen"),

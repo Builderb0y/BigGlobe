@@ -1,11 +1,15 @@
 package builderb0y.bigglobe.structures;
 
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
 import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 import org.joml.Vector3d;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -42,11 +46,12 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.structures.GeodeStructure.MainPiece.SpikeData;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.Vectors;
+import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.ChunkVersions;
-import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -147,7 +152,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						radius,
 						this.noise,
 						this.blocks,
-						this.growth
+						this.growth,
+						new ArrayList<>()
 					);
 					collector.addPiece(mainPiece);
 					PointIterator3D iterator = SphericalPointIterator.halton(permuter.nextInt() & 0xFFFF, 1.0D);
@@ -187,22 +193,20 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							continue spikeLoop;
 						}
 						point2
-							.set(unit)
-							.mul(-this.spikes.length.get(column, centerPos.getY(), permuter))
-							.add(point1)
-							.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(column, centerPos.getY(), permuter)));
-						collector.addPiece(
-							new SpikePiece(
-								BigGlobeStructures.GEODE_SPIKE_PIECE_TYPE,
-								point1.x,
-								point1.y,
-								point1.z,
-								this.spikes.large_radius.get(column, centerPos.getY(), permuter),
-								point2.x,
-								point2.y,
-								point2.z,
-								this.spikes.small_radius.get(column, centerPos.getY(), permuter),
-								lastConfig.states
+						.set(unit)
+						.mul(-this.spikes.length.get(column, centerPos.getY(), permuter))
+						.add(point1)
+						.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(column, centerPos.getY(), permuter)));
+						mainPiece.data.spikes.add(
+							new SpikeData(
+								(float)(point1.x - centerX),
+								(float)(point1.y - centerY),
+								(float)(point1.z - centerZ),
+								(float)(this.spikes.large_radius.get(column, centerPos.getY(), permuter)),
+								(float)(point2.x - centerX),
+								(float)(point2.y - centerY),
+								(float)(point2.z - centerZ),
+								(float)(this.spikes.small_radius.get(column, centerPos.getY(), permuter))
 							)
 						);
 					}
@@ -233,6 +237,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			public Grid3D noise;
 			public BlocksConfig[] blocks;
 			public @UseName("gbt") GrowthConfig @VerifyNullable @SingletonArray [] growth;
+			public @DefaultEmpty List<SpikeData> spikes;
 
 			public Data(
 				double x,
@@ -244,7 +249,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				double radius,
 				Grid3D noise,
 				BlocksConfig[] blocks,
-				GrowthConfig @VerifyNullable [] growth
+				GrowthConfig @VerifyNullable [] growth,
+				List<SpikeData> spikes
 			) {
 				this.x = x;
 				this.y = y;
@@ -256,6 +262,43 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				this.radius = radius;
 				this.blocks = blocks;
 				this.growth = growth;
+				this.spikes = spikes;
+			}
+		}
+
+		public static class SpikeData {
+
+			public float x1, y1, z1, r1, x2, y2, z2, r2;
+
+			public SpikeData(
+				float x1,
+				float y1,
+				float z1,
+				float r1,
+				float x2,
+				float y2,
+				float z2,
+				float r2
+			) {
+				this.x1 = x1;
+				this.y1 = y1;
+				this.z1 = z1;
+				this.r1 = r1;
+				this.x2 = x2;
+				this.y2 = y2;
+				this.z2 = z2;
+				this.r2 = r2;
+			}
+
+			public BoundingBox bounds(double x, double y, double z) {
+				return new BoundingBox(
+					BigGlobeMath. ceilI(x + Math.min(this.x1 - this.r1, this.x2 - this.r2)),
+					BigGlobeMath. ceilI(y + Math.min(this.y1 - this.r1, this.y2 - this.r2)),
+					BigGlobeMath. ceilI(z + Math.min(this.z1 - this.r1, this.z2 - this.r2)),
+					BigGlobeMath.floorI(x + Math.max(this.x1 + this.r1, this.x2 + this.r2)),
+					BigGlobeMath.floorI(y + Math.max(this.y1 + this.r1, this.y2 + this.r2)),
+					BigGlobeMath.floorI(z + Math.max(this.z1 + this.r1, this.z2 + this.r2))
+				);
 			}
 		}
 
@@ -267,7 +310,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			double radius,
 			Grid3D noise,
 			BlocksConfig[] blocks,
-			GrowthConfig[] growth
+			GrowthConfig[] growth,
+			List<SpikeData> spikes
 		) {
 			super(
 				type,
@@ -280,7 +324,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					BigGlobeMath.floorI(y + radius),
 					BigGlobeMath.floorI(z + radius)
 				),
-				new Data(x, y, z, 0, 0, 0, radius, noise, blocks, growth)
+				new Data(x, y, z, 0, 0, 0, radius, noise, blocks, growth, spikes)
 			);
 		}
 
@@ -315,45 +359,57 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 		@Override
 		public void generateRaw(RawGenerationStructurePiece.Context context) {
-			ChunkPos chunkPos = context.chunk.getPos();
-			int minX = chunkPos.getMinBlockX();
-			int minY = Math.max(this.boundingBox.minY(), HeightLimitViewVersions.getMinY(context.chunk));
-			int minZ = chunkPos.getMinBlockZ();
-			int maxX = chunkPos.getMaxBlockX();
-			int maxY = Math.min(this.boundingBox.maxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
-			int maxZ = chunkPos.getMaxBlockZ();
-			try (NumberArray samples = NumberArray.allocateDoublesDirect(maxY - minY + 1)) {
+			BoundingBox chunkBox = WorldUtil.chunkBox(context.chunk);
+			BoundingBox box = WorldUtil.intersection(this.boundingBox, chunkBox);
+			if (box != null) {
+				BitSet positions = this.generateRawAndGetReplacedBlocks(context, box);
+				for (SpikeData spike : this.data.spikes) {
+					BoundingBox spikeBox = WorldUtil.intersection(spike.bounds(this.data.x, this.data.y, this.data.z), chunkBox);
+					if (spikeBox != null) {
+						this.placeSpike(context, this.data, box, positions, spikeBox, spike);
+					}
+				}
+			}
+		}
+
+		public static int index(BoundingBox box, int x, int y, int z) {
+			return ((z - box.minZ()) * box.getXSpan() + (x - box.minX())) * box.getYSpan() + (y - box.minY());
+		}
+
+		public BitSet generateRawAndGetReplacedBlocks(Context context, BoundingBox box) {
+			BitSet positions = new BitSet(box.getXSpan() * box.getYSpan() * box.getZSpan());
+			try (NumberArray samples = NumberArray.allocateDoublesDirect(box.maxY() - box.minY() + 1)) {
 				double rcpRadius = 1.0D / this.data.radius;
 				double noiseMax = this.data.noise.maxValue();
 				BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-				for (int z = minZ; z <= maxZ; z++) {
+				for (int z = box.minZ(); z <= box.maxZ(); z++) {
 					pos.setZ(z);
 					double rz = BigGlobeMath.squareD((z - this.data.z) * rcpRadius);
-					for (int x = minX; x <= maxX; x++) {
+					for (int x = box.minX(); x <= box.maxX(); x++) {
 						pos.setX(x);
 						double rxz = rz + BigGlobeMath.squareD((x - this.data.x) * rcpRadius);
 						this.data.noise.getBulkY(
 							context.columnSeed,
 							x - this.data.offsetX,
-							minY - this.data.offsetY,
+							box.minY() - this.data.offsetY,
 							z - this.data.offsetZ,
 							samples
 						);
-						for (int y = minY; y <= maxY; y++) {
+						for (int y = box.minY(); y <= box.maxY(); y++) {
 							pos.setY(y);
 							double rxyz = rxz + BigGlobeMath.squareD((y - this.data.y) * rcpRadius);
-							double noise = samples.implGetD(y - minY);
+							double noise = samples.implGetD(y - box.minY());
 							noise -= rxyz * noiseMax;
 							placed:
-							if (noise > 0.0D) {
+							if (noise > 0.0D && context.chunk.getBlockState(pos).isSolidRender()) {
+								positions.set(index(box, x, y, z));
 								for (BlocksConfig block : this.data.blocks) {
 									if (noise < block.threshold) {
 										ChunkVersions.setBlockState(
 											context.chunk,
 											pos,
 											block.states.getRandomElement(
-												Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z
-												)
+												Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches placeSpike() */, x, y, z)
 											),
 											Block.UPDATE_CLIENTS
 										);
@@ -362,6 +418,37 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 								}
 								ChunkVersions.setBlockState(context.chunk, pos, BlockStates.AIR, Block.UPDATE_CLIENTS);
 							}
+						}
+					}
+				}
+			}
+			return positions;
+		}
+
+		public void placeSpike(RawGenerationStructurePiece.Context context, Data mainData, BoundingBox mainBox, BitSet positions, BoundingBox spikeBox, SpikeData data) {
+			Vector3d spikeOffset = new Vector3d(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);
+			Vector3d relativePos = new Vector3d();
+			Vector3d nearest = new Vector3d();
+			MutableBlockPos mutablePos = new MutableBlockPos();
+			IRandomList<BlockState> states = mainData.blocks[mainData.blocks.length - 1].states;
+			double x1 = data.x1 + mainData.x, y1 = data.y1 + mainData.y, z1 = data.z1 + mainData.z;
+			for (int x = spikeBox.minX(); x <= spikeBox.maxX(); x++) {
+				for (int z = spikeBox.minZ(); z <= spikeBox.maxZ(); z++) {
+					for (int y = spikeBox.minY(); y <= spikeBox.maxY(); y++) {
+						relativePos.set(x - x1, y - y1, z - z1);
+						double dot = spikeOffset.dot(relativePos);
+						double fraction = dot / spikeOffset.lengthSquared();
+						fraction = Mth.clamp(fraction, 0.0D, 1.0D);
+						nearest.set(spikeOffset).mul(fraction);
+						double distanceSquared = relativePos.distanceSquared(nearest);
+						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
+						if (distanceSquared < thresholdSquared && positions.get(index(mainBox, x, y, z))) {
+							ChunkVersions.setBlockState(
+								context.chunk,
+								mutablePos.set(x, y, z),
+								states.getRandomElement(Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches generateRawAndGetReplacedBlocks() */, x, y, z)),
+								Block.UPDATE_CLIENTS
+							);
 						}
 					}
 				}
@@ -424,138 +511,6 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			this.data.offsetX += x;
 			this.data.offsetY += y;
 			this.data.offsetZ += z;
-		}
-	}
-
-	public static class SpikePiece extends DataStructurePiece<SpikePiece.Data> implements RawGenerationStructurePiece {
-
-		public static class Data {
-
-			public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
-
-			public double x1, y1, z1, r1;
-			public double x2, y2, z2, r2;
-			public IRandomList<@UseName("state") BlockState> states;
-
-			public Data(
-				double x1,
-				double y1,
-				double z1,
-				double r1,
-				double x2,
-				double y2,
-				double z2,
-				double r2,
-				IRandomList<@UseName("state") BlockState> states
-			) {
-				this.x1 = x1;
-				this.y1 = y1;
-				this.z1 = z1;
-				this.r1 = r1;
-				this.x2 = x2;
-				this.y2 = y2;
-				this.z2 = z2;
-				this.r2 = r2;
-				this.states = states;
-			}
-		}
-
-		public SpikePiece(
-			StructurePieceType type,
-			double x1,
-			double y1,
-			double z1,
-			double r1,
-			double x2,
-			double y2,
-			double z2,
-			double r2,
-			IRandomList<BlockState> states
-		) {
-			super(
-				type,
-				0,
-				new BoundingBox(
-					BigGlobeMath.ceilI(Math.min(x1 - r1, x2 - r2)),
-					BigGlobeMath.ceilI(Math.min(y1 - r1, y2 - r2)),
-					BigGlobeMath.ceilI(Math.min(z1 - r1, z2 - r2)),
-					BigGlobeMath.floorI(Math.max(x1 + r1, x2 + r2)),
-					BigGlobeMath.floorI(Math.max(y1 + r1, y2 + r2)),
-					BigGlobeMath.floorI(Math.max(z1 + r1, z2 + r2))
-				),
-				new Data(x1, y1, z1, r1, x2, y2, z2, r2, states)
-			);
-		}
-
-		public SpikePiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
-			super(type, context, nbt);
-		}
-
-		@Override
-		public AutoCoder<Data> dataCoder() {
-			return Data.CODER;
-		}
-
-		@Override
-		public void generateRaw(RawGenerationStructurePiece.Context context) {
-			Data data = this.data;
-			ChunkPos chunkPos = context.chunk.getPos();
-			int minX = chunkPos.getMinBlockX();
-			int minY = Math.max(this.boundingBox.minY(), HeightLimitViewVersions.getMinY(context.chunk));
-			int minZ = chunkPos.getMinBlockZ();
-			int maxX = chunkPos.getMaxBlockX();
-			int maxY = Math.min(this.boundingBox.maxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
-			int maxZ = chunkPos.getMaxBlockZ();
-
-			Vector3d spikeOffset = new Vector3d(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);
-			Vector3d relativePos = new Vector3d();
-			Vector3d nearest = new Vector3d();
-			BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-			for (int x = minX; x <= maxX; x++) {
-				for (int z = minZ; z <= maxZ; z++) {
-					for (int y = minY; y <= maxY; y++) {
-						relativePos.set(x - data.x1, y - data.y1, z - data.z1);
-						double dot = spikeOffset.dot(relativePos);
-						double fraction = dot / spikeOffset.lengthSquared();
-						fraction = Mth.clamp(fraction, 0.0D, 1.0D);
-						nearest.set(spikeOffset).mul(fraction);
-						double distanceSquared = relativePos.distanceSquared(nearest);
-						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
-						if (distanceSquared < thresholdSquared && context.chunk.getBlockState(mutablePos.set(x, y, z)).isAir()) {
-							ChunkVersions.setBlockState(
-								context.chunk,
-								mutablePos,
-								data.states.getRandomElement(
-									Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)
-								),
-								Block.UPDATE_CLIENTS
-							);
-						}
-					}
-				}
-			}
-		}
-
-		@Override
-		public void postProcess(
-			WorldGenLevel world,
-			StructureManager structureAccessor,
-			ChunkGenerator chunkGenerator,
-			net.minecraft.util.RandomSource random,
-			BoundingBox chunkBox,
-			ChunkPos chunkPos,
-			BlockPos pivot
-		) {}
-
-		@Override
-		public void move(int x, int y, int z) {
-			super.move(x, y, z);
-			this.data.x1 += x;
-			this.data.y1 += y;
-			this.data.z1 += z;
-			this.data.x2 += x;
-			this.data.y2 += y;
-			this.data.z2 += z;
 		}
 	}
 }

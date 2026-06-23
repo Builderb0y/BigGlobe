@@ -80,8 +80,7 @@ public class BigGlobeStructures {
 	public static final StructureType<GeodeStructure>
 		GEODE_TYPE = registerType("geode", GeodeStructure.CODEC);
 	public static final BigGlobeStructurePieceType
-		GEODE_PIECE_TYPE = registerPiece("geode_piece", GeodeStructure.MainPiece::new),
-		GEODE_SPIKE_PIECE_TYPE = registerPiece("geode_spike", GeodeStructure.SpikePiece::new);
+		GEODE_PIECE_TYPE = registerPiece("geode_piece", GeodeStructure.MainPiece::new);
 
 	//////////////// bigger desert pyramid ////////////////
 

@@ -100,6 +100,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".PlayerEntity_TickHyperspaceCollapse",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                                       Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_SyncWorldSettingsHook",                                                      Boolean.TRUE);
+		defaults.put(mixinPackage + ".PolarBear_MakeSpawnableOnSnow",                                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".PortalForcer_PlaceInNetherCaverns",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".RailBlock_RotateProperly",                                                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                                        Boolean.TRUE);

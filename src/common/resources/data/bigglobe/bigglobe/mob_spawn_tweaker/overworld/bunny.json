@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"#bigglobe:overworld_except_volcano"
+	],
+	"primary_entity": "minecraft:rabbit",
+	"script": [
+		"unless (world_traits.`bigglobe:is_beach`:",
+			"spawnParams.=$weight(1.0I).=$count(random.nextBetween[1, 4])",
+		")"
+	]
+}

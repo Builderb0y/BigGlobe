@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:has_hostile_mobs"
-	],
-	"type": "minecraft:spider",
-	"weight": 100,
-	"minCount": 1,
-	"maxCount": 4
-}

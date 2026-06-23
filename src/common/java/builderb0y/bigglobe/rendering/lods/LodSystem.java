@@ -93,6 +93,7 @@ public abstract class LodSystem implements SafeCloseable {
 		if (
 			level != null &&
 			params != null &&
+			params.layer != null &&
 			params.generatorLodOverrides.lod_rendering_enabled() &&
 			BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled()
 		) {

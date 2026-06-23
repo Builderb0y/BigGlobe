@@ -15,22 +15,14 @@ public record IsBetweenSyntax(InsnTree value, InsnTree min, boolean minInclusive
 		if (!expectedType.isNumber()) {
 			throw new ScriptParsingException("Value must be numeric", parser.input);
 		}
-		boolean minInclusive = switch (parser.input.readAfterWhitespace()) {
-			case '[' -> true;
-			case '(' -> false;
-			default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
-		};
-		parser.environment.user().push();
-		InsnTree min = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false);
-		parser.input.expectOperatorAfterWhitespace(",");
-		InsnTree max = parser.nextScript().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false);
-		boolean maxInclusive = switch (parser.input.readAfterWhitespace()) {
-			case ']' -> true;
-			case ')' -> false;
-			default -> throw new ScriptParsingException("Expected ']' or ')'", parser.input);
-		};
-		parser.environment.user().pop();
-		return new IsBetweenSyntax(receiver, min, minInclusive, max, maxInclusive);
+		IntervalSyntax interval = IntervalSyntax.parse(parser);
+		return new IsBetweenSyntax(
+			receiver,
+			interval.min().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false),
+			interval.minInclusive(),
+			interval.max().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false),
+			interval.maxInclusive()
+		);
 	}
 
 	public InsnTree toTree(ExpressionParser parser) {

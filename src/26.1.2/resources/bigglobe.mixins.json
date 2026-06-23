@@ -56,6 +56,7 @@
 		"PlayerEntity_TrackWaypoints",
 		"PlayerManager_InitializeSpawnPoint",
 		"PlayerManager_SyncWorldSettingsHook",
+		"PolarBear_MakeSpawnableOnSnow",
 		"PortalForcer_PlaceInNetherCaverns",
 		"RailBlock_RotateProperly",
 		"RandomSpreadStructurePlacement_MakeSmart",

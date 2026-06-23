@@ -6,7 +6,7 @@
 	"layout": [
 		"ColumnStorage column = columnAt(originX, originZ)",
 		"boolean isTerrainAt(int y:",
-			"return(column.`bigglobe:nether/bubble_type`.noise(column, y) > 0.5I)",
+			"return(column.`bigglobe:nether/noise`(y) > 0.5I)",
 		")",
 
 		"int getY(:",

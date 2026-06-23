@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 0.5,
 		"biome": "bigglobe:nether/inferno",
+		"filler": "minecraft:basalt[axis=y]",
 		"decorator": "bigglobe:nether/decorators/inferno",
 		"lava_level": 128
 	}

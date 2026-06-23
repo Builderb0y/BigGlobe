@@ -1,9 +1,0 @@
-{
-	"biomes": [
-		"#bigglobe:icy"
-	],
-	"type": "minecraft:polar_bear",
-	"weight": 10,
-	"minCount": 1,
-	"maxCount": 1
-}

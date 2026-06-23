@@ -4,5 +4,9 @@
 		"type": "biome",
 		"is_3d": true
 	},
-	"root": "bigglobe:overworld/biome/underground_test_deep_dark"
+	"root": "bigglobe:overworld/biome/root_test_underground",
+	"valid": {
+		"min_y": "world_traits.`bigglobe:min_y`",
+		"max_y": "world_traits.`bigglobe:max_y`"
+	}
 }

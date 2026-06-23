@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"#bigglobe:overworld_except_volcano"
+	],
+	"primary_entity": "minecraft:goat",
+	"script": [
+		"if (`bigglobe:overworld/default_surface_depth` < 1.0I:",
+			"spawnParams.=$weight(1.0I).=$count(random.nextBetween[1, 4])",
+		")"
+	]
+}

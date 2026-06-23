@@ -33,9 +33,9 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_1D_TYPE_INFO);
 		ScriptedGrid1D.Parser parser = new ScriptedGrid1D.Parser(this.script, processedInputs, registry.parserFlags());
 		parser
-			.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
+		.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
+		.addEnvironment(MathScriptEnvironment.INSTANCE)
+		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
 		this.delegate = parser.parse();
 	}
 

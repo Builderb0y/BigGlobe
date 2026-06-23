@@ -72,7 +72,7 @@ public class ForLoopSyntax {
 				variables.add(new LazyVarInfo(varName, type));
 			}
 			if (parser.input.hasIdentifierAfterWhitespace("in")) {
-				LoopFactory loopFactory = tryParseRange(parser);
+				LoopFactory loopFactory = tryParseRange(parser, type);
 				if (loopFactory == null) {
 					InsnTree iterable = parser.nextScript();
 					if (iterable.getTypeInfo().extendsOrImplements(type(Iterable.class))) {
@@ -118,30 +118,15 @@ public class ForLoopSyntax {
 		}
 	}
 
-	public static @Nullable RangeLoopFactory tryParseRange(ExpressionParser parser) throws ScriptParsingException {
+	public static @Nullable RangeLoopFactory tryParseRange(ExpressionParser parser, TypeInfo expectedType) throws ScriptParsingException {
 		CursorPos afterIn = parser.input.getCursor();
 		boolean hasMinus = parser.input.hasOperatorAfterWhitespace("-");
 		if (parser.input.hasIdentifierAfterWhitespace("range")) {
-			boolean lowerBoundInclusive = switch (parser.input.readAfterWhitespace()) {
-				case '[' -> true;
-				case '(' -> false;
-				default -> throw new ScriptParsingException("Expected '[' or '('", parser.input);
-			};
-			parser.environment.user().push();
-			InsnTree lowerBound = parser.nextScript();
-			lowerBound = lowerBound.cast(parser, TypeInfos.widenToInt(lowerBound.getTypeInfo()), CastMode.IMPLICIT_THROW, false);
-			parser.input.expectOperatorAfterWhitespace(",");
-			InsnTree upperBound = parser.nextScript();
-			upperBound = upperBound.cast(parser, TypeInfos.widenToInt(upperBound.getTypeInfo()), CastMode.IMPLICIT_THROW, false);
-			if (upperBound.getTypeInfo().getSort() != lowerBound.getTypeInfo().getSort()) {
-				throw new ScriptParsingException("Range bounds must have the same type", parser.input);
-			}
-			boolean upperBoundInclusive = switch (parser.input.readAfterWhitespace()) {
-				case ']' -> true;
-				case ')' -> false;
-				default -> throw new ScriptParsingException("Expected ']' or ')'", parser.input);
-			};
-			parser.environment.user().pop();
+			IntervalSyntax interval = IntervalSyntax.parse(parser);
+			boolean lowerBoundInclusive = interval.minInclusive();
+			InsnTree lowerBound = interval.min().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false);
+			InsnTree upperBound = interval.max().cast(parser, expectedType, CastMode.IMPLICIT_THROW, false);
+			boolean upperBoundInclusive = interval.maxInclusive();
 			InsnTree step;
 			if (parser.input.hasOperatorAfterWhitespace("%")) {
 				step = parser.nextExponent();

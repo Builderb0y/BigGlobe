@@ -9,7 +9,7 @@
 		"Biome biome = `bigglobe:overworld/biome`(originY)",
 
 		"int type = 0",
-		"if (biome.isIn('#bigglobe:hot'):",
+		"if (biome.isIn('#bigglobe:deserts'):",
 			"if (biome ==. 'bigglobe:overworld/mesa':",
 				"type = 2",
 				"palette = null",

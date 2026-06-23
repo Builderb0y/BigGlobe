@@ -110,16 +110,6 @@ V6:
 		test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
 		make it so that you can switch on custom enums.
 		make ball_of_string_remove recipe NOT match if the ball is empty.
-		scripted extra mob spawns:
-			structure:
-			{
-				"order": 1000,
-				"script": [
-					"if (y < world_traits.`bigglobe:deep_dark_max_y`:",
-						"spawns.clear()",
-					")"
-				]
-			}
 		darkslate.
 	urgent:
 		reduce number of biomes:
@@ -137,6 +127,7 @@ V6:
 		verify that FlatStructureLocator handles C2ME being absent correctly.
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
+		make spawn tweakers tag-driven instead of biome-driven.
 
 LODs:
 	shader support.

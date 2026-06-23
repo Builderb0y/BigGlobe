@@ -1,0 +1,11 @@
+{
+	"biomes": [
+		"#bigglobe:overworld_except_volcano"
+	],
+	"primary_entity": "minecraft:ocelot",
+	"script": [
+		"if (world_traits.`bigglobe:wood_palette` ==. 'minecraft:jungle':",
+			"spawnParams.=$weight(16.0I * sqrt(max(world_traits.`bigglobe:foliage_at`, 0.0I))).=$count(random.nextBetween[1, 2])",
+		")"
+	]
+}

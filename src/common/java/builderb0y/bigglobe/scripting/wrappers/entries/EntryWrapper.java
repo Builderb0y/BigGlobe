@@ -54,6 +54,6 @@ public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
 
 	@Override
 	public String toString() {
-		return this.entry.toString();
+		return this.id();
 	}
 }
