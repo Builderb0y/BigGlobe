@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/cube_column",
+	"textures": {
+		"end": "bigglobe:block/darkslate_top",
+		"side": "bigglobe:block/darkslate"
+	}
+}

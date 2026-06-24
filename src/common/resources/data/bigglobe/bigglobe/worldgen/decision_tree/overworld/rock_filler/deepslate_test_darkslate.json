@@ -1,0 +1,26 @@
+{
+	"condition": {
+		"type": "curve_range",
+		"min": -0.015625,
+		"max":  0.015625,
+		"smooth_min": 0,
+		"smooth_max": 0,
+		"value": {
+			"type": "script",
+			"script": [
+				"float bias = float(",
+					"unmixLinear(",
+						"double(world_traits.`bigglobe:chasm_min_y`),",
+						"double(world_traits.`bigglobe:deep_dark_max_y`),",
+						"double(y)",
+					")",
+				")",
+				"* 2.0I - 1.0I",
+				"if (abs(bias) < 1.0I: bias += `bigglobe:overworld/rocks/darkslate_noise`)",
+				"return(bias)"
+			]
+		}
+	},
+	"if_true": "bigglobe:overworld/rock_filler/darkslate_test_core",
+	"if_false": "bigglobe:overworld/rock_filler/deepslate"
+}

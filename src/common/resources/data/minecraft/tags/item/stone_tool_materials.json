@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:rock"
+		"bigglobe:rock",
+		"bigglobe:cobbled_darkslate"
 	]
 }

@@ -21,6 +21,6 @@
 			]
 		}
 	},
-	"if_true": "bigglobe:overworld/rock_filler/deepslate_test_core",
+	"if_true": "bigglobe:overworld/rock_filler/deepslate_test_darkslate",
 	"if_false": "bigglobe:overworld/rock_filler/normal_test_dripstone"
 }

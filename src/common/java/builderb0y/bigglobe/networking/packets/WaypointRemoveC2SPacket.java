@@ -11,7 +11,7 @@ import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointData;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;

@@ -21,7 +21,6 @@ public class EndBlocks {
 	public static void initClient() {}
 
 	public static final Block CHORUS_NYLIUM = BigGlobeBlocks.register(
-		"chorus_nylium",
 		new ChorusNyliumBlock(
 			BlockBehaviour
 			.Properties
@@ -35,7 +34,6 @@ public class EndBlocks {
 	);
 
 	public static final Block OVERGROWN_END_STONE = BigGlobeBlocks.register(
-		"overgrown_end_stone",
 		new OvergrownEndStoneBlock(
 			BlockBehaviour
 			.Properties
@@ -49,7 +47,6 @@ public class EndBlocks {
 	);
 
 	public static final DoublePlantBlock TALL_CHORUS_SPORES = BigGlobeBlocks.register(
-		"tall_chorus_spores",
 		new TallChorusSporeBlock(
 			BlockBehaviour
 			.Properties
@@ -66,7 +63,6 @@ public class EndBlocks {
 	);
 
 	public static final ChorusSporeBlock MEDIUM_CHORUS_SPORES = BigGlobeBlocks.register(
-		"medium_chorus_spores",
 		new MediumChorusSporeBlock(
 			BlockBehaviour
 			.Properties
@@ -85,7 +81,6 @@ public class EndBlocks {
 	);
 
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = BigGlobeBlocks.register(
-		"short_chorus_spores",
 		new ShortChorusSporeBlock(
 			BlockBehaviour
 			.Properties
@@ -110,7 +105,6 @@ public class EndBlocks {
 			EndBlocks.VOID_CLOUDS.put(
 				color,
 				BigGlobeBlocks.register(
-					color.voidName,
 					new CloudBlock(
 						BlockBehaviour
 						.Properties
@@ -134,7 +128,6 @@ public class EndBlocks {
 	}
 
 	public static final Block VOIDMETAL_BLOCK = BigGlobeBlocks.register(
-		"voidmetal_block",
 		new Block(
 			BlockBehaviour
 			.Properties

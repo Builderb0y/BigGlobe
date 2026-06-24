@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/stairs",
+	"textures": {
+		"bottom": "bigglobe:block/polished_darkslate",
+		"side": "bigglobe:block/polished_darkslate",
+		"top": "bigglobe:block/polished_darkslate"
+	}
+}

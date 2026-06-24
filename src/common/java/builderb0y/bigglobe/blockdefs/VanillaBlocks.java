@@ -27,8 +27,8 @@ registering the blocks is done in {@link #init()}.
 public class VanillaBlocks {
 
 	public static void init() {
-		BigGlobeBlocks.register("stick", VanillaBlocks.STICK);
-		BigGlobeBlocks.register("flint", VanillaBlocks.FLINT);
+		BigGlobeBlocks.register(STICK);
+		BigGlobeBlocks.register(FLINT);
 	}
 
 	public static final SurfaceMaterialDecorationBlock

@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.versions.EntityVersions;
 

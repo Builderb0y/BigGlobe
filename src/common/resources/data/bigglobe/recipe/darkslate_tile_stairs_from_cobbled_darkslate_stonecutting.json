@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "bigglobe:cobbled_darkslate",
+	"result": {
+		"id": "bigglobe:darkslate_tile_stairs"
+	}
+}

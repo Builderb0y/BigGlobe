@@ -17,7 +17,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 
 public class RockBlock extends SurfaceMaterialDecorationBlock {
 

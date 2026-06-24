@@ -3,7 +3,7 @@ package builderb0y.bigglobe;
 import org.junit.jupiter.api.Test;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.util.Async;
 
 import static org.junit.jupiter.api.Assertions.*;

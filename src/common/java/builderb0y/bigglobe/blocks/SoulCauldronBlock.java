@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.bigglobe.blockdefs.NetherBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 
 public class SoulCauldronBlock extends AbstractCauldronBlock {
 

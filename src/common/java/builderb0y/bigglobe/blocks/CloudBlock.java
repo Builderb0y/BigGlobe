@@ -18,7 +18,7 @@ import builderb0y.bigglobe.blockdefs.EndBlocks;
 import builderb0y.bigglobe.blockdefs.OverworldBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.AuraBottleItem;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.versions.ActionResultVersions;
 
 public class CloudBlock extends Block {

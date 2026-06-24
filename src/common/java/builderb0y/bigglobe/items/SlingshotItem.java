@@ -21,6 +21,8 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 
+import builderb0y.bigglobe.itemdefs.BigGlobeItemTags;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.versions.ActionResultVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;

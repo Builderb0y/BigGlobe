@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "bigglobe:block/polished_darkslate_slab"
+		},
+		"type=double": {
+			"model": "bigglobe:block/polished_darkslate"
+		},
+		"type=top": {
+			"model": "bigglobe:block/polished_darkslate_slab_top"
+		}
+	}
+}

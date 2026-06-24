@@ -7,6 +7,7 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.itemdefs.BigGlobeItemTags;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
 
 public class VoidmetalArmorMaterial {

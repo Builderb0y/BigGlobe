@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "building",
+	"key": {
+		"#": "bigglobe:cobbled_darkslate_slab"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"id": "bigglobe:chiseled_darkslate"
+	}
+}

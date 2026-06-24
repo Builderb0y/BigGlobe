@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 
 @Mixin(ThrownEnderpearl.class)
 public class EnderPearlEntity_ReduceFallDamageWithVoidmetalArmor {

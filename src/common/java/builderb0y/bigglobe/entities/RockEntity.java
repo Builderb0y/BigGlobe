@@ -29,7 +29,7 @@ import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
 import builderb0y.bigglobe.blockdefs.OverworldBlocks;
 import builderb0y.bigglobe.blocks.RockBlock;
 import builderb0y.bigglobe.features.SingleBlockFeature;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.versions.EntityVersions;
 

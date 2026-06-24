@@ -46,7 +46,6 @@ public class CharredBlocks {
 	public static final BlockSetType CHARRED_BLOCK_SET_TYPE = new BlockSetTypeBuilder().pressurePlateActivationRule(PressurePlateSensitivity.EVERYTHING).register(BigGlobeMod.modID("charred"));
 	public static final WoodType CHARRED_WOOD_TYPE = new WoodTypeBuilder().register(BigGlobeMod.modID("charred"), CHARRED_BLOCK_SET_TYPE);
 	public static final DoorBlock CHARRED_DOOR = BigGlobeBlocks.register(
-		"charred_door",
 		new DoorBlock(
 			CHARRED_BLOCK_SET_TYPE,
 			BlockBehaviour
@@ -59,7 +58,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final ButtonBlock CHARRED_BUTTON = BigGlobeBlocks.register(
-		"charred_button",
 		new ButtonBlock(
 			CHARRED_BLOCK_SET_TYPE,
 			10,
@@ -75,7 +73,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final TrapDoorBlock CHARRED_TRAPDOOR = BigGlobeBlocks.register(
-		"charred_trapdoor",
 		new TrapDoorBlock(
 			CHARRED_BLOCK_SET_TYPE,
 			BlockBehaviour
@@ -88,7 +85,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final PressurePlateBlock CHARRED_PRESSURE_PLATE = BigGlobeBlocks.register(
-		"charred_pressure_plate",
 		new CharredPressurePlateBlock(
 			CHARRED_BLOCK_SET_TYPE,
 			BlockBehaviour
@@ -104,7 +100,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final CeilingHangingSignBlock CHARRED_HANGING_SIGN = BigGlobeBlocks.register(
-		"charred_hanging_sign",
 		new CeilingHangingSignBlock(
 			CHARRED_WOOD_TYPE,
 			BlockBehaviour
@@ -120,7 +115,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final WallHangingSignBlock CHARRED_WALL_HANGING_SIGN = BigGlobeBlocks.register(
-		"charred_wall_hanging_sign",
 		new WallHangingSignBlock(
 			CHARRED_WOOD_TYPE,
 			BlockBehaviour
@@ -137,7 +131,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final StandingSignBlock CHARRED_SIGN = BigGlobeBlocks.register(
-		"charred_sign",
 		new StandingSignBlock(
 			CHARRED_WOOD_TYPE,
 			BlockBehaviour
@@ -152,7 +145,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final WallSignBlock CHARRED_WALL_SIGN = BigGlobeBlocks.register(
-		"charred_wall_sign",
 		new WallSignBlock(
 			CHARRED_WOOD_TYPE,
 			BlockBehaviour
@@ -168,7 +160,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final Block CHARRED_PLANKS = BigGlobeBlocks.register(
-		"charred_planks",
 		new Block(
 			BlockBehaviour
 			.Properties
@@ -180,7 +171,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final FenceGateBlock CHARRED_FENCE_GATE = BigGlobeBlocks.register(
-		"charred_fence_gate",
 		new FenceGateBlock(
 			CHARRED_WOOD_TYPE,
 			BlockBehaviour
@@ -190,7 +180,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final FenceBlock CHARRED_FENCE = BigGlobeBlocks.register(
-		"charred_fence",
 		new FenceBlock(
 			BlockBehaviour
 			.Properties
@@ -199,7 +188,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final SlabBlock CHARRED_SLAB = BigGlobeBlocks.register(
-		"charred_slab",
 		new SlabBlock(
 			BlockBehaviour
 			.Properties
@@ -208,7 +196,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final StairBlock CHARRED_STAIRS = BigGlobeBlocks.register(
-		"charred_stairs",
 		new StairBlock(
 			CHARRED_PLANKS.defaultBlockState(),
 			BlockBehaviour
@@ -218,7 +205,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final SaplingBlock CHARRED_SAPLING = BigGlobeBlocks.register(
-		"charred_sapling",
 		new CharredSaplingBlock(
 			new TreeGrower(
 				"bigglobe:charred",
@@ -245,11 +231,9 @@ public class CharredBlocks {
 		)
 	);
 	public static final FlowerPotBlock POTTED_CHARRED_SAPLING = BigGlobeBlocks.register(
-		"potted_charred_sapling",
 		BigGlobeBlocks.newPottedPlant(CHARRED_SAPLING, "potted_charred_sapling")
 	);
 	public static final Block CHARRED_LOG = BigGlobeBlocks.register(
-		"charred_log",
 		new RotatedPillarBlock(
 			BlockBehaviour
 			.Properties
@@ -261,7 +245,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final Block STRIPPED_CHARRED_LOG = BigGlobeBlocks.register(
-		"stripped_charred_log",
 		new RotatedPillarBlock(
 			BlockBehaviour
 			.Properties
@@ -272,7 +255,6 @@ public class CharredBlocks {
 			.sound(SoundType.WOOD))
 	);
 	public static final Block CHARRED_WOOD = BigGlobeBlocks.register(
-		"charred_wood",
 		new RotatedPillarBlock(
 			BlockBehaviour
 			.Properties
@@ -284,7 +266,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final Block STRIPPED_CHARRED_WOOD = BigGlobeBlocks.register(
-		"stripped_charred_wood",
 		new RotatedPillarBlock(
 			BlockBehaviour
 			.Properties
@@ -297,7 +278,6 @@ public class CharredBlocks {
 	);
 	//copy-paste of Blocks.createLeavesBlock(), but with MapColor.BLACK added.
 	public static final LeavesBlock CHARRED_LEAVES = BigGlobeBlocks.register(
-		"charred_leaves",
 		new UntintedParticleLeavesBlock(
 			0.02F,
 			ParticleTypes.ASH,
@@ -317,7 +297,6 @@ public class CharredBlocks {
 		)
 	);
 	public static final ShelfBlock CHARRED_SHELF = BigGlobeBlocks.register(
-		"charred_shelf",
 		new ShelfBlock(
 			BlockBehaviour
 			.Properties

@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/slab",
+	"textures": {
+		"bottom": "bigglobe:block/darkslate_tiles",
+		"side": "bigglobe:block/darkslate_tiles",
+		"top": "bigglobe:block/darkslate_tiles"
+	}
+}

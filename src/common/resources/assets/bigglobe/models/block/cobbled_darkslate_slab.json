@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/slab",
+	"textures": {
+		"bottom": "bigglobe:block/cobbled_darkslate",
+		"side": "bigglobe:block/cobbled_darkslate",
+		"top": "bigglobe:block/cobbled_darkslate"
+	}
+}

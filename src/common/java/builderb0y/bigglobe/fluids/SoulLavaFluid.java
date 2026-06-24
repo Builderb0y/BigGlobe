@@ -25,7 +25,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
 import builderb0y.bigglobe.blockdefs.NetherBlocks;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.versions.GameruleVersions;
 
 public abstract class SoulLavaFluid extends FlowingFluid {

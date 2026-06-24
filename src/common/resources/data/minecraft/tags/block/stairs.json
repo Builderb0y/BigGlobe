@@ -1,6 +1,10 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:slated_prismarine_stairs"
+		"bigglobe:slated_prismarine_stairs",
+		"bigglobe:cobbled_darkslate_stairs",
+		"bigglobe:polished_darkslate_stairs",
+		"bigglobe:darkslate_tile_stairs",
+		"bigglobe:darkslate_brick_stairs"
 	]
 }

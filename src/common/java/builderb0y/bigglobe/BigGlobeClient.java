@@ -9,7 +9,7 @@ import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.entities.BigGlobeEntityRenderers;
 import builderb0y.bigglobe.f3.BigGlobeDebugHudEntries;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.models.BigGlobeModels;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;

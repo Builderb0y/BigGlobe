@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.items;
+package builderb0y.bigglobe.itemdefs;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;

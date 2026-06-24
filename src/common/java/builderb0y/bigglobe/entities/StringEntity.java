@@ -56,7 +56,7 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BallOfStringItem;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.DataHelper;
 import builderb0y.bigglobe.versions.EntityVersions;

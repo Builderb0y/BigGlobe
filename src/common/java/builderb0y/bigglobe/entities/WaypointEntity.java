@@ -29,7 +29,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.items.AuraBottleItem;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.networking.packets.UseWaypointPacket;

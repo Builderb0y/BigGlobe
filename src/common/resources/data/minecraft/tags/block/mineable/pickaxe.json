@@ -22,6 +22,21 @@
 		"bigglobe:soul_cauldron",
 		"bigglobe:soul_magma",
 		"bigglobe:sulfur_block",
-		"bigglobe:sulfur_ore"
+		"bigglobe:sulfur_ore",
+		"bigglobe:darkslate",
+		"bigglobe:cobbled_darkslate",
+		"bigglobe:cobbled_darkslate_stairs",
+		"bigglobe:cobbled_darkslate_slab",
+		"bigglobe:polished_darkslate",
+		"bigglobe:polished_darkslate_stairs",
+		"bigglobe:polished_darkslate_slab",
+		"bigglobe:darkslate_tiles",
+		"bigglobe:darkslate_tile_stairs",
+		"bigglobe:darkslate_tile_slab",
+		"bigglobe:darkslate_bricks",
+		"bigglobe:darkslate_brick_stairs",
+		"bigglobe:darkslate_brick_slab",
+		"bigglobe:chiseled_darkslate",
+		"bigglobe:infested_darkslate"
 	]
 }

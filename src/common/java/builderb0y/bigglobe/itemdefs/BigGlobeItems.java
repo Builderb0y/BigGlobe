@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.items;
+package builderb0y.bigglobe.itemdefs;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +40,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.*;
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
+import builderb0y.bigglobe.items.*;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class BigGlobeItems {
@@ -48,12 +49,6 @@ public class BigGlobeItems {
 		BigGlobeMod.LOGGER.debug("Registering items...");
 	}
 
-	/*
-	@TestOnly
-	@Deprecated
-	public static final TestItem
-		TEST_ITEM                = register("test_item", new TestItem());
-	//*/
 	@SuppressWarnings("unused")
 	public static final BlockItem
 		OVERGROWN_SAND = registerPlacer(OverworldBlocks.OVERGROWN_SAND),
@@ -85,6 +80,27 @@ public class BigGlobeItems {
 		RED_WILDFLOWERS = registerPlacer(OverworldBlocks.RED_WILDFLOWERS),
 		BLUEBONNETS = registerPlacer(OverworldBlocks.BLUEBONNETS),
 		VIOLETS = registerPlacer(OverworldBlocks.VIOLETS),
+
+		DARKSLATE = registerPlacer(DarkslateBlocks.DARKSLATE),
+		INFESTED_DARKSLATE = registerPlacer(DarkslateBlocks.INFESTED_DARKSLATE),
+		CHISELED_DARKSLATE = registerPlacer(DarkslateBlocks.CHISELED_DARKSLATE),
+		COBBLED_DARKSLATE = registerPlacer(DarkslateBlocks.COBBLED_DARKSLATE),
+		POLISHED_DARKSLATE = registerPlacer(DarkslateBlocks.POLISHED_DARKSLATE),
+		DARKSLATE_BRICKS = registerPlacer(DarkslateBlocks.DARKSLATE_BRICKS),
+		DARKSLATE_TILES = registerPlacer(DarkslateBlocks.DARKSLATE_TILES),
+		COBBLED_DARKSLATE_STAIRS = registerPlacer(DarkslateBlocks.COBBLED_DARKSLATE_STAIRS),
+		POLISHED_DARKSLATE_STAIRS = registerPlacer(DarkslateBlocks.POLISHED_DARKSLATE_STAIRS),
+		DARKSLATE_BRICK_STAIRS = registerPlacer(DarkslateBlocks.DARKSLATE_BRICK_STAIRS),
+		DARKSLATE_TILE_STAIRS = registerPlacer(DarkslateBlocks.DARKSLATE_TILE_STAIRS),
+		COBBLED_DARKSLATE_SLAB = registerPlacer(DarkslateBlocks.COBBLED_DARKSLATE_SLAB),
+		POLISHED_DARKSLATE_SLAB = registerPlacer(DarkslateBlocks.POLISHED_DARKSLATE_SLAB),
+		DARKSLATE_BRICK_SLAB = registerPlacer(DarkslateBlocks.DARKSLATE_BRICK_SLAB),
+		DARKSLATE_TILE_SLAB = registerPlacer(DarkslateBlocks.DARKSLATE_TILE_SLAB),
+		COBBLED_DARKSLATE_WALL = registerPlacer(DarkslateBlocks.COBBLED_DARKSLATE_WALL),
+		POLISHED_DARKSLATE_WALL = registerPlacer(DarkslateBlocks.POLISHED_DARKSLATE_WALL),
+		DARKSLATE_BRICK_WALL = registerPlacer(DarkslateBlocks.DARKSLATE_BRICK_WALL),
+		DARKSLATE_TILE_WALL = registerPlacer(DarkslateBlocks.DARKSLATE_TILE_WALL),
+
 		ASHEN_NETHERRACK = registerPlacer(NetherBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE = registerPlacer(NetherBlocks.SULFUR_ORE),
 		SULFUR_BLOCK = registerPlacer(NetherBlocks.SULFUR_BLOCK),
@@ -133,9 +149,9 @@ public class BigGlobeItems {
 			)
 		),
 
-	CHARRED_SHELF = registerPlacer(CharredBlocks.CHARRED_SHELF),
+		CHARRED_SHELF = registerPlacer(CharredBlocks.CHARRED_SHELF),
 
-	SOUL_MAGMA = registerPlacer(NetherBlocks.SOUl_MAGMA),
+		SOUL_MAGMA = registerPlacer(NetherBlocks.SOUl_MAGMA),
 		ROUGH_QUARTZ = registerPlacer(NetherBlocks.ROUGH_QUARTZ),
 		BUDDING_QUARTZ = registerPlacer(NetherBlocks.BUDDING_QUARTZ),
 		SMALL_QUARTZ_BUD = registerPlacer(NetherBlocks.SMALL_QUARTZ_BUD),
@@ -240,12 +256,10 @@ public class BigGlobeItems {
 			),
 			Collections.singletonList(
 				BigGlobeMod.mcID("item/empty_slot_ingot")
-			)
-
-			, new Item.Properties()
-				.setId(key("voidmetal_upgrade"))
-				.rarity(Rarity.UNCOMMON)
-
+			),
+			new Item.Properties()
+			.setId(key("voidmetal_upgrade"))
+			.rarity(Rarity.UNCOMMON)
 		)
 	);
 
@@ -269,7 +283,6 @@ public class BigGlobeItems {
 	}
 
 	public static Item.Properties settings(String name) {
-
 		return new Item.Properties().setId(key(name));
 	}
 
@@ -279,8 +292,8 @@ public class BigGlobeItems {
 
 		settings = (
 			settings
-				.setId(ResourceKey.create(Registries.ITEM, id))
-				.useBlockDescriptionPrefix()
+			.setId(ResourceKey.create(Registries.ITEM, id))
+			.useBlockDescriptionPrefix()
 		);
 
 		return settings;
@@ -292,8 +305,8 @@ public class BigGlobeItems {
 
 		settings = (
 			settings
-				.setId(ResourceKey.create(Registries.ITEM, id))
-				.useBlockDescriptionPrefix()
+			.setId(ResourceKey.create(Registries.ITEM, id))
+			.useBlockDescriptionPrefix()
 		);
 
 		return Registry.register(
@@ -367,10 +380,58 @@ public class BigGlobeItems {
 	@Environment(EnvType.CLIENT)
 	public static void initClient() {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
-			entries.insertAfter(Items.WARPED_BUTTON, CHARRED_LOG, CHARRED_WOOD, STRIPPED_CHARRED_LOG, STRIPPED_CHARRED_WOOD, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB, CHARRED_FENCE, CHARRED_FENCE_GATE, CHARRED_DOOR, CHARRED_TRAPDOOR, CHARRED_PRESSURE_PLATE, CHARRED_BUTTON);
-			entries.insertAfter(Items.DARK_PRISMARINE_SLAB, SLATED_PRISMARINE, SLATED_PRISMARINE_STAIRS, SLATED_PRISMARINE_SLAB);
-			entries.insertBefore(Items.COAL_BLOCK, SULFUR_BLOCK);
-			entries.insertAfter(Items.NETHERITE_BLOCK, VOIDMETAL_BLOCK);
+			entries.insertAfter(
+				Items.WARPED_BUTTON,
+				CHARRED_LOG,
+				CHARRED_WOOD,
+				STRIPPED_CHARRED_LOG,
+				STRIPPED_CHARRED_WOOD,
+				CHARRED_PLANKS,
+				CHARRED_STAIRS,
+				CHARRED_SLAB,
+				CHARRED_FENCE,
+				CHARRED_FENCE_GATE,
+				CHARRED_DOOR,
+				CHARRED_TRAPDOOR,
+				CHARRED_PRESSURE_PLATE,
+				CHARRED_BUTTON
+			);
+			entries.insertAfter(
+				Items.DARK_PRISMARINE_SLAB,
+				SLATED_PRISMARINE,
+				SLATED_PRISMARINE_STAIRS,
+				SLATED_PRISMARINE_SLAB
+			);
+			entries.insertBefore(
+				Items.COAL_BLOCK,
+				SULFUR_BLOCK
+			);
+			entries.insertAfter(
+				Items.NETHERITE_BLOCK,
+				VOIDMETAL_BLOCK
+			);
+			entries.insertAfter(
+				Items.REINFORCED_DEEPSLATE,
+				DARKSLATE,
+				INFESTED_DARKSLATE,
+				CHISELED_DARKSLATE,
+				COBBLED_DARKSLATE,
+				POLISHED_DARKSLATE,
+				DARKSLATE_BRICKS,
+				DARKSLATE_TILES,
+				COBBLED_DARKSLATE_STAIRS,
+				POLISHED_DARKSLATE_STAIRS,
+				DARKSLATE_BRICK_STAIRS,
+				DARKSLATE_TILE_STAIRS,
+				COBBLED_DARKSLATE_SLAB,
+				POLISHED_DARKSLATE_SLAB,
+				DARKSLATE_BRICK_SLAB,
+				DARKSLATE_TILE_SLAB,
+				COBBLED_DARKSLATE_WALL,
+				POLISHED_DARKSLATE_WALL,
+				DARKSLATE_BRICK_WALL,
+				DARKSLATE_TILE_WALL
+			);
 		});
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
 			entries.insertAfter(Items.GRASS_BLOCK, OVERGROWN_PODZOL);
@@ -389,14 +450,13 @@ public class BigGlobeItems {
 			entries.insertAfter(Items.DEAD_BUSH, CHARRED_GRASS);
 			entries.insertAfter(Items.DANDELION, ROSE);
 			entries.insertAfter(Items.OPEN_EYEBLOSSOM, BLAZING_BLOSSOM, SOUL_SILVERPETAL, GLOWING_GOLDENROD);
-
 			entries.insertAfter(Items.WILDFLOWERS, RED_WILDFLOWERS, BLUEBONNETS, VIOLETS);
-
 			entries.insertBefore(Items.CRIMSON_ROOTS, WART_WEED);
 			entries.insertAfter(Items.STONE, ROCK);
 			entries.insertAfter(Items.END_STONE, OVERGROWN_END_STONE, CHORUS_NYLIUM);
 			entries.insertAfter(Items.NETHER_WART, CHORUS_SPORE);
 			entries.insertBefore(Items.CHORUS_PLANT, SHORT_CHORUS_SPORES, MEDIUM_CHORUS_SPORES, TALL_CHORUS_SPORES);
+			entries.insertAfter(Items.DEEPSLATE, DARKSLATE);
 			CLOUDS.values().stream().map(BlockItem::getDefaultInstance).forEachOrdered(entries::accept);
 			VOID_CLOUDS.values().stream().map(BlockItem::getDefaultInstance).forEachOrdered(entries::accept);
 		});
@@ -404,8 +464,8 @@ public class BigGlobeItems {
 			entries.insertAfter(Items.COPPER_CHAIN.waxedOxidized(), ROPE_ANCHOR, SPELUNKING_ROPE);
 			entries.insertAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.insertAfter(Items.WARPED_HANGING_SIGN, CHARRED_SIGN, CHARRED_HANGING_SIGN);
-
 			entries.insertAfter(Items.WARPED_SHELF, CHARRED_SHELF);
+			entries.insertAfter(Items.INFESTED_DEEPSLATE, INFESTED_DARKSLATE);
 		});
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
 			entries.insertAfter(Items.REDSTONE_ORE, ANCIENT_AUTOMATA, AUTOMATA);

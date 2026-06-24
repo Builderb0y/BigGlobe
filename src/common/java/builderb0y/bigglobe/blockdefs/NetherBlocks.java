@@ -33,7 +33,6 @@ public class NetherBlocks {
 	}
 
 	public static final AshenNetherrackBlock ASHEN_NETHERRACK = BigGlobeBlocks.register(
-		"ashen_netherrack",
 		new AshenNetherrackBlock(
 			BlockBehaviour
 			.Properties
@@ -46,7 +45,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block SULFUR_ORE = BigGlobeBlocks.register(
-		"sulfur_ore",
 		new DropExperienceBlock(
 			UniformInt.of(0, 2),
 			BlockBehaviour
@@ -60,7 +58,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block SULFUR_BLOCK = BigGlobeBlocks.register(
-		"sulfur_block",
 		new Block(
 			BlockBehaviour
 			.Properties
@@ -72,7 +69,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final NetherGrassBlock WART_WEED = BigGlobeBlocks.register(
-		"wart_weed",
 		new NetherGrassBlock(
 			BlockBehaviour
 			.Properties
@@ -89,7 +85,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final NetherGrassBlock CHARRED_GRASS = BigGlobeBlocks.register(
-		"charred_grass",
 		new NetherGrassBlock(
 			BlockBehaviour
 			.Properties
@@ -106,7 +101,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final BlazingBlossomBlock BLAZING_BLOSSOM = BigGlobeBlocks.register(
-		"blazing_blossom",
 		new BlazingBlossomBlock(
 			MobEffects.FIRE_RESISTANCE,
 			8,
@@ -125,11 +119,9 @@ public class NetherBlocks {
 		)
 	);
 	public static final FlowerPotBlock POTTED_BLAZING_BLOSSOM = BigGlobeBlocks.register(
-		"potted_blazing_blossom",
 		BigGlobeBlocks.newPottedPlant(BLAZING_BLOSSOM, "potted_blazing_blossom")
 	);
 	public static final BlazingBlossomBlock SOUL_SILVERPETAL = BigGlobeBlocks.register(
-		"soul_silverpetal",
 		new BlazingBlossomBlock(
 			BigGlobeBrewing.SOUL_SIPHON,
 			8,
@@ -148,7 +140,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final NetherFlowerBlock GLOWING_GOLDENROD = BigGlobeBlocks.register(
-		"glowing_goldenrod",
 		new NetherFlowerBlock(
 			MobEffects.GLOWING,
 			8,
@@ -166,11 +157,9 @@ public class NetherBlocks {
 		)
 	);
 	public static final FlowerPotBlock POTTED_GLOWING_GOLDENROD = BigGlobeBlocks.register(
-		"potted_glowing_goldenrod",
 		BigGlobeBlocks.newPottedPlant(GLOWING_GOLDENROD, "potted_glowing_goldenrod")
 	);
 	public static final SoulLavaBlock SOUL_LAVA = BigGlobeBlocks.register(
-		"soul_lava",
 		new SoulLavaBlock(
 			BigGlobeFluids.SOUL_LAVA.builtInRegistryHolder(),
 			BlockBehaviour
@@ -188,7 +177,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final MagmaBlock SOUl_MAGMA = BigGlobeBlocks.register(
-		"soul_magma",
 		new MagmaBlock(
 			BlockBehaviour
 			.Properties
@@ -199,7 +187,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final SoulCauldronBlock SOUL_CAULDRON = BigGlobeBlocks.register(
-		"soul_cauldron",
 		new SoulCauldronBlock(
 			BlockBehaviour
 			.Properties
@@ -208,7 +195,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final HiddenLavaBlock HIDDEN_LAVA = BigGlobeBlocks.register(
-		"hidden_lava",
 		new HiddenLavaBlock(
 			BlockBehaviour
 			.Properties
@@ -221,7 +207,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block ROUGH_QUARTZ = BigGlobeBlocks.register(
-		"rough_quartz",
 		new AmethystBlock(
 			BlockBehaviour
 			.Properties
@@ -234,7 +219,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block BUDDING_QUARTZ = BigGlobeBlocks.register(
-		"budding_quartz",
 		new BuddingQuartzBlock(
 			BlockBehaviour
 			.Properties
@@ -248,7 +232,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block QUARTZ_CLUSTER = BigGlobeBlocks.register(
-		"quartz_cluster",
 		new AmethystClusterBlock(
 			7,
 			3,
@@ -265,7 +248,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block SMALL_QUARTZ_BUD = BigGlobeBlocks.register(
-		"small_quartz_bud",
 		new AmethystClusterBlock(
 			3,
 			4,
@@ -278,7 +260,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block MEDIUM_QUARTZ_BUD = BigGlobeBlocks.register(
-		"medium_quartz_bud",
 		new AmethystClusterBlock(
 			4,
 			3,
@@ -291,7 +272,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block LARGE_QUARTZ_BUD = BigGlobeBlocks.register(
-		"large_quartz_bud",
 		new AmethystClusterBlock(
 			5,
 			3,
@@ -304,7 +284,6 @@ public class NetherBlocks {
 		)
 	);
 	public static final Block PALE_NETHERRACK = BigGlobeBlocks.register(
-		"pale_netherrack",
 		new Block(
 			BlockBehaviour
 			.Properties

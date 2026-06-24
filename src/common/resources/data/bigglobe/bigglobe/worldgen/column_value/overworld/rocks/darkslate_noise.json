@@ -1,0 +1,22 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scaleX": 16, "scaleY": 16, "scaleZ": 16, "amplitude": 0.4 },
+			{ "type": "smooth", "scaleX":  8, "scaleY":  8, "scaleZ":  8, "amplitude": 0.2 },
+			{ "type": "smooth", "scaleX":  4, "scaleY":  4, "scaleZ":  4, "amplitude": 0.1 },
+			{ "type": "white_noise", "amplitude": 0.3 }
+		]
+	},
+	"valid": {
+		"where": "hints.usage !=. 'heightmap'",
+		"min_y": "world_traits.`bigglobe:deep_dark_max_y`",
+		"max_y": "world_traits.`bigglobe:chasm_min_y`",
+		"fallback": 0.0
+	}
+}

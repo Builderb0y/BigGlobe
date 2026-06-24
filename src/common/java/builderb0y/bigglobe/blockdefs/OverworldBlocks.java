@@ -31,6 +31,7 @@ import builderb0y.bigglobe.blocks.*;
 public class OverworldBlocks {
 
 	public static void init() {
+		DarkslateBlocks.init();
 		FlattenableBlockRegistry.register(OVERGROWN_PODZOL, Blocks.DIRT_PATH.defaultBlockState());
 		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::onlyIfAirAbove, Blocks.FARMLAND.defaultBlockState());
 		for (MoltenRockBlock block : MOLTEN_ROCKS) {
@@ -61,7 +62,6 @@ public class OverworldBlocks {
 	}
 
 	public static final OvergrownSandBlock OVERGROWN_SAND = BigGlobeBlocks.register(
-		"overgrown_sand",
 		new OvergrownSandBlock(
 			BlockBehaviour
 			.Properties
@@ -71,7 +71,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final SnowyBlock OVERGROWN_PODZOL = BigGlobeBlocks.register(
-		"overgrown_podzol",
 		new SnowyBlock(
 			BlockBehaviour
 			.Properties
@@ -83,7 +82,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final FlowerBlock ROSE = BigGlobeBlocks.register(
-		"rose",
 		new FlowerBlock(
 			MobEffects.LUCK,
 			5,
@@ -100,11 +98,9 @@ public class OverworldBlocks {
 		)
 	);
 	public static final FlowerPotBlock POTTED_ROSE = BigGlobeBlocks.register(
-		"potted_rose",
 		BigGlobeBlocks.newPottedPlant(ROSE, "potted_rose")
 	);
 	public static final ShortGrassBlock SHORT_GRASS = BigGlobeBlocks.register(
-		"short_grass",
 		new ShortGrassBlock(
 			BlockBehaviour
 			.Properties
@@ -116,7 +112,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final MushroomSporesBlock MUSHROOM_SPORES = BigGlobeBlocks.register(
-		"mushroom_spores",
 		new MushroomSporesBlock(
 			BlockBehaviour
 			.Properties
@@ -132,7 +127,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final RockBlock ROCK = BigGlobeBlocks.register(
-		"rock",
 		new RockBlock(
 			BlockBehaviour
 			.Properties
@@ -147,7 +141,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final Block CRYSTALLINE_PRISMARINE = BigGlobeBlocks.register(
-		"crystalline_prismarine",
 		new Block(
 			BlockBehaviour
 			.Properties
@@ -157,7 +150,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final Block SLATED_PRISMARINE = BigGlobeBlocks.register(
-		"slated_prismarine",
 		new Block(
 			BlockBehaviour
 			.Properties
@@ -166,7 +158,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final StairBlock SLATED_PRISMARINE_STAIRS = BigGlobeBlocks.register(
-		"slated_prismarine_stairs",
 		new StairBlock(
 			SLATED_PRISMARINE.defaultBlockState(),
 			BlockBehaviour
@@ -176,7 +167,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final SlabBlock SLATED_PRISMARINE_SLAB = BigGlobeBlocks.register(
-		"slated_prismarine_slab",
 		new SlabBlock(
 			BlockBehaviour
 			.Properties
@@ -190,7 +180,6 @@ public class OverworldBlocks {
 			CLOUDS.put(
 				color,
 				BigGlobeBlocks.register(
-					color.normalName,
 					new CloudBlock(
 						BlockBehaviour
 						.Properties
@@ -214,7 +203,6 @@ public class OverworldBlocks {
 	}
 
 	public static final RiverWaterBlock RIVER_WATER = BigGlobeBlocks.register(
-		"river_water",
 		new RiverWaterBlock(
 			Fluids.WATER.builtInRegistryHolder(),
 			BlockBehaviour
@@ -231,7 +219,6 @@ public class OverworldBlocks {
 			int lightLevel = (heat << 1) - 1;
 			assert lightLevel <= 15;
 			MOLTEN_ROCKS[heat - 1] = BigGlobeBlocks.register(
-				"molten_rock_" + ((char)(heat + '0')),
 				new MoltenRockBlock(
 					BlockBehaviour
 					.Properties
@@ -249,7 +236,6 @@ public class OverworldBlocks {
 	}
 
 	public static final AutomataBlock ANCIENT_AUTOMATA = BigGlobeBlocks.register(
-		"ancient_automata",
 		new NaturalAutomataBlock(
 			BlockBehaviour
 			.Properties
@@ -261,7 +247,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final AutomataBlock AUTOMATA = BigGlobeBlocks.register(
-		"automata",
 		new ArtificialAutomataBlock(
 			BlockBehaviour
 			.Properties
@@ -273,7 +258,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final FlowerBedBlock RED_WILDFLOWERS = BigGlobeBlocks.register(
-		"red_wildflowers",
 		new FlowerBedBlock(
 			BlockBehaviour
 			.Properties
@@ -286,7 +270,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final FlowerBedBlock BLUEBONNETS = BigGlobeBlocks.register(
-		"bluebonnets",
 		new FlowerBedBlock(
 			BlockBehaviour
 			.Properties
@@ -299,7 +282,6 @@ public class OverworldBlocks {
 		)
 	);
 	public static final FlowerBedBlock VIOLETS = BigGlobeBlocks.register(
-		"violets",
 		new FlowerBedBlock(
 			BlockBehaviour
 			.Properties

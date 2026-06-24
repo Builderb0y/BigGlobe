@@ -1,0 +1,14 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:darkslate",
+		"bigglobe:darkslate_bricks",
+		"bigglobe:darkslate_tiles",
+		"bigglobe:darkslate_brick_slab",
+		"bigglobe:darkslate_tile_slab",
+		"bigglobe:darkslate_brick_stairs",
+		"bigglobe:darkslate_tile_wall",
+		"bigglobe:darkslate_brick_wall",
+		"bigglobe:cobbled_darkslate"
+	]
+}

@@ -9,5 +9,5 @@
 		}
 	},
 	"if_true": "bigglobe:overworld/rock_filler/core",
-	"if_false": "bigglobe:overworld/rock_filler/deepslate"
+	"if_false": "bigglobe:overworld/rock_filler/darkslate"
 }

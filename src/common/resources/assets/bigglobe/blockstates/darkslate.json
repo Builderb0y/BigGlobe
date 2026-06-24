@@ -1,0 +1,62 @@
+{
+	"variants": {
+		"axis=x": [
+			{
+				"model": "bigglobe:block/darkslate",
+				"x": 90,
+				"y": 90
+			},
+			{
+				"model": "bigglobe:block/darkslate_mirrored",
+				"x": 90,
+				"y": 90
+			},
+			{
+				"model": "bigglobe:block/darkslate",
+				"x": 90,
+				"y": 90
+			},
+			{
+				"model": "bigglobe:block/darkslate_mirrored",
+				"x": 90,
+				"y": 90
+			}
+		],
+		"axis=y": [
+			{
+				"model": "bigglobe:block/darkslate"
+			},
+			{
+				"model": "bigglobe:block/darkslate_mirrored"
+			},
+			{
+				"model": "bigglobe:block/darkslate",
+				"y": 180
+			},
+			{
+				"model": "bigglobe:block/darkslate_mirrored",
+				"y": 180
+			}
+		],
+		"axis=z": [
+			{
+				"model": "bigglobe:block/darkslate",
+				"x": 90
+			},
+			{
+				"model": "bigglobe:block/darkslate_mirrored",
+				"x": 90
+			},
+			{
+				"model": "bigglobe:block/darkslate",
+				"x": 90,
+				"y": 180
+			},
+			{
+				"model": "bigglobe:block/darkslate_mirrored",
+				"x": 90,
+				"y": 180
+			}
+		]
+	}
+}

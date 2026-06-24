@@ -60,7 +60,7 @@ import builderb0y.bigglobe.features.BigGlobeFeatures;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.hyperspace.HyperspaceCollapseTicketType;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
 import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;

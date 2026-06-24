@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:cobbled_darkslate_wall",
+		"bigglobe:polished_darkslate_wall",
+		"bigglobe:darkslate_tile_wall",
+		"bigglobe:darkslate_brick_wall"
+	]
+}

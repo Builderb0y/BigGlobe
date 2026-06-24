@@ -31,7 +31,7 @@ import net.minecraft.world.phys.shapes.*;
 
 import builderb0y.bigglobe.blockdefs.BigGlobeBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.ActionResultVersions;

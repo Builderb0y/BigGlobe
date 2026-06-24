@@ -4,7 +4,7 @@ import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
 
-import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 
 public class BigGlobeDispenserBehaviors {
 

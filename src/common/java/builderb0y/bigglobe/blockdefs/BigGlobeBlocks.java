@@ -37,7 +37,6 @@ public class BigGlobeBlocks {
 	}
 
 	public static final SpelunkingRopeBlock SPELUNKING_ROPE = register(
-		"spelunking_rope",
 		new SpelunkingRopeBlock(
 			BlockBehaviour
 			.Properties
@@ -50,7 +49,6 @@ public class BigGlobeBlocks {
 		)
 	);
 	public static final RopeAnchorBlock ROPE_ANCHOR = register(
-		"rope_anchor",
 		new RopeAnchorBlock(
 			BlockBehaviour
 			.Properties
@@ -65,7 +63,6 @@ public class BigGlobeBlocks {
 	);
 
 	public static final DelayedGenerationBlock DELAYED_GENERATION = register(
-		"delayed_generation",
 		new DelayedGenerationBlock(
 			BlockBehaviour
 			.Properties
@@ -100,12 +97,8 @@ public class BigGlobeBlocks {
 		);
 	}
 
-	public static <B extends Block> B register(String name, B block) {
-		Identifier id = BigGlobeMod.modID(name);
-		if (!block.getDescriptionId().equals(Util.makeDescriptionId("block", id))) {
-			throw new IllegalArgumentException("Name mismatch");
-		}
-		return Registry.register(BuiltInRegistries.BLOCK, id, block);
+	public static <B extends Block> B register(B block) {
+		return Registry.register(BuiltInRegistries.BLOCK, block.properties().blockIdOrThrow(), block);
 	}
 
 	public static ResourceKey<Block> key(String name) {
