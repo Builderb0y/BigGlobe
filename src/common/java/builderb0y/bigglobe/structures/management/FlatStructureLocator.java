@@ -1,9 +1,12 @@
 package builderb0y.bigglobe.structures.management;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -33,6 +36,7 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -48,6 +52,12 @@ import builderb0y.bigglobe.util.TimestampedComputingCache.Units;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class FlatStructureLocator extends StructureLocator {
+
+	public static final Executor STRUCTURE_EXECUTOR = InstalledMods.C2ME ? ForkJoinPool.commonPool() : Executors.newSingleThreadExecutor((Runnable task) -> {
+		Thread thread = new Thread(task, "Big Globe Structure Thread");
+		thread.setDaemon(true);
+		return thread;
+	});
 
 	public final TimestampedComputingCache<StructurePos, StructureCaches>
 		caches = new TimestampedComputingCache<>(Units.minutes(5.0D), Units.gigabytes(1.0D));
@@ -120,7 +130,9 @@ public class FlatStructureLocator extends StructureLocator {
 			return (
 				structures
 				.stream()
-				.flatMap((Holder<Structure> key) -> this.structureToSets.getOrDefault(key, Collections.emptyList()).stream())
+				.map(this.structureToSets::get)
+				.filter(Objects::nonNull)
+				.flatMap(List<Holder<StructureSet>>::stream)
 				.flatMap((Holder<StructureSet> set) -> (
 					(
 						(SmartStructurePlacement)(
@@ -213,35 +225,38 @@ public class FlatStructureLocator extends StructureLocator {
 		};
 	}
 
-	/**
-	these methods use the fork join pool because not doing so leads to deadlock.
-	I don't know what witchcraft ForkJoinPool does to prevent that,
-	but whatever it is, it's extremely effective.
-	*/
 	public Stream<StructureStartWrapper> commonLocate(Params params, Comparator<StructurePos> order, boolean strict) {
-		if (canRunImmediately()) {
-			return (
-				this
-				.sortPositions(params, order, strict)
-				.stream()
-				.flatMap((FilteredStructureCaches filtered) -> {
-					return filtered.caches.getFiltered(params.searchFor(filtered.filter));
-				})
-				/*
-				.filter((ChunkSortedStructurePieces pieces) -> (
-					pieces.startWrapper.box().intersects(
-						params.whatToSearchFor().getAreaFor(
-							pieces.startWrapper.originalStructure()
-						)
-					)
-				))
-				*/
-				.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
-			);
-		}
-		else {
-			return ForkJoinPool.commonPool().submit(() -> this.commonLocate(params, order, strict)).join();
-		}
+		@SuppressWarnings("unchecked")
+		CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] futures = (
+			this
+			.sortPositions(params, order, strict)
+			.stream()
+			.map((FilteredStructureCaches filtered) -> {
+				return filtered.caches.getFiltered(params.context());
+			})
+			.toArray(CompletableFuture[]::new)
+		);
+		CompletableFuture.allOf(futures).join();
+		return (
+			Arrays
+			.stream(futures)
+			.map(CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>::join)
+			.flatMap((Map<Holder<Structure>, List<ChunkSortedStructurePieces>> map) -> {
+				return (
+					params
+					.whatToSearchFor()
+					.streamStructures()
+					.flatMap((Holder<Structure> holder) -> {
+						List<ChunkSortedStructurePieces> list = map.get(holder);
+						if (list == null) return Stream.empty();
+						return list.stream().filter((ChunkSortedStructurePieces pieces) -> {
+							return pieces.startWrapper.box().intersects(params.whatToSearchFor().getAreaFor(holder));
+						});
+					})
+					.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
+				);
+			})
+		);
 	}
 
 	@Override
@@ -256,70 +271,104 @@ public class FlatStructureLocator extends StructureLocator {
 
 	@Override
 	public Stream<StructureStartWrapper> getStructuresIntersecting(Params params) {
-		if (canRunImmediately()) {
-			return switch (params.whatToSearchFor()) {
-				case ManyStructuresOneBox oneBox -> {
-					StructurePos pos = StructurePos.fromAreaIfOnlyOne(oneBox.box);
-					if (pos != null) {
-						yield (
-							this
-							.getCaches(pos)
-							.getIntersecting(params)
-							.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(oneBox.box))
-							.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
-						);
-					}
-					else {
-						yield (
-							StructurePos
-							.intersectingArea(oneBox.box)
-							.map(this::getCaches)
-							.flatMap((StructureCaches caches) -> caches.getFiltered(params))
-							.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(oneBox.box))
-							.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
-						);
-					}
-				}
-				case ManyStructuresManyBoxes manyBoxes -> {
-					Map<StructurePos, List<Holder<Structure>>> needed = manyBoxes.streamStructures().collect(
-						Grouper.groupingToList(
-							Grouper.keysPerElement((Holder<Structure> structure) -> {
-								int expansion = ((SizedStructure)(structure.value())).bigglobe_getMaxRadiusInBlocks();
-								return StructurePos.intersectingArea(
-									manyBoxes
-									.getAreaFor(structure)
-									.inflatedBy(expansion, 0, expansion)
-								);
-							}),
-							Grouper.valueElement()
-						)
-					);
+		return switch (params.whatToSearchFor()) {
+			case ManyStructuresOneBox oneBox -> {
+				StructurePos pos = StructurePos.fromAreaIfOnlyOne(oneBox.box);
+				if (pos != null) {
+					Map<Holder<Structure>, List<ChunkSortedStructurePieces>> map = this.getCaches(pos).getIntersecting(params.context()).join();
 					yield (
-						needed
-						.entrySet()
-						.stream()
-						.flatMap((Map.Entry<StructurePos, List<Holder<Structure>>> entry) -> {
-							return this.getCaches(entry.getKey()).getFiltered(params.searchFor(entry.getValue()::stream));
-						})
-						.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(manyBoxes.getAreaFor(pieces.startWrapper.originalStructure())))
+						params
+						.whatToSearchFor()
+						.streamStructures()
+						.map(map::get)
+						.filter(Objects::nonNull)
+						.flatMap(List<ChunkSortedStructurePieces>::stream)
+						.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(oneBox.box))
 						.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
 					);
 				}
-			};
-		}
-		else {
-			return ForkJoinPool.commonPool().submit(() -> this.getStructuresIntersecting(params)).join();
-		}
+				else {
+					@SuppressWarnings("unchecked") //generic array.
+					CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] futures = (
+						StructurePos
+						.intersectingArea(oneBox.box)
+						.map(this::getCachesBulk)
+						.map((StructureCaches caches) -> caches.getFiltered(params.context()))
+						.toArray(CompletableFuture[]::new)
+					);
+					CompletableFuture.allOf(futures).join();
+					yield (
+						Arrays
+						.stream(futures)
+						.map(CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>::join)
+						.flatMap((Map<Holder<Structure>, List<ChunkSortedStructurePieces>> map) -> {
+							return (
+								params
+								.whatToSearchFor()
+								.streamStructures()
+								.map(map::get)
+								.filter(Objects::nonNull)
+								.flatMap(List<ChunkSortedStructurePieces>::stream)
+								.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(oneBox.box))
+								.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
+							);
+						})
+					);
+				}
+			}
+			case ManyStructuresManyBoxes manyBoxes -> {
+				Map<StructurePos, List<Holder<Structure>>> needed = manyBoxes.streamStructures().collect(
+					Grouper.groupingToList(
+						Grouper.keysPerElement((Holder<Structure> structure) -> {
+							int expansion = ((SizedStructure)(structure.value())).bigglobe_getMaxRadiusInBlocks();
+							return StructurePos.intersectingArea(
+								manyBoxes
+								.getAreaFor(structure)
+								.inflatedBy(expansion, 0, expansion)
+							);
+						}),
+						Grouper.valueElement()
+					)
+				);
+				@SuppressWarnings("unchecked") //generic array.
+				CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] futures = (
+					needed
+					.keySet()
+					.stream()
+					.map(this::getCachesBulk)
+					.map((StructureCaches caches) -> caches.getFiltered(params.context()))
+					.toArray(CompletableFuture[]::new)
+				);
+				CompletableFuture.allOf(futures).join();
+				yield (
+					Arrays
+					.stream(futures)
+					.map(CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>::join)
+					.flatMap((Map<Holder<Structure>, List<ChunkSortedStructurePieces>> map) -> {
+						return (
+							params
+							.whatToSearchFor()
+							.streamStructures()
+							.flatMap((Holder<Structure> holder) -> {
+								List<ChunkSortedStructurePieces> list = map.get(holder);
+								if (list == null) return Stream.empty();
+								return list.stream().filter((ChunkSortedStructurePieces pieces) -> {
+									return pieces.startWrapper.box().intersects(manyBoxes.getAreaFor(holder));
+								});
+							})
+							.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
+						);
+					})
+				);
+			}
+		};
 	}
 
 	@Override
 	public @Nullable WeightedList<SpawnerData> getMobSpawns(Context context, BlockPos blockPos, MobCategory group) {
 		BoundingBox box = null;
-		StructureCaches caches = this.getCaches(StructurePos.fromBlock(blockPos));
-		if (caches.intersecting.getState() != BudgetStableValue.State.COMPUTED) {
-			ForkJoinPool.commonPool().submit(() -> caches.getIntersecting(context)).join();
-		}
-		for (List<ChunkSortedStructurePieces> list : caches.intersecting.getBlocking().values()) {
+		CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>> intersecting = this.getCaches(StructurePos.fromBlock(blockPos)).getIntersecting(context);
+		for (List<ChunkSortedStructurePieces> list : intersecting.join().values()) {
 			for (ChunkSortedStructurePieces pieces : list) {
 				if (pieces.startWrapper.box().isInside(blockPos)) {
 					StructureSpawnOverride override = pieces.startWrapper.originalStructure().value().spawnOverrides().get(group);
@@ -343,21 +392,20 @@ public class FlatStructureLocator extends StructureLocator {
 	@Override
 	public boolean maybeHasBiomes(BiomeParams params) {
 		if (params.predicate() == Predicates.<Holder<Biome>>alwaysTrue()) return true;
-		if (canRunImmediately()) {
-			return (
-				StructurePos
-				.intersectingArea(params.area())
-				.map(this::getCaches)
-				.anyMatch((StructureCaches caches) -> caches.hasBiome(params))
-			);
-		}
-		else {
-			return ForkJoinPool.commonPool().submit(() -> this.maybeHasBiomes(params)).join();
-		}
+		return (
+			StructurePos
+			.intersectingArea(params.area())
+			.map(this::getCaches)
+			.anyMatch((StructureCaches caches) -> caches.hasBiome(params))
+		);
 	}
 
-	public static boolean canRunImmediately() {
-		return Thread.currentThread() instanceof ForkJoinWorkerThread;
+	public static <T> CompletableFuture<T> submitLater(Supplier<T> supplier, CompletableFuture<?>... dependencies) {
+		CompletableFuture<T> future = new CompletableFuture<>();
+		CompletableFuture.allOf(dependencies).whenComplete((Void _, Throwable _) -> {
+			future.completeAsync(supplier, STRUCTURE_EXECUTOR);
+		});
+		return future;
 	}
 
 	public static record StructurePos(int x, int z) {
@@ -465,7 +513,7 @@ public class FlatStructureLocator extends StructureLocator {
 			pos;
 		public final BudgetStableValue<Set<Holder<Biome>>>
 			biomes       = new BudgetStableValue<>();
-		public final BudgetStableValue<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>
+		public final BudgetStableValue<CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>>
 			unfiltered   = new BudgetStableValue<>(),
 			filtered     = new BudgetStableValue<>(),
 			intersecting = new BudgetStableValue<>();
@@ -529,122 +577,118 @@ public class FlatStructureLocator extends StructureLocator {
 			return false;
 		}
 
-		public Stream<ChunkSortedStructurePieces> getUnfiltered(Params params) {
-			Map<Holder<Structure>, List<ChunkSortedStructurePieces>> unfiltered = this.unfiltered.getOrSetBlocking(() -> {
-				BoundingBox area = this.pos.toArea(params.height());
-				return (
-					maybeParallel(
-						params
-						.structureState()
-						.possibleStructureSets()
+		public CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>> getUnfiltered(Context context) {
+			return this.unfiltered.getOrSetBlocking(() -> CompletableFuture.supplyAsync(
+				() -> {
+					BoundingBox area = this.pos.toArea(context.height());
+					return (
+						maybeParallel(
+							context
+							.structureState()
+							.possibleStructureSets()
+							.stream()
+						)
+						.flatMap((Holder<StructureSet> set) -> (
+							(
+								(SmartStructurePlacement)(
+									set.value().placement()
+								)
+							)
+							.bigglobe_generateStructuresInArea(
+								new SmartStructurePlacement.Context(
+									this.locator(),
+									context,
+									set,
+									context.columnSource().lookup(),
+									area,
+									true
+								)
+							)
+						))
+						.map(ChunkSortedStructurePieces::new)
+						.collect(Collectors.groupingBy((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.originalStructure()))
+					);
+				},
+				STRUCTURE_EXECUTOR
+			));
+		}
+
+		public CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>> getFiltered(Context context) {
+			return this.filtered.getOrSetBlocking(() -> {
+				return this.getUnfiltered(context).thenCompose((Map<Holder<Structure>, List<ChunkSortedStructurePieces>> unfiltered) -> {
+					if (unfiltered.isEmpty()) return CompletableFuture.completedFuture(Collections.emptyMap());
+					BoundingBox union = BoundingBox.encapsulatingBoxes(unfiltered.values().stream().flatMap(List<ChunkSortedStructurePieces>::stream).map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box())::iterator).orElseThrow();
+					BoundingBox centerArea = new BoundingBox(
+						union.minX(),
+						HeightLimitViewVersions.getMinY(context.height()),
+						union.minZ(),
+						union.maxX(),
+						HeightLimitViewVersions.getMaxY(context.height()) - 1,
+						union.maxZ()
+					);
+					Map<StructurePos, List<Holder<Structure>>> needed = (
+						this.locator().allStructures().stream().collect(Grouper.groupingToList(
+							Grouper.keysPerElement((Holder<Structure> structure) -> {
+								int expansion = ((SizedStructure)(structure.value())).bigglobe_getMaxRadiusInBlocks();
+								return StructurePos.intersectingArea(centerArea.inflatedBy(expansion, 0, expansion));
+							}),
+							Grouper.valueElement()
+						))
+					);
+					@SuppressWarnings("unchecked") //generic array.
+					CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] nearby = (
+						needed
+						.keySet()
 						.stream()
-					)
-					.flatMap((Holder<StructureSet> set) -> (
-						(
-							(SmartStructurePlacement)(
-								set.value().placement()
-							)
-						)
-						.bigglobe_generateStructuresInArea(
-							new SmartStructurePlacement.Context(
-								this.locator(),
-								params.context(),
-								set,
-								params.columnSource().lookup(),
-								area,
-								true
-							)
-						)
-					))
-					.map(ChunkSortedStructurePieces::new)
-					.collect(Collectors.groupingBy((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.originalStructure()))
-				);
-			});
-			if (params.whatToSearchFor().structures instanceof AllStructures) {
-				return unfiltered.values().stream().flatMap(List<ChunkSortedStructurePieces>::stream);
-			}
-			else {
-				return params.whatToSearchFor().streamStructures().flatMap((Holder<Structure> structure) -> {
-					List<ChunkSortedStructurePieces> pieces = unfiltered.get(structure);
-					return pieces != null ? pieces.stream() : Stream.empty();
+						.map((StructurePos pos) -> this.locator().getCachesBulk(pos).getUnfiltered(context))
+						.toArray(CompletableFuture[]::new)
+					);
+					return submitLater(
+						() -> {
+							SortedOverriders overriders = context.chunkGenerator().getOverriders();
+							return (
+								unfiltered
+								.values()
+								.stream()
+								.flatMap(List<ChunkSortedStructurePieces>::stream)
+								.filter((ChunkSortedStructurePieces pieces) -> {
+									ScriptedColumnLookup lookup = context.columnSource().lookup();
+									for (CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>> future : nearby) {
+										for (List<ChunkSortedStructurePieces> intersectors : future.join().values()) {
+											for (ChunkSortedStructurePieces intersector : intersectors) {
+												if (intersector.equals(pieces)) continue;
+												if (SortedStructurePieces.intersects(pieces, intersector)) {
+													int priority = overriders.getCollisionPriority(lookup, pieces.startWrapper, intersector.startWrapper);
+													if (priority < 0) {
+														if (canLog(pieces.startWrapper.originalStructure())) {
+															BigGlobeMod.LOGGER.info("Structure " + pieces + " did not spawn because it collided with a " + intersector + " and a collision overrider returned a negative priority.");
+														}
+														return false;
+													}
+													else if (priority == 0 && pieces.volume <= intersector.volume) {
+														if (canLog(pieces.startWrapper.originalStructure())) {
+															BigGlobeMod.LOGGER.info("Structure " + pieces + " did not spawn because it collided with a " + intersector + " and the other structure is bigger.");
+														}
+														return false;
+													}
+												}
+											}
+										}
+									}
+									return true;
+								})
+								.collect(Collectors.groupingBy((ChunkSortedStructurePieces pieces) -> (
+									pieces.startWrapper.originalStructure()
+								)))
+							);
+						},
+						nearby
+					);
 				});
-			}
+			});
 		}
 
-		public Stream<ChunkSortedStructurePieces> getFiltered(Params params) {
-			Map<Holder<Structure>, List<ChunkSortedStructurePieces>> filtered = this.filtered.getOrSetBlocking(() -> {
-				List<ChunkSortedStructurePieces> unfiltered = this.getUnfiltered(params.searchFor(this.locator().allStructures())).toList();
-				if (unfiltered.isEmpty()) return Collections.emptyMap();
-				BoundingBox union = BoundingBox.encapsulatingBoxes(unfiltered.stream().map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box())::iterator).orElseThrow();
-				BoundingBox centerArea = new BoundingBox(
-					union.minX(),
-					HeightLimitViewVersions.getMinY(params.height()),
-					union.minZ(),
-					union.maxX(),
-					HeightLimitViewVersions.getMaxY(params.height()) - 1,
-					union.maxZ()
-				);
-				Map<StructurePos, List<Holder<Structure>>> needed = (
-					this.locator().allStructures().stream().collect(Grouper.groupingToList(
-						Grouper.keysPerElement((Holder<Structure> structure) -> {
-							int expansion = ((SizedStructure)(structure.value())).bigglobe_getMaxRadiusInBlocks();
-							return StructurePos.intersectingArea(centerArea.inflatedBy(expansion, 0, expansion));
-						}),
-						Grouper.valueElement()
-					))
-				);
-				List<ChunkSortedStructurePieces> nearby = (
-					maybeParallel(needed.keySet().stream())
-					.map(this.locator()::getCachesBulk)
-					.flatMap((StructureCaches caches) -> {
-						List<Holder<Structure>> localNeeded = needed.get(caches.pos);
-						if (localNeeded == null) return Stream.empty();
-						return caches.getUnfiltered(params.searchFor(localNeeded::stream));
-					})
-					.toList()
-				);
-				SortedOverriders overriders = params.chunkGenerator().getOverriders();
-				return (
-					maybeParallel(unfiltered.stream())
-					.filter((ChunkSortedStructurePieces pieces) -> {
-						ScriptedColumnLookup lookup = params.columnSource().lookup();
-						for (ChunkSortedStructurePieces intersector : nearby) {
-							if (intersector.equals(pieces)) continue;
-							if (SortedStructurePieces.intersects(pieces, intersector)) {
-								int priority = overriders.getCollisionPriority(lookup, pieces.startWrapper, intersector.startWrapper);
-								if (priority < 0) {
-									if (canLog(pieces.startWrapper.originalStructure())) {
-										BigGlobeMod.LOGGER.info("Structure " + pieces + " did not spawn because it collided with a " + intersector + " and a collision overrider returned a negative priority.");
-									}
-									return false;
-								}
-								else if (priority == 0 && pieces.volume <= intersector.volume) {
-									if (canLog(pieces.startWrapper.originalStructure())) {
-										BigGlobeMod.LOGGER.info("Structure " + pieces + " did not spawn because it collided with a " + intersector + " and the other structure is bigger.");
-									}
-									return false;
-								}
-							}
-						}
-						return true;
-					})
-					.collect(Collectors.groupingBy((ChunkSortedStructurePieces pieces) -> (
-						pieces.startWrapper.originalStructure()
-					)))
-				);
-			});
-			if (params.whatToSearchFor().structures instanceof AllStructures) {
-				return filtered.values().stream().flatMap(List<ChunkSortedStructurePieces>::stream);
-			}
-			else {
-				return params.whatToSearchFor().streamStructures().flatMap((Holder<Structure> structure) -> {
-					List<ChunkSortedStructurePieces> pieces = filtered.get(structure);
-					return pieces != null ? pieces.stream() : Stream.empty();
-				});
-			}
-		}
-
-		public Map<Holder<Structure>, List<ChunkSortedStructurePieces>> getIntersecting(Context context) {
+		public CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>> getIntersecting(Context context) {
 			return this.intersecting.getOrSetBlocking(() -> {
 				BoundingBox selfArea = this.pos.toArea(context.height());
 				Map<StructurePos, List<Holder<Structure>>> needed = (
@@ -656,34 +700,29 @@ public class FlatStructureLocator extends StructureLocator {
 						Grouper.valueElement()
 					))
 				);
-				Map<Holder<Structure>, List<ChunkSortedStructurePieces>> result = (
-					maybeParallel(needed.keySet().stream())
-					.map(this.locator()::getCachesBulk)
-					.flatMap((StructureCaches caches) -> {
-						List<Holder<Structure>> localNeeded = needed.get(caches.pos);
-						if (localNeeded == null) return Stream.empty();
-						return caches.getFiltered(new Params(context, new ManyStructuresOneBox(localNeeded::stream, selfArea)));
-					})
-					.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(selfArea))
-					.collect(Collectors.groupingBy((ChunkSortedStructurePieces pieces) -> (
-						pieces.startWrapper.originalStructure()
-					)))
+				@SuppressWarnings("unchecked") //generic array.
+				CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] nearby = (
+					needed
+					.keySet()
+					.stream()
+					.map((StructurePos pos) -> this.locator().getCachesBulk(pos).getFiltered(context))
+					.toArray(CompletableFuture[]::new)
 				);
-				return result;
+				return submitLater(
+					() -> (
+						Arrays
+						.stream(nearby)
+						.map(CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>::join)
+						.flatMap((Map<Holder<Structure>, List<ChunkSortedStructurePieces>> map) -> map.values().stream())
+						.flatMap(List<ChunkSortedStructurePieces>::stream)
+						.filter((ChunkSortedStructurePieces pieces) -> pieces.startWrapper.box().intersects(selfArea))
+						.collect(Collectors.groupingBy((ChunkSortedStructurePieces pieces) -> {
+							return pieces.startWrapper.originalStructure();
+						}))
+					),
+					nearby
+				);
 			});
-		}
-
-		public Stream<ChunkSortedStructurePieces> getIntersecting(Params params) {
-			Map<Holder<Structure>, List<ChunkSortedStructurePieces>> intersecting = this.getIntersecting(params.context());
-			if (params.whatToSearchFor().structures instanceof AllStructures) {
-				return intersecting.values().stream().flatMap(List<ChunkSortedStructurePieces>::stream);
-			}
-			else {
-				return params.whatToSearchFor().streamStructures().flatMap((Holder<Structure> structure) -> {
-					List<ChunkSortedStructurePieces> pieces = intersecting.get(structure);
-					return pieces != null ? pieces.stream() : Stream.empty();
-				});
-			}
 		}
 	}
 

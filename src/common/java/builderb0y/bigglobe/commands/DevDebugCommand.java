@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.commands;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -229,11 +226,11 @@ public class DevDebugCommand {
 
 	public static void dumpStructures(FlatStructureLocator locator, StructureCaches caches, StructureLocator.Params params) {
 		BigGlobeMod.LOGGER.info("\tUNFILTERED:");
-		caches.getUnfiltered(params).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
+		caches.getUnfiltered(params.context()).join().values().stream().flatMap(List::stream).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
 		BigGlobeMod.LOGGER.info("\tFILTERED:");
-		caches.getFiltered(params).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
+		caches.getFiltered(params.context()).join().values().stream().flatMap(List::stream).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
 		BigGlobeMod.LOGGER.info("\tINTERSECTING CACHES:");
-		caches.getIntersecting(params).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
+		caches.getIntersecting(params.context()).join().values().stream().flatMap(List::stream).map(Objects::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
 		BigGlobeMod.LOGGER.info("\tINTERSECTING POSITION:");
 		locator.getStructuresIntersecting(params).map(StructureStartWrapper::originalID).map(Identifier::toString).map("\t\t"::concat).forEach(BigGlobeMod.LOGGER::info);
 	}

@@ -62,6 +62,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".Camera_HandleSoulLavaSubmersion",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                                                    Boolean.FALSE);
+		defaults.put(mixinPackage + ".ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed",                           Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreakingHeartBlock_MakeWorkInTheNether",                                                   Boolean.TRUE);

@@ -12,6 +12,7 @@
 		"BlockView_ExposeDimension",
 		"BoneMealItem_SpreadChorusNylium",
 		"CatEntity_PetTheKitty",
+		"ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed",
 		"ChunkRegion_UseCreateFlag",
 		"ConcentricRingsStructurePlacement_MakeSmart",
 		"CreakingHeartBlock_MakeWorkInTheNether",

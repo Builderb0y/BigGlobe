@@ -122,7 +122,6 @@ V6:
 			missing decoration:
 				mushroom shelves.
 				mangrove propagules.
-		FlatStructureLocator *still* deadlocks :(
 		verify that FlatStructureLocator handles C2ME being absent correctly.
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
