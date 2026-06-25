@@ -1,8 +1,12 @@
 package builderb0y.bigglobe.rendering.lods.flat;
 
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
@@ -10,12 +14,16 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderPass.Draw;
+import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
@@ -58,6 +66,8 @@ public class FlatLodRenderer extends LodRenderer {
 
 	public final FlatLodSystem system;
 	public final NativeMemory modelOffsetCpuBuffer;
+	public final List<LodQuadNode> sortedNodesToRender;
+	public final List<Draw<Void>> drawList;
 	public int maxIndices;
 
 	@Override
@@ -76,6 +86,8 @@ public class FlatLodRenderer extends LodRenderer {
 		super(system);
 		this.system = system;
 		this.modelOffsetCpuBuffer = new NativeMemory(TRANSFORM_SIZE);
+		this.sortedNodesToRender = new ArrayList<>(1024);
+		this.drawList = new ArrayList<>();
 	}
 
 	@Override
@@ -90,6 +102,7 @@ public class FlatLodRenderer extends LodRenderer {
 	}
 
 	public void uploadTransformations() {
+		this.sortedNodesToRender.clear();
 		this.maxIndices = 0;
 		double
 			x = this.frustum.x,
@@ -107,9 +120,10 @@ public class FlatLodRenderer extends LodRenderer {
 				RenderSystem.getDevice().createCommandEncoder().writeToBuffer(mesh.modelOffset.slice(), this.modelOffsetCpuBuffer.toByteBuffer());
 				this.modelOffsetCpuBuffer.clear();
 				this.maxIndices = Math.max(this.maxIndices, mesh.fullSize.indexCount());
+				this.sortedNodesToRender.add(node);
 			}
 		});
-		this.modelOffsetCpuBuffer.clear();
+		this.sortedNodesToRender.sort((LodQuadNode a, LodQuadNode b) -> Byte.compare(a.level, b.level));
 	}
 
 	@Override
@@ -127,57 +141,37 @@ public class FlatLodRenderer extends LodRenderer {
 			case TRANSLUCENT -> TRANSLUCENT;
 		});
 		double x = this.frustum.x, z = this.frustum.z;
-		this.traverseVisible((LodQuadNode node) -> {
+		for (LodQuadNode node : this.sortedNodesToRender) {
 			FlatMesh mesh = (FlatMesh)(node.mesh);
-			if (!mesh.isEmpty()) {
-				boolean uploaded = false;
-				DrawRange draw = mesh.getNone(layer);
-				if (draw.canDraw()) {
-					if (!uploaded) {
-						pass.setVertexBuffer(0, mesh.payload);
-						pass.setUniform("ModelOffset", mesh.modelOffset);
-						uploaded = true;
-					}
-					pass.drawIndexed(draw.firstVertex(), 0, draw.indexCount(), 1);
-				}
-				draw = mesh.getPosX(layer);
-				if (draw.canDraw() && x > node.minX()) {
-					if (!uploaded) {
-						pass.setVertexBuffer(0, mesh.payload);
-						pass.setUniform("ModelOffset", mesh.modelOffset);
-						uploaded = true;
-					}
-					pass.drawIndexed(draw.firstVertex(), 0, draw.indexCount(), 1);
-				}
-				draw = mesh.getPosZ(layer);
-				if (draw.canDraw() && z > node.minZ()) {
-					if (!uploaded) {
-						pass.setVertexBuffer(0, mesh.payload);
-						pass.setUniform("ModelOffset", mesh.modelOffset);
-						uploaded = true;
-					}
-					pass.drawIndexed(draw.firstVertex(), 0, draw.indexCount(), 1);
-				}
-				draw = mesh.getNegX(layer);
-				if (draw.canDraw() && x < node.maxX()) {
-					if (!uploaded) {
-						pass.setVertexBuffer(0, mesh.payload);
-						pass.setUniform("ModelOffset", mesh.modelOffset);
-						uploaded = true;
-					}
-					pass.drawIndexed(draw.firstVertex(), 0, draw.indexCount(), 1);
-				}
-				draw = mesh.getNegZ(layer);
-				if (draw.canDraw() && z < node.maxZ()) {
-					if (!uploaded) {
-						pass.setVertexBuffer(0, mesh.payload);
-						pass.setUniform("ModelOffset", mesh.modelOffset);
-						uploaded = true;
-					}
-					pass.drawIndexed(draw.firstVertex(), 0, draw.indexCount(), 1);
-				}
+			BiConsumer<Void, UniformUploader> uniforms = (Void _, UniformUploader uploader) -> {
+				uploader.upload("ModelOffset", mesh.modelOffset.slice());
+			};
+			DrawRange draw = mesh.getNone(layer);
+			if (draw.canDraw()) {
+				this.drawList.add(new Draw<>(0, mesh.payload, null, null, 0, draw.indexCount(), draw.firstVertex(), uniforms));
 			}
-		});
+			draw = mesh.getPosX(layer);
+			if (draw.canDraw() && x > node.minX()) {
+				this.drawList.add(new Draw<>(0, mesh.payload, null, null, 0, draw.indexCount(), draw.firstVertex(), uniforms));
+			}
+			draw = mesh.getPosZ(layer);
+			if (draw.canDraw() && z > node.minZ()) {
+				this.drawList.add(new Draw<>(0, mesh.payload, null, null, 0, draw.indexCount(), draw.firstVertex(), uniforms));
+			}
+			draw = mesh.getNegX(layer);
+			if (draw.canDraw() && x < node.maxX()) {
+				this.drawList.add(new Draw<>(0, mesh.payload, null, null, 0, draw.indexCount(), draw.firstVertex(), uniforms));
+			}
+			draw = mesh.getNegZ(layer);
+			if (draw.canDraw() && z < node.maxZ()) {
+				this.drawList.add(new Draw<>(0, mesh.payload, null, null, 0, draw.indexCount(), draw.firstVertex(), uniforms));
+			}
+		}
+		AutoStorageIndexBuffer buffers = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+		GpuBuffer indexBuffer = buffers.getBuffer(this.maxIndices);
+		IndexType indexType = buffers.type();
+		pass.drawMultipleIndexed(this.drawList, indexBuffer, indexType, requiredUniforms, null);
+		this.drawList.clear();
 	}
 
 	public void traverseVisible(Consumer<LodQuadNode> action) {

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.rendering.lods;
 
 import java.nio.ByteOrder;
+import java.util.Set;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
@@ -107,6 +108,8 @@ public abstract class LodRenderer implements SafeCloseable {
 			);
 		}
 	}
+
+	public static final Set<String> requiredUniforms = Set.of("Fog", "ExtraFog", "Matrices", "blockAtlas", "lightmap");
 
 	public void beginRendering(RenderPass pass) {
 		pass.setUniform("Fog", RenderSystem.getShaderFog());
