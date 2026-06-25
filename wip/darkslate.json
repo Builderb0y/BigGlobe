@@ -518,6 +518,38 @@
 					"weights": {
 						"group": "Inputs",
 						"variations": {
+							"Top": {
+								"shape": "SQUARE",
+								"preset": "MANUAL",
+								"radius": 1,
+								"weights": [
+									{ "x": -1, "y": -1, "weight": 1.0 },
+									{ "x": 0, "y": -1, "weight": 4.0 },
+									{ "x": 1, "y": -1, "weight": 1.0 },
+									{ "x": -1, "y": 0, "weight": 4.0 },
+									{ "x": 0, "y": 0, "weight": 16.0 },
+									{ "x": 1, "y": 0, "weight": 4.0 },
+									{ "x": -1, "y": 1, "weight": 1.0 },
+									{ "x": 0, "y": 1, "weight": 4.0 },
+									{ "x": 1, "y": 1, "weight": 1.0 }
+								]
+							},
+							"Polished": {
+								"shape": "SQUARE",
+								"preset": "MANUAL",
+								"radius": 1,
+								"weights": [
+									{ "x": -1, "y": -1, "weight": 1.0 },
+									{ "x": 0, "y": -1, "weight": 4.0 },
+									{ "x": 1, "y": -1, "weight": 1.0 },
+									{ "x": -1, "y": 0, "weight": 16.0 },
+									{ "x": 0, "y": 0, "weight": 64.0 },
+									{ "x": 1, "y": 0, "weight": 16.0 },
+									{ "x": -1, "y": 1, "weight": 1.0 },
+									{ "x": 0, "y": 1, "weight": 4.0 },
+									{ "x": 1, "y": 1, "weight": 1.0 }
+								]
+							},
 							"Chiseled": {
 								"shape": "SQUARE",
 								"preset": "MANUAL",
@@ -534,7 +566,7 @@
 									{ "x": 1, "y": 1, "weight": 1.0 }
 								]
 							},
-							"Tiles": {
+							"Side": {
 								"shape": "SQUARE",
 								"preset": "MANUAL",
 								"radius": 1,
@@ -566,6 +598,22 @@
 									{ "x": 1, "y": 1, "weight": 1.0 }
 								]
 							},
+							"Tiles": {
+								"shape": "SQUARE",
+								"preset": "MANUAL",
+								"radius": 1,
+								"weights": [
+									{ "x": -1, "y": -1, "weight": 1.0 },
+									{ "x": 0, "y": -1, "weight": 4.0 },
+									{ "x": 1, "y": -1, "weight": 1.0 },
+									{ "x": -1, "y": 0, "weight": 16.0 },
+									{ "x": 0, "y": 0, "weight": 64.0 },
+									{ "x": 1, "y": 0, "weight": 16.0 },
+									{ "x": -1, "y": 1, "weight": 1.0 },
+									{ "x": 0, "y": 1, "weight": 4.0 },
+									{ "x": 1, "y": 1, "weight": 1.0 }
+								]
+							},
 							"Bricks": {
 								"shape": "SQUARE",
 								"preset": "MANUAL",
@@ -577,54 +625,6 @@
 									{ "x": -1, "y": 0, "weight": 16.0 },
 									{ "x": 0, "y": 0, "weight": 64.0 },
 									{ "x": 1, "y": 0, "weight": 16.0 },
-									{ "x": -1, "y": 1, "weight": 1.0 },
-									{ "x": 0, "y": 1, "weight": 4.0 },
-									{ "x": 1, "y": 1, "weight": 1.0 }
-								]
-							},
-							"Polished": {
-								"shape": "SQUARE",
-								"preset": "MANUAL",
-								"radius": 1,
-								"weights": [
-									{ "x": -1, "y": -1, "weight": 1.0 },
-									{ "x": 0, "y": -1, "weight": 4.0 },
-									{ "x": 1, "y": -1, "weight": 1.0 },
-									{ "x": -1, "y": 0, "weight": 16.0 },
-									{ "x": 0, "y": 0, "weight": 64.0 },
-									{ "x": 1, "y": 0, "weight": 16.0 },
-									{ "x": -1, "y": 1, "weight": 1.0 },
-									{ "x": 0, "y": 1, "weight": 4.0 },
-									{ "x": 1, "y": 1, "weight": 1.0 }
-								]
-							},
-							"Side": {
-								"shape": "SQUARE",
-								"preset": "MANUAL",
-								"radius": 1,
-								"weights": [
-									{ "x": -1, "y": -1, "weight": 1.0 },
-									{ "x": 0, "y": -1, "weight": 4.0 },
-									{ "x": 1, "y": -1, "weight": 1.0 },
-									{ "x": -1, "y": 0, "weight": 16.0 },
-									{ "x": 0, "y": 0, "weight": 64.0 },
-									{ "x": 1, "y": 0, "weight": 16.0 },
-									{ "x": -1, "y": 1, "weight": 1.0 },
-									{ "x": 0, "y": 1, "weight": 4.0 },
-									{ "x": 1, "y": 1, "weight": 1.0 }
-								]
-							},
-							"Top": {
-								"shape": "SQUARE",
-								"preset": "MANUAL",
-								"radius": 1,
-								"weights": [
-									{ "x": -1, "y": -1, "weight": 1.0 },
-									{ "x": 0, "y": -1, "weight": 4.0 },
-									{ "x": 1, "y": -1, "weight": 1.0 },
-									{ "x": -1, "y": 0, "weight": 4.0 },
-									{ "x": 0, "y": 0, "weight": 16.0 },
-									{ "x": 1, "y": 0, "weight": 4.0 },
 									{ "x": -1, "y": 1, "weight": 1.0 },
 									{ "x": 0, "y": 1, "weight": 4.0 },
 									{ "x": 1, "y": 1, "weight": 1.0 }
@@ -648,11 +648,19 @@
 							"input": {
 								"group": "Inputs",
 								"variations": {
+									"Top": {
+										"type": "layer",
+										"layer": "top"
+									},
+									"Polished": {
+										"type": "layer",
+										"layer": "side"
+									},
 									"Chiseled": {
 										"type": "layer",
 										"layer": "chiseled"
 									},
-									"Tiles": {
+									"Side": {
 										"type": "layer",
 										"layer": "side"
 									},
@@ -660,21 +668,13 @@
 										"type": "layer",
 										"layer": "cobble"
 									},
+									"Tiles": {
+										"type": "layer",
+										"layer": "side"
+									},
 									"Bricks": {
 										"type": "layer",
 										"layer": "side"
-									},
-									"Polished": {
-										"type": "layer",
-										"layer": "side"
-									},
-									"Side": {
-										"type": "layer",
-										"layer": "side"
-									},
-									"Top": {
-										"type": "layer",
-										"layer": "top"
 									}
 								}
 							}
@@ -792,7 +792,12 @@
 						"main": {
 							"input": {
 								"group": "Global",
-								"variations": {}
+								"variations": {
+									"Default": {
+										"type": "layer",
+										"layer": "bricks"
+									}
+								}
 							}
 						},
 						"mask": {
@@ -1098,7 +1103,23 @@
 							"input": {
 								"group": "Inputs",
 								"variations": {
+									"Top": {
+										"type": "layer",
+										"layer": "sideDetail"
+									},
+									"Polished": {
+										"type": "layer",
+										"layer": "polishedDetail"
+									},
 									"Chiseled": {
+										"type": "layer",
+										"layer": "sideDetail"
+									},
+									"Side": {
+										"type": "layer",
+										"layer": "sideDetail"
+									},
+									"Cobble": {
 										"type": "layer",
 										"layer": "sideDetail"
 									},
@@ -1106,25 +1127,9 @@
 										"type": "layer",
 										"layer": "tilesDetail"
 									},
-									"Cobble": {
-										"type": "layer",
-										"layer": "sideDetail"
-									},
 									"Bricks": {
 										"type": "layer",
 										"layer": "brickDetail"
-									},
-									"Polished": {
-										"type": "layer",
-										"layer": "polishedDetail"
-									},
-									"Side": {
-										"type": "layer",
-										"layer": "sideDetail"
-									},
-									"Top": {
-										"type": "layer",
-										"layer": "sideDetail"
 									}
 								}
 							}
@@ -1349,7 +1354,7 @@
 								"variations": {
 									"Default": {
 										"type": "color",
-										"color": [ 0.125, 0.1875, 0.25, 1.0 ]
+										"color": [ 0.25, 0.3125, 0.375, 1.0 ]
 									}
 								}
 							}
@@ -1360,7 +1365,7 @@
 								"variations": {
 									"Default": {
 										"type": "color",
-										"color": [ 0.0, 0.03125, 0.0625, 1.0 ]
+										"color": [ 0.0, 0.0625, 0.125, 1.0 ]
 									}
 								}
 							}

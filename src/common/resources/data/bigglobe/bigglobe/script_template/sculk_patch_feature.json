@@ -117,7 +117,7 @@
 				"primaryY + directionY(pos.direction),",
 				"primaryZ + directionZ(pos.direction)",
 			")",
-			"if (adjacentState.blocksLight() && adjacentState !==. 'minecraft:sculk':",
+			"if (adjacentState.hasFullCubeCollision() && adjacentState !==. 'minecraft:sculk':",
 				"BlockState old = getBlockState(primaryX, primaryY, primaryZ)",
 				"if (old.getBlock() ===. 'minecraft:sculk_vein':",
 					"BlockState new = old.with(",
