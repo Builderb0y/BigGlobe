@@ -1,5 +1,5 @@
 {
-	"version": 12,
+	"version": 16,
 	"parameter_sets": {
 		"groups": [
 			{
@@ -10,11 +10,12 @@
 				]
 			},
 			{
-				"name": "Convolve Shape",
-				"selected": "Small",
+				"name": "Brightness",
+				"selected": "Full",
 				"variations": [
-					"Small",
-					"Large"
+					"Full",
+					"Half",
+					"Empty"
 				]
 			},
 			{
@@ -32,8 +33,67 @@
 		"selected_layer": "colorize",
 		"layers": [
 			{
-				"name": "New image",
+				"name": "brightness",
 				"gridX": 0,
+				"gridY": 0,
+				"width": 16,
+				"height": 16,
+				"sources": {
+					"type": "derived",
+					"clampRGB": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"clampA": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"code": {
+						"group": "Brightness",
+						"variations": {
+							"Empty": [
+								"return float4(0.0625).a(1.0);"
+							],
+							"Half": [
+								"return float4(0.5).a(1.0);"
+							],
+							"Full": [
+								"return float4(2.0).a(1.0);"
+							]
+						}
+					},
+					"autoSize": {
+						"group": "Global",
+						"variations": {
+							"Default": false
+						}
+					},
+					"dependencies": {}
+				},
+				"views": {
+					"type": "flat_clamped",
+					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"dependencies": {}
+				}
+			},
+			{
+				"name": "New image",
+				"gridX": 1,
 				"gridY": 0,
 				"width": 16,
 				"height": 16,
@@ -56,11 +116,17 @@
 						"variations": {
 							"Default": [
 								"float ign = ign(UV);",
-								"float bayer = reverseBits(UV.x) >>> 28 == UV.y ? 2.0 : 0.0625;",
+								"float bayer = reverseBits(UV.x) >>> 28 == UV.y ? brightness(UV).r : 0.0625;",
 								"float combined = ign * bayer;",
 								"combined = combined / sqrt(combined ^ 2 + 1.0);",
 								"return float4(...float3(combined * 2.0), 1.0);"
 							]
+						}
+					},
+					"autoSize": {
+						"group": "Global",
+						"variations": {
+							"Default": false
 						}
 					},
 					"dependencies": {}
@@ -68,6 +134,12 @@
 				"views": {
 					"type": "flat_tiling",
 					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
 						"group": "Global",
 						"variations": {
 							"Default": true
@@ -84,7 +156,7 @@
 			},
 			{
 				"name": "convolve",
-				"gridX": 1,
+				"gridX": 2,
 				"gridY": 0,
 				"width": 16,
 				"height": 16,
@@ -108,58 +180,43 @@
 							"Default": false
 						}
 					},
+					"bounds": {
+						"group": "Global",
+						"variations": {
+							"Default": {
+								"horizontal": "WRAP",
+								"vertical": "WRAP"
+							}
+						}
+					},
 					"normalize": {
 						"group": "Global",
 						"variations": {
 							"Default": true
 						}
 					},
-					"weights": {
-						"group": "Convolve Shape",
+					"alpha_weighting": {
+						"group": "Global",
 						"variations": {
-							"Small": {
-								"shape": "SQUARE",
-								"preset": "MANUAL",
-								"radius": 1,
-								"weights": [
-									{ "x": -1, "y": -1, "weight": 1.0 },
-									{ "x": 0, "y": -1, "weight": 1.0 },
-									{ "x": 1, "y": -1, "weight": 1.0 },
-									{ "x": -1, "y": 0, "weight": 1.0 },
-									{ "x": 0, "y": 0, "weight": 8.0 },
-									{ "x": 1, "y": 0, "weight": 1.0 },
-									{ "x": -1, "y": 1, "weight": 1.0 },
-									{ "x": 0, "y": 1, "weight": 1.0 },
-									{ "x": 1, "y": 1, "weight": 1.0 }
-								]
-							},
-							"Large": {
-								"shape": "SQUARE",
-								"preset": "MANUAL",
-								"radius": 2,
-								"weights": [
-									{ "x": -2, "y": -2, "weight": 1.0 },
-									{ "x": -1, "y": -2, "weight": 1.0 },
-									{ "x": 0, "y": -2, "weight": 1.0 },
-									{ "x": 1, "y": -2, "weight": 1.0 },
-									{ "x": 2, "y": -2, "weight": 1.0 },
-									{ "x": -2, "y": -1, "weight": 1.0 },
-									{ "x": 2, "y": -1, "weight": 1.0 },
-									{ "x": -2, "y": 0, "weight": 1.0 },
-									{ "x": 0, "y": 0, "weight": 4.0 },
-									{ "x": 2, "y": 0, "weight": 1.0 },
-									{ "x": -2, "y": 1, "weight": 1.0 },
-									{ "x": 2, "y": 1, "weight": 1.0 },
-									{ "x": -2, "y": 2, "weight": 1.0 },
-									{ "x": -1, "y": 2, "weight": 1.0 },
-									{ "x": 0, "y": 2, "weight": 1.0 },
-									{ "x": 1, "y": 2, "weight": 1.0 },
-									{ "x": 2, "y": 2, "weight": 1.0 }
-								]
-							}
+							"Default": false
 						}
 					},
+					"weights": {
+						"group": "Global",
+						"variations": {}
+					},
 					"dependencies": {
+						"regions": {
+							"input": {
+								"group": "Global",
+								"variations": {
+									"Default": {
+										"type": "color",
+										"color": [ 1.0, 1.0, 1.0, 1.0 ]
+									}
+								}
+							}
+						},
 						"main": {
 							"input": {
 								"group": "Global",
@@ -192,6 +249,12 @@
 							"Default": false
 						}
 					},
+					"show_alpha": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
 					"darken_exterior": {
 						"group": "Global",
 						"variations": {
@@ -203,7 +266,7 @@
 			},
 			{
 				"name": "colorize",
-				"gridX": 2,
+				"gridX": 3,
 				"gridY": 0,
 				"width": 16,
 				"height": 16,
@@ -240,7 +303,7 @@
 								"variations": {
 									"Artificial": {
 										"type": "color",
-										"color": [ 0.625, 0.25, 0.125, 0.5 ]
+										"color": [ 0.75, 0.5, 0.25, 0.5 ]
 									},
 									"Natural": {
 										"type": "color",
@@ -287,6 +350,12 @@
 				"views": {
 					"type": "flat_clamped",
 					"draw_outline": {
+						"group": "Global",
+						"variations": {
+							"Default": true
+						}
+					},
+					"show_alpha": {
 						"group": "Global",
 						"variations": {
 							"Default": true

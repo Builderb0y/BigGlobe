@@ -11,5 +11,5 @@
 		}
 	},
 	"if_true": "bigglobe:overworld/wood_palette/cold_test_humid",
-	"if_false": "bigglobe:overworld/wood_palette/test_warm"
+	"if_false": "bigglobe:overworld/wood_palette/temperate_test_magical"
 }

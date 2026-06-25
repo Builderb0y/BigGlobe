@@ -111,6 +111,8 @@ V6:
 		make it so that you can switch on custom enums.
 		make ball_of_string_remove recipe NOT match if the ball is empty.
 		split up BigGlobeItems just like I did with BigGlobeBlocks.
+		mushrooms in lush caves.
+			include upside down ones hanging from the ceiling.
 	urgent:
 		reduce number of biomes:
 			structures will need dispatchers.
@@ -126,7 +128,6 @@ V6:
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
 		make spawn tweakers tag-driven instead of biome-driven.
-		new texture for automatas.
 
 LODs:
 	shader support.
@@ -167,6 +168,8 @@ changelog:
 			* Scripts that place blocks at an absolute position instead of a relative one will either need to be converted accordingly, or be placed at a position that cancels this out.
 				* For example, if the script tries to place blocks at a specific Y level, then your feature dispatcher should place it at Y 0.
 	* Added new "quintic" noise source. Similar to cubic noise sources, but the derivative is smooth instead of just continuous.
+	# Missing functionality
+	* Islands world preset has not been re-implemented on top of new systems yet.
 
 alternate world presets:
 	paradise.

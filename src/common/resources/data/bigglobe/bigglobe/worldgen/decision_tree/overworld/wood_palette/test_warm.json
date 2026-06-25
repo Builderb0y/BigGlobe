@@ -4,5 +4,5 @@
 		"script": "world_traits.`bigglobe:temperature_at_surface` > 0.0I"
 	},
 	"if_true": "bigglobe:overworld/wood_palette/test_hot",
-	"if_false": "bigglobe:overworld/wood_palette/temperate_test_magical"
+	"if_false": "bigglobe:overworld/wood_palette/test_cold"
 }

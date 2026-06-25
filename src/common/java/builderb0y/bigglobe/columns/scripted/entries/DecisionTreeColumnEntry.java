@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
@@ -17,13 +16,13 @@ import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.MapData;
 import builderb0y.bigglobe.classes.BorderedValue;
 import builderb0y.bigglobe.classes.compile.ConstantFormatException;
-import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeException;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreePrinter;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSpec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.ClassCompileContext;
@@ -192,6 +191,7 @@ public class DecisionTreeColumnEntry extends LoopColumnEntry {
 					load("border", BorderedValue.TYPE)
 				);
 			}
+			DecisionTreePrinter.printIfEnabled(registry.idOf(this), this.root, this.patches);
 			return result;
 		}
 		catch (DecisionTreeException exception) {
