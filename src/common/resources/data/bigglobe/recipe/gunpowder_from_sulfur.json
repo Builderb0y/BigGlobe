@@ -1,11 +1,11 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{ "tag": "c:sulfurs" },
-		{ "tag": "minecraft:coals" }
+		"#c:sulfurs",
+		"#minecraft:coals"
 	],
 	"result": {
-		"item": "minecraft:gunpowder",
-		"count": 2
+		"count": 2,
+		"id": "minecraft:gunpowder"
 	}
 }

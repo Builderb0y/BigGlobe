@@ -7,11 +7,11 @@
 		" s "
 	],
 	"key": {
-		"p": { "item": "bigglobe:charred_planks" },
-		"s": { "item": "minecraft:stick" }
+		"p": "bigglobe:charred_planks",
+		"s": "minecraft:stick"
 	},
 	"result": {
-		"item": "bigglobe:charred_sign",
-		"count": 3
+		"count": 3,
+		"id": "bigglobe:charred_sign"
 	}
 }

@@ -7,10 +7,10 @@
 		"a a"
 	],
 	"key": {
-		"a": { "tag": "bigglobe:aura_bottles" },
-		"p": { "item": "minecraft:ender_pearl" }
+		"a": "#bigglobe:aura_bottles",
+		"p": "minecraft:ender_pearl"
 	},
 	"result": {
-		"item": "bigglobe:private_waypoint"
+		"id": "bigglobe:private_waypoint"
 	}
 }

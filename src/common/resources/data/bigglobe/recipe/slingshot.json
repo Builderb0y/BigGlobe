@@ -6,10 +6,10 @@
 		" s "
 	],
 	"key": {
-		"s": { "tag": "c:rods/wooden" },
-		"t": { "tag": "c:strings" }
+		"s": "#c:rods/wooden",
+		"t": "#c:strings"
 	},
 	"result": {
-		"item": "bigglobe:slingshot"
+		"id": "bigglobe:slingshot"
 	}
 }

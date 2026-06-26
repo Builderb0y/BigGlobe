@@ -5,11 +5,11 @@
 		"s"
 	],
 	"key": {
-		"c": { "tag": "c:sulfurs" },
-		"s": { "item": "minecraft:stick" }
+		"c": "#c:sulfurs",
+		"s": "minecraft:stick"
 	},
 	"result": {
-		"item": "minecraft:torch",
-		"count": 4
+		"count": 4,
+		"id": "minecraft:torch"
 	}
 }

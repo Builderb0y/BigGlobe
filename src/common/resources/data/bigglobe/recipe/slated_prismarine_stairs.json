@@ -6,7 +6,10 @@
 		"###"
 	],
 	"key": {
-		"#": { "item": "bigglobe:slated_prismarine" }
+		"#": "bigglobe:slated_prismarine"
 	},
-	"result": { "item": "bigglobe:slated_prismarine_stairs", "count": 4 }
+	"result": {
+		"count": 4,
+		"id": "bigglobe:slated_prismarine_stairs"
+	}
 }

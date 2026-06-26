@@ -6,9 +6,9 @@
 		"xxx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:voidmetal_ingot" }
+		"x": "bigglobe:voidmetal_ingot"
 	},
 	"result": {
-		"item": "bigglobe:voidmetal_block"
+		"id": "bigglobe:voidmetal_block"
 	}
 }

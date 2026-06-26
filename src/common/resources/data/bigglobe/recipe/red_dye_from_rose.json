@@ -2,9 +2,9 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "red_dye",
 	"ingredients": [
-		{ "item": "bigglobe:rose" }
+		"bigglobe:rose"
 	],
 	"result": {
-		"item": "minecraft:red_dye"
+		"id": "minecraft:red_dye"
 	}
 }

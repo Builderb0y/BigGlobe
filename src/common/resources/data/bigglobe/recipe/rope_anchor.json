@@ -5,9 +5,9 @@
 		" i "
 	],
 	"key": {
-		"i": { "tag": "c:ingots/iron" }
+		"i": "#c:ingots/iron"
 	},
 	"result": {
-		"item": "bigglobe:rope_anchor"
+		"id": "bigglobe:rope_anchor"
 	}
 }

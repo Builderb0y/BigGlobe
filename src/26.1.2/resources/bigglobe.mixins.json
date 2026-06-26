@@ -39,7 +39,6 @@
 		"Items_PlaceableFlint",
 		"Items_PlaceableSticks",
 		"ItemStack_DynamicMaxDamage",
-		"JsonDataLoader_BackwardsCompatibleRecipes",
 		"MinecraftServer_InitializeSpawnPoint",
 		"MinecraftServer_SessionAccess",
 		"MobSpawnerLogic_GettersAndSettersForEverything",

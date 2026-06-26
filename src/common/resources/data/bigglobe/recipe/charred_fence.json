@@ -6,10 +6,10 @@
 		"psp"
 	],
 	"key": {
-		"s": { "item": "minecraft:stick" },
-		"p": { "item": "bigglobe:charred_planks" }
+		"s": "minecraft:stick",
+		"p": "bigglobe:charred_planks"
 	},
 	"result": {
-		"item": "bigglobe:charred_fence"
+		"id": "bigglobe:charred_fence"
 	}
 }

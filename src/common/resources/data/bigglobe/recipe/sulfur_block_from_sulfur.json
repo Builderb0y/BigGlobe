@@ -6,9 +6,9 @@
 		"xxx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:sulfur" }
+		"x": "bigglobe:sulfur"
 	},
 	"result": {
-		"item": "bigglobe:sulfur_block"
+		"id": "bigglobe:sulfur_block"
 	}
 }

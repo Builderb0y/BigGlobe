@@ -1,7 +1,10 @@
 {
 	"type": "minecraft:smithing_transform",
-	"base":     { "item": "minecraft:diamond_chestplate" },
-	"addition": { "item": "bigglobe:voidmetal_ingot"   },
-	"template": { "item": "bigglobe:voidmetal_upgrade" },
-	"result":   { "item": "bigglobe:voidmetal_chestplate", "count": 1 }
+	"base": "minecraft:diamond_chestplate",
+	"addition": "bigglobe:voidmetal_ingot",
+	"template": "bigglobe:voidmetal_upgrade",
+	"result": {
+		"count": 1,
+		"id": "bigglobe:voidmetal_chestplate"
+	}
 }

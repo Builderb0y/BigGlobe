@@ -6,11 +6,11 @@
 		"sws"
 	],
 	"key": {
-		"s": { "tag": "c:strings" },
-		"w": { "tag": "c:rods/wooden" }
+		"s": "#c:strings",
+		"w": "#c:rods/wooden"
 	},
 	"result": {
-		"item": "bigglobe:spelunking_rope",
-		"count": 6
+		"count": 6,
+		"id": "bigglobe:spelunking_rope"
 	}
 }

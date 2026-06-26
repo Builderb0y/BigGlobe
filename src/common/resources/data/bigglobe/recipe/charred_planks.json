@@ -2,10 +2,10 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "planks",
 	"ingredients": [
-		{ "tag": "bigglobe:charred_logs" }
+		"#bigglobe:charred_logs"
 	],
 	"result": {
-		"item": "bigglobe:charred_planks",
-		"count": 4
+		"count": 4,
+		"id": "bigglobe:charred_planks"
 	}
 }

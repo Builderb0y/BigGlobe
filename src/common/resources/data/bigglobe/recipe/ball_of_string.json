@@ -6,9 +6,9 @@
 		"sss"
 	],
 	"key": {
-		"s": { "tag": "c:strings" }
+		"s": "#c:strings"
 	},
 	"result": {
-		"item": "bigglobe:ball_of_string"
+		"id": "bigglobe:ball_of_string"
 	}
 }

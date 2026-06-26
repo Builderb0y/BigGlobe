@@ -138,7 +138,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".Heightmap_StorageAccess");
 		unconfigurable.add(mixinPackage + ".InGameHud_DebugHudGetter");
 		unconfigurable.add(mixinPackage + ".ItemStack_DynamicMaxDamage");
-		unconfigurable.add(mixinPackage + ".JsonDataLoader_BackwardsCompatibleRecipes");
 		unconfigurable.add(mixinPackage + ".MinecraftClient_SetWorldEvent");
 		unconfigurable.add(mixinPackage + ".MinecraftServer_SessionAccess");
 		unconfigurable.add(mixinPackage + ".MobSpawnerLogic_GettersAndSettersForEverything");

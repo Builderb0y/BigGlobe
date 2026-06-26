@@ -5,10 +5,10 @@
 		"xxx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:charred_planks" }
+		"x": "bigglobe:charred_planks"
 	},
 	"result": {
-		"item": "bigglobe:charred_slab",
-		"count": 6
+		"count": 6,
+		"id": "bigglobe:charred_slab"
 	}
 }

@@ -6,10 +6,10 @@
 		" s "
 	],
 	"key": {
-		"i": { "tag": "c:ingots/iron" },
-		"s": { "tag": "c:rods/wooden" }
+		"i": "#c:ingots/iron",
+		"s": "#c:rods/wooden"
 	},
 	"result": {
-		"item": "bigglobe:percussive_hammer"
+		"id": "bigglobe:percussive_hammer"
 	}
 }

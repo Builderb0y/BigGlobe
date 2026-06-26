@@ -2,9 +2,9 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "blue_dye",
 	"ingredients": [
-		{ "item": "bigglobe:bluebonnets" }
+		"bigglobe:bluebonnets"
 	],
 	"result": {
-		"item": "minecraft:blue_dye"
+		"id": "minecraft:blue_dye"
 	}
 }

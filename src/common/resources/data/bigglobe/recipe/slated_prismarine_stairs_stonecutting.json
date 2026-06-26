@@ -1,8 +1,8 @@
 {
 	"type": "minecraft:stonecutting",
-	"ingredient": {
-		"item": "bigglobe:slated_prismarine"
-	},
-	"result": "bigglobe:slated_prismarine_stairs",
-	"count": 1
+	"ingredient": "bigglobe:slated_prismarine",
+	"result": {
+		"id": "bigglobe:slated_prismarine_stairs",
+		"count": 1
+	}
 }

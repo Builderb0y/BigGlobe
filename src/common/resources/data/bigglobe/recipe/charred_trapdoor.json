@@ -6,10 +6,10 @@
 		"xxx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:charred_planks" }
+		"x": "bigglobe:charred_planks"
 	},
 	"result": {
-		"item": "bigglobe:charred_trapdoor",
-		"count": 2
+		"count": 2,
+		"id": "bigglobe:charred_trapdoor"
 	}
 }

@@ -6,9 +6,12 @@
 		"f"
 	],
 	"key": {
-		"c": { "tag": "bigglobe:coal_crafting_materials" },
-		"s": { "tag": "c:rods/wooden" },
-		"f": { "tag": "c:feathers" }
+		"c": "#bigglobe:coal_crafting_materials",
+		"s": "#c:rods/wooden",
+		"f": "#c:feathers"
 	},
-	"result": { "item": "bigglobe:torch_arrow", "count": 4 }
+	"result": {
+		"count": 4,
+		"id": "bigglobe:torch_arrow"
+	}
 }

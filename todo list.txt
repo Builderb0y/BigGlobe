@@ -66,19 +66,16 @@ V6:
 	not urgent:
 		LOD renderer improvements:
 			make ingesting work in multiplayer.
-		fix Data mutability paradigm in AutoCodec.
 		dynamic block segment types?
-		random.between[low, high).
 		separate dragon nest for each stronghold?
 			this will probably require some hacks for dragon flight logic.
 			also end crystal spike generation.
-		new "rock layers" for nether too?
+		new positional rock types for nether too?
 		3D structure dispatcher.
 		half (16-bit float) storage mode in NumberArray.
 		expose Fluid and FluidState to scripts, remove BlockState.hasWater(), hasLava(), and hasSoulLava() methods.
 			add setFluidState() to WorldWrapper which modifies waterlogged property.
 			ideally block states and fluid states should be completely separate.
-		update recipes to modern schemas, remove JsonDataLoader_BackwardsCompatibleRecipes mixin.
 		remove BigGlobeEntityRenderer.
 		update AutoCodec.
 		remove script templates?
@@ -113,6 +110,7 @@ V6:
 		split up BigGlobeItems just like I did with BigGlobeBlocks.
 		mushrooms in lush caves.
 			include upside down ones hanging from the ceiling.
+		pointy mountains.
 	urgent:
 		reduce number of biomes:
 			structures will need dispatchers.
@@ -149,8 +147,9 @@ json classes:
 changelog:
 	# For normal people
 	* Entirely new overworld design.
+		* Rivers no longer attempt to go through mountains and fail.
+		* Specific tree types are now easier to find.
 	* Nether walls between biomes now only extend up to Y 512, making traversal at higher Y levels easier.
-	* Overworld biomes now have new sky and fog colors.
 	# For data pack developers
 	* Added new json-defined custom class system, supporting inheritance, object-oriented design, and can be used in most other scripts.
 	* All Big Globe custom registries are now in the `bigglobe` namespace.

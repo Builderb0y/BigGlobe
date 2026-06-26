@@ -7,10 +7,10 @@
 		"xxx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:charred_planks" }
+		"x": "bigglobe:charred_planks"
 	},
 	"result": {
-		"item": "bigglobe:charred_stairs",
-		"count": 4
+		"count": 4,
+		"id": "bigglobe:charred_stairs"
 	}
 }

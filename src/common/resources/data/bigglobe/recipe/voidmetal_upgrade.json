@@ -7,9 +7,12 @@
 		"ddd"
 	],
 	"key": {
-		"d": { "item": "minecraft:diamond" },
-		"c": { "item": "bigglobe:void_cloud" },
-		"u": { "item": "bigglobe:voidmetal_upgrade" }
+		"d": "minecraft:diamond",
+		"c": "bigglobe:void_cloud",
+		"u": "bigglobe:voidmetal_upgrade"
 	},
-	"result": { "item": "bigglobe:voidmetal_upgrade", "count": 2 }
+	"result": {
+		"count": 2,
+		"id": "bigglobe:voidmetal_upgrade"
+	}
 }

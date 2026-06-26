@@ -1,11 +1,11 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{ "tag": "bigglobe:aura_bottles" },
-		{ "item": "minecraft:iron_ingot" },
-		{ "item": "minecraft:ender_pearl" }
+		"#bigglobe:aura_bottles",
+		"minecraft:iron_ingot",
+		"minecraft:ender_pearl"
 	],
 	"result": {
-		"item": "bigglobe:voidmetal_ingot"
+		"id": "bigglobe:voidmetal_ingot"
 	}
 }

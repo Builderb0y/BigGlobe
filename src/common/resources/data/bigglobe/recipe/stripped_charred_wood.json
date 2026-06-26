@@ -6,10 +6,10 @@
 		"xx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:stripped_charred_log" }
+		"x": "bigglobe:stripped_charred_log"
 	},
 	"result": {
-		"item": "bigglobe:stripped_charred_wood",
-		"count": 3
+		"count": 3,
+		"id": "bigglobe:stripped_charred_wood"
 	}
 }

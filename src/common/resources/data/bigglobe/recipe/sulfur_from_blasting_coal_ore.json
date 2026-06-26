@@ -3,6 +3,8 @@
 	"cookingtime": 100,
 	"experience": 0.1,
 	"group": "bigglobe:sulfur",
-	"ingredient": { "item": "bigglobe:sulfur_ore" },
-	"result": "bigglobe:sulfur"
+	"ingredient": "bigglobe:sulfur_ore",
+	"result": {
+		"id": "bigglobe:sulfur"
+	}
 }

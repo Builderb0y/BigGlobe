@@ -2,9 +2,9 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "wooden_button",
 	"ingredients": [
-		{ "item": "bigglobe:charred_planks" }
+		"bigglobe:charred_planks"
 	],
 	"result": {
-		"item": "bigglobe:charred_button"
+		"id": "bigglobe:charred_button"
 	}
 }

@@ -5,9 +5,9 @@
 		"xx"
 	],
 	"key": {
-		"x": { "item": "bigglobe:charred_planks" }
+		"x": "bigglobe:charred_planks"
 	},
 	"result": {
-		"item": "bigglobe:charred_pressure_plate"
+		"id": "bigglobe:charred_pressure_plate"
 	}
 }

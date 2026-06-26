@@ -4,7 +4,10 @@
 		"###"
 	],
 	"key": {
-		"#": { "item": "bigglobe:slated_prismarine" }
+		"#": "bigglobe:slated_prismarine"
 	},
-	"result": { "item": "bigglobe:slated_prismarine_slab", "count": 6 }
+	"result": {
+		"count": 6,
+		"id": "bigglobe:slated_prismarine_slab"
+	}
 }

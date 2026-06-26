@@ -6,12 +6,12 @@
 		"c"
 	],
 	"key": {
-		"a": { "tag": "c:sulfurs" },
-		"b": { "item": "minecraft:stick" },
-		"c": { "tag": "minecraft:soul_fire_base_blocks" }
+		"a": "#c:sulfurs",
+		"b": "minecraft:stick",
+		"c": "#minecraft:soul_fire_base_blocks"
 	},
 	"result": {
-		"item": "minecraft:soul_torch",
-		"count": 4
+		"count": 4,
+		"id": "minecraft:soul_torch"
 	}
 }
