@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld"
-	],
 	"primary_entity": "minecraft:glow_squid",
 	"script": [
 		"int depth = max(world_traits.`bigglobe:sea_level` - y, 0)",

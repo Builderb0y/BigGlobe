@@ -126,12 +126,17 @@ public class DevDebugCommand {
 	public static int printEntitySpawnWeightsForCategory(CommandContext<CommandSourceStack> context) {
 		ServerLevel world = context.getSource().getLevel();
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			BlockPos pos = BlockPos.containing(context.getSource().getPosition());
-			SpawnMap map = generator.spawnTweakers.getRawSpawnEntries(generator, pos, context.getArgument("category", MobCategory.class), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
-			for (Map.Entry<EntityType<?>, SpawnParams> entry : map.backingMap.entrySet()) {
-				BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(entry.getKey().builtInRegistryHolder()) + ": " + entry.getValue());
+			if (generator.game_mechanics.mob_spawn_tweakers() != null) {
+				BlockPos pos = BlockPos.containing(context.getSource().getPosition());
+				SpawnMap map = generator.game_mechanics.mob_spawn_tweakers().getRawSpawnEntries(generator, pos, context.getArgument("category", MobCategory.class), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
+				for (Map.Entry<EntityType<?>, SpawnParams> entry : map.backingMap.entrySet()) {
+					BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(entry.getKey().builtInRegistryHolder()) + ": " + entry.getValue());
+				}
+				return 1;
 			}
-			return 1;
+			else {
+				BigGlobeMod.LOGGER.info("No spawn tweakers for this dimension.");
+			}
 		}
 		return 0;
 	}
@@ -139,11 +144,16 @@ public class DevDebugCommand {
 	public static int printEntitySpawnWeightsForType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerLevel world = context.getSource().getLevel();
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			BlockPos pos = BlockPos.containing(context.getSource().getPosition());
-			EntityType<?> type = ResourceArgument.getEntityType(context, "entityType").value();
-			SpawnMap map = generator.spawnTweakers.getRawSpawnEntries(generator, pos, type.getCategory(), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
-			BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(type.builtInRegistryHolder()) + ": " + map.backingMap.get(type));
-			return 1;
+			if (generator.game_mechanics.mob_spawn_tweakers() != null) {
+				BlockPos pos = BlockPos.containing(context.getSource().getPosition());
+				EntityType<?> type = ResourceArgument.getEntityType(context, "entityType").value();
+				SpawnMap map = generator.game_mechanics.mob_spawn_tweakers().getRawSpawnEntries(generator, pos, type.getCategory(), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
+				BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(type.builtInRegistryHolder()) + ": " + map.backingMap.get(type));
+				return 1;
+			}
+			else {
+				BigGlobeMod.LOGGER.info("No spawn tweakers for this dimension.");
+			}
 		}
 		return 0;
 	}

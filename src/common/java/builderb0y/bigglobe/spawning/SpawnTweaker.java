@@ -8,32 +8,32 @@ import org.jspecify.annotations.NonNull;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.biome.Biome;
 
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.DefaultDouble;
+import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.entries.EntityTypeEntry;
+import builderb0y.bigglobe.scripting.wrappers.tags.SpawnTweakerTag;
 import builderb0y.bigglobe.spawning.SpawnMap.SpawnParams;
-import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.collections.NormalListMapGetterInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
-import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public record SpawnTweaker(
 	@DefaultDouble(0.0D) double order,
-	DelayedEntryList<Biome> biomes,
 	@VerifyNullable MobCategory category,
 	@VerifyNullable Holder<EntityType<?>> primary_entity,
 	SpawnTweakerScript.Catcher script
@@ -51,9 +51,28 @@ implements Comparable<SpawnTweaker> {
 		return Double.compare(this.order, that.order);
 	}
 
+	public static void apply(
+		MobCategory category,
+		ScriptedColumn column,
+		int y,
+		BiomeEntry biome,
+		RandomGenerator random,
+		SpawnMap spawnMap,
+		SpawnParams spawnParams,
+		SpawnTweakerTag tag
+	) {
+		for (SpawnTweaker tweaker : tag.list.objectList()) {
+			MobCategory category2 = tweaker.getCategory();
+			if (category2 == null || category2 == category) {
+				tweaker.script.tweak(category, column, y, biome, random, spawnMap, tweaker.primary_entity() != null ? spawnMap._get(tweaker.primary_entity().value()) : null);
+			}
+		}
+	}
+
 	public interface SpawnTweakerScript extends ColumnScript {
 
 		public abstract void tweak(
+			MobCategory category,
 			ScriptedColumn column,
 			int y,
 			BiomeEntry biome,
@@ -100,6 +119,19 @@ implements Comparable<SpawnTweaker> {
 				.addQualifiedConstructor(SpawnParams.CONSTRUCTUR)
 				.addFieldGet(SpawnParams.INFO.weight)
 				.addFieldGet(SpawnParams.INFO.count)
+				.addFunction(
+					Handlers
+					.methodBuilder(SpawnTweaker.class, "apply")
+					.addImplicitArgument(load("category", type(MobCategory.class)))
+					.addImplicitArgumentOfType(load(parameters.actualColumn), ScriptedColumn.class)
+					.addImplicitArgument(load("y", type(int.class)))
+					.addImplicitArgument(load("biome", type(BiomeEntry.class)))
+					.addImplicitArgument(load("random", type(RandomGenerator.class)))
+					.addImplicitArgument(load("spawnMap", type(SpawnMap.class)))
+					.addImplicitArgument(load("spawnParams", type(SpawnParams.class)))
+					.addRequiredArgument(SpawnTweakerTag.class)
+					.buildFunction()
+				)
 				;
 			}
 
@@ -110,6 +142,7 @@ implements Comparable<SpawnTweaker> {
 
 			@Override
 			public void tweak(
+				MobCategory category,
 				ScriptedColumn column,
 				int y,
 				BiomeEntry biome,
@@ -120,7 +153,7 @@ implements Comparable<SpawnTweaker> {
 				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
-					this.script.tweak(column, y, biome, random, spawnMap, spawnParams);
+					this.script.tweak(category, column, y, biome, random, spawnMap, spawnParams);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);

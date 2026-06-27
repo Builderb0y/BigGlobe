@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 1.0,
 		"biome": "bigglobe:nether/crimson_forest",
+		"mobSpawnTweakers": "#bigglobe:nether/crimson_forest",
 		"decorator": "bigglobe:nether/decorators/crimson_forest"
 	}
 }

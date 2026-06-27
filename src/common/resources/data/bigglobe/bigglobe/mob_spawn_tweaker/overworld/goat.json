@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:goat",
 	"script": [
 		"if (`bigglobe:overworld/default_surface_depth` < 1.0I:",

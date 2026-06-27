@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld"
-	],
 	"primary_entity": "minecraft:spider",
 	"script": [
 		"spawnParams.=$weight(1.0L).=$count(random.nextBetween[2, 4])"

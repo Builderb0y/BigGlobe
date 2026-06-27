@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:horse",
 	"script": [
 		"float*(",

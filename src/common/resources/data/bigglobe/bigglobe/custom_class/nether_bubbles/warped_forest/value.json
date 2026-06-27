@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 0.25,
 		"biome": "bigglobe:nether/warped_forest",
+		"mobSpawnTweakers": "#bigglobe:nether/warped_forest",
 		"decorator": "bigglobe:nether/decorators/warped_forest"
 	}
 }

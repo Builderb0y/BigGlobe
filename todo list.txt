@@ -125,7 +125,6 @@ V6:
 		verify that FlatStructureLocator handles C2ME being absent correctly.
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
-		make spawn tweakers tag-driven instead of biome-driven.
 
 LODs:
 	shader support.

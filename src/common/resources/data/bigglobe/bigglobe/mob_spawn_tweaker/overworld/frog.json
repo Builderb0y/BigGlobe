@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:frog",
 	"script": [
 		"if (world_traits.`bigglobe:wood_palette` ==. 'minecraft:mangrove':",

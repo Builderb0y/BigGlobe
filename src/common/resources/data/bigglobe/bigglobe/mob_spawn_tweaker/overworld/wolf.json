@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:wolf",
 	"script": [
 		"float foliage = world_traits.`bigglobe:foliage_at`",

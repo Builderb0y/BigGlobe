@@ -1072,6 +1072,35 @@ public abstract class BuiltinType implements Named {
 				return ldc(EntityTypeTag.of(hierarchy.registry.constantFlags(), asString(data).value), EntityTypeTag.TYPE);
 			}
 		});
+		register("spawn_tweaker", new Typed("SpawnTweaker", SpawnTweakerEntry.TYPE) {
+
+			@Override
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment.addCastConstant(SpawnTweakerEntry.CONSTANT_FACTORY, true);
+			}
+
+			@Override
+			public InsnTree parseConstant(ClassHierarchy hierarchy, BuiltinTypeSpec spec, Data data) throws ConstantFormatException {
+				return ldc(SpawnTweakerEntry.of(asString(data).value, hierarchy.registry.constantFlags()), SpawnTweakerEntry.TYPE);
+			}
+		});
+		register("spawn_tweaker_tag", new Typed("SpawnTweakerTag", SpawnTweakerTag.TYPE) {
+
+			@Override
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment
+				.addMethod(Handlers.methodBuilder(SpawnTweakerTag.class, "random").onUsed(callback).resultClass(SpawnTweakerEntry.class).addReceiverArgument(this.type).addImportedArgument(RandomGenerator.class).buildMethod())
+				.addMethod(Handlers.methodBuilder(SpawnTweakerTag.class, "random").onUsed(callback).resultClass(SpawnTweakerEntry.class).addReceiverArgument(this.type).addRequiredArgument(RandomGenerator.class).buildMethod())
+				.addMethod(Handlers.methodBuilder(SpawnTweakerTag.class, "random").onUsed(callback).resultClass(SpawnTweakerEntry.class).addReceiverArgument(this.type).addRequiredArgument(long.class).buildMethod())
+				;
+				SpawnTweakerTag.PARSER.configure(environment, callback);
+			}
+
+			@Override
+			public InsnTree parseConstant(ClassHierarchy hierarchy, BuiltinTypeSpec spec, Data data) throws ConstantFormatException {
+				return ldc(SpawnTweakerTag.of(hierarchy.registry.constantFlags(), asString(data).value), SpawnTweakerTag.TYPE);
+			}
+		});
 		register("wood_palette", new Typed("WoodPalette", WoodPaletteEntry.INFO.type) {
 
 			@Override

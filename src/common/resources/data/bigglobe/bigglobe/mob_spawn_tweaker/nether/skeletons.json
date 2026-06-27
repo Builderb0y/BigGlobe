@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"bigglobe:nether/valley_of_souls"
-	],
 	"primary_entity": "minecraft:skeleton",
 	"script": [
 		"int count = random.nextBetween[2, 4]",

@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:polar_bear",
 	"script": [
 		"spawnParams.=$weight(-world_traits.`bigglobe:temperature_at` - 0.25I).=$count(1)"

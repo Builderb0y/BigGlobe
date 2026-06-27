@@ -174,6 +174,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public static record GameMechanics(
 		ColumnRandomToBooleanScript.@VerifyNullable Catcher spawn_point,
+		@VerifyNullable SpawnTweakers mob_spawn_tweakers,
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
 		@VerifyNullable NetherOverrides nether,
@@ -183,6 +184,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	) {
 
 		public static final GameMechanics DEFAULT = new GameMechanics(
+			null,
 			null,
 			null,
 			null,
@@ -261,8 +263,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public transient WorldTraits compiledWorldTraits;
 	public transient ColumnEntryRegistry columnEntryRegistry;
 
-	public final SpawnTweakers spawnTweakers;
-
 	public transient SortedOverriders actualOverriders;
 	public transient long columnSeed;
 	public transient boolean seedSet;
@@ -284,8 +284,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		BiomeSource                 biome_source,
 		DelayedEntryList<Overrider> overriders,
 		GameMechanics               game_mechanics,
-		@VerifyNullable Identifier  world_traits,
-		SpawnTweakers spawnTweakers
+		@VerifyNullable Identifier  world_traits
 	)
 	throws VerifyException {
 		super(biome_source);
@@ -300,7 +299,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.overriders         = overriders;
 		this.game_mechanics     = game_mechanics;
 		this.world_traits       = world_traits;
-		this.spawnTweakers      = spawnTweakers;
 		this.loadedWorldTraits  = TraitLoader.load(world_traits, decodeContext);
 		this.rootDebugDisplay   = Collections.emptyList();
 	}
@@ -322,7 +320,6 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.setCompiledWorldTraits(from.compiledWorldTraits);
 		this.rootDebugDisplay    = Collections.emptyList();
 		this.structuresEnabled   = from.structuresEnabled;
-		this.spawnTweakers       = from.spawnTweakers;
 	}
 
 	@Override
@@ -594,7 +591,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				pos,
 				group
 			);
-			return spawns != null ? spawns : this.spawnTweakers.getSpawnEntries(this, pos, group, biome, Permuter.from(serverLevel.getRandom()));
+			if (spawns != null) {
+				return spawns;
+			}
+			if (this.game_mechanics.mob_spawn_tweakers != null) {
+				return this.game_mechanics.mob_spawn_tweakers.getSpawnEntries(this, pos, group, biome, Permuter.from(serverLevel.getRandom()));
+			}
+			return WeightedList.of();
 		}
 		else {
 			if (Tripwire.isEnabled()) {
@@ -607,6 +610,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	@SuppressWarnings("RedundantCast")
 	public void spawnOriginalMobs(WorldGenRegion region) {
+		if (this.game_mechanics.mob_spawn_tweakers == null) return;
 		//copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenter();
 		BlockPos chunkCenter = new BlockPos(
@@ -625,7 +629,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		//inlined from SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
 		//reason: default method only considers biome and does not query chunk generator for mob list.
 		MobSpawnSettings spawnSettings = registryEntry.value().getMobSettings();
-		WeightedList<SpawnerData> pool = this.spawnTweakers.getSpawnEntries(this, chunkCenter, MobCategory.CREATURE, registryEntry, Permuter.from(chunkRandom));
+		WeightedList<SpawnerData> pool = this.game_mechanics.mob_spawn_tweakers.getSpawnEntries(this, chunkCenter, MobCategory.CREATURE, registryEntry, Permuter.from(chunkRandom));
 		if (!pool.isEmpty()) {
 			int i = chunkPos.getMinBlockX();
 			int j = chunkPos.getMinBlockZ();

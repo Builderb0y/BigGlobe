@@ -1,8 +1,5 @@
 {
 	"order": 1000,
-	"biomes": [
-		"#bigglobe:overworld"
-	],
 	"script": [
 		"if (y < world_traits.`bigglobe:deep_dark_max_y`:",
 			"spawnMap.clear()",

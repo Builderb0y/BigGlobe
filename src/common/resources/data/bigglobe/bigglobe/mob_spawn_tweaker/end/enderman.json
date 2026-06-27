@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:end"
-	],
 	"primary_entity": "minecraft:enderman",
 	"script": [
 		"spawnParams.=$weight(1.0L).=$count(random.nextBetween[2, 4])"

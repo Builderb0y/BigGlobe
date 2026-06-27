@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld"
-	],
 	"primary_entity": "minecraft:enderman",
 	"script": [
 		"spawnParams.=$weight(0.0625L).=$count(1)"

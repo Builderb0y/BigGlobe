@@ -1,0 +1,5 @@
+{
+	"script": [
+		"apply(`bigglobe:nether/bubble_type`.mobSpawnTweakers)"
+	]
+}

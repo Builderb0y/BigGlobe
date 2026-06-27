@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether/ghast_half",
+		"bigglobe:nether/wither_skeletons",
+		"bigglobe:nether/zoglins"
+	]
+}

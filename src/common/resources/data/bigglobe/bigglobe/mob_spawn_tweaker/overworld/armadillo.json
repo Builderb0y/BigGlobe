@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:armadillo",
 	"script": [
 		"float temperature = world_traits.`bigglobe:temperature_at`",

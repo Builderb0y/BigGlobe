@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld"
-	],
 	"primary_entity": "minecraft:skeleton",
 	"script": [
 		"int count = random.nextBetween[2, 4]",

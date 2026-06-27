@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 0.75,
 		"biome": "bigglobe:nether/pale_garden",
+		"mobSpawnTweakers": "#bigglobe:nether/pale_garden",
 		"decorator": "bigglobe:nether/decorators/pale_garden"
 	}
 }

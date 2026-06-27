@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:end"
-	],
 	"primary_entity": "minecraft:phantom",
 	"script": [
 		"spawnParams.=$weight(0.0625L).=$count(random.nextBetween[2, 4])"

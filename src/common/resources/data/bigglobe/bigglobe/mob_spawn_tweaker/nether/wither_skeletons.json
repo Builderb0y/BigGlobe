@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"bigglobe:nether/ashen_wastes"
-	],
 	"primary_entity": "minecraft:wither_skeleton",
 	"script": [
 		"spawnParams.=$weight(1.0L).=$count(random.nextBetween[2, 4])",

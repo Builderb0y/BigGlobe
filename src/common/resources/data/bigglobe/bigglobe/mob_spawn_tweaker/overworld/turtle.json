@@ -1,7 +1,4 @@
 {
-	"biomes": [
-		"#bigglobe:overworld_except_volcano"
-	],
 	"primary_entity": "minecraft:turtle",
 	"script": [
 		"if (world_traits.`bigglobe:is_beach`:",

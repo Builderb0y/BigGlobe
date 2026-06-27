@@ -1,12 +1,9 @@
 {
-	"biomes": [
-		"#bigglobe:overworld"
-	],
 	"primary_entity": "minecraft:zombie",
 	"script": [
 		"int count = random.nextBetween[2, 4]",
 		"float temperature = world_traits.`bigglobe:temperature_at`",
 		"spawnParams.=$weight(1.0L).=$count(count)",
-		"spawnMap.('minecraft:husk').=$weight(0.125I + temperature).=$count(count)"
+		"spawnMap.('minecraft:husk').=$weight(temperature - 0.125I).=$count(count)"
 	]
 }

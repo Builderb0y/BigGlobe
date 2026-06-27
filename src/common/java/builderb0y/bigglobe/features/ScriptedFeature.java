@@ -116,7 +116,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					immutableArea
 				);
 				WorldGenLevel fakeWorld = (
-					context.config().queueType == QueueType.BASIC
+					context.config().queueType != QueueType.NONE
 					? new BlockQueueStructureWorldAccess(
 						originalWorld,
 						new BlockQueue(false)
@@ -132,7 +132,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				);
 				wrapper.featureSalt = permuter.nextLong();
 				if (context.config().script.generate(wrapper)) {
-					if (context.config().queueType == QueueType.BASIC) {
+					if (context.config().queueType != QueueType.NONE) {
 						((BlockQueueStructureWorldAccess)(fakeWorld)).queue.placeQueuedBlocks(originalWorld);
 					}
 					return true;

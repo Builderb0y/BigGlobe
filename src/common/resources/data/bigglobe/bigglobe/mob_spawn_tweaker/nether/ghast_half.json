@@ -1,0 +1,6 @@
+{
+	"primary_entity": "minecraft:ghast",
+	"script": [
+		"spawnParams.=$weight(0.5L).=$count(1)"
+	]
+}
