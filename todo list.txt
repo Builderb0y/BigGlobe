@@ -106,7 +106,6 @@ V6:
 			leave uniform weights alone.
 		test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
 		make it so that you can switch on custom enums.
-		make ball_of_string_remove recipe NOT match if the ball is empty.
 		split up BigGlobeItems just like I did with BigGlobeBlocks.
 		mushrooms in lush caves.
 			include upside down ones hanging from the ceiling.
