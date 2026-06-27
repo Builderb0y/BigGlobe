@@ -1,0 +1,5 @@
+{
+	"element_type": "class/normal",
+	"name": "MangroveTreeGenerator",
+	"extends": "bigglobe:trees/split/class"
+}

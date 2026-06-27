@@ -111,20 +111,16 @@ V6:
 		mushrooms in lush caves.
 			include upside down ones hanging from the ceiling.
 		pointy mountains.
-	urgent:
-		reduce number of biomes:
-			structures will need dispatchers.
-				inject structure dispatchers into structure sets,
-				override method in scripted structure set.
-			mob spawning will need to become scripted somehow.
-			verify that all mobs and structures still spawn.
 		split tree generator:
 			missing decoration:
 				mushroom shelves.
-				mangrove propagules.
-		verify that FlatStructureLocator handles C2ME being absent correctly.
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
+	urgent:
+		reduce number of biomes:
+			structures will need dispatchers.
+				some village types spawn incorrectly right now.
+		verify that FlatStructureLocator handles C2ME being absent correctly.
 
 LODs:
 	shader support.

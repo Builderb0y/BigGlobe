@@ -1,0 +1,12 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:trees/mangrove/class",
+	"override": "bigglobe:trees/common/method_decorate",
+	"code": [
+		"for (BlockPos pos in leavesToPlace.keySet():",
+			"random.if (1.0I / 16.0I:",
+				"placeFeature(pos.x, pos.y, pos.z, 'bigglobe:overworld/trees/decorators/mangrove_propagule')",
+			")",
+		")"
+	]
+}

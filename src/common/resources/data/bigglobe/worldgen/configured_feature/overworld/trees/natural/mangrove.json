@@ -2,7 +2,7 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"SplitTreeGenerator",
+			"MangroveTreeGenerator",
 			".create(world, random, 'minecraft:mangrove')",
 			".=$requireValidGround(true)",
 			".placeNatural(originX, originY, originZ)"
