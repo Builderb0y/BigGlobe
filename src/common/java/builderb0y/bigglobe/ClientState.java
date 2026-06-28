@@ -305,8 +305,8 @@ public class ClientState {
 			}
 		}
 
-		public void parse() throws DecodeException {
-			ScriptFileResolver.OVERRIDES.get(this.includes, () -> {
+		public ClientGeneratorParams parse(SettingsSyncS2CPacketHandler.Receiving receiving) throws DecodeException {
+			return ScriptFileResolver.OVERRIDES.get(this.includes, () -> {
 				RegistryOps<Tag> ops = this.createOps(NbtOps.INSTANCE, true);
 				for (Map.Entry<Identifier, Tag> entry : this.templates.entrySet()) {
 					Registry.register(this.templateRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(ScriptTemplate.CODER, entry.getValue(), ops));
@@ -331,7 +331,7 @@ public class ClientState {
 				this.decisionTreeRegistry.freeze();
 				this.worldTraitRegistry.freeze();
 				this.layerRegistry.freeze();
-				return null; //run() can't throw exceptions, but get() can.
+				return BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, receiving.paramsNbt, receiving.clientState.createOps(NbtOps.INSTANCE, false));
 			});
 		}
 

@@ -23,7 +23,7 @@ import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
@@ -60,12 +60,11 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 		}
 
 		public ClientGeneratorParams compile() throws Exception {
-			Loading loading = new Loading(this.clientState.lookup(), true);
-			return builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.OVERRIDE.get(
+			ColumnEntryRegistry.Loading loading = new ColumnEntryRegistry.Loading(this.clientState.lookup(), true);
+			return ColumnEntryRegistry.Loading.OVERRIDE.get(
 				loading,
 				() -> {
-					this.clientState.parse();
-					ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, this.paramsNbt, this.clientState.createOps(NbtOps.INSTANCE, false));
+					ClientGeneratorParams params = this.clientState.parse(this);
 					if (params != null) params.compile(loading);
 					return params;
 				}
