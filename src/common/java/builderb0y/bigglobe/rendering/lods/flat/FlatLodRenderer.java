@@ -23,7 +23,6 @@ import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 

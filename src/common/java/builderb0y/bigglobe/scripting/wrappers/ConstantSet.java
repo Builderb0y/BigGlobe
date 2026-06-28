@@ -7,7 +7,7 @@ import java.util.SequencedSet;
 
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.util.Mth;
 
@@ -82,7 +82,7 @@ public class ConstantSet<K> extends AbstractSet<K> implements SequencedSet<K> {
 	}
 
 	@Override
-	public @NonNull SequencedSet<K> reversed() {
+	public @NotNull SequencedSet<K> reversed() {
 		return this.new ReversedView();
 	}
 
@@ -106,7 +106,7 @@ public class ConstantSet<K> extends AbstractSet<K> implements SequencedSet<K> {
 	public class ReversedView extends AbstractSet<K> implements SequencedSet<K> {
 
 		@Override
-		public @NonNull SequencedSet<K> reversed() {
+		public @NotNull SequencedSet<K> reversed() {
 			return ConstantSet.this;
 		}
 

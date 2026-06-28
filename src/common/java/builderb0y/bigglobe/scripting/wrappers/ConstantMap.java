@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.minecraft.util.Mth;
 
@@ -223,7 +222,7 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> implements SequencedMap
 		}
 
 		@Override
-		public @NonNull SequencedSet<Map.Entry<K, V>> reversed() {
+		public @NotNull SequencedSet<Map.Entry<K, V>> reversed() {
 			return this.new ReversedEntrySet();
 		}
 
@@ -245,7 +244,7 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> implements SequencedMap
 			}
 
 			@Override
-			public @NonNull SequencedSet<Map.Entry<K, V>> reversed() {
+			public @NotNull SequencedSet<Map.Entry<K, V>> reversed() {
 				return EntrySet.this;
 			}
 		}
@@ -323,7 +322,7 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> implements SequencedMap
 		}
 
 		@Override
-		public @NonNull Set<Entry<K, V>> entrySet() {
+		public @NotNull Set<Entry<K, V>> entrySet() {
 			return ConstantMap.this.entrySet().reversed();
 		}
 

@@ -2,8 +2,8 @@ package builderb0y.bigglobe.spawning;
 
 import java.util.random.RandomGenerator;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.EntityType;
@@ -47,7 +47,7 @@ implements Comparable<SpawnTweaker> {
 	}
 
 	@Override
-	public int compareTo(@NonNull SpawnTweaker that) {
+	public int compareTo(@NotNull SpawnTweaker that) {
 		return Double.compare(this.order, that.order);
 	}
 

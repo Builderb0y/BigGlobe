@@ -10,8 +10,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.minecraft.core.Holder;
 
@@ -1399,7 +1399,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 			}
 
 			@Override
-			public @NonNull String toString() {
+			public @NotNull String toString() {
 				return this.description;
 			}
 		}
