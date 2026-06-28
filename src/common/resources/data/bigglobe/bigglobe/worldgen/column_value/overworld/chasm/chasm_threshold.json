@@ -9,7 +9,7 @@
 		"* chasm_threshold_vertical",
 		"+ float(`bigglobe:overworld/cave_type`.border - 1.0L) * 0.125I",
 		"- 1.0I / (",
-			"(worldSeed # 16xc11315c627c18e11UL)",
+			"(worldSeed # 16xC11315C627C18E11UL)",
 			".newSeed(y - floorInt(chasm_min_y))",
 			".nextFloat(6.0I, 64.0I)",
 		") ^ 2"

@@ -10,14 +10,12 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class BigGlobeStructurePlacementTypes {
 
-	public static final StructurePlacementType<ScriptedStructurePlacement> SCRIPTED = register("scripted", ScriptedStructurePlacement.class);
+	public static final StructurePlacementType<ScriptedStructurePlacement> SCRIPT = register("script", ScriptedStructurePlacement.class);
 
 	public static void init() {}
 
 	public static <T extends StructurePlacement> StructurePlacementType<T> register(String name, Class<T> type) {
-
 		MapCodec<T> codec = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(type);
-
 		return Registry.register(
 			BuiltInRegistries.STRUCTURE_PLACEMENT,
 			BigGlobeMod.modID(name),

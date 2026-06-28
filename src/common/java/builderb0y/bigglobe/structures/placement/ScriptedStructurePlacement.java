@@ -38,17 +38,17 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedStructurePlacement extends StructurePlacement implements SmartStructurePlacement {
 
-	public final StructurePlacementScript.Catcher placement;
+	public final StructurePlacementScript.Catcher script;
 
-	public ScriptedStructurePlacement(StructurePlacementScript.Catcher placement) {
+	public ScriptedStructurePlacement(StructurePlacementScript.Catcher script) {
 		super(Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1.0F, 0, Optional.empty());
-		this.placement = placement;
+		this.script = script;
 	}
 
 	@Override
 	public Stream<StructureStartWrapper> bigglobe_generateStructuresInArea(Context context) {
 		List<StructureStartWrapper> starts = new CheckedList<>(StructureStartWrapper.class, NullPolicy.IGNORE);
-		this.placement.populateStructures(
+		this.script.populateStructures(
 			context.columns(),
 			starts,
 			context,
@@ -75,7 +75,7 @@ public class ScriptedStructurePlacement extends StructurePlacement implements Sm
 
 	@Override
 	public StructurePlacementType<?> type() {
-		return BigGlobeStructurePlacementTypes.SCRIPTED;
+		return BigGlobeStructurePlacementTypes.SCRIPT;
 	}
 
 	public static StructureStartWrapper createNear(Context context, int x, int y, int z, StructureEntry structure) {

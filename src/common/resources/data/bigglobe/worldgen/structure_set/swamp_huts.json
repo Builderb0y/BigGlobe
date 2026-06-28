@@ -5,6 +5,32 @@
 		"separation": 8,
 		"spacing": 24
 	},
+	"placement": {
+		"type": "bigglobe:script",
+		"script": [
+			"int spacing = 24 * 16",
+			"int separation = 8 * 16",
+			"int variation = spacing - separation",
+			"for (",
+				"int regionZ in range[regionMinZ / spacing, regionMaxZ / spacing],",
+				"int regionX in range[regionMinX / spacing, regionMaxX / spacing]",
+			":",
+				"int centerX = regionX * spacing + (worldSeed # 16xAB1133A00E3A7FEEUL).newSeed(regionX, regionZ).nextInt(variation)",
+				"int centerZ = regionZ * spacing + (worldSeed # 16x535CAFF4F19B9813UL).newSeed(regionX, regionZ).nextInt(variation)",
+				"int centerY = world_traits.`bigglobe:y_level_on_surface`(centerX, centerZ)",
+				"if (",
+					"centerY >= world_traits.`bigglobe:sea_level`(centerX, centerZ) - 4 &&",
+					"(",
+						"world_traits.`bigglobe:is_beach`(centerX, centerZ) ||",
+						"world_traits.`bigglobe:wood_palette`(centerX, centerY, centerZ) ==. 'minecraft:mangrove'",
+					")",
+				":",
+					"StructureStart start = createStartNear(centerX, centerY, centerZ, 'bigglobe:vanilla/swamp_hut')",
+					"if (start.?override(): starts.add(start))",
+				")",
+			")"
+		]
+	},
 	"structures": [
 		{ "weight": 1, "structure": "bigglobe:vanilla/swamp_hut" }
 	]

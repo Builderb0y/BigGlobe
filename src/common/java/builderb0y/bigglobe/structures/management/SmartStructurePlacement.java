@@ -100,7 +100,9 @@ public interface SmartStructurePlacement {
 		}
 
 		public @Nullable StructureStartWrapper createRandomFromSetAt(ChunkPos chunkPos) {
-			if (this.strict && !this.intersects(chunkPos)) return null;
+			if (this.strict && !this.intersects(chunkPos)) {
+				return null;
+			}
 			long chunkSeed = Permuter.permute(this.hashedWorldSeed() ^ 0x767DB826EDD5532EL, chunkPos.x(), chunkPos.z(), UnregisteredObjectException.getID(this.structureSet).hashCode());
 			Permuter structureChooser = new Permuter(chunkSeed);
 			List<StructureSelectionEntry> possibilities = new ArrayList<>(this.structureSet.value().structures());
@@ -111,6 +113,16 @@ public interface SmartStructurePlacement {
 				StructureStartWrapper structure = this.createIn(chunkPos, entry.structure(), entry.structure().value().biomes()::contains);
 				if (structure != null) {
 					if (this.strict && !this.area.isInside(structure.pos())) {
+						if (StructureLocator.canLog(structure.originalStructure())) {
+							BigGlobeMod.LOGGER.info(
+								"Structure " +
+								structure.structure().id() +
+								" did not spawn at " +
+								structure.pos() +
+								" because the position is outside the currently generating area: " +
+								this.area
+							);
+						}
 						return null;
 					}
 					return structure;
@@ -164,7 +176,21 @@ public interface SmartStructurePlacement {
 		}
 
 		public @Nullable StructureStartWrapper createIn(ChunkPos chunkPos, StructureEntry structure, Predicate<Holder<Biome>> validBiomes, boolean runOverriders) {
-			if (this.strict && !this.intersects(chunkPos)) return null;
+			if (this.strict && !this.intersects(chunkPos)) {
+				if (StructureLocator.canLog(structure.entry)) {
+					BigGlobeMod.LOGGER.info(
+						"Structure " +
+						structure.id() +
+						" did not spawn at [" +
+						(chunkPos.x() << 4) +
+						", " +
+						(chunkPos.z() << 4) +
+						"] because the containing chunk does not intersect the currently generating area: " +
+						this.area
+					);
+				}
+				return null;
+			}
 			if (
 				validBiomes != Predicates.<Holder<Biome>>alwaysTrue()
 				&& !this.caller.maybeHasBiomes(
@@ -205,6 +231,16 @@ public interface SmartStructurePlacement {
 			}
 			GenerationStub stub = optional.get();
 			if (this.strict && !this.area.isInside(stub.position())) {
+				if (StructureLocator.canLog(structure.entry)) {
+					BigGlobeMod.LOGGER.info(
+						"Structure " +
+						structure.id() +
+						" did not spawn at " +
+						stub.position() +
+						" because the position is outside the currently generating area: " +
+						this.area
+					);
+				}
 				return null;
 			}
 			PiecesContainer pieces = unwrap(structure.entry.value(), stub);

@@ -225,21 +225,29 @@ public class FlatStructureLocator extends StructureLocator {
 		};
 	}
 
-	public Stream<StructureStartWrapper> commonLocate(Params params, Comparator<StructurePos> order, boolean strict) {
-		@SuppressWarnings("unchecked")
-		CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] futures = (
+	public Stream<StructureStartWrapper> commonLocate(Params params, Comparator<StructurePos> order, boolean strict, boolean eager) {
+		Stream<CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>> stream = (
 			this
 			.sortPositions(params, order, strict)
 			.stream()
 			.map((FilteredStructureCaches filtered) -> {
 				return filtered.caches.getFiltered(params.context());
 			})
-			.toArray(CompletableFuture[]::new)
 		);
-		CompletableFuture.allOf(futures).join();
+		Stream<CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>> stream2;
+		if (eager) {
+			stream2 = stream;
+		}
+		else {
+			@SuppressWarnings("unchecked")
+			CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>[] futures = (
+				stream.toArray(CompletableFuture[]::new)
+			);
+			CompletableFuture.allOf(futures).join();
+			stream2 = Arrays.stream(futures);
+		}
 		return (
-			Arrays
-			.stream(futures)
+			stream2
 			.map(CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>::join)
 			.flatMap((Map<Holder<Structure>, List<ChunkSortedStructurePieces>> map) -> {
 				return (
@@ -249,9 +257,11 @@ public class FlatStructureLocator extends StructureLocator {
 					.flatMap((Holder<Structure> holder) -> {
 						List<ChunkSortedStructurePieces> list = map.get(holder);
 						if (list == null) return Stream.empty();
-						return list.stream().filter((ChunkSortedStructurePieces pieces) -> {
+						Stream<ChunkSortedStructurePieces> result = list.stream();
+						if (strict) result = result.filter((ChunkSortedStructurePieces pieces) -> {
 							return pieces.startWrapper.box().intersects(params.whatToSearchFor().getAreaFor(holder));
 						});
+						return result;
 					})
 					.map((ChunkSortedStructurePieces pieces) -> pieces.startWrapper)
 				);
@@ -261,12 +271,12 @@ public class FlatStructureLocator extends StructureLocator {
 
 	@Override
 	public Stream<StructureStartWrapper> getStructuresInside(Params params) {
-		return this.commonLocate(params, null, true);
+		return this.commonLocate(params, null, true, false);
 	}
 
 	@Override
 	public Stream<StructureStartWrapper> getStructuresNearby(Params params, BlockPos center) {
-		return this.commonLocate(params, StructurePos.comparingByDistanceTo(center), false);
+		return this.commonLocate(params, StructurePos.comparingByDistanceTo(center), false, true);
 	}
 
 	@Override

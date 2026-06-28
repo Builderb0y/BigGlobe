@@ -1,7 +1,7 @@
 {
 	"placement": {
-		"type": "bigglobe:scripted",
-		"placement": [
+		"type": "bigglobe:script",
+		"script": [
 			"for (",
 				"int regionZ in range[regionMinZ / 16384, regionMaxZ / 16384],",
 				"int regionX in range[regionMinX / 16384, regionMaxX / 16384]",

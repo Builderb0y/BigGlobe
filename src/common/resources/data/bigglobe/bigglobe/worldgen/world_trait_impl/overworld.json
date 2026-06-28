@@ -19,6 +19,8 @@
 	"bigglobe:humidity_at_surface":               "`bigglobe:overworld/humidity`",
 	"bigglobe:hilliness":                         "`bigglobe:overworld/hilliness`",
 	"bigglobe:in_river":                          "`bigglobe:overworld/in_river`",
+	"bigglobe:is_desert":                         "`bigglobe:overworld/is_desert`",
+	"bigglobe:is_mesa":                           "`bigglobe:overworld/is_mesa`",
 	"bigglobe:lava_y":                            "-896I",
 	"bigglobe:magicalness":                       "`bigglobe:overworld/magicalness`",
 	"bigglobe:mountainness":                      "`bigglobe:overworld/mountainness`",

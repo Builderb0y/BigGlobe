@@ -1,0 +1,14 @@
+{
+	"type": "collision",
+	"script": [
+		"if (currentStart.structure ==. 'minecraft:stronghold':",
+			"return(1)",
+		")",
+		"else if (otherStart.structure ==. 'minecraft:stronghold':",
+			"return(-1)",
+		")",
+		"else (",
+			"return(0)",
+		")"
+	]
+}

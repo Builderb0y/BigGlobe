@@ -115,11 +115,8 @@ V6:
 				mushroom shelves.
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
+		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 	urgent:
-		reduce number of biomes:
-			structures will need dispatchers.
-				some village types spawn incorrectly right now.
-		verify that FlatStructureLocator handles C2ME being absent correctly.
 
 LODs:
 	shader support.
@@ -142,7 +139,9 @@ changelog:
 	# For normal people
 	* Entirely new overworld design.
 		* Rivers no longer attempt to go through mountains and fail.
-		* Specific tree types are now easier to find.
+		* Cave system now depend on various surface parameters.
+			* For example, lush caves spawn under forests.
+		* Some tree types (like oak) are now easier to find.
 	* Nether walls between biomes now only extend up to Y 512, making traversal at higher Y levels easier.
 	# For data pack developers
 	* Added new json-defined custom class system, supporting inheritance, object-oriented design, and can be used in most other scripts.
@@ -161,8 +160,10 @@ changelog:
 			* Scripts that place blocks at an absolute position instead of a relative one will either need to be converted accordingly, or be placed at a position that cancels this out.
 				* For example, if the script tries to place blocks at a specific Y level, then your feature dispatcher should place it at Y 0.
 	* Added new "quintic" noise source. Similar to cubic noise sources, but the derivative is smooth instead of just continuous.
+	* Extra mob spawns have been replaced by mob spawn tweakers, which are similar, but script-driven.
 	# Missing functionality
 	* Islands world preset has not been re-implemented on top of new systems yet.
+	* Mushroom and molten caves do not currently spawn anywhere.
 
 alternate world presets:
 	paradise.

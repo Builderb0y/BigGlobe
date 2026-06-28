@@ -100,11 +100,7 @@ public abstract class StructureLocator {
 	}
 
 	public static boolean canLog(Structure structure) {
-		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning) {
-			Pattern pattern = DataPackDebugging.structureLogFilterPattern;
-			return pattern == null || pattern.matcher(structureName(structure)).find();
-		}
-		return false;
+		return canLog(structureName(structure));
 	}
 
 	public static ResourceKey<Structure> structureKey(Holder<Structure> structure) {
@@ -120,9 +116,13 @@ public abstract class StructureLocator {
 	}
 
 	public static boolean canLog(Holder<Structure> structure) {
+		return canLog(structureName(structure));
+	}
+
+	public static boolean canLog(String structureName) {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning) {
 			Pattern pattern = DataPackDebugging.structureLogFilterPattern;
-			return pattern == null || pattern.matcher(structureName(structure)).find();
+			return pattern == null || pattern.matcher(structureName).find();
 		}
 		return false;
 	}
