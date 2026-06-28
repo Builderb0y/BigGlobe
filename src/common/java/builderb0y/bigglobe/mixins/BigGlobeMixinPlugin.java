@@ -135,6 +135,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".DebugHud_MakeSearchable");
 		unconfigurable.add(mixinPackage + ".Entity_CurrentIdGetter");
 		unconfigurable.add(mixinPackage + ".FallingBlockEntity_DestroyOnLandingAccess");
+		unconfigurable.add(mixinPackage + ".GameRenderer_CaptureRealMatrices");
 		unconfigurable.add(mixinPackage + ".Heightmap_StorageAccess");
 		unconfigurable.add(mixinPackage + ".InGameHud_DebugHudGetter");
 		unconfigurable.add(mixinPackage + ".ItemStack_DynamicMaxDamage");

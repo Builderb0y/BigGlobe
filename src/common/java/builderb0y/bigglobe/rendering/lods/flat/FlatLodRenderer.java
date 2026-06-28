@@ -22,6 +22,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -95,8 +96,8 @@ public class FlatLodRenderer extends LodRenderer {
 	}
 
 	@Override
-	public void uploadBuffers() {
-		super.uploadBuffers();
+	public void uploadBuffers(LevelTerrainRenderContext context) {
+		super.uploadBuffers(context);
 		this.uploadTransformations();
 	}
 

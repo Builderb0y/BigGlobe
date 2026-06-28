@@ -3,13 +3,14 @@ package builderb0y.bigglobe.rendering.lods;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 
 import net.minecraft.world.phys.Vec3;
 
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import builderb0y.bigglobe.rendering.CommonState;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 @Environment(EnvType.CLIENT)
@@ -34,20 +35,20 @@ public class LodFrustum {
 		this.system = system;
 	}
 
-	public void setup(LevelExtractionContext context) {
-		this.modelViewMatrix.set(context.levelState().cameraRenderState.viewRotationMatrix);
-		Vec3 cameraPos = RenderVersions.getCameraPosition(context.camera());
+	public void setup(LevelTerrainRenderContext context) {
+		this.modelViewMatrix.set(CommonState.modelViewMatrix);
+		Vec3 cameraPos = RenderVersions.getCameraPosition(context.gameRenderer().getMainCamera());
 		this.x = cameraPos.x;
 		this.y = cameraPos.y;
 		this.z = cameraPos.z;
 
 		float vanillaViewDistance = context.gameRenderer().getGameRenderState().optionsRenderState.renderDistance << 4;
-		float aboveDifference = (float)(this.y - HeightLimitViewVersions.getMaxY(context.level()));
+		float aboveDifference = (float)(this.y - this.system.params.maxY);
 		if (aboveDifference > 0.0F) {
 			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.5F);
 		}
 		vanillaViewDistance *= this.system.overrides.view_distance_multiplier();
-		this.projectionMatrix.set(RenderVersions.projectionMatrix(context));
+		this.projectionMatrix.set(CommonState.projectionMatrix);
 		this.changeNearFar(
 			this.projectionMatrix,
 			0.05F,

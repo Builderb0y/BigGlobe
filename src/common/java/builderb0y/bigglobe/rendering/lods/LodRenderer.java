@@ -11,6 +11,7 @@ import com.mojang.blaze3d.textures.FilterMode;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 import org.lwjgl.system.*;
 
 import net.minecraft.client.Minecraft;
@@ -53,12 +54,12 @@ public abstract class LodRenderer implements SafeCloseable {
 	public abstract LodSystem getSystem();
 
 	public void extract(LevelExtractionContext context) {
-		this.frustum.setup(context);
 		this.rain = context.level().getRainLevel(context.deltaTracker().getGameTimeDeltaPartialTick(false));
 		this.thunder = context.level().getThunderLevel(context.deltaTracker().getGameTimeDeltaPartialTick(false));
 	}
 
-	public void uploadBuffers() {
+	public void uploadBuffers(LevelTerrainRenderContext context) {
+		this.frustum.setup(context);
 		this.uploadFog();
 		this.uploadMatrices();
 	}

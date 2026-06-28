@@ -99,6 +99,7 @@
 		"DebugHud_MakeSearchable",
 		"Dev_CreateWorldScreen_DontCrashOnFailure",
 		"FluidRenderer_DontHardCodeChunkSectionSizedAreas",
+		"GameRenderer_CaptureRealMatrices",
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",

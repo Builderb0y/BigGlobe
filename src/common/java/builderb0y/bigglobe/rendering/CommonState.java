@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
 @Environment(EnvType.CLIENT)
 public class CommonState {
@@ -20,10 +21,13 @@ public class CommonState {
 
 	static {
 		LevelRenderEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
-			modelViewMatrix.set(context.levelState().cameraRenderState.viewRotationMatrix).invert(inverseModelViewMatrix);
-			projectionMatrix.set(context.levelState().cameraRenderState.projectionMatrix).invert(inverseProjectionMatrix);
 			partialTicks = context.deltaTracker().getGameTimeDeltaPartialTick(false);
 			dayTimeInSeconds = (((float)(context.level().getGameTime() % 24000L)) + partialTicks) / 20.0F;
 		});
+	}
+
+	public static void setMatrices(Matrix4fc modelViewMatrix, Matrix4fc projectionMatrix) {
+		CommonState.modelViewMatrix.set(modelViewMatrix).invert(inverseModelViewMatrix);
+		CommonState.projectionMatrix.set(projectionMatrix).invert(inverseProjectionMatrix);
 	}
 }

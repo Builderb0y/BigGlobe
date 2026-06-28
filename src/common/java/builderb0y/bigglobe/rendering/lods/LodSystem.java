@@ -53,7 +53,7 @@ public abstract class LodSystem implements SafeCloseable {
 					holder.bigglobe_setLodSystem(null);
 				}
 				else {
-					system.draw();
+					system.draw(context);
 				}
 			}
 		});
@@ -159,7 +159,7 @@ public abstract class LodSystem implements SafeCloseable {
 		}
 	}
 
-	public void draw() {
+	public void draw(LevelTerrainRenderContext context) {
 		if (!this.getGenerationPipeline().isAlive()) {
 			BigGlobeMod.LOGGER.error("LOD system shutting down due to generation pipeline failure. It can be restarted with F3+A.");
 			this.close();
@@ -174,7 +174,7 @@ public abstract class LodSystem implements SafeCloseable {
 			return;
 		}
 		try {
-			this.getRenderer().uploadBuffers();
+			this.getRenderer().uploadBuffers(context);
 		}
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.error("LOD system shutting down due to exception uploading LOD buffers. It can be restarted with F3+A.", exception);

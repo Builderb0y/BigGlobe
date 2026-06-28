@@ -12,14 +12,6 @@ import net.minecraft.world.phys.Vec3;
 @Environment(EnvType.CLIENT)
 public class RenderVersions {
 
-	public static Matrix4fc modelViewMatrix(LevelExtractionContext context) {
-		return context.levelState().cameraRenderState.viewRotationMatrix;
-	}
-
-	public static Matrix4fc projectionMatrix(LevelExtractionContext context) {
-		return context.levelState().cameraRenderState.projectionMatrix;
-	}
-
 	public static float partialTicks(LevelExtractionContext context) {
 		return context.deltaTracker().getGameTimeDeltaPartialTick(false);
 	}
