@@ -1,7 +1,7 @@
 {
 	"condition": {
 		"type": "script",
-		"script": "world_traits.`bigglobe:approximate_surface_y` < world_traits.`bigglobe:sea_level`"
+		"script": "world_traits.`bigglobe:y_level_on_surface` < world_traits.`bigglobe:sea_level`"
 	},
 	"if_true": "bigglobe:overworld/biome/ocean",
 	"if_false": "bigglobe:overworld/biome/not_ocean_test_beach"

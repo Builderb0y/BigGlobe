@@ -116,6 +116,9 @@ V6:
 		mushrooms spawn in deserts. they should probably not do that.
 		snow can spawn in deserts.
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
+		see how practical it is to make sounds echo in the chasms.
+			relevant openAL class: EXTEfx.
+			relevant minecraft class: Channel.
 	urgent:
 
 LODs:
@@ -136,34 +139,10 @@ json classes:
 	need to fix:
 
 changelog:
-	# For normal people
-	* Entirely new overworld design.
-		* Rivers no longer attempt to go through mountains and fail.
-		* Cave system now depend on various surface parameters.
-			* For example, lush caves spawn under forests.
-		* Some tree types (like oak) are now easier to find.
-	* Nether walls between biomes now only extend up to Y 512, making traversal at higher Y levels easier.
-	# For data pack developers
-	* Added new json-defined custom class system, supporting inheritance, object-oriented design, and can be used in most other scripts.
-	* All Big Globe custom registries are now in the `bigglobe` namespace.
-		* Previously, they were in the "minecraft" namespace, which meant that you had paths like `/data/namespace/bigglobe_whatever/...`.
-		* Now, every registry added by Big Globe is in a folder named "bigglobe". So you get paths like `/data/namespace/bigglobe/whatever/...`.
-		* A script has been provided to move all files to the correct location automatically.
-			* This can be found on my github page, under the name "V6DataPackConverter.java" in the root directory.
-			* This script will NOT migrate any json schema changes.
-	* Scripted configured features now handle coordinates relative to their placement position.
-		* The now-useless originX/Y/Z variables are now always 0, and the translation to the *actual* placement position is handled internally, just like random rotation and flipping.
-		* The actual placement position can now be obtained with the placementX/Y/Z variables, if needed.
-		* This should not affect *most* scripts, but there are a few cases where this can matter:
-			* If the script attempts to re-assign originX/Y/Z, this will now cause a compile error.
-			* If the script is using originX/Y/Z as a seed for RNG, you will now get the same seed for all positions.
-			* Scripts that place blocks at an absolute position instead of a relative one will either need to be converted accordingly, or be placed at a position that cancels this out.
-				* For example, if the script tries to place blocks at a specific Y level, then your feature dispatcher should place it at Y 0.
-	* Added new "quintic" noise source. Similar to cubic noise sources, but the derivative is smooth instead of just continuous.
-	* Extra mob spawns have been replaced by mob spawn tweakers, which are similar, but script-driven.
-	# Missing functionality
-	* Islands world preset has not been re-implemented on top of new systems yet.
-	* Mushroom and molten caves do not currently spawn anywhere.
+	* Removed daylight cycle speed gamerule, since vanilla now has a direct replacement for it: `/time rate <rate>`.
+		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this.
+	* Fixed inconsistencies between where beach terrain spawns and where beach biomes spawn.
+	* Fixed LOD rendering with view bobbing and nausea.
 
 alternate world presets:
 	paradise.

@@ -63,7 +63,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".Camera_HandleSoulLavaSubmersion",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".CatEntity_PetTheKitty",                                                                    Boolean.FALSE);
 		defaults.put(mixinPackage + ".ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed",                           Boolean.TRUE);
-		defaults.put(mixinPackage + ".ClientWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ClientWorldProperties_SetHorizonHeightToSeaLevel",                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreakingHeartBlock_MakeWorkInTheNether",                                                   Boolean.TRUE);
 		defaults.put(mixinPackage + ".CreakingHeartBlockEntity_MakeWorkInTheNether",                                             Boolean.TRUE);
@@ -107,7 +106,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".SaplingBlock_GrowIntoBigGlobeTree",                                                        Boolean.TRUE);
 		defaults.put(mixinPackage + ".Chunk_NotifyLodSystem",                                                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",                                 Boolean.TRUE);
-		defaults.put(mixinPackage + ".ServerWorld_CustomTimeSpeed",                                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                                    Boolean.TRUE);

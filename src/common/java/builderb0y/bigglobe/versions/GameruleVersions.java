@@ -19,10 +19,6 @@ public class GameruleVersions {
 		return world.getGameRules().get(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
 	}
 
-	public static double daylightCycleSpeed(ServerLevel world) {
-		return world.getGameRules().get(BigGlobeGameRules.DAYLIGHT_CYCLE_SPEED);
-	}
-
 	public static boolean dangerousRapids(ServerLevel world) {
 		return world.getGameRules().get(BigGlobeGameRules.DANGEROUS_RAPIDS);
 	}

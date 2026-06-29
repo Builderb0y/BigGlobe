@@ -70,7 +70,6 @@ import builderb0y.bigglobe.mixinInterfaces.DimensionalBlockView;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
-import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 import builderb0y.bigglobe.rendering.lods.LodMesher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
@@ -176,7 +175,6 @@ public class ClientState {
 	public static void sync(ServerLevel world, ServerPlayer player) {
 		BigGlobeNetwork.LOGGER.debug("Syncing ClientState to " + player);
 		SettingsSyncS2CPacketHandler.INSTANCE.send(world, player);
-		TimeSpeedS2CPacketHandler.INSTANCE.send(player);
 		DangerousRapidsPacket.INSTANCE.send(player);
 		syncWaypoints(world, player);
 	}

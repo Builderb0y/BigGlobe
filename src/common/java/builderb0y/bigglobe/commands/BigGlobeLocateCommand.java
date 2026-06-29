@@ -132,7 +132,7 @@ public class BigGlobeLocateCommand {
 			)
 			.then(
 				Commands.literal("structures").then(
-					Commands.argument("range", IntegerArgumentType.integer(0, 10_000)).then(
+					Commands.argument("range", IntegerArgumentType.integer(0, 100_000)).then(
 						Commands.argument("structure", ResourceOrTagKeyArgument.resourceOrTagKey(Registries.STRUCTURE)).executes(
 							(CommandContext<CommandSourceStack> context) -> {
 								BigGlobeScriptedChunkGenerator generator = BigGlobeCommands.generator(context);

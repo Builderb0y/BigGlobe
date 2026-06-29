@@ -39,7 +39,6 @@ public class BigGlobeNetwork implements
 	public BigGlobeNetwork() {
 		this.handlerToId.defaultReturnValue((byte)(-1));
 		this.register(SettingsSyncS2CPacketHandler.INSTANCE);
-		this.register(TimeSpeedS2CPacketHandler.INSTANCE);
 		this.register(DangerousRapidsPacket.INSTANCE);
 		this.register(WaypointListS2CPacket.INSTANCE);
 		this.register(WaypointAddS2CPacket.INSTANCE);

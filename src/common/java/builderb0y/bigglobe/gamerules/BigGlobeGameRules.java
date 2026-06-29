@@ -7,7 +7,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.gamerules.GameRule;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
-import builderb0y.bigglobe.networking.packets.TimeSpeedS2CPacketHandler;
 
 public class BigGlobeGameRules {
 
@@ -15,29 +14,15 @@ public class BigGlobeGameRules {
 		BigGlobeMod.LOGGER.debug("Registering game rules...");
 	}
 
-	public static final GameRule<Double> DAYLIGHT_CYCLE_SPEED = (
-		GameRuleBuilder
-			.forDouble(1.0D)
-			.buildAndRegister(BigGlobeMod.modID("daylight_cycle_speed"))
-	);
-
-	static {
-		GameRuleEvents.changeCallback(DAYLIGHT_CYCLE_SPEED).register((Double speed, MinecraftServer server) -> {
-			server.getPlayerList().getPlayers().forEach(
-				TimeSpeedS2CPacketHandler.INSTANCE::send
-			);
-		});
-	}
-
 	public static final GameRule<Boolean> SOUL_LAVA_SOURCE_CONVERSION = (
 		GameRuleBuilder
-			.forBoolean(false)
-			.buildAndRegister(BigGlobeMod.modID("soul_lava_source_conversion"))
+		.forBoolean(false)
+		.buildAndRegister(BigGlobeMod.modID("soul_lava_source_conversion"))
 	);
 	public static final GameRule<Boolean> DANGEROUS_RAPIDS = (
 		GameRuleBuilder
-			.forBoolean(true)
-			.buildAndRegister(BigGlobeMod.modID("dangerous_rapids"))
+		.forBoolean(true)
+		.buildAndRegister(BigGlobeMod.modID("dangerous_rapids"))
 	);
 
 	static {
