@@ -113,7 +113,7 @@ V6:
 		split tree generator:
 			missing decoration:
 				mushroom shelves.
-		mushrooms spawn in deserts. they should probably not do that.
+		exclude mushrooms from deserts and beaches.
 		snow can spawn in deserts.
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 		see how practical it is to make sounds echo in the chasms.
@@ -139,8 +139,9 @@ json classes:
 	need to fix:
 
 changelog:
+	* Increased `/bigglobe:locate structures` max radius from 10k to 100k blocks.
 	* Removed daylight cycle speed gamerule, since vanilla now has a direct replacement for it: `/time rate <rate>`.
-		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this.
+		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this version.
 	* Fixed inconsistencies between where beach terrain spawns and where beach biomes spawn.
 	* Fixed LOD rendering with view bobbing and nausea.
 

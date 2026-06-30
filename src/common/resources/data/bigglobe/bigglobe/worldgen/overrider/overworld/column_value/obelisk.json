@@ -1,6 +1,5 @@
 {
 	"type": "column_value",
-	"feature_generation": false,
 	"script": [
 		"for (StructureStart start in structures:",
 			"ScriptStructurePiece piece = start.pieces.(0)",

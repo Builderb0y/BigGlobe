@@ -2,6 +2,7 @@
 	"type": "bigglobe:natural_tree",
 	"config": {
 		"delay_generation": true,
+		"max_radius_in_blocks": 32,
 		"palette": "bigglobe:charred",
 		"height": "fastExp2(random.nextDouble(3.0, 5.0))",
 		"trunk": {
