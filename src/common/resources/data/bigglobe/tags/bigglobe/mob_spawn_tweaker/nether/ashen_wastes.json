@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:nether/ghast_half",
+		"bigglobe:nether/strider",
 		"bigglobe:nether/wither_skeletons",
 		"bigglobe:nether/zoglins"
 	]

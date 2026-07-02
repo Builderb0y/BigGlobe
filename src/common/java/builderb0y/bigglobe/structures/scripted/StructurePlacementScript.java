@@ -6,6 +6,7 @@ import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ReadOnlyWorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.*;
@@ -40,11 +41,11 @@ public interface StructurePlacementScript extends Script {
 			this.script = (
 				new TemplateScriptParser<>(StructurePlacementScript.class, this.usage, registry.parserFlags())
 				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
+				.configureEnvironment(SymmetryScriptEnvironment.create(ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf)))
 				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment(NbtScriptEnvironment.createImmutable())
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(ReadOnlyWorldWrapper.INFO.seed(WORLD.loadSelf)))
 				.configureEnvironment(StructureScriptEnvironment.live())
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configure((ExpressionParser parser) -> {
@@ -77,7 +78,7 @@ public interface StructurePlacementScript extends Script {
 					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-				.addImportedValue("random", WORLD.random)
+				.addImportedValue("random", ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf))
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

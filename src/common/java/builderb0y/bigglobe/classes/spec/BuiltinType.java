@@ -1259,14 +1259,23 @@ public abstract class BuiltinType implements Named {
 				environment.addField(Handlers.fieldBuilder(BorderedValue.class, "border").onUsed(callback).addReceiverArgument(this.type).buildField());
 			}
 		});
+		register("read_only_world", new Typed("ReadOnlyWorld", ReadOnlyWorldWrapper.class) {
+
+			@Override
+			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
+				environment
+				.addField(Handlers.methodWithReceiver(ReadOnlyWorldWrapper.class, "seed").onUsed(callback).exposedName("worldSeed").buildField())
+				.addField(Handlers.methodWithReceiver(ReadOnlyWorldWrapper.class, "minValidYLevel").onUsed(callback).buildField())
+				.addField(Handlers.methodWithReceiver(ReadOnlyWorldWrapper.class, "maxValidYLevel").onUsed(callback).buildField())
+				;
+				addMethods(environment, callback, ReadOnlyWorldWrapper.class, "getBlockState", "isYLevelValid");
+			}
+		});
 		register("world", new Typed("World", WorldWrapper.class) {
 
 			@Override
 			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
 				environment
-				.addField(Handlers.methodWithReceiver(WorldWrapper.class, "seed").onUsed(callback).exposedName("worldSeed").buildField())
-				.addField(Handlers.methodWithReceiver(WorldWrapper.class, "minValidYLevel").onUsed(callback).buildField())
-				.addField(Handlers.methodWithReceiver(WorldWrapper.class, "maxValidYLevel").onUsed(callback).buildField())
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "transformX").onUsed(callback).addReceiverArgument(this.type).addArguments("III").buildMethod())
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "transformY").onUsed(callback).addReceiverArgument(this.type).addArguments("III").buildMethod())
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "transformZ").onUsed(callback).addReceiverArgument(this.type).addArguments("III").buildMethod())
@@ -1276,7 +1285,7 @@ public abstract class BuiltinType implements Named {
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "summon").onUsed(callback).addReceiverArgument(this.type).addArguments("DDD", String.class).buildMethod())
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "summon").onUsed(callback).addReceiverArgument(this.type).addArguments("DDD", String.class, CompoundTag.class).buildMethod())
 				;
-				addMethods(environment, callback, WorldWrapper.class, "getBlockState", "setBlockState", "setBlockStateReplaceable", "setBlockStateNonReplaceable", "updateBlockState", "placeBlockState", "fillBlockState", "fillBlockStateReplaceable", "fillBlockStateNonReplaceable", "updateBlockStates", "placeFeature", "isYLevelValid", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData");
+				addMethods(environment, callback, WorldWrapper.class, "setBlockState", "setBlockStateReplaceable", "setBlockStateNonReplaceable", "updateBlockState", "placeBlockState", "fillBlockState", "fillBlockStateReplaceable", "fillBlockStateNonReplaceable", "updateBlockStates", "placeFeature", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData");
 			}
 		});
 

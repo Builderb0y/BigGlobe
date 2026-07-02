@@ -1,0 +1,6 @@
+{
+	"primary_entity": "minecraft:strider",
+	"script": [
+		"spawnParams.=$weight(1.0L).=$count(random.nextBetween[2, 4])"
+	]
+}

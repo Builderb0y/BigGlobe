@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:nether/ghast_normal",
+		"bigglobe:nether/strider",
 		"bigglobe:nether/zoglins"
 	]
 }

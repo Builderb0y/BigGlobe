@@ -36,6 +36,7 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ReadOnlyWorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -217,7 +218,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.configureEnvironment(GridScriptEnvironment.createWithSeed(ReadOnlyWorldWrapper.INFO.seed(WORLD.loadSelf)))
 					.configure((ExpressionParser parser) -> {
 						parser
 						.environment
@@ -228,7 +229,6 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						.addVariable("placementX", WORLD.originX)
 						.addVariable("placementY", WORLD.originY)
 						.addVariable("placementZ", WORLD.originZ)
-						.addVariable("hints", WORLD.hints)
 						.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
 						.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT"))))
 						;
@@ -243,7 +243,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.addImportedValue("random", WORLD.random)
+					.addImportedValue("random", ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf))
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}

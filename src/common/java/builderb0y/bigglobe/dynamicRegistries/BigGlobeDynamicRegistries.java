@@ -15,6 +15,7 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
 import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.overriders.Overrider;
+import builderb0y.bigglobe.sounds.SoundModifier;
 import builderb0y.bigglobe.spawning.SpawnTweaker;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
@@ -33,6 +34,7 @@ public class BigGlobeDynamicRegistries {
 	public static final ResourceKey<Registry<CombinedStructureScripts>> SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/script_structure_piece"));
 	public static final ResourceKey<Registry<Layer                   >>          TERRAIN_LAYER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/terrain_layer"));
 	public static final ResourceKey<Registry<WorldTrait              >>            WORLD_TRAIT_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/world_trait"));
+	public static final ResourceKey<Registry<SoundModifier           >>         SOUND_MODIFIER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("sound_modifier"));
 
 	public static void init() {
 		DynamicRegistries.register(          ELEMENT_SPEC_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(ElementSpec             .class));
@@ -47,5 +49,6 @@ public class BigGlobeDynamicRegistries {
 		DynamicRegistries.register(SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
 		DynamicRegistries.register(         TERRAIN_LAYER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Layer                   .class));
 		DynamicRegistries.register(           WORLD_TRAIT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WorldTrait              .class));
+		DynamicRegistries.registerSynced(  SOUND_MODIFIER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SoundModifier           .class));
 	}
 }

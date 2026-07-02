@@ -49,9 +49,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.*;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSpec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
@@ -73,6 +71,7 @@ import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
 import builderb0y.bigglobe.rendering.lods.LodMesher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
+import builderb0y.bigglobe.sounds.SoundModifierController;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -94,7 +93,6 @@ public class ClientState {
 	public static final ReentrantReadWriteLock INSTANCE_LOCK = new ReentrantReadWriteLock();
 
 	public ClientGeneratorParams generatorParams;
-	public double timeSpeed = 1.0D;
 	public boolean dangerousRapids;
 
 	static {
@@ -257,7 +255,7 @@ public class ClientState {
 				new HashMap<>()
 			);
 			ColorOverrides colors = generator.game_mechanics.colors();
-			if (colors != null || this.containsLayers) {
+			if (colors != null || this.containsLayers || generator.game_mechanics.sound_modifier() != null) {
 				IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
 				if (colors != null) {
 					if (colors.grass  () != null) colors.grass  ().streamDirectDependencies().forEach(collector);
@@ -265,6 +263,9 @@ public class ClientState {
 					if (colors.water  () != null) colors.water  ().streamDirectDependencies().forEach(collector);
 				}
 				if (this.containsLayers) collector.accept(generator.layer);
+				if (generator.game_mechanics.sound_modifier() != null) {
+					generator.game_mechanics.sound_modifier().streamDirectDependencies().forEach(collector);
+				}
 				if (generator.biome_source() instanceof ScriptedColumnBiomeSource biomeSource) {
 					biomeSource.script.streamDirectDependencies().forEach(collector);
 				}
@@ -404,6 +405,7 @@ public class ClientState {
 		public final @VerifyNullable ScriptedColumnBiomeSource biomeSource;
 		public final Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits;
 		public final @VerifyNullable Holder<Layer> layer;
+		public final SoundModifierController.@VerifyNullable Catcher soundModifier;
 		public transient ColumnEntryRegistry columnEntryRegistry;
 		public transient WorldTraits compiledWorldTraits;
 		public final transient ThreadLocal<ScriptedColumn> column;
@@ -417,7 +419,8 @@ public class ClientState {
 			LodOverrides generatorLodOverrides,
 			@VerifyNullable ScriptedColumnBiomeSource biomeSource,
 			Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits,
-			@VerifyNullable Holder<Layer> layer
+			@VerifyNullable Holder<Layer> layer,
+			SoundModifierController.@VerifyNullable Catcher soundModifier
 		) {
 			this.minY = minY;
 			this.maxY = maxY;
@@ -428,6 +431,7 @@ public class ClientState {
 			this.biomeSource = biomeSource;
 			this.worldTraits = worldTraits;
 			this.layer = layer;
+			this.soundModifier = soundModifier;
 			this.column = ThreadLocal.withInitial(this::createColumn);
 		}
 
@@ -449,6 +453,7 @@ public class ClientState {
 				}
 			}
 			this.layer = syncing.containsLayers ? generator.layer : null;
+			this.soundModifier = generator.game_mechanics.sound_modifier();
 			this.column = null;
 		}
 
@@ -475,6 +480,19 @@ public class ClientState {
 				throw new IllegalStateException("Not compiled");
 			}
 			return this.columnEntryRegistry.columnFactory.create(new Params(this.columnSeed, 0, 0, this.minY, this.maxY, ColumnUsage.GENERIC.normalHints(), this.compiledWorldTraits));
+		}
+
+		public ConfiguredColumnFactory configuredColumnFactory(Hints hints) {
+			return new ConfiguredColumnFactory(
+				this.columnEntryRegistry.columnFactory,
+				new WorldInfo(
+					this.columnSeed,
+					this.minY,
+					this.maxY,
+					this.compiledWorldTraits
+				),
+				hints
+			);
 		}
 
 		public WorldInfo worldInfo() {

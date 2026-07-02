@@ -113,6 +113,7 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.AutoOverride;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
+import builderb0y.bigglobe.sounds.SoundModifierController;
 import builderb0y.bigglobe.spawning.SpawnTweakers;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
 import builderb0y.bigglobe.structures.RawGenerationStructure.RawGenerationStructurePiece;
@@ -180,7 +181,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable NetherOverrides nether,
 		@VerifyNullable ResourceKey<Level> creaking_time_reference,
 		@VerifyNullable EndOverrides end,
-		@DefaultObject(name = "DEFAULT", in = LodOverrides.class, mode = DefaultObjectMode.FIELD) LodOverrides lods
+		@DefaultObject(name = "DEFAULT", in = LodOverrides.class, mode = DefaultObjectMode.FIELD) LodOverrides lods,
+		SoundModifierController.@VerifyNullable Catcher sound_modifier
 	) {
 
 		public static final GameMechanics DEFAULT = new GameMechanics(
@@ -191,7 +193,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			null,
 			null,
 			null,
-			LodOverrides.DEFAULT
+			LodOverrides.DEFAULT,
+			null
 		);
 
 		public static record ColorOverrides(

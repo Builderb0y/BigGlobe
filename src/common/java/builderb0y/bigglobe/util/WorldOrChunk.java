@@ -3,6 +3,9 @@ package builderb0y.bigglobe.util;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
+
+import org.jspecify.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -54,6 +57,92 @@ public interface WorldOrChunk extends BlockGetter {
 	public abstract Coordinator coordinator();
 
 	public abstract void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlaceSettings data, RandomGenerator random);
+
+	public static class ReadOnlyWorldDelegator implements WorldOrChunk {
+
+		public final BlockGetter world;
+		public final long seed;
+
+		public ReadOnlyWorldDelegator(BlockGetter world, long seed) {
+			this.world = world;
+			this.seed = seed;
+		}
+
+		@Override
+		public void setBlockState(BlockPos pos, BlockState state) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean placeBlockState(BlockPos pos, BlockState state) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void updateBlockState(BlockPos pos) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean canPlace(BlockPos pos, BlockState state) {
+			return false;
+		}
+
+		@Override
+		public void scheduleFluidTick(BlockPos pos, FluidState state) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public long getSeed() {
+			return this.seed;
+		}
+
+		@Override
+		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void spawnEntity(Function<ServerLevel, Entity> entitySupplier) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Coordinator coordinator() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlaceSettings data, RandomGenerator random) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
+			return this.world.getBlockEntity(pos);
+		}
+
+		@Override
+		public BlockState getBlockState(BlockPos pos) {
+			return this.world.getBlockState(pos);
+		}
+
+		@Override
+		public FluidState getFluidState(BlockPos pos) {
+			return this.world.getFluidState(pos);
+		}
+
+		@Override
+		public int getHeight() {
+			return this.world.getHeight();
+		}
+
+		@Override
+		public int getMinY() {
+			return this.world.getMinY();
+		}
+	}
 
 	public static class WorldDelegator implements WorldOrChunk {
 

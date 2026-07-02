@@ -32,6 +32,14 @@ sourceSets() {
 			]
 		}
 	}
+	generators() {
+		java() {
+			srcDirs = [ file("src/generators/java") ]
+		}
+		resources() {
+			srcDirs = [ file("src/generators/resources") ]
+		}
+	}
 }
 
 repositories() {

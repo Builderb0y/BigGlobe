@@ -101,6 +101,7 @@
 		"InGameHud_DebugHudGetter",
 		"MinecraftClient_LoadingFinishedHook",
 		"MinecraftClient_SetWorldEvent",
+		"SoundEngine_UseSoundModifiers",
 		"WorldRenderer_HoldLodSystem",
 		"WorldType_ChangeTranslation"
 	],

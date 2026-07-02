@@ -116,10 +116,10 @@ V6:
 		exclude mushrooms from deserts and beaches.
 		snow can spawn in deserts.
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
-		see how practical it is to make sounds echo in the chasms.
-			relevant openAL class: EXTEfx.
-			relevant minecraft class: Channel.
+		make spruce trees spawn in cool biomes, in addition to icy biomes.
 	urgent:
+		fix minecraft's snow logic at high Y levels.
+		more layers for chasm horizontal noise.
 
 LODs:
 	shader support.
@@ -139,11 +139,14 @@ json classes:
 	need to fix:
 
 changelog:
+	* Added new sound modifier system.
+		* Currently used to make sounds echo while underground or in the nether, and to make sounds a bit more muted while underwater.
 	* Increased `/bigglobe:locate structures` max radius from 10k to 100k blocks.
 	* Removed daylight cycle speed gamerule, since vanilla now has a direct replacement for it: `/time rate <rate>`.
 		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this version.
 	* Fixed inconsistencies between where beach terrain spawns and where beach biomes spawn.
 	* Fixed LOD rendering with view bobbing and nausea.
+	* Fixed a couple nether mobs not spawning.
 
 alternate world presets:
 	paradise.

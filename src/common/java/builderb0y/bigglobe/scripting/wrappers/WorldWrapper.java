@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
@@ -48,7 +49,6 @@ import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.util.BoundInfoHolder;
@@ -56,41 +56,15 @@ import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class WorldWrapper implements ScriptedColumnLookup {
+public class WorldWrapper extends ReadOnlyWorldWrapper {
 
 	public static final Info INFO = new Info();
 	public static class Info extends InfoHolder {
 
-		public FieldInfo
-			random;
 		public MethodInfo
-			seed,
-			minValidYLevel,
-			maxValidYLevel,
-			hints,
 			originX,
 			originY,
 			originZ;
-
-		public InsnTree seed(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.seed);
-		}
-
-		public InsnTree minValidYLevel(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.minValidYLevel);
-		}
-
-		public InsnTree maxValidYLevel(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.maxValidYLevel);
-		}
-
-		public InsnTree random(InsnTree loadWorld) {
-			return getField(loadWorld, this.random);
-		}
-
-		public InsnTree hints(InsnTree loadWorld) {
-			return invokeInstance(loadWorld, this.hints);
-		}
 
 		public InsnTree originX(InsnTree loadWorld) {
 			return invokeInstance(loadWorld, this.originX);
@@ -109,9 +83,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public static class BoundInfo extends BoundInfoHolder {
 
 		public InsnTree
-			random,
-			seed,
-			hints,
 			originX,
 			originY,
 			originZ;
@@ -121,14 +92,9 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public final WorldOrChunk world;
 	public final Coordination coordination;
-	public final MutableBlockPos pos;
 	public Vector3d doublePos;
-	public final RandomGenerator random;
 	public long featureSalt = 0xB5ECAC279BD1E7FBL;
-	public final ConfiguredColumnFactory columnFactory;
-	public final Long2ObjectOpenHashMap<ScriptedColumn> columns;
 	public AutoOverride overriders;
 
 	public WorldWrapper(
@@ -138,21 +104,16 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		Coordination coordination,
 		Hints hints
 	) {
-		this.world = world;
-		this.coordination = coordination;
-		this.pos = new MutableBlockPos();
-		this.random = random;
-		if (world instanceof ChunkDelegator delegator) {
-			delegator.worldWrapper = this;
-		}
+		ConfiguredColumnFactory factory;
+		Long2ObjectMap<ScriptedColumn> columns;
 		if (ScriptedColumnLookup.GLOBAL.currentValue() instanceof WorldWrapper parent) {
-			this.columns = parent.columns;
+			columns = parent.columns;
+			factory = parent.columnFactory;
 			this.overriders = parent.overriders;
-			this.columnFactory = parent.columnFactory;
 		}
 		else {
-			this.columns = new Long2ObjectOpenHashMap<>(64);
-			this.columnFactory = new ConfiguredColumnFactory(
+			columns = new Long2ObjectOpenHashMap<>(64);
+			factory = new ConfiguredColumnFactory(
 				chunkGenerator.columnEntryRegistry.columnFactory,
 				new WorldInfo(
 					chunkGenerator.columnSeed,
@@ -163,15 +124,16 @@ public class WorldWrapper implements ScriptedColumnLookup {
 				hints
 			);
 		}
+		super(world, random, factory, columns);
+		this.coordination = coordination;
+		if (world instanceof ChunkDelegator delegator) {
+			delegator.worldWrapper = this;
+		}
 	}
 
 	public WorldWrapper(WorldWrapper from, Coordination coordination) {
-		this.world = from.world;
+		super(from.world, from.random, from.columnFactory, from.columns);
 		this.coordination = coordination;
-		this.pos = new MutableBlockPos();
-		this.random = new Permuter(from.random.nextLong());
-		this.columnFactory = from.columnFactory;
-		this.columns = from.columns;
 		this.overriders = from.overriders;
 	}
 
@@ -197,17 +159,13 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	@Override
-	public ConfiguredColumnFactory getSource() {
-		return this.columnFactory;
-	}
-
-	@Override
 	public ScriptedColumn lookupColumn(int x, int z) {
 		BlockPos pos = this.unboundedPos(x, 0, z);
 		x = pos.getX();
 		z = pos.getZ();
 		return this.columns.computeIfAbsent(
-			ColumnPos.asLong(x, z), (long packedPos) -> {
+			ColumnPos.asLong(x, z),
+			(long packedPos) -> {
 				ScriptedColumn column = this.columnFactory.createAt(
 					ColumnPos.getX(packedPos),
 					ColumnPos.getZ(packedPos)
@@ -278,14 +236,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return pos.set(x, y, z);
 	}
 
-	public long seed() {
-		return this.world.getSeed();
-	}
-
-	public Hints hints() {
-		return this.columnFactory.hints();
-	}
-
+	@Override
 	public BlockState getBlockState(int x, int y, int z) {
 		if (this.isInCrashRange(y)) {
 			throw new IllegalArgumentException("The provided Y coordinate is very far outside the world height limit. The script may be searching for blocks in a column that has none.");
@@ -478,6 +429,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		this.world.placeStructureTemplate(x, y, z, template, data, permuter);
 	}
 
+	@Override
 	public boolean isYLevelValid(int y) {
 		return !this.world.isOutsideBuildHeight(y + this.coordination.transformation.offsetY());
 	}
@@ -489,14 +441,6 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public boolean isPositionValid(int x, int y, int z) {
 		return this.isYLevelValid(y) && this.mutablePos(x, y, z) != null;
-	}
-
-	public int minValidYLevel() {
-		return this.world.getMinY();
-	}
-
-	public int maxValidYLevel() {
-		return HeightLimitViewVersions.getMaxY(this.world);
 	}
 
 	public @Nullable CompoundTag getBlockData(int x, int y, int z) {

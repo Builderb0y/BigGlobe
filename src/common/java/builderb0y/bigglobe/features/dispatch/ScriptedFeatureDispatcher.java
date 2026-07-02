@@ -14,6 +14,7 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ReadOnlyWorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.environments.Handlers;
@@ -63,7 +64,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 				.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 				.configureEnvironment(NbtScriptEnvironment.createMutable())
 				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+				.configureEnvironment(GridScriptEnvironment.createWithSeed(ReadOnlyWorldWrapper.INFO.seed(WORLD.loadSelf)))
 				.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 				.configure((ExpressionParser parser) -> {
 					MutableScriptEnvironment environment = parser.environment.mutable();
@@ -90,7 +91,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 					);
 				})
 				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-				.addImportedValue("random", WORLD.random)
+				.addImportedValue("random", ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf))
 				.parse(new ScriptClassLoader(registry.loader))
 			);
 		}

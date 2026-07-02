@@ -47,7 +47,10 @@
 							"packI(63, roundInt(temperature * 64.0I + 128.0I), 255)"
 						]
 					},
-					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
+					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal",
+					"sound_modifier": {
+						"file": "bigglobe:world_preset/overworld_sound_modifier"
+					}
 				}
 			}
 		},
@@ -91,6 +94,9 @@
 					"lods": {
 						"view_distance_multiplier": 0.0625,
 						"fog_density_multiplier": 0.0625
+					},
+					"sound_modifier": {
+						"file": "bigglobe:world_preset/nether_sound_modifier"
 					}
 				}
 			}
@@ -140,6 +146,9 @@
 							"step": 32,
 							"condition": "`bigglobe:end/has_mountain`"
 						}
+					},
+					"sound_modifier": {
+						"file": "bigglobe:world_preset/end_sound_modifier"
 					}
 				}
 			}

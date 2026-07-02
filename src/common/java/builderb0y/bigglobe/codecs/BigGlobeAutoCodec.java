@@ -98,6 +98,7 @@ import builderb0y.bigglobe.noise.Grid;
 import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
+import builderb0y.bigglobe.sounds.SoundModifier;
 import builderb0y.bigglobe.spawning.SpawnTweaker;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.DelayedEntryList;
@@ -175,6 +176,7 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<WorldTrait>                              WORLD_TRAIT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (WorldTrait              .class), BigGlobeDynamicRegistries.WORLD_TRAIT_REGISTRY_KEY           );
 	public static final RegistryCoders<Layer>                                         LAYER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (Layer                   .class), BigGlobeDynamicRegistries.TERRAIN_LAYER_REGISTRY_KEY         );
 	public static final RegistryCoders<SpawnTweaker>                            EXTRA_SPAWN_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (SpawnTweaker            .class), BigGlobeDynamicRegistries.MOB_SPAWN_TWEAKER_REGISTRY_KEY     );
+	public static final RegistryCoders<SoundModifier>                        SOUND_MODIFIER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (SoundModifier           .class), BigGlobeDynamicRegistries.SOUND_MODIFIER_REGISTRY_KEY        );
 	public static final RegistryCoders<?>[]                                         DYNAMIC_REGISTRY_CODERS = {
 		BLOCK_REGISTRY_CODERS,
 		ITEM_REGISTRY_CODERS,
@@ -209,6 +211,7 @@ public class BigGlobeAutoCodec {
 		WORLD_TRAIT_REGISTRY_CODERS,
 		LAYER_REGISTRY_CODERS,
 		EXTRA_SPAWN_REGISTRY_CODERS,
+		SOUND_MODIFIER_REGISTRY_CODERS,
 	};
 
 	public static final AutoCodec AUTO_CODEC = new AutoCodec() {

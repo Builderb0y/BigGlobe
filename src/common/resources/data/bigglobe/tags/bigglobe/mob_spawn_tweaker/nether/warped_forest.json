@@ -3,6 +3,7 @@
 	"values": [
 		"bigglobe:nether/enderman",
 		"bigglobe:nether/hoglins",
-		"bigglobe:nether/piglin"
+		"bigglobe:nether/piglin",
+		"bigglobe:nether/strider"
 	]
 }

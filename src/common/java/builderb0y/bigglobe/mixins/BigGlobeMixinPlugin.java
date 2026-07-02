@@ -108,6 +108,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".ServerPlayerEntity_CreateEndSpawnPlatformOnlyIfPreferred",                                 Boolean.TRUE);
 		defaults.put(mixinPackage + ".ShipwreckGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".SlimeEntity_AllowSpawningFromSpawner",                                                     Boolean.TRUE);
+		defaults.put(mixinPackage + ".SoundEngine_UseSoundModifiers",                                                            Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_AllowSlimeSpawningInLakes",                                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".SpawnHelper_MoreMobsInTallerWorlds",                                                       Boolean.FALSE);
 		defaults.put(mixinPackage + ".StairsBlock_MirrorProperly",                                                               Boolean.TRUE);

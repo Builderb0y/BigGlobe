@@ -25,6 +25,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.scripting.environments.*;
+import builderb0y.bigglobe.scripting.wrappers.ReadOnlyWorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -119,11 +120,11 @@ public class EvaluateCommand {
 						}
 					}
 					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
+					.configureEnvironment(SymmetryScriptEnvironment.create(ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf)))
 					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
 					.configureEnvironment(NbtScriptEnvironment.createMutable())
 					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+					.configureEnvironment(GridScriptEnvironment.createWithSeed(ReadOnlyWorldWrapper.INFO.seed(WORLD.loadSelf)))
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.configure((ExpressionParser parser) -> {
 						parser
