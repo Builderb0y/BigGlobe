@@ -58,6 +58,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".BackgroundRenderer_NoFogWithLods",                                                         Boolean.TRUE);
 		defaults.put(mixinPackage + ".BackgroundRenderer_SoulLavaFogColor",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".Biome_DontFreezeRiverWater",                                                               Boolean.TRUE);
+		defaults.put(mixinPackage + ".Biome_MakeTemperature2D",                                                                  Boolean.FALSE);
 		defaults.put(mixinPackage + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".BoneMealItem_SpreadChorusNylium",                                                          Boolean.TRUE);
 		defaults.put(mixinPackage + ".Camera_HandleSoulLavaSubmersion",                                                          Boolean.TRUE);

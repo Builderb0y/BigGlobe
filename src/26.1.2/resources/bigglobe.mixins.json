@@ -9,6 +9,7 @@
 		"BigGlobeConfig_ImplementConfigData",
 		"Biome_DontFreezeRiverWater",
 		"Biome_DownfallAccessor",
+		"Biome_MakeTemperature2D",
 		"BlockView_ExposeDimension",
 		"BoneMealItem_SpreadChorusNylium",
 		"CatEntity_PetTheKitty",

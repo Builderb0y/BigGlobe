@@ -86,11 +86,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	@Override
 	public boolean place(FeaturePlaceContext<Config> context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			if (context.config().queueType == QueueType.DELAYED && !DistantHorizonsCompat.isOnDistantHorizonThread() && !(context.level() instanceof ServerLevel)) {
+			WorldGenLevel originalWorld = context.level();
+			if (context.config().queueType == QueueType.DELAYED && !DistantHorizonsCompat.isOnDistantHorizonThread() && !(originalWorld instanceof ServerLevel)) {
 				return delay(context);
 			}
 			else {
-				WorldGenLevel originalWorld = context.level();
 				BlockPos origin = context.origin();
 				Permuter permuter = Permuter.from(context.random());
 				Symmetry symmetry = this.getSymmetry(context.config(), permuter);

@@ -1,19 +1,20 @@
 {
 	"script": [
-		"if (getBlockState(originX, originY + 1, originZ).hasFullCubeOutline():",
-			"unless (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",
-				"return(placeFeature(originX, originY, originZ, CEILING_FEATURE))",
-			")",
+		"boolean blockAbove = getBlockState(0,  1, 0).hasFullCubeCollision()",
+		"boolean blockBelow = getBlockState(0, -1, 0).hasFullCubeCollision()",
+		"ConfiguredFeature feature = if (blockAbove:",
+			"if (blockBelow: random.nextBoolean() ? FLOOR_FEATURE : CEILING_FEATURE)",
+			"else (CEILING_FEATURE)",
 		")",
 		"else (",
-			"if (getBlockState(originX, originY - 1, originZ).hasFullCubeOutline():",
-				"return(placeFeature(originX, originY, originZ, FLOOR_FEATURE))",
-			")",
+			"if (blockBelow: FLOOR_FEATURE)",
+			"else (AIR_FEATURE)",
 		")",
-		"return(false)"
+		"return(placeFeature(0, 0, 0, feature))"
 	],
 	"inputs": [
 		{ "name": "FLOOR_FEATURE",   "type": "ConfiguredFeature" },
-		{ "name": "CEILING_FEATURE", "type": "ConfiguredFeature" }
+		{ "name": "CEILING_FEATURE", "type": "ConfiguredFeature" },
+		{ "name": "AIR_FEATURE",     "type": "ConfiguredFeature", "default": "null" }
 	]
 }

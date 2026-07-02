@@ -107,8 +107,6 @@ V6:
 		test and see if placing a waypoint in the deep dark (or core) causes you to take void damage when entering hyperspace from that waypoint.
 		make it so that you can switch on custom enums.
 		split up BigGlobeItems just like I did with BigGlobeBlocks.
-		mushrooms in lush caves.
-			include upside down ones hanging from the ceiling.
 		pointy mountains.
 		split tree generator:
 			missing decoration:
@@ -118,8 +116,6 @@ V6:
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 		make spruce trees spawn in cool biomes, in addition to icy biomes.
 	urgent:
-		fix minecraft's snow logic at high Y levels.
-		more layers for chasm horizontal noise.
 
 LODs:
 	shader support.
@@ -141,12 +137,15 @@ json classes:
 changelog:
 	* Added new sound modifier system.
 		* Currently used to make sounds echo while underground or in the nether, and to make sounds a bit more muted while underwater.
+	* Added big mushrooms to lush caves, to compensate for the fact that mushroom caves do not currently spawn anywhere.
 	* Increased `/bigglobe:locate structures` max radius from 10k to 100k blocks.
 	* Removed daylight cycle speed gamerule, since vanilla now has a direct replacement for it: `/time rate <rate>`.
 		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this version.
 	* Fixed inconsistencies between where beach terrain spawns and where beach biomes spawn.
 	* Fixed LOD rendering with view bobbing and nausea.
 	* Fixed a couple nether mobs not spawning.
+	* Added mixin to make biome temperatures not depend on Y level.
+		* Since this counts as a change to vanilla behavior, this mixin is disabled by default, and must be manually enabled in `.minecraft/config/bigglobe/mixins.properties`.
 
 alternate world presets:
 	paradise.

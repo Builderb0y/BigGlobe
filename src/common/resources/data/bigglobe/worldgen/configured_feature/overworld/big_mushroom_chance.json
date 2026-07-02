@@ -1,0 +1,6 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": "random.nextBoolean(1.0I / 256.0I) && placeFeature(originX, originY, originZ, 'bigglobe:overworld/big_mushroom')"
+	}
+}

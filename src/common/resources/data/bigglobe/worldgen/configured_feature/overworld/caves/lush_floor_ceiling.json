@@ -4,6 +4,7 @@
 		"script": {
 			"template": "bigglobe:floor_ceiling_feature",
 			"inputs": {
+				"AIR_FEATURE":     "'bigglobe:overworld/big_mushroom_chance'",
 				"FLOOR_FEATURE":   "'bigglobe:overworld/caves/lush_floor'",
 				"CEILING_FEATURE": "'bigglobe:overworld/caves/lush_ceiling'"
 			}
