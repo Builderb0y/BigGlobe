@@ -3,6 +3,10 @@ package builderb0y.bigglobe.sounds;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance.Attenuation;
 import net.minecraft.core.Holder;
@@ -32,6 +36,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public interface SoundModifierController extends Script {
 
+	@Environment(EnvType.CLIENT)
 	public abstract SoundModifierEntry modifySound(ReadOnlyWorldWrapper world, SoundInstance sound, Entity listener);
 
 	public static class EntityMethods {
@@ -228,6 +233,7 @@ public interface SoundModifierController extends Script {
 
 		@Override
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
+			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return;
 			InsnTree loadWorld = load("world", type(ReadOnlyWorldWrapper.class));
 			this.script = (
 				new TemplateScriptParser<>(SoundModifierController.class, this.usage, registry.parserFlags())
@@ -255,6 +261,7 @@ public interface SoundModifierController extends Script {
 		}
 
 		@Override
+		@Environment(EnvType.CLIENT)
 		public SoundModifierEntry modifySound(ReadOnlyWorldWrapper world, SoundInstance sound, Entity listener) {
 			try {
 				return this.script.modifySound(world, sound, listener);
