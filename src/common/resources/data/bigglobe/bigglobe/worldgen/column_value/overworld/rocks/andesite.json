@@ -4,6 +4,6 @@
 		"type": "float",
 		"is_3d": true
 	},
-	"script": "andesite_noise - world_traits.`bigglobe:temperature_at`",
+	"script": "-andesite_sandstone_noise - world_traits.`bigglobe:temperature_at`",
 	"cache": false
 }

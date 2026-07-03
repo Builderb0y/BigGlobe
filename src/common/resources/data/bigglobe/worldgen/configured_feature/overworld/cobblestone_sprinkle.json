@@ -2,12 +2,14 @@
 	"type": "bigglobe:chunk_sprinkle",
 	"config": {
 		"blocks": {
-			"minecraft:stone":     "minecraft:cobblestone",
-			"minecraft:deepslate": "minecraft:cobbled_deepslate",
-			"minecraft:granite":   "minecraft:polished_granite",
-			"minecraft:diorite":   "minecraft:polished_diorite",
-			"minecraft:andesite":  "minecraft:polished_andesite",
-			"minecraft:tuff":      "minecraft:polished_tuff"
+			"minecraft:stone":         "minecraft:cobblestone",
+			"minecraft:deepslate":     "minecraft:cobbled_deepslate",
+			"minecraft:granite":       "minecraft:polished_granite",
+			"minecraft:diorite":       "minecraft:polished_diorite",
+			"minecraft:andesite":      "minecraft:polished_andesite",
+			"minecraft:tuff":          "minecraft:polished_tuff",
+			"minecraft:sandstone":     "minecraft:smooth_sandstone",
+			"minecraft:red_sandstone": "minecraft:smooth_red_sandstone"
 		},
 		"count": 512
 	}

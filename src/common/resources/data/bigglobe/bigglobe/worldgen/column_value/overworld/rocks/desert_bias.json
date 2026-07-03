@@ -1,0 +1,12 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"float temp = world_traits.`bigglobe:temperature_at_surface`",
+		"double mesa = `bigglobe:overworld/raw/river/macro`",
+		"float(0.5I + temp - fastExp2(-8.0I * temp) - fastExp2(8.0I * mesa))"
+	]
+}

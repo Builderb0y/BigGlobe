@@ -3,7 +3,7 @@
 	"owner": "bigglobe:cave_systems/sandy/class",
 	"override": "bigglobe:cave_systems/base/method_surface",
 	"code": [
-		"SurfaceStates surface = new().$add('minecraft:sandstone', defaultSurfaceDepth(column))",
+		"SurfaceStates surface = new()",
 		"CaveSurfaceStates.create(surface, surface)"
 	]
 }

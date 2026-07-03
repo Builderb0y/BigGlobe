@@ -13,6 +13,10 @@
 		"minecraft:smooth_basalt",
 		"minecraft:tuff",
 		"minecraft:calcite",
-		"#minecraft:terracotta"
+		"#minecraft:terracotta",
+		"minecraft:sandstone",
+		"minecraft:smooth_sandstone",
+		"minecraft:red_sandstone",
+		"minecraft:smooth_red_sandstone"
 	]
 }

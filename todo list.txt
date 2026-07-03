@@ -138,6 +138,7 @@ changelog:
 	* Added new sound modifier system.
 		* Currently used to make sounds echo while underground or in the nether, and to make sounds a bit more muted while underwater.
 	* Added big mushrooms to lush caves, to compensate for the fact that mushroom caves do not currently spawn anywhere.
+	* Sandstone and red sandstone are now a filler block instead of a cave floor/ceiling block in deserts and mesas.
 	* Increased `/bigglobe:locate structures` max radius from 10k to 100k blocks.
 	* Removed daylight cycle speed gamerule, since vanilla now has a direct replacement for it: `/time rate <rate>`.
 		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this version.

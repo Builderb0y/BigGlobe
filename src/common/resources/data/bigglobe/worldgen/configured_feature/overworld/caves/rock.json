@@ -2,8 +2,8 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"getBlockState(originX, originY - 1, originZ).isIn('#bigglobe:rock_placeable_on_worldgen') &&",
-			"placeBlockState(originX, originY, originZ, 'bigglobe:rock[rocks=1,waterlogged=false]')"
+			"getBlockState(originX, originY - 1, originZ).isIn('#bigglobe:rock_placeable_on_worldgen')",
+			"&& placeBlockState(originX, originY, originZ, 'bigglobe:rock[rocks=1,waterlogged=false]')"
 		]
 	}
 }

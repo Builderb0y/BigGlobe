@@ -3,7 +3,7 @@
 	"owner": "bigglobe:cave_systems/mesa/class",
 	"override": "bigglobe:cave_systems/base/method_surface",
 	"code": [
-		"SurfaceStates surface = new().$add('minecraft:red_sandstone', defaultSurfaceDepth(column))",
+		"SurfaceStates surface = new()",
 		"CaveSurfaceStates.create(surface, surface)"
 	]
 }

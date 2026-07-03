@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:rock_fillers/sandstone/class",
+	"override": "bigglobe:rock_fillers/base/method_weight",
+	"code": [
+		"column.`bigglobe:overworld/rocks/andesite_sandstone_noise`(y) + column.`bigglobe:overworld/rocks/desert_bias`"
+	]
+}

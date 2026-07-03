@@ -8,6 +8,10 @@
 		"minecraft:polished_andesite",
 		"minecraft:dripstone_block",
 		"minecraft:calcite",
-		"minecraft:tuff"
+		"minecraft:tuff",
+		"minecraft:sandstone",
+		"minecraft:smooth_sandstone",
+		"minecraft:red_sandstone",
+		"minecraft:smooth_red_sandstone"
 	]
 }

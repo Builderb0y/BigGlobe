@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "RedSandstoneRockFiller",
+	"extends": "bigglobe:rock_fillers/base/class"
+}
