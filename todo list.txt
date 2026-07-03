@@ -85,7 +85,6 @@ V6:
 		structures:
 			make structure overriders have a filter too, like column value overriders.
 			transition structure max size from chunks to blocks.
-		write unit test to verify that jspecify is not used.
 		rename my RandomSource class to RandomSupplier, so as not to conflict with minecraft's RandomSource class.
 		remove deprecated methods from MutableScriptEnvironment.
 		rename JavaUtilScriptEnvironment to JavaUtilExtensions.
@@ -116,7 +115,6 @@ V6:
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 		make spruce trees spawn in cool biomes, in addition to icy biomes.
 	urgent:
-		ensure large houses and other structures can't spawn too close to a river.
 
 LODs:
 	shader support.

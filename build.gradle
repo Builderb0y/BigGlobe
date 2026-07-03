@@ -39,6 +39,7 @@ sourceSets() {
 		resources() {
 			srcDirs = [ file("src/generators/resources") ]
 		}
+		compileClasspath = main.compileClasspath
 	}
 }
 

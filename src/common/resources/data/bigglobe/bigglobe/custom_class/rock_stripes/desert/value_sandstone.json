@@ -4,7 +4,7 @@
 	"impl_type": "bigglobe:rock_stripes/desert/class",
 	"name": "SANDSTONE",
 	"field_values": {
-		"weight": 4.0,
+		"weight": 1.0,
 		"state": "minecraft:sandstone"
 	}
 }
