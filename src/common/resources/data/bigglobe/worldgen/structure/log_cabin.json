@@ -6,7 +6,7 @@
 	"layout": [
 		"int originY = world_traits.`bigglobe:y_level_on_surface`",
 		"WoodPalette palette = `bigglobe:overworld/wood_palette` ?: return()",
-
+		"unless (palette.isIn('#bigglobe:log_cabin_materials'): return())",
 		"pieces.add(",
 			"ScriptStructurePiece.new(",
 				"-5, -1, -5, 5, 11, 5,",

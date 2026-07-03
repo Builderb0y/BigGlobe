@@ -1,0 +1,10 @@
+{
+	"type": "structure",
+	"script": {
+		"template": "bigglobe:restrict_to_biome",
+		"inputs": {
+			"STRUCTURE": "'#bigglobe:small_decorations'",
+			"BIOMES":    "'#bigglobe:spillover/small_decorations'"
+		}
+	}
+}

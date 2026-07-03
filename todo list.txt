@@ -116,6 +116,7 @@ V6:
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 		make spruce trees spawn in cool biomes, in addition to icy biomes.
 	urgent:
+		ensure large houses and other structures can't spawn too close to a river.
 
 LODs:
 	shader support.
@@ -145,6 +146,8 @@ changelog:
 	* Fixed inconsistencies between where beach terrain spawns and where beach biomes spawn.
 	* Fixed LOD rendering with view bobbing and nausea.
 	* Fixed a couple nether mobs not spawning.
+	* Tried to stop some structures from spawning too close to a river. Hopefully this works.
+	* Fixed log cabins rarely spawning with a different wood palette than spruce or dark oak.
 	* Added mixin to make biome temperatures not depend on Y level.
 		* Since this counts as a change to vanilla behavior, this mixin is disabled by default, and must be manually enabled in `.minecraft/config/bigglobe/mixins.properties`.
 

@@ -1,8 +1,8 @@
 {
 	"script": [
-		"if (start.structure == STRUCTURE:",
+		"if (start.structure.isIn(STRUCTURE):",
 			"double*(minY = inf, maxY = -inf, surfaceY = 0.0L)",
-			"for (int x in range[start.minX, start.maxX] % 4:",
+			"for (int x in range[start.minX - PADDING, start.maxX + PADDING] % 4:",
 				"unless (world_traits.`bigglobe:biome`(x, start.maxY, start.minZ).isIn(BIOMES): return(false))",
 				"surfaceY = world_traits.`bigglobe:automatic_approximate_surface_y`(x, start.minY, start.minZ)",
 				"minY = min(minY, surfaceY)",
@@ -13,7 +13,7 @@
 				"minY = min(minY, surfaceY)",
 				"maxY = max(maxY, surfaceY)",
 			")",
-			"for (int z in range[start.minZ, start.maxZ] % 4:",
+			"for (int z in range[start.minZ - PADDING, start.maxZ + PADDING] % 4:",
 				"unless (world_traits.`bigglobe:biome`(start.minX, start.maxY, z).isIn(BIOMES): return(false))",
 				"surfaceY = world_traits.`bigglobe:automatic_approximate_surface_y`(start.minX, start.minY, z)",
 				"minY = min(minY, surfaceY)",
@@ -29,8 +29,9 @@
 		"return(true)"
 	],
 	"inputs": [
-		{ "name": "STRUCTURE", "type": "Structure" },
+		{ "name": "STRUCTURE", "type": "StructureTag" },
 		{ "name": "BIOMES",    "type": "BiomeTag"  },
-		{ "name": "MAX_SLOPE", "type": "double", "default": "0.25L" }
+		{ "name": "MAX_SLOPE", "type": "double", "default": "0.25L" },
+		{ "name": "PADDING",   "type": "int",    "default": "0" }
 	]
 }
