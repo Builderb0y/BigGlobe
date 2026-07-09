@@ -467,6 +467,7 @@ public class ClientState {
 					)
 				)
 				&& this.layer == null
+				&& this.soundModifier == null
 			) {
 				return;
 			}

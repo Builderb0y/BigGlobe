@@ -33,7 +33,7 @@ public class SoundModifierManager {
 		ClientLevel world = Minecraft.getInstance().level;
 		ClientState state = ClientState.get(world);
 		Entity listener = Minecraft.getInstance().getCameraEntity();
-		if (state != null && listener != null) { //world == null implies state == null.
+		if (state != null && state.generatorParams != null && listener != null) { //world == null implies state == null.
 			SoundModifierController.Catcher controller = state.generatorParams.soundModifier;
 			if (controller != null) {
 				ReadOnlyWorldWrapper wrapper = this.worlds.computeIfAbsent(

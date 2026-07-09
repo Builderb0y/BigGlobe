@@ -134,20 +134,6 @@ json classes:
 	need to fix:
 
 changelog:
-	* Added new sound modifier system.
-		* Currently used to make sounds echo while underground or in the nether, and to make sounds a bit more muted while underwater.
-	* Added big mushrooms to lush caves, to compensate for the fact that mushroom caves do not currently spawn anywhere.
-	* Sandstone and red sandstone are now a filler block instead of a cave floor/ceiling block in deserts and mesas.
-	* Increased `/bigglobe:locate structures` max radius from 10k to 100k blocks.
-	* Removed daylight cycle speed gamerule, since vanilla now has a direct replacement for it: `/time rate <rate>`.
-		* The associated network packet is also removed, so if you're using Big Globe on a server, then the server and client will both need to update for this version.
-	* Fixed inconsistencies between where beach terrain spawns and where beach biomes spawn.
-	* Fixed LOD rendering with view bobbing and nausea.
-	* Fixed a couple nether mobs not spawning.
-	* Tried to stop some structures from spawning too close to a river. Hopefully this works.
-	* Fixed log cabins rarely spawning with a different wood palette than spruce or dark oak.
-	* Added mixin to make biome temperatures not depend on Y level.
-		* Since this counts as a change to vanilla behavior, this mixin is disabled by default, and must be manually enabled in `.minecraft/config/bigglobe/mixins.properties`.
 
 alternate world presets:
 	paradise.

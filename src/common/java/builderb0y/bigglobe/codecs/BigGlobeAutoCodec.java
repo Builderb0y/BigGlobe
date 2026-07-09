@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.codecs;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Locale;
@@ -214,6 +215,7 @@ public class BigGlobeAutoCodec {
 		SOUND_MODIFIER_REGISTRY_CODERS,
 	};
 
+	public static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 	public static final AutoCodec AUTO_CODEC = new AutoCodec() {
 
 		@Override
@@ -382,6 +384,11 @@ public class BigGlobeAutoCodec {
 				@Override
 				public boolean canView(@NotNull Field field) {
 					return super.canView(field) && field.getDeclaringClass().getName().startsWith("builderb0y.");
+				}
+
+				@Override
+				public MethodHandles.@NotNull Lookup getLookup(@NotNull Class<?> in) {
+					return LOOKUP;
 				}
 			};
 		}

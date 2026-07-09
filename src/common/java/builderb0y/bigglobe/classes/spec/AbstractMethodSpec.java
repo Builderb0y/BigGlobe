@@ -6,7 +6,6 @@ import builderb0y.bigglobe.classes.compile.ClassHierarchy;
 import builderb0y.bigglobe.classes.compile.DetailedException;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;

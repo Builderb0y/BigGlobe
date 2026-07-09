@@ -1,0 +1,14 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:block_pos/class",
+	"name": "moveTo",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "x", "type": "int" },
+		{ "name": "y", "type": "int" },
+		{ "name": "z", "type": "int" }
+	],
+	"code": [
+		"this.=$x(x).=$y(y).=z(z)"
+	]
+}
