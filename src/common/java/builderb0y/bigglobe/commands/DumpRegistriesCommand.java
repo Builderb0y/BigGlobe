@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.JsonElement;
@@ -14,9 +15,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -24,6 +27,7 @@ import net.minecraft.core.RegistryAccess.RegistryEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryDataLoader;
+import net.minecraft.resources.RegistryDataLoader.RegistryData;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -45,7 +49,11 @@ public class DumpRegistriesCommand {
 		dispatcher.register(
 			Commands.literal(BigGlobeMod.MODID + ":dumpRegistries")
 			.requires(CommandVersions.levelPredicate(4).or((CommandSourceStack source) -> source.getServer() != null && source.getServer().isSingleplayer()))
-			.executes((CommandContext<CommandSourceStack> context) -> tryDump(context, false))
+			.then(
+				Commands
+				.literal("partial")
+				.executes((CommandContext<CommandSourceStack> context) -> tryDump(context, false))
+			)
 			.then(
 				Commands
 				.literal("full")
@@ -70,18 +78,16 @@ public class DumpRegistriesCommand {
 	public static void dumpEverything(CommandContext<CommandSourceStack> context, boolean full) {
 		File root = new File(FabricLoader.getInstance().getGameDir().toFile(), "bigglobe_registry_dump");
 		delete(root);
-		File registryRoot = new File(root, "registries");
-		File tagsRoot = new File(root, "tags");
+		File dataFolder = new File(root, "data");
+		File partialDataFolder = new File(root, "partial");
 		//File recipeRoot     = new File(root, "recipes");
 		//File lootTablesRoot = new File(root, "loot_tables");
 		RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, context.getSource().registryAccess());
 		Map<ResourceKey<? extends Registry<?>>, Codec<?>> dynamicCodecs;
 		if (full) {
-			dynamicCodecs = new Object2ObjectOpenHashMap<>(RegistryDataLoader.WORLDGEN_REGISTRIES.size() + RegistryDataLoader.DIMENSION_REGISTRIES.size());
-			for (RegistryDataLoader.RegistryData<?> entry : RegistryDataLoader.WORLDGEN_REGISTRIES) {
-				dynamicCodecs.put(entry.key(), entry.elementCodec());
-			}
-			for (RegistryDataLoader.RegistryData<?> entry : RegistryDataLoader.DIMENSION_REGISTRIES) {
+			List<RegistryData<?>> registries = DynamicRegistries.getWorldRegistries();
+			dynamicCodecs = new Object2ObjectOpenHashMap<>(registries.size());
+			for (RegistryDataLoader.RegistryData<?> entry : registries) {
 				dynamicCodecs.put(entry.key(), entry.elementCodec());
 			}
 		}
@@ -89,7 +95,7 @@ public class DumpRegistriesCommand {
 			dynamicCodecs = Collections.emptyMap();
 		}
 
-		dumpRegistries(context, registryRoot, tagsRoot, dynamicCodecs, ops, full);
+		dumpRegistries(context, dataFolder, partialDataFolder, dynamicCodecs, ops, full);
 		//this code is disabled because mojang has not implemented shaped recipe serializing yet.
 		/*
 		#if MC_VERSION >= MC_1_20_2
@@ -101,8 +107,8 @@ public class DumpRegistriesCommand {
 
 	public static void dumpRegistries(
 		CommandContext<CommandSourceStack> context,
-		File registryRoot,
-		File tagsRoot,
+		File dataFolder,
+		File partialDataFolder,
 		Map<ResourceKey<? extends Registry<?>>, Codec<?>> dynamicCodecs,
 		RegistryOps<JsonElement> ops,
 		boolean full
@@ -112,9 +118,6 @@ public class DumpRegistriesCommand {
 		.registryAccess()
 		.registries()
 		.forEach((RegistryEntry<?> dynamicRegistryEntry) -> {
-			String path = identifierPath(dynamicRegistryEntry.key().identifier());
-			File perRegistryRoot = new File(registryRoot, path);
-			File perTagRoot = new File(tagsRoot, path);
 			@SuppressWarnings("rawtypes")
 			Codec codec = dynamicCodecs.get(dynamicRegistryEntry.key());
 			if (codec != null) { //dynamic registry
@@ -124,7 +127,7 @@ public class DumpRegistriesCommand {
 					.resultOrPartial(message -> BigGlobeMod.LOGGER.error("Error dumping " + elementEntry.getKey() + ": " + message))
 					.ifPresent((Object json_) -> {
 						JsonElement json = (JsonElement)(json_);
-						File file = new File(perRegistryRoot, identifierPath(elementEntry.getKey().identifier()) + ".json");
+						File file = fileFor(dataFolder, elementEntry.getKey());
 						file.getParentFile().mkdirs();
 						try (JsonWriter writer = new JsonWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
 							writer.setIndent("\t");
@@ -137,8 +140,9 @@ public class DumpRegistriesCommand {
 				}
 			}
 			else { //static registry
-				perRegistryRoot.getParentFile().mkdirs();
-				try (PrintStream stream = new PrintStream(new FileOutputStream(perRegistryRoot.getPath() + ".txt"), false, StandardCharsets.UTF_8)) {
+				File file = partialFileFor(partialDataFolder, dynamicRegistryEntry.key().identifier());
+				file.getParentFile().mkdirs();
+				try (PrintStream stream = new PrintStream(new FileOutputStream(file), false, StandardCharsets.UTF_8)) {
 					dynamicRegistryEntry
 					.value()
 					.registryKeySet()
@@ -155,13 +159,15 @@ public class DumpRegistriesCommand {
 					BigGlobeMod.LOGGER.error("Error dumping " + dynamicRegistryEntry.key() + ':', exception);
 				}
 			}
-			if (full) dumpTagsFull(dynamicRegistryEntry, perTagRoot);
-			else dumpTagsPartial(dynamicRegistryEntry, perTagRoot);
+			if (full) dumpTagsFull(dynamicRegistryEntry, dataFolder);
+			else dumpTagsPartial(dynamicRegistryEntry, partialDataFolder);
 		});
 	}
 
-	public static void dumpTagsPartial(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File perTagRoot) {
-		try (PrintStream stream = new PrintStream(new FileOutputStream(perTagRoot.getPath() + ".txt"), false, StandardCharsets.UTF_8)) {
+	public static void dumpTagsPartial(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File partialDataFolder) {
+		File file = partialTagFileFor(partialDataFolder, dynamicRegistryEntry.key().identifier());
+		file.getParentFile().mkdirs();
+		try (PrintStream stream = new PrintStream(new FileOutputStream(file), false, StandardCharsets.UTF_8)) {
 			RegistryVersions
 			.streamTags(dynamicRegistryEntry.value())
 			.map(UnregisteredObjectException::getTagKey)
@@ -174,12 +180,27 @@ public class DumpRegistriesCommand {
 		}
 	}
 
-	public static void dumpTagsFull(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File perTagRoot) {
+	public static void dumpTagsFull(RegistryAccess.RegistryEntry<?> dynamicRegistryEntry, File dataFolder) {
 		RegistryVersions.streamTags(dynamicRegistryEntry.value()).forEach((HolderSet<?> list) -> {
-			File file = new File(perTagRoot, identifierPath(UnregisteredObjectException.getTagKey(list).location()) + ".txt");
+			File file = fileFor(dataFolder, list.unwrapKey().orElseThrow());
 			file.getParentFile().mkdirs();
 			try (PrintStream stream = new PrintStream(new FileOutputStream(file), false, StandardCharsets.UTF_8)) {
-				list.stream().map(UnregisteredObjectException::getKey).map(ResourceKey::identifier).sorted(IDENTIFIER_COMPARATOR).forEachOrdered(stream::println);
+				stream.println("{");
+				stream.println("\t\"replace\": false,");
+				if (list.size() == 0) {
+					stream.println("\t\"values\": []");
+				}
+				else {
+					stream.println("\t\"values\": [");
+					List<Identifier> ids = list.stream().map(UnregisteredObjectException::getID).sorted(IDENTIFIER_COMPARATOR).toList();
+					int limit = ids.size() - 1;
+					for (int index = 0; index < limit; index++) {
+						stream.println("\t\t\"" + ids.get(index) + "\",");
+					}
+					stream.println("\t\t\"" + ids.get(limit) + "\"");
+					stream.println("\t]");
+				}
+				stream.print("}");
 			}
 			catch (IOException exception) {
 				BigGlobeMod.LOGGER.error("Error dumping tag #" + UnregisteredObjectException.getTagKey(list).location() + ':', exception);
@@ -252,8 +273,43 @@ public class DumpRegistriesCommand {
 	#endif
 	*/
 
-	public static String identifierPath(Identifier identifier) {
-		return identifier.getNamespace() + File.separatorChar + identifier.getPath().replace('/', File.separatorChar);
+	public static File fileFor(File dataFolder, ResourceKey<?> key) {
+		File file = new File(dataFolder, key.identifier().getNamespace());
+		if (!key.registry().getNamespace().equals("minecraft")) {
+			file = new File(file, key.registry().getNamespace());
+		}
+		file = new File(file, key.registry().getPath().replace('/', File.separatorChar));
+		file = new File(file, key.identifier().getPath().replace('/', File.separatorChar) + ".json");
+		return file;
+	}
+
+	public static File fileFor(File dataFolder, TagKey<?> key) {
+		File file = new File(dataFolder, key.location().getNamespace());
+		file = new File(file, "tags");
+		if (!key.registry().identifier().getNamespace().equals("minecraft")) {
+			file = new File(file, key.registry().identifier().getNamespace());
+		}
+		file = new File(file, key.registry().identifier().getPath().replace('/', File.separatorChar));
+		file = new File(file, key.location().getPath().replace('/', File.separatorChar) + ".json");
+		return file;
+	}
+
+	public static File partialFileFor(File partialDataFolder, Identifier registry) {
+		File file = partialDataFolder;
+		if (!registry.getNamespace().equals("minecraft")) {
+			file = new File(file, registry.getNamespace());
+		}
+		file = new File(file, registry.getPath().replace('/', File.separatorChar) + ".txt");
+		return file;
+	}
+
+	public static File partialTagFileFor(File partialDataFolder, Identifier registry) {
+		File file = new File(partialDataFolder, "tags");
+		if (!registry.getNamespace().equals("minecraft")) {
+			file = new File(file, registry.getNamespace());
+		}
+		file = new File(file, registry.getPath().replace('/', File.separatorChar) + ".txt");
+		return file;
 	}
 
 	public static void delete(File file) {
