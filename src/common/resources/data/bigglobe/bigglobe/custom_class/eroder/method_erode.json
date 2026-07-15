@@ -4,7 +4,7 @@
 	"name": "erode",
 	"return_type": "void",
 	"parameters": [
-		{ "name": "waveScale", "type": "double" },
+		{ "name": "waveScale",     "type": "double" },
 		{ "name": "waveAmplitude", "type": "double" }
 	],
 	"code": [

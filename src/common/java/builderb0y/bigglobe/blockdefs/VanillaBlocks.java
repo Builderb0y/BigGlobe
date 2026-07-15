@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.blockdefs;
 
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.SoundType;
@@ -27,8 +29,8 @@ registering the blocks is done in {@link #init()}.
 public class VanillaBlocks {
 
 	public static void init() {
-		BigGlobeBlocks.register(STICK);
-		BigGlobeBlocks.register(FLINT);
+		Registry.register(BuiltInRegistries.BLOCK, STICK.properties().blockIdOrThrow(), STICK);
+		Registry.register(BuiltInRegistries.BLOCK, FLINT.properties().blockIdOrThrow(), FLINT);
 	}
 
 	public static final SurfaceMaterialDecorationBlock

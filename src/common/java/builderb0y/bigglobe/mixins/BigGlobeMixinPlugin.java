@@ -87,8 +87,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".GrassBlock_UseCustomFeatureInBigGlobeWorlds",                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".HuskEntity_AllowSpawningUndergroundInBigGlobeWorlds",                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".IglooGeneratorPiece_DontMoveInBigGlobeWorlds",                                             Boolean.TRUE);
-		defaults.put(mixinPackage + ".Items_PlaceableFlint",                                                                     Boolean.TRUE);
-		defaults.put(mixinPackage + ".Items_PlaceableSticks",                                                                    Boolean.TRUE);
 		defaults.put(mixinPackage + ".MinecraftClient_LoadingFinishedHook",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".MinecraftServer_InitializeSpawnPoint",                                                     Boolean.TRUE);
 		defaults.put(mixinPackage + ".MinecraftServer_LoadSmallerSpawnArea",                                                     Boolean.FALSE);
@@ -97,6 +95,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		defaults.put(mixinPackage + ".OceanMonumentGeneratorBase_VanillaBugFixes",                                               Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanMonumentStructure_MovePiecesOnReCreate",                                              Boolean.TRUE);
 		defaults.put(mixinPackage + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
+		defaults.put(mixinPackage + ".PlaceableFlintAndSticks",                                                                  Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerEntity_FlyInHyperspace",                                                             Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerEntity_TickHyperspaceCollapse",                                                      Boolean.TRUE);
 		defaults.put(mixinPackage + ".PlayerManager_InitializeSpawnPoint",                                                       Boolean.TRUE);
@@ -128,6 +127,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		Set<String> unconfigurable = new HashSet<>();
 		unconfigurable.add(mixinPackage + ".BigGlobeConfig_ImplementConfigData");
 		unconfigurable.add(mixinPackage + ".Biome_DownfallAccessor");
+		unconfigurable.add(mixinPackage + ".Blocks_RegisterVanillaBlocksEarly");
 		unconfigurable.add(mixinPackage + ".BlockView_ExposeDimension");
 		unconfigurable.add(mixinPackage + ".ChunkRegion_UseCreateFlag");
 		unconfigurable.add(mixinPackage + ".ConcentricRingsStructurePlacement_MakeSmart");
@@ -145,6 +145,8 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".NbtCompound_ImplementExtensions");
 		unconfigurable.add(mixinPackage + ".PalettedContainer_DataAccess");
 		unconfigurable.add(mixinPackage + ".PlantBlock_CanPlantOnTopAccess");
+		unconfigurable.add(mixinPackage + ".Items_PlaceableFlint");
+		unconfigurable.add(mixinPackage + ".Items_PlaceableSticks");
 		unconfigurable.add(mixinPackage + ".PlayerEntity_TrackWaypoints");
 		unconfigurable.add(mixinPackage + ".RandomSpreadStructurePlacement_MakeSmart");
 		unconfigurable.add(mixinPackage + ".RecipeManager_BackwardsCompatibleRecipes");
@@ -353,6 +355,16 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		return switch (mixinClassName) {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
+			}
+			case "builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion" -> {
+				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connector");
+			}
+			case
+				"builderb0y.bigglobe.mixins.Blocks_RegisterVanillaBlocksEarly",
+				"builderb0y.bigglobe.mixins.Items_PlaceableFlint",
+				"builderb0y.bigglobe.mixins.Items_PlaceableSticks"
+			-> {
+				yield this.isEnabledInConfig("builderb0y.bigglobe.mixins.PlaceableFlintAndSticks");
 			}
 			default -> {
 				yield this.isEnabledInConfig(mixinClassName);

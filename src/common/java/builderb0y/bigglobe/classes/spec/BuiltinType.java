@@ -1215,7 +1215,7 @@ public abstract class BuiltinType implements Named {
 				.addField(Handlers.methodWithReceiver(ScriptedColumnLookup.HINTS).onUsed(callback).exposedName("hints").buildField())
 				.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
 				;
-				addFields(environment, callback, Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate");
+				addFields(environment, callback, Hints.class, "fill", "carve", "decorate", "isLod", "lod", "distanceBetweenColumns", "usage");
 			}
 		});
 		register("column_lookup", new Typed("ColumnLookup", ScriptedColumnLookup.class) {

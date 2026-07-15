@@ -134,6 +134,8 @@ json classes:
 	need to fix:
 
 changelog:
+	* Some mixins that conflict with NeoForge (via Sinytra Connector) have now been fixed or auto-disabled.
+		* This does NOT mean that Big Globe works correctly when running with Sinytra Connector, but it does mean that this goal is now one step closer.
 
 alternate world presets:
 	paradise.

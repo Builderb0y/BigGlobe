@@ -1,20 +1,12 @@
 package builderb0y.bigglobe.blockdefs;
 
-import java.util.Collections;
-import java.util.List;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
-import net.fabricmc.fabric.api.registry.LandPathTypeRegistry;
 
-import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.Util;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -22,11 +14,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.pathfinder.PathType;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.DelayedGenerationBlock;
-import builderb0y.bigglobe.blocks.MoltenRockBlock;
 import builderb0y.bigglobe.blocks.RopeAnchorBlock;
 import builderb0y.bigglobe.blocks.SpelunkingRopeBlock;
 
@@ -106,7 +96,6 @@ public class BigGlobeBlocks {
 	}
 
 	public static void init() {
-		VanillaBlocks.init();
 		OverworldBlocks.init();
 		NetherBlocks.init();
 		EndBlocks.init();
