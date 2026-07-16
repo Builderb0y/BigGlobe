@@ -134,14 +134,6 @@ json classes:
 	need to fix:
 
 changelog:
-	# For regular users
-	* No changes.
-	# For data pack developers
-	* `/bigglobe:dumpRegistries` command now organizes files by the same folder structure as Minecraft.
-		* This allows them to be loaded by the globescript intellij plugin.
-	# For no one in particular
-	* Some mixins that conflict with NeoForge (via Sinytra Connector) have now been fixed or auto-disabled.
-		* This does NOT mean that Big Globe works correctly when running with Sinytra Connector yet, but it does mean that this goal is now one step closer.
 
 alternate world presets:
 	paradise.
