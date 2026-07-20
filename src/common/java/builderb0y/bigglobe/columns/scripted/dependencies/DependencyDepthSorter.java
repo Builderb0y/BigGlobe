@@ -59,13 +59,13 @@ public class DependencyDepthSorter {
 			saveTasks.put(
 				name,
 				CompletableFuture.runAsync(() -> {
-						DependencyDepthSorter sorter = new DependencyDepthSorter(traits);
-						columns.streamEntries().forEach(sorter::recursiveComputeDepth);
-						sorter.outputResults(name);
-					})
-					.whenComplete((Void result, Throwable throwable) -> {
-						if (throwable != null) BigGlobeMod.LOGGER.error("Exception generating dependency graph:", throwable);
-					})
+					DependencyDepthSorter sorter = new DependencyDepthSorter(traits);
+					columns.streamEntries().forEach(sorter::recursiveComputeDepth);
+					sorter.outputResults(name);
+				})
+				.whenComplete((Void result, Throwable throwable) -> {
+					if (throwable != null) BigGlobeMod.LOGGER.error("Exception generating dependency graph:", throwable);
+				})
 			);
 		}
 	}
@@ -78,9 +78,9 @@ public class DependencyDepthSorter {
 		int depth = this.cache.getInt(entry);
 		if (depth < 0) {
 			OptionalInt optional = (
-				skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits)
-					.mapToInt(this::recursiveComputeDepth)
-					.max()
+				skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits, new HashSet<>())
+				.mapToInt(this::recursiveComputeDepth)
+				.max()
 			);
 			depth = optional.isPresent() ? optional.getAsInt() + 1 : 0;
 			this.cache.put(entry, depth);
@@ -92,12 +92,18 @@ public class DependencyDepthSorter {
 		return depth;
 	}
 
-	public static Stream<? extends Holder<? extends DependencyView>> skipNonColumnEntries(Stream<? extends Holder<? extends DependencyView>> stream, WorldTraits traits) {
+	public static Stream<? extends Holder<? extends DependencyView>> skipNonColumnEntries(
+		Stream<? extends Holder<? extends DependencyView>> stream,
+		WorldTraits traits,
+		Set<Holder<? extends DependencyView>> seen
+	) {
 		return stream.flatMap(
 			(Holder<? extends DependencyView> element) -> (
 				element.value() instanceof ColumnEntry
-					? Stream.of(element)
-					: skipNonColumnEntries(element.value().streamDirectDependencies(element, traits), traits)
+				? Stream.of(element)
+				: seen.add(element)
+				? skipNonColumnEntries(element.value().streamDirectDependencies(element, traits), traits, seen)
+				: Stream.empty()
 			)
 		);
 	}
@@ -153,23 +159,23 @@ public class DependencyDepthSorter {
 		}
 		root.printAll(out, null, 0);
 		this
-			.cache
-			.keySet()
-			.stream()
-			.sorted(Comparator.comparing(UnregisteredObjectException::getID))
-			.forEachOrdered((Holder<? extends DependencyView> entry) -> {
-				String dependencyString = (
-					skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits)
-						.map(UnregisteredObjectException::getKey)
-						.sorted(Comparator.comparing(ResourceKey::identifier))
-						.map(DependencyDepthSorter::keyToString)
-						.map((String id) -> '"' + id + '"')
-						.collect(Collectors.joining(" "))
-				);
-				if (!dependencyString.isEmpty()) {
-					out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
-				}
-			});
+		.cache
+		.keySet()
+		.stream()
+		.sorted(Comparator.comparing(UnregisteredObjectException::getID))
+		.forEachOrdered((Holder<? extends DependencyView> entry) -> {
+			String dependencyString = (
+				skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits, new HashSet<>())
+				.map(UnregisteredObjectException::getKey)
+				.sorted(Comparator.comparing(ResourceKey::identifier))
+				.map(DependencyDepthSorter::keyToString)
+				.map((String id) -> '"' + id + '"')
+				.collect(Collectors.joining(" "))
+			);
+			if (!dependencyString.isEmpty()) {
+				out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
+			}
+		});
 		out.println('}');
 		return writer.toString();
 	}
@@ -263,12 +269,12 @@ public class DependencyDepthSorter {
 
 		public void link(WorldTraits traits) {
 			for (Map.Entry<Holder<? extends DependencyView>, Cell> dependant : this.cellLookup.entrySet()) {
-				skipNonColumnEntries(dependant.getKey().value().streamDirectDependencies(dependant.getKey(), traits), traits)
-					.forEach((Holder<? extends DependencyView> dependency) -> {
-						Cell left = this.cellLookup.get(dependency);
-						dependant.getValue().leftCells.add(left);
-						left.rightCells.add(dependant.getValue());
-					});
+				skipNonColumnEntries(dependant.getKey().value().streamDirectDependencies(dependant.getKey(), traits), traits, new HashSet<>())
+				.forEach((Holder<? extends DependencyView> dependency) -> {
+					Cell left = this.cellLookup.get(dependency);
+					dependant.getValue().leftCells.add(left);
+					left.rightCells.add(dependant.getValue());
+				});
 			}
 		}
 

@@ -95,6 +95,7 @@ static void extractNestedJars(File dependenciesFolder, File toUnpack) {
 				zip.putNextEntry(entry)
 				jar.getInputStream(entry).transferTo(zip)
 			}
+			//DH *also* includes fabric API. strip that out too.
 			if (name.startsWith('META-INF/jars/') && name.endsWith('.jar') && !name.regionMatches(false, 'META-inf/jars/'.length(), 'fabric-', 0, 'fabric-'.length())) {
 				name = name.substring('META-INF/jars/'.length())
 				File unpackDir = new File(dependenciesFolder, name.substring(0, name.length() - '.jar'.length()))

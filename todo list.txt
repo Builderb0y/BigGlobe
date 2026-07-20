@@ -114,6 +114,7 @@ V6:
 		snow can spawn in deserts.
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 		make spruce trees spawn in cool biomes, in addition to icy biomes.
+		remove RegistryOps_MakeAdjustable, functionality exists in vanilla now.
 	urgent:
 
 LODs:
@@ -137,6 +138,10 @@ changelog:
 
 alternate world presets:
 	paradise.
+	oversized.
+		trees, foliage, small rocks, etc... are on a massive scale.
+		no mountains (they won't fit).
+		basically, play minecraft from the perspective of an ant.
 
 breaking changes I want to make:
 	expose IntVolume and DoubleVolume to scripts, with min, mid, and max properties.
