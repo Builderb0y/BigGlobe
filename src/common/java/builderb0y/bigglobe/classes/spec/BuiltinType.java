@@ -925,7 +925,7 @@ public abstract class BuiltinType implements Named {
 				.addMethod(Handlers.methodBuilder(BlockWrapper.class, "getRandomState").onUsed(callback).addReceiverArgument(this.type).addImportedArgument(RandomGenerator.class).buildMethod())
 				.addMethod(Handlers.methodBuilder(BlockWrapper.class, "getRandomState").onUsed(callback).addReceiverArgument(this.type).addRequiredArgument(RandomGenerator.class).buildMethod())
 				.addMethod(Handlers.methodBuilder(BlockWrapper.class, "getRandomState").onUsed(callback).addReceiverArgument(this.type).addRequiredArgument(long.class).buildMethod())
-				.addCastConstant(BlockWrapper.CONSTANT_FACTORY, true)
+				.addCastConstant(BlockWrapper.CONSTANT_FACTORY, callback, true)
 				;
 			}
 
@@ -969,7 +969,7 @@ public abstract class BuiltinType implements Named {
 				.addMethod(Handlers.methodBuilder(BlockStateWrapper.class, "canPlaceAt").onUsed(callback).addReceiverArgument(this.type).addRequiredArgument(WorldWrapper.class).addArguments("III").buildMethod())
 				.addMethod(Handlers.methodBuilder(BlockStateWrapper.class, "canStayAt").onUsed(callback).addReceiverArgument(this.type).addImportedArgument(WorldWrapper.class).addArguments("III").buildMethod())
 				.addMethod(Handlers.methodBuilder(BlockStateWrapper.class, "canStayAt").onUsed(callback).addReceiverArgument(this.type).addRequiredArgument(WorldWrapper.class).addArguments("III").buildMethod())
-				.addCastConstant(BlockStateWrapper.CONSTANT_FACTORY, true)
+				.addCastConstant(BlockStateWrapper.CONSTANT_FACTORY, callback, true)
 				.addMethod(BlockStateWrapper.TAG_PARSER.makeIsIn(callback))
 				.addKeyword(MinecraftScriptEnvironment.blockStateKeyword(callback))
 				;
@@ -988,7 +988,7 @@ public abstract class BuiltinType implements Named {
 				environment
 				.addField(Handlers.methodWithReceiver(BiomeEntry.class, "temperature").onUsed(callback).buildField())
 				.addField(Handlers.methodWithReceiver(BiomeEntry.class, "downfall").onUsed(callback).buildField())
-				.addCastConstant(BiomeEntry.CONSTANT_FACTORY, true)
+				.addCastConstant(BiomeEntry.CONSTANT_FACTORY, callback, true)
 				;
 			}
 
@@ -1018,7 +1018,7 @@ public abstract class BuiltinType implements Named {
 
 			@Override
 			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
-				environment.addCastConstant(ConfiguredFeatureEntry.CONSTANT_FACTORY, true);
+				environment.addCastConstant(ConfiguredFeatureEntry.CONSTANT_FACTORY, callback, true);
 			}
 
 			@Override
@@ -1047,7 +1047,7 @@ public abstract class BuiltinType implements Named {
 
 			@Override
 			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
-				environment.addCastConstant(EntityTypeEntry.CONSTANT_FACTORY, true);
+				environment.addCastConstant(EntityTypeEntry.CONSTANT_FACTORY, callback, true);
 			}
 
 			@Override
@@ -1076,7 +1076,7 @@ public abstract class BuiltinType implements Named {
 
 			@Override
 			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
-				environment.addCastConstant(SpawnTweakerEntry.CONSTANT_FACTORY, true);
+				environment.addCastConstant(SpawnTweakerEntry.CONSTANT_FACTORY, callback, true);
 			}
 
 			@Override
@@ -1107,7 +1107,7 @@ public abstract class BuiltinType implements Named {
 			public void setupEnvironment(MutableScriptEnvironment environment, UsageCallback callback) {
 				environment
 				.addField(Handlers.methodWithReceiver(WoodPaletteEntry.class, "features").onUsed(callback).buildField())
-				.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, true);
+				.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, callback, true);
 				for (WoodPaletteType type : WoodPaletteType.VALUES) {
 					String baseName = Case.CAMEL_CASE.apply(type.lowerCaseName);
 					InsnTree loadType = getStatic(FieldInfo.getField(WoodPaletteType.class, type.name()));
@@ -1213,7 +1213,7 @@ public abstract class BuiltinType implements Named {
 				environment
 				.addField(Handlers.methodWithReceiver(ScriptedColumn.class, "hints").onUsed(callback).buildField())
 				.addField(Handlers.methodWithReceiver(ScriptedColumnLookup.HINTS).onUsed(callback).exposedName("hints").buildField())
-				.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
+				.addCastConstant(ColumnUsage.CONSTANT_FACTORY, callback, true)
 				;
 				addFields(environment, callback, Hints.class, "fill", "carve", "decorate", "isLod", "lod", "distanceBetweenColumns", "usage");
 			}

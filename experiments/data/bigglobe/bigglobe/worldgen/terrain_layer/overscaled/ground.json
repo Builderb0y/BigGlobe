@@ -1,0 +1,11 @@
+{
+	"type": "simple_2d",
+	"state": "'minecraft:stone'",
+	"valid": {
+		"max_y": "0"
+	},
+	"before_children": [
+		"setBlockStates(-4, 0, 'minecraft:dirt')",
+		"setBlockState(-1, 'minecraft:grass_block[snowy=false]')"
+	]
+}

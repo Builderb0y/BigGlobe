@@ -1,0 +1,8 @@
+{
+	"bigglobe:approximate_surface_y": "0.0L",
+	"bigglobe:exact_surface_y": "0.0L",
+	"bigglobe:y_level_in_surface": "-1",
+	"bigglobe:y_level_on_surface": "0",
+	"bigglobe:min_y": "-1024",
+	"bigglobe:max_y": "1024"
+}

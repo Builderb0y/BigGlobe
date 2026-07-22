@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"script": [
+		"repeat (4:",
+			"int x = minModifiableX | random.nextInt(16)",
+			"int z = minModifiableZ | random.nextInt(16)",
+			"placeFeature(x, 0, z, 'bigglobe:overscaled/grass')",
+		")"
+	]
+}

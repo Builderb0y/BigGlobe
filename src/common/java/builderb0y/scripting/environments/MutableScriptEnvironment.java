@@ -1042,15 +1042,21 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//////////////////////////////// casting ////////////////////////////////
 
-	public MutableScriptEnvironment addCast(TypeInfo from, TypeInfo to, boolean implicit, CastHandler castHandler) {
+	public MutableScriptEnvironment addCast(TypeInfo from, TypeInfo to, boolean implicit, @Nullable UsageCallback callback, CastHandler castHandler) {
+		/*
 		while (castHandler instanceof CastHandlerHolder holder) {
 			castHandler = holder.caster;
 		}
-		CastHandlerHolder holder = new CastHandlerHolder(implicit, castHandler);
+		*/
+		CastHandlerHolder holder = new CastHandlerHolder(implicit, callback, castHandler);
 		if (this.casters.computeIfAbsent(from, (TypeInfo $) -> new HashMap<>(8)).putIfAbsent(to, holder) != null) {
 			throw new IllegalArgumentException("Caster " + from + " -> " + to + " is already present in this environment");
 		}
 		return this;
+	}
+
+	public MutableScriptEnvironment addCast(TypeInfo from, TypeInfo to, boolean implicit, CastHandler castHandler) {
+		return this.addCast(from, to, implicit, null, castHandler);
 	}
 
 	public MutableScriptEnvironment addCast(CastHandlerData caster) {
@@ -1091,6 +1097,10 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public MutableScriptEnvironment addCastConstant(AbstractConstantFactory factory, boolean implicit) {
 		return this.addCast(factory.inType, factory.outType, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit_, boolean nullable) -> factory.create(parser, value, implicit_, nullable).tree);
+	}
+
+	public MutableScriptEnvironment addCastConstant(AbstractConstantFactory factory, UsageCallback callback, boolean implicit) {
+		return this.addCast(factory.inType, factory.outType, implicit, callback, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit_, boolean nullable) -> factory.create(parser, value, implicit_, nullable).tree);
 	}
 
 	//////////////////////////////// getters ////////////////////////////////
@@ -1338,6 +1348,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		for (TypeInfo from : value.getTypeInfo().getAllAssignableTypes()) {
 			for (Map.Entry<TypeInfo, CastHandlerHolder> entry : this.casters.getOrDefault(from, Collections.emptyMap()).entrySet()) {
 				if ((!implicit || entry.getValue().implicit) && entry.getKey().extendsOrImplements(to)) {
+					UsageCallback callback = entry.getValue().callback;
+					if (callback != null) callback.onUsed(parser, null);
 					return entry.getValue().cast(parser, value, to, implicit, nullable);
 				}
 			}
@@ -1574,10 +1586,12 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 		public CastHandler caster;
 		public boolean implicit;
+		public @Nullable UsageCallback callback;
 
-		public CastHandlerHolder(boolean implicit, CastHandler caster) {
+		public CastHandlerHolder(boolean implicit, @Nullable UsageCallback callback, CastHandler caster) {
 			this.caster = caster;
 			this.implicit = implicit;
+			this.callback = callback;
 		}
 
 		@Override
@@ -1609,18 +1623,18 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 		public TypeInfo from, to;
 
-		public CastHandlerData(TypeInfo from, TypeInfo to, boolean implicit, CastHandler caster) {
-			super(implicit, caster);
+		public CastHandlerData(TypeInfo from, TypeInfo to, boolean implicit, @Nullable UsageCallback callback, CastHandler caster) {
+			super(implicit, callback, caster);
 			this.from = from;
 			this.to = to;
 		}
 
 		public CastHandlerData changeInput(TypeInfo from) {
-			return new CastHandlerData(from, this.to, this.implicit, this.caster);
+			return new CastHandlerData(from, this.to, this.implicit, this.callback, this.caster);
 		}
 
 		public CastHandlerData changeOutput(TypeInfo to) {
-			return new CastHandlerData(this.from, to, this.implicit, this.caster);
+			return new CastHandlerData(this.from, to, this.implicit, this.callback, this.caster);
 		}
 
 		@Override

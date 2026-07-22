@@ -99,7 +99,7 @@ public interface SurfaceScript extends Script {
 					load("segments", type(BlockSegmentList.class))
 				)
 			)
-				.emitBytecode(bridgeMethod);
+			.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
 			LoadInsnTree loadMainColumn = load("mainColumn", registry.columnCompileContext.columnTypeInfo());

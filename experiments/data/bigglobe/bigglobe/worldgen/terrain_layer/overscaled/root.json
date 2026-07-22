@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:root",
+	"state": "'minecraft:air'",
+	"children": [
+		"bigglobe:overscaled/ground",
+		"bigglobe:overscaled/tree"
+	]
+}

@@ -103,7 +103,7 @@ public class CastingSupport {
 	}
 
 	public static CastHandlerData data(TypeInfo from, TypeInfo to, boolean implicit, CastHandler caster) {
-		return new CastHandlerData(from, to, implicit, caster);
+		return new CastHandlerData(from, to, implicit, null, caster);
 	}
 
 	public static CastHandler allOf(CastHandlerData... casters) {

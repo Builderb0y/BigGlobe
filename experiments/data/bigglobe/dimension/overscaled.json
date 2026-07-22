@@ -1,0 +1,40 @@
+{
+	"type": "bigglobe:overscaled",
+	"generator": {
+		"type": "bigglobe:scripted",
+		"biome_source": {
+			"type": "minecraft:fixed",
+			"biome": "bigglobe:empty"
+		},
+		"height": {
+			"min_y": -512,
+			"max_y":  512,
+			"sea_level": 0
+		},
+		"layer": "bigglobe:overscaled/root",
+		"feature_dispatcher": {
+			"rock_replacers": [
+				"bigglobe:overworld/cobblestone_sprinkle"
+			],
+			"raw": "bigglobe:noop",
+			"normal": "bigglobe:overscaled/normal_root"
+		},
+		"overriders": "#bigglobe:empty",
+		"world_traits": "bigglobe:overscaled",
+		"game_mechanics": {
+			"colors": {
+				"grass": [
+					"packF(0.375I, 0.75I, 0.25I)"
+				],
+				"foliage": [
+					"packF(0.25I, 0.75I, 0.25I)"
+				],
+				"water": [
+					"float temperature = world_traits.`bigglobe:temperature_at` * 4.0I",
+					"temperature /= sqrt(temperature ^ 2 + 1.0I).as(float)",
+					"packI(63, roundInt(temperature * 64.0I + 128.0I), 255)"
+				]
+			}
+		}
+	}
+}

@@ -92,6 +92,13 @@ public class StatelessRandomScriptEnvironment {
 			null,
 			RandomScriptEnvironment.randomSwitch()
 		))
+		.addMemberKeyword(new MemberKeywordHandler.Named(
+			TypeInfos.LONG,
+			"nextBetween",
+			"seed.nextBetween[min, max)",
+			null,
+			RandomScriptEnvironment.nextBetween()
+		))
 	);
 
 	public static InsnTree wrapSeedIf(ExpressionParser parser, InsnTree seed, boolean negate, MemberKeywordMode mode) throws ScriptParsingException {
@@ -110,8 +117,8 @@ public class StatelessRandomScriptEnvironment {
 			body = parser.nextScript();
 			conditionInsnTree = (
 				sort == Sort.FLOAT
-					? RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF(seed, firstPart)
-					: RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD(seed, firstPart)
+				? RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF(seed, firstPart)
+				: RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD(seed, firstPart)
 			);
 		}
 		else { //seed.if (a)

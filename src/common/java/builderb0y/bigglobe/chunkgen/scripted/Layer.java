@@ -22,12 +22,12 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 	public static final CoderRegistry<Layer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
 
 	static {
-		REGISTRY.registerAuto(BigGlobeMod.modID("root"), RootLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"), Simple2DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"), Simple3DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("root"),                   RootLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"),          Simple2DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"),          Simple3DLayer.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("multi_state_3d"), MultiState3DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"), ScriptedLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("noop"), NoopLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),           ScriptedLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("noop"),                   NoopLayer.class);
 	}
 
 	public final @VerifyNullable Valid valid;

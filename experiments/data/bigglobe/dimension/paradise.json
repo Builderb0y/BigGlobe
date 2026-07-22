@@ -14,9 +14,7 @@
 		"layer": "bigglobe:paradise/root",
 		"feature_dispatcher": {
 			"rock_replacers": [
-				"bigglobe:overworld/cobblestone_sprinkle",
-				"bigglobe:overworld/rock_layers/rocks",
-				"bigglobe:overworld/rock_layers/dirt"
+				"bigglobe:overworld/cobblestone_sprinkle"
 			],
 			"raw": "bigglobe:paradise/raw_root",
 			"normal": "bigglobe:noop"

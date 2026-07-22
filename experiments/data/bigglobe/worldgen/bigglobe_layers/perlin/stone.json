@@ -1,7 +1,0 @@
-{
-	"type": "simple_2d",
-	"state": "'minecraft:stone'",
-	"valid": {
-		"max_y": "int(`bigglobe:perlin/flat`)"
-	}
-}

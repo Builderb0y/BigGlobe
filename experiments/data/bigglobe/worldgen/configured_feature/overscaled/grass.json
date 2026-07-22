@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"double initialAngle = random.nextDouble(tau)",
+			"int blades = random.nextBetween[1, 4]",
+			"double arcRadius = 4.0L - 4.0L * fastLog2(max(random.nextFloat(), 2x1.0P-8L))",
+			"for (int blade in range[0, blades):",
+				"double cosBlade = fastCos(double(blade) / double(blades) * tau + initialAngle)",
+				"double sinBlade = fastSin(double(blade) / double(blades) * tau + initialAngle)",
+				"for (double angle in range[0.0L, pi / 4.0L] % (1.0L / arcRadius):",
+					"double cosAngle = fastCos(angle) * arcRadius - arcRadius",
+					"double sinAngle = fastSin(angle) * arcRadius",
+					"setBlockStateReplaceable(",
+						"roundInt(cosAngle * cosBlade),",
+						"roundInt(sinAngle),",
+						"roundInt(cosAngle * sinBlade),",
+						"'minecraft:moss_block'",
+					")",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

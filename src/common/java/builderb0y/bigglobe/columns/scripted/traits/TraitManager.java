@@ -104,6 +104,7 @@ public class TraitManager {
 		for (Holder<WorldTrait> entry : this.traits.values()) {
 			TraitInfo info = this.infos.get(entry);
 			if (entry.value().fallback() != null) {
+				info.addDependency(entry.value().schema().type());
 				info.getter.setCode(
 					this.columnEntryRegistry.parserFlags(),
 					entry.value().fallback().getSource(),
@@ -174,7 +175,7 @@ public class TraitManager {
 		context.addNoArgConstructor(ACC_PUBLIC);
 		Map<Holder<WorldTrait>, SetBasedMutableDependencyView> dependencyMap = new HashMap<>(this.infos);
 		for (Map.Entry<Holder<WorldTrait>, WorldTraitProvider> entry : implementations.entrySet()) {
-			OverriddenDependencyView dependencies = new OverriddenDependencyView();
+			OverriddenDependencyView dependencies = new OverriddenDependencyView(this.infos.get(entry.getKey()));
 			dependencyMap.put(entry.getKey(), dependencies);
 			TraitInfo info = this.infos.get(entry.getKey());
 			LazyVarInfo column = new LazyVarInfo("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo());
@@ -410,6 +411,10 @@ public class TraitManager {
 	public static class OverriddenDependencyView implements SetBasedMutableDependencyView {
 
 		public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
+
+		public OverriddenDependencyView(SimpleDependencyView base) {
+			this.addAllDependencies(base);
+		}
 
 		@Override
 		public Set<Holder<? extends DependencyView>> getDependencies() {
