@@ -356,7 +356,10 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
 				yield checkMod(mixinClassName, "cloth-config");
 			}
-			case "builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion" -> {
+			case
+				"builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning",
+				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion"
+			-> {
 				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connector");
 			}
 			case
