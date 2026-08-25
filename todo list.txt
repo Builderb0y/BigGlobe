@@ -135,6 +135,10 @@ json classes:
 	need to fix:
 
 changelog:
+* Fixed sound effects erroring out after the player dies and respawns.
+* Disabled another mixin when running with Sinytra Connector.
+
+Sinytra Connector compatibility *might* be working now? Try it out, and let me know if you have any issues with it.
 
 alternate world presets:
 	paradise.
