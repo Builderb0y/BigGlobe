@@ -36,14 +36,21 @@ public class SoundModifierManager {
 		if (state != null && state.generatorParams != null && listener != null) { //world == null implies state == null.
 			SoundModifierController.Catcher controller = state.generatorParams.soundModifier;
 			if (controller != null) {
-				ReadOnlyWorldWrapper wrapper = this.worlds.computeIfAbsent(
+				ReadOnlyWorldWrapper wrapper = this.worlds.compute(
 					world,
-					(Level world_) -> new ReadOnlyWorldWrapper(
-						world_,
-						new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime())),
-						state.generatorParams.configuredColumnFactory(ColumnUsage.GENERIC.normalHints()),
-						64
-					)
+					(Level world_, ReadOnlyWorldWrapper oldWrapper) -> {
+						//ClientGenerationParams are re-compiled for the same world when the player dies.
+						//so, we check here to see if the factory changed, and if it did, re-create the world wrapper.
+						if (oldWrapper != null && oldWrapper.columnFactory.factory() == state.generatorParams.columnEntryRegistry.columnFactory) {
+							return oldWrapper;
+						}
+						return new ReadOnlyWorldWrapper(
+							world_,
+							new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime())),
+							state.generatorParams.configuredColumnFactory(ColumnUsage.GENERIC.normalHints()),
+							64
+						);
+					}
 				);
 				SoundModifierEntry modifier = controller.modifySound(wrapper, sound, listener);
 				if (modifier != null) {
