@@ -503,6 +503,11 @@
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[1]": "If false, Big Globe will use a single thread when generating structures.",
 	"text.autoconfig.bigglobe.option.c2meIntegration.multiThreadedStructures.@Tooltip[2]": "This config option can be disabled if it causes instability.",
 
+	"text.autoconfig.bigglobe.option.alwaysGenerateTheSameWorld": "Always Generate The Same World",
+	"text.autoconfig.bigglobe.option.alwaysGenerateTheSameWorld.@Tooltip[0]": "Big Globe V6.0.0 through V6.1.3 had a bug causing every world to look mostly the same.",
+	"text.autoconfig.bigglobe.option.alwaysGenerateTheSameWorld.@Tooltip[1]": "To avoid breaking old worlds, this config option is set to true by default ONLY if you upgraded from such a version.",
+	"text.autoconfig.bigglobe.option.alwaysGenerateTheSameWorld.@Tooltip[2]": "This config option is set to false by default on fresh installations.",
+
 	"text.autoconfig.bigglobe.option.CONFIG_VERSION": "Config Version",
 	"text.autoconfig.bigglobe.option.CONFIG_VERSION.@Tooltip[0]": "Don't change this."
 }

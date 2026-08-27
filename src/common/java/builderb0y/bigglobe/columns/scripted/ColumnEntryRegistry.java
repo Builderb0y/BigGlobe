@@ -57,6 +57,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bigglobe.dumpColumnValues", "bigglobe_column_values");
 
 	public final boolean client;
+	public final boolean alwaysGenerateTheSameWorld;
 	public final BetterRegistry.Lookup registries;
 	public transient ClassHierarchy classHierarchy;
 	public transient TraitManager traitManager;
@@ -68,9 +69,10 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 	public transient ScriptedColumn.Factory columnFactory;
 	public transient LinkedBlockingQueue<ScriptedColumn[]> chunkGeneratorColumns;
 
-	public ColumnEntryRegistry(BetterRegistry.Lookup registries, boolean client) throws DetailedException {
+	public ColumnEntryRegistry(BetterRegistry.Lookup registries, boolean client, boolean alwaysGenerateTheSameWorld) throws DetailedException {
 		this.client = client;
 		this.registries = registries;
+		this.alwaysGenerateTheSameWorld = alwaysGenerateTheSameWorld;
 		try {
 			this.columnCompileContext = new ColumnCompileContext(this);
 			this.classHierarchy = new ClassHierarchy(this);
@@ -244,6 +246,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		}
 
 		public boolean client;
+		public boolean alwaysGenerateTheSameWorld;
 		public BetterRegistry.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
@@ -253,9 +256,10 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		public static InvalidTagHandling invalidTagHandling;
 		public static Map<Identifier, List<EntryWithSource>> invalidTags;
 
-		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client) {
+		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client, boolean alwaysGenerateTheSameWorld) {
 			this.client = client;
 			this.betterRegistryLookup = betterRegistryLookup;
+			this.alwaysGenerateTheSameWorld = alwaysGenerateTheSameWorld;
 			this.compileables = new ArrayList<>(1024);
 			this.tags = new ArrayList<>(1024);
 		}
@@ -271,7 +275,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 				BigGlobeMod.currentRegistries = betterRegistryLookup;
 			}
 			if (LOADING == null) {
-				LOADING = new Loading(betterRegistryLookup, false);
+				LOADING = new Loading(betterRegistryLookup, false, BigGlobeConfig.INSTANCE.get().alwaysGenerateTheSameWorld);
 			}
 		}
 
@@ -346,7 +350,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 				this.tags.clear();
 			}
 			if (this.columnEntryRegistry == null) try {
-				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.client);
+				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.client, this.alwaysGenerateTheSameWorld);
 			}
 			catch (Exception exception) {
 				LOADING = null;

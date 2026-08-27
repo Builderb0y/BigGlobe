@@ -60,7 +60,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 		}
 
 		public ClientGeneratorParams compile() throws Exception {
-			ColumnEntryRegistry.Loading loading = new ColumnEntryRegistry.Loading(this.clientState.lookup(), true);
+			ColumnEntryRegistry.Loading loading = new ColumnEntryRegistry.Loading(this.clientState.lookup(), true, this.clientState.alwaysGenerateTheSameWorld);
 			return ColumnEntryRegistry.Loading.OVERRIDE.get(
 				loading,
 				() -> {

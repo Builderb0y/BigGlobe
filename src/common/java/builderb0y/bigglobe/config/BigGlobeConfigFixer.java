@@ -3,6 +3,7 @@ package builderb0y.bigglobe.config;
 import org.jetbrains.annotations.NotNull;
 
 import builderb0y.autocodec.data.AbstractNumberData;
+import builderb0y.autocodec.data.BooleanData;
 import builderb0y.autocodec.fixers.DataFixContext;
 import builderb0y.autocodec.fixers.DataFixException;
 import builderb0y.autocodec.fixers.VersionedFixer;
@@ -28,7 +29,8 @@ public class BigGlobeConfigFixer extends VersionedFixer<BigGlobeConfig> {
 			case 0:
 			case 1: this.resetLodRendering(context);
 			case 2: this.increaseQualityForNewRange(context);
-			case 3:
+			case 3: this.alwaysGenerateTheSameWorld(context);
+			case 4:
 		}
 		return context;
 	}
@@ -48,5 +50,9 @@ public class BigGlobeConfigFixer extends VersionedFixer<BigGlobeConfig> {
 				}
 			}
 		}
+	}
+
+	public <T_Encoded> void alwaysGenerateTheSameWorld(DataFixContext<T_Encoded> context) throws DataFixException {
+		context.putMember("Always Generate The Same World", new BooleanData(true));
 	}
 }

@@ -77,7 +77,7 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 				invokeInstance(
 					ldc(this.grid3D, type(Grid3D.class)),
 					Grid3D.INFO.getValue,
-					ldc(this.seed(registry)),
+					this.seed(registry),
 					invokeInstance(loadColumn, ScriptedColumn.INFO.x),
 					loadY,
 					invokeInstance(loadColumn, ScriptedColumn.INFO.z)
@@ -97,7 +97,7 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 				invokeInstance(
 					ldc(this.grid2D, type(Grid2D.class)),
 					Grid2D.INFO.getValue,
-					ldc(this.seed(registry)),
+					this.seed(registry),
 					invokeInstance(loadColumn, ScriptedColumn.INFO.x),
 					invokeInstance(loadColumn, ScriptedColumn.INFO.z)
 				),
@@ -123,7 +123,7 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		return invokeInstance(
 			ldc(this.grid3D, type(Grid3D.class)),
 			Grid3D.INFO.getBulkY,
-			ldc(this.seed(registry)),
+			this.seed(registry),
 			invokeInstance(loadColumn, ScriptedColumn.INFO.x),
 			getField(loadMappedArray, MappedRangeArray.INFO.minCached),
 			invokeInstance(loadColumn, ScriptedColumn.INFO.z),
@@ -131,8 +131,9 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		);
 	}
 
-	public long seed(ColumnEntryRegistry registry) {
-		return this.seed != null ? this.seed.value : Permuter.permute(0L, registry.idOf(this));
+	public InsnTree seed(ColumnEntryRegistry registry) {
+		InsnTree entrySeed = ldc(this.seed != null ? this.seed.value : Permuter.permute(0L, registry.idOf(this)));
+		return registry.alwaysGenerateTheSameWorld ? entrySeed : registry.columnCompileContext.loadSeed(entrySeed);
 	}
 
 	/**

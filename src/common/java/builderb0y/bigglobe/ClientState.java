@@ -213,6 +213,7 @@ public class ClientState {
 		public static final AutoCoder<Syncing> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Syncing.class);
 
 		public boolean containsLayers;
+		public boolean alwaysGenerateTheSameWorld;
 		public Map<Identifier, String> includes;
 		public Map<Identifier, Tag> templates, customClasses, columnEntries, decisionTrees, worldTraits, layers;
 		public transient MappedRegistry<ScriptTemplate>       templateRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries. SCRIPT_TEMPLATE_REGISTRY_KEY, Lifecycle.experimental());
@@ -224,6 +225,7 @@ public class ClientState {
 
 		public Syncing(
 			boolean containsLayers,
+			boolean alwaysGenerateTheSameWorld,
 			Map<Identifier, String> includes,
 			Map<Identifier, Tag> templates,
 			Map<Identifier, Tag> customClasses,
@@ -232,6 +234,7 @@ public class ClientState {
 			Map<Identifier, Tag> worldTraits,
 			Map<Identifier, Tag> layers
 		) {
+			this.alwaysGenerateTheSameWorld = alwaysGenerateTheSameWorld;
 			this.containsLayers = containsLayers;
 			this.includes       = includes;
 			this.templates      = templates;
@@ -246,6 +249,7 @@ public class ClientState {
 		public Syncing(BigGlobeScriptedChunkGenerator generator) {
 			this(
 				BigGlobeConfig.INSTANCE.get().lodRendering.renderingEnabled(),
+				BigGlobeConfig.INSTANCE.get().alwaysGenerateTheSameWorld,
 				new HashMap<>(),
 				new HashMap<>(),
 				new HashMap<>(),

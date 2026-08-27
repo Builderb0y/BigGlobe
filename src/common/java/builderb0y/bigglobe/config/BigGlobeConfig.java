@@ -354,11 +354,16 @@ public class BigGlobeConfig {
 		}
 	}
 
+	@Tooltip(count = 3)
+	@UseName("Always Generate The Same World")
+	@DefaultIgnore
+	public boolean alwaysGenerateTheSameWorld = false;
+
 	/**
 	tricks AutoCodec into ignoring missing data and leaving
 	the java object as it was after initialization,
 	while simultaneously tricking intellij into
-	not* complaining that the object can be null.
+	*not* complaining that the object can be null.
 	*/
 	@VerifyNullable
 	@Mirror(VerifyNullable.class)
@@ -370,5 +375,5 @@ public class BigGlobeConfig {
 	@Excluded
 	@Tooltip(count = 1)
 	@UseName("Config Version")
-	public static final int CONFIG_VERSION = 3;
+	public static final int CONFIG_VERSION = 4;
 }

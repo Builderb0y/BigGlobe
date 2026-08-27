@@ -135,10 +135,14 @@ json classes:
 	need to fix:
 
 changelog:
-* Fixed sound effects erroring out after the player dies and respawns.
-* Disabled another mixin when running with Sinytra Connector.
-
-Sinytra Connector compatibility *might* be working now? Try it out, and let me know if you have any issues with it.
+* Fixed bug causing everyone to get mostly the same world regardless of the world seed.
+	* This bug primarily affects noise generation, which contributes the most to terrain shape.
+		* Other smaller things like erosion patterns, structure placement positions, and so on are not affected, as they do use the correct world seed.
+	* This bug went un-noticed for quite some time due to the fact that the player spawn radius is so high, so everyone spawned in a different area of the same world.
+	* A config option has been provided to keep this behavior un-changed to avoid breaking old worlds.
+		* It defaults to the old (broken) behavior if you updated from a version containing this bug, and defaults to the new (fixed) behavior if you are running a fresh install.
+* Now compatible with Launchpad by default. Launchpad is basically "Sinytra Connector lite", and may be more stable than Sinytra Connector was.
+	* I haven't personally tested this, but at least one user claims it works. Let me know if you have any issues with it.
 
 alternate world presets:
 	paradise.
