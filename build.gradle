@@ -182,6 +182,8 @@ tasks.withType(JavaCompile).configureEach() {
 	it.options.encoding = "UTF-8"
 	//-Xplugin:Manifold is enabled higher for compileJava only.
 	it.options.compilerArgs.add('-parameters')
+	//VectorizedSmoothPolynomial is only loaded when this module is present at runtime.
+	it.options.compilerArgs.addAll('--add-modules', 'jdk.incubator.vector')
 
 	sourceCompatibility = JavaLanguageVersion.of(targetJavaVersion)
 	targetCompatibility = JavaLanguageVersion.of(targetJavaVersion)

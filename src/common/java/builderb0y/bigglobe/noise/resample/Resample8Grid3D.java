@@ -5,6 +5,8 @@ import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.polynomials.Polynomial;
 import builderb0y.bigglobe.noise.polynomials.Polynomial2.PolyForm2;
+import builderb0y.bigglobe.noise.polynomials.SmoothPolynomial;
+import builderb0y.bigglobe.noise.polynomials.VectorizedSmoothPolynomial;
 import builderb0y.bigglobe.noise.source.WhiteNoiseGrid3D;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
@@ -294,10 +296,16 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 			this.rcpY
 		);
 		double[] values = cache.values(sampleCount);
+		boolean vectorized = VectorizedSmoothPolynomial.AVAILABLE && polynomial instanceof SmoothPolynomial;
 		for (int index = 0; true /* break in the middle of the loop */; ) {
 			int count = Math.min(scaleY - modY, sampleCount - index);
-			for (int offset = 0; offset < count; offset++) {
-				values[index + offset] = polynomial.interpolate((modY + offset) * this.rcpY);
+			if (vectorized) {
+				VectorizedSmoothPolynomial.Impl.interpolate((SmoothPolynomial)(polynomial), modY, this.rcpY, values, index, count);
+			}
+			else {
+				for (int offset = 0; offset < count; offset++) {
+					values[index + offset] = polynomial.interpolate((modY + offset) * this.rcpY);
+				}
 			}
 			if ((index += count) >= sampleCount) break;
 			modY = 0;
