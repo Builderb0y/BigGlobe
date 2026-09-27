@@ -293,22 +293,25 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 			),
 			this.rcpY
 		);
+		double[] values = cache.values(sampleCount);
 		for (int index = 0; true /* break in the middle of the loop */; ) {
-			samples.setD(index, polynomial.interpolate(modY * this.rcpY));
-			if (++index >= sampleCount) break;
-			if (++modY >= scaleY) {
-				modY = 0;
-				polynomial.push(
-					formX.interpolate(
-						formZ.interpolate(values00[++row00], values01[++row01], this.rcpZ, fracZ),
-						formZ.interpolate(values10[++row10], values11[++row11], this.rcpZ, fracZ),
-						this.rcpX,
-						fracX
-					),
-					this.rcpY
-				);
+			int count = Math.min(scaleY - modY, sampleCount - index);
+			for (int offset = 0; offset < count; offset++) {
+				values[index + offset] = polynomial.interpolate((modY + offset) * this.rcpY);
 			}
+			if ((index += count) >= sampleCount) break;
+			modY = 0;
+			polynomial.push(
+				formX.interpolate(
+					formZ.interpolate(values00[++row00], values01[++row01], this.rcpZ, fracZ),
+					formZ.interpolate(values10[++row10], values11[++row11], this.rcpZ, fracZ),
+					this.rcpX,
+					fracX
+				),
+				this.rcpY
+			);
 		}
+		samples.setAllD(values, sampleCount);
 	}
 
 	/** the values of a grid along one vertical line of lattice points. */
@@ -356,11 +359,19 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 		public static final int SLOTS = 64;
 
 		public final LatticeLine[] lines = new LatticeLine[SLOTS];
+		public double[] values = new double[0];
 
 		public LatticeCache() {
 			for (int slot = 0; slot < SLOTS; slot++) {
 				this.lines[slot] = new LatticeLine();
 			}
+		}
+
+		/** returns an array which can hold at least the given number of samples. */
+		public double[] values(int count) {
+			double[] values = this.values;
+			if (values.length < count) this.values = values = new double[count];
+			return values;
 		}
 
 		/**

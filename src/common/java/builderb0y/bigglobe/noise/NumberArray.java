@@ -751,6 +751,36 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
+	/**
+	sets the first count elements of this array to the first count elements of values.
+	this is the same as calling {@link #setD(int, double)} for every index,
+	but without re-checking the type and index every time.
+	*/
+	public void setAllD(double[] values, int count) {
+		Objects.checkFromToIndex(0, count, values.length);
+		switch (this.type) {
+			case DOUBLE_TYPE -> {
+				this.checkRange(0, count);
+				byte[] base = this.getBase();
+				for (int index = 0, byteIndex = this.doubleIndexUnchecked(0); index < count; index++, byteIndex += Double.BYTES) {
+					DOUBLE_ACCESS.set(base, byteIndex, values[index]);
+				}
+			}
+			case FLOAT_TYPE -> {
+				this.checkRange(0, count);
+				byte[] base = this.getBase();
+				for (int index = 0, byteIndex = this.floatIndexUnchecked(0); index < count; index++, byteIndex += Float.BYTES) {
+					FLOAT_ACCESS.set(base, byteIndex, (float)(values[index]));
+				}
+			}
+			default -> {
+				for (int index = 0; index < count; index++) {
+					this.setD(index, values[index]);
+				}
+			}
+		}
+	}
+
 	//////////////////////////////// fill ////////////////////////////////
 
 	public void implFillFromTo(int from, int to, byte value) {
