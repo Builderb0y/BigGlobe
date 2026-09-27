@@ -750,7 +750,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				int chunkMaxY = HeightLimitViewVersions.getMaxY(chunk);
 				ScriptedColumn[] columns;
 				try {
-					columns = this.columnEntryRegistry.chunkGeneratorColumns.take();
+					columns = this.columnEntryRegistry.takeChunkGeneratorColumns();
 				}
 				catch (InterruptedException exception) {
 					BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
@@ -976,7 +976,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		);
 		ScriptedColumn[] columns;
 		try {
-			columns = this.columnEntryRegistry.chunkGeneratorColumns.take();
+			columns = this.columnEntryRegistry.takeChunkGeneratorColumns();
 		}
 		catch (InterruptedException exception) {
 			BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);

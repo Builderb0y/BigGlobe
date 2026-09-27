@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -126,6 +127,43 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 				columns[index] = this.columnFactory.create(new ScriptedColumn.Params(0L, 0, 0, 0, 0, ColumnUsage.GENERIC.normalHints(), null));
 			}
 			this.chunkGeneratorColumns.add(columns);
+		}
+	}
+
+	/**
+	takes an array of columns out of {@link #chunkGeneratorColumns},
+	waiting for another chunk to put one back if there aren't any left.
+	this is called on minecraft's worker threads, and those belong to a ForkJoinPool,
+	so the waiting is done with {@link ForkJoinPool#managedBlock(ForkJoinPool.ManagedBlocker)}.
+	that lets the pool start another thread in the meantime,
+	instead of having one less thread for everything else minecraft does on it.
+	*/
+	public ScriptedColumn[] takeChunkGeneratorColumns() throws InterruptedException {
+		ScriptedColumn[] columns = this.chunkGeneratorColumns.poll();
+		if (columns != null) return columns;
+		ColumnsTaker taker = new ColumnsTaker(this.chunkGeneratorColumns);
+		ForkJoinPool.managedBlock(taker);
+		return taker.columns;
+	}
+
+	public static class ColumnsTaker implements ForkJoinPool.ManagedBlocker {
+
+		public final LinkedBlockingQueue<ScriptedColumn[]> queue;
+		public ScriptedColumn[] columns;
+
+		public ColumnsTaker(LinkedBlockingQueue<ScriptedColumn[]> queue) {
+			this.queue = queue;
+		}
+
+		@Override
+		public boolean block() throws InterruptedException {
+			if (this.columns == null) this.columns = this.queue.take();
+			return true;
+		}
+
+		@Override
+		public boolean isReleasable() {
+			return this.columns != null || (this.columns = this.queue.poll()) != null;
 		}
 	}
 

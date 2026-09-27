@@ -229,7 +229,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		DhApiChunk results = DHCode.newChunk(chunkX, chunkZ, chunkBottomY, chunkTopY);
 		ScriptedColumn[] columns;
 		try {
-			columns = this.chunkGenerator.columnEntryRegistry.chunkGeneratorColumns.take();
+			columns = this.chunkGenerator.columnEntryRegistry.takeChunkGeneratorColumns();
 		}
 		catch (InterruptedException exception) {
 			BigGlobeMod.LOGGER.warn("Unexpected interrupt", exception);
