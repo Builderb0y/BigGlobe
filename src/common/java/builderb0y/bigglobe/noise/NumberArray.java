@@ -1090,6 +1090,23 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
+	/**
+	adds every element of values to the element at the same index in this array.
+	both arrays must contain doubles and have the same length.
+	this is the same as calling {@link #add(int, double)} for every index,
+	but without re-checking the type and index every time.
+	*/
+	public void addAllDoubles(NumberArray values) {
+		int length = this.elementCount;
+		this.checkTypeRange(DOUBLE_TYPE, 0, length);
+		values.checkTypeRange(DOUBLE_TYPE, 0, length);
+		byte[] base = this.getBase();
+		byte[] valuesBase = values.getBase();
+		for (int index = 0, byteIndex = this.doubleIndexUnchecked(0), valuesByteIndex = values.doubleIndexUnchecked(0); index < length; index++, byteIndex += Double.BYTES, valuesByteIndex += Double.BYTES) {
+			DOUBLE_ACCESS.set(base, byteIndex, ((double)(DOUBLE_ACCESS.get(base, byteIndex))) + ((double)(DOUBLE_ACCESS.get(valuesBase, valuesByteIndex))));
+		}
+	}
+
 	//////////////////////////////// mul ////////////////////////////////
 
 	public void implMul(int index, byte value) {
@@ -1203,6 +1220,23 @@ public class NumberArray implements AutoCloseable {
 			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
+		}
+	}
+
+	/**
+	multiplies every element in this array by the element at the same index in values.
+	both arrays must contain doubles and have the same length.
+	this is the same as calling {@link #mul(int, double)} for every index,
+	but without re-checking the type and index every time.
+	*/
+	public void mulAllDoubles(NumberArray values) {
+		int length = this.elementCount;
+		this.checkTypeRange(DOUBLE_TYPE, 0, length);
+		values.checkTypeRange(DOUBLE_TYPE, 0, length);
+		byte[] base = this.getBase();
+		byte[] valuesBase = values.getBase();
+		for (int index = 0, byteIndex = this.doubleIndexUnchecked(0), valuesByteIndex = values.doubleIndexUnchecked(0); index < length; index++, byteIndex += Double.BYTES, valuesByteIndex += Double.BYTES) {
+			DOUBLE_ACCESS.set(base, byteIndex, ((double)(DOUBLE_ACCESS.get(base, byteIndex))) * ((double)(DOUBLE_ACCESS.get(valuesBase, valuesByteIndex))));
 		}
 	}
 

@@ -17,7 +17,11 @@ public interface LayeredGrid extends Grid {
 	public abstract boolean isProduct();
 
 	public default void accumulate(NumberArray mainSamples, NumberArray scratch) {
-		if (this.isProduct()) {
+		if (mainSamples.type == NumberArray.DOUBLE_TYPE && scratch.type == NumberArray.DOUBLE_TYPE) {
+			if (this.isProduct()) mainSamples.mulAllDoubles(scratch);
+			else mainSamples.addAllDoubles(scratch);
+		}
+		else if (this.isProduct()) {
 			for (int index = 0, length = mainSamples.length(); index < length; index++) {
 				mainSamples.mul(index, scratch.getD(index));
 			}
