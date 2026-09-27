@@ -142,6 +142,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".MinecraftServer_SessionAccess");
 		unconfigurable.add(mixinPackage + ".MobSpawnerLogic_GettersAndSettersForEverything");
 		unconfigurable.add(mixinPackage + ".NbtCompound_ImplementExtensions");
+		unconfigurable.add(mixinPackage + ".LevelChunkSection_CountsAccess");
 		unconfigurable.add(mixinPackage + ".PalettedContainer_DataAccess");
 		unconfigurable.add(mixinPackage + ".PlantBlock_CanPlantOnTopAccess");
 		unconfigurable.add(mixinPackage + ".Items_PlaceableFlint");

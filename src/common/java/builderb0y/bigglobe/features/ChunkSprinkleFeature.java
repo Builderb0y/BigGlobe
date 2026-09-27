@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Set;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.BitStorage;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,9 +40,27 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 		int maxSection,
 		Config config
 	) {
+		SectionReplacer replacer = this.prepare(generator, worldWrapper, chunk, minSection, maxSection, config);
+		Async.loop(BigGlobeThreadPool.autoExecutor(), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, replacer::replaceSection);
+	}
+
+	@Override
+	public SectionReplacer prepare(
+		BigGlobeScriptedChunkGenerator generator,
+		WorldWrapper worldWrapper,
+		ChunkAccess chunk,
+		int minSection,
+		int maxSection,
+		Config config
+	) {
 		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x(), chunk.getPos().z());
-		Async.loop(
-			BigGlobeThreadPool.autoExecutor(), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int yCoord) -> {
+		int chunkMinSection = HeightLimitViewVersions.getSectionMinY(chunk);
+		int chunkMaxSection = HeightLimitViewVersions.getSectionMaxY(chunk);
+		return new SectionReplacer() {
+
+			@Override
+			public void replaceSection(int yCoord) {
+				if (yCoord < chunkMinSection || yCoord >= chunkMaxSection) return;
 				LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(yCoord));
 				SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, yCoord);
 				PaletteIdReplacer replacer = PaletteIdReplacer.of(context, config.blocks);
@@ -59,7 +78,13 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 					}
 				}
 			}
-		);
+
+			@Override
+			public void addPossibleOutputs(int yCoord, Set<BlockState> present) {
+				if (yCoord < chunkMinSection || yCoord >= chunkMaxSection) return;
+				RockLayerFeature.addReplacements(config.blocks, present);
+			}
+		};
 	}
 
 	public static class Config extends DummyConfig {

@@ -49,6 +49,7 @@
 		"OceanMonumentGeneratorBase_VanillaBugFixes",
 		"OceanMonumentStructure_MovePiecesOnReCreate",
 		"OceanRuinGeneratorPiece_UseGeneratorHeight",
+		"LevelChunkSection_CountsAccess",
 		"PalettedContainer_DataAccess",
 		"PlantBlock_CanPlantOnTopAccess",
 		"PlayerEntity_FlyInHyperspace",

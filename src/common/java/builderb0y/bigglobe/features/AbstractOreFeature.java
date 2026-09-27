@@ -1,6 +1,8 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Set;
 import com.mojang.serialization.Codec;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -32,14 +34,30 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		int maxSection,
 		T_Config config
 	) {
-		Async.loop(
-			BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
+		SectionReplacer replacer = this.prepare(generator, worldWrapper, chunk, minSection, maxSection, config);
+		Async.loop(BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, replacer::replaceSection);
+	}
+
+	@Override
+	public SectionReplacer prepare(
+		BigGlobeScriptedChunkGenerator generator,
+		WorldWrapper worldWrapper,
+		ChunkAccess chunk,
+		int minSection,
+		int maxSection,
+		T_Config config
+	) {
+		return new SectionReplacer() {
+
+			@Override
+			public void replaceSection(int sectionCoord) {
+				if (sectionCoord < minSection || sectionCoord >= maxSection) return;
 				SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
 					chunk,
 					chunk.getSection(chunk.getSectionIndexFromSectionY(sectionCoord)),
 					sectionCoord
 				);
-				OreBlockReplacer replacer = this.getReplacer(context, config);
+				OreBlockReplacer replacer = AbstractOreFeature.this.getReplacer(context, config);
 				if (replacer != null) {
 					ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.getSource().params(0, 0));
 					generateAllIntersecting(
@@ -52,8 +70,16 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 					);
 				}
 			}
-		);
+
+			@Override
+			public void addPossibleOutputs(int sectionCoord, Set<BlockState> present) {
+				if (sectionCoord < minSection || sectionCoord >= maxSection) return;
+				AbstractOreFeature.this.addPossibleOutputs(config, present);
+			}
+		};
 	}
+
+	public void addPossibleOutputs(T_Config config, Set<BlockState> present) {}
 
 	public static void generateAllIntersecting(
 		SectionGenerationContext context,

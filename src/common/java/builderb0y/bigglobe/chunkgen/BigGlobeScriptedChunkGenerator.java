@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +26,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -99,7 +101,7 @@ import builderb0y.bigglobe.compat.ValkyrienSkiesCompat;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
+import builderb0y.bigglobe.features.RockReplacerFeature;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatchers;
 import builderb0y.bigglobe.mixins.Heightmap_StorageAccess;
 import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
@@ -823,12 +825,35 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 							SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
 							BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
 							if (centerState != null) context.setAllStates(centerState, distantHorizons);
+							int maxY = baseY | 15;
+							//find every state in this section first, so the palette only needs to grow once.
+							if (context.storage().getBits() < 8) {
+								Palette<BlockState> palette = context.palette();
+								Set<BlockState> states = new ReferenceOpenHashSet<>(16);
+								for (int id = 0, paletteSize = palette.getSize(); id < paletteSize; id++) {
+									states.add(palette.valueFor(id));
+								}
+								int before = states.size();
+								for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+									BlockSegmentList list = lists[horizontalIndex];
+									int size = list.size();
+									for (int yIndex = list.getSegmentIndex(baseY, false); yIndex < size; yIndex++) {
+										LitSegment segment = list.get(yIndex);
+										if (segment.minY > maxY) break;
+										if (segment.maxY >= baseY) states.add(segment.value);
+									}
+								}
+								if (states.size() > before) {
+									context.ensurePaletteCapacity(states.size());
+								}
+							}
 							for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 								BlockSegmentList list = lists[horizontalIndex];
 								int size = list.size();
 								int yIndex = list.getSegmentIndex(baseY, false);
 								while (yIndex < size) {
 									LitSegment segment = list.get(yIndex);
+									if (segment.minY > maxY) break;
 									int segmentMinY = Math.max(segment.minY - baseY, 0);
 									int segmentMaxY = Math.min(segment.maxY - baseY, 15);
 									if (segmentMaxY >= segmentMinY) {
@@ -885,16 +910,24 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					int maxFilledSectionY_ = maxFilledSectionY;
 					ScriptedColumnLookup.GLOBAL.run(
 						worldWrapper, () -> {
+							IntConsumer recalcBlockCounts = (int coord) -> {
+								SectionUtil.recalcBlockCounts(chunk.getSection(chunk.getSectionIndexFromSectionY(coord)));
+							};
+							boolean countsDone = false;
 							if (!distantHorizons) {
-								for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
-									replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
-								}
+								countsDone = RockReplacerFeature.replaceAll(
+									this,
+									worldWrapper,
+									chunk,
+									minFilledSectionY_,
+									maxFilledSectionY_,
+									this.feature_dispatcher.getFlattenedRockReplacers(),
+									recalcBlockCounts
+								);
 							}
-							Async.loop(
-								BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int coord) -> {
-									chunk.getSection(chunk.getSectionIndexFromSectionY(coord)).recalcBlockCounts();
-								}
-							);
+							if (!countsDone) {
+								Async.loop(BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, recalcBlockCounts);
+							}
 							this.generateRawStructures(chunk, structureAccessor, worldWrapper);
 							this.feature_dispatcher.generateRaw(worldWrapper);
 						}

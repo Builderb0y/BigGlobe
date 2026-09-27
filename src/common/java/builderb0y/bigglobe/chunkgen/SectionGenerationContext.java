@@ -103,6 +103,17 @@ public class SectionGenerationContext {
 		return this.startZ() | 15;
 	}
 
+	/**
+	grows the palette so that it can hold the given number of states without resizing again.
+	never switches to the global palette; vanilla will do that later if it needs to.
+	*/
+	public void ensurePaletteCapacity(int requiredSize) {
+		int bits = Math.min(Math.max(32 - Integer.numberOfLeadingZeros(requiredSize - 1), 4), 8);
+		if (this.storage().getBits() < bits) {
+			this.container().onResize(bits, this.palette().valueFor(0));
+		}
+	}
+
 	public void setAllStates(BlockState state, boolean distantHorizons) {
 		if (this.palette() instanceof SingularPalette_EntryAccess singular) {
 			//how to set 4096 blocks in one operation.

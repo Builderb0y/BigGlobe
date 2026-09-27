@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Set;
 import com.mojang.serialization.Codec;
 import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
@@ -22,6 +23,11 @@ public class OreFeature extends AbstractOreFeature<OreFeature.Config> {
 
 	public OreFeature() {
 		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OreFeature.Config.class));
+	}
+
+	@Override
+	public void addPossibleOutputs(Config config, Set<BlockState> present) {
+		RockLayerFeature.addReplacements(config.blocks, present);
 	}
 
 	@Override
