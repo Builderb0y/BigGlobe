@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "dy",
+	"field_type": "double"
+}

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "`bigglobe:overworld/rocks/andesite_sandstone_noise` + (`bigglobe:islands/type`.is(MesaIslandType) ? 0.5I : -1000.0I)",
+	"cache": false
+}

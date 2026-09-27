@@ -1,115 +1,53 @@
 {
-	"bigglobe:biome":                    "`bigglobe:islands/biome`",
-	"bigglobe:cave_decorator":           "`bigglobe:islands/cave_type`.decorator",
-	"bigglobe:cave_dungeon_decorator":   "`bigglobe:islands/cave_type`.dungeonFeature",
-	"bigglobe:cave_min_y":               "-256I",
-	"bigglobe:cave_max_y":               "world_traits.`bigglobe:y_level_on_surface`",
-	"bigglobe:cave_surface_depth":       "`bigglobe:islands/cave_surface_depth`",
-	"bigglobe:core_min_y":               "-912I",
-	"bigglobe:core_max_y":               "-784I",
-	"bigglobe:deep_dark_min_y":          "-752I",
-	"bigglobe:deep_dark_max_y":          "-624I",
-	"bigglobe:foliage_at":               "`bigglobe:islands/height_adjusted_foliage`",
-	"bigglobe:foliage_at_sea_level":     "`bigglobe:islands/raw_foliage`",
-	"bigglobe:has_skylands":             "`bigglobe:islands/has_skylands`",
-	"bigglobe:hilliness":                "`bigglobe:islands/is_floating` ? `bigglobe:islands/skyland_hilliness` : `bigglobe:islands/mountainness`",
-	"bigglobe:lake_y":                   "`bigglobe:islands/has_skylands` ? `bigglobe:islands/skyland_top` : `bigglobe:islands/basic_surface_height`",
-	"bigglobe:lava_y":                   "-896I",
-	"bigglobe:magicalness":              "`bigglobe:islands/magicalness`",
-	"bigglobe:mountainness":             "`bigglobe:islands/curved_island_height`",
-	"bigglobe:max_y":                    " 1024I",
-	"bigglobe:min_y":                    "-1024I",
-	"bigglobe:sea_level":                "0I",
-	"bigglobe:skyland_min_y":            "lowerInt(`bigglobe:islands/skyland_bottom`)",
-	"bigglobe:skyland_max_y":            " ceilInt(`bigglobe:islands/skyland_top`)",
-	"bigglobe:snow_chance_at":           "`bigglobe:islands/automatic_is_skyland` ? `bigglobe:islands/skyland_snow_chance` : world_traits.`bigglobe:snow_chance`",
-	"bigglobe:temperature_at":           "`bigglobe:islands/height_adjusted_temperature`",
-	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/raw_temperature`",
-	"bigglobe:temperature_at_surface":   "`bigglobe:islands/surface_temperature`",
-	"bigglobe:wood_palette":             "`bigglobe:islands/wood_palette`",
-	"bigglobe:automatic_surface_states": [
-		"`bigglobe:islands/automatic_is_skyland`",
-		"? `bigglobe:islands/skyland_surface_states`",
-		": `bigglobe:islands/surface_states`"
-	],
-	"bigglobe:approximate_surface_y": {
-		"get": "`bigglobe:islands/basic_surface_height`",
-		"set": "`bigglobe:islands/basic_surface_height` = value"
-	},
-	"bigglobe:automatic_snow_y": {
-		"get": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? `bigglobe:islands/skyland_snow_y`",
-			": `bigglobe:islands/snow_height`"
-		],
-		"set": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? (`bigglobe:islands/skyland_snow_y` = value)",
-			": (`bigglobe:islands/snow_height` = value)"
-		]
-	},
-	"bigglobe:automatic_approximate_surface_y": {
-		"get": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? `bigglobe:islands/skyland_top_approximate`",
-			": `bigglobe:islands/basic_surface_height`"
-		],
-		"set": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? (`bigglobe:islands/skyland_top_approximate` = value)",
-			": (`bigglobe:islands/basic_surface_height` = value)"
-		]
-	},
-	"bigglobe:automatic_exact_surface_y": {
-		"get": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? `bigglobe:islands/skyland_top`",
-			": `bigglobe:islands/eroded_surface_height`"
-		],
-		"set": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? (`bigglobe:islands/skyland_top` = value)",
-			": (`bigglobe:islands/eroded_surface_height` = value)"
-		]
-	},
-	"bigglobe:automatic_surface_foliage": {
-		"get": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? `bigglobe:islands/skyland_foliage`",
-			": `bigglobe:islands/surface_foliage`"
-		],
-		"set": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? (`bigglobe:islands/skyland_foliage` = value)",
-			": (`bigglobe:islands/surface_foliage` = value)"
-		]
-	},
-	"bigglobe:automatic_surface_states_override": {
-		"get": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? `bigglobe:islands/skyland_surface_states_override`",
-			": `bigglobe:overworld/surface_states_override`"
-		],
-		"set": [
-			"`bigglobe:islands/automatic_is_skyland`",
-			"? (`bigglobe:islands/skyland_surface_states_override` = value)",
-			": (`bigglobe:overworld/surface_states_override` = value)"
-		]
-	},
-	"bigglobe:cave_noise": {
-		"get": "`bigglobe:islands/cave_noise`(y)",
-		"set": "`bigglobe:islands/cave_noise`(y) = value"
-	},
+	"bigglobe:min_y": "-1024",
+	"bigglobe:max_y": "+1024",
+	"bigglobe:biome": "`bigglobe:islands/biome`",
 	"bigglobe:exact_surface_y": {
-		"get": "`bigglobe:islands/eroded_surface_height`",
-		"set": "`bigglobe:islands/eroded_surface_height` = value"
+		"get": "`bigglobe:islands/surface_y_gradient`.value",
+		"set": "`bigglobe:islands/surface_y_gradient`.value = value"
 	},
-	"bigglobe:foliage_at_surface": {
-		"get": "`bigglobe:islands/surface_foliage`",
-		"set": "`bigglobe:islands/surface_foliage` = value"
-	},
-	"bigglobe:snow_y": {
-		"get": "`bigglobe:islands/snow_height`",
-		"set": "`bigglobe:islands/snow_height` = value"
-	}
+	"bigglobe:approximate_surface_y": "`bigglobe:islands/surface_y_gradient`.value",
+	"bigglobe:y_level_on_surface": "floorInt(world_traits.`bigglobe:exact_surface_y`)",
+	"bigglobe:y_level_in_surface": "world_traits.`bigglobe:y_level_on_surface` - 1",
+	"bigglobe:hilliness": "`bigglobe:islands/hilliness`",
+	"bigglobe:is_overgrown_beach": "`bigglobe:islands/type`.hasOvergrownBeach(column) && columnSeed(16xFA89E74CCB0C5F6AUL).nextBoolean(unmixSmooth(2.0I, 6.0I, world_traits.`bigglobe:exact_surface_y`))",
+	"bigglobe:sea_level": "`bigglobe:overworld/sea_level`",
+	"bigglobe:snow_y": "`bigglobe:islands/snow_y_gradient`.value",
+	"bigglobe:wood_palette": "`bigglobe:islands/type`.getWoodPalette(column)",
+	"bigglobe:automatic_surface_states": "`bigglobe:islands/type`.getSurfaceStates(column)",
+	"bigglobe:cave_min_y_exact": "world_traits.`bigglobe:approximate_surface_y` - 384.0L",
+	"bigglobe:cave_max_y_exact": "world_traits.`bigglobe:exact_surface_y`",
+	"bigglobe:cave_max_y": "floorInt(world_traits.`bigglobe:exact_surface_y`)",
+	"bigglobe:cave_surface_depth": "`bigglobe:overworld/caves/surface_depth_noise`",
+	"bigglobe:cave_system": "`bigglobe:islands/cave_system`.value",
+	"bigglobe:cave_border": "`bigglobe:islands/cave_system`.border",
+	"bigglobe:core_min_y": "-896 - 16",
+	"bigglobe:core_max_y": "-768 - 16",
+	"bigglobe:lava_y": "-896I",
+	"bigglobe:deep_dark_min_y": "-768 + 16",
+	"bigglobe:deep_dark_max_y": "-640 - 16",
+	"bigglobe:chasm_min_y": "floorInt(`bigglobe:overworld/chasm/chasm_min_y`)",
+	"bigglobe:chasm_max_y": "floorInt(world_traits.`bigglobe:cave_min_y` - 32I)",
+	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/temperature`",
+	"bigglobe:temperature_at_surface": "`bigglobe:islands/temperature`",
+	"bigglobe:temperature_at": "`bigglobe:islands/temperature`",
+	"bigglobe:humidity_at_sea_level": "`bigglobe:islands/humidity`",
+	"bigglobe:humidity_at_surface": "`bigglobe:islands/humidity`",
+	"bigglobe:humidity_at": "`bigglobe:islands/humidity`",
+	"bigglobe:foliage_at_sea_level": "`bigglobe:islands/foliage`",
+	"bigglobe:foliage_at_surface": "`bigglobe:islands/foliage`",
+	"bigglobe:foliage_at": "`bigglobe:islands/foliage`",
+	"bigglobe:surface_depth": "`bigglobe:islands/type_storage/surface_depth`",
+	"bigglobe:magicalness": "`bigglobe:islands/magicalness`",
+	"bigglobe:mountainness": "`bigglobe:islands/type_storage/mountainness`.value / 1024.0L",
+	"bigglobe:is_desert": "`bigglobe:islands/type`.is(DesertIslandType)",
+	"bigglobe:is_mesa": "`bigglobe:islands/type`.is(MesaIslandType)",
+	"bigglobe:rock_weight_andesite": "`bigglobe:overworld/rocks/andesite`",
+	"bigglobe:rock_weight_calcite": "`bigglobe:overworld/rocks/calcite`",
+	"bigglobe:rock_weight_diorite": "`bigglobe:islands/rocks/diorite`",
+	"bigglobe:rock_weight_granite": "`bigglobe:overworld/rocks/granite`",
+	"bigglobe:rock_weight_red_sandstone": "`bigglobe:islands/rocks/red_sandstone`",
+	"bigglobe:rock_weight_sandstone": "`bigglobe:islands/rocks/sandstone`",
+	"bigglobe:rock_weight_stone": "`bigglobe:overworld/rocks/stone`",
+	"bigglobe:rock_weight_tuff": "`bigglobe:islands/rocks/tuff`"
 }

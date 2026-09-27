@@ -1,0 +1,13 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "sqrt",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"double newValue = sqrt(this.value)",
+		"double newDx = 0.5L / newValue * this.dx",
+		"this.value = newValue",
+		"this.dx = newDx"
+	]
+}

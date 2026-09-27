@@ -1,0 +1,23 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/floating/class",
+	"name": "getSkylandExtraGrass",
+	"return_type": "double",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"Derivative2D base = `bigglobe:islands/type_storage/skyland_processed_y_gradient`",
+		"base.value = 0.0L",
+		"double multiplier = base.dx ^ 2 + base.dy ^ 2",
+		"IslandType.erode(",
+			"FoliageEroder.new(),",
+			"column,",
+			"base,",
+			"4.0L,",
+			"64.0L,",
+			"16.0L",
+		")",
+		".value * -16.0L * multiplier - 8.0L * multiplier - 1.0L"
+	]
+}

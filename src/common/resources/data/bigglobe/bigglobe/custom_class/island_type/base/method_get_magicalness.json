@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getMagicalness",
+	"return_type": "float",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"return(`bigglobe:overworld/magicalness`)"
+	]
+}

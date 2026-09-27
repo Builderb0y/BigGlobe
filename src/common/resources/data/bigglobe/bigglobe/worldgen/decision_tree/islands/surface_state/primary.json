@@ -1,0 +1,8 @@
+{
+	"result": {
+		"type": "script",
+		"script": [
+			"`bigglobe:islands/type`.getSurfaceStates(column)"
+		]
+	}
+}

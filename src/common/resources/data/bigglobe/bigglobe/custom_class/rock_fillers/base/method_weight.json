@@ -4,7 +4,7 @@
 	"name": "weight",
 	"return_type": "float",
 	"parameters": [
-		{ "type": "column_storage", "name": "column" },
-		{ "type": "int",            "name": "y"      }
+		{ "type": "column_storage", "name": "column", "import": true },
+		{ "type": "int", "name": "y" }
 	]
 }

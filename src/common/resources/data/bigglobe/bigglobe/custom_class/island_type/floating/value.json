@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:island_type/base/class",
+	"impl_type": "bigglobe:island_type/floating/class",
+	"name": "FLOATING",
+	"field_values": {
+		"weight": 1.0,
+		"maxHeight": 0.0,
+		"isPointy": false
+	}
+}

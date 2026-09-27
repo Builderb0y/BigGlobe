@@ -11,7 +11,6 @@
 		"Biome_DownfallAccessor",
 		"Biome_MakeTemperature2D",
 		"Blocks_RegisterVanillaBlocksEarly",
-		"BlockView_ExposeDimension",
 		"BoneMealItem_SpreadChorusNylium",
 		"CatEntity_PetTheKitty",
 		"ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed",

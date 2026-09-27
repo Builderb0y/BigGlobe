@@ -1,0 +1,9 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getSurfaceStates",
+	"return_type": "bigglobe:surface/multi/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	]
+}

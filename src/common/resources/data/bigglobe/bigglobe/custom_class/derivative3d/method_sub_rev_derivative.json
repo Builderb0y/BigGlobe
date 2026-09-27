@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "subRev",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "that", "type": "bigglobe:derivative3d/class" }
+	],
+	"code": [
+		"this.subRev(that.value, that.dx, that.dy, that.dz)"
+	]
+}

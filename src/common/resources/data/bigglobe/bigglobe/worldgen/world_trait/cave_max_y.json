@@ -1,4 +1,5 @@
 {
 	"type": "int",
-	"is_3d": false
+	"is_3d": false,
+	"default": "ceilInt(world_traits.`bigglobe:cave_max_y_exact`)"
 }

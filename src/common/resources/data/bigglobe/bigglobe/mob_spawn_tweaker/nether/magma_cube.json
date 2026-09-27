@@ -1,6 +1,6 @@
 {
 	"primary_entity": "minecraft:magma_cube",
 	"script": [
-		"spawnParams.=$weight(0.5L).=$count(random.nextBetween[1, 2])"
+		"spawnParams.=$weight(1.0L).=$count(random.nextBetween[1, 4])"
 	]
 }

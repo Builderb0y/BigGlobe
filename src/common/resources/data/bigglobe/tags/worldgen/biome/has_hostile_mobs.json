@@ -1,10 +1,10 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:land",
+		"#bigglobe:land_islands",
+		"#bigglobe:land_overworld",
 		"bigglobe:overworld/cave",
-		"bigglobe:overworld/beach",
-		"bigglobe:overworld/ocean",
+		"#bigglobe:sea",
 		"bigglobe:overworld/river"
 	]
 }

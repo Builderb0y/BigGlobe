@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "andesite_sandstone_noise + mesa_bias",
+	"cache": false
+}

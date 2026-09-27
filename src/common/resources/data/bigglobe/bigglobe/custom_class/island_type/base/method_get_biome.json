@@ -1,0 +1,10 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getBiome",
+	"return_type": "biome",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "int" }
+	]
+}

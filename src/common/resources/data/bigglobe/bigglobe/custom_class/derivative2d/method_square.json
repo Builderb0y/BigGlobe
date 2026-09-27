@@ -1,0 +1,15 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "square",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"double newValue = this.value ^ 2",
+		"double newDx = this.value * this.dx * 2.0L",
+		"double newDy = this.value * this.dy * 2.0L",
+		"this.value = newValue",
+		"this.dx = newDx",
+		"this.dy = newDy"
+	]
+}

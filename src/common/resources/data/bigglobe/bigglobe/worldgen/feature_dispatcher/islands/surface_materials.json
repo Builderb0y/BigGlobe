@@ -14,7 +14,7 @@
 		")",
 
 		";flint",
-		"random.if (",
+		"random.if (0.25I:",
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
 			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",

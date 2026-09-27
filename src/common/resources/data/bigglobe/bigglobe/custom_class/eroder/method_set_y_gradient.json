@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:eroder/class",
+	"name": "setYGradient",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "derivative", "type": "bigglobe:derivative2d/class" }
+	],
+	"code": [
+		"this.=$y(derivative.value).=$dx(derivative.dx).=$dz(derivative.dy)"
+	]
+}

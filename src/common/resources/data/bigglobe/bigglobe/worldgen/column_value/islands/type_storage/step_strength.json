@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"Derivative2D base = `bigglobe:islands/type_storage/noise_mountainness`",
+		"sqrt(base.dx ^ 2 + base.dy ^ 2)"
+	]
+}

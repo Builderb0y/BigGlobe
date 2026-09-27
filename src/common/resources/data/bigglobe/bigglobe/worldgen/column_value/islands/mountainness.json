@@ -1,8 +1,0 @@
-{
-	"type": "script",
-	"params": {
-		"type": "double",
-		"is_3d": false
-	},
-	"script": "(worldSeed # 16xAF3054BB434C4861UL).newSeed(island.cellX, island.cellZ).nextDouble()"
-}

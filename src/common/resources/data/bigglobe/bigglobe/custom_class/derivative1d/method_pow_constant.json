@@ -1,0 +1,15 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "pow",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "value", "type": "double" }
+	],
+	"code": [
+		"double newValue = this.value ^ value",
+		"double newDx = this.value ^ (value - 1.0L) * value * this.dx",
+		"this.value = newValue",
+		"this.dx = newDx"
+	]
+}

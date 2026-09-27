@@ -1,0 +1,15 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/rocky/class",
+	"override": "bigglobe:island_type/base/method_get_surface_y_gradient",
+	"code": [
+		"IslandType.erode(",
+			"Eroder.new(),",
+			"column,",
+			"`bigglobe:islands/type_storage/noise_mountainness`,",
+			"4.0L,",
+			"256.0L,",
+			"64.0L",
+		")"
+	]
+}

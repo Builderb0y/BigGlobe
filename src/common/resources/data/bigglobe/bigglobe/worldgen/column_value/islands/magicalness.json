@@ -1,17 +1,10 @@
 {
-	"type": "bigglobe:noise",
+	"type": "script",
 	"params": {
 		"type": "float",
 		"is_3d": false
 	},
-	"grid": {
-		"type": "sum",
-		"layers": [
-			{ "type": "cubic", "scale": 256, "amplitude": 1.0 },
-			{ "type": "cubic", "scale": 128, "amplitude": 0.5 },
-			{ "type": "cubic", "scale":  64, "amplitude": 0.25 },
-			{ "type": "cubic", "scale":  32, "amplitude": 0.125 },
-			{ "type": "cubic", "scale":  16, "amplitude": 0.0625 }
-		]
-	}
+	"script": [
+		"property_fade * `type_storage/magicalness`"
+	]
 }

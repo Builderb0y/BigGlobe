@@ -1,0 +1,19 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/floating/class",
+	"name": "getSkylandMaxY",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"IslandType.erode(",
+			"Eroder.new(),",
+			"column,",
+			"`bigglobe:islands/type_storage/skyland_processed_y_gradient`,",
+			"4.0L,",
+			"64.0L,",
+			"16.0L",
+		")"
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/volcano/class",
+	"override": "bigglobe:island_type/base/method_get_extra_grass",
+	"code": [
+		"Derivative2D base = `bigglobe:islands/type_storage/beach_shape`",
+		"base.value = 0.0L",
+		"double multiplier = base.dx ^ 2 + base.dy ^ 2",
+		"IslandType.erode(",
+			"FoliageEroder.new(),",
+			"column,",
+			"base,",
+			"4.0L,",
+			"256.0L,",
+			"1.0L",
+		")",
+		".value * -8.0L * multiplier - 8.0L * multiplier"
+	]
+}

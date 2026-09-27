@@ -1,0 +1,15 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "sqrt",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"double newValue = sqrt(this.value)",
+		"double newDx = 0.5L / newValue * this.dx",
+		"double newDy = 0.5L / newValue * this.dy",
+		"this.value = newValue",
+		"this.dx = newDx",
+		"this.dy = newDy"
+	]
+}

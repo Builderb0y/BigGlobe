@@ -1,0 +1,18 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "set",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "value", "type": "double" },
+		{ "name": "dx",    "type": "double" },
+		{ "name": "dy",    "type": "double" },
+		{ "name": "dz",    "type": "double" }
+	],
+	"code": [
+		"this.value = value",
+		"this.dx = dx",
+		"this.dy = dy",
+		"this.dz = dz"
+	]
+}

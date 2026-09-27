@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/floating/class",
+	"name": "getSkylandMinY",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"`bigglobe:islands/type_storage/skyland_min_y`"
+	]
+}

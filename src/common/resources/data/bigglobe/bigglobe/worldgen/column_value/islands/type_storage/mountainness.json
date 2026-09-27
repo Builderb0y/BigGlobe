@@ -1,0 +1,13 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"VoronoiCell cell = `bigglobe:islands/island_voronoi`",
+		"IslandType type = `bigglobe:islands/type`",
+		"Derivative2D value = type.isPointy ? Derivative2D.soft(cell) : Derivative2D.softSquared(cell)",
+		"return(value.$subRev(1.0L).$square().$mul(type.maxHeight))"
+	]
+}

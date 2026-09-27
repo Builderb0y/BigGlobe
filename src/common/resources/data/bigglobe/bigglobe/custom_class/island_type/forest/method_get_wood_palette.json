@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/forest/class",
+	"override": "bigglobe:island_type/base/method_get_wood_palette",
+	"code": [
+		"return(`bigglobe:islands/type_storage/surface_depth` > 0 ? `bigglobe:islands/wood_palette/temperate` : null)"
+	]
+}

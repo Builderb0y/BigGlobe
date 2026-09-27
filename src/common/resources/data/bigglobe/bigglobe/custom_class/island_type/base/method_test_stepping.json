@@ -1,0 +1,27 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "testStepping",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "double" },
+		{ "name": "size", "type": "double" },
+		{ "name": "flatStrength", "type": "double" },
+		{ "name": "steepStrength", "type": "double" }
+	],
+	"code": [
+		"y /= size",
+		"if (y > -0.5L:",
+			"double fade = `bigglobe:islands/island_fade_out`",
+			"flatStrength = mixLinear(1.0L, flatStrength, fade)",
+			"steepStrength = mixLinear(1.0L, steepStrength, fade)",
+			"double fract = y - floor(y)",
+			"double low = fract / flatStrength",
+			"double mid = (fract - 0.5) * steepStrength + 0.5L",
+			"double high = (fract - 1.0L) / flatStrength + 1.0L",
+			"if (mid.isBetween(low, high): return(true))",
+		")",
+		"return(false)"
+	]
+}

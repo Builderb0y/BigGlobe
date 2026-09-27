@@ -1,0 +1,11 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"+ columnSeed(16x85D7EF6558756020UL).nextFloat(3.0I, 7.0I) ;base randomness",
+		"- 4.0L * (Derivative2D gradient = `bigglobe:islands/surface_y_gradient`,, gradient.dx ^ 2 + gradient.dy ^ 2)"
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "copy",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [],
+	"code": [
+		"Derivative2D.copy(this)"
+	]
+}

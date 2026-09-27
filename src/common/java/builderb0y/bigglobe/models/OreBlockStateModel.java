@@ -27,8 +27,6 @@ import builderb0y.bigglobe.util.Directions;
 
 public class OreBlockStateModel implements BlockStateModel {
 
-	public static final BetterScopedValue<Boolean> RECURSION_BLOCKER = new BetterScopedValue<>();
-
 	public final BlockStateModel default_model, overlay;
 
 	public OreBlockStateModel(BlockStateModel default_model, BlockStateModel overlay) {

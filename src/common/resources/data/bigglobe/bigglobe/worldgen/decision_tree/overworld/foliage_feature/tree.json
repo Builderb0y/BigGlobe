@@ -2,7 +2,7 @@
 	"result": {
 		"type": "script",
 		"script": [
-			"`bigglobe:overworld/wood_palette`.?features.?('natural_surface')"
+			"world_traits.`bigglobe:wood_palette`.?features.?('natural_surface')"
 		]
 	}
 }

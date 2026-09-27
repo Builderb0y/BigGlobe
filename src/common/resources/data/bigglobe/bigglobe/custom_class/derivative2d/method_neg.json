@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "neg",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"this.value = -this.value",
+		"this.dx = -this.dx",
+		"this.dy = -this.dy"
+	]
+}

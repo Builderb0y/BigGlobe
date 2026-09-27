@@ -1,0 +1,10 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "copy",
+	"return_type": "bigglobe:derivative3d/class",
+	"parameters": [],
+	"code": [
+		"Derivative3D.copy(this)"
+	]
+}

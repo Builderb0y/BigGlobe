@@ -1,0 +1,33 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"Derivative2D y = skyland_base_noise_y_gradient",
+		"y",
+		".copy()",
+		".$square()",
+		".$add(64.0L ^ 2)",
+		".$sqrt()",
+		".$add(y)",
+		".$mul(0.5L)",
+		".$mul(",
+			"Derivative2D.max(",
+				"Derivative2D",
+				".softSquared(`bigglobe:islands/island_voronoi`)",
+				".$div(0.625L ^ 2)",
+				".$square()",
+				".$square()",
+				".$subRev(1.0L),",
+				"",
+				"Derivative2D",
+				".constant(0.0L)",
+			")",
+			".$square()",
+			".$square()",
+		")",
+		".$add(768.0L)"
+	]
+}

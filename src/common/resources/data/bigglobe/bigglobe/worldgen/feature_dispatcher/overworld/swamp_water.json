@@ -1,5 +1,5 @@
 {
-	"type": "bigglobe:script",
+	"type": "script",
 	"dispatcher": [
 		"repeat (random.roundInt(",
 			"max(0.0I, world_traits.`bigglobe:humidity_at_surface`(minModifiableX | 8, minModifiableZ | 8)) *",

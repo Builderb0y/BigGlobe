@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:eroder/class",
+	"name": "setPos",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "column", "type": "column_storage" }
+	],
+	"code": [
+		"this.=$x(column.x).=$z(column.z)"
+	]
+}

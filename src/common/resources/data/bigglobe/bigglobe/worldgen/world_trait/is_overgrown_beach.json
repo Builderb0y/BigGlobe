@@ -1,0 +1,5 @@
+{
+	"type": "boolean",
+	"is_3d": false,
+	"default": "columnSeed(16xFA89E74CCB0C5F6AUL).nextBoolean(unmixSmooth(2.0I, 6.0I, world_traits.`bigglobe:exact_surface_y`))"
+}

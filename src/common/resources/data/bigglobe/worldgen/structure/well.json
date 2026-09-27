@@ -5,8 +5,8 @@
 	"step": "surface_structures",
 	"layout": [
 		"int originY = world_traits.`bigglobe:y_level_on_surface`",
-		"WoodPalette palette = `bigglobe:overworld/wood_palette`",
-		"Biome biome = `bigglobe:overworld/biome`(originY)",
+		"WoodPalette palette = world_traits.`bigglobe:wood_palette`",
+		"Biome biome = world_traits.`bigglobe:biome`(originY)",
 
 		"int type = 0",
 		"if (biome.isIn('#bigglobe:deserts'):",

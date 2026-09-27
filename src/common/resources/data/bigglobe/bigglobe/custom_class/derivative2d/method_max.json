@@ -1,0 +1,13 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "max",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "a", "type": "bigglobe:derivative2d/class" },
+		{ "name": "b", "type": "bigglobe:derivative2d/class" }
+	],
+	"code": [
+		"b.value > a.value ? b : a"
+	]
+}

@@ -118,6 +118,6 @@ public class MoltenRockBlock extends Block {
 
 	@Override
 	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
-		return 1.0F;
+		return this.heat * 0.125F;
 	}
 }

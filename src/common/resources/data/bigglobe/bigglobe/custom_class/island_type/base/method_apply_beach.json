@@ -1,0 +1,20 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "applyBeach",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "bigglobe:derivative2d/class" },
+		{ "name": "strength", "type": "double" }
+	],
+	"code": [
+		"strength *= `bigglobe:islands/island_fade_out`",
+		"if (strength > 0.0L && abs(y.value) < 4.0L * strength:",
+			"y.copy().$mul(y.copy().$div(4.0L * strength).$abs().$subRev(1.0L).$square().$square().$subRev(1.0L))",
+		")",
+		"else (",
+			"y.copy()",
+		")"
+	]
+}

@@ -5,7 +5,7 @@
 	"step": "surface_structures",
 	"layout": [
 		"int originY = world_traits.`bigglobe:y_level_on_surface`",
-		"WoodPalette palette = `bigglobe:overworld/wood_palette` ?: return()",
+		"WoodPalette palette = world_traits.`bigglobe:wood_palette` ?: return()",
 		"unless (palette.isIn('#bigglobe:log_cabin_materials'): return())",
 		"pieces.add(",
 			"ScriptStructurePiece.new(",

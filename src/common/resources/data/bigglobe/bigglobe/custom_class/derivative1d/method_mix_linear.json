@@ -1,0 +1,16 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "mixLinear",
+	"return_type": "bigglobe:derivative1d/class",
+	"parameters": [
+		{ "name": "min", "type": "bigglobe:derivative1d/class" },
+		{ "name": "max", "type": "bigglobe:derivative1d/class" },
+		{ "name": "factor", "type": "bigglobe:derivative1d/class" }
+	],
+	"code": [
+		"double value = mixLinear(min.value, max.value, factor.value)",
+		"double dx = (max.dx - min.dx) * factor.value + (max.value - min.value) * factor.dx + min.dx",
+		"return(Derivative1D.variable(value, dx))"
+	]
+}

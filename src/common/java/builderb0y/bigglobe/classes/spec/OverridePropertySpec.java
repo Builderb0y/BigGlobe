@@ -3,6 +3,8 @@ package builderb0y.bigglobe.classes.spec;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+
 import net.minecraft.core.Holder;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -50,6 +52,14 @@ public class OverridePropertySpec extends BasePropertySpec {
 	}
 
 	@Override
+	@MustBeInvokedByOverriders
+	public void reference(ClassHierarchy hierarchy) throws DetailedException {
+		super.reference(hierarchy);
+		this.override(hierarchy).overrides.add(hierarchy.entryOf(this));
+	}
+
+	@Override
+	@MustBeInvokedByOverriders
 	public void verify(ClassHierarchy hierarchy) throws DetailedException {
 		super.verify(hierarchy);
 		BasePropertySpec override = this.override(hierarchy);

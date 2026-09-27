@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"Derivative2D.variable(",
+			"`bigglobe:islands/base_noise`,",
+			"`bigglobe:islands/dx_base_noise`,",
+			"`bigglobe:islands/dz_base_noise`",
+		")"
+	]
+}

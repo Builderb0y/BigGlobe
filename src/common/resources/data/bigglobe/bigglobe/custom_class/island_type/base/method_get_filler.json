@@ -1,0 +1,13 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getFiller",
+	"return_type": "block_state",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "int" }
+	],
+	"code": [
+		"`bigglobe:overworld/rocks/filler`(y)"
+	]
+}

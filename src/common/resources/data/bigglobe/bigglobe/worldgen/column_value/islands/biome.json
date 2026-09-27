@@ -1,8 +1,13 @@
 {
-	"type": "constant",
+	"type": "decision_tree",
 	"params": {
 		"type": "biome",
 		"is_3d": true
 	},
-	"root": "bigglobe:plains"
+	"root": "bigglobe:overworld/biome/root_test_underground",
+	"patches": {
+		"bigglobe:overworld/biome/not_deep_dark_test_river": "bigglobe:overworld/biome/not_river_test_ocean",
+		"bigglobe:overworld/biome/not_beach_test_icy": "bigglobe:islands/biome/main"
+	},
+	"cache": false
 }

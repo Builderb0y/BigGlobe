@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:island_type/base/class",
+	"impl_type": "bigglobe:island_type/mesa/class",
+	"name": "MESA",
+	"field_values": {
+		"weight": 0.25,
+		"maxHeight": 768.0,
+		"isPointy": false
+	}
+}

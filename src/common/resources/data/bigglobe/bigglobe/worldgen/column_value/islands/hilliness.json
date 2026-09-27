@@ -1,0 +1,8 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": "surface_y_gradient.dx ^ 2 + surface_y_gradient.dy ^ 2"
+}

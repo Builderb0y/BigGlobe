@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getWoodPalette",
+	"return_type": "wood_palette",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"return(null)"
+	]
+}

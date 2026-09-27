@@ -1,0 +1,20 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "erode",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "eroder", "type": "bigglobe:eroder/class" },
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "bigglobe:derivative2d/class" },
+		{ "name": "minWavelength", "type": "double" },
+		{ "name": "maxWavelength", "type": "double" },
+		{ "name": "amplitude", "type": "double" }
+	],
+	"code": [
+		"amplitude *= `bigglobe:islands/island_fade_out`",
+		"eroder.$setPos(column).$setYGradient(y).=$seed(column.worldSeed # 16xA672C25E28A0D8ACUL)",
+		"eroder.erodeAll(minWavelength, maxWavelength, amplitude)",
+		"return(Derivative2D.variable(eroder.y, eroder.dx, eroder.dz))"
+	]
+}

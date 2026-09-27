@@ -33,6 +33,7 @@ public class OverrideTracker {
 		this(hierarchy, owner);
 		this.fields.putAll(from.fields);
 		this.methods.putAll(from.methods);
+		this.properties.putAll(from.properties);
 	}
 
 	public boolean hasAnyAbstractMethods() {

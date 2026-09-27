@@ -1,0 +1,8 @@
+{
+	"type": "decision_tree",
+	"params": {
+		"type": "wood_palette",
+		"is_3d": false
+	},
+	"root": "bigglobe:overworld/wood_palette/warm_test_ominous"
+}

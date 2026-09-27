@@ -1,0 +1,12 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/hot/class",
+	"override": "bigglobe:island_type/base/method_get_filler",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "int" }
+	],
+	"code": [
+		"RockStripe.getStripe(column, y, `bigglobe:overworld/terracotta_offset` * 0.5L, this.stripes) ?: `bigglobe:overworld/rocks/filler`(y)"
+	]
+}

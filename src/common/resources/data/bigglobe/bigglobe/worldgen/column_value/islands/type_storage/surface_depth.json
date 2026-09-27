@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"`bigglobe:overworld/default_deeper_surface_depth` + extra_grass"
+	]
+}

@@ -1,11 +1,5 @@
 {
 	"placement": {
-		"type": "minecraft:random_spread",
-		"salt": 14357620,
-		"separation": 8,
-		"spacing": 24
-	},
-	"placement": {
 		"type": "bigglobe:script",
 		"script": [
 			"int spacing = 24 * 16",
@@ -22,7 +16,7 @@
 					"centerY >= world_traits.`bigglobe:sea_level`(centerX, centerZ) - 4 &&",
 					"(",
 						"world_traits.`bigglobe:is_beach`(centerX, centerZ) ||",
-						"world_traits.`bigglobe:wood_palette`(centerX, centerY, centerZ) ==. 'minecraft:mangrove'",
+						"world_traits.`bigglobe:wood_palette`(centerX, centerZ) ==. 'minecraft:mangrove'",
 					")",
 				":",
 					"StructureStart start = createStartNear(centerX, centerY, centerZ, 'bigglobe:vanilla/swamp_hut')",

@@ -11,7 +11,7 @@
 					"placeFeature(x, y, z, 'bigglobe:overworld/kelp')",
 				")",
 			")",
-			"else if (`bigglobe:overworld/is_desert`(x, z):",
+			"else if (world_traits.`bigglobe:is_desert`(x, z):",
 				"random.if (",
 					"(0.015625L / (fastExp(-4.0L * world_traits.`bigglobe:foliage_at_surface`(x, z)) + 1.0L))",
 					"* (1.0I - 0.25I / (world_traits.`bigglobe:magicalness`(x, z) ^ 2 + 0.25I))",

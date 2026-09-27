@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "div",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "that", "type": "bigglobe:derivative3d/class" }
+	],
+	"code": [
+		"this.div(that.value, that.dx, that.dy, that.dz)"
+	]
+}

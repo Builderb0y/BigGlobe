@@ -1,0 +1,15 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/hot/class",
+	"override": "bigglobe:island_type/base/method_get_surface_y_gradient",
+	"code": [
+		"double strength = `bigglobe:islands/type_storage/step_strength`",
+		"IslandType.applySteps(",
+			"column,",
+			"`bigglobe:islands/type_storage/eroded_shape`,",
+			"320.0L,",
+			"strength * 7.0L + 1.0L,",
+			"strength * 3.0L + 1.0L",
+		")"
+	]
+}

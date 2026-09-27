@@ -1,15 +1,36 @@
 {
-	"type": "simple_2d",
-	"state": "'minecraft:stone'",
-	"before_children": {
-		"includes": [
-			"bigglobe:world_preset/place_surface",
-			"bigglobe:world_preset/overworld_dh_glacier_placement"
-		],
-		"source": [
-			"placeSurface(world_traits.`bigglobe:y_level_on_surface`, `bigglobe:overworld/surface_states`)"
-		]
-	},
+	"type": "scripted",
+	"script": [
+		"int minFillY = world_traits.`bigglobe:min_y`",
+		"int maxFillY = world_traits.`bigglobe:y_level_on_surface`",
+		"IslandType type = `bigglobe:islands/type`",
+		"if (hints.isLod:",
+			"int maxSteepness = 8 ;adjusted for deserts and mesas.",
+			"setBlockStates(minFillY, maxFillY - maxSteepness, type.getFiller(column, maxFillY - 1))",
+			"for (int y in range[maxFillY - maxSteepness, maxFillY):",
+				"setBlockState(y, type.getFiller(column, y))",
+			")",
+		")",
+		"else (",
+			"BlockState prevState = type.getFiller(column, minFillY)",
+			"int prevY = minFillY",
+			"for (int y in range[minFillY, maxFillY):",
+				"BlockState nextState = type.getFiller(column, y)",
+				"if (nextState != prevState:",
+					"setBlockStates(prevY, y, prevState)",
+					"prevY = y",
+					"prevState = nextState",
+				")",
+			")",
+			"setBlockStates(prevY, maxFillY, prevState)",
+		")"
+	],
+	"before_children": [
+		"int y = world_traits.`bigglobe:y_level_on_surface`",
+		"for (SurfaceState layer in `bigglobe:islands/surface_states`.layers:",
+			"setBlockStates(y - layer.depth, y, layer.state)",
+		")"
+	],
 	"after_children": {
 		"includes": [
 			"bigglobe:include/generate_snow"
@@ -26,8 +47,9 @@
 		"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 8)"
 	},
 	"children": [
-		"bigglobe:islands/the_core",
-		"bigglobe:islands/deep_dark_carver",
-		"bigglobe:islands/cave_carver"
+		"bigglobe:overworld/core_carver",
+		"bigglobe:overworld/deep_dark_carver",
+		"bigglobe:overworld/chasm_carver",
+		"bigglobe:overworld/cave_carver"
 	]
 }

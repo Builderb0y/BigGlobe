@@ -1,0 +1,12 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "constant",
+	"return_type": "bigglobe:derivative1d/class",
+	"parameters": [
+		{ "name": "value", "type": "double" }
+	],
+	"code": [
+		"Derivative1D.new().$=value(value)"
+	]
+}

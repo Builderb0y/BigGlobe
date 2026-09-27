@@ -1,0 +1,12 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "soft",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "cell", "type": "voronoi" }
+	],
+	"code": [
+		"Derivative2D.new().=$value(cell.softDistance).=$dx(cell.dxSoftDistance ?: 0.0L).=$dy(cell.dzSoftDistance ?: 0.0L)"
+	]
+}

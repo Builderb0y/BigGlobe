@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:sea",
+		"#bigglobe:underground",
+		"#bigglobe:land_overworld",
+		"bigglobe:overworld/river"
+	]
+}

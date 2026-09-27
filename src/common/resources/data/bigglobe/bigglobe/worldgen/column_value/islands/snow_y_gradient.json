@@ -1,0 +1,16 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"IslandType islandType = type",
+		"if (islandType.is(SnowcappedIslandType):",
+			"islandType.as(SnowcappedIslandType).getSnowYGradient(column)",
+		")",
+		"else (",
+			"Derivative2D.new()",
+		")"
+	]
+}

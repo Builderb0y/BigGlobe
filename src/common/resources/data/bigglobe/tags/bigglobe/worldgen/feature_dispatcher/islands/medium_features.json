@@ -2,7 +2,6 @@
 	"replace": false,
 	"values": [
 		"bigglobe:overworld/cave_decorators",
-		"bigglobe:overworld/medium_foliage",
-		"bigglobe:islands/skyland_medium_foliage"
+		"bigglobe:overworld/medium_foliage"
 	]
 }

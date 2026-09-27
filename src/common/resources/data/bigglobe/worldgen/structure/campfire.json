@@ -14,7 +14,7 @@
 		")",
 
 		"int originY = world_traits.`bigglobe:y_level_on_surface`",
-		"String paletteID = `bigglobe:overworld/wood_palette`.?id ?: return()",
+		"String paletteID = world_traits.`bigglobe:wood_palette`.?id ?: return()",
 
 		";campfire",
 		"pieces.add(ScriptStructurePiece.new(",

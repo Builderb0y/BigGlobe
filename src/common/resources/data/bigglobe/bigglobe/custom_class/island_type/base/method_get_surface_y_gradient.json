@@ -1,0 +1,9 @@
+{
+	"element_type": "method/abstract",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getSurfaceYGradient",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	]
+}

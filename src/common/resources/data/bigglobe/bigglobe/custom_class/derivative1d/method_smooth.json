@@ -1,0 +1,23 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "smooth",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"if (this.value <= 0.0L:",
+			"this.value = 0.0L",
+			"this.dx = 0.0L",
+		")",
+		"else if (this.value >= 1.0L:",
+			"this.value = 1.0L",
+			"this.dx = 0.0L",
+		")",
+		"else (",
+			"double newValue = this.value ^ 2 * (3.0L - 2.0L * this.value)",
+			"double newDx = 6.0L * this.value * (1.0L - this.value) * this.dx",
+			"this.value = newValue",
+			"this.dx = newDx",
+		")"
+	]
+}

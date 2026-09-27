@@ -1,0 +1,9 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/desert/class",
+	"override": "bigglobe:island_type/base/method_get_surface_states",
+	"code": [
+		"int depth = this.isInStep(column) ? 0 : floorInt(`bigglobe:islands/default_surface_depth`)",
+		"SurfaceStates.new().$add('minecraft:sand', depth)"
+	]
+}

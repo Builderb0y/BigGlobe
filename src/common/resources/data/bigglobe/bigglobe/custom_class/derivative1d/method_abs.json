@@ -1,0 +1,11 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "abs",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"if (this.value < 0.0L: this.neg())",
+		"else if (this.value == 0.0L: this.dx = 0.0L)"
+	]
+}

@@ -4,7 +4,7 @@
 	"name": "minY",
 	"return_type": "double",
 	"parameters": [
-		{ "name": "column", "type": "column_storage" }
+		{ "name": "column", "type": "column_storage", "import": true }
 	],
-	"code": "max(column.world_traits.`bigglobe:approximate_surface_y` - systemDepth, column.world_traits.`bigglobe:deep_dark_max_y`)"
+	"code": "max(world_traits.`bigglobe:approximate_surface_y` - this.systemDepth, world_traits.`bigglobe:deep_dark_max_y`)"
 }

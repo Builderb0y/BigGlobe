@@ -1,0 +1,13 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative1d/class",
+	"name": "min",
+	"return_type": "bigglobe:derivative1d/class",
+	"parameters": [
+		{ "name": "a", "type": "bigglobe:derivative1d/class" },
+		{ "name": "b", "type": "bigglobe:derivative1d/class" }
+	],
+	"code": [
+		"b.value < a.value ? b : a"
+	]
+}

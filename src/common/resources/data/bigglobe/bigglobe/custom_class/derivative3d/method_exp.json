@@ -1,0 +1,17 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "exp",
+	"return_type": "void",
+	"parameters": [],
+	"code": [
+		"double newValue = exp(this.value)",
+		"double newDx = newValue * this.dx",
+		"double newDy = newValue * this.dy",
+		"double newDz = newValue * this.dz",
+		"this.value = newValue",
+		"this.dx = newDx",
+		"this.dy = newDy",
+		"this.dz = newDz"
+	]
+}

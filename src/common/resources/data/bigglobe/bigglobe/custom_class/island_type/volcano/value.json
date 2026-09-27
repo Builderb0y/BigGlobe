@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:island_type/base/class",
+	"impl_type": "bigglobe:island_type/volcano/class",
+	"name": "VOLCANO",
+	"field_values": {
+		"weight": 0.125,
+		"maxHeight": 1024.0,
+		"isPointy": true
+	}
+}

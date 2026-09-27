@@ -1,0 +1,16 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "add",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "value", "type": "double" },
+		{ "name": "dx",    "type": "double" },
+		{ "name": "dy",    "type": "double" }
+	],
+	"code": [
+		"this.value += value",
+		"this.dx += dx",
+		"this.dy += dy"
+	]
+}

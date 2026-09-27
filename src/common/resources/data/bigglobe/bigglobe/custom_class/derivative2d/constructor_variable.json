@@ -1,0 +1,14 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "variable",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "value", "type": "double" },
+		{ "name": "dx",    "type": "double" },
+		{ "name": "dy",    "type": "double" }
+	],
+	"code": [
+		"Derivative2D.new().=$value(value).=$dx(dx).=$dy(dy)"
+	]
+}

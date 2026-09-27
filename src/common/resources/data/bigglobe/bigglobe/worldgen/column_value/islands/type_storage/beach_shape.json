@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"IslandType.applyBeach(column, noise_mountainness, 16.0L)"
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"`bigglobe:islands/base_noise_y_gradient`.copy().$add(mountainness)"
+	]
+}

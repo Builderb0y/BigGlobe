@@ -3,7 +3,7 @@
 		"type": "script",
 		"script": [
 			"SurfaceStates surface = new()",
-			"int depth = floorInt(`bigglobe:overworld/default_surface_depth`)",
+			"int depth = floorInt(world_traits.`bigglobe:surface_depth`)",
 			"if (depth > 1: surface.add('minecraft:dirt', depth))",
 			"if (depth > 0: surface.add('bigglobe:overgrown_podzol[snowy=false]', 1))",
 			"surface"

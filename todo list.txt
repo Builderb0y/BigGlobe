@@ -40,8 +40,6 @@ where I left off:
 	middle clicking a waypoint no longer works.
 		this is because all this logic was moved to server-side,
 		and waypoint entities don't exist server-side.
-	warm and cold ocean biomes.
-		make tropical fish only spawn in warm oceans.
 
 to finish before release:
 	search for "upcoming" in docs and assign specific version, as usual.
@@ -61,6 +59,7 @@ high priority:
 		which should also be disabled in production.
 	whitelist which blocks exposed dungeons and spider pits are allowed to spawn on top of.
 	make slingshots able to throw splash/lingering potions.
+	see if I can expose structure information to scripted configured features.
 
 V6:
 	not urgent:
@@ -116,6 +115,19 @@ V6:
 		make spruce trees spawn in cool biomes, in addition to icy biomes.
 		remove RegistryOps_MakeAdjustable, functionality exists in vanilla now.
 	urgent:
+		add underground dirt/gravel/clay somewhere.
+			and (red) sand under deserts/mesas.
+
+islands:
+	still need overriders.
+	still need ores.
+		extra ores in rocky island type.
+	granite is too common.
+		restrict to rocky island type only?
+	column restrictions for flowers need to be re-done to use world traits.
+		or just scripts tbh.
+	verify normal world preset still works correctly.
+		check cave depth.
 
 LODs:
 	shader support.
@@ -134,15 +146,31 @@ json classes:
 		NBT elements.
 	need to fix:
 
+intellij plugin:
+	`condition ? myDouble : myFloat` is inferred to type primitive_floating_point instead of double.
+	incorrect arguments on custom class static methods are not reported as an error.
+
 changelog:
-* Fixed bug causing everyone to get mostly the same world regardless of the world seed.
-	* This bug primarily affects noise generation, which contributes the most to terrain shape.
-		* Other smaller things like erosion patterns, structure placement positions, and so on are not affected, as they do use the correct world seed.
-	* This bug went un-noticed for quite some time due to the fact that the player spawn radius is so high, so everyone spawned in a different area of the same world.
-	* A config option has been provided to keep this behavior un-changed to avoid breaking old worlds.
-		* It defaults to the old (broken) behavior if you updated from a version containing this bug, and defaults to the new (fixed) behavior if you are running a fresh install.
-* Now compatible with Launchpad by default. Launchpad is basically "Sinytra Connector lite", and may be more stable than Sinytra Connector was.
-	* I haven't personally tested this, but at least one user claims it works. Let me know if you have any issues with it.
+	# For normal users
+	* Fixed Iris compatibility on NeoForge (via Sinytra Connector or Launchpad).
+	* Fixed wildflowers not spawning correctly.
+	* Tweaked mob spawns in the "inferno" biome:
+		* Blazes are now less likely.
+		* Magma cubes are now more likely.
+	* Changed biome sky colors again.
+	* Very small visual tweak: AO on molten rock is now inversely proportional to its heat level.
+	# For data pack developers
+	* Some biome tags were moved around or renamed to better describe their purpose.
+		* "overworld_except_volcano" -> "all_overworld"
+		* "overworld" -> "all_islands"
+		* "land_except_volcano" -> "land_overworld"
+		* "land" -> "land_islands"
+		* Probably a couple others that I forgot too.
+	# For no one in particular
+	* The "Islands" world preset is now roughly half-implemented.
+		* It still won't show up in the world creation screen, but data packs can change this. If you know how to make such a data pack, feel free to test the Islands world preset in its current (unfinished) form!
+		* Each island has its own biome and shape now.
+		* Many decorations (including ores) are still missing.
 
 alternate world presets:
 	paradise.
@@ -152,6 +180,12 @@ alternate world presets:
 		basically, play minecraft from the perspective of an ant.
 
 breaking changes I want to make:
+	remove alwaysGenerateTheSameWorld config option next time massive breaking changes are made to worldgen logic.
+	perlin grids:
+		migrate permute(seed ^ SALT, x, y, z) to stafford(permute(seed, x, y, z) ^ SALT).
+		then permute(seed, x, y, z) can be cached in a local variable to avoid re-computation.
+		ditto for worley grids.
+		use approx sin for SineWaveGrid2D?
 	expose IntVolume and DoubleVolume to scripts, with min, mid, and max properties.
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.

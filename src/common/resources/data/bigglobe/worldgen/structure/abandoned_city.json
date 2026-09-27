@@ -7,7 +7,6 @@
 		"String palette = (",
 			"world_traits.`bigglobe:wood_palette`(",
 				"originX,",
-				"world_traits.`bigglobe:y_level_on_surface`(originX, originZ),",
 				"originZ",
 			")",
 			".?id",

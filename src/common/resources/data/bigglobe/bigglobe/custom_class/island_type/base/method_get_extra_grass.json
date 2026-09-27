@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "getExtraGrass",
+	"return_type": "double",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"return(0.0L)"
+	]
+}

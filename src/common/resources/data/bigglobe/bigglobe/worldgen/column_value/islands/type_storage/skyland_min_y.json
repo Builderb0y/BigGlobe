@@ -1,0 +1,20 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"VoronoiCell cell = `bigglobe:islands/island_voronoi`",
+		"Derivative2D base = Derivative2D.soft(cell).$mul(1024.0L).$add(256.0L)",
+		"IslandType.erode(",
+			"Eroder.new(),",
+			"column,",
+			"base,",
+			"4.0L,",
+			"256.0L,",
+			"64.0L",
+			"* (1.0L - 16384.0L / (cell.euclideanDistanceSquared + 16384.0L))",
+		")"
+	]
+}

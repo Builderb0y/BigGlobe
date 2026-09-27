@@ -64,7 +64,7 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.mixinInterfaces.DimensionalBlockView;
+import builderb0y.bigglobe.util.DimensionalBlockView;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.packets.DangerousRapidsPacket;
 import builderb0y.bigglobe.networking.packets.SettingsSyncS2CPacketHandler;
@@ -112,7 +112,7 @@ public class ClientState {
 	}
 
 	public static @Nullable ClientState get(BlockGetter world) {
-		return world != null ? get(((DimensionalBlockView)(world)).bigglobe_getDimension()) : null;
+		return world != null ? get(DimensionalBlockView.getDimension(world)) : null;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -197,7 +197,7 @@ public class ClientState {
 		//don't intercept for my own drawing code,
 		//since it contains intentionally incorrect coordinates.
 		if (LodMesher.isMeshing()) return;
-		ResourceKey<Level> dimension = ((DimensionalBlockView)(world)).bigglobe_getDimension();
+		ResourceKey<Level> dimension = DimensionalBlockView.getDimension(world);
 		if (dimension == null) return;
 		ClientState state = get(dimension);
 		if (state == null) return;

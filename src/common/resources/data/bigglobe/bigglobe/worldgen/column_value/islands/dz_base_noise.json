@@ -1,0 +1,17 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"seed": "bigglobe:islands/base_noise",
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 81.0 }, "scale": 512 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 27.0 }, "scale": 256 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  9.0 }, "scale": 128 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  3.0 }, "scale":  64 }
+		]
+	}
+}

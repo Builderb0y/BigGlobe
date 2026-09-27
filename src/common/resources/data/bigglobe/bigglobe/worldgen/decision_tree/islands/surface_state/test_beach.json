@@ -1,13 +1,8 @@
 {
 	"condition": {
-		"type": "curve_range",
-		"value": {
-			"type": "column_value",
-			"column_value": "bigglobe:islands/eroded_surface_height"
-		},
-		"min": 8.0,
-		"max": 4.0
+		"type": "world_trait",
+		"world_trait": "bigglobe:is_beach"
 	},
-	"if_true": "bigglobe:overworld/surface_state/beach_test_overgrown",
-	"if_false": "bigglobe:islands/surface_state/test_volcano"
+	"if_true": "bigglobe:islands/surface_state/beach_test_overgrown",
+	"if_false": "bigglobe:islands/surface_state/primary"
 }

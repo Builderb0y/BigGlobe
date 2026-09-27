@@ -1,0 +1,6 @@
+{
+	"element_type": "class/enum",
+	"name": "HotIslandType",
+	"extends": "bigglobe:island_type/base/class",
+	"abstract": true
+}

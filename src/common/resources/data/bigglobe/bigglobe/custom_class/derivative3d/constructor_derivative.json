@@ -1,0 +1,12 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "copy",
+	"return_type": "bigglobe:derivative3d/class",
+	"parameters": [
+		{ "name": "that", "type": "bigglobe:derivative3d/class" }
+	],
+	"code": [
+		"Derivative3D.new().=$value(that.value).=$dx(that.dx).=$dy(that.dy).=$dz(that.dz)"
+	]
+}

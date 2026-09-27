@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/snowcapped/class",
+	"override": "bigglobe:island_type/base/method_has_overgrown_beach",
+	"code": [
+		"return(`bigglobe:islands/type_storage/surface_depth` > 0)"
+	]
+}

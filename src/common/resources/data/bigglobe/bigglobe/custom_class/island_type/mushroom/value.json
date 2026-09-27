@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:island_type/base/class",
+	"impl_type": "bigglobe:island_type/mushroom/class",
+	"name": "MUSHROOM",
+	"field_values": {
+		"weight": 0.0625,
+		"maxHeight": 256.0,
+		"isPointy": false
+	}
+}

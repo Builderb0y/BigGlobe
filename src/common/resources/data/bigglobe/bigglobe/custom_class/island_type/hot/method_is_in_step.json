@@ -1,0 +1,19 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/hot/class",
+	"name": "isInStep",
+	"return_type": "boolean",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"double strength = `bigglobe:islands/type_storage/step_strength`",
+		"IslandType.testStepping(",
+			"column,",
+			"`bigglobe:islands/type_storage/eroded_shape`.value,",
+			"320.0L,",
+			"strength * 7.0L + 1.0L,",
+			"strength * 3.0L + 1.0L",
+		")"
+	]
+}

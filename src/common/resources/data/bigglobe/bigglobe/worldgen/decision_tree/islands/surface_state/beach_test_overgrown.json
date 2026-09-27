@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "world_trait",
+		"world_trait": "bigglobe:is_overgrown_beach"
+	},
+	"if_true": "bigglobe:islands/surface_state/overgrown_beach",
+	"if_false": "bigglobe:islands/surface_state/beach"
+}

@@ -1,0 +1,15 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "subRev",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "value", "type": "double" }
+	],
+	"code": [
+		"this.value = value - this.value",
+		"this.dx = -this.dx",
+		"this.dy = -this.dy",
+		"this.dz = -this.dz"
+	]
+}

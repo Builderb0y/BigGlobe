@@ -114,7 +114,8 @@ public class VoronoiSampler {
 
 	public void preComputeSoftDistance() {
 		if (this.setFlag(FLAG_SOFT_DISTANCE)) {
-			this.softDistance.set(this.softDistanceSquared()).sqrt();
+			this.preComputeSoftDistanceSquared();
+			this.softDistance.set(this.softDistanceSquared).sqrt();
 		}
 	}
 

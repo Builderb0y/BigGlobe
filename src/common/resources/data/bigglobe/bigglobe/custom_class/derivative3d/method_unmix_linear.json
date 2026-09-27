@@ -1,0 +1,18 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "unmixLinear",
+	"return_type": "bigglobe:derivative3d/class",
+	"parameters": [
+		{ "name": "min", "type": "bigglobe:derivative3d/class" },
+		{ "name": "max", "type": "bigglobe:derivative3d/class" },
+		{ "name": "factor", "type": "bigglobe:derivative3d/class" }
+	],
+	"code": [
+		"double value = unmixLinear(min.value, max.value, factor.value)",
+		"double dx = (factor.dx - min.dx) / (max.value - min.value) - ((factor.value - min.value) * (max.dx - min.dx)) / (max.value - min.value) ^ 2",
+		"double dy = (factor.dy - min.dy) / (max.value - min.value) - ((factor.value - min.value) * (max.dy - min.dy)) / (max.value - min.value) ^ 2",
+		"double dz = (factor.dz - min.dz) / (max.value - min.value) - ((factor.value - min.value) * (max.dz - min.dz)) / (max.value - min.value) ^ 2",
+		"return(Derivative3D.variable(value, dx, dy, dz))"
+	]
+}

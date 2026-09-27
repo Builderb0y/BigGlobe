@@ -3,6 +3,6 @@
 	"state": "'minecraft:water[level=0]'",
 	"valid": {
 		"min_y": "world_traits.`bigglobe:y_level_on_surface`",
-		"max_y": "`bigglobe:overworld/sea_level`"
+		"max_y": "world_traits.`bigglobe:sea_level`"
 	}
 }

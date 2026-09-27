@@ -14,7 +14,7 @@
 							"world_traits.`bigglobe:cave_min_y`(x, z),",
 							"world_traits.`bigglobe:cave_max_y`(x, z) - 16",
 						")",
-						"&& ConfiguredFeature*(dungeon := world_traits.`bigglobe:cave_dungeon_decorator`(x, z)) != null",
+						"&& ConfiguredFeature*(dungeon := world_traits.`bigglobe:cave_system`(x, z).dungeonFeature) != null",
 						"&& getBlockState(x, y, z).isAir()",
 						"&& getBlockState(x, y - 1, z).blocksLight()",
 						"&& placeFeature(x, y, z,",

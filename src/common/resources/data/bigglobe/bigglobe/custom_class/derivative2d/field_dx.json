@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "dx",
+	"field_type": "double"
+}

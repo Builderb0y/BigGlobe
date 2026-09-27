@@ -4,7 +4,7 @@
 	"name": "maxY",
 	"return_type": "double",
 	"parameters": [
-		{ "name": "column", "type": "column_storage" }
+		{ "name": "column", "type": "column_storage", "import": true }
 	],
-	"code": "column.world_traits.`bigglobe:exact_surface_y`"
+	"code": "world_traits.`bigglobe:exact_surface_y`"
 }

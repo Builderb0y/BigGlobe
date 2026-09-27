@@ -1,5 +1,8 @@
 {
 	"variants": {
-		"": { "model": "bigglobe:block/molten_rock_5" }
+		"": {
+			"fabric:type": "bigglobe:light_emitting_ao",
+			"model": { "model": "bigglobe:block/molten_rock_5" }
+		}
 	}
 }

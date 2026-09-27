@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "MushroomIslandType",
+	"extends": "bigglobe:island_type/base/class"
+}

@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"script": [
+		"unmixSmooth(1.0L, 0.75L, island_voronoi.softDistanceSquared)"
+	]
+}

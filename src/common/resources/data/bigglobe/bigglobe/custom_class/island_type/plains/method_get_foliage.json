@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/plains/class",
+	"override": "bigglobe:island_type/base/method_get_foliage",
+	"code": [
+		"return(`bigglobe:overworld/raw/foliage_noise` - 0.25I)"
+	]
+}

@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/floating/class",
+	"override": "bigglobe:island_type/base/method_get_surface_y_gradient",
+	"code": [
+		"`bigglobe:islands/base_noise_y_gradient`"
+	]
+}

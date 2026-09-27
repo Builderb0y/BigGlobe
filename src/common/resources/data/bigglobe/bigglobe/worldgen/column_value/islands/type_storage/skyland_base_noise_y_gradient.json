@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"Derivative2D.variable(",
+			"skyland_base_noise,",
+			"skyland_dx_base_noise,",
+			"skyland_dz_base_noise",
+		")"
+	]
+}

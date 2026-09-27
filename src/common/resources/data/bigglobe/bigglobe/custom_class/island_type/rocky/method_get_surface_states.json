@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/rocky/class",
+	"override": "bigglobe:island_type/base/method_get_surface_states",
+	"code": [
+		"SurfaceStates.new()"
+	]
+}

@@ -13,6 +13,7 @@ public class BigGlobeModels {
 
 	public static void init() {
 		CustomUnbakedBlockStateModel.register(BigGlobeMod.modID("ore"), OreUnbakedBlockStateModel.CODEC);
+		CustomUnbakedBlockStateModel.register(BigGlobeMod.modID("light_emitting_ao"), LightEmittingAOUnbakedModel.CODEC);
 		ResourceLoader.registerBuiltinPack(
 			BigGlobeMod.modID("mimic_ores"),
 			FabricLoader.getInstance().getModContainer(BigGlobeMod.MODID).orElseThrow(),

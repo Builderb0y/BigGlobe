@@ -1,0 +1,19 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"seed": "bigglobe:islands/type_storage/skyland_base_noise",
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude": 162.0 }, "scale": 512 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  54.0 }, "scale": 256 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":  18.0 }, "scale": 128 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":   6.0 }, "scale":  64 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":   2.0 }, "scale":  32 },
+			{ "type": "dy_smoother_resample", "source": { "type": "white_noise", "amplitude":   0.66666666666666666 }, "scale":  16 }
+		]
+	}
+}

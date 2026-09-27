@@ -1,0 +1,24 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/volcano/class",
+	"override": "bigglobe:island_type/base/method_get_surface_y_gradient",
+	"code": [
+		"Derivative2D base = `bigglobe:islands/type_storage/noise_mountainness`",
+		"base = IslandType.applyBeach(column, base, 64.0L)",
+		"if (base.value > 0.0L:",
+			"IslandType.erode(",
+				"Eroder.new(),",
+				"column,",
+				"base,",
+				"4.0L,",
+				"256.0L,",
+				"64.0L",
+				"* (1.0L - 16384.0L / (`bigglobe:islands/island_voronoi`.euclideanDistanceSquared + 16384.0L))",
+				"* (1.0L - 1024.0L / (base.value ^ 2 + 1024.0L))",
+			")",
+		")",
+		"else(",
+			"base",
+		")"
+	]
+}

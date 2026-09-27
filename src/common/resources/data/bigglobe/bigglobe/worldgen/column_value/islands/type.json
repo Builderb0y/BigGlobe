@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:island_type/base/class",
+		"is_3d": false
+	},
+	"script": [
+		"VoronoiCell cell = island_voronoi",
+		"long seed = (worldSeed # 16xC34CEBF86A5D9776UL).newSeed(cell.cellX, cell.cellZ)",
+		"float totalWeight = 0.0I",
+		"IslandType result = null",
+		"for (IslandType type in IslandType.valueSet:",
+			"if (type.weight > 0.0I && (seed := seed.newSeed()).nextFloat(totalWeight :+ type.weight) < type.weight:",
+				"result = type",
+			")",
+		")",
+		"return(result)"
+	]
+}

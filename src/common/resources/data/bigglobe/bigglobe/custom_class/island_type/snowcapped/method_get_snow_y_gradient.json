@@ -1,0 +1,35 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:island_type/snowcapped/class",
+	"name": "getSnowYGradient",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"Derivative2D base = `bigglobe:islands/base_noise_y_gradient`.copy().$add(",
+			"Derivative2D",
+			".soft(`bigglobe:islands/island_voronoi`)",
+			".$subRev(1.0L)",
+			".$square()",
+			".$mul(832.0L)",
+		")",
+		".$sub(32.0L)",
+		"base = IslandType.applyBeach(column, base, 64.0L)",
+		"if (base.value > 0.0L:",
+			"IslandType.erode(",
+				"SnowEroder.new(),",
+				"column,",
+				"base,",
+				"4.0L,",
+				"256.0L,",
+				"64.0L",
+				"* (1.0L - 16384.0L / (`bigglobe:islands/island_voronoi`.euclideanDistanceSquared + 16384.0L))",
+				"* (1.0L - 1024.0L / (base.value ^ 2 + 1024.0L))",
+			")",
+		")",
+		"else(",
+			"base",
+		")"
+	]
+}

@@ -1,0 +1,32 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "applySteps",
+	"return_type": "bigglobe:derivative2d/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "bigglobe:derivative2d/class" },
+		{ "name": "size", "type": "double" },
+		{ "name": "flatStrength", "type": "double" },
+		{ "name": "steepStrength", "type": "double" }
+	],
+	"code": [
+		"y = y.copy().$div(size)",
+		"if (y.value > -0.5L:",
+			"double fade = `bigglobe:islands/island_fade_out`",
+			"flatStrength = mixLinear(1.0L, flatStrength, fade)",
+			"steepStrength = mixLinear(1.0L, steepStrength, fade)",
+			"double floor = floor(y.value)",
+			"double fract = y.value - floor",
+			"y = Derivative2D.min(",
+				"Derivative2D.max(",
+					"y.copy().=$value(fract).$sub(0.5L).$mul(steepStrength).$add(0.5L),",
+					"y.copy().=$value(fract).$div(flatStrength)",
+				"),",
+				"y.copy().=$value(fract).$sub(1.0L).$div(flatStrength).$add(1.0L)",
+			")",
+			".$add(floor)",
+		")",
+		"y.$mul(size)"
+	]
+}

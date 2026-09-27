@@ -1,9 +1,0 @@
-{
-	"type": "script",
-	"params": {
-		"type": "float",
-		"is_3d": false
-	},
-	"script": "float(skyland_snow_y - skyland_top)",
-	"cache": false
-}

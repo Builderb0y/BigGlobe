@@ -10,7 +10,7 @@
 			"8.0I,",
 			"float(",
 				"unmixLinear(",
-					"world_traits.`bigglobe:approximate_surface_y` - easy_depth,",
+					"world_traits.`bigglobe:cave_min_y`,",
 					"world_traits.`bigglobe:approximate_surface_y`,",
 					"y",
 				")",

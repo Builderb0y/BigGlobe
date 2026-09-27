@@ -128,7 +128,6 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		unconfigurable.add(mixinPackage + ".BigGlobeConfig_ImplementConfigData");
 		unconfigurable.add(mixinPackage + ".Biome_DownfallAccessor");
 		unconfigurable.add(mixinPackage + ".Blocks_RegisterVanillaBlocksEarly");
-		unconfigurable.add(mixinPackage + ".BlockView_ExposeDimension");
 		unconfigurable.add(mixinPackage + ".ChunkRegion_UseCreateFlag");
 		unconfigurable.add(mixinPackage + ".ConcentricRingsStructurePlacement_MakeSmart");
 		unconfigurable.add(mixinPackage + ".DataPacks_StoreResourceManager");

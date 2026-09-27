@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "PlainsIslandType",
+	"extends": "bigglobe:island_type/base/class"
+}

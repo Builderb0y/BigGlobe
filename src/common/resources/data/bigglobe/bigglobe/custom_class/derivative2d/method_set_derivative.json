@@ -1,0 +1,12 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "set",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "that", "type": "bigglobe:derivative2d/class" }
+	],
+	"code": [
+		"this.set(that.value, that.dx, that.dy)"
+	]
+}

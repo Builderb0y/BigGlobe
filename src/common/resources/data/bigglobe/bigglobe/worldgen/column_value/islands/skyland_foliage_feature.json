@@ -1,9 +1,0 @@
-{
-	"type": "bigglobe:decision_tree",
-	"params": {
-		"type": "configured_feature",
-		"is_3d": false
-	},
-	"root": "bigglobe:islands/skyland_foliage_feature/test_warm",
-	"cache": false
-}

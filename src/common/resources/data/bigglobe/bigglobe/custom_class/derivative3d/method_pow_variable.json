@@ -1,0 +1,22 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "pow",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "value", "type": "double" },
+		{ "name": "dx",    "type": "double" },
+		{ "name": "dy",    "type": "double" },
+		{ "name": "dz",    "type": "double" }
+	],
+	"code": [
+		"double newValue = this.value ^ value",
+		"double newDx = newValue * (value * this.dx / this.value + ln(this.value) * dx)",
+		"double newDy = newValue * (value * this.dy / this.value + ln(this.value) * dy)",
+		"double newDz = newValue * (value * this.dz / this.value + ln(this.value) * dz)",
+		"this.value = newValue",
+		"this.dx = newDx",
+		"this.dy = newDy",
+		"this.dz = newDz"
+	]
+}

@@ -1,6 +1,6 @@
 {
 	"primary_entity": "minecraft:blaze",
 	"script": [
-		"spawnParams.=$weight(1.0L).=$count(random.nextInt(2, 5))"
+		"spawnParams.=$weight(0.5L).=$count(random.nextBetween[2, 4])"
 	]
 }

@@ -1,0 +1,14 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:derivative2d/class",
+	"name": "set",
+	"return_type": "void",
+	"parameters": [
+		{ "name": "value", "type": "double" }
+	],
+	"code": [
+		"this.value = value",
+		"this.dx = 0.0L",
+		"this.dy = 0.0L"
+	]
+}

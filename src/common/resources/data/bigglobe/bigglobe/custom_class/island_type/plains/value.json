@@ -1,0 +1,11 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:island_type/base/class",
+	"impl_type": "bigglobe:island_type/plains/class",
+	"name": "PLAINS",
+	"field_values": {
+		"weight": 0.5,
+		"maxHeight": 256.0,
+		"isPointy": false
+	}
+}

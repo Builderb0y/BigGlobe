@@ -1,0 +1,15 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:derivative3d/class",
+	"name": "variable",
+	"return_type": "bigglobe:derivative3d/class",
+	"parameters": [
+		{ "name": "value", "type": "double" },
+		{ "name": "dx",    "type": "double" },
+		{ "name": "dy",    "type": "double" },
+		{ "name": "dz",    "type": "double" }
+	],
+	"code": [
+		"Derivative3D.new().=$value(value).=$dx(dx).=$dy(dy).=$dz(dz)"
+	]
+}

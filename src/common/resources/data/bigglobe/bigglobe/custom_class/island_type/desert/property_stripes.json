@@ -1,0 +1,8 @@
+{
+	"element_type": "property/override",
+	"owner": "bigglobe:island_type/desert/class",
+	"override": "bigglobe:island_type/hot/property_stripes",
+	"get": [
+		"DesertRockStripe.valueSet"
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"element_type": "method/normal",
+	"name": "getSkylandSurfaceStates",
+	"owner": "bigglobe:island_type/floating/class",
+	"return_type": "bigglobe:surface/multi/class",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true }
+	],
+	"code": [
+		"int depth = floorInt(`bigglobe:overworld/default_deeper_surface_depth` + this.getSkylandExtraGrass(column))",
+		"SurfaceStates result = SurfaceStates.new()",
+		"if (depth > 1: result.add('minecraft:dirt', depth))",
+		"if (depth > 0: result.add('minecraft:grass_block[snowy=false]', 1))",
+		"return(result)"
+	]
+}

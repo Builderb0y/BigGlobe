@@ -1,0 +1,9 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:island_type/floating/class",
+	"override": "bigglobe:island_type/base/method_get_cave_system",
+	"code": [
+		";not used for this island type, since it exists entirely below sea level.",
+		"return(CaveSystem.GENERIC)"
+	]
+}

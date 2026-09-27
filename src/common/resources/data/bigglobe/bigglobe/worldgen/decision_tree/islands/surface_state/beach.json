@@ -1,0 +1,11 @@
+{
+	"result": {
+		"type": "script",
+		"script": [
+			"SurfaceStates",
+			".new()",
+			".$add('minecraft:gravel', floorInt(`bigglobe:overworld/default_deeper_surface_depth`))",
+			".$add('minecraft:sand', floorInt(`bigglobe:islands/default_surface_depth`))"
+		]
+	}
+}

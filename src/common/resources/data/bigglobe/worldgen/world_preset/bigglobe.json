@@ -24,7 +24,7 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:overworld/biome`",
-					"all_possible_biomes": "#bigglobe:overworld_except_volcano"
+					"all_possible_biomes": "#bigglobe:all_overworld"
 				},
 				"overriders": "#bigglobe:overworld",
 				"game_mechanics": {

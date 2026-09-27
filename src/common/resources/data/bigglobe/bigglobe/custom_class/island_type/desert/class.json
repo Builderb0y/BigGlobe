@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "DesertIslandType",
+	"extends": "bigglobe:island_type/hot/class"
+}

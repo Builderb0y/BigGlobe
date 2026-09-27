@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"IslandType.erode(",
+			"Eroder.new(),",
+			"column,",
+			"noise_mountainness,",
+			"4.0L,",
+			"256.0L,",
+			"64.0L",
+		")"
+	]
+}

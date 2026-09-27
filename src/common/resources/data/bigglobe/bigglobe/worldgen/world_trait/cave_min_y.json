@@ -1,4 +1,5 @@
 {
 	"type": "int",
-	"is_3d": false
+	"is_3d": false,
+	"default": "higherInt(world_traits.`bigglobe:cave_min_y_exact`)"
 }

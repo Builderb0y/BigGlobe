@@ -8,8 +8,8 @@
 				"reload_dimension": "minecraft:overworld",
 				"biome_source": {
 					"type": "bigglobe:scripted",
-					"script": "`bigglobe:islands/biome`",
-					"all_possible_biomes": "#bigglobe:overworld"
+					"script": "world_traits.`bigglobe:biome`",
+					"all_possible_biomes": "#bigglobe:all_islands"
 				},
 				"height": {
 					"min_y": -1024,
@@ -34,16 +34,17 @@
 					},
 					"colors": {
 						"grass": {
-							"source": "computeBiomeTint(false, `bigglobe:islands/is_volcano` ? unmixSmooth(1.0I, 0.75I, `bigglobe:islands/island`.softDistanceSquared.as(float)) : 0.0I)",
+							"source": "computeBiomeTint(false, 0.0I)",
 							"includes": "bigglobe:include/biome_tint"
 						},
 						"foliage": {
-							"source": "computeBiomeTint(true, `bigglobe:islands/is_volcano` ? unmixSmooth(1.0I, 0.75I, `bigglobe:islands/island`.softDistanceSquared.as(float)) : 0.0I)",
+							"source": "computeBiomeTint(true, 0.0I)",
 							"includes": "bigglobe:include/biome_tint"
 						},
 						"water": [
 							"double temperature = 1.0L / (fastExp(-4.0L * world_traits.`bigglobe:temperature_at`) + 1.0L)",
-							"packI(63, roundInt(temperature * 128.0L + 64.0L), 255)"
+							"double mushroom = `bigglobe:islands/type`.is(MushroomIslandType) ? `bigglobe:islands/property_fade` : 0.0L",
+							"packD(0.125L + mushroom * 0.5L, temperature * 0.5L + 0.25L, 1.0L)"
 						]
 					},
 					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
