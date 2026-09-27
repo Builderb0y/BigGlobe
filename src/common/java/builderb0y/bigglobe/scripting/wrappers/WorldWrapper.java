@@ -160,22 +160,20 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 
 	@Override
 	public ScriptedColumn lookupColumn(int x, int z) {
-		BlockPos pos = this.unboundedPos(x, 0, z);
-		x = pos.getX();
-		z = pos.getZ();
-		return this.columns.computeIfAbsent(
-			ColumnPos.asLong(x, z),
-			(long packedPos) -> {
-				ScriptedColumn column = this.columnFactory.createAt(
-					ColumnPos.getX(packedPos),
-					ColumnPos.getZ(packedPos)
-				);
-				if (this.overriders != null) {
-					this.overriders.override(column);
-				}
-				return column;
+		//don't use this.pos here, rock replacers call this from several threads at once.
+		SymmetricOffset transformation = this.coordination.transformation();
+		int newX = transformation.getX(x, 0, z);
+		int newZ = transformation.getZ(x, 0, z);
+		long packedPos = ColumnPos.asLong(newX, newZ);
+		ScriptedColumn column = this.columns.get(packedPos);
+		if (column == null) {
+			column = this.columnFactory.createAt(newX, newZ);
+			if (this.overriders != null) {
+				this.overriders.override(column);
 			}
-		);
+			this.columns.put(packedPos, column);
+		}
+		return column;
 	}
 
 	public int originX() {
