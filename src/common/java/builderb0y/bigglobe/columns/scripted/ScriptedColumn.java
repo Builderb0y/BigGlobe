@@ -28,6 +28,7 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.scripting.bytecode.FieldConstantFactory;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.TypeInfo.Sort;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.util.CollectionTransformer;
 import builderb0y.scripting.util.InfoHolder;
@@ -55,7 +56,11 @@ public abstract class ScriptedColumn {
 			positionedSeed,
 			saltedPositionedSeed,
 			positionedSeed3D,
-			saltedPositionedSeed3D;
+			saltedPositionedSeed3D,
+			chancedBooleanF,
+			chancedBooleanD,
+			chancedBoolean3DF,
+			chancedBoolean3DD;
 
 		public InsnTree x(InsnTree loadColumn) {
 			return invokeInstance(loadColumn, this.x);
@@ -103,6 +108,14 @@ public abstract class ScriptedColumn {
 
 		public InsnTree saltedPositionedSeed3D(InsnTree loadColumn, InsnTree salt, InsnTree y) {
 			return invokeInstance(loadColumn, this.saltedPositionedSeed3D, salt, y);
+		}
+
+		public InsnTree chancedBoolean(InsnTree loadColumn, InsnTree salt, InsnTree chance) {
+			return invokeInstance(loadColumn, chance.getTypeInfo().getSort() == Sort.FLOAT ? this.chancedBooleanF : this.chancedBooleanD, salt, chance);
+		}
+
+		public InsnTree chancedBoolean3D(InsnTree loadColumn, InsnTree salt, InsnTree y, InsnTree chance) {
+			return invokeInstance(loadColumn, chance.getTypeInfo().getSort() == Sort.FLOAT ? this.chancedBoolean3DF : this.chancedBoolean3DD, salt, y, chance);
 		}
 	}
 
@@ -342,6 +355,24 @@ public abstract class ScriptedColumn {
 
 	public long saltedPositionedSeed3D(long salt, int y) {
 		return Permuter.permute(this.params.worldInfo.seed ^ salt, this.x(), y, this.z());
+	}
+
+	//the seed is only computed when chance is not exactly 0 or 1.
+
+	public boolean chancedBooleanF(long salt, float chance) {
+		return chance > 0.0F && (chance >= 1.0F || Permuter.nextChancedBoolean(this.saltedPositionedSeed(salt), chance));
+	}
+
+	public boolean chancedBooleanD(long salt, double chance) {
+		return chance > 0.0D && (chance >= 1.0D || Permuter.nextChancedBoolean(this.saltedPositionedSeed(salt), chance));
+	}
+
+	public boolean chancedBoolean3DF(long salt, int y, float chance) {
+		return chance > 0.0F && (chance >= 1.0F || Permuter.nextChancedBoolean(this.saltedPositionedSeed3D(salt, y), chance));
+	}
+
+	public boolean chancedBoolean3DD(long salt, int y, double chance) {
+		return chance > 0.0D && (chance >= 1.0D || Permuter.nextChancedBoolean(this.saltedPositionedSeed3D(salt, y), chance));
 	}
 
 	public abstract ScriptedColumn blankCopy();

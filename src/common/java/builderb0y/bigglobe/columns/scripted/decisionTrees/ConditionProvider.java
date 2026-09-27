@@ -31,7 +31,6 @@ import builderb0y.bigglobe.columns.scripted.tree.StandAloneTraits2DGetterInsnTre
 import builderb0y.bigglobe.columns.scripted.tree.StandAloneTraits3DGetterInsnTree;
 import builderb0y.bigglobe.math.GeneralSmoothstep;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.CastingSupport;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -120,17 +119,10 @@ public interface ConditionProvider extends SimpleDependencyView, CoderRegistryTy
 		return condition(
 			CastingSupport.dummyParser(),
 			switch (maybeChance.getTypeInfo().getSort()) {
-				case FLOAT -> RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanF(
+				case FLOAT, DOUBLE -> (
 					is3D
-					? ScriptedColumn.INFO.saltedPositionedSeed3D(context.loadColumn(), ldc(seedSalt), load("y", TypeInfos.INT))
-					: ScriptedColumn.INFO.saltedPositionedSeed(context.loadColumn(), ldc(seedSalt)),
-					maybeChance
-				);
-				case DOUBLE -> RandomScriptEnvironment.PERMUTER_INFO.nextChancedBooleanD(
-					is3D
-					? ScriptedColumn.INFO.saltedPositionedSeed3D(context.loadColumn(), ldc(seedSalt), load("y", TypeInfos.INT))
-					: ScriptedColumn.INFO.saltedPositionedSeed(context.loadColumn(), ldc(seedSalt)),
-					maybeChance
+					? ScriptedColumn.INFO.chancedBoolean3D(context.loadColumn(), ldc(seedSalt), load("y", TypeInfos.INT), maybeChance)
+					: ScriptedColumn.INFO.chancedBoolean(context.loadColumn(), ldc(seedSalt), maybeChance)
 				);
 				case BOOLEAN -> maybeChance;
 				default -> throw new IllegalArgumentException(maybeChance.toString());
