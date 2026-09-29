@@ -1,0 +1,33 @@
+{
+	"type": "column_value",
+	"feature_generation": false,
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"ScriptStructurePiece piece = start.pieces.(0)",
+				"float maxFrac = calcFrac(piece)",
+				"if (maxFrac < 2.0I:",
+					"if (maxFrac <= 1.0I:",
+						"maxFrac = 1.0I",
+						"`bigglobe:overworld/surface_states_override` = SurfaceStates.new()",
+					")",
+					"world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) = calcSurfaceY(piece, maxFrac)",
+
+					"float frac = unmixLinear(2.0I, 1.0I, maxFrac)",
+					"int startY = piece.data.startY",
+					"for (int y in range(startY - 16, world_traits.`bigglobe:y_level_on_surface`):",
+						"double amountForY = unmixLinear(double(startY - 16), double(startY), double(y))",
+						"world_traits.`bigglobe:cave_noise`(y) += float(amountForY ^ 2 * frac)",
+					")",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/obelisk_overrider_util"
+		]
+	},
+	"structure_filter": {
+		"structure": "bigglobe:obelisk",
+		"radius_in_chunks": 16
+	}
+}

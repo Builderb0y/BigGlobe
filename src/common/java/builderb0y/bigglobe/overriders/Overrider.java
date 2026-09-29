@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.overriders;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -28,9 +27,13 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyCollector;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits.WorldTraitInfo;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.scripting.parsing.Script;
 
 @UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueOverrider.Entry, StructureOverrider.Entry {
@@ -107,6 +110,7 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 		public final CollisionOverrider.Entry[] collisions;
 		public final ColumnValueOverridersWithRadiusCache rawColumnValues, featureColumnValues;
 		public final ColumnValueInfo[] rawColumnValueDependencies, featureColumnValueDependencies;
+		public final WorldTraitInfo[] rawWorldTraitDependencies, featureWorldTraitDependencies;
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
@@ -116,8 +120,30 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 			List<Holder<Overrider>> columnValueOverriders = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList());
 			this.rawColumnValues = new ColumnValueOverridersWithRadiusCache(columnValueOverriders.stream().filter((Holder<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).raw_generation).toArray(Holder[]::new));
 			this.featureColumnValues = new ColumnValueOverridersWithRadiusCache(columnValueOverriders.stream().filter((Holder<Overrider> overrider) -> ((ColumnValueOverrider.Entry)(overrider.value())).feature_generation).toArray(Holder[]::new));
-			this.rawColumnValueDependencies = this.extractDependencies(this.rawColumnValues.overriders, generator);
-			this.featureColumnValueDependencies = this.extractDependencies(this.featureColumnValues.overriders, generator);
+			FilteredSortingDependencyAnalyzer rawDependencies = this.extractDependencies(this.rawColumnValues.overriders, generator);
+			this.rawColumnValueDependencies = rawDependencies.columnValueInfos();
+			this.rawWorldTraitDependencies = rawDependencies.worldTraitInfos();
+			FilteredSortingDependencyAnalyzer featureDependencies = this.extractDependencies(this.featureColumnValues.overriders, generator);
+			this.featureColumnValueDependencies = featureDependencies.columnValueInfos();
+			this.featureWorldTraitDependencies = featureDependencies.worldTraitInfos();
+		}
+
+		public void preComputeRaw(ScriptedColumn column) {
+			for (ColumnValueInfo dependency : this.rawColumnValueDependencies) {
+				dependency.preCompute(column);
+			}
+			for (WorldTraitInfo dependency : this.rawWorldTraitDependencies) {
+				dependency.preCompute(column.worldTraits(), column);
+			}
+		}
+
+		public void precomputeFeature(ScriptedColumn column) {
+			for (ColumnValueInfo dependency : this.featureColumnValueDependencies) {
+				dependency.preCompute(column);
+			}
+			for (WorldTraitInfo dependency : this.featureWorldTraitDependencies) {
+				dependency.preCompute(column.worldTraits(), column);
+			}
 		}
 
 		public int getCollisionPriority(
@@ -132,24 +158,49 @@ public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueO
 			return 0;
 		}
 
-		public ColumnValueInfo[] extractDependencies(Holder<ColumnValueOverrider.Entry>[] holders, BigGlobeScriptedChunkGenerator generator) {
-			IndirectDependencyCollector collector = new IndirectDependencyCollector(generator);
+		public FilteredSortingDependencyAnalyzer extractDependencies(Holder<ColumnValueOverrider.Entry>[] holders, BigGlobeScriptedChunkGenerator generator) {
+			FilteredSortingDependencyAnalyzer collector = new FilteredSortingDependencyAnalyzer(generator);
 			for (Holder<ColumnValueOverrider.Entry> entry : holders) {
 				entry.value().script.streamDirectDependencies().forEach(collector);
 			}
-			Map<Holder<ColumnEntry>, ColumnValueInfo> values = ScriptedColumn.getColumnValues(generator.columnEntryRegistry);
-			return (
-				collector
-				.stream()
-				.filter((Holder<? extends DependencyView> registryEntry) -> {
-					return (
-						registryEntry.value() instanceof ColumnEntry columnEntry &&
-						columnEntry.hasFieldSetterAndFlag()
-					);
-				})
-				.map(values::get)
-				.toArray(ColumnValueInfo[]::new)
-			);
+			return collector;
+		}
+
+		public static class FilteredSortingDependencyAnalyzer implements Consumer<Holder<? extends DependencyView>> {
+
+			public final BigGlobeScriptedChunkGenerator
+				generator;
+			public final Set<Holder<? extends DependencyView>>
+				worldTraitsDiscovered = new HashSet<>(),
+				otherStuffDiscovered = new HashSet<>();
+
+			public FilteredSortingDependencyAnalyzer(BigGlobeScriptedChunkGenerator generator) {
+				this.generator = generator;
+			}
+
+			public ColumnValueInfo[] columnValueInfos() {
+				Map<Holder<ColumnEntry>, ColumnValueInfo> map = ScriptedColumn.getColumnValues(this.generator.columnEntryRegistry);
+				return this.otherStuffDiscovered.stream().filter((Holder<? extends DependencyView> holder) -> holder.value() instanceof ColumnEntry columnEntry && columnEntry.hasFieldSetterAndFlag()).map(map::get).filter(Objects::nonNull).toArray(ColumnValueInfo[]::new);
+			}
+
+			public WorldTraitInfo[] worldTraitInfos() {
+				Map<Holder<WorldTrait>, WorldTraitInfo> map = WorldTraits.getWorldTraits(this.generator.columnEntryRegistry);
+				return this.worldTraitsDiscovered.stream().map(map::get).filter(Objects::nonNull).toArray(WorldTraitInfo[]::new);
+			}
+
+			@Override
+			public void accept(Holder<? extends DependencyView> holder) {
+				if (holder.value() instanceof WorldTrait) {
+					WorldTraitProvider provider = this.generator.loadedWorldTraits.get(holder);
+					if (provider != null && provider.preCompute() != null) {
+						this.worldTraitsDiscovered.add(holder);
+						return;
+					}
+				}
+				if (this.otherStuffDiscovered.add(holder)) {
+					holder.value().streamDirectDependencies(holder, this.generator.compiledWorldTraits).forEach(this);
+				}
+			}
 		}
 	}
 }

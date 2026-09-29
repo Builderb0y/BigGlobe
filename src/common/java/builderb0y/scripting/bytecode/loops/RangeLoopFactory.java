@@ -38,7 +38,7 @@ public class RangeLoopFactory implements LoopFactory {
 
 	@Override
 	public InsnTree createLoop(ExpressionParser parser, LoopName loopName, List<VariableDeclarationInsnTree> variables, InsnTree body) throws ScriptParsingException {
-		for (int index = variables.size(); --index >= 0; ) {
+		for (int index = variables.size(); --index >= 0;) {
 			if (variables.get(index).variable.type.getSort() != this.lowerBound.getTypeInfo().getSort()) {
 				throw new ScriptParsingException("variable type (" + variables.get(index).getTypeInfo() + ") does not match range type (" + this.lowerBound.getTypeInfo() + ')', parser.input);
 			}

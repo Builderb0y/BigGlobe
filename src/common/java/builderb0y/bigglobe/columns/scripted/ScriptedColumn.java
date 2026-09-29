@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -409,6 +410,7 @@ public abstract class ScriptedColumn {
 							return null;
 						}
 					})
+					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(ColumnValueInfo::holder, Function.identity()))
 				);
 			});
@@ -442,6 +444,34 @@ public abstract class ScriptedColumn {
 		@Nullable MethodHandle preComputer, //(ScriptedColumn) -> void
 		@Nullable MethodHandle setter //(ScriptedColumn, int, Object) -> void
 	) {
+
+		public Object get(ScriptedColumn column, int y) {
+			try {
+				return this.getter.invokeExact(column, y);
+			}
+			catch (Throwable throwable) {
+				BigGlobeMod.LOGGER.error("Exception getting column value:", throwable);
+				return null;
+			}
+		}
+
+		public void set(ScriptedColumn column, int y, Object value) {
+			if (this.setter != null) try {
+				this.setter.invokeExact(column, y, value);
+			}
+			catch (Throwable throwable) {
+				BigGlobeMod.LOGGER.error("Exception setting column value:", throwable);
+			}
+		}
+
+		public void preCompute(ScriptedColumn column) {
+			if (this.preComputer != null) try {
+				this.preComputer.invokeExact(column);
+			}
+			catch (Throwable throwable) {
+				BigGlobeMod.LOGGER.error("Exception pre-computing column value:", throwable);
+			}
+		}
 
 		public Identifier id() {
 			return UnregisteredObjectException.getID(this.holder);

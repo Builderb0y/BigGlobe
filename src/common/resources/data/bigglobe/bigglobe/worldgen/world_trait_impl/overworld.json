@@ -68,7 +68,8 @@
 	},
 	"bigglobe:cave_noise": {
 		"get": "`bigglobe:overworld/cave_type`.value.getNoise(column, y)",
-		"set": "`bigglobe:overworld/cave_type`.value.setNoise(column, y, value)"
+		"set": "`bigglobe:overworld/cave_type`.value.setNoise(column, y, value)",
+		"pre_compute": "`bigglobe:overworld/cave_type`.value.getNoise(column, 0)"
 	},
 	"bigglobe:exact_surface_y": {
 		"get": "`bigglobe:overworld/exact_surface_y`",

@@ -32,27 +32,25 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		int maxSection,
 		T_Config config
 	) {
-		Async.loop(
-			BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
-				SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
-					chunk,
-					chunk.getSection(chunk.getSectionIndexFromSectionY(sectionCoord)),
-					sectionCoord
+		Async.loop(BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
+			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
+				chunk,
+				chunk.getSection(chunk.getSectionIndexFromSectionY(sectionCoord)),
+				sectionCoord
+			);
+			OreBlockReplacer replacer = this.getReplacer(context, config);
+			if (replacer != null) {
+				ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.getSource().params(0, 0));
+				generateAllIntersecting(
+					context,
+					worldWrapper,
+					offsetColumn,
+					config,
+					replacer,
+					config.seed.xor(generator.columnSeed)
 				);
-				OreBlockReplacer replacer = this.getReplacer(context, config);
-				if (replacer != null) {
-					ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.getSource().params(0, 0));
-					generateAllIntersecting(
-						context,
-						worldWrapper,
-						offsetColumn,
-						config,
-						replacer,
-						config.seed.xor(generator.columnSeed)
-					);
-				}
 			}
-		);
+		});
 	}
 
 	public static void generateAllIntersecting(

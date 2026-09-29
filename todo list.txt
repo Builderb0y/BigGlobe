@@ -117,6 +117,7 @@ V6:
 	urgent:
 		add underground dirt/gravel/clay somewhere.
 			and (red) sand under deserts/mesas.
+		surface Y level overriders do not make caves spawn higher if they raise the surface.
 
 islands:
 	still need overriders.
@@ -151,26 +152,6 @@ intellij plugin:
 	incorrect arguments on custom class static methods are not reported as an error.
 
 changelog:
-	# For normal users
-	* Fixed Iris compatibility on NeoForge (via Sinytra Connector or Launchpad).
-	* Fixed wildflowers not spawning correctly.
-	* Tweaked mob spawns in the "inferno" biome:
-		* Blazes are now less likely.
-		* Magma cubes are now more likely.
-	* Changed biome sky colors again.
-	* Very small visual tweak: AO on molten rock is now inversely proportional to its heat level.
-	# For data pack developers
-	* Some biome tags were moved around or renamed to better describe their purpose.
-		* "overworld_except_volcano" -> "all_overworld"
-		* "overworld" -> "all_islands"
-		* "land_except_volcano" -> "land_overworld"
-		* "land" -> "land_islands"
-		* Probably a couple others that I forgot too.
-	# For no one in particular
-	* The "Islands" world preset is now roughly half-implemented.
-		* It still won't show up in the world creation screen, but data packs can change this. If you know how to make such a data pack, feel free to test the Islands world preset in its current (unfinished) form!
-		* Each island has its own biome and shape now.
-		* Many decorations (including ores) are still missing.
 
 alternate world presets:
 	paradise.

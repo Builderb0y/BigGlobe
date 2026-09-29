@@ -1,0 +1,23 @@
+{
+	"type": "column_value",
+	"raw_generation": false,
+	"script": {
+		"source": [
+			"for (StructureStart start in structures:",
+				"ScriptStructurePiece piece = start.pieces.(0)",
+				"float maxFrac = calcFrac(piece)",
+				"if (maxFrac < 2.0I:",
+					"maxFrac = max(maxFrac, 1.0I)",
+					"world_traits.`bigglobe:automatic_exact_surface_y`(piece.minY) = calcSurfaceY(piece, maxFrac)",
+				")",
+			")"
+		],
+		"includes": [
+			"bigglobe:include/obelisk_overrider_util"
+		]
+	},
+	"structure_filter": {
+		"structure": "bigglobe:obelisk",
+		"radius_in_chunks": 16
+	}
+}

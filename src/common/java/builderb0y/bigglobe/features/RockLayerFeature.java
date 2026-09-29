@@ -12,6 +12,7 @@ import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -44,66 +45,69 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 		//floorDivide(a + b - 1, b) == ceilDivide(a, b)
 		int sectionsPerThread = (totalSections + threads - 1) / threads;
 		IRandomList<Entry> entries = new RandomAccessDelegatingContainedRandomList<>(config.entries.elements);
-		Async.loop(
-			BigGlobeThreadPool.autoExecutor(), threads, (int thread) -> {
-				try (
-					NumberArray centerSamples = NumberArray.allocateDoublesDirect(16);
-					NumberArray thicknessSamples = NumberArray.allocateDoublesDirect(16);
-					NumberArray columnMinYs = NumberArray.allocateIntsDirect(256);
-					NumberArray columnMaxYs = NumberArray.allocateIntsDirect(256);
-				) {
-					long configSeed = config.seed.xor(generator.columnSeed);
-					int startX = chunk.getPos().getMinBlockX();
-					int startZ = chunk.getPos().getMinBlockZ();
-					int startSection = sectionsPerThread * thread + minSection;
-					int endSection = Math.min(sectionsPerThread * (thread + 1) + minSection, maxSection);
-					int minThreadY = startSection << 4;
-					int maxThreadY = endSection << 4;
-					int minLayer = BigGlobeMath.ceilI((minThreadY - config.maxWindow) / config.repeat);
-					int maxLayer = BigGlobeMath.floorI((maxThreadY - config.minWindow) / config.repeat);
-					for (int layer = minLayer; layer <= maxLayer; layer++) {
-						long layerSeed = Permuter.permute(configSeed, layer);
-						RockLayerFeature.Entry entry = entries.getRandomElement(layerSeed);
-						double averageCenter = layer * config.repeat;
-						int layerMinY = Integer.MAX_VALUE;
-						int layerMaxY = Integer.MIN_VALUE;
-						for (int relativeZ = 0; relativeZ < 16; relativeZ++) {
-							entry.center().getBulkX(layerSeed, startX, startZ | relativeZ, centerSamples);
-							entry.thickness().getBulkX(layerSeed, startX, startZ | relativeZ, thicknessSamples);
-							for (int relativeX = 0; relativeX < 16; relativeX++) {
-								int index = (relativeZ << 4) | relativeX;
-								double center = centerSamples.implGetD(relativeX) + averageCenter;
-								double thickness = thicknessSamples.implGetD(relativeX) - (1.0D - entry.restrictions().getRestriction(worldWrapper.lookupColumn(startX | relativeX, startZ | relativeZ), BigGlobeMath.floorI(center))) * entry.thickness().maxValue();
-								columnMinYs.setI(index, BigGlobeMath.floorI(center - thickness));
-								columnMaxYs.setI(index, BigGlobeMath.floorI(center + thickness));
-								layerMinY = Math.min(layerMinY, columnMinYs.implGetI(index));
-								layerMaxY = Math.max(layerMaxY, columnMaxYs.implGetI(index));
+		Async.loop(BigGlobeThreadPool.autoExecutor(), threads, (int thread) -> {
+			try (
+				NumberArray centerSamples = NumberArray.allocateDoublesDirect(16);
+				NumberArray thicknessSamples = NumberArray.allocateDoublesDirect(16);
+				NumberArray columnMinYs = NumberArray.allocateIntsDirect(256);
+				NumberArray columnMaxYs = NumberArray.allocateIntsDirect(256);
+			) {
+				long configSeed = config.seed.xor(generator.columnSeed);
+				int startX = chunk.getPos().getMinBlockX();
+				int startZ = chunk.getPos().getMinBlockZ();
+				int startSection = sectionsPerThread * thread + minSection;
+				int endSection = Math.min(sectionsPerThread * (thread + 1) + minSection, maxSection);
+				int minThreadY = startSection << 4;
+				int maxThreadY = endSection << 4;
+				int minLayer = BigGlobeMath.ceilI((minThreadY - config.maxWindow) / config.repeat);
+				int maxLayer = BigGlobeMath.floorI((maxThreadY - config.minWindow) / config.repeat);
+				for (int layer = minLayer; layer <= maxLayer; layer++) {
+					long layerSeed = Permuter.permute(configSeed, layer);
+					RockLayerFeature.Entry entry = entries.getRandomElement(layerSeed);
+					double averageCenter = layer * config.repeat;
+					int layerMinY = Integer.MAX_VALUE;
+					int layerMaxY = Integer.MIN_VALUE;
+					for (int relativeZ = 0; relativeZ < 16; relativeZ++) {
+						entry.center().getBulkX(layerSeed, startX, startZ | relativeZ, centerSamples);
+						entry.thickness().getBulkX(layerSeed, startX, startZ | relativeZ, thicknessSamples);
+						for (int relativeX = 0; relativeX < 16; relativeX++) {
+							int index = (relativeZ << 4) | relativeX;
+							double center = centerSamples.implGetD(relativeX) + averageCenter;
+							ScriptedColumn column = worldWrapper.lookupColumn(startX | relativeX, startZ | relativeZ);
+							double restriction;
+							synchronized (column) {
+								restriction = entry.restrictions().getRestriction(column, BigGlobeMath.floorI(center));
 							}
+							double thickness = thicknessSamples.implGetD(relativeX) - (1.0D - restriction) * entry.thickness().maxValue();
+							columnMinYs.setI(index, BigGlobeMath.floorI(center - thickness));
+							columnMaxYs.setI(index, BigGlobeMath.floorI(center + thickness));
+							layerMinY = Math.min(layerMinY, columnMinYs.implGetI(index));
+							layerMaxY = Math.max(layerMaxY, columnMaxYs.implGetI(index));
 						}
+					}
 
-						if (layerMaxY >= layerMinY) {
-							int layerSectionMinY = Math.max(layerMinY >> 4, startSection);
-							int layerSectionMaxY = Math.min(layerMaxY >> 4, endSection - 1);
-							for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
-								LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(layerSectionY));
-								SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY);
-								PaletteIdReplacer replacer = entry.getReplacer(context);
-								if (replacer != null) {
-									BitStorage storage = context.storage();
-									int sectionMinY = context.startY();
-									int sectionMaxY = sectionMinY | 15;
+					if (layerMaxY >= layerMinY) {
+						int layerSectionMinY = Math.max(layerMinY >> 4, startSection);
+						int layerSectionMaxY = Math.min(layerMaxY >> 4, endSection - 1);
+						for (int layerSectionY = layerSectionMinY; layerSectionY <= layerSectionMaxY; layerSectionY++) {
+							LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(layerSectionY));
+							SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, layerSectionY);
+							PaletteIdReplacer replacer = entry.getReplacer(context);
+							if (replacer != null) {
+								BitStorage storage = context.storage();
+								int sectionMinY = context.startY();
+								int sectionMaxY = sectionMinY | 15;
 
-									for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
-										int columnMinY = Math.max(columnMinYs.implGetI(horizontalIndex), sectionMinY);
-										int columnMaxY = Math.min(columnMaxYs.implGetI(horizontalIndex), sectionMaxY);
-										for (int columnY = columnMinY; columnY <= columnMaxY; columnY++) {
-											int relativeY = columnY & 15;
-											int index = (relativeY << 8) | horizontalIndex;
-											int oldID = storage.get(index);
-											int newID = replacer.getReplacement(oldID);
-											if (oldID != newID) {
-												storage.set(index, newID);
-											}
+								for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+									int columnMinY = Math.max(columnMinYs.implGetI(horizontalIndex), sectionMinY);
+									int columnMaxY = Math.min(columnMaxYs.implGetI(horizontalIndex), sectionMaxY);
+									for (int columnY = columnMinY; columnY <= columnMaxY; columnY++) {
+										int relativeY = columnY & 15;
+										int index = (relativeY << 8) | horizontalIndex;
+										int oldID = storage.get(index);
+										int newID = replacer.getReplacement(oldID);
+										if (oldID != newID) {
+											storage.set(index, newID);
 										}
 									}
 								}
@@ -112,7 +116,7 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 					}
 				}
 			}
-		);
+		});
 	}
 
 	public static class Config extends DummyConfig {

@@ -477,7 +477,7 @@ public class ClientState {
 			}
 			loading.compile();
 			this.columnEntryRegistry = loading.getRegistry();
-			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits(this.worldTraits);
+			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits("client", this.worldTraits);
 		}
 
 		public ScriptedColumn createColumn() {

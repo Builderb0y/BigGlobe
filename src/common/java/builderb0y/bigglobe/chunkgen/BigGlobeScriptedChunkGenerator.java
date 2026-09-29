@@ -328,7 +328,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		this.columnEntryRegistry = registry;
-		this.setCompiledWorldTraits(registry.traitManager.createTraits(this.loadedWorldTraits));
+		this.setCompiledWorldTraits(registry.traitManager.createTraits(Objects.toString(this.world_traits), this.loadedWorldTraits));
 		this.checkCyclicDependencies();
 	}
 
@@ -385,6 +385,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public void setWorldTraits(JsonObject jsonTraits) {
 		this.setCompiledWorldTraits(
 			this.columnEntryRegistry.traitManager.createTraits(
+				"code",
 				this.loadedWorldTraits = TraitLoader.loadFromCode(jsonTraits)
 			)
 		);
@@ -771,12 +772,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									QuadColumn quadColumn = new QuadColumn();
 									quadColumn.loadFromArray(columns, baseIndex, 16);
 									quadColumn.at(params, quadX, quadZ, 1);
-									for (ColumnValueInfo info : this.getOverriders().rawColumnValueDependencies) try {
-										quadColumn.preComputeColumnValue(info);
-									}
-									catch (Throwable throwable) {
-										BigGlobeMod.LOGGER.error("Exception pre-computing overrider column value: ", throwable);
-									}
+									quadColumn.preComputeRaw(this.getOverriders());
 									for (int index = 0; index < structures.length; index++) {
 										quadColumn.override(overriders[index].value().script, structures[index]);
 									}
@@ -876,7 +872,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					worldWrapper.overriders = new AutoOverride(
 						structures,
 						this.getOverriders().rawColumnValues.overriders(),
-						this.getOverriders().rawColumnValueDependencies
+						this.getOverriders().rawColumnValueDependencies,
+						this.getOverriders().rawWorldTraitDependencies
 					);
 					for (ScriptedColumn column : columns) {
 						worldWrapper.columns.put(ColumnPos.asLong(column.x(), column.z()), column);
@@ -953,7 +950,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			worldWrapper.overriders = new AutoOverride(
 				structures,
 				this.getOverriders().featureColumnValues.overriders(),
-				this.getOverriders().featureColumnValueDependencies
+				this.getOverriders().featureColumnValueDependencies,
+				this.getOverriders().featureWorldTraitDependencies
 			);
 			try (
 				AsyncConsumer<ScriptedColumn> async = new AsyncConsumer<>(

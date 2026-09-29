@@ -27,7 +27,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -36,9 +35,12 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFacto
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
+import builderb0y.bigglobe.columns.scripted.traits.WorldTraits.WorldTraitInfo;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
+import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -92,6 +94,7 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 		}
 	}
 
+	public final Thread primaryThread = Thread.currentThread();
 	public final Coordination coordination;
 	public Vector3d doublePos;
 	public long featureSalt = 0xB5ECAC279BD1E7FBL;
@@ -137,7 +140,7 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 		this.overriders = from.overriders;
 	}
 
-	public static record AutoOverride(ScriptStructures[] structures, Holder<ColumnValueOverrider.Entry>[] overriders, ColumnValueInfo[] preFetch) {
+	public static record AutoOverride(ScriptStructures[] structures, Holder<ColumnValueOverrider.Entry>[] overriders, ColumnValueInfo[] preFetchColumns, WorldTraitInfo[] preFetchTraits) {
 
 		public AutoOverride {
 			if (structures.length != overriders.length) {
@@ -146,11 +149,12 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 		}
 
 		public void override(ScriptedColumn column) {
-			for (ColumnValueInfo info : this.preFetch) try {
-				info.preComputer().invokeExact(column);
+			for (ColumnValueInfo info : this.preFetchColumns) {
+				info.preCompute(column);
 			}
-			catch (Throwable throwable) {
-				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
+			WorldTraits traits = column.worldTraits();
+			for (WorldTraitInfo trait : this.preFetchTraits) {
+				trait.preCompute(traits, column);
 			}
 			for (int index = 0; index < this.structures.length; index++) {
 				this.overriders[index].value().script.override(column, this.structures[index]);
@@ -191,7 +195,7 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 	}
 
 	public MutableBlockPos unboundedPos(int x, int y, int z) {
-		return this.coordination.modifyPosUnbounded(this.pos.set(x, y, z));
+		return this.coordination.modifyPosUnbounded(Thread.currentThread() == this.primaryThread ? this.pos.set(x, y, z) : new MutableBlockPos(x, y, z));
 	}
 
 	public @Nullable MutableBlockPos mutablePos(int x, int y, int z) {

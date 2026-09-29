@@ -24,7 +24,8 @@
 		"bigglobe:overworld/column_value/ancient_city",
 		"bigglobe:overworld/column_value/core_spire",
 		"bigglobe:overworld/column_value/dungeon",
-		"bigglobe:overworld/column_value/obelisk",
+		"bigglobe:overworld/column_value/obelisk_raw",
+		"bigglobe:overworld/column_value/obelisk_features",
 		"bigglobe:overworld/column_value/underground_pocket",
 
 		"bigglobe:overworld/structure/ancient_city",

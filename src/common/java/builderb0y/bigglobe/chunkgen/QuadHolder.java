@@ -8,9 +8,9 @@ import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider.Catcher;
+import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
@@ -83,13 +83,18 @@ public class QuadHolder<T> {
 			this.object11.setParamsUnchecked(params.at(x + step, z + step));
 		}
 
-		public void preComputeColumnValue(ColumnValueInfo info) throws Throwable {
-			//I checked the bytecode and *not* having a manual cast here is fine,
-			//but I don't want this to break if javac ever changes its generics handling.
-			info.preComputer().invokeExact((ScriptedColumn)(this.object00));
-			info.preComputer().invokeExact((ScriptedColumn)(this.object01));
-			info.preComputer().invokeExact((ScriptedColumn)(this.object10));
-			info.preComputer().invokeExact((ScriptedColumn)(this.object11));
+		public void preComputeRaw(SortedOverriders overriders) {
+			overriders.preComputeRaw(this.object00);
+			overriders.preComputeRaw(this.object01);
+			overriders.preComputeRaw(this.object10);
+			overriders.preComputeRaw(this.object11);
+		}
+
+		public void preComputeFeature(SortedOverriders overriders) {
+			overriders.precomputeFeature(this.object00);
+			overriders.precomputeFeature(this.object01);
+			overriders.precomputeFeature(this.object10);
+			overriders.precomputeFeature(this.object11);
 		}
 
 		public void override(Catcher overrider, ScriptStructures structures) {

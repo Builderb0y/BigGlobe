@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.traits;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.invoke.MethodHandles;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -12,6 +10,7 @@ import org.objectweb.asm.Type;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.*;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
@@ -20,9 +19,13 @@ import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.ScopeContext.LoopName;
+import builderb0y.scripting.bytecode.loops.RangeLoopFactory;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.ConstantValue.NonConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import builderb0y.scripting.bytecode.tree.VariableDeclarationInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
@@ -45,6 +48,7 @@ public class TraitManager {
 	public final Map<Holder<WorldTrait>, TraitInfo> infos;
 	public final ClassCompileContext baseTraitsClass;
 	public WorldTraits baseTraits;
+	public MethodHandles.Lookup baseTraitsLookup;
 
 	public TraitManager(ColumnEntryRegistry columnEntryRegistry) {
 		this.columnEntryRegistry = columnEntryRegistry;
@@ -64,6 +68,11 @@ public class TraitManager {
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
 		this.baseTraitsClass.addNoArgConstructor(ACC_PUBLIC);
+		{
+			MethodCompileContext lookup = this.baseTraitsClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
+			return_(invokeStatic(MethodInfo.findMethod(MethodHandles.class, "lookup", MethodHandles.Lookup.class))).emitBytecode(lookup);
+			lookup.endCode();
+		}
 		for (Holder<WorldTrait> entry : this.traits.values()) {
 			TypeInfo traitType = entry.value().getTypeInfo(this);
 			MethodCompileContext getter = this.baseTraitsClass.newMethod(
@@ -88,7 +97,16 @@ public class TraitManager {
 				? new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()), new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", traitType) }
 				: new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()), new LazyVarInfo("value", traitType) }
 			);
-			this.infos.put(entry, new TraitInfo(getter, setter));
+			MethodCompileContext preComputer = this.baseTraitsClass.newMethod(
+				ACC_PUBLIC,
+				"pre_compute_" + ColumnCompileContext.internalName(
+					UnregisteredObjectException.getID(entry),
+					this.baseTraitsClass.memberUniquifier++
+				),
+				TypeInfos.VOID,
+				new LazyVarInfo("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo())
+			);
+			this.infos.put(entry, new TraitInfo(getter, setter, preComputer));
 		}
 	}
 
@@ -135,6 +153,7 @@ public class TraitManager {
 				.emitBytecode(info.getter);
 				info.getter.endCode();
 			}
+
 			throw_(
 				newInstance(
 					MethodInfo.findConstructor(TraitNotSettableException.class, String.class),
@@ -143,14 +162,25 @@ public class TraitManager {
 			)
 			.emitBytecode(info.setter);
 			info.setter.endCode();
+
+			return_(noop).emitBytecode(info.preComputer);
+			info.preComputer.endCode();
 		}
 		try {
-			this.baseTraits = (
+			Class<? extends WorldTraits> clazz = (
 				this
 				.columnEntryRegistry
 				.loader
 				.defineClass(this.baseTraitsClass, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
 				.asSubclass(WorldTraits.class)
+			);
+			this.baseTraitsLookup = (MethodHandles.Lookup)(
+				clazz
+				.getDeclaredMethod("lookup", (Class<?>[])(null))
+				.invoke(null)
+			);
+			this.baseTraits = (
+				clazz
 				.getDeclaredConstructor((Class<?>[])(null))
 				.newInstance((Object[])(null))
 			);
@@ -161,7 +191,7 @@ public class TraitManager {
 		}
 	}
 
-	public WorldTraits createTraits(Map<Holder<WorldTrait>, WorldTraitProvider> implementations) {
+	public WorldTraits createTraits(String from, Map<Holder<WorldTrait>, WorldTraitProvider> implementations) {
 		if (implementations == null || implementations.isEmpty()) {
 			return this.baseTraits;
 		}
@@ -239,6 +269,31 @@ public class TraitManager {
 					}
 				);
 			}
+			if (entry.getValue().preCompute() != null) {
+				MethodCompileContext implPreComputer = context.newMethod(
+					ACC_PUBLIC,
+					info.preComputer.info.name,
+					TypeInfos.VOID,
+					column
+				);
+				implPreComputer.setCode(
+					this.columnEntryRegistry.parserFlags(),
+					entry.getValue().preCompute().getSource(),
+					(ExpressionParser parser) -> {
+						MutableScriptEnvironment environment = parser.environment.mutable();
+						environment
+						.addAll(MathScriptEnvironment.INSTANCE)
+						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+						.addAll(ColorScriptEnvironment.ENVIRONMENT);
+						this.columnEntryRegistry.setupEnvironment(
+							parser,
+							new ExternalEnvironmentParams()
+							.withColumn(load("column", this.columnEntryRegistry.columnCompileContext.columnTypeInfo()))
+							.trackDependencies(dependencies)
+						);
+					}
+				);
+			}
 		}
 		try {
 			WorldTraits traits = (
@@ -251,6 +306,9 @@ public class TraitManager {
 				.newInstance((Object[])(null))
 			);
 			traits.dependenciesPerTrait = dependencyMap;
+			if (ColumnEntryRegistry.CLASS_DUMP_DIRECTORY != null) {
+				BigGlobeMod.LOGGER.info("World traits loaded from " + from + " maps to " + traits.getClass().getSimpleName());
+			}
 			return traits;
 		}
 		catch (Throwable throwable) {
@@ -393,12 +451,13 @@ public class TraitManager {
 
 	public static class TraitInfo implements SetBasedMutableDependencyView {
 
-		public final MethodCompileContext getter, setter;
+		public final MethodCompileContext getter, setter, preComputer;
 		public final Set<Holder<? extends DependencyView>> dependencies;
 
-		public TraitInfo(MethodCompileContext getter, MethodCompileContext setter) {
+		public TraitInfo(MethodCompileContext getter, MethodCompileContext setter, MethodCompileContext preComputer) {
 			this.getter = getter;
 			this.setter = setter;
+			this.preComputer = preComputer;
 			this.dependencies = new HashSet<>();
 		}
 
