@@ -76,6 +76,6 @@
 				"return(true)"
 			]
 		},
-		"queue": "basic"
+		"queue": true
 	}
 }

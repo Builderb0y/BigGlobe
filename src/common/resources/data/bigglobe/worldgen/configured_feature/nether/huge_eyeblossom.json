@@ -33,6 +33,6 @@
 			"decorateSide( 0, -1)",
 			"true"
 		],
-		"queue": "delayed"
+		"queue": true
 	}
 }

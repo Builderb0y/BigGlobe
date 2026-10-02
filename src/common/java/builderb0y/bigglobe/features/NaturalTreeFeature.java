@@ -23,9 +23,9 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-import builderb0y.autocodec.annotations.DefaultBoolean;
-import builderb0y.autocodec.annotations.DefaultInt;
-import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -36,7 +36,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
-import builderb0y.bigglobe.features.ScriptedFeature.QueueType;
+import builderb0y.bigglobe.features.ScriptedFeature.DelayPolicy;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -63,14 +63,12 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 
 	@Override
 	public boolean place(FeaturePlaceContext<Config> context) {
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		Config config = context.config();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
-		if (config.delay_generation) {
-			if (!distantHorizons && !(context.level() instanceof ServerLevel)) {
-				return ScriptedFeature.delay(context);
-			}
+		if (config.delay.shouldDelay(config.max_radius_in_blocks) && !distantHorizons && !(context.level() instanceof ServerLevel)) {
+			return ScriptedFeature.delay(context);
 		}
-		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		Permuter permuter = Permuter.from(context.random());
 		BlockPos origin = context.origin();
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
@@ -175,8 +173,9 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		.generate();
 	}
 
+	@UseVerifier(name = "verify", in = Config.class, usage = MemberUsage.METHOD_IS_HANDLER)
 	public static record Config(
-		@DefaultBoolean(false) boolean delay_generation,
+		@DefaultString("never") DelayPolicy delay,
 		@DefaultInt(16) int max_radius_in_blocks,
 		Holder<WoodPalette> palette,
 		BlockState2ObjectMap<BlockState> ground_replacements,
@@ -188,6 +187,14 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@VerifyNullable Stump stump
 	)
 	implements FeatureConfiguration, SizedDelayedFeatureConfig {
+
+		public static <T_Encoded> void verify(VerifyContext<T_Encoded, Config> context) throws VerifyException {
+			Config config = context.object;
+			if (config == null) return;
+			if (config.delay == DelayPolicy.NEVER && config.max_radius_in_blocks > 16) {
+				throw new VerifyException(() -> "'delay' must be set to 'always' or 'if_too_big' when max_radius_in_blocks is greater than 16.");
+			}
+		}
 
 		@Override
 		public int getMaxRadiusInBlocks() {

@@ -32,6 +32,7 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
+import builderb0y.bigglobe.config.BigGlobeMixinConfig;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
@@ -87,7 +88,11 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	public boolean place(FeaturePlaceContext<Config> context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			WorldGenLevel originalWorld = context.level();
-			if (context.config().queueType == QueueType.DELAYED && !DistantHorizonsCompat.isOnDistantHorizonThread() && !(originalWorld instanceof ServerLevel)) {
+			if (
+				context.config().delay.shouldDelay(context.config().max_radius_in_blocks) &&
+				!DistantHorizonsCompat.isOnDistantHorizonThread() &&
+				!(originalWorld instanceof ServerLevel)
+			) {
 				return delay(context);
 			}
 			else {
@@ -117,7 +122,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					immutableArea
 				);
 				WorldGenLevel fakeWorld = (
-					context.config().queueType != QueueType.NONE
+					context.config().queue
 					? new BlockQueueStructureWorldAccess(
 						originalWorld,
 						new BlockQueue(false)
@@ -133,7 +138,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				);
 				wrapper.featureSalt = permuter.nextLong();
 				if (context.config().script.generate(wrapper)) {
-					if (context.config().queueType != QueueType.NONE) {
+					if (context.config().queue) {
 						((BlockQueueStructureWorldAccess)(fakeWorld)).queue.placeQueuedBlocks(originalWorld);
 					}
 					return true;
@@ -275,28 +280,31 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		public final ScriptedFeatureImplementation.Catcher script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
-		public final @DefaultString("none") @UseName("queue") QueueType queueType;
+		public final @DefaultBoolean(false) boolean queue;
+		public final @DefaultString("never") DelayPolicy delay;
 		public final @DefaultInt(16) int max_radius_in_blocks;
 
 		public Config(
 			ScriptedFeatureImplementation.Catcher script,
 			boolean rotate_randomly,
 			boolean flip_randomly,
-			QueueType queueType,
+			boolean queue,
+			DelayPolicy delay,
 			int max_radius_in_blocks
 		) {
 			this.script               = script;
 			this.rotate_randomly      = rotate_randomly;
 			this.flip_randomly        = flip_randomly;
-			this.queueType            = queueType;
+			this.queue                = queue;
+			this.delay                = delay;
 			this.max_radius_in_blocks = max_radius_in_blocks;
 		}
 
 		public static <T_Encoded> void verify(VerifyContext<T_Encoded, Config> context) throws VerifyException {
 			Config config = context.object;
 			if (config == null) return;
-			if (config.max_radius_in_blocks > 16 && config.queueType != QueueType.DELAYED) {
-				throw new VerifyException(() -> "queue must be 'delayed' when max_radius_in_blocks is greater than 16.");
+			if (config.delay == DelayPolicy.NEVER && config.max_radius_in_blocks > 16) {
+				throw new VerifyException(() -> "'delay' must be set to 'always' or 'if_too_big' when max_radius_in_blocks is greater than 16.");
 			}
 		}
 
@@ -306,12 +314,20 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		}
 	}
 
-	public static enum QueueType implements StringRepresentable {
-		NONE,
-		BASIC,
-		DELAYED;
+	public static enum DelayPolicy implements StringRepresentable {
+		NEVER,
+		ALWAYS,
+		IF_TOO_BIG;
 
-		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
+		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
+
+		public boolean shouldDelay(int size) {
+			return switch (this) {
+				case ALWAYS -> true;
+				case NEVER -> false;
+				case IF_TOO_BIG -> size > Math.max(1, Math.min(BigGlobeMixinConfig.INSTANCE.featureChunkRadius, 8)) << 4;
+			};
+		}
 
 		@Override
 		public String getSerializedName() {

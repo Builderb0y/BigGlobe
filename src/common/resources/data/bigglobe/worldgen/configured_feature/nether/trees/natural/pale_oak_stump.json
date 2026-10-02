@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:natural_tree",
 	"config": {
-		"delay_generation": true,
+		"delay": "if_too_big",
 		"palette": "minecraft:pale_oak",
 		"height": "fastExp2(random.nextDouble(3.0, 6.0))",
 		"trunk": {

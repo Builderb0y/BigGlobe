@@ -38,7 +38,7 @@
 			"minecraft:red_sand":        "minecraft:red_sand",
 			"bigglobe:overgrown_sand":   "minecraft:sand"
 		},
-		"delay_generation": true,
+		"delay": "if_too_big",
 		"max_radius_in_blocks": 32
 	}
 }

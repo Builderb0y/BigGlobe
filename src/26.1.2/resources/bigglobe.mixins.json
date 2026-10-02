@@ -14,6 +14,7 @@
 		"BoneMealItem_SpreadChorusNylium",
 		"CatEntity_PetTheKitty",
 		"ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed",
+		"ChunkPyramid_ConfigurableFeatureRadius",
 		"ChunkRegion_UseCreateFlag",
 		"ConcentricRingsStructurePlacement_MakeSmart",
 		"CreakingHeartBlock_MakeWorkInTheNether",

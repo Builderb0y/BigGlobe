@@ -7,7 +7,7 @@
 			".=$requireValidGround(true)",
 			".placeNatural(originX, originY, originZ)"
 		],
-		"queue": "delayed",
+		"delay": "if_too_big",
 		"max_radius_in_blocks": 64
 	}
 }

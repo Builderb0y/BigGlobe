@@ -41,7 +41,7 @@
 			"minecraft:mud":             "minecraft:mud",
 			"minecraft:packed_mud":      "minecraft:packed_mud"
 		},
-		"delay_generation": true,
+		"delay": "if_too_big",
 		"max_radius_in_blocks": 16
 	}
 }

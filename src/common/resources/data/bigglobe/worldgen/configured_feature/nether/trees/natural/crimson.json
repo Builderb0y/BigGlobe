@@ -1,7 +1,7 @@
 {
 	"type": "bigglobe:natural_tree",
 	"config": {
-		"delay_generation": true,
+		"delay": "if_too_big",
 		"max_radius_in_blocks": 64,
 		"palette": "minecraft:crimson",
 		"height": "fastExp2(random.nextDouble(3.0, 6.0))",
