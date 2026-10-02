@@ -1,0 +1,14 @@
+{
+	"type": "column_value",
+	"feature_generation": false,
+	"script": [
+		"for (StructureStart start in structures:",
+			"float horizontalFactor = max(1.0I - 0.0625I * distanceToSquare(start).as(float), 0.0I) ^ 2",
+			"`bigglobe:overworld/chasm/chasm_threshold_horizontal` -= horizontalFactor * 0.0625I",
+		")"
+	],
+	"structure_filter": {
+		"structure": "#bigglobe:chasm_exclusion",
+		"radius_in_chunks": 1
+	}
+}

@@ -123,7 +123,6 @@ V6:
 			red sand: mesas.
 			all of the above use smaller noise scales than rocks.
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
-		ensure strongholds and trial chambers can't intersect with chasms.
 
 islands:
 	still need overriders.
