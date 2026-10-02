@@ -5,10 +5,10 @@ import java.util.random.RandomGenerator;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnScript;
-import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.ColumnScript;
+import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;

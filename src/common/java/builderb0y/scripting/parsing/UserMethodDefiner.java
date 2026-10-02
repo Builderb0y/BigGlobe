@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.ObjectArrays;
 
 import builderb0y.bigglobe.chunkgen.scripted.SurfaceScript.AnyNumericTypeExpressionParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.scripting.bytecode.DelayedMethod;
 import builderb0y.scripting.bytecode.DelayedMethod.LazyInvokeInsnTree;
 import builderb0y.scripting.bytecode.InsnTrees;
@@ -25,7 +25,6 @@ import builderb0y.scripting.bytecode.tree.instructions.invokers.AfterReceiverInv
 import builderb0y.scripting.bytecode.tree.instructions.invokers.NormalInvokeInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler.Named;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.ScriptEnvironment;
 import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;

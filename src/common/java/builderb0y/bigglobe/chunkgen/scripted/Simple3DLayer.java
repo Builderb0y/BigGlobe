@@ -5,10 +5,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBlockStateScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnToBlockStateScript;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnYToBooleanScript;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
 
 public class Simple3DLayer extends Layer {
 

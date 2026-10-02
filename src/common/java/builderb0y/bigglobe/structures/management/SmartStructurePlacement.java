@@ -30,8 +30,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.ScriptedColumn.ConfiguredColumnFactory;
+import builderb0y.bigglobe.columns.ScriptedColumnLookup;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.StructureOverrider;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;

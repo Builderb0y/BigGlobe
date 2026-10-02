@@ -33,7 +33,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.mixins.StructurePiece_DirectRotationSetter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.LabyrinthLayout.HallPiece;

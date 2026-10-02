@@ -3,8 +3,8 @@ package builderb0y.bigglobe.trees.branches;
 import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.ColumnScript;
+import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;

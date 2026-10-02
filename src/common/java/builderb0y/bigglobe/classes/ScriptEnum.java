@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import builderb0y.bigglobe.columns.scripted.ConstructorInfo;
+import builderb0y.bigglobe.columns.ConstructorInfo;
 import builderb0y.bigglobe.scripting.wrappers.ConstantMap;
 import builderb0y.bigglobe.scripting.wrappers.ConstantSet;
 import builderb0y.scripting.bytecode.FieldInfo;

@@ -7,9 +7,9 @@ import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.noise.Grid2D;
-import builderb0y.bigglobe.randomLists.IScriptedWeightedListElement;
+import builderb0y.bigglobe.randomLists.IScriptWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.SeedModes;
@@ -64,7 +64,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 		SingleBlockFeature.Config state,
 		SingleBlockFeature.@VerifyNullable Config under
 	)
-	implements IScriptedWeightedListElement {
+	implements IScriptWeightedListElement {
 
 		@Override
 		public double getWeight() {

@@ -23,8 +23,8 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.TypelessCoderRegistry;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 

@@ -14,7 +14,7 @@ import net.minecraft.server.WorldLoader.InitConfig;
 import net.minecraft.server.WorldLoader.ResultFactory;
 import net.minecraft.server.WorldLoader.WorldDataSupplier;
 
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 
 @Mixin(WorldLoader.class)
 public class SaveLoading_UnloadColumnEntryRegistry {
@@ -28,7 +28,7 @@ public class SaveLoading_UnloadColumnEntryRegistry {
 		Executor applyExecutor,
 		CallbackInfoReturnable<CompletableFuture<?>> callback
 	) {
-		builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.reset();
+		ColumnEntryRegistry.Loading.reset();
 	}
 
 	@ModifyReturnValue(method = "load", at = @At("RETURN"))

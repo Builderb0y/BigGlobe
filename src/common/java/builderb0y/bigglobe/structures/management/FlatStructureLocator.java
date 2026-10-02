@@ -34,8 +34,8 @@ import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride.Bound
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;

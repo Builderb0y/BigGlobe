@@ -29,18 +29,17 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ConfiguredColumnFactory;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.WorldInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits.WorldTraitInfo;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.ScriptedColumn.ConfiguredColumnFactory;
+import builderb0y.bigglobe.columns.ScriptedColumn.Hints;
+import builderb0y.bigglobe.columns.ScriptedColumn.WorldInfo;
+import builderb0y.bigglobe.columns.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.traits.WorldTraits;
+import builderb0y.bigglobe.columns.traits.WorldTraits.WorldTraitInfo;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
-import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.util.SymmetricOffset;

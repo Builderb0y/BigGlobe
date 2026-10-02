@@ -23,17 +23,16 @@ import builderb0y.autocodec.coders.KeyDispatchCoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnValueInfo;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTrait;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraitProvider;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
-import builderb0y.bigglobe.columns.scripted.traits.WorldTraits.WorldTraitInfo;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumn.ColumnValueInfo;
+import builderb0y.bigglobe.columns.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.entries.ColumnEntry;
+import builderb0y.bigglobe.columns.traits.WorldTrait;
+import builderb0y.bigglobe.columns.traits.WorldTraitProvider;
+import builderb0y.bigglobe.columns.traits.WorldTraits;
+import builderb0y.bigglobe.columns.traits.WorldTraits.WorldTraitInfo;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
-import builderb0y.scripting.parsing.Script;
 
 @UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public sealed interface Overrider permits CollisionOverrider.Entry, ColumnValueOverrider.Entry, StructureOverrider.Entry {

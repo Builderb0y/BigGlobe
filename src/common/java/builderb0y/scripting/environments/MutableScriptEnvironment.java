@@ -15,8 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
 
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;

@@ -19,14 +19,14 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.ScriptedColumnLookup;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.randomLists.RestrictedList;
+import builderb0y.bigglobe.randomLists.ScriptWeightedRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.*;
 
@@ -95,7 +95,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		long overlapSeed = Permuter.permute(context.level().getSeed() ^ 0x3C8F9545BAE6971FL, column.x(), column.z());
 		int overlapChance = 0;
 		FlowerFeature.Entry chosen = null;
-		RestrictedList<FlowerFeature.Entry> validEntries = new RestrictedList<>(null, column, y);
+		ScriptWeightedRandomList<FlowerFeature.Entry> validEntries = new ScriptWeightedRandomList<>(null, column, y);
 		for (FlowerFeature.Config link : context.config().getFlattenedFlowers()) {
 			validEntries.elements = link.entries.elements;
 			long groupSeed = link.seed.xor(context.level().getSeed());

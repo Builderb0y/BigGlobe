@@ -11,9 +11,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry.DelayedCompileable;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
 import builderb0y.bigglobe.features.RockReplacerFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.noise.Permuter;

@@ -23,7 +23,7 @@ import net.minecraft.tags.TagLoader;
 import net.minecraft.tags.TagLoader.EntryWithSource;
 import net.minecraft.tags.TagLoader.SortingEntry;
 
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.BetterScopedValue;
 
@@ -61,7 +61,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		CallbackInfoReturnable<Either<List<EntryWithSource>, List<T>>> callback,
 		@Local(ordinal = 1) List<EntryWithSource> errors
 	) {
-		if (!errors.isEmpty() && builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.addInvalidTag(CURRENT_TAG_ID.currentValue(), errors)) {
+		if (!errors.isEmpty() && ColumnEntryRegistry.Loading.addInvalidTag(CURRENT_TAG_ID.currentValue(), errors)) {
 			errors.clear();
 		}
 	}
@@ -72,7 +72,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 		RegistryAccess registryManager,
 		CallbackInfoReturnable<List<PendingTags<?>>> callback
 	) {
-		builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
+		ColumnEntryRegistry.Loading.invalidTagHandling = BigGlobeConfig.INSTANCE.get().dataPackDebugging.invalidTagHandling;
 		ColumnEntryRegistry.Loading.invalidTags = new HashMap<>();
 	}
 }

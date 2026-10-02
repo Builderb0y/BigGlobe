@@ -8,12 +8,12 @@ import org.objectweb.asm.Type;
 import net.minecraft.core.Holder;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.ScriptColumnEntryParser;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;

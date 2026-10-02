@@ -14,10 +14,10 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 
 import builderb0y.autocodec.annotations.Wrapper;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
+import builderb0y.bigglobe.columns.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.dependencies.DependencyView;
+import builderb0y.bigglobe.columns.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.scripting.ScriptCatcher;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.ReadOnlyWorldWrapper;

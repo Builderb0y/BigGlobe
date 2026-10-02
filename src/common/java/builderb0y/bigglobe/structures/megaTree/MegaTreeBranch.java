@@ -4,8 +4,8 @@ import org.joml.Vector3d;
 
 import net.minecraft.world.level.levelgen.Heightmap;
 
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript.Catcher;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnToIntScript.Catcher;
+import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;

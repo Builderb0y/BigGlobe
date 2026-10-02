@@ -12,13 +12,13 @@ import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
-import builderb0y.bigglobe.randomLists.IScriptedWeightedListElement;
+import builderb0y.bigglobe.randomLists.IScriptWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.VariationsList;
@@ -128,7 +128,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		}
 	}
 
-	public static class Entry implements IScriptedWeightedListElement {
+	public static class Entry implements IScriptWeightedListElement {
 
 		public final double weight;
 		public final ColumnYToDoubleScript.@VerifyNullable Catcher restrictions;

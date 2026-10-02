@@ -47,16 +47,16 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.ScriptedColumn;
+import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.ConstantWeightRandomList.RandomAccessConstantWeightRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.randomLists.IScriptedWeightedListElement;
-import builderb0y.bigglobe.randomLists.RestrictedList;
+import builderb0y.bigglobe.randomLists.IScriptWeightedListElement;
+import builderb0y.bigglobe.randomLists.ScriptWeightedRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.structures.LabyrinthLayout.DecorationPiece;
@@ -148,7 +148,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.centerZ = column.z();
 			this.paletteIndex = (
 				owningStructure.value() instanceof AbstractDungeonStructure dungeon
-					? new RestrictedList<>(dungeon.palettes, column, y).getRandomIndex(random)
+					? new ScriptWeightedRandomList<>(dungeon.palettes, column, y).getRandomIndex(random)
 					: -1
 			);
 			this.roomDecorators = roomDecorators;
@@ -686,7 +686,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		IRandomList<@UseName("block") Holder<Block>> stairs,
 		IRandomList<@UseName("block") Holder<Block>> wall
 	)
-		implements IScriptedWeightedListElement {
+		implements IScriptWeightedListElement {
 
 		public static final AutoCoder<Palette> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Palette.class);
 
