@@ -21,24 +21,10 @@
 		},
 		"entries": {
 			"radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
-			"restrictions": {
-				"type": "and",
-				"restrictions": [
-					{
-						"type": "threshold",
-						"property": "bigglobe:overworld/foliage",
-						"min": 0.0,
-						"max": 0.5
-					},
-					{
-						"type": "range",
-						"property": "bigglobe:overworld/temperature",
-						"min": -0.5,
-						"mid":  0.0,
-						"max":  0.5
-					}
-				]
-			},
+			"restrictions": [
+				"fastExp(-64.0L * world_traits.`bigglobe:temperature_at` ^ 2) *",
+				"(1.0L - fastExp(-4.0L * max(world_traits.`bigglobe:foliage_at`, 0.0L) ^ 2))"
+			],
 			"weight": 10.0,
 			"state": "minecraft:sweet_berry_bush"
 		}

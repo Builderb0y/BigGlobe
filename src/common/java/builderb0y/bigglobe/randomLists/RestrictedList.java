@@ -5,7 +5,7 @@ import java.util.List;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.randomLists.IRandomList.RandomAccessRandomList;
 
-public class RestrictedList<E extends IRestrictedListElement> extends AbstractRandomList<E> implements RandomAccessRandomList<E> {
+public class RestrictedList<E extends IScriptedWeightedListElement> extends AbstractRandomList<E> implements RandomAccessRandomList<E> {
 
 	public List<E> elements;
 	public ScriptedColumn column;

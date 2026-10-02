@@ -20,7 +20,7 @@
 		"shelves": [
 			{
 				"state": "minecraft:nether_wart_block",
-				"restrictions": { "type": "constant", "chance": 0.125 }
+				"restrictions": "0.125L"
 			}
 		],
 		"decorations": {

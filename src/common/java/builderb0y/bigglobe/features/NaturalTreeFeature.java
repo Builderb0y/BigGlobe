@@ -29,8 +29,8 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -107,7 +107,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		if (config.shelves != null && config.shelves.length != 0) {
 			RandomList<ShelfPlacer> shelves = new RandomList<>(config.shelves.length);
 			for (Shelf shelf : config.shelves) {
-				shelves.add(ShelfPlacer.create(shelf.state), shelf.restrictions.getRestriction(column, startY));
+				shelves.add(ShelfPlacer.create(shelf.state), shelf.restrictions == null ? 1.0D : shelf.restrictions.get(column, startY));
 			}
 			if (shelves.totalWeight > 0.0D) {
 				decoratorsBuilder.trunkLayer(
@@ -215,7 +215,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 
 	public static record Shelf(
 		BlockState state,
-		ColumnRestriction restrictions
+		ColumnYToDoubleScript.@VerifyNullable Catcher restrictions
 	) {}
 
 	public static record Decorations(

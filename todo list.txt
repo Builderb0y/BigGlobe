@@ -123,6 +123,8 @@ V6:
 			red sand: mesas.
 			all of the above use smaller noise scales than rocks.
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
+		change range of temperature.
+			should be -1 = cold, +1 = hot.
 
 islands:
 	still need overriders.
@@ -130,10 +132,6 @@ islands:
 		extra ores in rocky island type.
 	granite is too common.
 		restrict to rocky island type only?
-	column restrictions for flowers need to be re-done to use world traits.
-		or just scripts tbh.
-	verify normal world preset still works correctly.
-		check cave depth.
 
 LODs:
 	shader support.
@@ -157,6 +155,7 @@ intellij plugin:
 	incorrect arguments on custom class static methods are not reported as an error.
 
 changelog:
+	# For normal users
 	* Performance improvements.
 	* Fixed lava replacing blocks that it shouldn't near lava level in the nether.
 	* Added UNSUPPORTED mixin `ChunkPyramid_ConfigurableFeatureRadius` to expand the max size of configured features.
@@ -166,6 +165,10 @@ changelog:
 		* Nevertheless, it can be used to make my trees spawn correctly in pre-generated worlds, without needing to get near them first, which may be desirable when combined with LODs.
 		* A value of 4 is required for my largest trees. The max value is 8, and the mixin will be completely disabled when set to a negative value or 0.
 		* If you use this mixin, you are not allowed to report bugs with anything to anyone.
+	# For data pack developers
+	* The concept of column restrictions has been replaced with scripts.
+		* This affects flowers, trees with fungal shelves, and rock layers.
+		* Reason: the existing column restriction system was too limited (it didn't even have a dedicated type for world traits), too verbose, slower than it needed to be, and required a lot of maintenance. Scripts are just better in every possible way.
 
 alternate world presets:
 	paradise.

@@ -21,10 +21,9 @@
 						{ "type": "smooth", "scale":  8, "amplitude": 1.0 }
 					]
 				},
-				"restrictions": {
-					"type": "script",
-					"script": "`bigglobe:nether/bubble_type`.filler ==. 'minecraft:netherrack' ? 1.0 : 0.0"
-				}
+				"restrictions": [
+					"`bigglobe:nether/bubble_type`.filler ==. 'minecraft:netherrack' ? 1.0 : 0.0"
+				]
 			},
 			"variations": [
 				{

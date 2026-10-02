@@ -36,45 +36,17 @@
 			},
 			"variations": [
 				{
-					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{
-								"type": "threshold",
-								"property": "bigglobe:overworld/foliage",
-								"min": 0.0,
-								"max": 0.5
-							},
-							{
-								"type": "range",
-								"property": "bigglobe:overworld/temperature",
-								"min": -0.5,
-								"mid":  0.375,
-								"max":  0.5
-							}
-						]
-					},
+					"restrictions": [
+						"(1.0L - fastExp(-16.0L * max(world_traits.`bigglobe:foliage_at`, 0.0L)))",
+						"* (world_traits.`bigglobe:humidity_at` * 0.5L + 0.5L)"
+					],
 					"state": "minecraft:melon_stem"
 				},
 				{
-					"restrictions": {
-						"type": "and",
-						"restrictions": [
-							{
-								"type": "threshold",
-								"property": "bigglobe:overworld/foliage",
-								"min": 0.0,
-								"max": 0.5
-							},
-							{
-								"type": "range",
-								"property": "bigglobe:overworld/temperature",
-								"min": -0.5,
-								"mid": -0.375,
-								"max":  0.5
-							}
-						]
-					},
+					"restrictions": [
+						"(1.0L - fastExp(-16.0L * max(world_traits.`bigglobe:foliage_at`, 0.0L)))",
+						"* (world_traits.`bigglobe:humidity_at` * -0.5L + 0.5L)"
+					],
 					"state": "minecraft:pumpkin_stem"
 				}
 			]

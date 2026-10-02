@@ -7,9 +7,9 @@ import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.noise.Grid2D;
-import builderb0y.bigglobe.randomLists.IRestrictedListElement;
+import builderb0y.bigglobe.randomLists.IScriptedWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.Seed;
 import builderb0y.bigglobe.settings.Seed.SeedModes;
@@ -29,8 +29,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 
 		public final @SeedModes(Seed.NUMBER | Seed.STRING) Seed seed;
 		public final @VerifyIntRange(min = 0, minInclusive = false) int distance;
-		public final @VerifyIntRange(min = 0)
-		@VerifySorted(lessThanOrEqual = "distance") int variation;
+		public final @VerifyIntRange(min = 0) @VerifySorted(lessThanOrEqual = "distance") int variation;
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double spawn_chance;
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
 		public final RandomSource randomize_radius;
@@ -60,12 +59,12 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 
 	public static record Entry(
 		double weight,
-		ColumnRestriction restrictions,
+		ColumnYToDoubleScript.@VerifyNullable Catcher restrictions,
 		RandomSource radius,
 		SingleBlockFeature.Config state,
 		SingleBlockFeature.@VerifyNullable Config under
 	)
-		implements IRestrictedListElement {
+	implements IScriptedWeightedListElement {
 
 		@Override
 		public double getWeight() {
@@ -73,7 +72,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 		}
 
 		@Override
-		public ColumnRestriction getRestrictions() {
+		public ColumnYToDoubleScript.@VerifyNullable Catcher getWeightScript() {
 			return this.restrictions;
 		}
 	}

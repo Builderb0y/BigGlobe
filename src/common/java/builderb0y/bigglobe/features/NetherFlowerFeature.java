@@ -12,13 +12,13 @@ import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
-import builderb0y.bigglobe.randomLists.IRestrictedListElement;
+import builderb0y.bigglobe.randomLists.IScriptedWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.VariationsList;
@@ -128,17 +128,17 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		}
 	}
 
-	public static class Entry implements IRestrictedListElement {
+	public static class Entry implements IScriptedWeightedListElement {
 
 		public final double weight;
-		public final ColumnRestriction restrictions;
+		public final ColumnYToDoubleScript.@VerifyNullable Catcher restrictions;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius;
 		public final SingleBlockFeature.Config state;
 		public final SingleBlockFeature.@VerifyNullable Config under;
 
 		public Entry(
 			double weight,
-			ColumnRestriction restrictions,
+			ColumnYToDoubleScript.@VerifyNullable Catcher restrictions,
 			RandomSource radius,
 			SingleBlockFeature.Config state,
 			SingleBlockFeature.@VerifyNullable Config under
@@ -156,7 +156,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		}
 
 		@Override
-		public ColumnRestriction getRestrictions() {
+		public ColumnYToDoubleScript.@VerifyNullable Catcher getWeightScript() {
 			return this.restrictions;
 		}
 	}

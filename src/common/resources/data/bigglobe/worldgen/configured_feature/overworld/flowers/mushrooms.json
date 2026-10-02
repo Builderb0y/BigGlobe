@@ -21,60 +21,24 @@
 		},
 		"entries": [
 			{
-				"weight": 100.0,
-				"restrictions": {
-					"type": "and",
-					"restrictions": [
-						{
-							"type": "threshold",
-							"property": "bigglobe:overworld/foliage",
-							"min": 0.0,
-							"max": 0.5
-						},
-						{
-							"type": "range",
-							"property": "bigglobe:overworld/temperature",
-							"min": -0.5,
-							"mid":  0.375,
-							"max":  0.5
-						},
-						{
-							"type": "threshold",
-							"property": "bigglobe:overworld/magicalness",
-							"min":  1.0,
-							"max": -1.0
-						}
-					]
-				},
+				"weight": 1.0,
+				"restrictions": [
+					"fastExp(-64.0L * world_traits.`bigglobe:temperature_at`)",
+					"/ (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`) + 1.0L)",
+					"/ (fastExp(+4.0L * world_traits.`bigglobe:magicalness`) + 1.0L)",
+					"* (world_traits.`bigglobe:humidity_at` * 0.5L + 0.5L)"
+				],
 				"radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
 				"state": "minecraft:red_mushroom"
 			},
 			{
-				"weight": 100.0,
-				"restrictions": {
-					"type": "and",
-					"restrictions": [
-						{
-							"type": "threshold",
-							"property": "bigglobe:overworld/foliage",
-							"min": 0.0,
-							"max": 0.5
-						},
-						{
-							"type": "range",
-							"property": "bigglobe:overworld/temperature",
-							"min": -0.5,
-							"mid": -0.375,
-							"max":  0.5
-						},
-						{
-							"type": "threshold",
-							"property": "bigglobe:overworld/magicalness",
-							"min":  1.0,
-							"max": -1.0
-						}
-					]
-				},
+				"weight": 1.0,
+				"restrictions": [
+					"fastExp(-64.0L * world_traits.`bigglobe:temperature_at`)",
+					"/ (fastExp(-4.0L * world_traits.`bigglobe:foliage_at`) + 1.0L)",
+					"/ (fastExp(+4.0L * world_traits.`bigglobe:magicalness`) + 1.0L)",
+					"* (world_traits.`bigglobe:humidity_at` * -0.5L + 0.5L)"
+				],
 				"radius": { "type": "uniform", "min": 16.0, "max": 32.0 },
 				"state": "minecraft:brown_mushroom"
 			}

@@ -6,12 +6,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.BlockStateCoder.VerifyNormal;
-import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Grid2D;
@@ -75,8 +76,13 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 							double center = centerSamples.implGetD(relativeX) + averageCenter;
 							ScriptedColumn column = worldWrapper.lookupColumn(startX | relativeX, startZ | relativeZ);
 							double restriction;
-							synchronized (column) {
-								restriction = entry.restrictions().getRestriction(column, BigGlobeMath.floorI(center));
+							if (entry.restrictions != null) {
+								synchronized (column) {
+									restriction = entry.restrictions.get(column, BigGlobeMath.floorI(center));
+								}
+							}
+							else {
+								restriction = 1.0D;
 							}
 							double thickness = thicknessSamples.implGetD(relativeX) - (1.0D - restriction) * entry.thickness().maxValue();
 							columnMinYs.setI(index, BigGlobeMath.floorI(center - thickness));
@@ -140,9 +146,9 @@ public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> impl
 		Grid2D center,
 		Grid2D thickness,
 		BlockState2ObjectMap<@VerifyNormal BlockState> blocks,
-		ColumnRestriction restrictions
+		ColumnYToDoubleScript.@VerifyNullable Catcher restrictions
 	)
-		implements IWeightedListElement {
+	implements IWeightedListElement {
 
 		@Override
 		public double getWeight() {

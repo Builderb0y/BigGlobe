@@ -47,15 +47,15 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.ConstantWeightRandomList.RandomAccessConstantWeightRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
-import builderb0y.bigglobe.randomLists.IRestrictedListElement;
+import builderb0y.bigglobe.randomLists.IScriptedWeightedListElement;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
@@ -680,26 +680,26 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static record Palette(
 		@DefaultDouble(IRandomList.DEFAULT_WEIGHT) double weight,
-		ColumnRestriction restrictions,
+		ColumnYToDoubleScript.@VerifyNullable Catcher restrictions,
 		IRandomList<@UseName("block") Holder<Block>> main,
 		IRandomList<@UseName("block") Holder<Block>> slab,
 		IRandomList<@UseName("block") Holder<Block>> stairs,
 		IRandomList<@UseName("block") Holder<Block>> wall
 	)
-		implements IRestrictedListElement {
+		implements IScriptedWeightedListElement {
 
 		public static final AutoCoder<Palette> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Palette.class);
 
 		@SuppressWarnings("deprecation")
 		public static Palette
 			COBBLE = new Palette(
-			IRandomList.DEFAULT_WEIGHT,
-			ColumnRestriction.EMPTY,
-			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE.builtInRegistryHolder()), 1.0D),
-			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_SLAB.builtInRegistryHolder()), 1.0D),
-			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_STAIRS.builtInRegistryHolder()), 1.0D),
-			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_WALL.builtInRegistryHolder()), 1.0D)
-		);
+				IRandomList.DEFAULT_WEIGHT,
+				null,
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE.builtInRegistryHolder()), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_SLAB.builtInRegistryHolder()), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_STAIRS.builtInRegistryHolder()), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_WALL.builtInRegistryHolder()), 1.0D)
+			);
 
 		@Override
 		public double getWeight() {
@@ -707,7 +707,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		@Override
-		public ColumnRestriction getRestrictions() {
+		public ColumnYToDoubleScript.@VerifyNullable Catcher getWeightScript() {
 			return this.restrictions;
 		}
 
@@ -717,37 +717,40 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public CoordinateSupplier<BlockState> slabSupplier(SlabType slabType) {
 			return (
-				BlockStateSupplier.forBlocks(this.slab)
-					.with(SlabBlock.TYPE, slabType)
+				BlockStateSupplier
+				.forBlocks(this.slab)
+				.with(SlabBlock.TYPE, slabType)
 			);
 		}
 
 		public CoordinateSupplier<BlockState> stairsSupplier(Half half, Direction facing, StairsShape shape) {
 			return (
-				BlockStateSupplier.forBlocks(this.stairs)
-					.with(StairBlock.HALF, half)
-					.with(StairBlock.FACING, facing)
-					.with(StairBlock.SHAPE, shape)
+				BlockStateSupplier
+				.forBlocks(this.stairs)
+				.with(StairBlock.HALF, half)
+				.with(StairBlock.FACING, facing)
+				.with(StairBlock.SHAPE, shape)
 			);
 		}
 
 		public CoordinateSupplier<BlockState> wallSupplier(WallSide north, WallSide east, WallSide south, WallSide west, boolean up) {
 			return (
-				BlockStateSupplier.forBlocks(this.wall)
-					.with(WallBlockVersions.NORTH_SHAPE, north)
-					.with(WallBlockVersions.EAST_SHAPE, east)
-					.with(WallBlockVersions.SOUTH_SHAPE, south)
-					.with(WallBlockVersions.WEST_SHAPE, west)
+				BlockStateSupplier
+				.forBlocks(this.wall)
+				.with(WallBlockVersions.NORTH_SHAPE, north)
+				.with(WallBlockVersions.EAST_SHAPE, east)
+				.with(WallBlockVersions.SOUTH_SHAPE, south)
+				.with(WallBlockVersions.WEST_SHAPE, west)
 			);
 		}
 
 		public CoordinateSupplier<BlockState> barsSupplier(boolean north, boolean east, boolean south, boolean west) {
 			return (
 				new SingleStateSupplier(Blocks.IRON_BARS.defaultBlockState())
-					.with(CrossCollisionBlock.NORTH, north)
-					.with(CrossCollisionBlock.EAST, east)
-					.with(CrossCollisionBlock.SOUTH, south)
-					.with(CrossCollisionBlock.WEST, west)
+				.with(CrossCollisionBlock.NORTH, north)
+				.with(CrossCollisionBlock.EAST, east)
+				.with(CrossCollisionBlock.SOUTH, south)
+				.with(CrossCollisionBlock.WEST, west)
 			);
 		}
 

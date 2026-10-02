@@ -22,38 +22,14 @@
 		"entries": {
 			"defaults": {
 				"radius": { "type": "uniform", "min": 24.0, "max": 48.0 },
-				"restrictions": {
-					"type": "and",
-					"restrictions": [
-						{
-							"type": "range",
-							"property": "bigglobe:overworld/foliage",
-							"min": -0.5,
-							"mid":  0.0,
-							"max":  0.5
-						},
-						{
-							"type": "range",
-							"property": "bigglobe:overworld/temperature",
-							"min": -0.5,
-							"mid":  0.0,
-							"max":  0.5
-						},
-						{
-							"type": "threshold",
-							"property": "bigglobe:overworld/hilliness",
-							"min":  0.5,
-							"max":  0.0,
-							"smooth_max": false
-						},
-						{
-							"type": "threshold",
-							"property": "bigglobe:overworld/magicalness",
-							"min": -0.5,
-							"max":  0.0
-						}
-					]
-				},
+				"restrictions": [
+					"fastExp(-16.0L * (",
+						"+ world_traits.`bigglobe:foliage_at` ^ 2",
+						"+ world_traits.`bigglobe:temperature_at` ^ 2",
+						"+ world_traits.`bigglobe:hilliness`",
+						"+ world_traits.`bigglobe:magicalness` ^ 2",
+					"))"
+				],
 				"under": {
 					"place": "minecraft:farmland",
 					"replace": [
