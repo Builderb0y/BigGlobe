@@ -6,8 +6,10 @@
 			"int x in range[minModifiableX, maxModifiableX]",
 		":",
 			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
-			"placeFeature(x, y, z, 'bigglobe:overworld/surface_small_foliage')",
-			"placeFeature(x, y, z, 'bigglobe:overworld/cherry_blossoms')",
+			"if (world_traits.`bigglobe:enabled_decorations`(x, y, z).grassyFoliage:",
+				"placeFeature(x, y, z, 'bigglobe:overworld/surface_small_foliage')",
+				"placeFeature(x, y, z, 'bigglobe:overworld/cherry_blossoms')",
+			")",
 		")"
 	]
 }

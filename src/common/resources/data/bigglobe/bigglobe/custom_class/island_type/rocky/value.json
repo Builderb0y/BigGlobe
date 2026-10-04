@@ -7,7 +7,7 @@
 		"weight": 0.25,
 		"maxHeight": 768.0,
 		"isPointy": false,
-		"enabledDecorations": "BEACH",
+		"enabledDecorations": "NONE",
 		"spawnTweakers": "#bigglobe:islands/rocky"
 	}
 }

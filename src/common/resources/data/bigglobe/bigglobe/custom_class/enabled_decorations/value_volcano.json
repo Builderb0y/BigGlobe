@@ -6,8 +6,8 @@
 	"field_values": {
 		"charredGrass": true,
 		"deadBushes": false,
-		"dryGrass": false,
-		"grassyFlora": false,
+		"hotFoliage": false,
+		"grassyFoliage": false,
 		"mushrooms": false,
 		"swampWater": false
 	}

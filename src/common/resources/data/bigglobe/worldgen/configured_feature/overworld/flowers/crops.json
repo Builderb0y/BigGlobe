@@ -2,7 +2,7 @@
 	"type": "bigglobe:flower",
 	"config": {
 		"seed": "crops",
-		"can_place_at": "world_traits.`bigglobe:enabled_decorations`.grassyFlora",
+		"can_place_at": "world_traits.`bigglobe:enabled_decorations`.grassyFoliage",
 		"distance": 64,
 		"variation": 64,
 		"spawn_chance": 0.125,

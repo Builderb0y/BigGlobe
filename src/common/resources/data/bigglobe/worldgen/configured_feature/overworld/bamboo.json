@@ -1,27 +1,24 @@
 {
 	"type": "bigglobe:script",
 	"config": {
-		"script": {
-			"debug_name": "ConfiguredFeatureOverworldBamboo",
-			"source": [
-				"BlockState state = BlockState('minecraft:bamboo', stage: 0, age: int(random.nextBoolean()), leaves: 'none')",
-				"if (getBlockState(originX, originY, originZ).hasFluid() || !state.canPlaceAt(originX, originY, originZ): return(false))",
-				"int maxHeight = random.nextInt(4, 17)",
-				"int height = 0",
-				"while (height < maxHeight && getBlockState(originX, originY + height, originZ).isReplaceable():",
-					"++height",
-				")",
-				"if (height <= 3: return(false))",
-				"height = random.nextInt(3, height)",
-				"for (int y = originY, height >= 0, ++y,, --height:",
-					"setBlockState(originX, y, originZ, state.with('leaves', switch (height:",
-						"case (0: 'large')",
-						"case (1, 2: 'small')",
-						"default ('none')",
-					")))",
-				")",
-				"return(true)"
-			]
-		}
+		"script": [
+			"BlockState state = BlockState('minecraft:bamboo', stage: 0, age: int(random.nextBoolean()), leaves: 'none')",
+			"if (getBlockState(0, 0, 0).hasFluid() || !state.canPlaceAt(0, 0, 0): return(false))",
+			"int maxHeight = random.nextInt(4, 17)",
+			"int height = 0",
+			"while (height < maxHeight && getBlockState(0, height, 0).isReplaceable():",
+				"++height",
+			")",
+			"if (height <= 3: return(false))",
+			"height = random.nextInt(3, height)",
+			"for (int y = 0, height >= 0, ++y,, --height:",
+				"setBlockState(0, y, 0, state.with('leaves', switch (height:",
+					"case (0: 'large')",
+					"case (1, 2: 'small')",
+					"default ('none')",
+				")))",
+			")",
+			"return(true)"
+		]
 	}
 }

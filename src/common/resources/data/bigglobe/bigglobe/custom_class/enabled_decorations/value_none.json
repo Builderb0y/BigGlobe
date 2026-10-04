@@ -2,12 +2,12 @@
 	"element_type": "field/enum",
 	"owner": "bigglobe:enabled_decorations/class",
 	"impl_type": "bigglobe:enabled_decorations/class",
-	"name": "BEACH",
+	"name": "NONE",
 	"field_values": {
 		"charredGrass": false,
 		"deadBushes": false,
-		"dryGrass": false,
-		"grassyFlora": false,
+		"hotFoliage": false,
+		"grassyFoliage": false,
 		"mushrooms": false,
 		"swampWater": false
 	}

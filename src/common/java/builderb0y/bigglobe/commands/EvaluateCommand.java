@@ -131,8 +131,10 @@ public class EvaluateCommand {
 							parser,
 							new ExternalEnvironmentParams()
 							.withLookup("world", WORLD.loadSelf)
-							.withXZ(WORLD.originX, WORLD.originZ)
-							.withY(WORLD.originY)
+							//world offset takes care of lookup coordinates.
+							.withXZ(ldc(0), ldc(0))
+							.withY(ldc(0))
+							.offsetY(WORLD.originY)
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)

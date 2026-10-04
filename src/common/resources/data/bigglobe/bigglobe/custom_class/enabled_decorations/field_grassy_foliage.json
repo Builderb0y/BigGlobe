@@ -1,6 +1,6 @@
 {
 	"element_type": "field/constant",
 	"owner": "bigglobe:enabled_decorations/class",
-	"name": "dryGrass",
+	"name": "grassyFoliage",
 	"field_type": "boolean"
 }

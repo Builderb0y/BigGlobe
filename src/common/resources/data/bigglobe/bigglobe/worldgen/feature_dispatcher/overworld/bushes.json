@@ -9,7 +9,9 @@
 			")",
 			"if (!world_traits.`bigglobe:in_river`(x, z) && !world_traits.`bigglobe:is_beach`(x, z) && `bigglobe:overworld/surface_states_override`(x, z) == null:",
 				"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
-				"placeFeature(x, y, z, 'bigglobe:overworld/bush')",
+				"if (world_traits.`bigglobe:enabled_decorations`(x, y, z).grassyFoliage:",
+					"placeFeature(x, y, z, 'bigglobe:overworld/bush')",
+				")",
 			")",
 		")"
 	]

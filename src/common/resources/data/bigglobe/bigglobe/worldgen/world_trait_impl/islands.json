@@ -21,7 +21,7 @@
 	"bigglobe:foliage_at": "`bigglobe:islands/foliage`",
 	"bigglobe:foliage_at_sea_level": "`bigglobe:islands/foliage`",
 	"bigglobe:foliage_at_surface": "`bigglobe:islands/foliage`",
-	"bigglobe:enabled_decorations": "`bigglobe:islands/type`.enabledDecorations",
+	"bigglobe:enabled_decorations": "world_traits.`bigglobe:is_beach` ? EnabledDecorations.NONE : `bigglobe:islands/type`.enabledDecorations",
 	"bigglobe:hilliness": "`bigglobe:islands/hilliness`",
 	"bigglobe:humidity_at": "`bigglobe:islands/humidity`",
 	"bigglobe:humidity_at_sea_level": "`bigglobe:islands/humidity`",

@@ -5,7 +5,7 @@
 		"is_3d": false
 	},
 	"script": [
-		"if (world_traits.`bigglobe:is_beach`: return(EnabledDecorations.BEACH))",
+		"if (world_traits.`bigglobe:is_beach`: return(EnabledDecorations.NONE))",
 		"if (world_traits.`bigglobe:is_desert`: return(EnabledDecorations.DESERT))",
 		"return(EnabledDecorations.NORMAL)"
 	]
