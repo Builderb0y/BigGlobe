@@ -26,7 +26,7 @@
 	"bigglobe:humidity_at": "`bigglobe:islands/humidity`",
 	"bigglobe:humidity_at_sea_level": "`bigglobe:islands/humidity`",
 	"bigglobe:humidity_at_surface": "`bigglobe:islands/humidity`",
-	"bigglobe:is_desert": "`bigglobe:islands/type`.is(DesertIslandType)",
+	"bigglobe:is_desert": "`bigglobe:islands/type`.is(HotIslandType)",
 	"bigglobe:is_mesa": "`bigglobe:islands/type`.is(MesaIslandType)",
 	"bigglobe:is_overgrown_beach": "`bigglobe:islands/type`.hasOvergrownBeach(column) && columnSeed(16xFA89E74CCB0C5F6AUL).nextBoolean(unmixSmooth(2.0I, 6.0I, world_traits.`bigglobe:exact_surface_y`))",
 	"bigglobe:lava_y": "-896I",

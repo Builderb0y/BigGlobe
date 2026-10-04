@@ -133,8 +133,6 @@ islands:
 	granite is too common.
 		restrict to rocky island type only?
 	missing decorations:
-		dry grass in deserts.
-		cactus and dry grass in mesas.
 		rock decorator needs to be more sophisticated.
 			currently judges hilliness at the center of the chunk,
 			and uses it to determine the number of rocks to place in the chunk.
