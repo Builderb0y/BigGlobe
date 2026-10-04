@@ -17,7 +17,6 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.commands.EvaluateCommand.CommandScript.Catcher;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -50,43 +49,47 @@ public class EvaluateCommand {
 			.then(
 				Commands
 				.argument("script", StringArgumentType.greedyString())
-				.executes((CommandContext<CommandSourceStack> context) -> {
-					Catcher script = new Catcher(context.getArgument("script", String.class));
-					if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
-					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
-					ServerLevel actualWorld = context.getSource().getLevel();
-					Vec3 position = context.getSource().getPosition();
-					BoundingBox area = new BoundingBox(
-						-30_000_000,
-						HeightLimitViewVersions.getMinY(actualWorld),
-						-30_000_000,
-						+30_000_000,
-						HeightLimitViewVersions.getMaxY(actualWorld),
-						+30_000_000
-					);
-					WorldWrapper world = new WorldWrapper(
-						new WorldDelegator(actualWorld),
-						generator,
-						Permuter.from(actualWorld.getRandom()),
-						new Coordination(SymmetricOffset.IDENTITY, area, area),
-						ColumnUsage.GENERIC.normalHints()
-					);
-					Object result = script.evaluate(
-						world,
-						BigGlobeMath.floorI(position.x),
-						BigGlobeMath.floorI(position.y),
-						BigGlobeMath.floorI(position.z)
-					);
-					if (result instanceof Throwable) {
-						context.getSource().sendFailure(Component.literal(" = " + result + "; check your logs for more info."));
-					}
-					else {
-						context.getSource().sendSuccess(() -> Component.literal(" = " + result), false);
-					}
-					return result instanceof Number number ? number.intValue() : 1;
-				})
+				.executes(EvaluateCommand::eval)
 			)
 		);
+	}
+
+	public static int eval(CommandContext<CommandSourceStack> context) {
+		return eval(context, context.getArgument("script", String.class));
+	}
+
+	public static int eval(CommandContext<CommandSourceStack> context, String source) {
+		CommandScript.Catcher script = new CommandScript.Catcher(source);
+		if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
+		BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
+		ServerLevel actualWorld = context.getSource().getLevel();
+		Vec3 position = context.getSource().getPosition();
+		BoundingBox area = new BoundingBox(
+			-30_000_000,
+			HeightLimitViewVersions.getMinY(actualWorld),
+			-30_000_000,
+			+30_000_000,
+			HeightLimitViewVersions.getMaxY(actualWorld),
+			+30_000_000
+		);
+		int originX = BigGlobeMath.floorI(position.x);
+		int originY = BigGlobeMath.floorI(position.y);
+		int originZ = BigGlobeMath.floorI(position.z);
+		WorldWrapper world = new WorldWrapper(
+			new WorldDelegator(actualWorld),
+			generator,
+			Permuter.from(actualWorld.getRandom()),
+			new Coordination(SymmetricOffset.IDENTITY.offset(originX, originY, originZ), area, area),
+			ColumnUsage.GENERIC.normalHints()
+		);
+		Object result = script.evaluate(world);
+		if (result instanceof Throwable) {
+			context.getSource().sendFailure(Component.literal(" = " + result + "; check your logs for more info."));
+		}
+		else {
+			context.getSource().sendSuccess(() -> Component.literal(" = " + result), false);
+		}
+		return result instanceof Number number ? number.intValue() : 1;
 	}
 
 	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(CommandSourceStack source) {
@@ -95,7 +98,7 @@ public class EvaluateCommand {
 
 	public static interface CommandScript extends Script {
 
-		public abstract Object evaluate(WorldWrapper world, int originX, int originY, int originZ);
+		public abstract Object evaluate(WorldWrapper world);
 
 		public static class Catcher extends ScriptCatcher<CommandScript> implements CommandScript {
 
@@ -124,34 +127,26 @@ public class EvaluateCommand {
 					.configureEnvironment(GridScriptEnvironment.createWithSeed(ReadOnlyWorldWrapper.INFO.seed(WORLD.loadSelf)))
 					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
 					.configure((ExpressionParser parser) -> {
-						parser
-						.environment
-						.mutable()
-						.addVariableLoad("originX", TypeInfos.INT)
-						.addVariableLoad("originY", TypeInfos.INT)
-						.addVariableLoad("originZ", TypeInfos.INT);
 						registry.setupEnvironment(
 							parser,
 							new ExternalEnvironmentParams()
 							.withLookup("world", WORLD.loadSelf)
-							.withXZ(
-								load("originX", TypeInfos.INT),
-								load("originZ", TypeInfos.INT)
-							)
-							.withY(load("originY", TypeInfos.INT))
+							.withXZ(WORLD.originX, WORLD.originZ)
+							.withY(WORLD.originY)
 						);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+					.addImportedValue("random", ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf))
 					.parse(new ScriptClassLoader(registry.loader))
 				);
 			}
 
 			@Override
-			public Object evaluate(WorldWrapper world, int originX, int originY, int originZ) {
+			public Object evaluate(WorldWrapper world) {
 				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
-					return this.script.evaluate(world, originX, originY, originZ);
+					return this.script.evaluate(world);
 				}
 				catch (Throwable throwable) {
 					ScriptLogger.LOGGER.error("Caught exception from CommandScript:", throwable);

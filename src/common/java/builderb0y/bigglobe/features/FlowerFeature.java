@@ -7,7 +7,9 @@ import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnYToBooleanScript;
 import builderb0y.bigglobe.columns.ColumnScript.ColumnYToDoubleScript;
+import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.randomLists.IScriptWeightedListElement;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -28,6 +30,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 	public static class Config extends DummyConfig {
 
 		public final @SeedModes(Seed.NUMBER | Seed.STRING) Seed seed;
+		public final ColumnYToBooleanScript.@VerifyNullable Catcher can_place_at;
 		public final @VerifyIntRange(min = 0, minInclusive = false) int distance;
 		public final @VerifyIntRange(min = 0) @VerifySorted(lessThanOrEqual = "distance") int variation;
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double spawn_chance;
@@ -38,6 +41,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 
 		public Config(
 			Seed seed,
+			ColumnYToBooleanScript.@VerifyNullable Catcher can_place_at,
 			int distance,
 			int variation,
 			double spawn_chance,
@@ -47,6 +51,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 			VariationsList<Entry> entries
 		) {
 			this.seed = seed;
+			this.can_place_at = can_place_at;
 			this.distance = distance;
 			this.variation = variation;
 			this.spawn_chance = spawn_chance;
@@ -54,6 +59,10 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 			this.randomize_radius = randomize_radius;
 			this.noise = noise;
 			this.entries = entries;
+		}
+
+		public boolean canPlaceAt(ScriptedColumn column, int y) {
+			return this.can_place_at == null || this.can_place_at.get(column, y);
 		}
 	}
 

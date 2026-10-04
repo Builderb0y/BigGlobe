@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:islands/all",
+		"bigglobe:overworld/bunny"
+	]
+}

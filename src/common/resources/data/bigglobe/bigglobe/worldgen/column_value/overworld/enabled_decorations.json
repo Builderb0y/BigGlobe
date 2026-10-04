@@ -1,0 +1,12 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:enabled_decorations/class",
+		"is_3d": false
+	},
+	"script": [
+		"if (world_traits.`bigglobe:is_beach`: return(EnabledDecorations.BEACH))",
+		"if (world_traits.`bigglobe:is_desert`: return(EnabledDecorations.DESERT))",
+		"return(EnabledDecorations.NORMAL)"
+	]
+}

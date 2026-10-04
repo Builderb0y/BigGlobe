@@ -1,0 +1,6 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "spawnTweakers",
+	"field_type": "bigglobe:spawn_tweaker_tag"
+}

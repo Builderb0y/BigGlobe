@@ -1,0 +1,5 @@
+{
+	"type": "bigglobe:enabled_decorations/class",
+	"is_3d": true,
+	"default": "EnabledDecorations.NORMAL"
+}

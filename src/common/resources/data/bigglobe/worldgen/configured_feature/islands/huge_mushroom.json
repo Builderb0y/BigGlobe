@@ -1,0 +1,8 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": {
+			"file": "bigglobe:include/huge_mushroom"
+		}
+	}
+}

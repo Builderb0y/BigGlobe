@@ -1,0 +1,14 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:enabled_decorations/class",
+	"impl_type": "bigglobe:enabled_decorations/class",
+	"name": "NORMAL",
+	"field_values": {
+		"charredGrass": false,
+		"deadBushes": true,
+		"dryGrass": true,
+		"grassyFlora": true,
+		"mushrooms": true,
+		"swampWater": true
+	}
+}

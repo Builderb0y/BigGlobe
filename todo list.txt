@@ -114,6 +114,8 @@ V6:
 		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
 		make spruce trees spawn in cool biomes, in addition to icy biomes.
 		remove RegistryOps_MakeAdjustable, functionality exists in vanilla now.
+		change range of temperature.
+			should be -1 = cold, +1 = hot.
 	urgent:
 		underground materials:
 			clay: where it's humid.
@@ -123,8 +125,6 @@ V6:
 			red sand: mesas.
 			all of the above use smaller noise scales than rocks.
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
-		change range of temperature.
-			should be -1 = cold, +1 = hot.
 
 islands:
 	still need overriders.
@@ -152,6 +152,7 @@ json classes:
 
 intellij plugin:
 	`condition ? myDouble : myFloat` is inferred to type primitive_floating_point instead of double.
+	similarly, `BlockState state = condition ? 'stone' : null` is inferred to type Object.
 	incorrect arguments on custom class static methods are not reported as an error.
 
 changelog:

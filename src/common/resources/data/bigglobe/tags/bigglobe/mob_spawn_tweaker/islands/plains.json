@@ -1,0 +1,18 @@
+{
+	"replace": false,
+	"values": [
+		"#bigglobe:islands/all",
+		"bigglobe:overworld/armadillo",
+		"bigglobe:overworld/bunny",
+		"bigglobe:overworld/farm_animals",
+		"bigglobe:overworld/fox",
+		"bigglobe:overworld/frog",
+		"bigglobe:overworld/goat",
+		"bigglobe:overworld/horses",
+		"bigglobe:overworld/ocelot",
+		"bigglobe:overworld/panda",
+		"bigglobe:overworld/parrot",
+		"bigglobe:overworld/turtle",
+		"bigglobe:overworld/wolf"
+	]
+}

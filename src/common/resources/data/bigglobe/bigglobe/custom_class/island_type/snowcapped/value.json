@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 0.5,
 		"maxHeight": 768.0,
-		"isPointy": true
+		"isPointy": true,
+		"spawnTweakers": "#bigglobe:islands/snowcapped"
 	}
 }

@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 1.0,
 		"maxHeight": 0.0,
-		"isPointy": false
+		"isPointy": false,
+		"spawnTweakers": "#bigglobe:islands/floating"
 	}
 }

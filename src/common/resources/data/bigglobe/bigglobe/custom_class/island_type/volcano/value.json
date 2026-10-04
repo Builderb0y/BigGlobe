@@ -6,6 +6,8 @@
 	"field_values": {
 		"weight": 0.125,
 		"maxHeight": 1024.0,
-		"isPointy": true
+		"isPointy": true,
+		"enabledDecorations": "VOLCANO",
+		"spawnTweakers": "#bigglobe:islands/volcano"
 	}
 }

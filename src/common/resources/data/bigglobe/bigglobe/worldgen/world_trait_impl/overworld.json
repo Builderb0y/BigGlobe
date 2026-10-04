@@ -14,6 +14,7 @@
 	"bigglobe:eroded_foliage":                    "`bigglobe:overworld/eroded_foliage`.y.as(float)",
 	"bigglobe:foliage_at":                        "`bigglobe:overworld/raw/foliage`",
 	"bigglobe:foliage_at_sea_level":              "`bigglobe:overworld/raw/foliage`",
+	"bigglobe:enabled_decorations":               "`bigglobe:overworld/enabled_decorations`",
 	"bigglobe:humidity_at":                       "`bigglobe:overworld/humidity`",
 	"bigglobe:humidity_at_sea_level":             "`bigglobe:overworld/humidity`",
 	"bigglobe:humidity_at_surface":               "`bigglobe:overworld/humidity`",

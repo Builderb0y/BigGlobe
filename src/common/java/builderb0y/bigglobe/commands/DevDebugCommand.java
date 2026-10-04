@@ -1,8 +1,13 @@
 package builderb0y.bigglobe.commands;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.loader.api.FabricLoader;
@@ -113,7 +118,27 @@ public class DevDebugCommand {
 					)
 				)
 			)
+			.then(
+				Commands
+				.literal("evalFile")
+				.then(
+					Commands
+					.argument("file", StringArgumentType.greedyString())
+					.executes(DevDebugCommand::evalFile)
+				)
+			)
 		);
+	}
+
+	public static int evalFile(CommandContext<CommandSourceStack> context) {
+		try {
+			return EvaluateCommand.eval(context, Files.readString(new File(context.getArgument("file", String.class)).toPath(), StandardCharsets.UTF_8));
+		}
+		catch (IOException exception) {
+			BigGlobeMod.LOGGER.warn("", exception);
+			context.getSource().sendFailure(Component.literal(exception.toString()));
+			return 0;
+		}
 	}
 
 	public static class MobCategoryArgument extends StringRepresentableArgument<MobCategory> {

@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"int x = random.nextBetween[minModifiableX, maxModifiableX]",
+		"int z = random.nextBetween[minModifiableZ, maxModifiableZ]",
+		"if (`bigglobe:islands/type`(x, z).is(MushroomIslandType):",
+			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",
+			"if (getBlockState(x, y - 1, z).getBlock() ==. 'minecraft:mycelium':",
+				"placeFeature(x, y, z,",
+					"random.if ('bigglobe:islands/huge_mushroom')",
+					"else random.if ('minecraft:huge_red_mushroom')",
+					"else ('minecraft:huge_brown_mushroom')",
+				")",
+			")",
+		")"
+	]
+}

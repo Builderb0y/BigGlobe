@@ -97,6 +97,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		FlowerFeature.Entry chosen = null;
 		ScriptWeightedRandomList<FlowerFeature.Entry> validEntries = new ScriptWeightedRandomList<>(null, column, y);
 		for (FlowerFeature.Config link : context.config().getFlattenedFlowers()) {
+			if (!link.canPlaceAt(column, y)) continue;
 			validEntries.elements = link.entries.elements;
 			long groupSeed = link.seed.xor(context.level().getSeed());
 			int scale = link.distance;
@@ -181,20 +182,20 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 			if (this.flattenedFlowers == null) {
 				this.flattenedFlowers = (
 					this
-						.flowers
-						.entryStream()
-						.filter((Holder<ConfiguredFeature<?, ?>> entry) -> {
-							if (entry.value().feature() == BigGlobeFeatures.FLOWER) {
-								return true;
-							}
-							else {
-								BigGlobeMod.LOGGER.warn("A flower controller references " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
-								return false;
-							}
-						})
-						.sorted(Comparator.comparing(UnregisteredObjectException::getID))
-						.<FeatureConfiguration>map((Holder<ConfiguredFeature<?, ?>> entry) -> entry.value().config())
-						.toArray(FlowerFeature.Config[]::new)
+					.flowers
+					.entryStream()
+					.filter((Holder<ConfiguredFeature<?, ?>> entry) -> {
+						if (entry.value().feature() == BigGlobeFeatures.FLOWER) {
+							return true;
+						}
+						else {
+							BigGlobeMod.LOGGER.warn("A flower controller references " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
+							return false;
+						}
+					})
+					.sorted(Comparator.comparing(UnregisteredObjectException::getID))
+					.<FeatureConfiguration>map((Holder<ConfiguredFeature<?, ?>> entry) -> entry.value().config())
+					.toArray(FlowerFeature.Config[]::new)
 				);
 			}
 			return this.flattenedFlowers;

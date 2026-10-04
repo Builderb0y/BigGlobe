@@ -6,6 +6,8 @@
 	"field_values": {
 		"weight": 0.0625,
 		"maxHeight": 256.0,
-		"isPointy": false
+		"isPointy": false,
+		"enabledDecorations": "MUSHROOM",
+		"spawnTweakers": "#bigglobe:islands/mushroom"
 	}
 }

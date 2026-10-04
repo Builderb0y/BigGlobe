@@ -1,0 +1,6 @@
+{
+	"primary_entity": "minecraft:mooshroom",
+	"script": [
+		"spawnParams.=$weight(1.0I).=$count(random.nextBetween[1, 4])"
+	]
+}

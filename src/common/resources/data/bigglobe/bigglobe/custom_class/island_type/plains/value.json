@@ -6,6 +6,7 @@
 	"field_values": {
 		"weight": 0.5,
 		"maxHeight": 256.0,
-		"isPointy": false
+		"isPointy": false,
+		"spawnTweakers": "#bigglobe:islands/plains"
 	}
 }

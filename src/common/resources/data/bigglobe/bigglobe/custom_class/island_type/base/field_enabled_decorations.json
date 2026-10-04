@@ -1,0 +1,7 @@
+{
+	"element_type": "field/constant",
+	"owner": "bigglobe:island_type/base/class",
+	"name": "enabledDecorations",
+	"field_type": "bigglobe:enabled_decorations/class",
+	"default": "NORMAL"
+}

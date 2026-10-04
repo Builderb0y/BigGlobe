@@ -32,6 +32,7 @@
 					"spawn_point": {
 						"file": "bigglobe:world_preset/islands_spawn_point"
 					},
+					"mob_spawn_tweakers": "#bigglobe:islands",
 					"colors": {
 						"grass": {
 							"source": "computeBiomeTint(false, 0.0I)",
@@ -47,7 +48,10 @@
 							"packD(0.125L + mushroom * 0.5L, temperature * 0.5L + 0.25L, 1.0L)"
 						]
 					},
-					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal"
+					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal",
+					"sound_modifier": {
+						"file": "bigglobe:world_preset/islands_sound_modifier"
+					}
 				}
 			}
 		},

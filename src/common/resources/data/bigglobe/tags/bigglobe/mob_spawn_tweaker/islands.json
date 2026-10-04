@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:islands/dispatcher",
+		"bigglobe:overworld/deep_dark_exclusion"
+	]
+}

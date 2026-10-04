@@ -2,6 +2,7 @@
 	"type": "bigglobe:flower",
 	"config": {
 		"seed": "gourds",
+		"can_place_at": "world_traits.`bigglobe:enabled_decorations`.grassyFlora",
 		"distance": 32,
 		"variation": 32,
 		"spawn_chance": 0.25,

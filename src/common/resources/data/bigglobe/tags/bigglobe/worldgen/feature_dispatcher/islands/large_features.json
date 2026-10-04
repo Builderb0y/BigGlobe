@@ -5,6 +5,7 @@
 		"bigglobe:overworld/bushes",
 		"bigglobe:overworld/prismarine",
 		"bigglobe:overworld/small_dungeons",
-		"bigglobe:overworld/swamp_water"
+		"bigglobe:overworld/swamp_water",
+		"bigglobe:islands/mushrooms"
 	]
 }

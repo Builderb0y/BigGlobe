@@ -181,12 +181,12 @@ public class BigGlobeLocateCommand {
 				(
 					(BigGlobeScriptedChunkGenerator)(
 						source
-							.getLevel()
-							.getChunkSource()
-							.getGenerator()
+						.getLevel()
+						.getChunkSource()
+						.getGenerator()
 					)
 				)
-					.columnEntryRegistry
+				.columnEntryRegistry
 			);
 			return true;
 		}

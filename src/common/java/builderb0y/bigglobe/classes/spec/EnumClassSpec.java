@@ -217,7 +217,7 @@ public class EnumClassSpec extends BaseClassSpec {
 			return getStatic(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, this.getTypeInfo(), name, ((EnumValueSpec)(holder.value())).implType(hierarchy).getTypeInfo());
 		}
 		else {
-			throw new ConstantFormatException("Unknown enum " + name + " of type " + hierarchy.idOf(this));
+			throw new ConstantFormatException("Unknown enum '" + name + "' of type " + hierarchy.idOf(this) + "; valid values are: " + this.values.keySet());
 		}
 	}
 }
