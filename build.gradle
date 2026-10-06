@@ -6,7 +6,7 @@ import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 
 plugins() {
-	id('net.fabricmc.fabric-loom') version('1.14-SNAPSHOT')
+	id('net.fabricmc.fabric-loom') version('1.18-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -171,6 +171,9 @@ processResources() {
 
 loom() {
 	accessWidenerPath = file("src/${project.minecraft_version}/resources/bigglobe.accesswidener")
+	runs.configureEach() {
+		preferGradleTask = false
+	}
 }
 
 def targetJavaVersion = 25

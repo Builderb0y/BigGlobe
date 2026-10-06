@@ -1,0 +1,5 @@
+{
+	"type": "int",
+	"is_3d": true,
+	"default": "ceilInt(world_traits.`bigglobe:automatic_exact_surface_y`)"
+}

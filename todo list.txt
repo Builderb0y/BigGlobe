@@ -127,7 +127,6 @@ V6:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 
 islands:
-	still need overriders.
 	still need ores.
 		extra ores in rocky island type.
 	granite is too common.
@@ -141,6 +140,9 @@ islands:
 			clouds.
 			foliage.
 			structures, somehow.
+	caves do not fade out gradually in the oceans.
+		on volcanic islands for example, there are walls in some under-sea mega dungeons.
+		also possible that overrider does not write to correct noise.
 
 LODs:
 	shader support.
@@ -168,6 +170,8 @@ changelog:
 	# For normal users
 	* Performance improvements.
 	* Fixed lava replacing blocks that it shouldn't near lava level in the nether.
+	* Dry lakes now only spawn in deserts.
+		* Likewise, non-dry lakes now only spawn outside of deserts.
 	* Added UNSUPPORTED mixin `ChunkPyramid_ConfigurableFeatureRadius` to expand the max size of configured features.
 		* This mixin may be unstable, and may break things in subtle and hard-to-debug ways.
 		* This mixin will make worldgen noticeably slower when exploring.

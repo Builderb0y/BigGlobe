@@ -3,6 +3,6 @@
 	"owner": "bigglobe:island_type/plains/class",
 	"override": "bigglobe:island_type/base/method_get_wood_palette",
 	"code": [
-		"return(`bigglobe:islands/wood_palette/warm`)"
+		"return(`bigglobe:islands/wood_palette/any`)"
 	]
 }

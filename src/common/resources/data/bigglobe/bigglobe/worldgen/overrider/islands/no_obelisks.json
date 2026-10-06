@@ -1,0 +1,9 @@
+{
+	"type": "structure",
+	"script": [
+		"if (start.structure ==. 'bigglobe:obelisk':",
+			"return(false)",
+		")",
+		"return(true)"
+	]
+}

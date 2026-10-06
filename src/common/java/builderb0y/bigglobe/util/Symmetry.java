@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.noise.Permuter;
 
 /**
 note: these symmetries assume that the positive z axis is a *clockwise* 90° rotation
@@ -373,6 +374,10 @@ public enum Symmetry {
 		return VALUES[random.nextInt(4)];
 	}
 
+	public static Symmetry randomRotation(long seed) {
+		return VALUES[Permuter.nextBoundedInt(seed, 4)];
+	}
+
 	public static Symmetry flip(int degrees) {
 		return switch (BigGlobeMath.modulus_BP(degrees, 180)) {
 			case 0 -> FLIP_0;
@@ -387,8 +392,16 @@ public enum Symmetry {
 		return VALUES[random.nextInt(4, 8)];
 	}
 
+	public static Symmetry randomFlip(long seed) {
+		return VALUES[Permuter.nextBoundedInt(seed, 4, 8)];
+	}
+
 	public static Symmetry randomRotationAndFlip(RandomGenerator random) {
 		return VALUES[random.nextInt(8)];
+	}
+
+	public static Symmetry randomRotationAndFlip(long seed) {
+		return VALUES[Permuter.nextBoundedInt(seed, 8)];
 	}
 
 	public boolean isFlipped() {

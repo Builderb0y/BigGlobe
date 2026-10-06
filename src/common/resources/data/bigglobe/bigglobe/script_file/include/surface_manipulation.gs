@@ -5,6 +5,7 @@ int*(
 )
 
 void setSurfaceY(double*(y, fraction), int snowMode:
+	y += world_traits.`bigglobe:surface_y_correction`
 	int iY = ceilInt(y)
 	double*(
 		oldY = world_traits.`bigglobe:automatic_exact_surface_y`(iY)

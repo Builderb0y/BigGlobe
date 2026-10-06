@@ -1,0 +1,17 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"IslandType.erode(",
+			"Eroder.new(),",
+			"column,",
+			"skyland_processed_y_gradient,",
+			"4.0L,",
+			"64.0L,",
+			"16.0L",
+		")"
+	]
+}

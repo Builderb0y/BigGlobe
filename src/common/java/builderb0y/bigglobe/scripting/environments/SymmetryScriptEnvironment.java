@@ -19,7 +19,7 @@ public class SymmetryScriptEnvironment {
 		.addCastConstant(FieldConstantFactory.forEnum(Symmetry.class), true)
 		.addQualifiedVariableGetStatics(Symmetry.class, Arrays.stream(Symmetry.VALUES).map(Symmetry::name).toArray(String[]::new))
 		.addMethodMultiInvokes(Symmetry.class, "getX", "getZ", "apply", "andThen", "compose", "inverse")
-		.addQualifiedFunctionInvokeStatics(Symmetry.class, "rotation", "randomRotation", "flip", "randomFlip", "randomRotationAndFlip")
+		.addQualifiedFunctionMultiInvokeStatics(Symmetry.class, "rotation", "randomRotation", "flip", "randomFlip", "randomRotationAndFlip")
 	);
 
 	public static Consumer<MutableScriptEnvironment> create(InsnTree loadRandom) {

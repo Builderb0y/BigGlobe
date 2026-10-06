@@ -55,7 +55,7 @@ public class StructureScriptEnvironment {
 
 		.addFieldInvokes(StructureStartWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "structure", "pieces")
 		.addFieldInvokeStatics(StructurePieceWrapper.class, "minX", "minY", "minZ", "maxX", "maxY", "maxZ", "midX", "midY", "midZ", "sizeX", "sizeY", "sizeZ", "rotation", "mirror", "type", "hasPreferredTerrainHeight", "preferredTerrainHeight")
-		.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetZ", "placement")
+		.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetY", "offsetZ", "placement")
 
 		.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
 		.configure(StructurePlacementScriptTag.PARSER.configurator(null))

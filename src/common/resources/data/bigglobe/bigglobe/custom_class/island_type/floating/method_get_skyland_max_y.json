@@ -7,13 +7,6 @@
 		{ "name": "column", "type": "column_storage", "import": true }
 	],
 	"code": [
-		"IslandType.erode(",
-			"Eroder.new(),",
-			"column,",
-			"`bigglobe:islands/type_storage/skyland_processed_y_gradient`,",
-			"4.0L,",
-			"64.0L,",
-			"16.0L",
-		")"
+		"`bigglobe:islands/type_storage/skyland_max_y`"
 	]
 }

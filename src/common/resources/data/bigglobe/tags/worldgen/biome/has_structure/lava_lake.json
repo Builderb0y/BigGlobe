@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#bigglobe:land_overworld"
+		"#bigglobe:temperate",
+		"#bigglobe:icy"
 	]
 }

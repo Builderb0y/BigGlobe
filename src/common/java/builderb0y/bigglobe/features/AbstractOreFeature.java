@@ -262,7 +262,7 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		public Config(
 			Seed seed,
 			ColumnYToDoubleScript.Catcher chance,
-			ColumnYToDoubleScript.Catcher core_chance,
+			ColumnYToDoubleScript.@VerifyNullable Catcher core_chance,
 			RandomSource radius
 		) {
 			this.seed = seed;
