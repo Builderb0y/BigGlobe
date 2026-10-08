@@ -1,0 +1,12 @@
+{
+	"type": "decision_tree",
+	"params": {
+		"type": "block_state",
+		"is_3d": true
+	},
+	"root": "bigglobe:overworld/rock_filler/root_test_deepslate",
+	"patches": {
+		"bigglobe:overworld/rock_filler/normal": "bigglobe:islands/rock_filler/normal"
+	},
+	"cache": false
+}

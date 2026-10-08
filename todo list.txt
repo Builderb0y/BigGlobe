@@ -140,9 +140,6 @@ islands:
 			clouds.
 			foliage.
 			structures, somehow.
-	caves do not fade out gradually in the oceans.
-		on volcanic islands for example, there are walls in some under-sea mega dungeons.
-		also possible that overrider does not write to correct noise.
 
 LODs:
 	shader support.

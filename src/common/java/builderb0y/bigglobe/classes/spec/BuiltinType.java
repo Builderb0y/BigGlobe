@@ -1248,7 +1248,8 @@ public abstract class BuiltinType implements Named {
 				MutableScriptEnvironment environment = parser.environment.mutable();
 				environment
 				.addType("VoronoiCell", callback, this.type)
-				.addField(Handlers.methodWithReceiver(VoronoiSampler.class, "centerColumn").onUsed(callback).explicitCast(((BuiltinTypeSpec)(referencingType.value())).columnType).buildField());
+				.addField(Handlers.methodWithReceiver(VoronoiSampler.class, "centerColumn").onUsed(callback).explicitCast(((BuiltinTypeSpec)(referencingType.value())).columnType).buildField())
+				.addMethod(method(VoronoiSampler.class, "nextSeed", callback));
 				addFields(environment, callback, VoronoiSampler.class, "cellX", "cellZ", "centerX", "centerZ", "softDistanceSquared", "dxSoftDistanceSquared", "dzSoftDistanceSquared", "softDistance", "dxSoftDistance", "dzSoftDistance", "hardDistanceSquared", "hardDistance", "euclideanDistanceSquared", "euclideanDistance");
 			}
 		});

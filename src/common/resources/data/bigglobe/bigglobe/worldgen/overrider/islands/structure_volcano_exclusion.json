@@ -1,0 +1,15 @@
+{
+	"type": "structure",
+	"script": [
+		"if (`bigglobe:islands/type`(start.midX, start.midZ).is(VolcanoIslandType):",
+			"VoronoiCell cell = `bigglobe:islands/island_voronoi`(start.midX, start.midZ)",
+			"int closestX = clamp(start.minX, start.maxX, cell.centerX)",
+			"int closestY = clamp(start.minY, start.maxY, -850) ;ish",
+			"int closestZ = clamp(start.minZ, start.maxZ, cell.centerZ)",
+			"if (`bigglobe:islands/volcano/sdf`(closestX, closestY, closestZ) < 2.0I:",
+				"return(false)",
+			")",
+		")",
+		"return(true)"
+	]
+}

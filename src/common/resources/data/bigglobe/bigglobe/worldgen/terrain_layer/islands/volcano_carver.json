@@ -1,0 +1,29 @@
+{
+	"type": "multi_state_3d",
+	"state": [
+		"if (y >= `bigglobe:islands/volcano/cone_erosion`.value:",
+			"return(y >= 640 ? 'minecraft:air' : 'minecraft:lava[level=0]')",
+		")",
+		"int selector = floorInt(`bigglobe:islands/volcano/sdf` * 16.0I)",
+		"if (selector < 8:",
+			"return(y >= 640 ? 'minecraft:air' : 'minecraft:lava[level=0]')",
+		")",
+		"selector = max(16 - selector, min(8, floorInt(`bigglobe:overworld/rocks/core_gradient`)))",
+		"switch (selector:",
+			"case (1: 'bigglobe:molten_rock_1')",
+			"case (2: 'bigglobe:molten_rock_2')",
+			"case (3: 'bigglobe:molten_rock_3')",
+			"case (4: 'bigglobe:molten_rock_4')",
+			"case (5: 'bigglobe:molten_rock_5')",
+			"case (6: 'bigglobe:molten_rock_6')",
+			"case (7: 'bigglobe:molten_rock_7')",
+			"case (8: 'bigglobe:molten_rock_8')",
+			"default (null)",
+		")"
+	],
+	"valid": {
+		"where": "`bigglobe:islands/type`.is(VolcanoIslandType)",
+		"min_y": "hints.isLod ? min(world_traits.`bigglobe:y_level_on_surface`, 640) - 16 : -960I",
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
+	}
+}

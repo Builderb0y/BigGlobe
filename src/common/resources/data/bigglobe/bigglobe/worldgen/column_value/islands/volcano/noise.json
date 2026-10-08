@@ -1,0 +1,25 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scale": 256, "amplitude": 0.25 },
+			{ "type": "smooth", "scale": 128, "amplitude": 0.125 },
+			{ "type": "smooth", "scale":  64, "amplitude": 0.0625 },
+			{ "type": "smooth", "scale":  32, "amplitude": 0.03125 },
+			{ "type": "smooth", "scale":  16, "amplitude": 0.015625 },
+			{ "type": "smooth", "scale":   8, "amplitude": 0.0078125 },
+			{ "type": "smooth", "scale":   4, "amplitude": 0.00390625 },
+			{ "type": "constant", "value": 2.0 }
+		]
+	},
+	"valid": {
+		"where": "`bigglobe:islands/type`.is(VolcanoIslandType)",
+		"min_y": "hints.isLod ? min(world_traits.`bigglobe:y_level_on_surface`, 640) - 16 : -960I",
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
+	}
+}

@@ -2,7 +2,7 @@
 	"result": {
 		"type": "script",
 		"script": [
-			"return(RockFiller.choose(column, y))"
+			"`bigglobe:islands/type`.getFiller(column, y)"
 		]
 	}
 }

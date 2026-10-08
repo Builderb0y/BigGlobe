@@ -2,6 +2,8 @@
 	"replace": false,
 	"values": [
 		"bigglobe:overworld/column_value/0/lake",
+		"bigglobe:islands/noise_volcano_exclusion",
+		"bigglobe:islands/structure_volcano_exclusion",
 
 		"bigglobe:overworld/column_value/surface_y/bigger_desert_pyramid",
 		"bigglobe:overworld/column_value/surface_y/campfire",

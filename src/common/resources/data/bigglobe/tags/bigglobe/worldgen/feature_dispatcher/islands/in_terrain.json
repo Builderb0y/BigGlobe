@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:overworld/core_lava_spillage"
+		"bigglobe:overworld/core_lava_spillage",
+		"bigglobe:islands/lava_flow_fix"
 	]
 }

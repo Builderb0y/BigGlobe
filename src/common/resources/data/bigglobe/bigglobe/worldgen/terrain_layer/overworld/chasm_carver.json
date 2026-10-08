@@ -1,7 +1,7 @@
 {
 	"type": "simple_3d",
 	"state": "'minecraft:air'",
-	"condition": "`bigglobe:overworld/chasm/chasm_noise` < `bigglobe:overworld/chasm/chasm_threshold`(y)",
+	"condition": "`bigglobe:overworld/chasm/chasm_noise` < `bigglobe:overworld/chasm/chasm_threshold`",
 	"valid": {
 		"where": "hints.carve",
 		"min_y": "world_traits.`bigglobe:chasm_min_y`",

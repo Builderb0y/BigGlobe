@@ -1,0 +1,38 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"VoronoiCell cell = `bigglobe:islands/island_voronoi`",
+		"long baseSeed = cell.nextSeed(worldSeed # 16xFD93B47C5DA09F45UL)",
+		"double*(",
+			"angle0 = baseSeed.nextDouble(tau)",
+			"relativeX = x - cell.centerX",
+			"relativeZ = z - cell.centerZ",
+			"outness = sqrt(relativeX ^ 2 + relativeZ ^ 2)",
+		")",
+		"double sdf(int layer:",
+			"if (layer < 0 || layer >= 640 >> 4 - 4: return(1.0L))",
+			"double*(",
+				"angle = angle0 + goldenAngle * layer",
+				"relativeY = y - (layer << 4 | 8)",
+				"rayX = sqrt(0.5L) * fastCos(angle)",
+				"rayY = sqrt(0.5L)",
+				"rayZ = sqrt(0.5L) * fastSin(angle)",
+				"dot = max(relativeX * rayX + relativeY * rayY + relativeZ * rayZ, 0.0L)",
+				"projectionX = rayX * dot - relativeX",
+				"projectionY = rayY * dot - relativeY",
+				"projectionZ = rayZ * dot - relativeZ",
+				"squareDistance = projectionX ^ 2 + projectionY ^ 2 + projectionZ ^ 2",
+				"diameter = baseSeed.newSeed(layer).nextDouble(8.0L, 24.0L * sqrt(0.5L))",
+				"scaled = min(squareDistance / diameter ^ 2, 1.0L)",
+				"result := scaled * (2.0L - scaled)",
+			")",
+		")",
+		"int layer = floorInt((y - outness) * 0.0625L)",
+		"return(float(sdf(layer - 1) * sdf(layer) * sdf(layer + 1)))"
+	],
+	"cache": false
+}

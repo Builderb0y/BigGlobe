@@ -1,0 +1,31 @@
+{
+	"type": "column_value",
+	"script": [
+		"if (`bigglobe:islands/type`.is(VolcanoIslandType):",
+			"for (int y in range[world_traits.`bigglobe:core_min_y`, world_traits.`bigglobe:core_max_y`):",
+				"float proximity = unmixLinear(1.5I, 1.0I, `bigglobe:islands/volcano/sdf`(y))",
+				"if (proximity > 0.0I:",
+					"`bigglobe:overworld/biased_core_noise`(y) += proximity ^ 2 * 0.625I",
+				")",
+			")",
+			"for (int y in range[world_traits.`bigglobe:deep_dark_min_y`, world_traits.`bigglobe:deep_dark_max_y`):",
+				"float proximity = unmixLinear(1.5I, 1.0I, `bigglobe:islands/volcano/sdf`(y))",
+				"if (proximity > 0.0I:",
+					"`bigglobe:overworld/biased_deep_dark_noise`(y) -= proximity ^ 2",
+				")",
+			")",
+			"for (int y in range[world_traits.`bigglobe:chasm_min_y`, world_traits.`bigglobe:chasm_max_y`):",
+				"float proximity = unmixLinear(1.5I, 1.0I, `bigglobe:islands/volcano/sdf`(y))",
+				"if (proximity > 0.0I:",
+					"`bigglobe:overworld/chasm/chasm_threshold`(y) -= proximity ^ 2",
+				")",
+			")",
+			"for (int y in range[world_traits.`bigglobe:cave_min_y`, world_traits.`bigglobe:cave_max_y`):",
+				"float proximity = unmixLinear(1.5I, 1.0I, `bigglobe:islands/volcano/sdf`(y))",
+				"if (proximity > 0.0I:",
+					"world_traits.`bigglobe:cave_noise`(y) += proximity ^ 2",
+				")",
+			")",
+		")"
+	]
+}

@@ -7,7 +7,7 @@
 	"script": [
 		"+ chasm_threshold_horizontal",
 		"* chasm_threshold_vertical",
-		"+ float(`bigglobe:overworld/cave_type`.border - 1.0L) * 0.125I",
+		"+ float(world_traits.`bigglobe:cave_border` - 1.0L) * 0.125I",
 		"- 1.0I / (",
 			"(worldSeed # 16xC11315C627C18E11UL)",
 			".newSeed(y - floorInt(chasm_min_y))",

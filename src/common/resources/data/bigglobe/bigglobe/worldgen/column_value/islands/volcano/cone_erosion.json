@@ -1,0 +1,22 @@
+{
+	"type": "script",
+	"params": {
+		"type": "bigglobe:derivative2d/class",
+		"is_3d": false
+	},
+	"script": [
+		"VoronoiCell cell = `bigglobe:islands/island_voronoi`",
+		"if (cell.euclideanDistanceSquared >= 256.0L ^ 2:",
+			"return(Derivative2D.constant(1024.0L))",
+		")",
+		"Eroder eroder = new().$setPos(column).=$seed(worldSeed # 16x36ABFC88FD7C35D5UL)",
+		"eroder.y = cell.euclideanDistance + (640.0L - 48.0L)",
+		"eroder.dx = (x - cell.centerX) / cell.euclideanDistance ?: 0.0L",
+		"eroder.dz = (z - cell.centerZ) / cell.euclideanDistance ?: 0.0L",
+		"eroder.erodeAll(4.0L, 64.0L, 16.0L * unmixSmooth(640.0L, 640.0L + 32.0L, eroder.y))",
+		"Derivative2D.variable(eroder.y, eroder.dx, eroder.dz)"
+	],
+	"valid": {
+		"where": "`bigglobe:islands/type`.is(VolcanoIslandType)"
+	}
+}

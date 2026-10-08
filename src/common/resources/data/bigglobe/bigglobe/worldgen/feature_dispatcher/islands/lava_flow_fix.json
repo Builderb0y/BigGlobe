@@ -1,0 +1,21 @@
+{
+	"type": "script",
+	"dispatcher": [
+		";lava placed by terrain layers does not flow,",
+		";but lava placed by a feature dispatcher does.",
+		";this file is a hack to trick lava placed by terrain layers into flowing.",
+		";we only need to do this a decent ways inside volcanoes.",
+		";an (up to) 16 block lack of action will not matter.",
+		"if (`bigglobe:islands/type`(minModifiableX, minModifiableZ).is(VolcanoIslandType):",
+			"for (",
+				"int z in range[minModifiableZ, maxModifiableZ],",
+				"int x in range[minModifiableX, maxModifiableX]",
+			":",
+				"int y = world_traits.`bigglobe:y_level_in_surface`(x, z)",
+				"if (BlockState*(state := getBlockState(x, y, z)).getBlock() ==. 'minecraft:lava':",
+					"setBlockState(x, y, z, state)",
+				")",
+			")",
+		")"
+	]
+}

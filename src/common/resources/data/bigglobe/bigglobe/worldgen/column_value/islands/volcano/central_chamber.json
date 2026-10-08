@@ -1,0 +1,15 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"double width = ((-768 + y) / (1024.0L + 768.0L)) ^ 4 * 512.0L + 128.0L",
+		"double bottom = max((-768 - y) / (1024.0L - 768.0L), 0) ^ 4",
+		"double result = `bigglobe:islands/island_voronoi`.euclideanDistanceSquared / width ^ 2 + bottom",
+		"result = min(result, 1.0L)",
+		"return(float(result * (2.0L - result)))"
+	],
+	"cache": false
+}

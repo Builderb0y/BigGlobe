@@ -1,0 +1,15 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"noise * central_chamber * secondary_shafts"
+	],
+	"valid": {
+		"where": "`bigglobe:islands/type`.is(VolcanoIslandType)",
+		"min_y": "hints.isLod ? min(world_traits.`bigglobe:y_level_on_surface`, 640) - 16 : -960I",
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
+	}
+}
