@@ -26,6 +26,7 @@
 	],
 	"after_children": {
 		"includes": [
+			"bigglobe:world_preset/overworld_dh_glacier_placement",
 			"bigglobe:include/generate_snow"
 		],
 		"source": [

@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.rendering;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -14,6 +16,11 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 @Environment(EnvType.CLIENT)
 public class NativeMemory implements SafeCloseable {
+
+	//MemoryUtil.memPutWhatever() calls reinterpret() every time,
+	//which then calls Reflection.getCallerClass(), which is slow.
+	//we avoid this overhead by caching the reinterpreted MemorySegment here.
+	public static final MemorySegment MEMORY = MemorySegment.NULL.reinterpret(Long.MAX_VALUE);
 
 	public long address;
 	public long capacity;
@@ -87,32 +94,56 @@ public class NativeMemory implements SafeCloseable {
 	}
 
 	public NativeMemory appendByte(byte value) {
-		memPutByte(this.addressForAppending(Byte.BYTES), value);
+		MEMORY.set(
+			ValueLayout.JAVA_BYTE,
+			this.addressForAppending(Byte.BYTES),
+			value
+		);
 		return this;
 	}
 
 	public NativeMemory appendShort(short value, ByteOrder order) {
-		memPutShort(this.addressForAppending(Short.BYTES), order == ByteOrder.nativeOrder() ? value : Short.reverseBytes(value));
+		MEMORY.set(
+			ValueLayout.JAVA_SHORT,
+			this.addressForAppending(Short.BYTES),
+			order == ByteOrder.nativeOrder() ? value : Short.reverseBytes(value)
+		);
 		return this;
 	}
 
 	public NativeMemory appendInt(int value, ByteOrder order) {
-		memPutInt(this.addressForAppending(Integer.BYTES), order == ByteOrder.nativeOrder() ? value : Integer.reverseBytes(value));
+		MEMORY.set(
+			ValueLayout.JAVA_INT,
+			this.addressForAppending(Integer.BYTES),
+			order == ByteOrder.nativeOrder() ? value : Integer.reverseBytes(value)
+		);
 		return this;
 	}
 
 	public NativeMemory appendLong(long value, ByteOrder order) {
-		memPutLong(this.addressForAppending(Long.BYTES), order == ByteOrder.nativeOrder() ? value : Long.reverseBytes(value));
+		MEMORY.set(
+			ValueLayout.JAVA_LONG,
+			this.addressForAppending(Long.BYTES),
+			order == ByteOrder.nativeOrder() ? value : Long.reverseBytes(value)
+		);
 		return this;
 	}
 
 	public NativeMemory appendFloat(float value, ByteOrder order) {
-		memPutInt(this.addressForAppending(Float.BYTES), order == ByteOrder.nativeOrder() ? Float.floatToRawIntBits(value) : Integer.reverseBytes(Float.floatToRawIntBits(value)));
+		MEMORY.set(
+			ValueLayout.JAVA_INT,
+			this.addressForAppending(Float.BYTES),
+			order == ByteOrder.nativeOrder() ? Float.floatToRawIntBits(value) : Integer.reverseBytes(Float.floatToRawIntBits(value))
+		);
 		return this;
 	}
 
 	public NativeMemory appendDouble(double value, ByteOrder order) {
-		memPutLong(this.addressForAppending(Double.BYTES), order == ByteOrder.nativeOrder() ? Double.doubleToRawLongBits(value) : Long.reverseBytes(Double.doubleToRawLongBits(value)));
+		MEMORY.set(
+			ValueLayout.JAVA_LONG,
+			this.addressForAppending(Double.BYTES),
+			order == ByteOrder.nativeOrder() ? Double.doubleToRawLongBits(value) : Long.reverseBytes(Double.doubleToRawLongBits(value))
+		);
 		return this;
 	}
 
