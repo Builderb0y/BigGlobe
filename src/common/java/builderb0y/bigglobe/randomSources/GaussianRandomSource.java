@@ -18,7 +18,7 @@ public record GaussianRandomSource(
 	@Override
 	public double get(ScriptedColumn column, int y, long seed) {
 		double sum = 0.0D;
-		for (int loop = this.samples; --loop >= 0; ) {
+		for (int loop = this.samples; --loop >= 0;) {
 			sum += Permuter.nextPositiveDouble(seed += Permuter.PHI64);
 		}
 		return this.mix(sum / this.samples);
@@ -27,7 +27,7 @@ public record GaussianRandomSource(
 	@Override
 	public double get(ScriptedColumn column, int y, RandomGenerator random) {
 		double sum = 0.0D;
-		for (int loop = this.samples; --loop >= 0; ) {
+		for (int loop = this.samples; --loop >= 0;) {
 			sum += random.nextDouble();
 		}
 		return this.mix(sum / this.samples);

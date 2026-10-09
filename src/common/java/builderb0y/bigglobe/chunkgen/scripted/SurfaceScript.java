@@ -24,6 +24,7 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -88,6 +89,7 @@ public interface SurfaceScript extends Script {
 			MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, "generateSurface", TypeInfos.VOID, actualParams);
 			MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC, "generateSurface", TypeInfos.VOID, bridgeParams);
 
+			LoadInsnTree loadSegments = load("segments", type(BlockSegmentList.class));
 			return_(
 				invokeInstance(
 					load("this", clazz.info),
@@ -96,7 +98,7 @@ public interface SurfaceScript extends Script {
 					new DirectCastInsnTree(load("adjacentColumnX", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
 					new DirectCastInsnTree(load("adjacentColumnZ", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
 					new DirectCastInsnTree(load("adjacentColumnXZ", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
-					load("segments", type(BlockSegmentList.class))
+					loadSegments
 				)
 			)
 			.emitBytecode(bridgeMethod);
@@ -110,8 +112,9 @@ public interface SurfaceScript extends Script {
 			.addAll(MathScriptEnvironment.INSTANCE)
 			.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 			.configure(GridScriptEnvironment.createWithSeed(registry.columnCompileContext.loadSeed(null)))
-			.addFunctionInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-			.addVariableInvokes(load("segments", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+			.addFunction(Handlers.methodBuilder(BlockSegmentList.class, "getBlockState").addImplicitArgument(loadSegments).addImplicitArgumentOfType(loadMainColumn, ScriptedColumn.class).addRequiredArgument(int.class).buildFunction())
+			.addFunctionInvokes(loadSegments, BlockSegmentList.class, "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+			.addVariableInvokes(loadSegments, BlockSegmentList.class, "minY", "maxY")
 			.addKeyword(createDxDz(registry, false))
 			.addKeyword(createDxDz(registry, true))
 			.addAll(ColorScriptEnvironment.ENVIRONMENT)

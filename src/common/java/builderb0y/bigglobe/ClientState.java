@@ -42,7 +42,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.ColorOverrides;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.GameMechanics.LodOverrides;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
-import builderb0y.bigglobe.chunkgen.scripted.Layer;
+import builderb0y.bigglobe.chunkgen.scripted.TerrainLayer;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
@@ -221,7 +221,7 @@ public class ClientState {
 		public transient MappedRegistry<ColumnEntry>       columnEntryRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.    COLUMN_VALUE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient MappedRegistry<DecisionTreeSpec> decisionTreeRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   DECISION_TREE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient MappedRegistry<WorldTrait>         worldTraitRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.     WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<Layer>                   layerRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   TERRAIN_LAYER_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<TerrainLayer>                   layerRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   TERRAIN_LAYER_REGISTRY_KEY, Lifecycle.experimental());
 
 		public Syncing(
 			boolean containsLayers,
@@ -282,7 +282,7 @@ public class ClientState {
 						case ColumnEntry      columnEntry  -> Registry.register(this.columnEntryRegistry, UnregisteredObjectException.getID(entry), columnEntry);
 						case DecisionTreeSpec decisionTree -> Registry.register(this.decisionTreeRegistry, UnregisteredObjectException.getID(entry), decisionTree);
 						case WorldTrait       trait        -> Registry.register(this.worldTraitRegistry, UnregisteredObjectException.getID(entry), trait);
-						case Layer            layer        -> Registry.register(this.layerRegistry, UnregisteredObjectException.getID(entry), layer);
+						case TerrainLayer layer        -> Registry.register(this.layerRegistry, UnregisteredObjectException.getID(entry), layer);
 						default -> throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
 					}
 				}
@@ -302,8 +302,8 @@ public class ClientState {
 				for (Map.Entry<ResourceKey<WorldTrait>, WorldTrait> entry : this.worldTraitRegistry.entrySet()) {
 					this.worldTraits.put(entry.getKey().identifier(), BigGlobeAutoCodec.AUTO_CODEC.encode(WorldTrait.CODER, entry.getValue(), ops));
 				}
-				for (Map.Entry<ResourceKey<Layer>, Layer> entry : this.layerRegistry.entrySet()) {
-					this.layers.put(entry.getKey().identifier(), BigGlobeAutoCodec.AUTO_CODEC.encode(Layer.REGISTRY, entry.getValue(), ops));
+				for (Map.Entry<ResourceKey<TerrainLayer>, TerrainLayer> entry : this.layerRegistry.entrySet()) {
+					this.layers.put(entry.getKey().identifier(), BigGlobeAutoCodec.AUTO_CODEC.encode(TerrainLayer.REGISTRY, entry.getValue(), ops));
 				}
 			}
 		}
@@ -327,7 +327,7 @@ public class ClientState {
 					Registry.register(this.worldTraitRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(WorldTrait.CODER, entry.getValue(), ops));
 				}
 				for (Map.Entry<Identifier, Tag> entry : this.layers.entrySet()) {
-					Registry.register(this.layerRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(Layer.REGISTRY, entry.getValue(), ops));
+					Registry.register(this.layerRegistry, entry.getKey(), BigGlobeAutoCodec.AUTO_CODEC.decode(TerrainLayer.REGISTRY, entry.getValue(), ops));
 				}
 				this.templateRegistry.freeze();
 				this.columnEntryRegistry.freeze();
@@ -408,7 +408,7 @@ public class ClientState {
 		public final LodOverrides generatorLodOverrides;
 		public final @VerifyNullable ScriptedColumnBiomeSource biomeSource;
 		public final Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits;
-		public final @VerifyNullable Holder<Layer> layer;
+		public final @VerifyNullable Holder<TerrainLayer> layer;
 		public final SoundModifierController.@VerifyNullable Catcher soundModifier;
 		public transient ColumnEntryRegistry columnEntryRegistry;
 		public transient WorldTraits compiledWorldTraits;
@@ -423,7 +423,7 @@ public class ClientState {
 			LodOverrides generatorLodOverrides,
 			@VerifyNullable ScriptedColumnBiomeSource biomeSource,
 			Map<Holder<WorldTrait>, WorldTraitProvider> worldTraits,
-			@VerifyNullable Holder<Layer> layer,
+			@VerifyNullable Holder<TerrainLayer> layer,
 			SoundModifierController.@VerifyNullable Catcher soundModifier
 		) {
 			this.minY = minY;

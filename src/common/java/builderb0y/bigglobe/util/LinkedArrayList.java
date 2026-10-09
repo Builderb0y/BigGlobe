@@ -111,7 +111,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		list.first = nodes[0].initListIndex(0);
 		list.last = nodes[--length];
 		list.arrayCache = nodes;
-		for (int i = 0; i < length; ) {
+		for (int i = 0; i < length;) {
 			link(nodes[i++], nodes[i].initListIndex(i));
 		}
 		if (ASSERTS) list.checkLinks();
@@ -267,7 +267,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 		else {
 			node = this.getLastNode();
-			for (int i = this.size(); --i > index; ) node = node.getPrev();
+			for (int i = this.size(); --i > index;) node = node.getPrev();
 		}
 		return node;
 	}
@@ -1380,7 +1380,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		@Override
 		public boolean removeIf(Predicate<? super Node<T>> filter) {
 			boolean removed = false;
-			for (Node<T> node = LinkedArrayList.this.first; node != null; ) {
+			for (Node<T> node = LinkedArrayList.this.first; node != null;) {
 				Node<T> next = node.next;
 				if (filter.test(node)) {
 					LinkedArrayList.this.removeNode(node);
@@ -1731,7 +1731,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		@Override
 		public boolean removeIf(Predicate<? super T> filter) {
 			boolean removed = false;
-			for (Node<T> node = LinkedArrayList.this.first; node != null; ) {
+			for (Node<T> node = LinkedArrayList.this.first; node != null;) {
 				Node<T> next = node.next;
 				if (filter.test(node.element)) {
 					LinkedArrayList.this.removeNode(node);
@@ -2174,7 +2174,7 @@ public class LinkedArrayList<T> implements Cloneable {
 
 		public void forAllNodes(Consumer<? super Node<T>> action) {
 			Node<T> node = this.head;
-			for (int remaining = this.remaining; remaining-- != 0; ) {
+			for (int remaining = this.remaining; remaining-- != 0;) {
 				action.accept(node);
 				node = node.getNext();
 			}
@@ -2184,7 +2184,7 @@ public class LinkedArrayList<T> implements Cloneable {
 
 		public void forAllElements(Consumer<? super T> action) {
 			Node<T> node = this.head;
-			for (int remaining = this.remaining; remaining-- != 0; ) {
+			for (int remaining = this.remaining; remaining-- != 0;) {
 				action.accept(node.element);
 				node = node.getNext();
 			}
@@ -2195,7 +2195,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		public Node<T> skip(int count) {
 			Node<T> head = this.head;
 			Node<T> tail = head;
-			for (int i = count; i-- != 0; ) {
+			for (int i = count; i-- != 0;) {
 				tail = tail.getNext();
 			}
 			this.remaining -= count;

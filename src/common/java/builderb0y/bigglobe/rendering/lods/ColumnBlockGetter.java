@@ -102,9 +102,10 @@ public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 	public int getBrightness(LightLayer layer, BlockPos pos) {
 		LitSegment segment = this.getSegment(pos);
 		if (segment != null) {
+			ScriptedColumn column = this.getColumn(pos);
 			return switch (layer) {
-				case BLOCK -> segment.getBlockLight();
-				case SKY -> segment.getSkyLight(pos.getY(), this.lod);
+				case BLOCK -> segment.getBlockLight(column, pos.getY());
+				case SKY -> segment.getSkyLight(column, pos.getY(), this.lod);
 			};
 		}
 		else {
@@ -119,8 +120,9 @@ public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 	public int getRawBrightness(BlockPos pos, int darkening) {
 		LitSegment segment = this.getSegment(pos);
 		if (segment != null) {
-			int block = segment.getBlockLight();
-			int sky = segment.getSkyLight(pos.getY(), this.lod) - darkening;
+			ScriptedColumn column = this.getColumn(pos);
+			int block = segment.getBlockLight(column, pos.getY());
+			int sky = segment.getSkyLight(column, pos.getY(), this.lod) - darkening;
 			return Math.max(block, sky);
 		}
 		else {
@@ -153,10 +155,16 @@ public class ColumnBlockGetter implements BlockAndTintGetter, SafeCloseable {
 		return index >= 0 ? this.columns[index] : null;
 	}
 
+	public @Nullable ScriptedColumn getColumn(BlockPos pos) {
+		return this.getColumn(pos.getX(), pos.getZ());
+	}
+
 	@Override
 	public BlockState getBlockState(BlockPos pos) {
 		LitSegment segment = this.getSegment(pos);
-		return segment != null ? segment.value : BlockStates.AIR;
+		if (segment == null) return BlockStates.AIR;
+		ScriptedColumn column = this.getColumn(pos);
+		return segment.getBlockState(column, pos.getY());
 	}
 
 	@Override

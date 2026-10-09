@@ -8,12 +8,12 @@ import builderb0y.bigglobe.columns.ColumnScript.ColumnToBlockStateScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.dependencies.DependencyView;
 
-public class RootLayer extends Layer {
+public class RootTerrainLayer extends TerrainLayer {
 
 	public final ColumnToBlockStateScript.Catcher state;
 
-	public RootLayer(
-		Holder<Layer> @DefaultEmpty [] children,
+	public RootTerrainLayer(
+		Holder<TerrainLayer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Catcher before_children,
 		SurfaceScript.@VerifyNullable Catcher after_children,
 		ColumnToBlockStateScript.Catcher state

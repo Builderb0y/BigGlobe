@@ -248,7 +248,7 @@ public class VoronoiDiagram2D {
 		//how many remaining points still need to be tested.
 		//when we visit that number, we know it's time to stop testing.
 		int remaining = adjacent.size();
-		for (LinkedArrayList.Node<AdjacentSeedPoint> node = adjacent.getFirstNode(); remaining > 0; ) {
+		for (LinkedArrayList.Node<AdjacentSeedPoint> node = adjacent.getFirstNode(); remaining > 0;) {
 			LinkedArrayList.Node<AdjacentSeedPoint> prev = node.prev, next = node.next;
 			//cyclic list logic.
 			if (prev == null) prev = adjacent.getLastNode();

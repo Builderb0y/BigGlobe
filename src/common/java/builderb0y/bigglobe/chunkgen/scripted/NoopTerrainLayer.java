@@ -7,12 +7,12 @@ import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.dependencies.DependencyView;
 
 @RecordLike({})
-public class NoopLayer extends Layer {
+public class NoopTerrainLayer extends TerrainLayer {
 
 	@SuppressWarnings("unchecked")
-	public static final Holder<Layer>[] EMPTY_CHILDREN = new Holder[0];
+	public static final Holder<TerrainLayer>[] EMPTY_CHILDREN = new Holder[0];
 
-	public NoopLayer() {
+	public NoopTerrainLayer() {
 		super(null, EMPTY_CHILDREN, null, null);
 	}
 

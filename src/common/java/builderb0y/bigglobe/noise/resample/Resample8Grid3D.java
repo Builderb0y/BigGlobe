@@ -119,7 +119,7 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 			),
 			this.rcpX
 		);
-		for (int index = 0; true /* break in the middle of the loop */; ) {
+		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples.setD(index, polynomial.interpolate(modX * this.rcpX));
 			if (++index >= sampleCount) break;
 			if (++modX >= scaleX) {
@@ -199,7 +199,7 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 			),
 			this.rcpY
 		);
-		for (int index = 0; true /* break in the middle of the loop */; ) {
+		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples.setD(index, polynomial.interpolate(modY * this.rcpY));
 			if (++index >= sampleCount) break;
 			if (++modY >= scaleY) {
@@ -279,7 +279,7 @@ public abstract class Resample8Grid3D extends ResampleGrid3D {
 			),
 			this.rcpZ
 		);
-		for (int index = 0; true /* break in the middle of the loop */; ) {
+		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples.setD(index, polynomial.interpolate(modZ * this.rcpZ));
 			if (++index >= sampleCount) break;
 			if (++modZ >= scaleZ) {

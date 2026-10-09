@@ -9,13 +9,13 @@ import builderb0y.bigglobe.columns.ColumnScript.ColumnYToBlockStateScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.dependencies.DependencyView;
 
-public class MultiState3DLayer extends Layer {
+public class MultiState3DTerrainLayer extends TerrainLayer {
 
 	public final ColumnYToBlockStateScript.Catcher state;
 
-	public MultiState3DLayer(
+	public MultiState3DTerrainLayer(
 		@VerifyNullable Valid valid,
-		Holder<Layer> @DefaultEmpty [] children,
+		Holder<TerrainLayer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Catcher before_children,
 		SurfaceScript.@VerifyNullable Catcher after_children,
 		ColumnYToBlockStateScript.Catcher state
@@ -35,7 +35,7 @@ public class MultiState3DLayer extends Layer {
 		int maxY = Math.min(this.validMaxY(column), blocks.maxY());
 		int start = minY;
 		BlockState state = this.state.get(column, minY);
-		for (int y = minY; ++y < maxY; ) {
+		for (int y = minY; ++y < maxY;) {
 			BlockState nextState = this.state.get(column, y);
 			if (state != nextState) {
 				if (state != null) blocks.setBlockStates(start, y, state);

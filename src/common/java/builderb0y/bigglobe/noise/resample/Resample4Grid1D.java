@@ -42,7 +42,7 @@ public abstract class Resample4Grid1D extends ResampleGrid1D {
 			source.getValue(seed, gridX += scaleX),
 			this.rcpX
 		);
-		for (int index = 0; true /* break in the middle of the loop */; ) {
+		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples.setD(index, polynomial.interpolate(modX * this.rcpX));
 			if (++index >= sampleCount) break;
 			if (++modX >= scaleX) {

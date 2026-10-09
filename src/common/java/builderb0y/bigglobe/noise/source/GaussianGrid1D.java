@@ -14,7 +14,7 @@ public class GaussianGrid1D extends GaussianGrid implements Grid1D {
 	public double getValue(long seed, int x) {
 		seed = this.salt.xor(seed);
 		double sum = 0.0D;
-		for (int iteration = this.iterations; --iteration >= 0; ) {
+		for (int iteration = this.iterations; --iteration >= 0;) {
 			sum += Permuter.toUniformDouble(Permuter.permute(seed, x, iteration));
 		}
 		return sum * this.amplitude / this.iterations;

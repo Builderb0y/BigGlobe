@@ -835,7 +835,7 @@ public class NumberArray implements AutoCloseable {
 			}
 			else {
 				base[firstByteIndex] |= firstByteMask;
-				for (int index = firstByteIndex; ++index < lastByteIndex; ) {
+				for (int index = firstByteIndex; ++index < lastByteIndex;) {
 					base[index] = (byte)(-1);
 				}
 				base[lastByteIndex] |= lastByteMask;
@@ -847,7 +847,7 @@ public class NumberArray implements AutoCloseable {
 			}
 			else {
 				base[firstByteIndex] &= (byte)(~firstByteMask);
-				for (int index = firstByteIndex; ++index < lastByteIndex; ) {
+				for (int index = firstByteIndex; ++index < lastByteIndex;) {
 					base[index] = (byte)(0);
 				}
 				base[lastByteIndex] &= (byte)(~lastByteMask);

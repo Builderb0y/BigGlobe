@@ -79,10 +79,12 @@
 	"bigglobe:sea_level": "`bigglobe:overworld/sea_level`",
 	"bigglobe:snow_y": "`bigglobe:islands/snow_y_gradient`.value",
 	"bigglobe:surface_depth": "`bigglobe:islands/type_storage/surface_depth`",
+	"bigglobe:surface_states": "`bigglobe:islands/surface_states`",
 	"bigglobe:surface_y_correction": "1.0L",
 	"bigglobe:temperature_at": "`bigglobe:islands/temperature`",
 	"bigglobe:temperature_at_sea_level": "`bigglobe:islands/temperature`",
 	"bigglobe:temperature_at_surface": "`bigglobe:islands/temperature`",
+	"bigglobe:terracotta_offset": "`bigglobe:overworld/terracotta_offset`",
 	"bigglobe:wood_palette": "`bigglobe:islands/type`.getWoodPalette(column)",
 	"bigglobe:y_level_in_surface": "world_traits.`bigglobe:y_level_on_surface` - 1",
 	"bigglobe:y_level_on_surface": "floorInt(world_traits.`bigglobe:exact_surface_y`)"

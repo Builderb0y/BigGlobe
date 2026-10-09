@@ -20,8 +20,11 @@ import builderb0y.autocodec.util.DFUVersions;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.FixedBlockStateProvider;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.StandardBlockStatePredicate;
 import builderb0y.bigglobe.chunkgen.scripted.SegmentList;
+import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.rendering.lods.LightweightSection;
 import builderb0y.bigglobe.rendering.lods.LightweightSection.LightLevelStorage;
@@ -54,13 +57,13 @@ public class LightweightChunk {
 
 	public final int minY, maxY;
 	public final ChunkPos pos;
-	public final BlockSegmentList[] columns;
+	public final BlockSegmentList[] lists;
 
 	public LightweightChunk(LevelHeightAccessor world, ChunkPos pos) {
 		this.minY = HeightLimitViewVersions.getMinY(world);
 		this.maxY = HeightLimitViewVersions.getMaxY(world);
 		this.pos = pos;
-		this.columns = new BlockSegmentList[ColumnIndexRange.LOD4.end];
+		this.lists = new BlockSegmentList[ColumnIndexRange.LOD4.end];
 	}
 
 	public void update(ServerLevel world, ListTag sectionsNBT, BlockSegmentList @Nullable [] cullingData) {
@@ -107,7 +110,7 @@ public class LightweightChunk {
 		int maxBlockY = this.maxY;
 		int minSectionY = minBlockY >> 4;
 		int maxSectionY = maxBlockY >> 4;
-		BlockSegmentList[] columns = this.columns;
+		BlockSegmentList[] columns = this.lists;
 		int verticalCompression = BigGlobeConfig.INSTANCE.get().lodRendering.verticalCompression;
 		int caveCullingDepth = BigGlobeConfig.INSTANCE.get().lodRendering.caveCullingDepth;
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
@@ -191,9 +194,9 @@ public class LightweightChunk {
 							public void addSegment(BlockSegmentList list, int minY, int maxY, BlockState state, int skylight) {
 								if (maxY == list.minY) return; //ignore void air.
 								if (BlockStateVersions.getCullingShape(state, EmptyBlockGetter.INSTANCE, BlockPos.ZERO) == Shapes.block()) {
-									for (int index = list.size(); --index >= 0; ) {
+									for (int index = list.size(); --index >= 0;) {
 										LitSegment segment = list.get(index);
-										if (segment.value == state) {
+										if (segment.getFixedBlockState() == state) {
 											list.size(index + 1);
 											segment.maxY = maxY - 1;
 											segment.skylightLevel = (byte)(skylight);
@@ -203,14 +206,14 @@ public class LightweightChunk {
 										else if (segment.minY < minY - verticalCompression) {
 											break;
 										}
-										else if (BlockStateVersions.getCullingShape(segment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO) != Shapes.block()) {
+										else if (segment.getFixedBlockState().getOcclusionShape() != Shapes.block()) {
 											break;
 										}
 									}
 								}
 								assert list.isEmpty() || list.get(list.size() - 1).maxY() == minY;
 								LitSegment segment = new LitSegment(minY, maxY - 1);
-								segment.value = state;
+								segment.value = new FixedBlockStateProvider(state);
 								segment.skylightLevel = (byte)(skylight);
 								list.add(segment);
 								if (SegmentList.ASSERTS) list.checkIntegrity();
@@ -219,10 +222,10 @@ public class LightweightChunk {
 							public void cull(BlockSegmentList real, BlockSegmentList cull) {
 								for (int cullIndex = 0, size = cull.size(); cullIndex < size; cullIndex++) {
 									LitSegment cullSegment = cull.get(cullIndex);
-									if (!BlockStateVersions.isOpaqueFullCube(cullSegment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
+									if (cullSegment.value.query(StandardBlockStatePredicate.SOLID) <= 0) {
 										if (cullIndex == 0) return;
 										int topIndex = real.getSegmentIndex(cullSegment.minY - caveCullingDepth, false);
-										while (topIndex >= 0 && !BlockStateVersions.isOpaqueFullCube(real.get(topIndex).value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
+										while (topIndex >= 0 && real.get(topIndex).value.query(StandardBlockStatePredicate.SOLID) < 0) {
 											topIndex--;
 										}
 										topIndex--; //preserve surface.
@@ -250,13 +253,13 @@ public class LightweightChunk {
 		int packed = ((z & mask) << shift) | (x & mask);
 		ColumnIndexRange range = ColumnIndexRange.VALUES[level];
 		assert packed >= 0 && packed < range.end - range.start;
-		return this.columns[packed + range.start];
+		return this.lists[packed + range.start];
 	}
 
-	public BlockState getBlockState(int x, int y, int z) {
-		BlockSegmentList column = this.columns[((z & 15) << 4) | (x & 15)];
-		if (column == null) return BlockStates.VOID_AIR;
-		BlockState state = column.getBlockState(y);
+	public BlockState getBlockState(ScriptedColumn column, int x, int y, int z) {
+		BlockSegmentList list = this.lists[((z & 15) << 4) | (x & 15)];
+		if (list == null) return BlockStates.VOID_AIR;
+		BlockState state = list.getBlockState(column, y);
 		if (state == null) return BlockStates.VOID_AIR;
 		return state;
 	}

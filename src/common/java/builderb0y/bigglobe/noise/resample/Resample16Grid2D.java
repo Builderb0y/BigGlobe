@@ -111,7 +111,7 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 			),
 			this.rcpX
 		);
-		for (int index = 0; true /* break in the middle of the loop */; ) {
+		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples.setD(index, polynomial.interpolate(modX * this.rcpX));
 			if (++index >= sampleCount) break;
 			if (++modX >= scaleX) {
@@ -178,7 +178,7 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 			),
 			this.rcpY
 		);
-		for (int index = 0; true /* break in the middle of the loop */; ) {
+		for (int index = 0; true /* break in the middle of the loop */;) {
 			samples.setD(index, polynomial.interpolate(modY * this.rcpY));
 			if (++index >= sampleCount) break;
 			if (++modY >= scaleY) {

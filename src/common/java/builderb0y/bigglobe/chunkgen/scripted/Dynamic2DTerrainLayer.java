@@ -1,26 +1,33 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
+import java.util.EnumMap;
 import java.util.stream.Stream;
+
 import net.minecraft.core.Holder;
+
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.bigglobe.columns.ColumnScript.ColumnToBlockStateScript;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.StandardBlockStatePredicate;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnYToBlockStateScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.dependencies.DependencyView;
 
-public class Simple2DLayer extends Layer {
+public class Dynamic2DTerrainLayer extends TerrainLayer {
 
-	public final ColumnToBlockStateScript.Catcher state;
+	public final ColumnYToBlockStateScript.Catcher state;
+	public final @DefaultEmpty EnumMap<StandardBlockStatePredicate, Boolean> guarantees;
 
-	public Simple2DLayer(
+	public Dynamic2DTerrainLayer(
 		@VerifyNullable Valid valid,
-		Holder<Layer> @DefaultEmpty [] children,
+		Holder<TerrainLayer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Catcher before_children,
 		SurfaceScript.@VerifyNullable Catcher after_children,
-		ColumnToBlockStateScript.Catcher state
+		ColumnYToBlockStateScript.Catcher state,
+		@DefaultEmpty EnumMap<StandardBlockStatePredicate, Boolean> guarantees
 	) {
 		super(valid, children, before_children, after_children);
 		this.state = state;
+		this.guarantees = guarantees;
 	}
 
 	@Override
@@ -30,6 +37,6 @@ public class Simple2DLayer extends Layer {
 
 	@Override
 	public void emitSelfSegments(ScriptedColumn column, BlockSegmentList blocks) {
-		blocks.setBlockStates(this.validMinY(column), this.validMaxY(column), this.state.get(column));
+		blocks.setDynamicBlockStates(this.validMinY(column), this.validMaxY(column), this.state, this.guarantees);
 	}
 }

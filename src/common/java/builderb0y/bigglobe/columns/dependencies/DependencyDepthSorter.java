@@ -292,7 +292,7 @@ public class DependencyDepthSorter {
 			while (swappedAny) {
 				swappedAny = false;
 				for (Column column : this.columns) {
-					for (int index1 = 0, limit = column.rows.size() - 1; index1 < limit; ) {
+					for (int index1 = 0, limit = column.rows.size() - 1; index1 < limit;) {
 						int index2 = index1 + 1;
 						Cell cell1 = column.rows.get(index1);
 						Cell cell2 = column.rows.get(index2);

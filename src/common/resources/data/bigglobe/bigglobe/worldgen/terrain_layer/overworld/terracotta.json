@@ -1,0 +1,26 @@
+{
+	"type": "dynamic_3d",
+	"state": [
+		"RockStripe.getStripe(",
+			"column,",
+			"y,",
+			"world_traits.`bigglobe:terracotta_offset`,",
+			"`bigglobe:overworld/rock_stripes`",
+		")"
+	],
+	"condition": [
+		"double surfaceY = world_traits.`bigglobe:exact_surface_y`,,",
+		"(worldSeed # 16x3776AAB989CB90D6UL).newSeed(y).nextBoolean(unmixSmooth(double(surfaceY - 64), double(surfaceY - 32), double(y)))"
+	],
+	"guarantees": {
+		"air": false,
+		"solid": true,
+		"is_fluid": false,
+		"has_fluid": false
+	},
+	"valid": {
+		"where": "`bigglobe:overworld/rock_stripes` != null",
+		"min_y": "world_traits.`bigglobe:y_level_on_surface` - 64",
+		"max_y": "world_traits.`bigglobe:y_level_on_surface`"
+	}
+}

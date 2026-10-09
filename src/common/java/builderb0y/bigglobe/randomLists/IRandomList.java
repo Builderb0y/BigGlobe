@@ -56,7 +56,7 @@ public interface IRandomList<E> extends List<E> {
 
 	public default void replaceAllWeights(ToDoubleFunction<? super E> operator) {
 		Objects.requireNonNull(operator, "operator");
-		for (WeightedListIterator<E> iterator = this.listIterator(); iterator.hasNext(); ) {
+		for (WeightedListIterator<E> iterator = this.listIterator(); iterator.hasNext();) {
 			iterator.setWeight(operator.applyAsDouble(iterator.next()));
 		}
 	}
@@ -205,7 +205,7 @@ public interface IRandomList<E> extends List<E> {
 
 	public default int defaultHashCode() {
 		int hash = 1;
-		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
+		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext();) {
 			hash = hash * 31 + Objects.hashCode(iterator.next());
 			hash = hash * 31 + Double.hashCode(iterator.getWeight());
 		}

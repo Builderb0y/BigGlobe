@@ -87,7 +87,7 @@ public class PerlinGrid2D extends PerlinBaseGrid2D {
 			slopeX11 = this.slopeX(seed, gridX, gridY1),
 			offset10 = this.slopeY(seed, gridX, gridY0) * fracY0 + this.offset(seed, gridX, gridY0),
 			offset11 = this.slopeY(seed, gridX, gridY1) * fracY1 + this.offset(seed, gridX, gridY1);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			samples.setD(
@@ -148,7 +148,7 @@ public class PerlinGrid2D extends PerlinBaseGrid2D {
 			slopeY11 = this.slopeY(seed, gridX1, gridY),
 			offset01 = this.slopeX(seed, gridX0, gridY) * fracX0 + this.offset(seed, gridX0, gridY),
 			offset11 = this.slopeX(seed, gridX1, gridY) * fracX1 + this.offset(seed, gridX1, gridY);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracY0 = modY * rcpY;
 			double fracY1 = fracY0 - 1.0D;
 			samples.setD(

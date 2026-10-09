@@ -17,7 +17,7 @@ import builderb0y.bigglobe.chunkgen.QuadHolder;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
-import builderb0y.bigglobe.chunkgen.scripted.Layer;
+import builderb0y.bigglobe.chunkgen.scripted.TerrainLayer;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.ScriptedColumn.Params;
@@ -214,7 +214,7 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 			quadList.createNew(quadColumn.object00.minY(), quadColumn.object00.maxY());
 			QuadHolder.generate(quadColumn, quadList, this.system.params.layer.value());
 			downscale.deltaLod(downscale.deltaLod() + lod).applyDownscale(quadList);
-			quadList.computeLightLevels(this.dimensionType.hasSkyLight() ? ((byte)(15)) : ((byte)(0)));
+			quadList.computeLightLevels(quadColumn, this.dimensionType.hasSkyLight() ? ((byte)(15)) : ((byte)(0)));
 		}
 		return quadList;
 	}
@@ -297,7 +297,7 @@ public class LodGenerator<T_LoadCache> implements SafeCloseable {
 			this.system.params.worldInfo(),
 			ColumnUsage.HEIGHTMAP.builtinLodHints(0)
 		);
-		Layer layer = this.system.params.layer.value();
+		TerrainLayer layer = this.system.params.layer.value();
 		try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 			int
 				minX = chunkPos.x() << 4,

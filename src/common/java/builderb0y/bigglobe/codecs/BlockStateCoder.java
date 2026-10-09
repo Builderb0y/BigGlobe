@@ -411,7 +411,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 										properties.put(property, value);
 									}
 									return manager.getPossibleStates().stream().filter((BlockState state) -> {
-										for (ObjectIterator<Object2ObjectMap.Entry<Property<?>, Comparable<?>>> iterator = properties.object2ObjectEntrySet().fastIterator(); iterator.hasNext(); ) {
+										for (ObjectIterator<Object2ObjectMap.Entry<Property<?>, Comparable<?>>> iterator = properties.object2ObjectEntrySet().fastIterator(); iterator.hasNext();) {
 											Map.Entry<Property<?>, Comparable<?>> entry = iterator.next();
 											if (!state.getValue(entry.getKey()).equals(entry.getValue())) return false;
 										}

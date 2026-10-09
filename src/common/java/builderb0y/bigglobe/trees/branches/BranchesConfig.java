@@ -75,7 +75,7 @@ public class BranchesConfig {
 	public void updateBranch(TreeGenerator generator, int index) {
 		double angle = this.startAngle;
 		double angleIncrement = Math.PI;
-		for (int bits = index; true; ) {
+		for (int bits = index; true;) {
 			if ((bits & 0b1) != 0) angle += angleIncrement;
 			if ((bits >>>= 1) == 0) break;
 			angleIncrement *= 0.5D;

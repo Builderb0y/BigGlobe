@@ -142,7 +142,7 @@ public class PerlinGrid3D extends PerlinBaseGrid3D {
 			offset101 = this.slopeY(seed, gridX, gridY0, gridZ1) * fracY0 + this.slopeZ(seed, gridX, gridY0, gridZ1) * fracZ1 + this.offset(seed, gridX, gridY0, gridZ1),
 			offset110 = this.slopeY(seed, gridX, gridY1, gridZ0) * fracY1 + this.slopeZ(seed, gridX, gridY1, gridZ0) * fracZ0 + this.offset(seed, gridX, gridY1, gridZ0),
 			offset111 = this.slopeY(seed, gridX, gridY1, gridZ1) * fracY1 + this.slopeZ(seed, gridX, gridY1, gridZ1) * fracZ1 + this.offset(seed, gridX, gridY1, gridZ1);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			samples.setD(
@@ -244,7 +244,7 @@ public class PerlinGrid3D extends PerlinBaseGrid3D {
 			offset011 = this.slopeX(seed, gridX0, gridY, gridZ1) * fracX0 + this.slopeZ(seed, gridX0, gridY, gridZ1) * fracZ1 + this.offset(seed, gridX0, gridY, gridZ1),
 			offset110 = this.slopeX(seed, gridX1, gridY, gridZ0) * fracX1 + this.slopeZ(seed, gridX1, gridY, gridZ0) * fracZ0 + this.offset(seed, gridX1, gridY, gridZ0),
 			offset111 = this.slopeX(seed, gridX1, gridY, gridZ1) * fracX1 + this.slopeZ(seed, gridX1, gridY, gridZ1) * fracZ1 + this.offset(seed, gridX1, gridY, gridZ1);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracY0 = modY * rcpY;
 			double fracY1 = fracY0 - 1.0D;
 			samples.setD(
@@ -346,7 +346,7 @@ public class PerlinGrid3D extends PerlinBaseGrid3D {
 			offset011 = this.slopeX(seed, gridX0, gridY1, gridZ) * fracX0 + this.slopeY(seed, gridX0, gridY1, gridZ) * fracY1 + this.offset(seed, gridX0, gridY1, gridZ),
 			offset101 = this.slopeX(seed, gridX1, gridY0, gridZ) * fracX1 + this.slopeY(seed, gridX1, gridY0, gridZ) * fracY0 + this.offset(seed, gridX1, gridY0, gridZ),
 			offset111 = this.slopeX(seed, gridX1, gridY1, gridZ) * fracX1 + this.slopeY(seed, gridX1, gridY1, gridZ) * fracY1 + this.offset(seed, gridX1, gridY1, gridZ);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracZ0 = modZ * rcpZ;
 			double fracZ1 = fracZ0 - 1.0D;
 			samples.setD(

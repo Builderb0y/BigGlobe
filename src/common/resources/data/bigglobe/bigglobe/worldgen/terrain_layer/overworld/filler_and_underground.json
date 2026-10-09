@@ -4,14 +4,7 @@
 		"int minFillY = world_traits.`bigglobe:min_y`",
 		"int maxFillY = world_traits.`bigglobe:y_level_on_surface`",
 		"BlockState getState(int fakeY:",
-			"BlockState state = RockStripe.getStripe(",
-				"column,",
-				"fakeY,",
-				"`bigglobe:overworld/terracotta_offset` * `bigglobe:overworld/raw/mountainness`,",
-				"`bigglobe:overworld/rock_stripes`",
-			")",
-			"if (state == null: state = `bigglobe:overworld/rocks/filler`(fakeY))",
-			"return(state)",
+			"`bigglobe:overworld/rocks/filler`(fakeY)",
 		")",
 		"if (hints.isLod:",
 			"BlockState state = getState(world_traits.`bigglobe:y_level_in_surface`)",
@@ -31,15 +24,6 @@
 			"setBlockStates(prevY, maxFillY, prevState)",
 		")"
 	],
-	"before_children": {
-		"includes": [
-			"bigglobe:world_preset/place_surface",
-			"bigglobe:world_preset/overworld_dh_glacier_placement"
-		],
-		"source": [
-			"placeSurface(world_traits.`bigglobe:y_level_on_surface`, `bigglobe:overworld/surface_states`)"
-		]
-	},
 	"after_children": {
 		"includes": [
 			"bigglobe:include/generate_snow"
@@ -59,6 +43,8 @@
 		"bigglobe:overworld/core_carver",
 		"bigglobe:overworld/deep_dark_carver",
 		"bigglobe:overworld/chasm_carver",
-		"bigglobe:overworld/cave_carver"
+		"bigglobe:overworld/cave_carver",
+		"bigglobe:overworld/surface",
+		"bigglobe:overworld/terracotta"
 	]
 }

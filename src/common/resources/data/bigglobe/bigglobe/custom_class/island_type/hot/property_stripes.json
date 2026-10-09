@@ -1,7 +1,0 @@
-{
-	"element_type": "property/abstract",
-	"owner": "bigglobe:island_type/hot/class",
-	"name": "stripes",
-	"property_type": "set",
-	"settable": false
-}

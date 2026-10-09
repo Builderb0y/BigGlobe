@@ -186,7 +186,7 @@ public abstract class LabyrinthLayout {
 	public Direction[] horizontals() {
 		RandomGenerator random = this.random;
 		Direction[] horizontals = this.horizontals;
-		for (int index = 4; index != 0; ) {
+		for (int index = 4; index != 0;) {
 			ObjectArrays.swap(horizontals, random.nextInt(index), --index);
 		}
 		return horizontals;

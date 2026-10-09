@@ -6,7 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.scripted.Layer;
+import builderb0y.bigglobe.chunkgen.scripted.TerrainLayer;
 import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.decisionTrees.DecisionTreeSpec;
@@ -32,7 +32,7 @@ public class BigGlobeDynamicRegistries {
 	public static final ResourceKey<Registry<FeatureDispatcher       >>     FEATURE_DISPATCHER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/feature_dispatcher"));
 	public static final ResourceKey<Registry<Overrider               >>              OVERRIDER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/overrider"));
 	public static final ResourceKey<Registry<CombinedStructureScripts>> SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/script_structure_piece"));
-	public static final ResourceKey<Registry<Layer                   >>          TERRAIN_LAYER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/terrain_layer"));
+	public static final ResourceKey<Registry<TerrainLayer>>          TERRAIN_LAYER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/terrain_layer"));
 	public static final ResourceKey<Registry<WorldTrait              >>            WORLD_TRAIT_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("worldgen/world_trait"));
 	public static final ResourceKey<Registry<SoundModifier           >>         SOUND_MODIFIER_REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("sound_modifier"));
 
@@ -47,7 +47,7 @@ public class BigGlobeDynamicRegistries {
 		DynamicRegistries.register(    FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher       .class));
 		DynamicRegistries.register(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider               .class));
 		DynamicRegistries.register(SCRIPT_STRUCTURE_PIECE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
-		DynamicRegistries.register(         TERRAIN_LAYER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Layer                   .class));
+		DynamicRegistries.register(         TERRAIN_LAYER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(TerrainLayer.class));
 		DynamicRegistries.register(           WORLD_TRAIT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WorldTrait              .class));
 		DynamicRegistries.registerSynced(  SOUND_MODIFIER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(SoundModifier           .class));
 	}

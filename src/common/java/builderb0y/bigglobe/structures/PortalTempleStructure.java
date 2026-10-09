@@ -106,7 +106,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 								List<StructurePiece> pieces = new ArrayList<>(8);
 								pieces.add(new MainBuildingPiece(BigGlobeStructures.PORTAL_TEMPLE_MAIN_BUILDING, x, y_, z, crackedChance, permuter));
 								pieces.add(new PortalPiece(BigGlobeStructures.PORTAL_TEMPLE_PORTAL, x, y_ + 10, z, permuter));
-								for (int failure = 0; failure < 4; ) {
+								for (int failure = 0; failure < 4;) {
 									DecorationPiece piece = switch (permuter.nextInt() & 3) {
 										case 0 -> new WellPiece(BigGlobeStructures.PORTAL_TEMPLE_WELL, x, y_, z, permuter);
 										case 1 -> new FarmPiece(BigGlobeStructures.PORTAL_TEMPLE_FARM, x, y_, z, permuter);
@@ -785,7 +785,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				this.decorations.removeIf(positionState -> positionState.place(world, this.centerPos, chunkBox));
 			}
 			//entities
-			for (Iterator<CompoundTag> iterator = this.entities.iterator(); iterator.hasNext(); ) {
+			for (Iterator<CompoundTag> iterator = this.entities.iterator(); iterator.hasNext();) {
 				CompoundTag nbt = iterator.next();
 				if (!(
 					nbt.get("Pos") instanceof ListTag posNBT &&

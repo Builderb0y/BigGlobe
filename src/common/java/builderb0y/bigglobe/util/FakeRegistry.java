@@ -38,7 +38,7 @@ public class FakeRegistry<T> {
 				this.key = entry.value();
 			}
 		}
-		for (Reference<? extends Holder<T>> reference; (reference = this.queue.poll()) != null; ) {
+		for (Reference<? extends Holder<T>> reference; (reference = this.queue.poll()) != null;) {
 			this.cache.remove(((Ref)(reference)).key);
 		}
 		MutableObject<Holder<T>> result = new MutableObject<>();

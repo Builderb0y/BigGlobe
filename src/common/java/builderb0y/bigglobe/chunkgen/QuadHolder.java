@@ -1,18 +1,14 @@
 package builderb0y.bigglobe.chunkgen;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.block.LiquidBlock;
-
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
-import builderb0y.bigglobe.chunkgen.scripted.Layer;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.StandardBlockStatePredicate;
+import builderb0y.bigglobe.chunkgen.scripted.TerrainLayer;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumn.Params;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider.Catcher;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.structures.ScriptStructures;
-import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class QuadHolder<T> {
 
@@ -120,11 +116,11 @@ public class QuadHolder<T> {
 			this.object11 = new BlockSegmentList(minY, maxY);
 		}
 
-		public void computeLightLevels(byte topLightLevel) {
-			this.object00.computeLightLevels(topLightLevel);
-			this.object01.computeLightLevels(topLightLevel);
-			this.object10.computeLightLevels(topLightLevel);
-			this.object11.computeLightLevels(topLightLevel);
+		public void computeLightLevels(QuadColumn columns, byte topLightLevel) {
+			this.object00.computeLightLevels(columns.object00, topLightLevel);
+			this.object01.computeLightLevels(columns.object01, topLightLevel);
+			this.object10.computeLightLevels(columns.object10, topLightLevel);
+			this.object11.computeLightLevels(columns.object11, topLightLevel);
 		}
 
 		public void downscale(int deltaLod) {
@@ -146,16 +142,20 @@ public class QuadHolder<T> {
 			BlockSegmentList newList = new BlockSegmentList(list.minY >> deltaLod, (list.maxY >> deltaLod) + 1);
 			for (LitSegment segment : list) {
 				int minY = segment.minY >> deltaLod, maxY = segment.maxY >> deltaLod;
-				if (segment.value.isAir()) {
+				if (segment.value.query(StandardBlockStatePredicate.AIR) > 0) {
 					LitSegment existing = newList.getOverlappingSegment(minY);
-					if (existing != null && !existing.value.isAir()) {
+					if (existing != null && existing.value.query(StandardBlockStatePredicate.AIR) <= 0) {
 						minY = Math.max(minY, existing.maxY + 1);
 					}
 				}
-				//ensure liquids can't overwrite normal blocks.
-				else if (segment.value.getBlock() instanceof LiquidBlock) {
+				//ensure liquids can't overwrite normal blocks unless it's only one block deep.
+				else if (segment.value.query(StandardBlockStatePredicate.IS_FLUID) > 0) {
 					LitSegment existing = newList.getOverlappingSegment(minY);
-					if (existing != null && !existing.value.isAir() && existing.value.getFluidState().isEmpty()) {
+					if (
+						existing != null &&
+						existing.value.query(StandardBlockStatePredicate.AIR) <= 0 &&
+						existing.value.query(StandardBlockStatePredicate.HAS_FLUID) <= 0
+					) {
 						minY = Math.min(Math.max(minY, existing.maxY + 1), maxY);
 					}
 				}
@@ -176,7 +176,7 @@ public class QuadHolder<T> {
 
 		public static void copyAir(BlockSegmentList source, BlockSegmentList destination) {
 			for (LitSegment segment : source) {
-				if (!BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
+				if (segment.value.query(StandardBlockStatePredicate.SOLID) < 0) {
 					destination.addSegment(segment.minY, segment.maxY, segment.value);
 					LitSegment newSegment = destination.getOverlappingSegment(segment.minY);
 					newSegment.skylightLevel = (byte)(Math.max(newSegment.skylightLevel, segment.skylightLevel));
@@ -190,7 +190,7 @@ public class QuadHolder<T> {
 			for (LitSegment segment : list) {
 				int minY = segment.minY >> deltaLod, maxY = segment.maxY >> deltaLod;
 				//ensure culling blocks can't overwrite non-culling blocks.
-				if (BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
+				if (segment.value.query(StandardBlockStatePredicate.SOLID) >= 0) {
 					LitSegment existing = newList.getOverlappingSegment(minY);
 					if (existing != null) {
 						minY = Math.max(minY, existing.maxY + 1);
@@ -203,7 +203,7 @@ public class QuadHolder<T> {
 		}
 	}
 
-	public static void generate(QuadColumn columns, QuadList lists, Layer layer) {
+	public static void generate(QuadColumn columns, QuadList lists, TerrainLayer layer) {
 		layer.emitSegments(columns.object00, columns.object01, columns.object10, columns.object11, lists.object00);
 		layer.emitSegments(columns.object01, columns.object00, columns.object11, columns.object10, lists.object01);
 		layer.emitSegments(columns.object10, columns.object11, columns.object00, columns.object01, lists.object10);

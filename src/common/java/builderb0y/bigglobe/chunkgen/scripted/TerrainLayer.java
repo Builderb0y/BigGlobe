@@ -15,28 +15,29 @@ import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.dependencies.DependencyView.SimpleDependencyView;
 
-//todo: rename class to TerrainLayer.
-@UseCoder(name = "REGISTRY", in = Layer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
-public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependencyView {
+@UseCoder(name = "REGISTRY", in = TerrainLayer.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
+public abstract class TerrainLayer implements CoderRegistryTyped<TerrainLayer>, SimpleDependencyView {
 
-	public static final CoderRegistry<Layer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
+	public static final CoderRegistry<TerrainLayer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
 
 	static {
-		REGISTRY.registerAuto(BigGlobeMod.modID("root"),                   RootLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"),          Simple2DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"),          Simple3DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("multi_state_3d"), MultiState3DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),           ScriptedLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("noop"),                   NoopLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("root"),                   RootTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"),          Simple2DTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"),          Simple3DTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("dynamic_2d"),        Dynamic2DTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("dynamic_3d"),        Dynamic3DTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("multi_state_3d"), MultiState3DTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),           ScriptedTerrainLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("noop"),                   NoopTerrainLayer.class);
 	}
 
 	public final @VerifyNullable Valid valid;
-	public final Holder<Layer> @DefaultEmpty [] children;
+	public final Holder<TerrainLayer> @DefaultEmpty [] children;
 	public final SurfaceScript.@VerifyNullable Catcher before_children, after_children;
 
-	public Layer(
+	public TerrainLayer(
 		@VerifyNullable Valid valid,
-		Holder<Layer> @DefaultEmpty [] children,
+		Holder<TerrainLayer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Catcher before_children,
 		SurfaceScript.@VerifyNullable Catcher after_children
 	) {
@@ -52,7 +53,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		Stream.Builder<Holder<? extends DependencyView>> builder = Stream.builder();
 
-		for (Holder<Layer> child : this.children) {
+		for (Holder<TerrainLayer> child : this.children) {
 			builder.accept(child);
 		}
 		if (this.valid != null) {
@@ -81,7 +82,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 				BlockSegmentList split = selfSegments.splitAtPlacedRange();
 				if (split != null) {
 					BlockSegmentList split2 = split.split();
-					for (Holder<Layer> child : this.children) {
+					for (Holder<TerrainLayer> child : this.children) {
 						child.value().emitSegments(column, altX, altZ, altXZ, split2);
 						split.mergeAndKeepWhereThereArentBlocks(split2);
 						split2.reset();
@@ -104,7 +105,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 				BlockSegmentList split = selfSegments.splitAtPlacedRange();
 				if (split != null) {
 					BlockSegmentList split2 = split.split();
-					for (Holder<Layer> child : this.children) {
+					for (Holder<TerrainLayer> child : this.children) {
 						child.value().emitSegments(column, split2);
 						split.mergeAndKeepWhereThereArentBlocks(split2);
 						split2.reset();

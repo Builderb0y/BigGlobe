@@ -127,12 +127,12 @@ public abstract class ComputedRandomList<E> extends AbstractRandomList<E> implem
 	public int lastIndexOf(Object element) {
 		E[] elements = this.castRawElements();
 		if (element != null) {
-			for (int i = this.size; i-- != 0; ) {
+			for (int i = this.size; i-- != 0;) {
 				if (element.equals(elements[i])) return i;
 			}
 		}
 		else {
-			for (int i = this.size; i-- != 0; ) {
+			for (int i = this.size; i-- != 0;) {
 				if (elements[i] == null) return i;
 			}
 		}

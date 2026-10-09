@@ -101,7 +101,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	@Override
 	public void close() {
 		CompletionException exception = null;
-		for (CompletableFuture<T_Result> future; (future = this.waitingOn.pollFirst()) != null; ) {
+		for (CompletableFuture<T_Result> future; (future = this.waitingOn.pollFirst()) != null;) {
 			try {
 				this.finish(future);
 			}

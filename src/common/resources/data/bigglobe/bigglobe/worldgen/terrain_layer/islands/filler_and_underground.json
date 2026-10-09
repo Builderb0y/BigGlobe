@@ -24,12 +24,6 @@
 			"setBlockStates(prevY, maxFillY, prevState)",
 		")"
 	],
-	"before_children": [
-		"int y = world_traits.`bigglobe:y_level_on_surface`",
-		"for (SurfaceState layer in `bigglobe:islands/surface_states`.layers:",
-			"setBlockStates(y - layer.depth, y, layer.state)",
-		")"
-	],
 	"after_children": {
 		"includes": [
 			"bigglobe:include/generate_snow"
@@ -50,6 +44,8 @@
 		"bigglobe:islands/volcano_carver",
 		"bigglobe:overworld/deep_dark_carver",
 		"bigglobe:overworld/chasm_carver",
-		"bigglobe:overworld/cave_carver"
+		"bigglobe:overworld/cave_carver",
+		"bigglobe:overworld/surface",
+		"bigglobe:overworld/terracotta"
 	]
 }

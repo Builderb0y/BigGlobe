@@ -64,7 +64,7 @@ public class ChunkCache implements SafeCloseable {
 	public void processDirtyChunks() {
 		LodSystem system = this.generator.system;
 		if (this.presentChunksLock.tryLock()) try {
-			for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null; ) {
+			for (ChunkPos chunkPos; (chunkPos = this.dirtyChunks.poll()) != null;) {
 				if (this.chunks.tryInvalidate(chunkPos)) {
 					this.presentChunks.set(chunkPos.x(), chunkPos.z(), true);
 					system.getTree().invalidateRegion(WorldUtil.chunkBox(chunkPos, system.params.minY, system.params.maxY));

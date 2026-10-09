@@ -78,8 +78,11 @@ import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.DynamicBlockStateProvider;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.FixedBlockStateProvider;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
-import builderb0y.bigglobe.chunkgen.scripted.Layer;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.StandardBlockStatePredicate;
+import builderb0y.bigglobe.chunkgen.scripted.TerrainLayer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.VerifyDivisibleBy16;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
@@ -168,7 +171,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable Integer sea_level
 	) {}
 	public final Height height;
-	public final Holder<Layer> layer;
+	public final Holder<TerrainLayer> layer;
 	public final FeatureDispatchers feature_dispatcher;
 	public final DelayedEntryList<Overrider> overriders;
 	public final @DefaultObject(name = "DEFAULT", in = GameMechanics.class, mode = DefaultObjectMode.FIELD) GameMechanics game_mechanics;
@@ -282,7 +285,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable String      reload_preset,
 		@VerifyNullable String      reload_dimension,
 		Height                      height,
-		Holder<Layer>               layer,
+		Holder<TerrainLayer>               layer,
 		FeatureDispatchers          feature_dispatcher,
 		BiomeSource                 biome_source,
 		DelayedEntryList<Overrider> overriders,
@@ -778,7 +781,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									}
 									QuadList quadList = new QuadList();
 									quadList.createNew(chunkMinY, chunkMaxY);
-									Layer layer = this.layer.value();
+									TerrainLayer layer = this.layer.value();
 									QuadHolder.generate(quadColumn, quadList, layer);
 									quadList.storeInArray(lists, baseIndex, 16);
 								});
@@ -794,14 +797,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						int size = list.size();
 						for (int index = 0; index < size; index++) {
 							LitSegment segment = list.get(index);
-							if (!segment.value.isAir()) {
+							if (segment.value.query(StandardBlockStatePredicate.AIR) <= 0) {
 								minFilledSectionY = Math.min(minFilledSectionY, segment.minY);
 								break;
 							}
 						}
-						for (int index = size; --index >= 0; ) {
+						for (int index = size; --index >= 0;) {
 							LitSegment segment = list.get(index);
-							if (!segment.value.isAir()) {
+							if (segment.value.query(StandardBlockStatePredicate.AIR) <= 0) {
 								maxFilledSectionY = Math.max(maxFilledSectionY, segment.maxY);
 								break;
 							}
@@ -817,9 +820,10 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 							LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(coord));
 							int baseY = coord << 4;
 							SectionGenerationContext context = SectionGenerationContext.forBlockCoord(chunk, section, baseY);
-							BlockState centerState = lists[0x88].getOverlappingObject(baseY | 8);
-							if (centerState != null) context.setAllStates(centerState, distantHorizons);
+							LitSegment centerSegment = lists[0x88].getOverlappingSegment(baseY | 8);
+							if (centerSegment != null) context.setAllStates(centerSegment.getBlockState(columns[0x88], baseY | 8), distantHorizons);
 							for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
+								ScriptedColumn column = columns[horizontalIndex];
 								BlockSegmentList list = lists[horizontalIndex];
 								int size = list.size();
 								int yIndex = list.getSegmentIndex(baseY, false);
@@ -828,10 +832,20 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 									int segmentMinY = Math.max(segment.minY - baseY, 0);
 									int segmentMaxY = Math.min(segment.maxY - baseY, 15);
 									if (segmentMaxY >= segmentMinY) {
-										int id = context.id(segment.value);
-										BitStorage storage = context.storage();
-										for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
-											storage.set((blockY << 8) | horizontalIndex, id);
+										switch (segment.value) {
+											case FixedBlockStateProvider(BlockState state) -> {
+												int id = context.id(state);
+												BitStorage storage = context.storage();
+												for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
+													storage.set((blockY << 8) | horizontalIndex, id);
+												}
+											}
+											case DynamicBlockStateProvider dynamic -> {
+												for (int blockY = segmentMinY; blockY <= segmentMaxY; blockY++) {
+													int id = context.id(dynamic.getBlockState(column, blockY));
+													context.storage().set((blockY << 8) | horizontalIndex, id);
+												}
+											}
 										}
 									}
 									yIndex++;
@@ -849,7 +863,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						for (int horizontalIndex = 0; horizontalIndex < 256; horizontalIndex++) {
 							BlockSegmentList list = lists[horizontalIndex];
 							if (!list.isEmpty()) {
-								int height = getHeight(list, type);
+								int height = getHeight(columns[horizontalIndex], list, type);
 								height = Mth.clamp(height - HeightLimitViewVersions.getMinY(chunk), 0, HeightLimitViewVersions.getHeight(chunk));
 								heightmapStorage.set(horizontalIndex, height);
 							}
@@ -1287,13 +1301,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public int getHeight(ScriptedColumn column, Types heightmap, LevelHeightAccessor world) {
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.value().emitSegments(column, list);
-		return getHeight(list, heightmap);
+		return getHeight(column, list, heightmap);
 	}
 
-	public static int getHeight(BlockSegmentList list, Types type) {
-		for (int index = list.size(); --index >= 0; ) {
+	public static int getHeight(ScriptedColumn column, BlockSegmentList list, Types type) {
+		for (int index = list.size(); --index >= 0;) {
 			LitSegment segment = list.get(index);
-			if (type.isOpaque().test(segment.value)) {
+			if (type.isOpaque().test(segment.getBlockState(column, segment.maxY))) {
 				return segment.maxY + 1;
 			}
 		}
@@ -1305,7 +1319,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.GENERIC.maybeDhHints());
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.value().emitSegments(column, list);
-		BlockState[] states = list.flatten(BlockState[]::new);
+		BlockState[] states = list.flattenBlockStates(column);
 		for (int index = 0, length = states.length; index < length; index++) {
 			if (states[index] == null) states[index] = BlockStates.AIR;
 		}

@@ -76,7 +76,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		int centerY = origin.getY();
 		double centerZ = origin.getZ();
 		outer:
-		for (BlockPos pos; (pos = toCheck.pollFirst()) != null; ) {
+		for (BlockPos pos; (pos = toCheck.pollFirst()) != null;) {
 			for (Direction direction : Directions.HORIZONTAL) {
 				BlockPos offset = pos.relative(direction);
 				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).typeHolder())) {

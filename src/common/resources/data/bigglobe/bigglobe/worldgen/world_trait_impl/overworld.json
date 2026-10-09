@@ -1,59 +1,7 @@
 {
-	"bigglobe:biome":                             "`bigglobe:overworld/biome`",
-	"bigglobe:cave_min_y_exact":                  "`bigglobe:overworld/cave_type`.value.minY(column)",
-	"bigglobe:cave_max_y_exact":                  "`bigglobe:overworld/cave_type`.value.maxY(column)",
-	"bigglobe:cave_surface_depth":                "`bigglobe:overworld/caves/surface_depth_noise`",
-	"bigglobe:cave_system":                       "`bigglobe:overworld/cave_type`.value",
-	"bigglobe:cave_border":                       "`bigglobe:overworld/cave_type`.border",
-	"bigglobe:core_min_y":                        "-912I",
-	"bigglobe:core_max_y":                        "-784I",
-	"bigglobe:deep_dark_min_y":                   "-752I",
-	"bigglobe:deep_dark_max_y":                   "-656I",
-	"bigglobe:chasm_min_y":                       "floorInt(`bigglobe:overworld/chasm/chasm_min_y`)",
-	"bigglobe:chasm_max_y":                       "floorInt(world_traits.`bigglobe:cave_min_y` - 32I)",
-	"bigglobe:eroded_foliage":                    "`bigglobe:overworld/eroded_foliage`.y.as(float)",
-	"bigglobe:foliage_at":                        "`bigglobe:overworld/raw/foliage`",
-	"bigglobe:foliage_at_sea_level":              "`bigglobe:overworld/raw/foliage`",
-	"bigglobe:enabled_decorations":               "`bigglobe:overworld/enabled_decorations`",
-	"bigglobe:humidity_at":                       "`bigglobe:overworld/humidity`",
-	"bigglobe:humidity_at_sea_level":             "`bigglobe:overworld/humidity`",
-	"bigglobe:humidity_at_surface":               "`bigglobe:overworld/humidity`",
-	"bigglobe:hilliness":                         "`bigglobe:overworld/hilliness`",
-	"bigglobe:in_river":                          "`bigglobe:overworld/in_river`",
-	"bigglobe:is_desert":                         "`bigglobe:overworld/is_desert`",
-	"bigglobe:is_mesa":                           "`bigglobe:overworld/is_mesa`",
-	"bigglobe:lava_y":                            "-896I",
-	"bigglobe:magicalness":                       "`bigglobe:overworld/magicalness`",
-	"bigglobe:mountainness":                      "`bigglobe:overworld/mountainness`",
-	"bigglobe:min_y":                             "-1024I",
-	"bigglobe:max_y":                             " 1024I",
-	"bigglobe:sea_level":                         "0I",
-	"bigglobe:snow_chance_at":                    "world_traits.`bigglobe:exact_surface_y` < world_traits.`bigglobe:sea_level` ? 0.0I : world_traits.`bigglobe:snow_chance`",
-	"bigglobe:temperature_at":                    "`bigglobe:overworld/temperature`",
-	"bigglobe:temperature_at_sea_level":          "`bigglobe:overworld/temperature`",
-	"bigglobe:temperature_at_surface":            "`bigglobe:overworld/temperature`",
-	"bigglobe:wood_palette":                      "`bigglobe:overworld/wood_palette`",
-	"bigglobe:automatic_surface_states":          "`bigglobe:overworld/surface_states`",
-	"bigglobe:rock_weight_andesite":              "`bigglobe:overworld/rocks/andesite`",
-	"bigglobe:rock_weight_calcite":               "`bigglobe:overworld/rocks/calcite`",
-	"bigglobe:rock_weight_diorite":               "`bigglobe:overworld/rocks/diorite`",
-	"bigglobe:rock_weight_granite":               "`bigglobe:overworld/rocks/granite`",
-	"bigglobe:rock_weight_red_sandstone":         "`bigglobe:overworld/rocks/red_sandstone`",
-	"bigglobe:rock_weight_sandstone":             "`bigglobe:overworld/rocks/sandstone`",
-	"bigglobe:rock_weight_stone":                 "`bigglobe:overworld/rocks/stone`",
-	"bigglobe:rock_weight_tuff":                  "`bigglobe:overworld/rocks/tuff`",
-	"bigglobe:surface_depth":                     "`bigglobe:overworld/default_surface_depth`",
 	"bigglobe:approximate_surface_y": {
 		"get": "`bigglobe:overworld/approximate_surface_y`",
 		"set": "`bigglobe:overworld/approximate_surface_y` = value"
-	},
-	"bigglobe:automatic_surface_states_override": {
-		"get": "`bigglobe:overworld/surface_states_override`",
-		"set": "`bigglobe:overworld/surface_states_override` = value"
-	},
-	"bigglobe:automatic_snow_y": {
-		"get": "`bigglobe:overworld/snow_y`",
-		"set": "`bigglobe:overworld/snow_y` = value"
 	},
 	"bigglobe:automatic_approximate_surface_y": {
 		"get": "`bigglobe:overworld/approximate_surface_y`",
@@ -63,29 +11,83 @@
 		"get": "`bigglobe:overworld/exact_surface_y`",
 		"set": "`bigglobe:overworld/exact_surface_y` = value"
 	},
+	"bigglobe:automatic_snow_y": {
+		"get": "`bigglobe:overworld/snow_y`",
+		"set": "`bigglobe:overworld/snow_y` = value"
+	},
 	"bigglobe:automatic_surface_foliage": {
 		"get": "`bigglobe:overworld/foliage`",
 		"set": "`bigglobe:overworld/foliage` = value"
 	},
+	"bigglobe:automatic_surface_states": "`bigglobe:overworld/surface_states`",
+	"bigglobe:automatic_surface_states_override": {
+		"get": "`bigglobe:overworld/surface_states_override`",
+		"set": "`bigglobe:overworld/surface_states_override` = value"
+	},
+	"bigglobe:biome": "`bigglobe:overworld/biome`",
+	"bigglobe:cave_border": "`bigglobe:overworld/cave_type`.border",
+	"bigglobe:cave_max_y_exact": "`bigglobe:overworld/cave_type`.value.maxY(column)",
+	"bigglobe:cave_min_y_exact": "`bigglobe:overworld/cave_type`.value.minY(column)",
 	"bigglobe:cave_noise": {
 		"get": "`bigglobe:overworld/cave_type`.value.getNoise(column, y)",
 		"set": "`bigglobe:overworld/cave_type`.value.setNoise(column, y, value)",
 		"pre_compute": "`bigglobe:overworld/cave_type`.value.getNoise(column, 0)"
 	},
+	"bigglobe:cave_surface_depth": "`bigglobe:overworld/caves/surface_depth_noise`",
+	"bigglobe:cave_system": "`bigglobe:overworld/cave_type`.value",
+	"bigglobe:chasm_max_y": "floorInt(world_traits.`bigglobe:cave_min_y` - 32I)",
+	"bigglobe:chasm_min_y": "floorInt(`bigglobe:overworld/chasm/chasm_min_y`)",
+	"bigglobe:core_max_y": "-784I",
+	"bigglobe:core_min_y": "-912I",
+	"bigglobe:deep_dark_max_y": "-656I",
+	"bigglobe:deep_dark_min_y": "-752I",
+	"bigglobe:enabled_decorations": "`bigglobe:overworld/enabled_decorations`",
+	"bigglobe:eroded_foliage": "`bigglobe:overworld/eroded_foliage`.y.as(float)",
 	"bigglobe:exact_surface_y": {
 		"get": "`bigglobe:overworld/exact_surface_y`",
 		"set": "`bigglobe:overworld/exact_surface_y` = value"
 	},
+	"bigglobe:foliage_at": "`bigglobe:overworld/raw/foliage`",
+	"bigglobe:foliage_at_sea_level": "`bigglobe:overworld/raw/foliage`",
 	"bigglobe:foliage_at_surface": {
 		"get": "`bigglobe:overworld/foliage`",
 		"set": "`bigglobe:overworld/foliage` = value"
 	},
+	"bigglobe:hilliness": "`bigglobe:overworld/hilliness`",
+	"bigglobe:humidity_at": "`bigglobe:overworld/humidity`",
+	"bigglobe:humidity_at_sea_level": "`bigglobe:overworld/humidity`",
+	"bigglobe:humidity_at_surface": "`bigglobe:overworld/humidity`",
+	"bigglobe:in_river": "`bigglobe:overworld/in_river`",
+	"bigglobe:is_desert": "`bigglobe:overworld/is_desert`",
+	"bigglobe:is_mesa": "`bigglobe:overworld/is_mesa`",
+	"bigglobe:lava_y": "-896I",
+	"bigglobe:magicalness": "`bigglobe:overworld/magicalness`",
+	"bigglobe:max_y": " 1024I",
+	"bigglobe:min_y": "-1024I",
+	"bigglobe:mountainness": "`bigglobe:overworld/mountainness`",
 	"bigglobe:river_water_y": {
 		"get": "`bigglobe:overworld/river_water_y`",
 		"set": "`bigglobe:overworld/river_water_y` = value"
 	},
+	"bigglobe:rock_weight_andesite": "`bigglobe:overworld/rocks/andesite`",
+	"bigglobe:rock_weight_calcite": "`bigglobe:overworld/rocks/calcite`",
+	"bigglobe:rock_weight_diorite": "`bigglobe:overworld/rocks/diorite`",
+	"bigglobe:rock_weight_granite": "`bigglobe:overworld/rocks/granite`",
+	"bigglobe:rock_weight_red_sandstone": "`bigglobe:overworld/rocks/red_sandstone`",
+	"bigglobe:rock_weight_sandstone": "`bigglobe:overworld/rocks/sandstone`",
+	"bigglobe:rock_weight_stone": "`bigglobe:overworld/rocks/stone`",
+	"bigglobe:rock_weight_tuff": "`bigglobe:overworld/rocks/tuff`",
+	"bigglobe:sea_level": "0I",
+	"bigglobe:snow_chance_at": "world_traits.`bigglobe:exact_surface_y` < world_traits.`bigglobe:sea_level` ? 0.0I : world_traits.`bigglobe:snow_chance`",
 	"bigglobe:snow_y": {
 		"get": "`bigglobe:overworld/snow_y`",
 		"set": "`bigglobe:overworld/snow_y` = value"
-	}
+	},
+	"bigglobe:surface_depth": "`bigglobe:overworld/default_surface_depth`",
+	"bigglobe:surface_states": "`bigglobe:overworld/surface_states`",
+	"bigglobe:temperature_at": "`bigglobe:overworld/temperature`",
+	"bigglobe:temperature_at_sea_level": "`bigglobe:overworld/temperature`",
+	"bigglobe:temperature_at_surface": "`bigglobe:overworld/temperature`",
+	"bigglobe:terracotta_offset": "`bigglobe:overworld/terracotta_offset` * `bigglobe:overworld/raw/mountainness`",
+	"bigglobe:wood_palette": "`bigglobe:overworld/wood_palette`"
 }

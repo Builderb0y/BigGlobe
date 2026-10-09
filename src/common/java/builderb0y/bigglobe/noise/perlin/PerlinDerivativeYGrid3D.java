@@ -175,7 +175,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 			offset101 = this.offset(seed, gridX, gridY0, gridZ1),
 			offset110 = this.offset(seed, gridX, gridY1, gridZ0),
 			offset111 = this.offset(seed, gridX, gridY1, gridZ1);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			double smoothX = Interpolator.smooth(fracX0);
@@ -329,7 +329,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 				Interpolator.mixLinear(slopeY110, slopeY111, smoothZ),
 				smoothX
 			);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracY0 = modY * rcpY;
 			double fracY1 = fracY0 - 1.0D;
 			samples.setD(
@@ -475,7 +475,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 			offset011 = this.offset(seed, gridX0, gridY1, gridZ),
 			offset101 = this.offset(seed, gridX1, gridY0, gridZ),
 			offset111 = this.offset(seed, gridX1, gridY1, gridZ);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracZ0 = modZ * rcpZ;
 			double fracZ1 = fracZ0 - 1.0D;
 			double smoothZ = Interpolator.smooth(fracZ0);

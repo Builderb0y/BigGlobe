@@ -1,0 +1,11 @@
+{
+	"type": "scripted",
+	"script": {
+		"includes": [
+			"bigglobe:world_preset/place_surface"
+		],
+		"source": [
+			"placeSurface(world_traits.`bigglobe:y_level_on_surface`, world_traits.`bigglobe:surface_states`)"
+		]
+	}
+}

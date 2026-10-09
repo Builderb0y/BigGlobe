@@ -235,12 +235,12 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 	public int lastIndexOf(Object element) {
 		E[] elements = this.castRawElements();
 		if (element != null) {
-			for (int i = this.size; i-- != 0; ) {
+			for (int i = this.size; i-- != 0;) {
 				if (element.equals(elements[i])) return i;
 			}
 		}
 		else {
-			for (int i = this.size; i-- != 0; ) {
+			for (int i = this.size; i-- != 0;) {
 				if (elements[i] == null) return i;
 			}
 		}
@@ -346,7 +346,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 		else {
 			cTotalWeight = 0.0D;
-			for (WeightedIterator<? extends E> iterator = c.iterator(); iterator.hasNext(); ) {
+			for (WeightedIterator<? extends E> iterator = c.iterator(); iterator.hasNext();) {
 				this.elements[index] = iterator.next();
 				cTotalWeight += (this.weights[index] = iterator.getWeight());
 				index++;

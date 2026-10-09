@@ -15,6 +15,7 @@ import com.seibel.distanthorizons.api.objects.data.IDhApiFullDataSource;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -24,7 +25,7 @@ import builderb0y.bigglobe.chunkgen.QuadHolder.QuadColumn;
 import builderb0y.bigglobe.chunkgen.QuadHolder.QuadList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
-import builderb0y.bigglobe.chunkgen.scripted.Layer;
+import builderb0y.bigglobe.chunkgen.scripted.TerrainLayer;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat.DHCode;
@@ -111,7 +112,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 				for (int index = 0; index < totalColumns; index++) {
 					dataPointBuilders[index] = new DataPointListBuilder(this.level, (byte)(0), biome, yOffset);
 				}
-				Layer layer = generator.layer.value();
+				TerrainLayer layer = generator.layer.value();
 				ScriptedColumn.Params params = new ScriptedColumn.Params(this.chunkGenerator, 0, 0, ColumnUsage.RAW_GENERATION.dhHints(detailLevel));
 				try (AsyncRunner async = BigGlobeThreadPool.lodRunner()) {
 					for (int offsetZ = 0; offsetZ < width; offsetZ += 2) {
@@ -142,7 +143,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 								QuadList quadList = new QuadList();
 								quadList.createNew(generator.height.min_y(), generator.height.max_y());
 								QuadHolder.generate(quadColumn, quadList, layer);
-								this.convertToDataPoints(quadList, dataPointBuilders, baseIndex, width);
+								this.convertToDataPoints(quadColumn, quadList, dataPointBuilders, baseIndex, width);
 							});
 						}
 					}
@@ -246,7 +247,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 					async.submit(() -> {
 						int minY = this.chunkGenerator.height.min_y();
 						int maxY = this.chunkGenerator.height.max_y();
-						Layer layer = this.chunkGenerator.layer.value();
+						TerrainLayer layer = this.chunkGenerator.layer.value();
 						int baseIndex = (offsetZ_ << 4) | offsetX_;
 						int quadX = startX | offsetX_;
 						int quadZ = startZ | offsetZ_;
@@ -256,7 +257,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 						QuadList quadList = new QuadList();
 						quadList.createNew(minY, maxY);
 						QuadHolder.generate(quadColumn, quadList, layer);
-						this.convertToDataPoints(quadList, dataPointBuilders, baseIndex, 16);
+						this.convertToDataPoints(quadColumn, quadList, dataPointBuilders, baseIndex, 16);
 					});
 				}
 			}
@@ -270,21 +271,23 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 		return results;
 	}
 
-	public void convertToDataPoints(QuadList quadList, DataPointListBuilder[] dataPointBuilders, int baseIndex, int zOffset) {
-		this.convertToDataPoints(dataPointBuilders[baseIndex], quadList.object00);
-		this.convertToDataPoints(dataPointBuilders[baseIndex + 1], quadList.object01);
-		this.convertToDataPoints(dataPointBuilders[baseIndex + zOffset], quadList.object10);
-		this.convertToDataPoints(dataPointBuilders[baseIndex + zOffset + 1], quadList.object11);
+	public void convertToDataPoints(QuadColumn columns, QuadList quadList, DataPointListBuilder[] dataPointBuilders, int baseIndex, int zOffset) {
+		this.convertToDataPoints(dataPointBuilders[baseIndex], columns.object00, quadList.object00);
+		this.convertToDataPoints(dataPointBuilders[baseIndex + 1], columns.object01, quadList.object01);
+		this.convertToDataPoints(dataPointBuilders[baseIndex + zOffset], columns.object10, quadList.object10);
+		this.convertToDataPoints(dataPointBuilders[baseIndex + zOffset + 1], columns.object11, quadList.object11);
 	}
 
-	public void convertToDataPoints(DataPointListBuilder builder, BlockSegmentList segments) {
-		segments.computeLightLevels(this.topSkylight);
-		for (int index = segments.size(); --index >= 0; ) {
+	public void convertToDataPoints(DataPointListBuilder builder, ScriptedColumn column, BlockSegmentList segments) {
+		segments.computeLightLevels(column, this.topSkylight);
+		for (int index = segments.size(); --index >= 0;) {
 			LitSegment segment = segments.get(index);
 			//some versions of DH break if I don't provide air...
 			//if (segment.value.isAir()) continue;
 			builder.skyLightLevel = segment.skylightLevel;
-			builder.add(segment.value, segment.minY, segment.maxY + 1);
+			segment.forEach(column, (int minY, int maxY, BlockState state) -> {
+				builder.add(state, minY, maxY + 1);
+			});
 		}
 	}
 

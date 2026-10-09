@@ -105,7 +105,7 @@ public class PerlinDerivativeXGrid2D extends PerlinBaseGrid2D {
 			offset11 = this.offset(seed, gridX, gridY1),
 			partial0 = Interpolator.mixLinear(slopeX00, slopeX01, smoothY),
 			partial1 = Interpolator.mixLinear(slopeX10, slopeX11, smoothY);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			samples.setD(
@@ -179,7 +179,7 @@ public class PerlinDerivativeXGrid2D extends PerlinBaseGrid2D {
 			slopeY11 = this.slopeY(seed, gridX1, gridY),
 			offset01 = this.offset(seed, gridX0, gridY),
 			offset11 = this.offset(seed, gridX1, gridY);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracY0 = modY * rcpY;
 			double fracY1 = fracY0 - 1.0D;
 			double smoothY = Interpolator.smooth(fracY0);

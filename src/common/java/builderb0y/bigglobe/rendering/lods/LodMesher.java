@@ -16,18 +16,19 @@ import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.FluidState;
 
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.BlockStateProvider;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.FixedBlockStateProvider;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
+import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.StandardBlockStatePredicate;
+import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.DirectionVersions;
 
 @Environment(EnvType.CLIENT)
@@ -75,6 +76,7 @@ public class LodMesher {
 		BoundingBox area = world.unpaddedVolume;
 		for (pos.setZ(area.minZ()); pos.getZ() <= area.maxZ(); pos.setZ(pos.getZ() + 1)) {
 			for (pos.setX(area.minX()); pos.getX() <= area.maxX(); pos.setX(pos.getX() + 1)) {
+				ScriptedColumn column = world.getColumn(pos);
 				BlockSegmentList center = world.getList(pos.getX(), pos.getZ());
 				adjacents[DirectionVersions.horizontal(Directions.POSITIVE_X)] = world.getList(pos.getX() + 1, pos.getZ());
 				adjacents[DirectionVersions.horizontal(Directions.NEGATIVE_X)] = world.getList(pos.getX() - 1, pos.getZ());
@@ -86,7 +88,7 @@ public class LodMesher {
 						throw new ConcurrentModificationException();
 					}
 					LitSegment centerSegment = center.get(centerIndex);
-					if (!centerSegment.value.isAir()) {
+					if (centerSegment.value.query(StandardBlockStatePredicate.AIR) <= 0) {
 						for (pos.setY(Math.max(centerSegment.minY, area.minY())); pos.getY() <= centerSegment.maxY;) {
 							int y = pos.getY();
 							if (y > area.maxY()) break segmentIndexLoop;
@@ -126,6 +128,7 @@ public class LodMesher {
 								nextY = Math.max(skipTo, y + 1);
 							}
 							if (shouldRender) {
+								BlockState centerState = centerSegment.getBlockState(column, pos.getY() << world.lod);
 								blockRenderer.tesselateBlock(
 									emitter,
 									pos.getX(),
@@ -133,18 +136,18 @@ public class LodMesher {
 									pos.getZ(),
 									world,
 									pos,
-									centerSegment.value,
-									this.blockModels.get(centerSegment.value),
-									centerSegment.value.getSeed(pos)
+									centerState,
+									this.blockModels.get(centerState),
+									centerState.getSeed(pos)
 								);
-								FluidState fluidState = centerSegment.value.getFluidState();
+								FluidState fluidState = centerState.getFluidState();
 								if (!fluidState.isEmpty()) {
 									FluidRenderingRegistry.get(fluidState.getType()).renderFluid(
 										fluidRenderer,
 										pos,
 										world,
 										fluidOutput,
-										centerSegment.value,
+										centerState,
 										fluidState
 									);
 								}
@@ -157,9 +160,13 @@ public class LodMesher {
 		}
 	}
 
-	public static boolean quickCheckRender(BlockState self, BlockState other) {
-		if (BlockStateVersions.isOpaqueFullCube(other, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) return false;
-		FluidState fluid = self.getFluidState();
-		return fluid.createLegacyBlock() != self /* false for waterlogged blocks */ || other.getFluidState() != fluid;
+	public static boolean quickCheckRender(BlockStateProvider self, BlockStateProvider other) {
+		if (other.query(StandardBlockStatePredicate.SOLID) > 0) {
+			return false;
+		}
+		if (self.query(StandardBlockStatePredicate.IS_FLUID) > 0 && other.query(StandardBlockStatePredicate.IS_FLUID) > 0) {
+			return false;
+		}
+		return true;
 	}
 }

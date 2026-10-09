@@ -32,7 +32,7 @@ public class SineWaveGrid2D implements Grid2D {
 			double[] angles = this.generateBlueNoise(seed ^ 0x7FDD3387380B99C5L);
 			double[] cosAngles = new double[this.iterations];
 			double[] sinAngles = new double[this.iterations];
-			for (int index = this.iterations; --index >= 0; ) {
+			for (int index = this.iterations; --index >= 0;) {
 				cosAngles[index] = Math.cos(angles[index]);
 				sinAngles[index] = Math.sin(angles[index]);
 			}

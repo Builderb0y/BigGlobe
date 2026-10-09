@@ -24,6 +24,7 @@ import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironme
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
+import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.Script;
@@ -34,13 +35,13 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ScriptedLayer extends Layer {
+public class ScriptedTerrainLayer extends TerrainLayer {
 
 	public final Impl.Catcher script;
 
-	public ScriptedLayer(
+	public ScriptedTerrainLayer(
 		@VerifyNullable Valid valid,
-		Holder<Layer> @DefaultEmpty [] children,
+		Holder<TerrainLayer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Catcher before_children,
 		SurfaceScript.@VerifyNullable Catcher after_children,
 		Impl.Catcher script
@@ -68,7 +69,7 @@ public class ScriptedLayer extends Layer {
 		public abstract void emitSegments(ScriptedColumn column, BlockSegmentList blocks);
 
 		@Wrapper
-		public static class Catcher extends ScriptCatcher<Impl> implements ScriptedLayer.Impl, SetBasedMutableDependencyView {
+		public static class Catcher extends ScriptCatcher<Impl> implements ScriptedTerrainLayer.Impl, SetBasedMutableDependencyView {
 
 			public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
@@ -87,9 +88,9 @@ public class ScriptedLayer extends Layer {
 				ClassCompileContext clazz = new ClassCompileContext(
 					ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC | ACC_SUPER,
 					ClassType.CLASS,
-					Type.getInternalName(ScriptedLayer.Impl.class) + '$' + (this.usage.debug_name != null ? this.usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
+					Type.getInternalName(ScriptedTerrainLayer.Impl.class) + '$' + (this.usage.debug_name != null ? this.usage.debug_name : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 					TypeInfos.OBJECT,
-					new TypeInfo[] { type(ScriptedLayer.Impl.class) }
+					new TypeInfo[] { type(ScriptedTerrainLayer.Impl.class) }
 				);
 				clazz.addNoArgConstructor(ACC_PUBLIC);
 				LazyVarInfo[] bridgeParams = {
@@ -102,12 +103,13 @@ public class ScriptedLayer extends Layer {
 				};
 				MethodCompileContext actualMethod = clazz.newMethod(ACC_PUBLIC, "emitSegments", TypeInfos.VOID, actualParams);
 				MethodCompileContext bridgeMethod = clazz.newMethod(ACC_PUBLIC, "emitSegments", TypeInfos.VOID, bridgeParams);
+				LoadInsnTree loadBlocks = load("blocks", type(BlockSegmentList.class));
 				return_(
 					invokeInstance(
 						load("this", clazz.info),
 						actualMethod.info,
 						new DirectCastInsnTree(load("column", type(ScriptedColumn.class)), registry.columnCompileContext.columnTypeInfo(), false),
-						load("blocks", type(BlockSegmentList.class))
+						loadBlocks
 					)
 				)
 				.emitBytecode(bridgeMethod);
@@ -121,8 +123,9 @@ public class ScriptedLayer extends Layer {
 				.addAll(MathScriptEnvironment.INSTANCE)
 				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
 				.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
-				.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-				.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+				.addFunction(Handlers.methodBuilder(BlockSegmentList.class, "getBlockState").addImplicitArgument(loadBlocks).addImplicitArgumentOfType(loadColumn, ScriptedColumn.class).addRequiredArgument(int.class).buildFunction())
+				.addFunctionInvokes(loadBlocks, BlockSegmentList.class, "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+				.addVariableInvokes(loadBlocks, BlockSegmentList.class, "minY", "maxY")
 				.addAll(ColorScriptEnvironment.ENVIRONMENT)
 				;
 				registry.setupEnvironment(
@@ -143,7 +146,7 @@ public class ScriptedLayer extends Layer {
 				getDebugName.endCode();
 
 				try {
-					this.script = (ScriptedLayer.Impl)(new ScriptClassLoader(registry.loader).defineClass(clazz, ExpressionParser.CLASS_DUMP_DIRECTORY, this.usage.getSource()).getDeclaredConstructors()[0].newInstance((Object[])(null)));
+					this.script = (ScriptedTerrainLayer.Impl)(new ScriptClassLoader(registry.loader).defineClass(clazz, ExpressionParser.CLASS_DUMP_DIRECTORY, this.usage.getSource()).getDeclaredConstructors()[0].newInstance((Object[])(null)));
 				}
 				catch (Throwable throwable) {
 					throw new ScriptParsingException(parser.fatalError().toString(), throwable, null);

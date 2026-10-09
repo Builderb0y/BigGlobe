@@ -310,7 +310,7 @@ public class FastPow {
 			(MethodCompileContext floatMethod, LazyVarInfo operand) -> {
 				AbstractInsnNode first = floatMethod.node.instructions.getFirst();
 				if (!emitNormalInstructions(floatMethod, operand, power, 8)) {
-					for (AbstractInsnNode remove; (remove = first.getNext()) != null; ) {
+					for (AbstractInsnNode remove; (remove = first.getNext()) != null;) {
 						floatMethod.node.instructions.remove(remove);
 					}
 					fallback(operand, power).emitBytecode(floatMethod);
@@ -341,7 +341,7 @@ public class FastPow {
 					floatMethod.node.instructions.add(new InsnNode(operand.type.getOpcode(IDIV)));
 				}
 				else {
-					for (AbstractInsnNode remove; (remove = first.getNext()) != null; ) {
+					for (AbstractInsnNode remove; (remove = first.getNext()) != null;) {
 						floatMethod.node.instructions.remove(remove);
 					}
 					fallback(operand, power).emitBytecode(floatMethod);

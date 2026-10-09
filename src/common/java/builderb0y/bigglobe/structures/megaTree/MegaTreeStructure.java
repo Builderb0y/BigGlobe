@@ -181,9 +181,9 @@ public class MegaTreeStructure extends BigGlobeStructure {
 
 		public void generate() {
 			//long startTime = System.currentTimeMillis();
-			for (MegaTreeBranch branch; (branch = this.branches.pollFirst()) != null; ) {
+			for (MegaTreeBranch branch; (branch = this.branches.pollFirst()) != null;) {
 				branch.generate();
-				for (Ball ball; (ball = this.currentBranchBalls.pollFirst()) != null; ) {
+				for (Ball ball; (ball = this.currentBranchBalls.pollFirst()) != null;) {
 					this.octree.addBall(ball);
 					this.ballCollector.accept(ball);
 				}

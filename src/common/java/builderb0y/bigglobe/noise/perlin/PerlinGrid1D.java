@@ -55,7 +55,7 @@ public class PerlinGrid1D extends PerlinBaseGrid1D {
 			offset0 = this.offset(seed, gridX),
 			slopeX1 = this.slopeX(seed, gridX += scaleX),
 			offset1 = this.offset(seed, gridX);
-		for (int index = 0; true /* break in the middle of the loop. */; ) {
+		for (int index = 0; true /* break in the middle of the loop. */;) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			samples.setD(index, Interpolator.mixSmoothUnchecked(slopeX0 * fracX0 + offset0, slopeX1 * fracX1 + offset1, fracX0));

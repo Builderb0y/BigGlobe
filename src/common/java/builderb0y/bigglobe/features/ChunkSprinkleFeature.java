@@ -49,7 +49,7 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 					PalettedContainer<BlockState> container = section.getStates();
 					BitStorage storage = SectionUtil.storage(container);
 					long sectionSeed = Permuter.permute(chunkSeed, yCoord);
-					for (int attempt = config.count; --attempt >= 0; ) {
+					for (int attempt = config.count; --attempt >= 0;) {
 						int index = ((int)(Permuter.permute(sectionSeed, attempt))) & 4095;
 						int oldID = storage.get(index);
 						int newID = replacer.getReplacement(oldID);
