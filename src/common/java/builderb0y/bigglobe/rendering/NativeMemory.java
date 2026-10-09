@@ -43,27 +43,32 @@ public class NativeMemory implements SafeCloseable {
 	}
 
 	public byte getByte(long byteOffset) {
-		return memGetByte(Objects.checkIndex(byteOffset, this.used) + this.address);
+		return MEMORY.get(ValueLayout.JAVA_BYTE, Objects.checkIndex(byteOffset, this.used) + this.address);
 	}
 
-	public short getShort(long byteOffset) {
-		return memGetShort(Objects.checkIndex(byteOffset, this.used - (Short.BYTES - 1)) + this.address);
+	public short getShort(long byteOffset, ByteOrder order) {
+		short value = MEMORY.get(ValueLayout.JAVA_SHORT, Objects.checkIndex(byteOffset, this.used - (Short.BYTES - 1)) + this.address);
+		return order == ByteOrder.nativeOrder() ? value : Short.reverseBytes(value);
 	}
 
-	public int getInt(long byteOffset) {
-		return memGetInt(Objects.checkIndex(byteOffset, this.used - (Integer.BYTES - 1)) + this.address);
+	public int getInt(long byteOffset, ByteOrder order) {
+		int value = MEMORY.get(ValueLayout.JAVA_INT, Objects.checkIndex(byteOffset, this.used - (Integer.BYTES - 1)) + this.address);
+		return order == ByteOrder.nativeOrder() ? value : Integer.reverseBytes(value);
 	}
 
-	public long getLong(long byteOffset) {
-		return memGetLong(Objects.checkIndex(byteOffset, this.used - (Long.BYTES - 1)) + this.address);
+	public long getLong(long byteOffset, ByteOrder order) {
+		long value = MEMORY.get(ValueLayout.JAVA_LONG, Objects.checkIndex(byteOffset, this.used - (Long.BYTES - 1)) + this.address);
+		return order == ByteOrder.nativeOrder() ? value : Long.reverseBytes(value);
 	}
 
-	public float getFloat(long byteOffset) {
-		return memGetFloat(Objects.checkIndex(byteOffset, this.used - (Float.BYTES - 1)) + this.address);
+	public float getFloat(long byteOffset, ByteOrder order) {
+		int value = MEMORY.get(ValueLayout.JAVA_INT, Objects.checkIndex(byteOffset, this.used - (Float.BYTES - 1)) + this.address);
+		return Float.intBitsToFloat(order == ByteOrder.nativeOrder() ? value : Integer.reverseBytes(value));
 	}
 
-	public double getDouble(long byteOffset) {
-		return memGetDouble(Objects.checkIndex(byteOffset, this.used - (Double.BYTES - 1)) + this.address);
+	public double getDouble(long byteOffset, ByteOrder order) {
+		long value = MEMORY.get(ValueLayout.JAVA_LONG, Objects.checkIndex(byteOffset, this.used - (Double.BYTES - 1)) + this.address);
+		return Double.longBitsToDouble(order == ByteOrder.nativeOrder() ? value : Long.reverseBytes(value));
 	}
 
 	public long ensureCapacity(long minCapacity) {
