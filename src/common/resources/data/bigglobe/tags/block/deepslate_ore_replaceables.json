@@ -2,6 +2,8 @@
 	"replace": false,
 	"values": [
 		"minecraft:deepslate",
-		"minecraft:cobbled_deepslate"
+		"minecraft:cobbled_deepslate",
+		"bigglobe:darkslate",
+		"bigglobe:cobbled_darkslate"
 	]
 }

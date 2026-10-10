@@ -1,0 +1,24 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "iron",
+		"blocks": {
+			"#bigglobe:stone_ore_replaceables":     "minecraft:iron_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_iron_ore"
+		},
+		"chance": {
+			"template": "bigglobe:ores/exponential",
+			"inputs": {
+				"delay": "512.0L",
+				"peak":  "`bigglobe:islands/type`.is(RockyIslandType) ? 1.0L : 0.75L",
+				"limit": "`bigglobe:islands/type`.is(RockyIslandType) ? 0.5L : 0.25L"
+			}
+		},
+		"radius": {
+			"type": "average",
+			"min": 2.5,
+			"max": 8.0,
+			"average": 3.5
+		}
+	}
+}

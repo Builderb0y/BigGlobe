@@ -1,0 +1,18 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"for (int baseY in range[minValidYLevel, maxValidYLevel) % 16:",
+			"long seed = (worldSeed # 16x01897312412A4903UL).newSeed(baseY >> 4)",
+			"int x = (seed := seed.newSeed()).nextBetween[minModifiableX, maxModifiableX]",
+			"int y = (seed := seed.newSeed()).nextBetween[baseY, baseY + 15]",
+			"int z = (seed := seed.newSeed()).nextBetween[minModifiableZ, maxModifiableZ]",
+			"if (`bigglobe:islands/type`(x, z).is(VolcanoIslandType):",
+				"(seed := seed.newSeed()).unless (`bigglobe:islands/island_voronoi`(x, z).softDistance:",
+					"if (getBlockState(x, y, z).getBlock() ==. 'minecraft:basalt':",
+						"setBlockState(x, y, z, 'minecraft:ancient_debris')",
+					")",
+				")",
+			")",
+		")"
+	]
+}

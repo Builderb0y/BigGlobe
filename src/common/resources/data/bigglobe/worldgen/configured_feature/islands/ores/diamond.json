@@ -1,0 +1,22 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "diamond",
+		"blocks": {
+			"#bigglobe:stone_ore_replaceables":     "minecraft:diamond_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_diamond_ore"
+		},
+		"chance": [
+			"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",
+			"double curve = 1.0L - fastExp(-line)",
+			"if (`bigglobe:islands/type`.isnt(RockyIslandType): curve *= 0.5L)",
+			"return(curve)"
+		],
+		"radius": {
+			"type": "average",
+			"min": 1.5,
+			"max": 4.0,
+			"average": 2.5
+		}
+	}
+}

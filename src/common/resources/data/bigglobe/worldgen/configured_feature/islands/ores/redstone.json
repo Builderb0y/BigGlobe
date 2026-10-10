@@ -1,0 +1,25 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "redstone",
+		"blocks": {
+			"#bigglobe:stone_ore_replaceables":     "minecraft:redstone_ore[lit=false]",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_redstone_ore[lit=false]"
+		},
+		"chance": [
+			"double depthLine  = unmixLinear(128.0L, 256.0L, `bigglobe:approximate_distance_below_surface`)",
+			"double depthCurve = 1.0L - 1.0L / (max(depthLine, 0.0L) ^ 2 + 1.0L)",
+			"double heatLine   = world_traits.`bigglobe:temperature_at_surface`",
+			"double heatCurve  = 1.0L / (fastExp2(2.0L + 4.0L * heatLine) + 1.0L)",
+			"double curve      = depthCurve * heatCurve",
+			"if (`bigglobe:islands/type`.isnt(RockyIslandType): curve *= 0.75L)",
+			"return(curve)"
+		],
+		"radius": {
+			"type": "average",
+			"min": 2.5,
+			"max": 8.0,
+			"average": 3.5
+		}
+	}
+}

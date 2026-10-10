@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"#c:ores"
+		"#c:ores",
+		"#bigglobe:molten_rocks"
 	]
 }

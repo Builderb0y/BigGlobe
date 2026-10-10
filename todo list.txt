@@ -125,19 +125,11 @@ V6:
 			red sand: mesas.
 			all of the above use smaller noise scales than rocks.
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
-		LOD generation feels slower now. profile this.
-		double check that fluid culling works correctly (I checked speed, not accuracy).
 
 islands:
-	still need ores.
-		extra ores in rocky island type.
 	granite is too common.
 		restrict to rocky island type only?
 	missing decorations:
-		rock decorator needs to be more sophisticated.
-			currently judges hilliness at the center of the chunk,
-			and uses it to determine the number of rocks to place in the chunk.
-			this does not work well in deserts/mesas, because hilliness can change rapidly there.
 		everything on floating islands.
 			clouds.
 			foliage.

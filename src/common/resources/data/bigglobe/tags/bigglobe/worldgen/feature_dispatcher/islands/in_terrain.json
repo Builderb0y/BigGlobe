@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"bigglobe:overworld/core_lava_spillage",
-		"bigglobe:islands/lava_flow_fix"
+		"bigglobe:islands/lava_flow_fix",
+		"bigglobe:islands/netherite"
 	]
 }
