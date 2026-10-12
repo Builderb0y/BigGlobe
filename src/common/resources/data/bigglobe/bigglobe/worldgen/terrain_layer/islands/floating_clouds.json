@@ -1,0 +1,10 @@
+{
+	"type": "simple_3d",
+	"state": "'bigglobe:cloud'",
+	"condition": "`bigglobe:islands/clouds/biased_floating_cloud_noise` > 0.0I",
+	"valid": {
+		"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/type`.is(FloatingIslandType) && `bigglobe:islands/clouds/horizontal_bias` < 1.0I",
+		"min_y": "int(`bigglobe:islands/clouds/y_offset` - 64)",
+		"max_y": "int(`bigglobe:islands/clouds/y_offset` + 64)"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": false
+	},
+	"script": [
+		"double softDistance = `bigglobe:islands/island_voronoi`.softDistance",
+		"softDistance.isBetween(0.1875L, 0.6875L) ? 1.0I - fastCos(16.0L * pi * softDistance).as(float) : 2.0I"
+	],
+	"valid": {
+		"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/type`.is(FloatingIslandType)"
+	}
+}

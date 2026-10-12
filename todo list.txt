@@ -127,13 +127,10 @@ V6:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 
 islands:
-	granite is too common.
-		restrict to rocky island type only?
 	missing decorations:
 		everything on floating islands.
-			clouds.
-			foliage.
 			structures, somehow.
+			ores need to be tweaked to work on floating islands.
 
 LODs:
 	shader support.
@@ -174,6 +171,10 @@ changelog:
 	* The concept of column restrictions has been replaced with scripts.
 		* This affects flowers, trees with fungal shelves, and rock layers.
 		* Reason: the existing column restriction system was too limited (it didn't even have a dedicated type for world traits), too verbose, slower than it needed to be, and required a lot of maintenance. Scripts are just better in every possible way.
+	* Removed legacy handling of `minecraft:grass` and `minecraft:chain` blocks.
+		* These were renamed in vanilla a long time ago to `minecraft:short_grass` and `minecraft:iron_chain` respectively.
+		* Big Globe would previously accept the old names too, for scripts that needed to work in multiple MC versions.
+		* However, Big Globe no longer supports MC versions where these legacy names were in-use, so support for the legacy names is now removed.
 
 alternate world presets:
 	paradise.

@@ -34,10 +34,10 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 	public double getValue(long seed, int x, int y, int z) {
 		seed ^= this.salt.value;
 		int minCellX = Math.floorDiv(ceilI(x - this.radius), this.scale);
-		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
 		int minCellY = Math.floorDiv(ceilI(y - this.radius), this.scale);
-		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
 		int minCellZ = Math.floorDiv(ceilI(z - this.radius), this.scale);
+		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
+		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
 		int maxCellZ = Math.floorDiv(floorI(z + this.radius), this.scale);
 		double value = Double.POSITIVE_INFINITY;
 		for (int cellX = minCellX; cellX <= maxCellX; cellX++) {

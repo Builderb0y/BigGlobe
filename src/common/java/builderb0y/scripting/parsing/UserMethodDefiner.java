@@ -167,7 +167,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 					"User extension method: " + this.returnType.getClassName() + ' ' + this.typeBeingExtended.getClassName() + '.' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
 					null,
 					this.parser.method.info.isStatic()
-						? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+					? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
@@ -185,7 +185,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 							castArguments != arguments
 						);
 					}
-						: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+					: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);

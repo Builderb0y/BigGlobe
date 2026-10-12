@@ -1,0 +1,20 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"repeat (2:",
+			"int x = random.nextBetween[minModifiableX, maxModifiableX]",
+			"int z = random.nextBetween[minModifiableZ, maxModifiableZ]",
+			"ColumnStorage column = columnAt(x, z)",
+			"if (",
+				"column.`bigglobe:islands/type`.is(FloatingIslandType type) &&",
+				"type.getSkylandMaxY(column).value > type.getSkylandMinY(column).value",
+			":",
+				"placeFeature(x, floorInt(type.getSkylandMinY(column).value) - 1, z,",
+					"random.nextBoolean(0.125I)",
+					"? 'bigglobe:islands/skylands/amethyst_crystals'",
+					": 'bigglobe:islands/skylands/hanging_roots'",
+				")",
+			")",
+		")"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:enabled_decorations/class",
+	"impl_type": "bigglobe:enabled_decorations/class",
+	"name": "SKYLAND",
+	"field_values": {
+		"charredGrass": false,
+		"deadBushes": false,
+		"hotFoliage": false,
+		"grassyFoliage": true,
+		"mushrooms": false,
+		"swampWater": false
+	}
+}

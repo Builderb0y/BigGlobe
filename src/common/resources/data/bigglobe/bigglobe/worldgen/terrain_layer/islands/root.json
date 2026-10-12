@@ -4,6 +4,7 @@
 	"children": [
 		"bigglobe:islands/filler_and_underground",
 		"bigglobe:overworld/ocean_water",
+		"bigglobe:islands/floating_clouds",
 		"bigglobe:islands/skyland"
 	]
 }

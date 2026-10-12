@@ -10,7 +10,7 @@
 			"islandType.as(SnowcappedIslandType).getSnowYGradient(column)",
 		")",
 		"else (",
-			"Derivative2D.new()",
+			"Derivative2D.constant(world_traits.`bigglobe:min_y`)",
 		")"
 	]
 }

@@ -60,7 +60,7 @@
 							")",
 						")",
 						"else (",
-							"setBlockState(x, 1, z, random.if (0.25I: 'minecraft:fern') else ('minecraft:grass'))",
+							"setBlockState(x, 1, z, random.if (0.25I: 'minecraft:fern') else ('minecraft:short_grass'))",
 						")",
 					")",
 					"else (",

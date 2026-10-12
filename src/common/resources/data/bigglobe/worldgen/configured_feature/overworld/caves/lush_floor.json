@@ -12,7 +12,7 @@
 				"else (",
 					"switch (floorInt(double r = random.nextDouble() r * (2.0L - r) * world_traits.`bigglobe:cave_surface_depth`):",
 						"case (0: 'bigglobe:short_grass')",
-						"case (1: random.nextBoolean(0.25) ? 'minecraft:fern' : 'minecraft:grass')",
+						"case (1: random.nextBoolean(0.25) ? 'minecraft:fern' : 'minecraft:short_grass')",
 						"case (2: random.nextBoolean(0.25) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]')",
 						"case (3: BlockState('minecraft:small_dripleaf', facing: random.switch('north', 'east', 'south', 'west'), half: 'lower', waterlogged: false))",
 						"default (return(placeFeature(originX, originY, originZ, 'bigglobe:overworld/caves/big_dripleaf')))",

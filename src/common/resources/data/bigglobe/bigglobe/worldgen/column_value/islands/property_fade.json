@@ -5,6 +5,10 @@
 		"is_3d": false
 	},
 	"script": [
-		"float(island_fade_out / (max((world_traits.`bigglobe:sea_level` - world_traits.`bigglobe:exact_surface_y`) / 64.0L, 0.0L) ^ 2 + 1.0L))"
+		"double fade = island_fade_out",
+		"if (type.isnt(FloatingIslandType):",
+			"fade /= max((world_traits.`bigglobe:sea_level` - world_traits.`bigglobe:exact_surface_y`) / 64.0L, 0.0L) ^ 2 + 1.0L",
+		")",
+		"float(fade)"
 	]
 }

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "`bigglobe:overworld/rocks/granite_noise` + world_traits.`bigglobe:mountainness`.as(float) * 0.5I",
+	"cache": false
+}

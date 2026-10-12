@@ -1,0 +1,5 @@
+{
+	"type": "int",
+	"is_3d": false,
+	"default": "world_traits.`bigglobe:y_level_on_surface`"
+}

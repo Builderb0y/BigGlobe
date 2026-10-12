@@ -61,15 +61,6 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
-	public static Map<Identifier, Block> RENAMED_BLOCKS = new Object2ObjectOpenHashMap<>(2);
-
-	static {
-
-		RENAMED_BLOCKS.put(BigGlobeMod.mcID("chain"), Blocks.IRON_CHAIN);
-
-		RENAMED_BLOCKS.put(BigGlobeMod.mcID("grass"), Blocks.SHORT_GRASS);
-	}
-
 	public static final BlockStateCoder INSTANCE = new BlockStateCoder("BlockStateCoder.INSTANCE");
 
 	public BlockStateCoder(String toString) {
@@ -119,9 +110,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	}
 
 	public static Block blockOnly(BetterRegistry<Block> blockRegistry, String input) {
-		Identifier identifier = IdentifierVersions.create(input);
-		Block block = RENAMED_BLOCKS.get(identifier);
-		return block != null ? block : blockRegistry.requireByName(input).value();
+		return blockRegistry.requireByName(input).value();
 	}
 
 	public static Result<BlockProperties> decodeStateWithMissingErrors(BetterRegistry<Block> blockRegistry, String input) {
@@ -134,8 +123,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 				if (input.charAt(0) == '#') yield new Result<>((StringBuilder builder) -> builder.append("Tags not allowed here"));
 				int openBracket = input.indexOf('[');
 				Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
-				Block block = RENAMED_BLOCKS.get(blockID);
-				if (block == null) block = blockRegistry.requireById(blockID).value();
+				Block block = blockRegistry.requireById(blockID).value();
 				BlockState state = block.defaultBlockState();
 				if (openBracket >= 0) {
 					if (block.getStateDefinition().getProperties().isEmpty()) {

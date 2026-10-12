@@ -1,0 +1,21 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "worley", "scale": 64, "amplitude": -2.0 },
+			{ "type": "worley", "scale": 32, "amplitude": -1.0 },
+			{ "type": "worley", "scale": 16, "amplitude": -0.5 },
+			{ "type": "constant", "value": 1.0 }
+		]
+	},
+	"valid": {
+		"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/type`.is(FloatingIslandType) && horizontal_bias < 1.0I",
+		"min_y": "int(y_offset - 64)",
+		"max_y": "int(y_offset + 64)"
+	}
+}

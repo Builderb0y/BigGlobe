@@ -1,0 +1,18 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "double",
+		"is_3d": false
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scale": 1024, "amplitude": 64.0 },
+			{ "type": "smooth", "scale":  512, "amplitude": 32.0 },
+			{ "type": "smooth", "scale":  256, "amplitude": 16.0 }
+		]
+	},
+	"valid": {
+		"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/type`.is(FloatingIslandType)"
+	}
+}

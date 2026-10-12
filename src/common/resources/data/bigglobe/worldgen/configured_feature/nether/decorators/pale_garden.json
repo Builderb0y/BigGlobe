@@ -36,7 +36,7 @@
 									"placeBlockState(x, y, z, 'minecraft:tall_grass[half=lower]')",
 								")",
 								"else (",
-									"placeBlockState(x, y, z, 'minecraft:grass')",
+									"placeBlockState(x, y, z, 'minecraft:short_grass')",
 								")",
 							")",
 							"else (",

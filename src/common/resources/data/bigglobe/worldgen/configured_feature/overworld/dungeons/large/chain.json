@@ -10,7 +10,7 @@
 						"z = originZ + random.nextInt(-3, 4)",
 					")",
 					"for (int count = random.nextInt(3), count >= 0 && getBlockState(x, y, z).isAir(), --count,, --y:",
-						"setBlockState(x, y, z, 'minecraft:chain[axis=y,waterlogged=false]')",
+						"setBlockState(x, y, z, 'minecraft:iron_chain[axis=y,waterlogged=false]')",
 					")",
 				")",
 			")"

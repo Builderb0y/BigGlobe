@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"for (",
+			"int baseZ in range[minModifiableZ, maxModifiableZ] % 4,",
+			"int baseX in range[minModifiableX, maxModifiableX] % 4",
+		":",
+			"int x = baseX + random.nextInt(4)",
+			"int z = baseZ + random.nextInt(4)",
+			"ColumnStorage column = columnAt(x, z)",
+			"if (",
+				"column.`bigglobe:islands/type`.is(FloatingIslandType type) &&",
+				"type.getSkylandMaxY(column).value > type.getSkylandMinY(column).value",
+			":",
+				"placeFeature(x, floorInt(type.getSkylandMaxY(column).value), z, 'bigglobe:islands/skylands/grassy_foliage')",
+			")",
+		")"
+	]
+}

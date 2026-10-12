@@ -77,7 +77,7 @@
 				")",
 			")",
 			"for (int y in range(cauldronY, maxY):",
-				"setBlockState(midX, y, midZ, 'minecraft:chain[axis=y,waterlogged=false]')",
+				"setBlockState(midX, y, midZ, 'minecraft:iron_chain[axis=y,waterlogged=false]')",
 			")",
 		")"
 	]

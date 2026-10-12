@@ -20,6 +20,7 @@ import builderb0y.scripting.bytecode.tree.flow.loop.WhileInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.BreakInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.ContinueInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.OpcodeCastInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.unary.InstanceOfDeclarationInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.KeywordHandler;
@@ -308,30 +309,18 @@ public class BuiltinScriptEnvironment {
 			new MemberKeywordHandler.Named(
 				TypeInfos.OBJECT,
 				"is",
-				"value.is(Type)",
+				"value.is(Type [optional name])",
 				null,
-				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-					TypeInfo type = nextParenthesizedType(parser);
-					if (type.isPrimitive()) {
-						throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
-					}
-					return instanceOf(receiver, type);
-				}
+				makeIs(false)
 			)
 		)
 		.addMemberKeyword(
 			new MemberKeywordHandler.Named(
 				TypeInfos.OBJECT,
 				"isnt",
-				"value.isnt(Type)",
+				"value.isnt(Type [optional name])",
 				null,
-				(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-					TypeInfo type = nextParenthesizedType(parser);
-					if (type.isPrimitive()) {
-						throw new ScriptParsingException("Can't check object.isnt(primitive)", parser.input);
-					}
-					return not(parser, instanceOf(receiver, type));
-				}
+				makeIs(true)
 			)
 		)
 		.addMemberKeyword(
@@ -519,6 +508,27 @@ public class BuiltinScriptEnvironment {
 		if (type == null) throw new ScriptParsingException("Unknown type: " + typeName, parser.input);
 		parser.input.expectAfterWhitespace(')');
 		return type;
+	}
+
+	public static MemberKeywordHandler makeIs(boolean negate) {
+		return (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+			if (mode != MemberKeywordMode.NORMAL) {
+				throw new ScriptParsingException("Non-normal call mode not yet supported for is().", parser.input);
+			}
+			IsSyntax syntax = IsSyntax.parse(parser);
+			if (syntax.type().isPrimitive()) {
+				throw new ScriptParsingException("Can't check object.is(primitive)", parser.input);
+			}
+			InsnTree result;
+			if (syntax.name() != null) {
+				parser.environment.user().reserveAndAssignVariable(syntax.name(), syntax.type());
+				result = new InstanceOfDeclarationInsnTree(receiver, syntax.type(), syntax.name());
+			}
+			else {
+				result = instanceOf(receiver, syntax.type());
+			}
+			return negate ? not(parser, result) : result;
+		};
 	}
 
 	public static FunctionHandler.Named makePrint() {

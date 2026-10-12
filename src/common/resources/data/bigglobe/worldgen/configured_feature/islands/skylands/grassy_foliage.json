@@ -1,0 +1,30 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"placeBlockState(0, 0, 0,",
+				"random.if (0.0625I:",
+					"random.if (0.125I:",
+						"random.if (0.25I:",
+							"'minecraft:large_fern[half=lower]'",
+						")",
+						"else (",
+							"'minecraft:tall_grass[half=lower]'",
+						")",
+					")",
+					"else (",
+						"random.if (0.25I:",
+							"'minecraft:fern'",
+						")",
+						"else (",
+							"'minecraft:short_grass'",
+						")",
+					")",
+				")",
+				"else (",
+					"'bigglobe:short_grass'",
+				")",
+			")"
+		]
+	}
+}

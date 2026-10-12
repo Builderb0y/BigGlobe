@@ -1,0 +1,15 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": [
+		"floating_cloud_noise - (float(y - y_offset) / 64.0I) ^ 2 - horizontal_bias"
+	],
+	"valid": {
+		"where": "hints.usage !=. 'heightmap' && `bigglobe:islands/type`.is(FloatingIslandType) && horizontal_bias < 1.0I",
+		"min_y": "int(y_offset - 64)",
+		"max_y": "int(y_offset + 64)"
+	}
+}

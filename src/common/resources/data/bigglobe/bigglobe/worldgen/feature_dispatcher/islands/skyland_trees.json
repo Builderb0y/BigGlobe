@@ -1,0 +1,22 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"random.if (0.015625I:",
+			"int*(",
+				"x = random.nextBetween[minModifiableX, maxModifiableX]",
+				"z = random.nextBetween[minModifiableZ, maxModifiableZ]",
+			")",
+			"ColumnStorage column = columnAt(x, z)",
+			"if (",
+				"column.`bigglobe:islands/type`.is(FloatingIslandType type) &&",
+				"type.getSkylandMaxY(column).value > type.getSkylandMinY(column).value &&",
+				"type.getFoliage(column) > 0.0I",
+			":",
+				"ConfiguredFeature feature = `bigglobe:islands/wood_palette/any`(x, z).?features.?('natural_surface')",
+				"if (feature != null:",
+					"placeFeature(x, floorInt(type.getSkylandMaxY(column).value), z, feature)",
+				")",
+			")",
+		")"
+	]
+}

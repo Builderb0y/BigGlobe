@@ -54,7 +54,7 @@
 									"newState = random.nextBoolean(fernChance) ? 'minecraft:large_fern[half=lower]' : 'minecraft:tall_grass[half=lower]'",
 								")",
 								"else (",
-									"newState = random.nextBoolean(fernChance) ? 'minecraft:fern' : 'minecraft:grass'",
+									"newState = random.nextBoolean(fernChance) ? 'minecraft:fern' : 'minecraft:short_grass'",
 								")",
 							")",
 						")",

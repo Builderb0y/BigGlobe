@@ -16,9 +16,11 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
@@ -90,6 +92,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 	}
 
 	public QueuedPlacement getQueuedPlacement(FeaturePlaceContext<Config> context, ScriptedColumn column) {
+		if (context.config().where != null && !context.config().where.get(column)) return null;
 		int y = context.config().y_level.get(column);
 		if (context.level().isOutsideBuildHeight(y)) return null;
 		long overlapSeed = Permuter.permute(context.level().getSeed() ^ 0x3C8F9545BAE6971FL, column.x(), column.z());
@@ -166,14 +169,17 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 
 	public static class Config implements FeatureConfiguration {
 
+		public final ColumnToBooleanScript.@VerifyNullable Catcher where;
 		public final ColumnToIntScript.Catcher y_level;
 		public final DelayedEntryList<ConfiguredFeature<?, ?>> flowers;
 		public transient FlowerFeature.Config @Nullable [] flattenedFlowers;
 
 		public Config(
+			ColumnToBooleanScript.@VerifyNullable Catcher where,
 			ColumnToIntScript.Catcher y_level,
 			DelayedEntryList<ConfiguredFeature<?, ?>> flowers
 		) {
+			this.where = where;
 			this.y_level = y_level;
 			this.flowers = flowers;
 		}
