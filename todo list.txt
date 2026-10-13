@@ -160,6 +160,7 @@ changelog:
 	* Fixed lava replacing blocks that it shouldn't near lava level in the nether.
 	* Dry lakes now only spawn in deserts.
 		* Likewise, non-dry lakes now only spawn outside of deserts.
+	* Minor visual tweak: aura-infused clouds now have AO, like regular clouds do.
 	* Added UNSUPPORTED mixin `ChunkPyramid_ConfigurableFeatureRadius` to expand the max size of configured features.
 		* This mixin may be unstable, and may break things in subtle and hard-to-debug ways.
 		* This mixin will make worldgen noticeably slower when exploring.

@@ -1,7 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:overworld/ores/copper",
+		"bigglobe:islands/ores/copper",
 		"bigglobe:islands/ores/iron",
 		"bigglobe:islands/ores/gold",
 
@@ -10,6 +10,6 @@
 		"bigglobe:islands/ores/redstone",
 
 		"bigglobe:islands/ores/diamond",
-		"bigglobe:overworld/ores/emerald"
+		"bigglobe:islands/ores/emerald"
 	]
 }

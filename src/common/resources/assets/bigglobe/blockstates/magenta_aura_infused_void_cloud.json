@@ -1,5 +1,8 @@
 {
 	"variants": {
-		"": { "model": "bigglobe:block/magenta_aura_infused_void_cloud" }
+		"": {
+			"fabric:type": "bigglobe:light_emitting_ao",
+			"model": { "model": "bigglobe:block/magenta_aura_infused_void_cloud" }
+		}
 	}
 }

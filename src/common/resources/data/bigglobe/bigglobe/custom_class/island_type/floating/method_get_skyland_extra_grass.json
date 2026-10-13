@@ -7,7 +7,7 @@
 		{ "name": "column", "type": "column_storage", "import": true }
 	],
 	"code": [
-		"Derivative2D base = `bigglobe:islands/type_storage/skyland_processed_y_gradient`",
+		"Derivative2D base = `bigglobe:islands/type_storage/skyland_processed_y_gradient`.copy()",
 		"base.value = 0.0L",
 		"double multiplier = base.dx ^ 2 + base.dy ^ 2",
 		"IslandType.erode(",

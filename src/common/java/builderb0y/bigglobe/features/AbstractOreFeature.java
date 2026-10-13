@@ -185,8 +185,14 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		and both of them try to compute a new value.
 		*/
 		double radius;
+		double chance;
+		int centerYAbsolute = BigGlobeMath.floorI(startYAbsolute + centerYRelative);
 		synchronized (column) {
-			radius = ore.radius.get(column, startYAbsolute, Permuter.stafford(veinSeed ^ 0x643CE1A830E16C28L));
+			chance = ore.chance.get(column, centerYAbsolute);
+			if (!Permuter.nextChancedBoolean(veinSeed ^ 0xEC59F958C7921509L, chance)) {
+				return;
+			}
+			radius = ore.radius.get(column, centerYAbsolute, Permuter.stafford(veinSeed ^ 0x643CE1A830E16C28L));
 		}
 		int minX = Math.max(0, BigGlobeMath.ceilI(centerXRelative - radius));
 		int minY = Math.max(0, BigGlobeMath.ceilI(centerYRelative - radius));
@@ -195,37 +201,31 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		int maxY = Math.min(15, BigGlobeMath.floorI(centerYRelative + radius));
 		int maxZ = Math.min(15, BigGlobeMath.floorI(centerZRelative + radius));
 		if (maxX >= minX && maxY >= minY && maxZ >= minZ) {
-			double chance;
-			synchronized (column) {
-				chance = ore.chance.get(column, BigGlobeMath.floorI(startYAbsolute + centerYRelative));
-			}
-			if (Permuter.nextChancedBoolean(veinSeed ^ 0xEC59F958C7921509L, chance)) {
-				double radius2 = BigGlobeMath.squareD(radius);
-				double reciprocalRadius2 = 1.0D / radius2;
-				for (int y = minY; y <= maxY; y++) {
-					double offsetY2 = BigGlobeMath.squareD(y - centerYRelative);
-					for (int z = minZ; z <= maxZ; z++) {
-						double offsetYZ2 = BigGlobeMath.squareD(z - centerZRelative) + offsetY2;
-						if (!(offsetYZ2 < radius2)) continue;
-						for (int x = minX; x <= maxX; x++) {
-							double offsetXYZ2 = BigGlobeMath.squareD(x - centerXRelative) + offsetYZ2;
-							if (!(offsetXYZ2 < radius2)) continue;
-							int index = (y << 8) | (z << 4) | x;
-							replacer.replace(
-								column,
-								context,
-								index,
-								x | context.startX(),
-								y | context.startY(),
-								z | context.startZ(),
-								Permuter.permute(veinSeed ^ 0xCC40A392B2FBC5A5L, index),
-								centerXRelative + context.startX(),
-								centerYRelative + context.startY(),
-								centerZRelative + context.startZ(),
-								radius,
-								offsetXYZ2 * reciprocalRadius2
-							);
-						}
+			double radius2 = BigGlobeMath.squareD(radius);
+			double reciprocalRadius2 = 1.0D / radius2;
+			for (int y = minY; y <= maxY; y++) {
+				double offsetY2 = BigGlobeMath.squareD(y - centerYRelative);
+				for (int z = minZ; z <= maxZ; z++) {
+					double offsetYZ2 = BigGlobeMath.squareD(z - centerZRelative) + offsetY2;
+					if (!(offsetYZ2 < radius2)) continue;
+					for (int x = minX; x <= maxX; x++) {
+						double offsetXYZ2 = BigGlobeMath.squareD(x - centerXRelative) + offsetYZ2;
+						if (!(offsetXYZ2 < radius2)) continue;
+						int index = (y << 8) | (z << 4) | x;
+						replacer.replace(
+							column,
+							context,
+							index,
+							x | context.startX(),
+							y | context.startY(),
+							z | context.startZ(),
+							Permuter.permute(veinSeed ^ 0xCC40A392B2FBC5A5L, index),
+							centerXRelative + context.startX(),
+							centerYRelative + context.startY(),
+							centerZRelative + context.startZ(),
+							radius,
+							offsetXYZ2 * reciprocalRadius2
+						);
 					}
 				}
 			}

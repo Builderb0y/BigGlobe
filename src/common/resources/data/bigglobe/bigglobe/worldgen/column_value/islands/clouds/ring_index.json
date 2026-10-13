@@ -1,0 +1,10 @@
+{
+	"type": "script",
+	"params": {
+		"type": "int",
+		"is_3d": false
+	},
+	"script": [
+		"floorInt(`bigglobe:islands/island_voronoi`.softDistance * 8.0L + 0.5L)"
+	]
+}

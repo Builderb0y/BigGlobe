@@ -1,0 +1,26 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "emerald",
+		"blocks": {
+			"#bigglobe:stone_ore_replaceables":     "minecraft:emerald_ore",
+			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_emerald_ore"
+		},
+		"chance": [
+			"if (`bigglobe:islands/type`.is(FloatingIslandType) && y >= 128:",
+				"double surface = `bigglobe:islands/type_storage/skyland_processed_y_gradient`.value",
+				"fastExp((surface - y) / -192.0L) * (surface - 768.0L) / 256.0L",
+			")",
+			"else (",
+				"fastExp(`bigglobe:approximate_distance_below_surface` / -192.0L) * `bigglobe:overworld/mountainness`",
+			")"
+		],
+		"core_chance": "0.25L",
+		"radius": {
+			"type": "average",
+			"min": 1.5,
+			"max": 4.0,
+			"average": 2.5
+		}
+	}
+}

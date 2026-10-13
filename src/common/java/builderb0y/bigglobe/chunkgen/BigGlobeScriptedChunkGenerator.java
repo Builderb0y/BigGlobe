@@ -895,7 +895,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 					int minFilledSectionY_ = minFilledSectionY;
 					int maxFilledSectionY_ = maxFilledSectionY;
 					ScriptedColumnLookup.GLOBAL.run(
-						worldWrapper, () -> {
+						worldWrapper,
+						() -> {
 							if (!distantHorizons) {
 								for (ConfiguredRockReplacerFeature<?> replacer : this.feature_dispatcher.getFlattenedRockReplacers()) {
 									replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);

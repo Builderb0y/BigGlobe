@@ -7,7 +7,12 @@
 			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_diamond_ore"
 		},
 		"chance": [
-			"double line = unmixLinear(256.0L, 512.0L, `bigglobe:approximate_distance_below_surface`)",
+			"double depth = (",
+				"`bigglobe:islands/type`.is(FloatingIslandType) && y >= 128",
+				"? `bigglobe:islands/type_storage/skyland_processed_y_gradient`.value - y",
+				": `bigglobe:approximate_distance_below_surface`",
+			")",
+			"double line = unmixLinear(256.0L, 512.0L, depth)",
 			"double curve = 1.0L - fastExp(-line)",
 			"if (`bigglobe:islands/type`.isnt(RockyIslandType): curve *= 0.5L)",
 			"return(curve)"

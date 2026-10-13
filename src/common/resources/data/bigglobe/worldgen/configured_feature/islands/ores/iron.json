@@ -7,12 +7,18 @@
 			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_iron_ore"
 		},
 		"chance": {
-			"template": "bigglobe:ores/exponential",
-			"inputs": {
-				"delay": "512.0L",
-				"peak":  "`bigglobe:islands/type`.is(RockyIslandType) ? 1.0L : 0.75L",
-				"limit": "`bigglobe:islands/type`.is(RockyIslandType) ? 0.5L : 0.25L"
-			}
+			"source": [
+				"IslandType type = `bigglobe:islands/type`",
+				"if (type.is(FloatingIslandType) && y >= 128:",
+					"mixLinear(0.25I, 0.75I, fastExp2((`bigglobe:islands/type_storage/skyland_processed_y_gradient`.value - y) / -256.0L))",
+				")",
+				"else if (type.is(RockyIslandType):",
+					"mixLinear(0.5I, 1.0I, fastExp2(`bigglobe:approximate_distance_below_surface` / -512.0L))",
+				")",
+				"else (",
+					"mixLinear(0.25I, 0.75I, fastExp2(`bigglobe:approximate_distance_below_surface` / -512.0L))",
+				")"
+			]
 		},
 		"radius": {
 			"type": "average",

@@ -7,9 +7,15 @@
 			"#bigglobe:deepslate_ore_replaceables": "minecraft:deepslate_lapis_ore"
 		},
 		"chance": [
+			"double surface = (",
+				"`bigglobe:islands/type`.is(FloatingIslandType) && y >= 128",
+				"? `bigglobe:islands/type_storage/skyland_processed_y_gradient`.value",
+				": world_traits.`bigglobe:exact_surface_y`",
+			")",
 			"double ground = world_traits.`bigglobe:exact_surface_y`",
 			"double depth = world_traits.`bigglobe:sea_level` - ground",
-			"depth > 0.0L ? unmixLinear(ground - depth, ground, y) : 0.0L"
+			"double result = depth > 0.0L ? unmixLinear(surface - depth, surface, y) : 0.0L",
+			"return(result)"
 		],
 		"radius": {
 			"type": "average",

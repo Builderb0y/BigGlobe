@@ -301,15 +301,24 @@ public class DevDebugCommand {
 				);
 				context.getSource().sendSuccess(
 					() -> Component.literal(
-						Double.toString(
-							config.chance.get(
-								column,
-								BigGlobeMath.floorI(pos.y)
-							)
+						"Normal: " + config.chance.get(
+							column,
+							BigGlobeMath.floorI(pos.y)
 						)
 					),
 					false
 				);
+				if (config.core_chance != null) {
+					context.getSource().sendSuccess(
+						() -> Component.literal(
+							"Core: " + config.core_chance.get(
+								column,
+								BigGlobeMath.floorI(pos.y)
+							)
+						),
+						false
+					);
+				}
 				return 1;
 			}
 			else {
