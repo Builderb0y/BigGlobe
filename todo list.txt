@@ -125,12 +125,12 @@ V6:
 			red sand: mesas.
 			all of the above use smaller noise scales than rocks.
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
+		"frozen" state for objects returned by column values.
 
 islands:
-	missing decorations:
-		everything on floating islands.
-			structures, somehow.
-			ores need to be tweaked to work on floating islands.
+	floating islands:
+		more rock filler types?
+		caves?
 
 LODs:
 	shader support.

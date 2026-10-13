@@ -57,6 +57,7 @@
 		"bigglobe:overworld/structure/spillover/woodland_mansion",
 
 		"bigglobe:overworld/stronghold_collision",
+		"bigglobe:islands/sunken_floating_islands",
 		"bigglobe:islands/no_obelisks"
 	]
 }

@@ -1,0 +1,13 @@
+{
+	"type": "structure",
+	"script": [
+		"if (",
+			"start.structure.isIn('#bigglobe:sunken_floating_islands') &&",
+			"`bigglobe:islands/type`(start.midX, start.midZ).is(FloatingIslandType type) &&",
+			"start.minY >= world_traits.`bigglobe:sea_level`(start.midX, start.midZ) + start.sizeY",
+		":",
+			"start.move(world_traits.`bigglobe:y_level_on_surface`(start.midX, start.midZ) - start.minY)",
+		")",
+		"return(true)"
+	]
+}
