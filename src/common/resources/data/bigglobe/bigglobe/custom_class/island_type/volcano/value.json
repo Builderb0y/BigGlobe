@@ -8,6 +8,7 @@
 		"maxHeight": 1024.0,
 		"isPointy": true,
 		"enabledDecorations": "VOLCANO",
-		"spawnTweakers": "#bigglobe:islands/volcano"
+		"spawnTweakers": "#bigglobe:islands/volcano",
+		"playerSpawnable": false
 	}
 }

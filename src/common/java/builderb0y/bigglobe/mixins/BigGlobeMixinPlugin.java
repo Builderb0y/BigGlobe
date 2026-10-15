@@ -55,10 +55,10 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 	public static boolean checkMod(String mixinName, String modName, Predicate<Version> versionPredicate) {
 		if (
 			FabricLoader
-				.getInstance()
-				.getModContainer(modName)
-				.filter((ModContainer container) -> versionPredicate.test(container.getMetadata().getVersion()))
-				.isPresent()
+			.getInstance()
+			.getModContainer(modName)
+			.filter((ModContainer container) -> versionPredicate.test(container.getMetadata().getVersion()))
+			.isPresent()
 		) {
 			LOGGER.info("Applying mixin " + mixinName + " because a known version of required mod " + modName + " is present.");
 			return true;

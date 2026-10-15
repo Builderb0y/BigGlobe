@@ -7,6 +7,7 @@
 		"weight": 0.5,
 		"maxHeight": 512.0,
 		"isPointy": false,
-		"spawnTweakers": "#bigglobe:islands/forest"
+		"spawnTweakers": "#bigglobe:islands/forest",
+		"playerSpawnable": true
 	}
 }

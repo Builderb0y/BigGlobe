@@ -8,6 +8,7 @@
 		"maxHeight": 256.0,
 		"isPointy": false,
 		"enabledDecorations": "MUSHROOM",
-		"spawnTweakers": "#bigglobe:islands/mushroom"
+		"spawnTweakers": "#bigglobe:islands/mushroom",
+		"playerSpawnable": false
 	}
 }

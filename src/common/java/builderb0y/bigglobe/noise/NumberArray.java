@@ -1211,37 +1211,43 @@ public class NumberArray implements AutoCloseable {
 	public void implMin(int index, byte value) {
 		byte[] base = this.getBase();
 		index = this.byteIndex(index);
-		BYTE_ACCESS.set(base, index, (byte)(Math.min((byte)(BYTE_ACCESS.get(base, index)), value)));
+		byte oldValue = (byte)(BYTE_ACCESS.get(base, index));
+		if (value < oldValue) BYTE_ACCESS.set(base, index, value);
 	}
 
 	public void implMin(int index, short value) {
 		byte[] base = this.getBase();
 		index = this.shortIndex(index);
-		SHORT_ACCESS.set(base, index, (short)(Math.min((short)(SHORT_ACCESS.get(base, index)), value)));
+		short oldValue = (short)(SHORT_ACCESS.get(base, index));
+		if (value < oldValue) SHORT_ACCESS.set(base, index, value);
 	}
 
 	public void implMin(int index, int value) {
 		byte[] base = this.getBase();
 		index = this.intIndex(index);
-		INT_ACCESS.set(base, index, Math.min(((int)(INT_ACCESS.get(base, index))), value));
+		int oldValue = (int)(INT_ACCESS.get(base, index));
+		if (value < oldValue) INT_ACCESS.set(base, index, value);
 	}
 
 	public void implMin(int index, long value) {
 		byte[] base = this.getBase();
 		index = this.longIndex(index);
-		LONG_ACCESS.set(base, index, Math.min(((long)(LONG_ACCESS.get(base, index))), value));
+		long oldValue = (long)(LONG_ACCESS.get(base, index));
+		if (value < oldValue) LONG_ACCESS.set(base, index, value);
 	}
 
 	public void implMin(int index, float value) {
 		byte[] base = this.getBase();
 		index = this.floatIndex(index);
-		FLOAT_ACCESS.set(base, index, Math.min(((float)(FLOAT_ACCESS.get(base, index))), value));
+		float oldValue = (float)(FLOAT_ACCESS.get(base, index));
+		if (value < oldValue) FLOAT_ACCESS.set(base, index, value);
 	}
 
 	public void implMin(int index, double value) {
 		byte[] base = this.getBase();
 		index = this.doubleIndex(index);
-		DOUBLE_ACCESS.set(base, index, Math.min(((double)(DOUBLE_ACCESS.get(base, index))), value));
+		double oldValue = (double)(DOUBLE_ACCESS.get(base, index));
+		if (value < oldValue) DOUBLE_ACCESS.set(base, index, value);
 	}
 
 	public void min(int index, byte value) {
@@ -1362,6 +1368,32 @@ public class NumberArray implements AutoCloseable {
 			if (TRACE_ALLOCATIONS) this.closing = new Throwable("Stack trace");
 		}
 		this.manager = null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return (
+			obj instanceof NumberArray that &&
+			this.type == that.type &&
+			Arrays.equals(
+				this.manager.base,
+				this.byteOffset,
+				this.byteOffset + this.byteLength,
+				that.manager.base,
+				that.byteOffset,
+				that.byteOffset + this.byteLength
+			)
+		);
+	}
+
+	@Override
+	public int hashCode() {
+		byte[] base = this.manager.base;
+		int hash = this.type;
+		for (int index = 0; index < this.byteLength; index++) {
+			hash = hash * 31 + base[index + this.byteOffset];
+		}
+		return hash;
 	}
 
 	@Override

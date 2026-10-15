@@ -7,6 +7,7 @@
 		"weight": 0.5,
 		"maxHeight": 768.0,
 		"isPointy": true,
-		"spawnTweakers": "#bigglobe:islands/snowcapped"
+		"spawnTweakers": "#bigglobe:islands/snowcapped",
+		"playerSpawnable": true
 	}
 }

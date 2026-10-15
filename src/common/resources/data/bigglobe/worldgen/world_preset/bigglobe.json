@@ -48,6 +48,7 @@
 						]
 					},
 					"grass_bonemeal_feature": "bigglobe:overworld/grass_bonemeal",
+					"alt_block_falling_logic": true,
 					"sound_modifier": {
 						"file": "bigglobe:world_preset/overworld_sound_modifier"
 					}

@@ -31,6 +31,8 @@
 		"EndPortalBlock_SpawnAtPreferredLocationInTheEnd",
 		"Entity_CurrentIdGetter",
 		"EyeblossomBlock_MakeWorkInTheNether",
+		"FallingBlock_Access",
+		"FallingBlock_TweakLogic",
 		"FallingBlockEntity_DestroyOnLandingAccess",
 		"FlowableFluid_DontFlowInRivers",
 		"FungusBlock_GrowIntoBigGlobeTree",

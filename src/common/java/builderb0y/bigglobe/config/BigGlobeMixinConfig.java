@@ -75,6 +75,7 @@ public class BigGlobeMixinConfig {
 		defaults.put(MIXIN_PACKAGE + ".EndPortalBlock_SpawnAtPreferredLocationInTheEnd",                                          Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".Entity_SpawnAtPreferredLocationInTheEnd",                                                  Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EyeblossomBlock_MakeWorkInTheNether",                                                      Boolean.TRUE);
+		defaults.put(MIXIN_PACKAGE + ".FallingBlock_TweakLogic",                                                                  Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".FlowableFluid_DontFlowInRivers",                                                           Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".FluidRenderer_DontHardCodeChunkSectionSizedAreas",                                         Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".FungusBlock_GrowIntoBigGlobeTree",                                                         Boolean.TRUE);
@@ -128,6 +129,7 @@ public class BigGlobeMixinConfig {
 		unconfigurable.add(MIXIN_PACKAGE + ".DataPacks_StoreResourceManager");
 		unconfigurable.add(MIXIN_PACKAGE + ".DebugHud_MakeSearchable");
 		unconfigurable.add(MIXIN_PACKAGE + ".Entity_CurrentIdGetter");
+		unconfigurable.add(MIXIN_PACKAGE + ".FallingBlock_Access");
 		unconfigurable.add(MIXIN_PACKAGE + ".FallingBlockEntity_DestroyOnLandingAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".GameRenderer_CaptureRealMatrices");
 		unconfigurable.add(MIXIN_PACKAGE + ".Heightmap_StorageAccess");

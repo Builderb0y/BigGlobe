@@ -51,7 +51,7 @@ import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dispensers.BigGlobeDispenserBehaviors;
+import builderb0y.bigglobe.mechanics.BigGlobeDispenserBehaviors;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;

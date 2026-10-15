@@ -8,6 +8,7 @@
 		"maxHeight": 768.0,
 		"isPointy": false,
 		"enabledDecorations": "DESERT",
-		"spawnTweakers": "#bigglobe:islands/desert"
+		"spawnTweakers": "#bigglobe:islands/desert",
+		"playerSpawnable": false
 	}
 }

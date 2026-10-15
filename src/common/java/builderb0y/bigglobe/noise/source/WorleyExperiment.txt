@@ -1,0 +1,285 @@
+/*
+this was an experiment I tried to speed up worley noise generation.
+it "worked" in the sense that the time complexity was closer to linear,
+which makes it well suited for large scales.
+unfortunately, all the worley noise I actually use in practice have a small scale,
+and at small scales it actually performs worse than the original algorithm.
+as such, I never bothered to finish it for bulk sampling on the X or Z axes
+(only Y), and also never finished it for 1D and 2D worley grids.
+nevertheless, I am leaving the code for it here, in case I ever need it again.
+
+BACKGROUND:
+computing 3D worley noise along a line is equivalent to computing 1D worley along that line,
+except that not every seed point maps to the same value,
+since not every seed point is actually on the line.
+the contribution of any given seed point at point x is (x - seedPoint.x) ^ 2 + (distance to line) ^ 2.
+the distance to the line is trivial to compute when the line is axis-aligned.
+
+THEORY:
+what I do here is take 2 seed points, and analytically compute the
+position where the contribution of the 2nd is less than that of the first.
+this is equivalent to the point where the squared distance to the
+2nd point is less than the squared distance to the first point.
+by sorting points by X position and repeating this process for each point compared to the previous,
+you can build a list of transition points where the nearest seed point changes.
+by tracking these transition points while iterating,
+you only need to compute the distance to 1 seed point instead of 125.
+
+DISADVANTAGES:
+1. you need to allocate memory to store all the seed points. this is not a constant-memory operation.
+2. using direct NumberArray's to solve problem 1 does not make it faster.
+*/
+
+public static double computeExtentX(
+	double x1,
+	double y1,
+	double z1,
+	double x2,
+	double y2,
+	double z2,
+	double y,
+	double z
+) {
+	return (
+		(
+			(
+				squareD(y2 - y, z2 - z) -
+				squareD(y1 - y, z1 - z)
+			)
+			+ (squareD(x2) - squareD(x1))
+		)
+		/ (2.0D * (x2 - x1))
+	);
+}
+
+public static double computeExtentY(
+	double x1,
+	double y1,
+	double z1,
+	double x2,
+	double y2,
+	double z2,
+	double x,
+	double z
+) {
+	return (
+		(
+			(
+				squareD(x2 - x, z2 - z) -
+				squareD(x1 - x, z1 - z)
+			)
+			+ (squareD(y2) - squareD(y1))
+		)
+		/ (2.0D * (y2 - y1))
+	);
+}
+
+public static double computeExtentZ(
+	double x1,
+	double y1,
+	double z1,
+	double x2,
+	double y2,
+	double z2,
+	double x,
+	double y
+) {
+	return (
+		(
+			(
+				squareD(x2 - x, y2 - y) -
+				squareD(x1 - x, y1 - y)
+			)
+			+ (squareD(z2) - squareD(z1))
+		)
+		/ (2.0D * (z2 - z1))
+	);
+}
+
+public void getBulkYFaster(long seed, int x, int startY, int z, NumberArray samples) {
+	int sampleCount = samples.length();
+	int endY = startY + sampleCount;
+	int minCellY = Math.floorDiv(startY, this.scale) - 2;
+	int maxCellY = Math.floorDiv(endY - 1, this.scale) + 2;
+	class Helper implements AutoCloseable {
+
+		public final int
+			minCellX = Math.floorDiv(x, WorleyGrid3D.this.scale) - 2,
+			minCellZ = Math.floorDiv(z, WorleyGrid3D.this.scale) - 2,
+			maxCellX = Math.floorDiv(x, WorleyGrid3D.this.scale) + 2,
+			maxCellZ = Math.floorDiv(z, WorleyGrid3D.this.scale) + 2;
+		public final long
+			seed_ = seed ^ WorleyGrid3D.this.salt.value;
+		public final NumberArray
+			temporaryPoints = NumberArray.allocateDoublesDirect(25 * 4),
+			persistentPoints = NumberArray.allocateDoublesDirect((maxCellY - minCellY) * (9 * 4)); //hopefully this is enough.
+		public int
+			temporaryPointCount,
+			persistentPointCount;
+
+		public Helper() {
+			for (int cellY = minCellY; cellY <= maxCellY; cellY++) {
+				this.push(cellY);
+			}
+			this.persistentPoints.implSetD((this.persistentPointCount - 1) * 4 + 3, Double.POSITIVE_INFINITY);
+		}
+
+		@Override
+		public void close() {
+			this.persistentPoints.close();
+			this.temporaryPoints.close();
+		}
+
+		public void addTemporaryPoint(double x, double y, double z) {
+			int index = this.temporaryPointCount++ * 4;
+			this.temporaryPoints.implSetD(index + 0, x);
+			this.temporaryPoints.implSetD(index + 1, y);
+			this.temporaryPoints.implSetD(index + 2, z);
+			this.temporaryPoints.implSetD(index + 3, 0.0D);
+		}
+
+		public void addPersistentPoint(double x, double y, double z) {
+			int index = this.persistentPointCount++ * 4;
+			this.persistentPoints.implSetD(index + 0, x);
+			this.persistentPoints.implSetD(index + 1, y);
+			this.persistentPoints.implSetD(index + 2, z);
+			this.persistentPoints.implSetD(index + 3, 0.0D);
+		}
+
+		public void sortTemporaryPoints() {
+			Arrays.quickSort(
+				0,
+				25,
+				(int index1, int index2) -> Double.compare(
+					this.temporaryPoints.implGetD(index1 * 4 + 1),
+					this.temporaryPoints.implGetD(index2 * 4 + 1)
+				),
+				(int index1, int index2) -> {
+					index1 *= 4;
+					index2 *= 4;
+					double x1 = this.temporaryPoints.implGetD(index1 + 0);
+					double y1 = this.temporaryPoints.implGetD(index1 + 1);
+					double z1 = this.temporaryPoints.implGetD(index1 + 2);
+					double e1 = this.temporaryPoints.implGetD(index1 + 3);
+
+					double x2 = this.temporaryPoints.implGetD(index2 + 0);
+					double y2 = this.temporaryPoints.implGetD(index2 + 1);
+					double z2 = this.temporaryPoints.implGetD(index2 + 2);
+					double e2 = this.temporaryPoints.implGetD(index2 + 3);
+
+					this.temporaryPoints.implSetD(index1 + 0, x2);
+					this.temporaryPoints.implSetD(index1 + 1, y2);
+					this.temporaryPoints.implSetD(index1 + 2, z2);
+					this.temporaryPoints.implSetD(index1 + 3, e2);
+
+					this.temporaryPoints.implSetD(index2 + 0, x1);
+					this.temporaryPoints.implSetD(index2 + 1, y1);
+					this.temporaryPoints.implSetD(index2 + 2, z1);
+					this.temporaryPoints.implSetD(index2 + 3, e1);
+				}
+			);
+		}
+
+		public void push(int cellY) {
+			for (int cellZ = this.minCellZ; cellZ <= this.maxCellZ; cellZ++) {
+				for (int cellX = this.minCellX; cellX <= this.maxCellX; cellX++) {
+					long cellSeed = Permuter.permute(this.seed_, cellX, cellY, cellZ);
+					double centerX = WorleyGrid3D.this.getCenterX(cellSeed, cellX);
+					double centerY = WorleyGrid3D.this.getCenterY(cellSeed, cellY);
+					double centerZ = WorleyGrid3D.this.getCenterZ(cellSeed, cellZ);
+					this.addTemporaryPoint(centerX, centerY, centerZ);
+				}
+			}
+			this.sortTemporaryPoints();
+			for (int pointIndex = 0; pointIndex < 25; pointIndex++) {
+				int rawIndex = pointIndex * 4;
+				double
+					centerX = this.temporaryPoints.implGetD(rawIndex + 0),
+					centerY = this.temporaryPoints.implGetD(rawIndex + 1),
+					centerZ = this.temporaryPoints.implGetD(rawIndex + 2);
+				switch (this.persistentPointCount) {
+					case 0 -> this.addPersistentPoint(centerX, centerY, centerZ);
+					case 1 -> {
+						double
+							x0 = this.persistentPoints.implGetD(0),
+							y0 = this.persistentPoints.implGetD(1),
+							z0 = this.persistentPoints.implGetD(2);
+						this.addPersistentPoint(centerX, centerY, centerZ);
+						this.persistentPoints.implSetD(
+							3,
+							computeExtentY(
+								x0, y0, z0,
+								centerX, centerY, centerZ,
+								x, z
+							)
+						);
+					}
+					default -> {
+						do {
+							int start = (this.persistentPointCount - 2) * 4;
+							//double secondLastX = this.persistentPoints.implGetD(start + 0);
+							//double secondLastY = this.persistentPoints.implGetD(start + 1);
+							//double secondLastZ = this.persistentPoints.implGetD(start + 2);
+							double secondLastE = this.persistentPoints.implGetD(start + 3);
+							double       lastX = this.persistentPoints.implGetD(start + 4);
+							double       lastY = this.persistentPoints.implGetD(start + 5);
+							double       lastZ = this.persistentPoints.implGetD(start + 6);
+							//double       lastE = this.persistentPoints.implGetD(start + 7);
+							double extent = computeExtentY(
+								lastX, lastY, lastZ,
+								centerX, centerY, centerZ,
+								x, z
+							);
+							if (extent > secondLastE) {
+								this.persistentPoints.implSetD(start + 7, extent);
+								break;
+							}
+							else {
+								this.persistentPointCount--;
+							}
+						}
+						while (this.persistentPointCount >= 2);
+						this.addPersistentPoint(centerX, centerY, centerZ);
+					}
+				}
+			}
+			this.temporaryPointCount = 0;
+		}
+
+		public double getCenterX(int index) {
+			return this.persistentPoints.implGetD(index * 4);
+		}
+
+		public double getCenterY(int index) {
+			return this.persistentPoints.implGetD(index * 4 + 1);
+		}
+
+		public double getCenterZ(int index) {
+			return this.persistentPoints.implGetD(index * 4 + 2);
+		}
+
+		public double getExtent(int index) {
+			return this.persistentPoints.implGetD(index * 4 + 3);
+		}
+	}
+	try (Helper helper = new Helper()) {
+		int pointIndex = 0;
+		double
+			centerX = helper.getCenterX(0),
+			centerY = helper.getCenterY(0),
+			centerZ = helper.getCenterZ(0),
+			extent  = helper.getExtent (0);
+		for (int index = 0; index < sampleCount; index++) {
+			int y = index + startY;
+			while (y > extent) {
+				pointIndex++;
+				centerX = helper.getCenterX(pointIndex);
+				centerY = helper.getCenterY(pointIndex);
+				centerZ = helper.getCenterZ(pointIndex);
+				extent  = helper.getExtent (pointIndex);
+			}
+			samples.setD(index, squareD(centerX - x, centerY - y, centerZ - z));
+		}
+	}
+	this.scale(samples);
+}

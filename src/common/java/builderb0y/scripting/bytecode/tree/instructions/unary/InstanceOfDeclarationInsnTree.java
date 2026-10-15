@@ -43,4 +43,9 @@ public class InstanceOfDeclarationInsnTree extends UnaryInsnTree {
 	public TypeInfo getTypeInfo() {
 		return TypeInfos.BOOLEAN;
 	}
+
+	@Override
+	public boolean canBeStatement() {
+		return true;
+	}
 }

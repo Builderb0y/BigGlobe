@@ -181,6 +181,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		@VerifyNullable SpawnTweakers mob_spawn_tweakers,
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
+		@DefaultBoolean(false) boolean alt_block_falling_logic,
 		@VerifyNullable NetherOverrides nether,
 		@VerifyNullable ResourceKey<Level> creaking_time_reference,
 		@VerifyNullable EndOverrides end,
@@ -193,6 +194,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			null,
 			null,
 			null,
+			false,
 			null,
 			null,
 			null,
@@ -471,7 +473,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			}
 
 			public JsonElement getDimension(String preset, String dimension) throws DecodeException {
-				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from mod jar.");
+				BigGlobeMod.LOGGER.info("Reading " + dimension + " chunk generator from " + preset + " in mod jar.");
 				JsonElement element = this.getJson("/data/bigglobe/worldgen/world_preset/" + preset + ".json");
 				for (String key : new String[] { "dimensions", dimension, "generator" }) {
 					if (element instanceof JsonObject object) element = object.get(key);

@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "clay_gravel_noise + world_traits.`bigglobe:humidity_at` - 0.25I",
+	"cache": false
+}

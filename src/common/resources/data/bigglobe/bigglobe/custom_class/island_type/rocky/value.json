@@ -8,6 +8,7 @@
 		"maxHeight": 768.0,
 		"isPointy": false,
 		"enabledDecorations": "NONE",
-		"spawnTweakers": "#bigglobe:islands/rocky"
+		"spawnTweakers": "#bigglobe:islands/rocky",
+		"playerSpawnable": false
 	}
 }

@@ -8,6 +8,7 @@
 		"maxHeight": 0.0,
 		"isPointy": false,
 		"spawnTweakers": "#bigglobe:islands/floating",
-		"enabledDecorations": "SKYLAND"
+		"enabledDecorations": "SKYLAND",
+		"playerSpawnable": false
 	}
 }

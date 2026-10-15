@@ -2,11 +2,17 @@
 	"type": "structure",
 	"script": [
 		"if (",
-			"start.structure.isIn('#bigglobe:sunken_floating_islands') &&",
-			"`bigglobe:islands/type`(start.midX, start.midZ).is(FloatingIslandType type) &&",
+			"start.structure.isIn('#minecraft:ocean_ruin') &&",
 			"start.minY >= world_traits.`bigglobe:sea_level`(start.midX, start.midZ) + start.sizeY",
 		":",
 			"start.move(world_traits.`bigglobe:y_level_on_surface`(start.midX, start.midZ) - start.minY)",
+		")",
+		"else if (",
+			"start.structure.isIn('#minecraft:shipwreck') &&",
+			"start.minY >= world_traits.`bigglobe:sea_level`(start.midX, start.midZ) + start.sizeY",
+		":",
+			";match vanilla height, since one of my mixins guts this logic in big globe worlds.",
+			"start.move(world_traits.`bigglobe:y_level_on_surface`(start.midX, start.midZ) - start.minY - (start.sizeY >> 1) - random.nextInt(3))",
 		")",
 		"return(true)"
 	]

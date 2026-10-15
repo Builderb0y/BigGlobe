@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"bigglobe:bigglobe"
+		"bigglobe:bigglobe",
+		"bigglobe:islands"
 	]
 }

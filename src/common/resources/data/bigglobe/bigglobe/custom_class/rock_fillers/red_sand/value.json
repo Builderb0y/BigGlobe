@@ -1,0 +1,9 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:rock_fillers/base/class",
+	"impl_type": "bigglobe:rock_fillers/red_sand/class",
+	"name": "RED_SAND",
+	"field_values": {
+		"state": "minecraft:red_sand"
+	}
+}

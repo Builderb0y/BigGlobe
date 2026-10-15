@@ -1,0 +1,9 @@
+{
+	"type": "script",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"script": "dirt_sand_noise + 0.25I",
+	"cache": false
+}

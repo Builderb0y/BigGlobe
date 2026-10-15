@@ -1,4 +1,4 @@
-package builderb0y.bigglobe.dispensers;
+package builderb0y.bigglobe.mechanics;
 
 import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.world.item.Items;
