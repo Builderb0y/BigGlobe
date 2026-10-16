@@ -116,7 +116,11 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 				"builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning",
 				"builderb0y.bigglobe.mixins.Camera_HandleSoulLavaSubmersion"
 			-> {
-				yield BigGlobeMixinConfig.INSTANCE.isEnabled(mixinClassName) && checkNoMod(mixinClassName, "connector");
+				yield (
+					BigGlobeMixinConfig.INSTANCE.isEnabled(mixinClassName) &&
+					checkNoMod(mixinClassName, "connector") &&
+					checkNoMod(mixinClassName, "launchpad")
+				);
 			}
 			case
 				"builderb0y.bigglobe.mixins.Blocks_RegisterVanillaBlocksEarly",

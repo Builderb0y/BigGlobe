@@ -1,14 +1,13 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"double riverBias = `bigglobe:overworld/raw/river`(minModifiableX | 8, minModifiableZ | 8)",
-		"riverBias = 1.0L - riverBias / 64.0L",
+		"double riverBias = -`bigglobe:overworld/raw/river`(minModifiableX | 8, minModifiableZ | 8)",
 
 		";rocks",
 		"repeat (",
 			"random.roundInt(",
-				"`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 4.0L +",
-				"riverBias * 12.0L",
+				"`bigglobe:overworld/hilliness`(minModifiableX | 8, minModifiableZ | 8) * 16.0L",
+				"+ riverBias * 0.5L",
 			")",
 		":",
 			"int x = minModifiableX | random.nextInt(16)",
@@ -18,7 +17,7 @@
 		")",
 
 		";flint",
-		"random.if (riverBias:",
+		"random.if (riverBias * 0.125L:",
 			"int x = minModifiableX | random.nextInt(16)",
 			"int z = minModifiableZ | random.nextInt(16)",
 			"int y = world_traits.`bigglobe:y_level_on_surface`(x, z)",

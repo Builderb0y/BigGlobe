@@ -146,6 +146,8 @@ changelog:
 		* Each island has a different type associated with it.
 		* Each island type can be thought of as like a different biome, with a different set of terrain gen parameters.
 	* Performance improvements.
+	* Sand, gravel, and other falling blocks now work differently in Big Globe worlds.
+		* This is because there's sometimes a lot of it underground in cave ceilings, and having it all fall at once is laggy.
 	* Fixed lava replacing blocks that it shouldn't near lava level in the nether.
 	* Dry lakes now only spawn in deserts.
 		* Likewise, non-dry lakes now only spawn outside of deserts.

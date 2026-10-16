@@ -56,8 +56,8 @@
 		"bigglobe:overworld/structure/spillover/village_taiga",
 		"bigglobe:overworld/structure/spillover/woodland_mansion",
 
+		"bigglobe:overworld/structure/sunken_structures",
 		"bigglobe:overworld/stronghold_collision",
-		"bigglobe:islands/sunken_floating_islands",
 		"bigglobe:islands/no_obelisks"
 	]
 }

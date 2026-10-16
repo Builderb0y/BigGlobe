@@ -56,6 +56,7 @@
 		"bigglobe:overworld/structure/spillover/village_taiga",
 		"bigglobe:overworld/structure/spillover/woodland_mansion",
 
+		"bigglobe:overworld/structure/sunken_structures",
 		"bigglobe:overworld/obelisk_collision",
 		"bigglobe:overworld/stronghold_collision"
 	]
