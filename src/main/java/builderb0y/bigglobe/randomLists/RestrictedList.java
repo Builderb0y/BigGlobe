@@ -13,8 +13,8 @@ public class RestrictedList<E extends IRestrictedListElement> extends AbstractRa
 
 	public RestrictedList(List<E> elements, ScriptedColumn column, int y) {
 		this.elements = elements;
-		this.column   = column;
-		this.y        = y;
+		this.column = column;
+		this.y = y;
 	}
 
 	@Override

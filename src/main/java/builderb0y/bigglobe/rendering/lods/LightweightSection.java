@@ -1,20 +1,17 @@
 package builderb0y.bigglobe.rendering.lods;
 
 import java.util.Arrays;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.BitStorage;
+import net.minecraft.util.SimpleBitStorage;
+import net.minecraft.util.ZeroBitStorage;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.DataLayer;
+import net.minecraft.world.level.chunk.Palette;
+import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.collection.EmptyPaletteStorage;
-import net.minecraft.util.collection.PackedIntegerArray;
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.EmptyBlockView;
-import net.minecraft.world.chunk.ChunkNibbleArray;
-import net.minecraft.world.chunk.Palette;
-import net.minecraft.world.chunk.PalettedContainer;
-
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -23,10 +20,10 @@ public class LightweightSection {
 
 	public static enum SectionIndexRange {
 		LOD0(0, 4096, false),
-		LOD1(0,  512, true ),
+		LOD1(0, 512, true),
 		LOD2(LOD1.end, LOD1.end + 64, true),
-		LOD3(LOD2.end, LOD2.end +  8, true),
-		LOD4(LOD3.end, LOD3.end +  1, true);
+		LOD3(LOD2.end, LOD2.end + 8, true),
+		LOD4(LOD3.end, LOD3.end + 1, true);
 
 		public static final SectionIndexRange[] VALUES = values();
 
@@ -41,17 +38,17 @@ public class LightweightSection {
 	}
 
 	public final Palette<BlockState> palette;
-	public final PaletteStorage mainBlocks, lodBlocks;
+	public final BitStorage mainBlocks, lodBlocks;
 	public final @Nullable LightweightSection.LightLevelStorage mainSkylight, lodSkylight;
 
-	public LightweightSection(PalettedContainer<BlockState> container, @Nullable ChunkNibbleArray skylight) {
+	public LightweightSection(PalettedContainer<BlockState> container, @Nullable DataLayer skylight) {
 		this.palette = SectionUtil.palette(container);
 		this.mainBlocks = SectionUtil.storage(container);
-		if (this.mainBlocks instanceof EmptyPaletteStorage) {
-			this.lodBlocks = new EmptyPaletteStorage(SectionIndexRange.LOD4.end);
+		if (this.mainBlocks instanceof ZeroBitStorage) {
+			this.lodBlocks = new ZeroBitStorage(SectionIndexRange.LOD4.end);
 		}
 		else {
-			this.lodBlocks = new PackedIntegerArray(this.mainBlocks.getElementBits(), SectionIndexRange.LOD4.end);
+			this.lodBlocks = new SimpleBitStorage(this.mainBlocks.getBits(), SectionIndexRange.LOD4.end);
 			CountsMap counts = new CountsMap();
 			mip((int srcLod, int srcIndex, int srcShift, int dstIndex) -> {
 				this.lodBlocks.set(
@@ -65,7 +62,7 @@ public class LightweightSection {
 				);
 			});
 		}
-		this.mainSkylight = skylight != null && skylight.bytes != null ? new LightLevelStorage(skylight) : null;
+		this.mainSkylight = skylight != null && skylight.data != null ? new LightLevelStorage(skylight) : null;
 		if (this.mainSkylight == null) {
 			this.lodSkylight = this.mainSkylight;
 		}
@@ -110,7 +107,7 @@ public class LightweightSection {
 		public void mip(int srcLod, int srcIndex, int srcShift, int dstIndex);
 	}
 
-	public int computeMostCommonBlock(PaletteStorage storage, CountsMap counts, int baseIndex, int shift) {
+	public int computeMostCommonBlock(BitStorage storage, CountsMap counts, int baseIndex, int shift) {
 		int offsetX = 1;
 		int offsetZ = 1 << shift;
 		int offsetY = 1 << (shift << 1);
@@ -177,7 +174,7 @@ public class LightweightSection {
 			BlockState mostCommonState = BlockStates.AIR;
 			for (int newValue : this.counts) {
 				if (newValue > 0xFFFF) {
-					BlockState state = palette.get(newValue & 0xFFFF);
+					BlockState state = palette.valueFor(newValue & 0xFFFF);
 					int compare = compare(mostCommonState, state);
 					if (compare > 0 || (compare == 0 && newValue > mostCommonId)) {
 						mostCommonId = newValue;
@@ -191,15 +188,15 @@ public class LightweightSection {
 
 		public static int compare(BlockState oldState, BlockState newState) {
 			int compare = Boolean.compare(
-				BlockStateVersions.getCullingShape(newState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) == VoxelShapes.fullCube(),
-				BlockStateVersions.getCullingShape(oldState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) == VoxelShapes.fullCube()
+				BlockStateVersions.getCullingShape(newState, EmptyBlockGetter.INSTANCE, BlockPos.ZERO) == Shapes.block(),
+				BlockStateVersions.getCullingShape(oldState, EmptyBlockGetter.INSTANCE, BlockPos.ZERO) == Shapes.block()
 			);
 			if (compare != 0) return compare;
 			return Boolean.compare(isPlantLike(newState), isPlantLike(oldState));
 		}
 
 		public static boolean isPlantLike(BlockState state) {
-			return !state.isAir() && state.getFluidState().getBlockState() != state;
+			return !state.isAir() && state.getFluidState().createLegacyBlock() != state;
 		}
 	}
 
@@ -218,8 +215,8 @@ public class LightweightSection {
 			this.payload = payload;
 		}
 
-		public LightLevelStorage(ChunkNibbleArray array) {
-			this.payload = array.bytes;
+		public LightLevelStorage(DataLayer array) {
+			this.payload = array.data;
 		}
 
 		public int get(int index) {

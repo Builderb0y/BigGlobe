@@ -1,56 +1,53 @@
 package builderb0y.bigglobe.features;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.SpikeFeature.EndSpike;
+import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import com.google.common.base.Predicates;
 import com.mojang.serialization.Codec;
-
-import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.EndSpikeFeature.Spike;
-import net.minecraft.world.gen.feature.EndSpikeFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-public class EndSpikeRespawnFeature extends Feature<EndSpikeFeatureConfig> {
+public class EndSpikeRespawnFeature extends Feature<SpikeConfiguration> {
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("end/nest_spike"));
+	public static final ResourceKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = ResourceKey.create(Registries.CONFIGURED_FEATURE, BigGlobeMod.modID("end/nest_spike"));
 
-	public EndSpikeRespawnFeature(Codec<EndSpikeFeatureConfig> configCodec) {
+	public EndSpikeRespawnFeature(Codec<SpikeConfiguration> configCodec) {
 		super(configCodec);
 	}
 
 	public EndSpikeRespawnFeature() {
-		this(EndSpikeFeatureConfig.CODEC);
+		this(SpikeConfiguration.CODEC);
 	}
 
-	public static long getRandomSeed(StructureWorldAccess world, int x, int z) {
+	public static long getRandomSeed(WorldGenLevel world, int x, int z) {
 		return Permuter.permute(world.getSeed() ^ 0x48FA509DA5C2D42DL, x, z);
 	}
 
 	@Override
-	public boolean generate(FeatureContext<EndSpikeFeatureConfig> context) {
-		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.getWorld().getRegistryManager(), DELEGATE_KEY);
+	public boolean place(FeaturePlaceContext<SpikeConfiguration> context) {
+		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.level().registryAccess(), DELEGATE_KEY);
 		if (delegate == null) return false;
-		BlockPos beamTarget = context.getConfig().getPos();
+		BlockPos beamTarget = context.config().getCrystalBeamTarget();
 		boolean placedAny = false;
-		for (Spike spike : context.getConfig().getSpikes()) {
-			long seed = getRandomSeed(context.getWorld(), spike.getCenterX(), spike.getCenterZ());
+		for (EndSpike spike : context.config().getSpikes()) {
+			long seed = getRandomSeed(context.level(), spike.getCenterX(), spike.getCenterZ());
 			BlockPos pos = new BlockPos(spike.getCenterX(), spike.getHeight(), spike.getCenterZ());
-			if (delegate.generate(context.getWorld(), context.getGenerator(), new MojangPermuter(seed), pos)) {
+			if (delegate.place(context.level(), context.chunkGenerator(), new MojangPermuter(seed), pos)) {
 				if (beamTarget != null) {
-					List<EndCrystalEntity> entities = context.getWorld().getEntitiesByClass(EndCrystalEntity.class, spike.getBoundingBox(), Predicates.alwaysTrue());
+					List<EndCrystal> entities = context.level().getEntitiesOfClass(EndCrystal.class, spike.getTopBoundingBox(), Predicates.alwaysTrue());
 					if (!entities.isEmpty()) {
-						for (EndCrystalEntity entity : entities) {
+						for (EndCrystal entity : entities) {
 							entity.setBeamTarget(beamTarget);
 						}
 					}

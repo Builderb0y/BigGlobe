@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.results.DecisionTreeResult;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -18,12 +16,12 @@ public class ResultBasedDecisionTreeSettings extends DecisionTreeSettings {
 	}
 
 	@Override
-	public InsnTree doCreateResult(RegistryEntry<DecisionTreeSettings> selfEntry, Context context) throws ScriptParsingException {
+	public InsnTree doCreateResult(Holder<DecisionTreeSettings> selfEntry, Context context) throws ScriptParsingException {
 		return this.result.createResult(selfEntry, context.dataContext, context.accessSchema, context.loadY);
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return this.result.streamDirectDependencies();
 	}
 }

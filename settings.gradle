@@ -1,9 +1,13 @@
 pluginManagement {
 	repositories {
-		maven {
-			name = 'Fabric'
-			url = 'https://maven.fabricmc.net/'
-		}
+		mavenLocal()
+		mavenCentral()
 		gradlePluginPortal()
+		maven {
+			name = 'NeoForged'
+			url = 'https://maven.neoforged.net/releases'
+		}
 	}
 }
+
+rootProject.name = 'BigGlobe'

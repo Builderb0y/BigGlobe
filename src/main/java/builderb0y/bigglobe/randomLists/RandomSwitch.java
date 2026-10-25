@@ -108,30 +108,30 @@ public class RandomSwitch {
 		for (int index = 1, size = methodParameters.size(); index < size; index++) {
 			LazyVarInfo parameter = methodParameters.get(index);
 			IfInsnTree.create(
-				switch (supportedType) {
-					case INT -> IntCompareZeroConditionTree.greaterThanZero(load(parameter));
-					case LONG -> LongCompareConditionTree.greaterThan(load(parameter), ldc(0L));
-					case FLOAT -> FloatCompareConditionTree.greaterThan(load(parameter), ldc(0.0F));
-					case DOUBLE -> DoubleCompareConditionTree.greaterThan(load(parameter), ldc(0.0D));
-				},
-				new VariableUpdaterInsnTree(
-					CombinedMode.VOID,
-					VariableUpdaterEmitters.forLazyVariable(
-						totalWeight,
-						new AddInsnTree(
-							getFromStack(supportedType.typeInfo),
-							load(parameter),
-							switch (supportedType) {
-								case INT -> IADD;
-								case LONG -> LADD;
-								case FLOAT -> FADD;
-								case DOUBLE -> DADD;
-							}
+					switch (supportedType) {
+						case INT -> IntCompareZeroConditionTree.greaterThanZero(load(parameter));
+						case LONG -> LongCompareConditionTree.greaterThan(load(parameter), ldc(0L));
+						case FLOAT -> FloatCompareConditionTree.greaterThan(load(parameter), ldc(0.0F));
+						case DOUBLE -> DoubleCompareConditionTree.greaterThan(load(parameter), ldc(0.0D));
+					},
+					new VariableUpdaterInsnTree(
+						CombinedMode.VOID,
+						VariableUpdaterEmitters.forLazyVariable(
+							totalWeight,
+							new AddInsnTree(
+								getFromStack(supportedType.typeInfo),
+								load(parameter),
+								switch (supportedType) {
+									case INT -> IADD;
+									case LONG -> LADD;
+									case FLOAT -> FADD;
+									case DOUBLE -> DADD;
+								}
+							)
 						)
 					)
 				)
-			)
-			.emitBytecode(method);
+				.emitBytecode(method);
 		}
 		ifThen(
 			switch (supportedType) {
@@ -142,7 +142,7 @@ public class RandomSwitch {
 			},
 			return_(ldc(-1))
 		)
-		.emitBytecode(method);
+			.emitBytecode(method);
 		LazyVarInfo selector = method.scopes.addVariable("selector", supportedType.typeInfo);
 		store(
 			selector,
@@ -151,29 +151,29 @@ public class RandomSwitch {
 				switch (supportedType) {
 					case INT -> (
 						useSeed
-						? MethodInfo.findMethod(Permuter.class, "nextBoundedInt", int.class, long.class, int.class)
-						: MethodInfo.findMethod(RandomGenerator.class, "nextInt", int.class, int.class)
+							? MethodInfo.findMethod(Permuter.class, "nextBoundedInt", int.class, long.class, int.class)
+							: MethodInfo.findMethod(RandomGenerator.class, "nextInt", int.class, int.class)
 					);
 					case LONG -> (
 						useSeed
-						? MethodInfo.findMethod(Permuter.class, "nextBoundedLong", long.class, long.class, long.class)
-						: MethodInfo.findMethod(RandomGenerator.class, "nextLong", long.class, long.class)
+							? MethodInfo.findMethod(Permuter.class, "nextBoundedLong", long.class, long.class, long.class)
+							: MethodInfo.findMethod(RandomGenerator.class, "nextLong", long.class, long.class)
 					);
 					case FLOAT -> (
 						useSeed
-						? MethodInfo.findMethod(Permuter.class, "nextBoundedFloat", float.class, long.class, float.class)
-						: MethodInfo.findMethod(RandomGenerator.class, "nextFloat", float.class, float.class)
+							? MethodInfo.findMethod(Permuter.class, "nextBoundedFloat", float.class, long.class, float.class)
+							: MethodInfo.findMethod(RandomGenerator.class, "nextFloat", float.class, float.class)
 					);
 					case DOUBLE -> (
 						useSeed
-						? MethodInfo.findMethod(Permuter.class, "nextBoundedDouble", double.class, long.class, double.class)
-						: MethodInfo.findMethod(RandomGenerator.class, "nextDouble", double.class, double.class)
+							? MethodInfo.findMethod(Permuter.class, "nextBoundedDouble", double.class, long.class, double.class)
+							: MethodInfo.findMethod(RandomGenerator.class, "nextDouble", double.class, double.class)
 					);
 				},
 				load(totalWeight)
 			)
 		)
-		.emitBytecode(method);
+			.emitBytecode(method);
 		for (int index = 0, size = weightLoaders.size() - 1; index < size; index++) {
 			VariableUpdaterInsnTree subtractedValue = new VariableUpdaterInsnTree(
 				CombinedMode.POST,
@@ -192,15 +192,15 @@ public class RandomSwitch {
 				)
 			);
 			IfInsnTree.create(
-				switch (supportedType) {
-					case INT -> IntCompareZeroConditionTree.lessThanZero(subtractedValue);
-					case LONG -> LongCompareConditionTree.lessThan(subtractedValue, ldc(0L));
-					case FLOAT -> FloatCompareConditionTree.lessThan(subtractedValue, ldc(0.0F));
-					case DOUBLE -> DoubleCompareConditionTree.lessThan(subtractedValue, ldc(0.0D));
-				},
-				return_(ldc(index))
-			)
-			.emitBytecode(method);
+					switch (supportedType) {
+						case INT -> IntCompareZeroConditionTree.lessThanZero(subtractedValue);
+						case LONG -> LongCompareConditionTree.lessThan(subtractedValue, ldc(0L));
+						case FLOAT -> FloatCompareConditionTree.lessThan(subtractedValue, ldc(0.0F));
+						case DOUBLE -> DoubleCompareConditionTree.lessThan(subtractedValue, ldc(0.0D));
+					},
+					return_(ldc(index))
+				)
+				.emitBytecode(method);
 		}
 		return_(ldc(weightLoaders.size() - 1)).emitBytecode(method);
 		method.endCode();

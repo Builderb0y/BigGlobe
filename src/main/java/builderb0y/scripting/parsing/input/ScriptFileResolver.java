@@ -2,25 +2,16 @@ package builderb0y.scripting.parsing.input;
 
 import java.io.BufferedReader;
 import java.io.StringWriter;
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.mutable.MutableObject;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryOwner;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -45,28 +36,28 @@ import builderb0y.scripting.util.ArrayBuilder;
 
 public class ScriptFileResolver {
 
-	public static final ThreadLocal<Map<Identifier, String>> OVERRIDES = new ThreadLocal<>();
+	public static final ThreadLocal<Map<ResourceLocation, String>> OVERRIDES = new ThreadLocal<>();
 	public static final FakeRegistry<ResolvedInclude> RESOLVED_INCLUDE_REGISTRY = new FakeRegistry<>(ResolvedInclude.REGISTRY_KEY);
 
-	public static RegistryEntry<ResolvedInclude> intern(ResolvedInclude include) {
+	public static Holder<ResolvedInclude> intern(ResolvedInclude include) {
 		return RESOLVED_INCLUDE_REGISTRY.getOrCreate(include.id(), include);
 	}
 
-	public static ResolvedInclude resolve(Identifier identifier) {
-		if (identifier.getNamespace().contains("..") || identifier.getPath().contains("..")) {
+	public static ResolvedInclude resolve(ResourceLocation ResourceLocation) {
+		if (ResourceLocation.getNamespace().contains("..") || ResourceLocation.getPath().contains("..")) {
 			throw new IllegalArgumentException("No, you may not access parent directories this way.");
 		}
-		Map<Identifier, String> overrides = OVERRIDES.get();
+		Map<ResourceLocation, String> overrides = OVERRIDES.get();
 		if (overrides != null) {
-			String source = overrides.get(identifier);
-			if (source != null) return new ResolvedInclude(identifier, source);
-			else throw new IllegalStateException("Missing include " + identifier);
+			String source = overrides.get(ResourceLocation);
+			if (source != null) return new ResolvedInclude(ResourceLocation, source);
+			else throw new IllegalStateException("Missing include " + ResourceLocation);
 		}
-		Identifier full = IdentifierVersions.create(identifier.getNamespace(), "bigglobe_script_files/" + identifier.getPath() + ".gs");
+		ResourceLocation full = IdentifierVersions.create(ResourceLocation.getNamespace(), "bigglobe_script_files/" + ResourceLocation.getPath() + ".gs");
 		try (BufferedReader reader = BigGlobeMod.getResourceManager().openAsReader(full)) {
 			StringWriter writer = new StringWriter(1024);
 			reader.transferTo(writer);
-			return new ResolvedInclude(identifier, writer.toString());
+			return new ResolvedInclude(ResourceLocation, writer.toString());
 		}
 		catch (Exception exception) {
 			throw new RuntimeException("Failed to read " + full, exception);
@@ -74,21 +65,21 @@ public class ScriptFileResolver {
 	}
 
 	@SuppressWarnings("unchecked") //generic array.
-	public static ResolvedIncludes resolveIncludes(Identifier[] includes) {
+	public static ResolvedIncludes resolveIncludes(ResourceLocation[] includes) {
 		if (includes == null) return null;
 		return new ResolvedIncludes(
 			Arrays
-			.stream(includes)
-			.map(ScriptFileResolver::resolve)
-			.map(ScriptFileResolver::intern)
-			.toArray(RegistryEntry[]::new)
+				.stream(includes)
+				.map(ScriptFileResolver::resolve)
+				.map(ScriptFileResolver::intern)
+				.toArray(Holder[]::new)
 		);
 	}
 
-	public static record ResolvedInclude(Identifier id, String source) implements EmptyDependencyView {
+	public static record ResolvedInclude(ResourceLocation id, String source) implements EmptyDependencyView {
 
-		public static final RegistryKey<Registry<ResolvedInclude>> REGISTRY_KEY = RegistryKey.ofRegistry(BigGlobeMod.modID("include"));
-		public static final ObjectArrayFactory<RegistryEntry<ResolvedInclude>> ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(RegistryEntry.class).generic();
+		public static final ResourceKey<Registry<ResolvedInclude>> REGISTRY_KEY = ResourceKey.createRegistryKey(BigGlobeMod.modID("include"));
+		public static final ObjectArrayFactory<Holder<ResolvedInclude>> ENTRY_ARRAY_FACTORY = new ObjectArrayFactory<>(Holder.class).generic();
 
 		public void appendTo(StringBuilder builder) {
 			builder.append(";BEGIN INCLUDE ").append(this.id).append('\n').append(this.source);
@@ -96,11 +87,11 @@ public class ScriptFileResolver {
 	}
 
 	@UseCoder(name = "new", in = ResolvedIncludesCoder.class, usage = MemberUsage.METHOD_IS_FACTORY)
-	public static record ResolvedIncludes(RegistryEntry<ResolvedInclude>[] includes) implements SimpleDependencyView {
+	public static record ResolvedIncludes(Holder<ResolvedInclude>[] includes) implements SimpleDependencyView {
 
 		public String assemble(String source) {
 			StringBuilder builder = new StringBuilder(this.includes.length << 9);
-			for (RegistryEntry<ResolvedInclude> include : this.includes) {
+			for (Holder<ResolvedInclude> include : this.includes) {
 				include.value().appendTo(builder);
 				builder.append("\n\n");
 			}
@@ -108,25 +99,25 @@ public class ScriptFileResolver {
 		}
 
 		@Override
-		public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+		public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 			return Arrays.stream(this.includes);
 		}
 	}
 
 	public static class ResolvedIncludesCoder extends NamedCoder<ResolvedIncludes> {
 
-		public final AutoCoder<Identifier> identifierCoder;
+		public final AutoCoder<ResourceLocation> identifierCoder;
 
 		public ResolvedIncludesCoder(FactoryContext<ResolvedIncludes> context) {
 			super(context.type);
-			this.identifierCoder = context.type(ReifiedType.from(Identifier.class)).forceCreateCoder();
+			this.identifierCoder = context.type(ReifiedType.from(ResourceLocation.class)).forceCreateCoder();
 		}
 
 		@Override
 		@OverrideOnly
 		public <T_Encoded> @Nullable ResolvedIncludes decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 			if (context.isEmpty()) return null;
-			ArrayBuilder<RegistryEntry<ResolvedInclude>> builder = new ArrayBuilder<>();
+			ArrayBuilder<Holder<ResolvedInclude>> builder = new ArrayBuilder<>();
 			for (DecodeContext<T_Encoded> elementContext : context.listIterable()) {
 				builder.accept(intern(resolve(elementContext.decodeWith(this.identifierCoder))));
 			}
@@ -140,14 +131,14 @@ public class ScriptFileResolver {
 			if (includes == null) return EmptyData.INSTANCE;
 			return ListData.collect(
 				Arrays
-				.stream(includes.includes)
-				.map(RegistryEntry<ResolvedInclude>::value)
-				.map(ResolvedInclude::id)
-				.map((Identifier id) -> (
-					context
-					.object(id)
-					.encodeWith(this.identifierCoder)
-				))
+					.stream(includes.includes)
+					.map(Holder<ResolvedInclude>::value)
+					.map(ResolvedInclude::id)
+					.map((ResourceLocation id) -> (
+						context
+							.object(id)
+							.encodeWith(this.identifierCoder)
+					))
 			);
 		}
 	}

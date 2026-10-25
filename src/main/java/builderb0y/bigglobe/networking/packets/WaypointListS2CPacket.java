@@ -9,17 +9,15 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
@@ -33,26 +31,26 @@ schema:
 is hyperspace dimension (boolean).
 number of worlds (varint).
 worlds:
-	registry key.
+registry key.
 number of waypoints (varint).
 waypoints:
-	flags (byte).
-		if the recipient of this packet is also the owner of the waypoint,
-		then the {@link #OWNED_BY_RECIPIENT} flag is set.
-		if the waypoint is public, then the {@link #OWNED_BY_RECIPIENT} flag is NOT set.
-		if the waypoint has a name, then the {@link #HAS_NAME} flag is set.
-	ID (varint).
-	entity ID (varint).
-	destination world ID (varint).
-	destination packed X (int).
-	destination packed Y (int).
-	destination packed Z (int).
-	if hyperspace:
-		display position packed X (int).
-		display position packed Y (int).
-		display position packed Z (int).
-	if hasName:
-		name (NBT element).
+flags (byte).
+if the recipient of this packet is also the owner of the waypoint,
+then the {@link #OWNED_BY_RECIPIENT} flag is set.
+if the waypoint is public, then the {@link #OWNED_BY_RECIPIENT} flag is NOT set.
+if the waypoint has a name, then the {@link #HAS_NAME} flag is set.
+ID (varint).
+entity ID (varint).
+destination world ID (varint).
+destination packed X (int).
+destination packed Y (int).
+destination packed Z (int).
+if hyperspace:
+display position packed X (int).
+display position packed Y (int).
+display position packed Z (int).
+if hasName:
+name (NBT element).
 */
 public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWaypointData>> {
 
@@ -61,33 +59,33 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		OWNED_BY_RECIPIENT = 1 << 0,
 		HAS_NAME = 1 << 1;
 
-	public void send(ServerPlayerEntity player) {
+	public void send(ServerPlayer player) {
 		PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 		if (manager == null) return;
-		PacketByteBuf buffer = this.buffer();
+		FriendlyByteBuf buffer = this.buffer();
 
-		boolean isHyperspace = EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY;
+		boolean isHyperspace = EntityVersions.getWorld(player).dimension() == HyperspaceConstants.WORLD_KEY;
 		buffer.writeBoolean(isHyperspace);
-		Object2IntMap<RegistryKey<World>> worlds = new Object2IntLinkedOpenHashMap<>(4);
+		Object2IntMap<ResourceKey<Level>> worlds = new Object2IntLinkedOpenHashMap<>(4);
 		worlds.defaultReturnValue(-1);
 		worlds.put(HyperspaceConstants.WORLD_KEY, 0);
-		ToIntFunction<RegistryKey<World>> computer = (RegistryKey<World> $) -> worlds.size();
+		ToIntFunction<ResourceKey<Level>> computer = (ResourceKey<Level> $) -> worlds.size();
 		int waypointCount = 0;
 		for (PlayerWaypointData data : manager.getAllWaypoints()) {
 			worlds.computeIfAbsent(data.destination().pos().world(), computer);
 			waypointCount++;
 		}
 		buffer.writeVarInt(worlds.size());
-		for (Object2IntMap.Entry<RegistryKey<World>> entry : worlds.object2IntEntrySet()) {
-			buffer.writeRegistryKey(entry.getKey());
+		for (Object2IntMap.Entry<ResourceKey<Level>> entry : worlds.object2IntEntrySet()) {
+			buffer.writeResourceKey(entry.getKey());
 		}
 
 		buffer.writeVarInt(waypointCount);
 		for (PlayerWaypointData waypoint : manager.getAllWaypoints()) {
 			int flags = 0;
 			if (waypoint.owner() != null) flags |= OWNED_BY_RECIPIENT;
-			Text name = waypoint.destination().name();
-			NbtElement nbtName = TextCoding.toNbt(name);
+			Component name = waypoint.destination().name();
+			Tag nbtName = TextCoding.toNbt(name);
 			if (nbtName != null) flags |= HAS_NAME;
 			buffer.writeByte(flags);
 			buffer.writeVarInt(waypoint.id());
@@ -103,12 +101,12 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public List<SyncedWaypointData> decode(PacketByteBuf buffer) {
+	public List<SyncedWaypointData> decode(FriendlyByteBuf buffer) {
 		boolean isHyperspace = buffer.readBoolean();
 		int worldCount = buffer.readVarInt();
-		List<RegistryKey<World>> worlds = new ArrayList<>(worldCount);
+		List<ResourceKey<Level>> worlds = new ArrayList<>(worldCount);
 		for (int worldIndex = 0; worldIndex < worldCount; worldIndex++) {
-			worlds.add(buffer.readRegistryKey(RegistryKeys.WORLD));
+			worlds.add(buffer.readResourceKey(Registries.DIMENSION));
 		}
 		int waypointCount = buffer.readVarInt();
 		List<SyncedWaypointData> waypoints = new ArrayList<>(waypointCount);
@@ -120,7 +118,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 			int entityID = buffer.readVarInt();
 			PackedWorldPos destination = PackedWorldPos.readBulk(buffer, worlds);
 			PackedWorldPos displayPosition = isHyperspace ? PackedWorldPos.readPositionOnly(buffer, HyperspaceConstants.WORLD_KEY) : destination;
-			Text name = hasName ? TextCoding.read(buffer) : null;
+			Component name = hasName ? TextCoding.read(buffer) : null;
 			CloudColor color = CloudColor.VALUES[buffer.readUnsignedByte()];
 			waypoints.add(new SyncedWaypointData(id, entityID, owned, destination, displayPosition, name, color));
 		}
@@ -130,7 +128,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void process(List<SyncedWaypointData> waypoints, PacketSender responseSender) {
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null) {
 			EntityVersions.setPortalCooldown(player, 20);
 			PlayerWaypointManager manager = PlayerWaypointManager.get(player);

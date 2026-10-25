@@ -11,7 +11,6 @@ import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.El
 import builderb0y.scripting.bytecode.tree.instructions.update.AbstractObjectUpdaterInsnTree.ObjectUpdaterEmitters;
 import builderb0y.scripting.bytecode.tree.instructions.update.NullableObjectUpdaterInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 

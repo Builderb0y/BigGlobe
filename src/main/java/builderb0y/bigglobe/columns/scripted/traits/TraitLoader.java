@@ -1,23 +1,18 @@
 package builderb0y.bigglobe.columns.scripted.traits;
 
-import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.packs.resources.Resource;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.coders.AutoCoder;
-import builderb0y.autocodec.data.Data;
-import builderb0y.autocodec.data.DataOps;
 import builderb0y.autocodec.data.UnknownData;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
@@ -27,21 +22,23 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class TraitLoader {
 
-	public static final AutoCoder<Map<RegistryEntry<WorldTrait>, WorldTraitProvider>> MAP_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<Map<RegistryEntry<WorldTrait>, WorldTraitProvider>>() {});
+	public static final AutoCoder<Map<Holder<WorldTrait>, WorldTraitProvider>> MAP_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<Map<Holder<WorldTrait>, WorldTraitProvider>>() {
 
-	public static <T_Encoded> Map<RegistryEntry<WorldTrait>, WorldTraitProvider> load(Identifier generatorID, DecodeContext<T_Encoded> context) {
+	});
+
+	public static <T_Encoded> Map<Holder<WorldTrait>, WorldTraitProvider> load(ResourceLocation generatorID, DecodeContext<T_Encoded> context) {
 		if (generatorID == null) return null;
-		generatorID = Identifier.of(generatorID.getNamespace(), "worldgen/bigglobe_world_trait_impl/" + generatorID.getPath() + ".json");
-		List<Resource> resources = BigGlobeMod.getResourceManager().getAllResources(generatorID);
+		generatorID = ResourceLocation.fromNamespaceAndPath(generatorID.getNamespace(), "worldgen/bigglobe_world_trait_impl/" + generatorID.getPath() + ".json");
+		List<Resource> resources = BigGlobeMod.getResourceManager().getResourceStack(generatorID);
 		if (resources == null || resources.isEmpty()) {
 			throw new TraitLoadingException(new FileNotFoundException(generatorID.toString()));
 		}
 		context.logger().logMessageLazy(() -> "Loading traits from " + resources.size() + " data pack(s)...");
-		Map<RegistryEntry<WorldTrait>, WorldTraitProvider> result = new HashMap<>(32);
+		Map<Holder<WorldTrait>, WorldTraitProvider> result = new HashMap<>(32);
 		TraitLoadingException failure = null;
 		for (Resource resource : resources) {
-			context.logger().logMessageLazy(() -> "Loading traits from " + resource.#if MC_VERSION >= MC_1_20_5 getPackId() #else getResourcePackName() #endif);
-			try (BufferedReader reader = resource.getReader()) {
+			context.logger().logMessageLazy(() -> "Loading traits from " + resource.sourcePackId());
+			try (BufferedReader reader = resource.openAsReader()) {
 				result.putAll(context.withData(new UnknownData<>(JsonOps.INSTANCE, JsonParser.parseReader(reader))).decodeWith(MAP_CODER));
 			}
 			catch (Exception exception) {
@@ -53,14 +50,14 @@ public class TraitLoader {
 		else return result;
 	}
 
-	public static Map<RegistryEntry<WorldTrait>, WorldTraitProvider> loadFromCode(JsonObject traits) {
+	public static Map<Holder<WorldTrait>, WorldTraitProvider> loadFromCode(JsonObject traits) {
 		try {
 			return BigGlobeAutoCodec.AUTO_CODEC.decode(
 				MAP_CODER,
 				traits,
-				RegistryOps.of(
+				RegistryOps.create(
 					JsonOps.INSTANCE,
-					BigGlobeMod.getCurrentServer().getRegistryManager()
+					BigGlobeMod.getCurrentServer().registryAccess()
 				)
 			);
 		}
@@ -71,7 +68,8 @@ public class TraitLoader {
 
 	public static class TraitLoadingException extends RuntimeException {
 
-		public TraitLoadingException() {}
+		public TraitLoadingException() {
+		}
 
 		public TraitLoadingException(String message) {
 			super(message);

@@ -1,11 +1,10 @@
 package builderb0y.bigglobe.noise;
 
 import java.util.random.RandomGenerator;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.math.random.RandomSplitter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 
 /**
 using delegation instead of making Permuter implement both
@@ -14,7 +13,7 @@ methods which should be obfuscated due to inheriting from Random,
 but also not obfuscated due to inheriting from RandomGenerator.
 and also it just feels icky to have mojang methods in my Permuter class.
 */
-public class MojangPermuter implements Random {
+public class MojangPermuter implements RandomSource {
 
 	public final Permuter permuter;
 
@@ -31,12 +30,12 @@ public class MojangPermuter implements Random {
 	}
 
 	@Override
-	public Random split() {
+	public RandomSource fork() {
 		return new MojangPermuter(this.nextLong());
 	}
 
 	@Override
-	public RandomSplitter nextSplitter() {
+	public PositionalRandomFactory forkPositional() {
 		return new Splitter(this.nextLong());
 	}
 
@@ -85,11 +84,11 @@ public class MojangPermuter implements Random {
 	}
 
 	@Override
-	public void skip(int count) {
+	public void consumeCount(int count) {
 		this.permuter.skip(count);
 	}
 
-	public static class Splitter implements RandomSplitter {
+	public static class Splitter implements PositionalRandomFactory {
 
 		public final long seed;
 
@@ -97,36 +96,33 @@ public class MojangPermuter implements Random {
 			this.seed = seed;
 		}
 
-		#if MC_VERSION >= MC_1_21_0
-
-			@Override
-			public Random split(long seed) {
-				return new MojangPermuter(Permuter.permute(this.seed, seed));
-			}
-		#endif
-
 		@Override
-		public Random split(String seed) {
+		public RandomSource fromSeed(long seed) {
 			return new MojangPermuter(Permuter.permute(this.seed, seed));
 		}
 
 		@Override
-		public Random split(int x, int y, int z) {
+		public RandomSource fromHashOf(String seed) {
+			return new MojangPermuter(Permuter.permute(this.seed, seed));
+		}
+
+		@Override
+		public RandomSource at(int x, int y, int z) {
 			return new MojangPermuter(Permuter.permute(this.seed, x, y, z));
 		}
 
 		@Override
-		public void addDebugInfo(StringBuilder info) {
+		public void parityConfigString(StringBuilder info) {
 			info.append("MojangPermuter$Splitter: { seed: ").append(this.seed).append(" }");
 		}
 
 		@Override
-		public Random split(BlockPos pos) {
+		public RandomSource at(BlockPos pos) {
 			return new MojangPermuter(Permuter.permute(this.seed, pos));
 		}
 
 		@Override
-		public Random split(Identifier seed) {
+		public RandomSource fromHashOf(ResourceLocation seed) {
 			return new MojangPermuter(Permuter.permute(this.seed, seed));
 		}
 	}

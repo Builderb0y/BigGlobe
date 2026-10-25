@@ -145,8 +145,8 @@ public class MethodInfo implements BytecodeEmitter {
 	public static MethodInfo forMethod(Method method) {
 		return new MethodInfo(
 			method.isAnnotationPresent(Deprecated.class)
-			? method.getModifiers() |  ACC_DEPRECATED
-			: method.getModifiers() & ~ACC_DEPRECATED,
+				? method.getModifiers() | ACC_DEPRECATED
+				: method.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(method.getDeclaringClass()),
 			method.getName(),
 			TypeInfo.of(method.getGenericReturnType()),
@@ -169,8 +169,8 @@ public class MethodInfo implements BytecodeEmitter {
 	public static MethodInfo forConstructor(Constructor<?> constructor) {
 		return new MethodInfo(
 			constructor.isAnnotationPresent(Deprecated.class)
-			? constructor.getModifiers() |  ACC_DEPRECATED
-			: constructor.getModifiers() & ~ACC_DEPRECATED,
+				? constructor.getModifiers() | ACC_DEPRECATED
+				: constructor.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(constructor.getDeclaringClass()),
 			"<init>",
 			TypeInfos.VOID,

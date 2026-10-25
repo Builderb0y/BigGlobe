@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -24,37 +22,37 @@ import builderb0y.bigglobe.util.ServerValue;
 
 public class SaplingGrowHandler {
 
-	public static final ServerValue<Map<Block, List<RegistryEntry<ConfiguredFeature<?, ?>>>>>
+	public static final ServerValue<Map<Block, List<Holder<ConfiguredFeature<?, ?>>>>>
 		SAPLING_FEATURES = new ServerValue<>(SaplingGrowHandler::computeSaplingFeatures);
 
-	public static boolean replaceSaplingGrowth(ServerWorld world, BlockPos origin, BlockState saplingState, Random random) {
-		if (BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds && world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			List<RegistryEntry<ConfiguredFeature<?, ?>>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
+	public static boolean replaceSaplingGrowth(ServerLevel world, BlockPos origin, BlockState saplingState, RandomSource random) {
+		if (BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds && world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			List<Holder<ConfiguredFeature<?, ?>>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
 			if (list != null && !list.isEmpty()) {
 				list
-				.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
-				.value()
-				.generate(world, generator, random, origin);
+					.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
+					.value()
+					.place(world, generator, random, origin);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static Map<Block, List<RegistryEntry<ConfiguredFeature<?, ?>>>> computeSaplingFeatures() {
-		Map<Block, List<RegistryEntry<ConfiguredFeature<?, ?>>>> map = new HashMap<>();
+	public static Map<Block, List<Holder<ConfiguredFeature<?, ?>>>> computeSaplingFeatures() {
+		Map<Block, List<Holder<ConfiguredFeature<?, ?>>>> map = new HashMap<>();
 		for (
 			WoodPalette palette
-		:
+			:
 			BigGlobeMod
-			.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
-			.values()
+				.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+				.values()
 		) {
-			RegistryEntry<ConfiguredFeature<?, ?>> saplingGrowFeature = palette.getSaplingGrowFeature();
+			Holder<ConfiguredFeature<?, ?>> saplingGrowFeature = palette.getSaplingGrowFeature();
 			if (saplingGrowFeature != null) {
-				IRandomList<RegistryEntry<Block>> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
+				IRandomList<Holder<Block>> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
 				if (blocks != null) {
-					for (RegistryEntry<Block> block : blocks) {
+					for (Holder<Block> block : blocks) {
 						map.computeIfAbsent(block.value(), $ -> new ArrayList<>(1)).add(saplingGrowFeature);
 					}
 				}

@@ -25,24 +25,24 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 	public double getValue(long seed, int x, int y, int z) {
 		seed = this.salt.xor(seed);
 		int
-			modX      = BigGlobeMath.modulus_BP(x, this.scaleX),
-			modY      = BigGlobeMath.modulus_BP(y, this.scaleY),
-			modZ      = BigGlobeMath.modulus_BP(z, this.scaleZ),
-			gridX0    = x - modX,
-			gridY0    = y - modY,
-			gridZ0    = z - modZ,
-			gridX1    = gridX0 + this.scaleX,
-			gridY1    = gridY0 + this.scaleY,
-			gridZ1    = gridZ0 + this.scaleZ;
+			modX = BigGlobeMath.modulus_BP(x, this.scaleX),
+			modY = BigGlobeMath.modulus_BP(y, this.scaleY),
+			modZ = BigGlobeMath.modulus_BP(z, this.scaleZ),
+			gridX0 = x - modX,
+			gridY0 = y - modY,
+			gridZ0 = z - modZ,
+			gridX1 = gridX0 + this.scaleX,
+			gridY1 = gridY0 + this.scaleY,
+			gridZ1 = gridZ0 + this.scaleZ;
 		double
-			fracX0    = modX * this.rcpX,
-			fracY0    = modY * this.rcpY,
-			fracZ0    = modZ * this.rcpZ,
-			fracX1    = fracX0 - 1.0D,
-			fracY1    = fracY0 - 1.0D,
-			fracZ1    = fracZ0 - 1.0D,
-			smoothX   = Interpolator.smooth(fracX0),
-			smoothZ   = Interpolator.smooth(fracZ0),
+			fracX0 = modX * this.rcpX,
+			fracY0 = modY * this.rcpY,
+			fracZ0 = modZ * this.rcpZ,
+			fracX1 = fracX0 - 1.0D,
+			fracY1 = fracY0 - 1.0D,
+			fracZ1 = fracZ0 - 1.0D,
+			smoothX = Interpolator.smooth(fracX0),
+			smoothZ = Interpolator.smooth(fracZ0),
 			slopeX000 = this.slopeX(seed, gridX0, gridY0, gridZ0),
 			slopeX001 = this.slopeX(seed, gridX0, gridY0, gridZ1),
 			slopeX010 = this.slopeX(seed, gridX0, gridY1, gridZ0),
@@ -122,27 +122,27 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 		if (sampleCount <= 0) return;
 		seed = this.salt.xor(seed);
 		int
-			scaleX    = this.scaleX,
-			scaleY    = this.scaleY,
-			scaleZ    = this.scaleZ,
-			modX      = BigGlobeMath.modulus_BP(startX, scaleX),
-			modY      = BigGlobeMath.modulus_BP(y, scaleY),
-			modZ      = BigGlobeMath.modulus_BP(z, scaleZ),
-			gridX     = startX - modX,
-			gridY0    = y - modY,
-			gridZ0    = z - modZ,
-			gridY1    = gridY0 + scaleY,
-			gridZ1    = gridZ0 + scaleZ;
+			scaleX = this.scaleX,
+			scaleY = this.scaleY,
+			scaleZ = this.scaleZ,
+			modX = BigGlobeMath.modulus_BP(startX, scaleX),
+			modY = BigGlobeMath.modulus_BP(y, scaleY),
+			modZ = BigGlobeMath.modulus_BP(z, scaleZ),
+			gridX = startX - modX,
+			gridY0 = y - modY,
+			gridZ0 = z - modZ,
+			gridY1 = gridY0 + scaleY,
+			gridZ1 = gridZ0 + scaleZ;
 		double
-			rcpX      = this.rcpX,
-			rcpY      = this.rcpY,
-			fracY0    = modY * rcpY,
-			fracZ0    = modZ * this.rcpZ,
-			fracY1    = fracY0 - 1.0D,
-			fracZ1    = fracZ0 - 1.0D,
-			smoothY   = Interpolator.smooth(fracY0),
-			smoothZ   = Interpolator.smooth(fracZ0),
-			dSmoothY  = Interpolator.smoothDerivative(fracY0),
+			rcpX = this.rcpX,
+			rcpY = this.rcpY,
+			fracY0 = modY * rcpY,
+			fracZ0 = modZ * this.rcpZ,
+			fracY1 = fracY0 - 1.0D,
+			fracZ1 = fracZ0 - 1.0D,
+			smoothY = Interpolator.smooth(fracY0),
+			smoothZ = Interpolator.smooth(fracZ0),
+			dSmoothY = Interpolator.smoothDerivative(fracY0),
 			slopeX000 = this.slopeX(seed, gridX, gridY0, gridZ0),
 			slopeX001 = this.slopeX(seed, gridX, gridY0, gridZ1),
 			slopeX010 = this.slopeX(seed, gridX, gridY1, gridZ0),
@@ -175,7 +175,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 			offset101 = this.offset(seed, gridX, gridY0, gridZ1),
 			offset110 = this.offset(seed, gridX, gridY1, gridZ0),
 			offset111 = this.offset(seed, gridX, gridY1, gridZ1);
-		for (int index = 0; true /* break in the middle of the loop. */;) {
+		for (int index = 0; true /* break in the middle of the loop. */; ) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			double smoothX = Interpolator.smooth(fracX0);
@@ -222,9 +222,9 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 					dSmoothY
 				) * rcpY
 			);
-			if (++index  >= sampleCount) break;
-			if (++modX   >= scaleX) {
-				modX      = 0;
+			if (++index >= sampleCount) break;
+			if (++modX >= scaleX) {
+				modX = 0;
 				slopeX000 = slopeX100;
 				slopeX001 = slopeX101;
 				slopeX010 = slopeX110;
@@ -241,7 +241,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 				offset001 = offset101;
 				offset010 = offset110;
 				offset011 = offset111;
-				gridX    += scaleX;
+				gridX += scaleX;
 				slopeX100 = this.slopeX(seed, gridX, gridY0, gridZ0);
 				slopeX101 = this.slopeX(seed, gridX, gridY0, gridZ1);
 				slopeX110 = this.slopeX(seed, gridX, gridY1, gridZ0);
@@ -268,25 +268,25 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 		if (sampleCount <= 0) return;
 		seed = this.salt.xor(seed);
 		int
-			scaleX    = this.scaleX,
-			scaleY    = this.scaleY,
-			scaleZ    = this.scaleZ,
-			modX      = BigGlobeMath.modulus_BP(x, scaleX),
-			modY      = BigGlobeMath.modulus_BP(startY, scaleY),
-			modZ      = BigGlobeMath.modulus_BP(z, scaleZ),
-			gridX0    = x - modX,
-			gridY     = startY - modY,
-			gridZ0    = z - modZ,
-			gridX1    = gridX0 + scaleX,
-			gridZ1    = gridZ0 + scaleZ;
+			scaleX = this.scaleX,
+			scaleY = this.scaleY,
+			scaleZ = this.scaleZ,
+			modX = BigGlobeMath.modulus_BP(x, scaleX),
+			modY = BigGlobeMath.modulus_BP(startY, scaleY),
+			modZ = BigGlobeMath.modulus_BP(z, scaleZ),
+			gridX0 = x - modX,
+			gridY = startY - modY,
+			gridZ0 = z - modZ,
+			gridX1 = gridX0 + scaleX,
+			gridZ1 = gridZ0 + scaleZ;
 		double
-			rcpY      = this.rcpY,
-			fracX0    = modX * this.rcpX,
-			fracZ0    = modZ * this.rcpZ,
-			fracX1    = fracX0 - 1.0D,
-			fracZ1    = fracZ0 - 1.0D,
-			smoothX   = Interpolator.smooth(fracX0),
-			smoothZ   = Interpolator.smooth(fracZ0),
+			rcpY = this.rcpY,
+			fracX0 = modX * this.rcpX,
+			fracZ0 = modZ * this.rcpZ,
+			fracX1 = fracX0 - 1.0D,
+			fracZ1 = fracZ0 - 1.0D,
+			smoothX = Interpolator.smooth(fracX0),
+			smoothZ = Interpolator.smooth(fracZ0),
 			slopeX000 = this.slopeX(seed, gridX0, gridY, gridZ0),
 			slopeX001 = this.slopeX(seed, gridX0, gridY, gridZ1),
 			slopeX100 = this.slopeX(seed, gridX1, gridY, gridZ0),
@@ -329,7 +329,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 				Interpolator.mixLinear(slopeY110, slopeY111, smoothZ),
 				smoothX
 			);
-		for (int index = 0; true /* break in the middle of the loop. */;) {
+		for (int index = 0; true /* break in the middle of the loop. */; ) {
 			double fracY0 = modY * rcpY;
 			double fracY1 = fracY0 - 1.0D;
 			samples.setD(
@@ -366,9 +366,9 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 					fracY0
 				) * rcpY
 			);
-			if (++index  >= sampleCount) break;
-			if (++modY   >= scaleY) {
-				modY      = 0;
+			if (++index >= sampleCount) break;
+			if (++modY >= scaleY) {
+				modY = 0;
 				slopeX000 = slopeX010;
 				slopeX001 = slopeX011;
 				slopeX100 = slopeX110;
@@ -385,7 +385,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 				offset001 = offset011;
 				offset100 = offset110;
 				offset101 = offset111;
-				gridY    += scaleY;
+				gridY += scaleY;
 				slopeX010 = this.slopeX(seed, gridX0, gridY, gridZ0);
 				slopeX011 = this.slopeX(seed, gridX0, gridY, gridZ1);
 				slopeX110 = this.slopeX(seed, gridX1, gridY, gridZ0);
@@ -422,27 +422,27 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 		if (sampleCount <= 0) return;
 		seed = this.salt.xor(seed);
 		int
-			scaleX    = this.scaleX,
-			scaleY    = this.scaleY,
-			scaleZ    = this.scaleZ,
-			modX      = BigGlobeMath.modulus_BP(x, scaleX),
-			modY      = BigGlobeMath.modulus_BP(y, scaleY),
-			modZ      = BigGlobeMath.modulus_BP(startZ, scaleZ),
-			gridX0    = x - modX,
-			gridY0    = y - modY,
-			gridZ     = startZ - modZ,
-			gridX1    = gridX0 + scaleX,
-			gridY1    = gridY0 + scaleY;
+			scaleX = this.scaleX,
+			scaleY = this.scaleY,
+			scaleZ = this.scaleZ,
+			modX = BigGlobeMath.modulus_BP(x, scaleX),
+			modY = BigGlobeMath.modulus_BP(y, scaleY),
+			modZ = BigGlobeMath.modulus_BP(startZ, scaleZ),
+			gridX0 = x - modX,
+			gridY0 = y - modY,
+			gridZ = startZ - modZ,
+			gridX1 = gridX0 + scaleX,
+			gridY1 = gridY0 + scaleY;
 		double
-			rcpY      = this.rcpY,
-			rcpZ      = this.rcpZ,
-			fracX0    = modX * this.rcpX,
-			fracY0    = modY * rcpY,
-			fracX1    = fracX0 - 1.0D,
-			fracY1    = fracY0 - 1.0D,
-			smoothX   = Interpolator.smooth(fracX0),
-			smoothY   = Interpolator.smooth(fracY0),
-			dSmoothY  = Interpolator.smoothDerivative(fracY0),
+			rcpY = this.rcpY,
+			rcpZ = this.rcpZ,
+			fracX0 = modX * this.rcpX,
+			fracY0 = modY * rcpY,
+			fracX1 = fracX0 - 1.0D,
+			fracY1 = fracY0 - 1.0D,
+			smoothX = Interpolator.smooth(fracX0),
+			smoothY = Interpolator.smooth(fracY0),
+			dSmoothY = Interpolator.smoothDerivative(fracY0),
 			slopeX000 = this.slopeX(seed, gridX0, gridY0, gridZ),
 			slopeX010 = this.slopeX(seed, gridX0, gridY1, gridZ),
 			slopeX100 = this.slopeX(seed, gridX1, gridY0, gridZ),
@@ -475,7 +475,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 			offset011 = this.offset(seed, gridX0, gridY1, gridZ),
 			offset101 = this.offset(seed, gridX1, gridY0, gridZ),
 			offset111 = this.offset(seed, gridX1, gridY1, gridZ);
-		for (int index = 0; true /* break in the middle of the loop. */;) {
+		for (int index = 0; true /* break in the middle of the loop. */; ) {
 			double fracZ0 = modZ * rcpZ;
 			double fracZ1 = fracZ0 - 1.0D;
 			double smoothZ = Interpolator.smooth(fracZ0);
@@ -522,9 +522,9 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 					dSmoothY
 				) * rcpY
 			);
-			if (++index  >= sampleCount) break;
-			if (++modZ   >= scaleZ) {
-				modZ      = 0;
+			if (++index >= sampleCount) break;
+			if (++modZ >= scaleZ) {
+				modZ = 0;
 				slopeX000 = slopeX001;
 				slopeX010 = slopeX011;
 				slopeX100 = slopeX101;
@@ -541,7 +541,7 @@ public class PerlinDerivativeYGrid3D extends PerlinBaseGrid3D {
 				offset010 = offset011;
 				offset100 = offset101;
 				offset110 = offset111;
-				gridZ    += scaleZ;
+				gridZ += scaleZ;
 				slopeX001 = this.slopeX(seed, gridX0, gridY0, gridZ);
 				slopeX011 = this.slopeX(seed, gridX0, gridY1, gridZ);
 				slopeX101 = this.slopeX(seed, gridX1, gridY0, gridZ);

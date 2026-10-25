@@ -3,10 +3,15 @@ package builderb0y.bigglobe.math.pointSequences;
 public interface BoundedPointIterator3D extends PointIterator3D, BoundedPointIterator {
 
 	public abstract double minX();
+
 	public abstract double maxX();
+
 	public abstract double minY();
+
 	public abstract double maxY();
+
 	public abstract double minZ();
+
 	public abstract double maxZ();
 
 	public default boolean contains(double x, double y, double z) {

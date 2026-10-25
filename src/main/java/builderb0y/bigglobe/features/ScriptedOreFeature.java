@@ -1,16 +1,12 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.NotY;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -22,16 +18,16 @@ import builderb0y.scripting.util.TypeInfos;
 
 public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Config> {
 
-	public ScriptedOreFeature(Codec<Config> codec) {
+	public ScriptedOreFeature(Codec<builderb0y.bigglobe.features.ScriptedOreFeature.Config> codec) {
 		super(codec);
 	}
 
 	public ScriptedOreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(builderb0y.bigglobe.features.ScriptedOreFeature.Config.class));
 	}
 
 	@Override
-	public OreBlockReplacer getReplacer(SectionGenerationContext context, Config config) {
+	public OreBlockReplacer getReplacer(SectionGenerationContext context, builderb0y.bigglobe.features.ScriptedOreFeature.Config config) {
 		return new ScriptedOreBlockReplacer(config.replacer_script);
 	}
 
@@ -58,7 +54,7 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 			double veinRadius,
 			double blockVeinFractionSquared
 		) {
-			BlockState oldState = context.palette().get(context.storage().get(index));
+			BlockState oldState = context.palette().valueFor(context.storage().get(index));
 			BlockState newState;
 			synchronized (column) {
 				newState = this.script.getReplacement(
@@ -76,7 +72,7 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 				);
 			}
 			if (newState != null && newState != oldState) {
-				int id = context.palette().index(newState #if MC_VERSION >= MC_1_21_9 , context.container() #endif);
+				int id = context.palette().idFor(newState);
 				context.storage().set(index, id);
 			}
 		}
@@ -109,16 +105,16 @@ public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Co
 			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
 				super.addExtraFunctionsToEnvironment(parameters, environment);
 				environment
-				.addVariableLoad("oldState", BlockStateWrapper.TYPE)
-				.addVariableLoad("blockX", TypeInfos.INT)
-				//.addVariableLoad("blockY", TypeInfos.INT) //defined automatically by super method.
-				.addVariableLoad("blockZ", TypeInfos.INT)
-				.addVariableLoad("blockSeed", TypeInfos.LONG)
-				.addVariableLoad("centerX", TypeInfos.DOUBLE)
-				.addVariableLoad("centerY", TypeInfos.DOUBLE)
-				.addVariableLoad("centerZ", TypeInfos.DOUBLE)
-				.addVariableLoad("radius", TypeInfos.DOUBLE)
-				.addVariableLoad("radialFraction", TypeInfos.DOUBLE)
+					.addVariableLoad("oldState", BlockStateWrapper.TYPE)
+					.addVariableLoad("blockX", TypeInfos.INT)
+					//.addVariableLoad("blockY", TypeInfos.INT) //defined automatically by super method.
+					.addVariableLoad("blockZ", TypeInfos.INT)
+					.addVariableLoad("blockSeed", TypeInfos.LONG)
+					.addVariableLoad("centerX", TypeInfos.DOUBLE)
+					.addVariableLoad("centerY", TypeInfos.DOUBLE)
+					.addVariableLoad("centerZ", TypeInfos.DOUBLE)
+					.addVariableLoad("radius", TypeInfos.DOUBLE)
+					.addVariableLoad("radialFraction", TypeInfos.DOUBLE)
 				;
 			}
 

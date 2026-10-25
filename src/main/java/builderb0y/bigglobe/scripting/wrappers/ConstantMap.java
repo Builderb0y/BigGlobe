@@ -33,9 +33,9 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public ConstantMap() {
-		this.keys   = (K[])(ObjectArrays.EMPTY_ARRAY);
+		this.keys = (K[])(ObjectArrays.EMPTY_ARRAY);
 		this.values = (V[])(ObjectArrays.EMPTY_ARRAY);
-		this.order  = IntArrays.EMPTY_ARRAY;
+		this.order = IntArrays.EMPTY_ARRAY;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,12 +47,12 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 		int capacity = Integer.highestOneBit(keyValueLength);
 		int mask = capacity - 1;
 		int size = keyValueLength >>> 1;
-		Object[] keys   = new Object[capacity];
+		Object[] keys = new Object[capacity];
 		Object[] values = new Object[capacity];
 		int[] order = new int[size];
-		for (int orderIndex = 0, keyValueIndex = 0; keyValueIndex < keyValueLength;) {
-			Object key   = wrap(keysAndValues[keyValueIndex++]);
-			Object value =      keysAndValues[keyValueIndex++];
+		for (int orderIndex = 0, keyValueIndex = 0; keyValueIndex < keyValueLength; ) {
+			Object key = wrap(keysAndValues[keyValueIndex++]);
+			Object value = keysAndValues[keyValueIndex++];
 			int position = key.hashCode();
 			position ^= position >>> 16;
 			position &= mask;
@@ -66,9 +66,9 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 			values[position] = value;
 			order[orderIndex++] = position;
 		}
-		this.keys   = (K[])(keys);
+		this.keys = (K[])(keys);
 		this.values = (V[])(values);
-		this.order  = order;
+		this.order = order;
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class ConstantMap<K, V> extends AbstractMap<K, V> {
 		public Map.Entry<K, V> next() {
 			if (this.index >= ConstantMap.this.order.length) throw new NoSuchElementException();
 			int position = ConstantMap.this.order[this.index++];
-			return new Entry<>(unwrap(ConstantMap.this.keys[position]), ConstantMap.this.values[position]);
+			return new builderb0y.bigglobe.scripting.wrappers.ConstantMap.Entry<>(unwrap(ConstantMap.this.keys[position]), ConstantMap.this.values[position]);
 		}
 	}
 

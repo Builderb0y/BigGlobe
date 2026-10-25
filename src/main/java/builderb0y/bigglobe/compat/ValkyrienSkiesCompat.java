@@ -3,15 +3,14 @@ package builderb0y.bigglobe.compat;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-
-import net.minecraft.util.math.ChunkPos;
-
+import net.minecraft.world.level.ChunkPos;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 
 public class ValkyrienSkiesCompat {
 
 	public static final MethodHandle SHIPYARD;
+
 	static {
 		MethodHandle handle;
 		try {

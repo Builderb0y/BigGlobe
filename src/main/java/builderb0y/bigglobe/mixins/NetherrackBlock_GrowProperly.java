@@ -1,15 +1,14 @@
 package builderb0y.bigglobe.mixins;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.NetherrackBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.NetherrackBlock;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
 
 @Mixin(NetherrackBlock.class)
 public class NetherrackBlock_GrowProperly {
@@ -22,14 +21,15 @@ public class NetherrackBlock_GrowProperly {
 	2: if there is crimson AND warped nylium adjacent, which one you get is 50/50.
 	this chance is not proportional to the *amounts* of each.
 	this overwrite fixes both of these issues.
+
 	@author Builderb0y
 	@reason vanilla logic is hard-coded for vanilla blocks.
 	*/
 	@Overwrite
-	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
 		BlockState replacement = null;
 		int chance = 0;
-		BlockPos.Mutable adjacentPos = new BlockPos.Mutable();
+		BlockPos.MutableBlockPos adjacentPos = new BlockPos.MutableBlockPos();
 		for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
 			adjacentPos.setZ(pos.getZ() + offsetZ);
 			for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -38,14 +38,14 @@ public class NetherrackBlock_GrowProperly {
 					if (offsetX == 0 && offsetY == 0 && offsetZ == 0) continue;
 					adjacentPos.setY(pos.getY() + offsetY);
 					BlockState adjacentState = world.getBlockState(adjacentPos);
-					if (adjacentState.isIn(BlockTags.NYLIUM) && (chance++ == 0 || random.nextInt(chance) == 0)) {
+					if (adjacentState.is(BlockTags.NYLIUM) && (chance++ == 0 || random.nextInt(chance) == 0)) {
 						replacement = adjacentState;
 					}
 				}
 			}
 		}
 		if (replacement != null) {
-			world.setBlockState(pos, replacement, Block.NOTIFY_ALL);
+			world.setBlock(pos, replacement, Block.UPDATE_ALL);
 		}
 	}
 }

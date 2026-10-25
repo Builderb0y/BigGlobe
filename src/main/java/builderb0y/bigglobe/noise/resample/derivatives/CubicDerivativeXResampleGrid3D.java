@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.noise.resample.derivatives;
 
 import builderb0y.bigglobe.noise.Grid3D;
-import builderb0y.bigglobe.noise.polynomials.CubicPolynomial;
 import builderb0y.bigglobe.noise.polynomials.CubicDerivativePolynomial;
+import builderb0y.bigglobe.noise.polynomials.CubicPolynomial;
 import builderb0y.bigglobe.noise.polynomials.Polynomial4.PolyForm4;
 import builderb0y.bigglobe.noise.resample.Resample64Grid3D;
 

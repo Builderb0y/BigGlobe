@@ -77,12 +77,12 @@ public class BottledAuraDataGenerator {
 				try (FileWriter writer = new FileWriter(new File(models, color.bottleName + ".json"), StandardCharsets.UTF_8)) {
 					writer.write(
 						"""
-						{
-							"parent": "item/generated",
-							"textures": {
-								"layer0": "bigglobe:item/%NAME"
-							}
-						}""".replace("%NAME", color.bottleName)
+							{
+								"parent": "item/generated",
+								"textures": {
+									"layer0": "bigglobe:item/%NAME"
+								}
+							}""".replace("%NAME", color.bottleName)
 					);
 				}
 			}
@@ -90,12 +90,12 @@ public class BottledAuraDataGenerator {
 	}
 
 	public static int multiplyColor(byte[] color, Vector3dc tint) {
-		double red   = (color[0] & 255) * tint.x() + 0.5D;
+		double red = (color[0] & 255) * tint.x() + 0.5D;
 		double green = (color[1] & 255) * tint.y() + 0.5D;
-		double blue  = (color[2] & 255) * tint.z() + 0.5D;
-		int r = Interpolator.clamp(0, 255, (int)(red  ));
+		double blue = (color[2] & 255) * tint.z() + 0.5D;
+		int r = Interpolator.clamp(0, 255, (int)(red));
 		int g = Interpolator.clamp(0, 255, (int)(green));
-		int b = Interpolator.clamp(0, 255, (int)(blue ));
+		int b = Interpolator.clamp(0, 255, (int)(blue));
 		return 0xFF000000 | (r << 16) | (g << 8) | b;
 	}
 

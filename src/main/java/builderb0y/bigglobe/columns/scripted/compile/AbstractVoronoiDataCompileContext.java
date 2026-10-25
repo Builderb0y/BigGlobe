@@ -27,18 +27,18 @@ public abstract class AbstractVoronoiDataCompileContext extends DataCompileConte
 	public Stream<UnresolvedColumnValueInfo> preprocessColumnValueInfos(Stream<UnresolvedColumnValueInfo> infos) {
 		return Stream.concat(
 			Stream.of(
-				new UnresolvedColumnValueInfo("id",                         TypeInfos.STRING, false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("cell_x",                     TypeInfos.INT,    false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("cell_z",                     TypeInfos.INT,    false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("center_x",                   TypeInfos.INT,    false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("center_z",                   TypeInfos.INT,    false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("soft_distance_squared",      TypeInfos.DOUBLE, false, Mutability.VORONOI),
-				new UnresolvedColumnValueInfo("soft_distance",              TypeInfos.DOUBLE, false, Mutability.VORONOI),
-				new UnresolvedColumnValueInfo("hard_distance_squared",      TypeInfos.DOUBLE, false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("hard_distance",              TypeInfos.DOUBLE, false, Mutability.VORONOI),
+				new UnresolvedColumnValueInfo("id", TypeInfos.STRING, false, Mutability.COMPUTED),
+				new UnresolvedColumnValueInfo("cell_x", TypeInfos.INT, false, Mutability.COMPUTED),
+				new UnresolvedColumnValueInfo("cell_z", TypeInfos.INT, false, Mutability.COMPUTED),
+				new UnresolvedColumnValueInfo("center_x", TypeInfos.INT, false, Mutability.COMPUTED),
+				new UnresolvedColumnValueInfo("center_z", TypeInfos.INT, false, Mutability.COMPUTED),
+				new UnresolvedColumnValueInfo("soft_distance_squared", TypeInfos.DOUBLE, false, Mutability.VORONOI),
+				new UnresolvedColumnValueInfo("soft_distance", TypeInfos.DOUBLE, false, Mutability.VORONOI),
+				new UnresolvedColumnValueInfo("hard_distance_squared", TypeInfos.DOUBLE, false, Mutability.COMPUTED),
+				new UnresolvedColumnValueInfo("hard_distance", TypeInfos.DOUBLE, false, Mutability.VORONOI),
 				new UnresolvedColumnValueInfo("euclidean_distance_squared", TypeInfos.DOUBLE, false, Mutability.COMPUTED),
-				new UnresolvedColumnValueInfo("euclidean_distance",         TypeInfos.DOUBLE, false, Mutability.VORONOI),
-				new UnresolvedColumnValueInfo("center_column",              this.selfType(),  false, Mutability.VORONOI)
+				new UnresolvedColumnValueInfo("euclidean_distance", TypeInfos.DOUBLE, false, Mutability.VORONOI),
+				new UnresolvedColumnValueInfo("center_column", this.selfType(), false, Mutability.VORONOI)
 			),
 			infos
 		);
@@ -49,35 +49,35 @@ public abstract class AbstractVoronoiDataCompileContext extends DataCompileConte
 		InsnTree self = this.loadSelf();
 		switch (method) {
 			case IS_COLUMN_VALUE_PRESENT -> {
-				addCase(cases, "soft_distance_squared",      this.testFlag(self, VoronoiDataBase.SOFT_DISTANCE_SQUARED_INDEX), false);
-				addCase(cases, "soft_distance",              this.testFlag(self, VoronoiDataBase.SOFT_DISTANCE_INDEX), false);
-				addCase(cases, "hard_distance",              this.testFlag(self, VoronoiDataBase.HARD_DISTANCE_INDEX), false);
-				addCase(cases, "euclidean_distance",         this.testFlag(self, VoronoiDataBase.EUCLIDEAN_DISTANCE_INDEX), false);
-				addCase(cases, "center_column",              this.testFlag(self, VoronoiDataBase.CENTER_COLUMN_INDEX), false);
+				addCase(cases, "soft_distance_squared", this.testFlag(self, VoronoiDataBase.SOFT_DISTANCE_SQUARED_INDEX), false);
+				addCase(cases, "soft_distance", this.testFlag(self, VoronoiDataBase.SOFT_DISTANCE_INDEX), false);
+				addCase(cases, "hard_distance", this.testFlag(self, VoronoiDataBase.HARD_DISTANCE_INDEX), false);
+				addCase(cases, "euclidean_distance", this.testFlag(self, VoronoiDataBase.EUCLIDEAN_DISTANCE_INDEX), false);
+				addCase(cases, "center_column", this.testFlag(self, VoronoiDataBase.CENTER_COLUMN_INDEX), false);
 			}
 			case GET_COLUMN_VALUE -> {
-				addCase(cases, "id",                         VoronoiDataBase.INFO.id                               (self), true);
-				addCase(cases, "cell_x",                     VoronoiDataBase.INFO.get_cell_x                       (self), true);
-				addCase(cases, "cell_z",                     VoronoiDataBase.INFO.get_cell_z                       (self), true);
-				addCase(cases, "center_x",                   VoronoiDataBase.INFO.get_center_x                     (self), true);
-				addCase(cases, "center_z",                   VoronoiDataBase.INFO.get_center_z                     (self), true);
-				addCase(cases, "soft_distance_squared",      VoronoiDataBase.INFO.get_soft_distance_squared        (self), true);
-				addCase(cases, "soft_distance",              VoronoiDataBase.INFO.get_soft_distance                (self), true);
-				addCase(cases, "hard_distance_squared",      VoronoiDataBase.INFO.get_hard_distance_squared        (self), true);
-				addCase(cases, "hard_distance",              VoronoiDataBase.INFO.get_hard_distance                (self), true);
-				addCase(cases, "euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared   (self), true);
-				addCase(cases, "euclidean_distance",         VoronoiDataBase.INFO.get_euclidean_distance           (self), true);
-				addCase(cases, "center_column",              VoronoiDataBase.INFO.get_center_column(self, this.root().columnType()), true);
+				addCase(cases, "id", VoronoiDataBase.INFO.id(self), true);
+				addCase(cases, "cell_x", VoronoiDataBase.INFO.get_cell_x(self), true);
+				addCase(cases, "cell_z", VoronoiDataBase.INFO.get_cell_z(self), true);
+				addCase(cases, "center_x", VoronoiDataBase.INFO.get_center_x(self), true);
+				addCase(cases, "center_z", VoronoiDataBase.INFO.get_center_z(self), true);
+				addCase(cases, "soft_distance_squared", VoronoiDataBase.INFO.get_soft_distance_squared(self), true);
+				addCase(cases, "soft_distance", VoronoiDataBase.INFO.get_soft_distance(self), true);
+				addCase(cases, "hard_distance_squared", VoronoiDataBase.INFO.get_hard_distance_squared(self), true);
+				addCase(cases, "hard_distance", VoronoiDataBase.INFO.get_hard_distance(self), true);
+				addCase(cases, "euclidean_distance_squared", VoronoiDataBase.INFO.get_euclidean_distance_squared(self), true);
+				addCase(cases, "euclidean_distance", VoronoiDataBase.INFO.get_euclidean_distance(self), true);
+				addCase(cases, "center_column", VoronoiDataBase.INFO.get_center_column(self, this.root().columnType()), true);
 			}
 			case SET_COLUMN_VALUE -> {
 				//no-op.
 			}
 			case PRE_COMPUTE_COLUMN_VALUE -> {
-				addCase(cases, "soft_distance_squared",      VoronoiDataBase.INFO.pre_compute_soft_distance_squared(self), false);
-				addCase(cases, "soft_distance",              VoronoiDataBase.INFO.pre_compute_soft_distance        (self), false);
-				addCase(cases, "hard_distance",              VoronoiDataBase.INFO.pre_compute_hard_distance        (self), false);
-				addCase(cases, "euclidean_distance",         VoronoiDataBase.INFO.pre_compute_euclidean_distance   (self), false);
-				addCase(cases, "center_column",              VoronoiDataBase.INFO.pre_compute_center               (self), false);
+				addCase(cases, "soft_distance_squared", VoronoiDataBase.INFO.pre_compute_soft_distance_squared(self), false);
+				addCase(cases, "soft_distance", VoronoiDataBase.INFO.pre_compute_soft_distance(self), false);
+				addCase(cases, "hard_distance", VoronoiDataBase.INFO.pre_compute_hard_distance(self), false);
+				addCase(cases, "euclidean_distance", VoronoiDataBase.INFO.pre_compute_euclidean_distance(self), false);
+				addCase(cases, "center_column", VoronoiDataBase.INFO.pre_compute_center(self), false);
 			}
 		}
 	}

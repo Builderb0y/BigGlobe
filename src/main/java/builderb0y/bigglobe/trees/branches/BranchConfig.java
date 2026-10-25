@@ -1,9 +1,8 @@
 package builderb0y.bigglobe.trees.branches;
 
-import net.minecraft.util.math.MathHelper;
-
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.trees.TreeGenerator;
+import net.minecraft.util.Mth;
 
 public class BranchConfig {
 
@@ -34,12 +33,12 @@ public class BranchConfig {
 	}
 
 	public void setFracLength(TreeGenerator generator, double fracLength) {
-		fracLength = MathHelper.clamp(fracLength, 0.0D, 1.0D);
+		fracLength = Mth.clamp(fracLength, 0.0D, 1.0D);
 		this.setBothLengths(generator, fracLength * this.length, fracLength);
 	}
 
 	public void setLength(TreeGenerator generator, double length) {
-		length = MathHelper.clamp(length, 0.0D, this.length);
+		length = Mth.clamp(length, 0.0D, this.length);
 		this.setBothLengths(generator, length, length / this.length);
 	}
 }

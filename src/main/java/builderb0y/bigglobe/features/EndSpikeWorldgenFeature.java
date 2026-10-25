@@ -1,51 +1,52 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.SpikeFeature;
+import net.minecraft.world.level.levelgen.feature.SpikeFeature.EndSpike;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.*;
-import net.minecraft.world.gen.feature.EndSpikeFeature.Spike;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-public class EndSpikeWorldgenFeature extends Feature<DefaultFeatureConfig> {
+public class EndSpikeWorldgenFeature extends Feature<NoneFeatureConfiguration> {
 
-	public EndSpikeWorldgenFeature(Codec<DefaultFeatureConfig> configCodec) {
+	public EndSpikeWorldgenFeature(Codec<NoneFeatureConfiguration> configCodec) {
 		super(configCodec);
 	}
 
 	public EndSpikeWorldgenFeature() {
-		this(DefaultFeatureConfig.CODEC);
+		this(NoneFeatureConfiguration.CODEC);
 	}
 
 	@Override
-	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.getWorld().getRegistryManager(), EndSpikeRespawnFeature.DELEGATE_KEY);
+	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.level().registryAccess(), EndSpikeRespawnFeature.DELEGATE_KEY);
 		if (delegate == null) return false;
 		MutableBoolean success = new MutableBoolean(false);
-		EndSpikeFeature
-		.getSpikes(context.getWorld())
-		.stream()
-		.filter((Spike spike) -> spike.isInChunk(context.getOrigin()))
-		.forEach((Spike spike) -> {
-			if (
-				delegate.generate(
-					context.getWorld(),
-					context.getGenerator(),
-					new MojangPermuter(EndSpikeRespawnFeature.getRandomSeed(context.getWorld(), spike.getCenterX(), spike.getCenterZ())),
-					new BlockPos(
-						spike.getCenterX(),
-						spike.getHeight(),
-						spike.getCenterZ()
+		SpikeFeature
+			.getSpikesForLevel(context.level())
+			.stream()
+			.filter((EndSpike spike) -> spike.isCenterWithinChunk(context.origin()))
+			.forEach((EndSpike spike) -> {
+				if (
+					delegate.place(
+						context.level(),
+						context.chunkGenerator(),
+						new MojangPermuter(EndSpikeRespawnFeature.getRandomSeed(context.level(), spike.getCenterX(), spike.getCenterZ())),
+						new BlockPos(
+							spike.getCenterX(),
+							spike.getHeight(),
+							spike.getCenterZ()
+						)
 					)
-				)
-			) {
-				success.setTrue();
-			}
-		});
+				) {
+					success.setTrue();
+				}
+			});
 		return success.booleanValue();
 	}
 }

@@ -1,26 +1,24 @@
 package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.chunk.Chunk;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 
 public class WorldCoordinator extends ScratchPosCoordinator {
 
-	public final StructureWorldAccess world;
+	public final WorldGenLevel world;
 	public final int setBlockFlags;
 
-	public WorldCoordinator(StructureWorldAccess world, int setBlockFlags) {
+	public WorldCoordinator(WorldGenLevel world, int setBlockFlags) {
 		this.world = world;
 		this.setBlockFlags = setBlockFlags;
 	}
@@ -74,14 +72,14 @@ public class WorldCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {
+	public void getChunk(int x, int y, int z, CoordinateConsumer<ChunkAccess> action) {
 		action.accept(this.scratchPos.set(x, y, z), this.world.getChunk(x >> 4, z >> 4));
 	}
 
 	@Override
 	public void setBlockState(int x, int y, int z, BlockState state) {
 		if (state == null) return;
-		this.world.setBlockState(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
+		this.world.setBlock(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
 	}
 
 	@Override
@@ -89,13 +87,13 @@ public class WorldCoordinator extends ScratchPosCoordinator {
 		if (supplier == null) return;
 		BlockState state = supplier.get(this.scratchPos.set(x, y, z));
 		if (state == null) return;
-		this.world.setBlockState(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
+		this.world.setBlock(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
 	}
 
 	@Override
 	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
 		if (state == null) return;
-		this.world.setBlockState(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
+		this.world.setBlock(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
 		B blockEntity = WorldUtil.getBlockEntity(this.world, this.scratchPos, blockEntityClass);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
@@ -103,7 +101,7 @@ public class WorldCoordinator extends ScratchPosCoordinator {
 	@Override
 	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		if (state == null) return;
-		this.world.setBlockState(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
+		this.world.setBlock(this.scratchPos.set(x, y, z), state, this.setBlockFlags);
 		B blockEntity = WorldUtil.getBlockEntity(this.world, this.scratchPos, blockEntityType);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
@@ -113,20 +111,20 @@ public class WorldCoordinator extends ScratchPosCoordinator {
 		BlockState oldState = this.world.getBlockState(this.scratchPos.set(x, y, z));
 		BlockState newState = mapper.apply(this.scratchPos, oldState);
 		if (oldState != newState && newState != null) {
-			this.world.setBlockState(this.scratchPos.set(x, y, z), newState, this.setBlockFlags);
+			this.world.setBlock(this.scratchPos.set(x, y, z), newState, this.setBlockFlags);
 		}
 	}
 
 	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
-		Box box = boxSupplier.get(this.scratchPos.set(x, y, z));
-		entityAction.accept(this.scratchPos.set(x, y, z), this.world.getNonSpectatingEntities(entityType, box));
+	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+		AABB box = boxSupplier.get(this.scratchPos.set(x, y, z));
+		entityAction.accept(this.scratchPos.set(x, y, z), this.world.getEntitiesOfClass(entityType, box));
 	}
 
 	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
-		Entity entity = supplier.apply(this.scratchPos.set(x, y, z), this.world.toServerWorld());
-		if (entity != null) this.world.spawnEntityAndPassengers(entity);
+	public void addEntity(int x, int y, int z, CoordinateFunction<ServerLevel, Entity> supplier) {
+		Entity entity = supplier.apply(this.scratchPos.set(x, y, z), this.world.getLevel());
+		if (entity != null) this.world.addFreshEntityWithPassengers(entity);
 	}
 
 	@Override

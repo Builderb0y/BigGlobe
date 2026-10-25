@@ -1,15 +1,14 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
-import net.minecraft.block.Block;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.StringData;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Block;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -26,7 +25,7 @@ public class BlockColumnValueType extends AbstractColumnValueType {
 		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
 		StringData stringData = data.tryAsString();
 		if (stringData == null) throw new ClassCastException("Not a String: " + data);
-		RegistryEntry<Block> blockEntry = context.registry.registries.getRegistry(RegistryKeys.BLOCK).requireByName(stringData.value);
+		Holder<Block> blockEntry = context.registry.registries.getRegistry(Registries.BLOCK).requireByName(stringData.value);
 		return ldc(blockEntry.value(), type(Block.class));
 	}
 

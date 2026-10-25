@@ -64,7 +64,7 @@ public class VoronoiColumnEntry extends NonConstantColumnEntry {
 				loadSelf
 			)
 		)
-		.emitBytecode(registry.columnCompileContext.constructor);
+			.emitBytecode(registry.columnCompileContext.constructor);
 		super.compile(registry);
 	}
 

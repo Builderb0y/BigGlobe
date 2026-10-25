@@ -47,10 +47,10 @@ public class VariableCapturer {
 	public Stream<LazyVarInfo> streamImplicitParameters() {
 		return (
 			Stream.concat(
-				this.builtinParameters.stream(),
-				this.capturedVariables.stream()
-			)
-			.map(LoadInsnTree::variable)
+					this.builtinParameters.stream(),
+					this.capturedVariables.stream()
+				)
+				.map(LoadInsnTree::variable)
 		);
 	}
 }

@@ -2,19 +2,20 @@ package builderb0y.bigglobe.mixins;
 
 import org.spongepowered.asm.mixin.*;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RailBlock;
-import net.minecraft.block.enums.RailShape;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.BlockRotation;
+import static net.minecraft.world.level.block.state.properties.RailShape.*;
 
-import static net.minecraft.block.enums.RailShape.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RailBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.RailShape;
 
 @Mixin(RailBlock.class)
 public class RailBlock_RotateProperly extends Block {
 
-	@Shadow public static @Final EnumProperty<RailShape> SHAPE;
+	@Shadow
+	public static @Final EnumProperty<RailShape> SHAPE;
 	@Unique
 	private static final RailShape[]
 		BIGGLOBE_STRAIGHT = { NORTH_SOUTH, EAST_WEST },
@@ -27,7 +28,7 @@ public class RailBlock_RotateProperly extends Block {
 	private static final RailShape[][]
 		BIGGLOBE_SHAPES = { BIGGLOBE_STRAIGHT, BIGGLOBE_STRAIGHT, BIGGLOBE_ASCENDING, BIGGLOBE_ASCENDING, BIGGLOBE_ASCENDING, BIGGLOBE_ASCENDING, BIGGLOBE_CURVED, BIGGLOBE_CURVED, BIGGLOBE_CURVED, BIGGLOBE_CURVED };
 
-	public RailBlock_RotateProperly(Settings settings) {
+	public RailBlock_RotateProperly(Properties settings) {
 		super(settings);
 	}
 
@@ -44,13 +45,12 @@ public class RailBlock_RotateProperly extends Block {
 	*/
 	@Override
 	@Overwrite
-	@SuppressWarnings("deprecation")
-	public BlockState rotate(BlockState state, BlockRotation rotation) {
-		RailShape oldShape = state.get(SHAPE);
+	public BlockState rotate(BlockState state, Rotation rotation) {
+		RailShape oldShape = state.getValue(SHAPE);
 		RailShape[] shapes = BIGGLOBE_SHAPES[oldShape.ordinal()];
 		int oldOrdinal = BIGGLOBE_ORDINAL_MAP[oldShape.ordinal()];
 		int newOrdinal = (oldOrdinal + rotation.ordinal()) & (shapes.length - 1);
 		RailShape newShape = shapes[newOrdinal];
-		return state.with(SHAPE, newShape);
+		return state.setValue(SHAPE, newShape);
 	}
 }

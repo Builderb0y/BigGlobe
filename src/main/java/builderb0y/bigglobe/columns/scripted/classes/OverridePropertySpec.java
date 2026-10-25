@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -19,12 +16,12 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class OverridePropertySpec extends BasePropertySpec {
 
-	public final RegistryEntry<ElementSpec> override;
+	public final Holder<ElementSpec> override;
 	public final ScriptUsage get;
 	public final @VerifyNullable ScriptUsage set;
 
 	public OverridePropertySpec(
-		RegistryEntry<ElementSpec> override,
+		Holder<ElementSpec> override,
 		ScriptUsage get,
 		@VerifyNullable ScriptUsage set
 	) {
@@ -52,13 +49,17 @@ public class OverridePropertySpec extends BasePropertySpec {
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
 		PropertyCompileContext propertyContext = owner.getCompileContext(this);
 		InsnTree loadY = this.is3D() ? load("y", TypeInfos.INT) : null;
-		compile(hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
-			if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
-		});
-		if (this.set != null) compile(hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
-			if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
-			environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
-		});
+		compile(
+			hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
+				if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
+			}
+		);
+		if (this.set != null) compile(
+			hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
+				if (this.is3D()) environment.addVariableLoad("y", TypeInfos.INT);
+				environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
+			}
+		);
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class OverridePropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public RegistryEntry<ElementSpec> getPropertyType() {
+	public Holder<ElementSpec> getPropertyType() {
 		return ((BasePropertySpec)(this.override.value())).getPropertyType();
 	}
 
@@ -97,7 +98,7 @@ public class OverridePropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return ((BasePropertySpec)(this.override.value())).getDependencies();
 	}
 }

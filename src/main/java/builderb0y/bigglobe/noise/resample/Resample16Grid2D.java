@@ -6,7 +6,9 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.polynomials.Polynomial;
 import builderb0y.bigglobe.noise.polynomials.Polynomial4.PolyForm4;
 
-/** a ResampleGrid2D which internally interpolates between 16 sample points. */
+/**
+a ResampleGrid2D which internally interpolates between 16 sample points.
+*/
 public abstract class Resample16Grid2D extends ResampleGrid2D {
 
 	public Resample16Grid2D(Grid2D source, int scaleX, int scaleY) {
@@ -69,9 +71,9 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 		int scaleX = this.scaleX;
 		int scaleY = this.scaleY;
 		int modX = BigGlobeMath.modulus_BP(startX, scaleX);
-		int modY = BigGlobeMath.modulus_BP(y,      scaleY);
+		int modY = BigGlobeMath.modulus_BP(y, scaleY);
 		int gridX = startX - modX;
-		int gridY = y      - modY;
+		int gridY = y - modY;
 		double fracY = modY * this.rcpY;
 		PolyForm4 formY = this.polyFormY();
 		Polynomial polynomial = this.polyFormX().createPolynomial(
@@ -109,7 +111,7 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 			),
 			this.rcpX
 		);
-		for (int index = 0; true /* break in the middle of the loop */;) {
+		for (int index = 0; true /* break in the middle of the loop */; ) {
 			samples.setD(index, polynomial.interpolate(modX * this.rcpX));
 			if (++index >= sampleCount) break;
 			if (++modX >= scaleX) {
@@ -135,9 +137,9 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 		if (sampleCount <= 0) return;
 		int scaleX = this.scaleX;
 		int scaleY = this.scaleY;
-		int modX = BigGlobeMath.modulus_BP(x,      scaleX);
+		int modX = BigGlobeMath.modulus_BP(x, scaleX);
 		int modY = BigGlobeMath.modulus_BP(startY, scaleY);
-		int gridX = x      - modX;
+		int gridX = x - modX;
 		int gridY = startY - modY;
 		double fracX = modX * this.rcpX;
 		PolyForm4 formX = this.polyFormX();
@@ -176,7 +178,7 @@ public abstract class Resample16Grid2D extends ResampleGrid2D {
 			),
 			this.rcpY
 		);
-		for (int index = 0; true /* break in the middle of the loop */;) {
+		for (int index = 0; true /* break in the middle of the loop */; ) {
 			samples.setD(index, polynomial.interpolate(modY * this.rcpY));
 			if (++index >= sampleCount) break;
 			if (++modY >= scaleY) {

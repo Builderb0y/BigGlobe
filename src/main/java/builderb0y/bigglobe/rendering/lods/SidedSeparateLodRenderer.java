@@ -2,16 +2,14 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-
+import net.minecraft.client.Minecraft;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.NativeMemory;
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.util.SafeCloseable;
-import builderb0y.bigglobe.rendering.lods.SimpleLodRenderer.DefaultLodState;
 import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
+import builderb0y.bigglobe.rendering.lods.SimpleLodRenderer.DefaultLodState;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 import static org.lwjgl.opengl.GL32C.*;
@@ -71,7 +69,7 @@ public class SidedSeparateLodRenderer extends AbstractLodRenderer {
 		}
 		return () -> {
 			if (this.state.inTranslucentPass) {
-				this.depthBuffer.copyTo(RenderVersions.glID(MinecraftClient.getInstance().getFramebuffer()));
+				this.depthBuffer.copyTo(RenderVersions.glID(Minecraft.getInstance().getMainRenderTarget()));
 				this.state.restore();
 			}
 		};

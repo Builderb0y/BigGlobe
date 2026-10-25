@@ -1,18 +1,17 @@
 package builderb0y.bigglobe.networking.packets;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.hyperspace.*;
+import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
+import builderb0y.bigglobe.hyperspace.PlayerWaypointData;
+import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
+import builderb0y.bigglobe.hyperspace.ServerWaypointManager;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.C2SPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
@@ -24,18 +23,18 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 	public static final WaypointRemoveC2SPacket INSTANCE = new WaypointRemoveC2SPacket();
 
 	public void send(int id) {
-		PacketByteBuf buffer = this.buffer();
+		FriendlyByteBuf buffer = this.buffer();
 		buffer.writeVarInt(id);
 		BigGlobeNetwork.INSTANCE.sendToServer(buffer);
 	}
 
 	@Override
-	public Integer decode(ServerPlayerEntity player, PacketByteBuf buffer) {
+	public Integer decode(ServerPlayer player, FriendlyByteBuf buffer) {
 		return buffer.readVarInt();
 	}
 
 	@Override
-	public void process(ServerPlayerEntity player, Integer id, PacketSender responseSender) {
+	public void process(ServerPlayer player, Integer id, PacketSender responseSender) {
 		if (!player.isSpectator()) {
 			ServerWaypointManager serverManager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
 			if (serverManager != null) {
@@ -43,7 +42,7 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 				if (serverPlayerManager != null) {
 					PlayerWaypointData waypoint = serverPlayerManager.getWaypoint(id);
 					if (waypoint != null) {
-						if (player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getEntityReachDistanceSquared(player)) {
+						if (player.getEyePosition().distanceToSqr(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getEntityReachDistanceSquared(player)) {
 							serverManager.removeWaypoint(id, true);
 							Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
 							if (GameruleVersions.entityDrops(EntityVersions.getServerWorld(player))) {
@@ -52,10 +51,10 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 									ItemStackVersions.setCustomName(stack, waypoint.destination().name());
 								}
 								ItemEntity entity = new ItemEntity(EntityVersions.getWorld(player), waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z(), stack);
-								if (EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+								if (EntityVersions.getWorld(player).dimension() == HyperspaceConstants.WORLD_KEY) {
 									entity.setNoGravity(true);
 								}
-								EntityVersions.getWorld(player).spawnEntity(entity);
+								EntityVersions.getWorld(player).addFreshEntity(entity);
 							}
 						}
 						else {

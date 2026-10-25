@@ -1,11 +1,10 @@
 package builderb0y.bigglobe.structures;
 
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.structure.Structure;
-
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 
 /**
 a {@link Structure} which has at least one StructurePiece which
@@ -26,21 +25,21 @@ public interface RawGenerationStructure {
 		public static class Context {
 
 			public long columnSeed, pieceSeed;
-			public Chunk chunk;
+			public ChunkAccess chunk;
 			public BigGlobeScriptedChunkGenerator generator;
 			public ScriptedColumnLookup columns;
 			public boolean distantHorizons;
 
 			public Context(
-				Chunk chunk,
+				ChunkAccess chunk,
 				BigGlobeScriptedChunkGenerator generator,
 				ScriptedColumnLookup columns,
 				boolean distantHorizons
 			) {
-				this.columnSeed      = generator.columnSeed;
-				this.chunk           = chunk;
-				this.generator       = generator;
-				this.columns         = columns;
+				this.columnSeed = generator.columnSeed;
+				this.chunk = chunk;
+				this.generator = generator;
+				this.columns = columns;
 				this.distantHorizons = distantHorizons;
 			}
 		}

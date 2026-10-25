@@ -2,7 +2,8 @@ package builderb0y.bigglobe.columns.scripted.traits;
 
 public class TraitNotPresentException extends RuntimeException {
 
-	public TraitNotPresentException() {}
+	public TraitNotPresentException() {
+	}
 
 	public TraitNotPresentException(String message) {
 		super(message);

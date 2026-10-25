@@ -3,14 +3,10 @@ package builderb0y.bigglobe.commands;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
-
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.commands.AsyncLocateCommand.Result;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -20,7 +16,7 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 
 	public final TreeSet<T_Result> results = new TreeSet<>(this);
 
-	public AsyncLocateCommand(ServerCommandSource source) {
+	public AsyncLocateCommand(CommandSourceStack source) {
 		super(source);
 	}
 
@@ -33,12 +29,12 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 		//first 10 results get sent as feedback and logged.
 		for (int index = 0; index < 10 && iterator.hasNext(); index++) {
 			T_Result result = iterator.next();
-			this.source.sendFeedback(() -> result.toText(this.source), false);
+			this.source.sendSuccess(() -> result.toText(this.source), false);
 			BigGlobeMod.LOGGER.info(result.toString());
 		}
 		if (iterator.hasNext()) {
 			//if there are more than 10 results, send feedback saying how many more results there were.
-			this.source.sendFeedback(() -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate.more", this.results.size() - 10), false);
+			this.source.sendSuccess(() -> Component.translatable("commands." + BigGlobeMod.MODID + ".locate.more", this.results.size() - 10), false);
 			//first 100 results only get logged.
 			for (int index = 10; index < 100 && iterator.hasNext(); index++) {
 				T_Result result = iterator.next();
@@ -60,43 +56,43 @@ public abstract class AsyncLocateCommand<T_Result extends Result> extends AsyncC
 		public Style toStyle() {
 			return (
 				Style
-				.EMPTY
-				.withHoverEvent(
-					TextVersions.showText(
-						Text.translatable("commands." + BigGlobeMod.MODID + ".locate.clickToTeleport")
+					.EMPTY
+					.withHoverEvent(
+						TextVersions.showText(
+							Component.translatable("commands." + BigGlobeMod.MODID + ".locate.clickToTeleport")
+						)
 					)
-				)
-				.withClickEvent(
-					TextVersions.suggestCommand(
-						"/tp @s " + this.x + " ~ " + this.z
+					.withClickEvent(
+						TextVersions.suggestCommand(
+							"/tp @s " + this.x + " ~ " + this.z
+						)
 					)
-				)
 			);
 		}
 
-		public Text toText(ServerCommandSource source) {
+		public Component toText(CommandSourceStack source) {
 			return (
-				Text.literal("(" + this.x + ", " + this.z + ')')
-				.setStyle(this.toStyle())
-				.formatted(Formatting.GREEN)
-				.append(Text.literal(" -> ").formatted(Formatting.WHITE))
-				.append(Text.literal(this.valueToString()).formatted(Formatting.AQUA))
-				.append(Text.literal(" (").formatted(Formatting.WHITE))
-				.append(
-					Text.literal(
-						BigGlobeCommands.format(
-							Math.sqrt(
-								BigGlobeMath.squareD(
-									source.getPosition().x - (this.x + 0.5D),
-									source.getPosition().z - (this.z + 0.5D)
+				Component.literal("(" + this.x + ", " + this.z + ')')
+					.setStyle(this.toStyle())
+					.withStyle(ChatFormatting.GREEN)
+					.append(Component.literal(" -> ").withStyle(ChatFormatting.WHITE))
+					.append(Component.literal(this.valueToString()).withStyle(ChatFormatting.AQUA))
+					.append(Component.literal(" (").withStyle(ChatFormatting.WHITE))
+					.append(
+						Component.literal(
+								BigGlobeCommands.format(
+									Math.sqrt(
+										BigGlobeMath.squareD(
+											source.getPosition().x - (this.x + 0.5D),
+											source.getPosition().z - (this.z + 0.5D)
+										)
+									)
 								)
+								+ " block(s) away"
 							)
-						)
-						+ " block(s) away"
+							.withStyle(ChatFormatting.BLUE)
 					)
-					.formatted(Formatting.BLUE)
-				)
-				.append(Text.literal(")").formatted(Formatting.WHITE))
+					.append(Component.literal(")").withStyle(ChatFormatting.WHITE))
 			);
 		}
 

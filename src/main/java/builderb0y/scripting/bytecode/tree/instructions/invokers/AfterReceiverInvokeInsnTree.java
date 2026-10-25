@@ -24,7 +24,8 @@ public class AfterReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 		this.emitSpecificArgs(method, 2, this.args.length);
 		this.emitMethod(method);
 		switch (this.method.returnType.getSize()) {
-			case 0 -> {}
+			case 0 -> {
+			}
 			case 1 -> method.node.visitInsn(POP);
 			case 2 -> method.node.visitInsn(POP2);
 		}
@@ -40,10 +41,10 @@ public class AfterReceiverInvokeInsnTree extends BaseInvokeInsnTree {
 		return (
 			(
 				this.method.isStatic()
-				? StaticInvokeInsnTree.create(this.method, this.args)
-				: new NormalInvokeInsnTree(this.method, this.args)
+					? StaticInvokeInsnTree.create(this.method, this.args)
+					: new NormalInvokeInsnTree(this.method, this.args)
 			)
-			.asStatement()
+				.asStatement()
 		);
 	}
 }

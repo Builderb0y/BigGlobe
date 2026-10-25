@@ -25,12 +25,43 @@ public class RandomIterator2D implements BoundedPointIterator2D, RandomIterator 
 		this.y = Permuter.toBoundedDouble(Permuter.permute(this.seed ^ 0xD2DF5D152E030F8EL, this.index), this.minY, this.maxY);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double minY() { return this.minY; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double maxY() { return this.maxY; }
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
-	@Override public int index() { return this.index; }
-	@Override public long seed() { return this.seed; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double minY() {
+		return this.minY;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double maxY() {
+		return this.maxY;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
+
+	@Override
+	public long seed() {
+		return this.seed;
+	}
 }

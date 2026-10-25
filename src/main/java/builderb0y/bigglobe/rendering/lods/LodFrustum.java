@@ -2,12 +2,11 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.world.phys.Vec3;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
-
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.util.math.Vec3d;
-
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RenderVersions;
@@ -25,8 +24,8 @@ public class LodFrustum {
 		farClippingPlane,
 		generationBuffer;
 	public Matrix4f
-		modelViewMatrix           = new Matrix4f(),
-		projectionMatrix          = new Matrix4f(),
+		modelViewMatrix = new Matrix4f(),
+		projectionMatrix = new Matrix4f(),
 		modelViewProjectionMatrix = new Matrix4f();
 
 	public LodFrustum(LodSystem system) {
@@ -34,32 +33,22 @@ public class LodFrustum {
 	}
 
 	public void setup(
-		#if MC_VERSION >= MC_1_21_9
-			net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
-		#else
-			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
-		#endif
-	) {
-		#if MC_VERSION >= MC_1_21_9
-			this.modelViewMatrix.set(context.viewMatrix());
-		#elif MC_VERSION >= MC_1_20_5
-			this.modelViewMatrix.set(context.positionMatrix());
-		#else
-			this.modelViewMatrix.set(context.matrixStack().peek().getPositionMatrix());
-		#endif
 
-		Vec3d cameraPos = RenderVersions.getCameraPosition(context.camera());
+		WorldRenderContext context
+
+	) {
+
+		this.modelViewMatrix.set(context.matrixStack().last().pose());
+
+		Vec3 cameraPos = RenderVersions.getCameraPosition(context.camera());
 		this.x = cameraPos.x;
 		this.y = cameraPos.y;
 		this.z = cameraPos.z;
 
 		GameRenderer renderer = context.gameRenderer();
 
-		#if MC_VERSION >= MC_1_21_5
-			float vanillaViewDistance = renderer.getViewDistanceBlocks();
-		#else
-			float vanillaViewDistance = renderer.getViewDistance();
-		#endif
+		float vanillaViewDistance = renderer.getRenderDistance();
+
 		float aboveDifference = (float)(this.y - HeightLimitViewVersions.getMaxY(context.world()));
 		if (aboveDifference > 0.0F) {
 			vanillaViewDistance = Math.max(vanillaViewDistance, aboveDifference * 0.5F);
@@ -69,7 +58,7 @@ public class LodFrustum {
 		this.changeNearFar(
 			this.projectionMatrix,
 			0.05F,
-			renderer.getFarPlaneDistance(),
+			renderer.getDepthFar(),
 			this.nearClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance,
 			this.farClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance
 		);
@@ -79,12 +68,12 @@ public class LodFrustum {
 	}
 
 	public void changeNearFar(Matrix4f matrix, float oldNear, float oldFar, float newNear, float newFar) {
-		float oldProduct  = oldNear * oldFar;
-		float oldSum      = oldNear + oldFar;
-		float oldDiff     = oldNear - oldFar;
-		float newProduct  = newNear * newFar;
-		float newSum      = newNear + newFar;
-		float newDiff     = newNear - newFar;
+		float oldProduct = oldNear * oldFar;
+		float oldSum = oldNear + oldFar;
+		float oldDiff = oldNear - oldFar;
+		float newProduct = newNear * newFar;
+		float newSum = newNear + newFar;
+		float newDiff = newNear - newFar;
 		float productDiff = newProduct / oldProduct;
 		float m02 = ((matrix.m03() * oldSum + matrix.m02() * oldDiff) * productDiff - matrix.m03() * newSum) / newDiff;
 		float m12 = ((matrix.m13() * oldSum + matrix.m12() * oldDiff) * productDiff - matrix.m13() * newSum) / newDiff;

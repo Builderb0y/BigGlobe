@@ -2,29 +2,25 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ColumnPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ColumnPos;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -33,9 +29,9 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.structures.ScriptStructures;
-import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk;
@@ -55,6 +51,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class WorldWrapper implements ScriptedColumnLookup {
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public FieldInfo random;
@@ -94,6 +91,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public static final BoundInfo BOUND_PARAM = new BoundInfo(load("world", INFO.type));
+
 	public static class BoundInfo extends BoundInfoHolder {
 
 		public InsnTree random, seed, hints, distantHorizons, offsetY;
@@ -105,7 +103,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public final WorldOrChunk world;
 	public final Coordination coordination;
-	public final BlockPos.Mutable pos;
+	public final BlockPos.MutableBlockPos pos;
 	public Vector3d doublePos;
 	public final RandomGenerator random;
 	public long featureSalt = 0xB5ECAC279BD1E7FBL;
@@ -123,7 +121,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	) {
 		this.world = world;
 		this.coordination = coordination;
-		this.pos = new BlockPos.Mutable();
+		this.pos = new BlockPos.MutableBlockPos();
 		this.random = random;
 		this.columnFactory = chunkGenerator.columnEntryRegistry.columnFactory;
 		if (world instanceof ChunkDelegator delegator) {
@@ -140,15 +138,15 @@ public class WorldWrapper implements ScriptedColumnLookup {
 				chunkGenerator.columnSeed,
 				0,
 				0,
-				coordination.mutableArea.getMinY(),
-				coordination.mutableArea.getMaxY() + 1,
+				coordination.mutableArea.minY(),
+				coordination.mutableArea.maxY() + 1,
 				hints,
 				chunkGenerator.compiledWorldTraits
 			);
 		}
 	}
 
-	public static record AutoOverride(ScriptStructures[] structures, RegistryEntry<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
+	public static record AutoOverride(ScriptStructures[] structures, Holder<ColumnValueOverrider.Entry>[] overriders, String[] preFetch) {
 
 		public AutoOverride {
 			if (structures.length != overriders.length) {
@@ -157,12 +155,13 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 
 		public void override(ScriptedColumn column) {
-			for (String name : this.preFetch) try {
-				column.preComputeColumnValue(name);
-			}
-			catch (Throwable throwable) {
-				BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
-			}
+			for (String name : this.preFetch)
+				try {
+					column.preComputeColumnValue(name);
+				}
+				catch (Throwable throwable) {
+					BigGlobeMod.LOGGER.error("Exception pre-computing column value for overrider: ", throwable);
+				}
 			for (int index = 0; index < this.structures.length; index++) {
 				this.overriders[index].value().script.override(column, this.structures[index]);
 			}
@@ -179,26 +178,28 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		BlockPos pos = this.unboundedPos(x, 0, z);
 		x = pos.getX();
 		z = pos.getZ();
-		return this.columns.computeIfAbsent(ColumnPos.pack(x, z), (long packedPos) -> {
-			ScriptedColumn column = this.columnFactory.create(
-				this.params.at(ColumnPos.getX(packedPos), ColumnPos.getZ(packedPos))
-			);
-			if (this.overriders != null) {
-				this.overriders.override(column);
+		return this.columns.computeIfAbsent(
+			ColumnPos.asLong(x, z), (long packedPos) -> {
+				ScriptedColumn column = this.columnFactory.create(
+					this.params.at(ColumnPos.getX(packedPos), ColumnPos.getZ(packedPos))
+				);
+				if (this.overriders != null) {
+					this.overriders.override(column);
+				}
+				return column;
 			}
-			return column;
-		});
+		);
 	}
 
-	public BlockPos.Mutable unboundedPos(int x, int y, int z) {
+	public BlockPos.MutableBlockPos unboundedPos(int x, int y, int z) {
 		return this.coordination.modifyPosUnbounded(this.pos.set(x, y, z));
 	}
 
-	public BlockPos.@Nullable Mutable mutablePos(int x, int y, int z) {
+	public BlockPos.@Nullable MutableBlockPos mutablePos(int x, int y, int z) {
 		return this.coordination.filterPosMutable(this.unboundedPos(x, y, z));
 	}
 
-	public BlockPos.@Nullable Mutable immutablePos(int x, int y, int z) {
+	public BlockPos.@Nullable MutableBlockPos immutablePos(int x, int y, int z) {
 		return this.coordination.filterPosImmutable(this.unboundedPos(x, y, z));
 	}
 
@@ -318,20 +319,36 @@ public class WorldWrapper implements ScriptedColumnLookup {
 
 	public void fillBlockStateConditionally(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state, Predicate<BlockState> predicate) {
 		if (state != null) {
-			BlockPos.Mutable pos = this.unboundedPos(minX, minY, minZ);
-			minX = pos.getX(); minY = pos.getY(); minZ = pos.getZ();
+			BlockPos.MutableBlockPos pos = this.unboundedPos(minX, minY, minZ);
+			minX = pos.getX();
+			minY = pos.getY();
+			minZ = pos.getZ();
 			pos = this.unboundedPos(maxX, maxY, maxZ);
-			maxX = pos.getX(); maxY = pos.getY(); maxZ = pos.getZ();
+			maxX = pos.getX();
+			maxY = pos.getY();
+			maxZ = pos.getZ();
 			int tmp;
-			if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
-			if (maxY < minY) { tmp = minY; minY = maxY; maxY = tmp; }
-			if (maxZ < minZ) { tmp = minZ; minZ = maxZ; maxZ = tmp; }
-			minX = Math.max(minX, this.coordination.mutableArea.getMinX());
-			minY = Math.max(minY, this.coordination.mutableArea.getMinY());
-			minZ = Math.max(minZ, this.coordination.mutableArea.getMinZ());
-			maxX = Math.min(maxX, this.coordination.mutableArea.getMaxX());
-			maxY = Math.min(maxY, this.coordination.mutableArea.getMaxY());
-			maxZ = Math.min(maxZ, this.coordination.mutableArea.getMaxZ());
+			if (maxX < minX) {
+				tmp = minX;
+				minX = maxX;
+				maxX = tmp;
+			}
+			if (maxY < minY) {
+				tmp = minY;
+				minY = maxY;
+				maxY = tmp;
+			}
+			if (maxZ < minZ) {
+				tmp = minZ;
+				minZ = maxZ;
+				maxZ = tmp;
+			}
+			minX = Math.max(minX, this.coordination.mutableArea.minX());
+			minY = Math.max(minY, this.coordination.mutableArea.minY());
+			minZ = Math.max(minZ, this.coordination.mutableArea.minZ());
+			maxX = Math.min(maxX, this.coordination.mutableArea.maxX());
+			maxY = Math.min(maxY, this.coordination.mutableArea.maxY());
+			maxZ = Math.min(maxZ, this.coordination.mutableArea.maxZ());
 			state = this.coordination.modifyState(state);
 			for (int z = minZ; z <= maxZ; z++) {
 				pos.setZ(z);
@@ -352,20 +369,36 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public void updateBlockStates(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-		BlockPos.Mutable pos = this.unboundedPos(minX, minY, minZ);
-		minX = pos.getX(); minY = pos.getY(); minZ = pos.getZ();
+		BlockPos.MutableBlockPos pos = this.unboundedPos(minX, minY, minZ);
+		minX = pos.getX();
+		minY = pos.getY();
+		minZ = pos.getZ();
 		pos = this.unboundedPos(maxX, maxY, maxZ);
-		maxX = pos.getX(); maxY = pos.getY(); maxZ = pos.getZ();
+		maxX = pos.getX();
+		maxY = pos.getY();
+		maxZ = pos.getZ();
 		int tmp;
-		if (maxX < minX) { tmp = minX; minX = maxX; maxX = tmp; }
-		if (maxY < minY) { tmp = minY; minY = maxY; maxY = tmp; }
-		if (maxZ < minZ) { tmp = minZ; minZ = maxZ; maxZ = tmp; }
-		minX = Math.max(minX, this.coordination.mutableArea.getMinX());
-		minY = Math.max(minY, this.coordination.mutableArea.getMinY());
-		minZ = Math.max(minZ, this.coordination.mutableArea.getMinZ());
-		maxX = Math.min(maxX, this.coordination.mutableArea.getMaxX());
-		maxY = Math.min(maxY, this.coordination.mutableArea.getMaxY());
-		maxZ = Math.min(maxZ, this.coordination.mutableArea.getMaxZ());
+		if (maxX < minX) {
+			tmp = minX;
+			minX = maxX;
+			maxX = tmp;
+		}
+		if (maxY < minY) {
+			tmp = minY;
+			minY = maxY;
+			maxY = tmp;
+		}
+		if (maxZ < minZ) {
+			tmp = minZ;
+			minZ = maxZ;
+			maxZ = tmp;
+		}
+		minX = Math.max(minX, this.coordination.mutableArea.minX());
+		minY = Math.max(minY, this.coordination.mutableArea.minY());
+		minZ = Math.max(minZ, this.coordination.mutableArea.minZ());
+		maxX = Math.min(maxX, this.coordination.mutableArea.maxX());
+		maxY = Math.min(maxY, this.coordination.mutableArea.maxY());
+		maxZ = Math.min(maxZ, this.coordination.mutableArea.maxZ());
 		for (int z = minZ; z <= maxZ; z++) {
 			pos.setZ(z);
 			for (int x = minX; x <= maxX; x++) {
@@ -380,39 +413,41 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
-			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ this.featureSalt, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
+			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ this.featureSalt, feature.location().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
 			return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 		}
 		return false;
 	}
 
-	public StructurePlacementData newStructurePlacementData() {
-		return new StructurePlacementData().setBoundingBox(this.coordination.mutableArea);
+	public StructurePlaceSettings newStructurePlacementData() {
+		return new StructurePlaceSettings().setBoundingBox(this.coordination.mutableArea);
 	}
 
 	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template) {
 		this.placeStructureTemplate(x, y, z, template, this.newStructurePlacementData());
 	}
 
-	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data) {
+	public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlaceSettings data) {
 		data = data.copy();
 		BlockPos pos = this.unboundedPos(x, y, z);
-		x = pos.getX(); y = pos.getY(); z = pos.getZ();
+		x = pos.getX();
+		y = pos.getY();
+		z = pos.getZ();
 		Symmetry oldSymmetry = Symmetry.of(data.getMirror()).andThen(Symmetry.of(data.getRotation()));
 		Symmetry newSymmetry = this.coordination.transformation().symmetry().andThen(oldSymmetry);
-		data.setMirror(newSymmetry.isFlipped() ? BlockMirror.FRONT_BACK : BlockMirror.NONE);
+		data.setMirror(newSymmetry.isFlipped() ? Mirror.FRONT_BACK : Mirror.NONE);
 		data.setRotation(switch (newSymmetry) {
-			case IDENTITY, FLIP_0 -> BlockRotation.NONE;
-			case ROTATE_90, FLIP_135 -> BlockRotation.CLOCKWISE_90;
-			case ROTATE_180, FLIP_90 -> BlockRotation.CLOCKWISE_180;
-			case ROTATE_270, FLIP_45 -> BlockRotation.COUNTERCLOCKWISE_90;
+			case IDENTITY, FLIP_0 -> Rotation.NONE;
+			case ROTATE_90, FLIP_135 -> Rotation.CLOCKWISE_90;
+			case ROTATE_180, FLIP_90 -> Rotation.CLOCKWISE_180;
+			case ROTATE_270, FLIP_45 -> Rotation.COUNTERCLOCKWISE_90;
 		});
 		Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xD6ABF6E7480FDDE0L, x, y, z));
 		this.world.placeStructureTemplate(x, y, z, template, data, permuter);
 	}
 
 	public boolean isYLevelValid(int y) {
-		return !this.world.isOutOfHeightLimit(y);
+		return !this.world.isOutsideBuildHeight(y);
 	}
 
 	public boolean isPositionValid(int x, int y, int z) {
@@ -420,14 +455,14 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public int minValidYLevel() {
-		return this.world.getBottomY();
+		return HeightLimitViewVersions.getMinY(this.world);
 	}
 
 	public int maxValidYLevel() {
 		return HeightLimitViewVersions.getMaxY(this.world);
 	}
 
-	public @Nullable NbtCompound getBlockData(int x, int y, int z) {
+	public @Nullable CompoundTag getBlockData(int x, int y, int z) {
 		BlockPos pos = this.immutablePos(x, y, z);
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
@@ -438,27 +473,27 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return null;
 	}
 
-	public void setBlockData(int x, int y, int z, NbtCompound nbt) {
+	public void setBlockData(int x, int y, int z, CompoundTag nbt) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
 				BlockEntityVersions.readFromNbt(blockEntity, nbt);
-				blockEntity.markDirty();
+				blockEntity.setChanged();
 			}
 		}
 	}
 
-	public void mergeBlockData(int x, int y, int z, NbtCompound nbt) {
+	public void mergeBlockData(int x, int y, int z, CompoundTag nbt) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
 			BlockEntity blockEntity = this.world.getBlockEntity(pos);
 			if (blockEntity != null) {
-				NbtCompound oldData = BlockEntityVersions.writeToNbt(blockEntity);
-				NbtCompound newData = oldData.copy().copyFrom(nbt);
+				CompoundTag oldData = BlockEntityVersions.writeToNbt(blockEntity);
+				CompoundTag newData = oldData.copy().merge(nbt);
 				if (!oldData.equals(newData)) {
 					BlockEntityVersions.readFromNbt(blockEntity, newData);
-					blockEntity.markDirty();
+					blockEntity.setChanged();
 				}
 			}
 		}
@@ -472,12 +507,12 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		double newX = newPos.x;
 		double newY = newPos.y;
 		double newZ = newPos.z;
-		Identifier identifier = IdentifierVersions.create(entityType);
-		if (Registries.ENTITY_TYPE.containsId(identifier)) {
-			this.world.spawnEntity((ServerWorld serverWorld) -> {
-				Entity entity = Registries.ENTITY_TYPE.get(identifier).create(serverWorld #if MC_VERSION >= MC_1_21_2 , SpawnReason.CHUNK_GENERATION #endif);
+		ResourceLocation ResourceLocation = IdentifierVersions.create(entityType);
+		if (BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation)) {
+			this.world.spawnEntity((ServerLevel serverWorld) -> {
+				Entity entity = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation).create(serverWorld);
 				if (entity != null) {
-					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
+					entity.moveTo(newX, newY, newZ, entity.getYRot(), entity.getXRot());
 					return entity;
 				}
 				else {
@@ -490,7 +525,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		}
 	}
 
-	public void summon(double x, double y, double z, String entityType, NbtCompound nbt) {
+	public void summon(double x, double y, double z, String entityType, CompoundTag nbt) {
 		Vector3d newPos = this.coordination.filterVecMutable(
 			this.transform(x, y, z)
 		);
@@ -498,28 +533,30 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		double newX = newPos.x;
 		double newY = newPos.y;
 		double newZ = newPos.z;
-		NbtCompound copy = nbt.copy();
+		CompoundTag copy = nbt.copy();
 		copy.putString("id", entityType);
-		this.world.spawnEntity((ServerWorld serverWorld) -> {
-			return EntityType.loadEntityWithPassengers(copy, serverWorld, #if MC_VERSION >= MC_1_21_2 SpawnReason.CHUNK_GENERATION, #endif (Entity entity) -> {
-				entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
-				return entity;
-			});
+		this.world.spawnEntity((ServerLevel serverWorld) -> {
+			return EntityType.loadEntityRecursive(
+				copy, serverWorld, (Entity entity) -> {
+					entity.moveTo(newX, newY, newZ, entity.getYRot(), entity.getXRot());
+					return entity;
+				}
+			);
 		});
 	}
 
 	public Coordinator coordinator() {
 		return (
 			this
-			.world
-			.coordinator()
-			.inBox(this.coordination.mutableArea, false)
-			.translate(
-				this.coordination.transformation.offsetX(),
-				this.coordination.transformation.offsetY(),
-				this.coordination.transformation.offsetZ()
-			)
-			.symmetric(this.coordination.transformation.symmetry())
+				.world
+				.coordinator()
+				.inBox(this.coordination.mutableArea, false)
+				.translate(
+					this.coordination.transformation.offsetX(),
+					this.coordination.transformation.offsetY(),
+					this.coordination.transformation.offsetZ()
+				)
+				.symmetric(this.coordination.transformation.symmetry())
 		);
 	}
 
@@ -528,25 +565,25 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return this.getClass().getSimpleName() + ": { " + this.world + " }";
 	}
 
-	public static record Coordination(SymmetricOffset transformation, BlockBox mutableArea, BlockBox immutableArea) {
+	public static record Coordination(SymmetricOffset transformation, BoundingBox mutableArea, BoundingBox immutableArea) {
 
-		public static BlockPos.Mutable rotate(BlockPos.Mutable pos, SymmetricOffset rotation) {
+		public static BlockPos.MutableBlockPos rotate(BlockPos.MutableBlockPos pos, SymmetricOffset rotation) {
 			int x = rotation.getX(pos.getX(), pos.getY(), pos.getZ());
 			int y = rotation.getY(pos.getX(), pos.getY(), pos.getZ());
 			int z = rotation.getZ(pos.getX(), pos.getY(), pos.getZ());
 			return pos.set(x, y, z);
 		}
 
-		public BlockPos.Mutable modifyPosUnbounded(BlockPos.Mutable pos) {
+		public BlockPos.MutableBlockPos modifyPosUnbounded(BlockPos.MutableBlockPos pos) {
 			return rotate(pos, this.transformation);
 		}
 
-		public BlockPos.@Nullable Mutable filterPosMutable(BlockPos.Mutable pos) {
-			return this.mutableArea.contains(pos) ? pos : null;
+		public BlockPos.@Nullable MutableBlockPos filterPosMutable(BlockPos.MutableBlockPos pos) {
+			return this.mutableArea.isInside(pos) ? pos : null;
 		}
 
-		public BlockPos.@Nullable Mutable filterPosImmutable(BlockPos.Mutable pos) {
-			return this.immutableArea.contains(pos) ? pos : null;
+		public BlockPos.@Nullable MutableBlockPos filterPosImmutable(BlockPos.MutableBlockPos pos) {
+			return this.immutableArea.isInside(pos) ? pos : null;
 		}
 
 		public static Vector3d rotate(Vector3d vector, SymmetricOffset rotation) {
@@ -563,11 +600,11 @@ public class WorldWrapper implements ScriptedColumnLookup {
 			return rotate(vector, this.transformation);
 		}
 
-		public static boolean contains(BlockBox area, double x, double y, double z) {
+		public static boolean contains(BoundingBox area, double x, double y, double z) {
 			return (
-				x >= area.getMinX() && x <= area.getMaxX() + 1 &&
-				y >= area.getMinY() && y <= area.getMaxY() + 1 &&
-				z >= area.getMinZ() && z <= area.getMaxZ() + 1
+				x >= area.minX() && x <= area.maxX() + 1 &&
+				y >= area.minY() && y <= area.maxY() + 1 &&
+				z >= area.minZ() && z <= area.maxZ() + 1
 			);
 		}
 

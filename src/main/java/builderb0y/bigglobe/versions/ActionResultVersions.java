@@ -1,97 +1,38 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.item.ItemStack;
 
 @SuppressWarnings("UnnecessaryFullyQualifiedName")
 public class ActionResultVersions {
 
-	#if MC_VERSION >= MC_1_21_2
+	public static final InteractionResult
+		SUCCESS = InteractionResult.SUCCESS,
+		CONSUME = InteractionResult.CONSUME,
+		PASS    = InteractionResult.PASS,
+		FAIL    = InteractionResult.FAIL;
 
-		public static final net.minecraft.util.ActionResult
-			SUCCESS = net.minecraft.util.ActionResult.SUCCESS,
-			CONSUME = net.minecraft.util.ActionResult.CONSUME,
-			PASS    = net.minecraft.util.ActionResult.PASS,
-			FAIL    = net.minecraft.util.ActionResult.FAIL,
+	public static final ItemInteractionResult
+		ITEM_SUCCESS = ItemInteractionResult.SUCCESS,
+		ITEM_CONSUME = ItemInteractionResult.CONSUME,
+		ITEM_PASS    = ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION,
+		ITEM_FAIL    = ItemInteractionResult.FAIL;
 
-			ITEM_SUCCESS = net.minecraft.util.ActionResult.SUCCESS,
-			ITEM_CONSUME = net.minecraft.util.ActionResult.CONSUME,
-			ITEM_PASS    = net.minecraft.util.ActionResult.PASS,
-			ITEM_FAIL    = net.minecraft.util.ActionResult.FAIL;
+	public static InteractionResultHolder<ItemStack> typedSuccess(ItemStack stack) {
+		return InteractionResultHolder.success(stack);
+	}
 
-		public static net.minecraft.util.ActionResult typedSuccess(ItemStack stack) {
-			return net.minecraft.util.ActionResult.SUCCESS.withNewHandStack(stack);
-		}
+	public static InteractionResultHolder<ItemStack> typedConsume(ItemStack stack) {
+		return InteractionResultHolder.consume(stack);
+	}
 
-		public static net.minecraft.util.ActionResult typedConsume(ItemStack stack) {
-			return net.minecraft.util.ActionResult.CONSUME.withNewHandStack(stack);
-		}
+	public static InteractionResultHolder<ItemStack> typePass(ItemStack stack) {
+		return InteractionResultHolder.pass(stack);
+	}
 
-		public static net.minecraft.util.ActionResult typePass(ItemStack stack) {
-			return net.minecraft.util.ActionResult.PASS;
-		}
-
-		public static net.minecraft.util.ActionResult typedFail(ItemStack stack) {
-			return net.minecraft.util.ActionResult.FAIL;
-		}
-
-	#elif MC_VERSION >= MC_1_20_5
-
-		public static final net.minecraft.util.ActionResult
-			SUCCESS = net.minecraft.util.ActionResult.SUCCESS,
-			CONSUME = net.minecraft.util.ActionResult.CONSUME,
-			PASS    = net.minecraft.util.ActionResult.PASS,
-			FAIL    = net.minecraft.util.ActionResult.FAIL;
-
-		public static final net.minecraft.util.ItemActionResult
-			ITEM_SUCCESS = net.minecraft.util.ItemActionResult.SUCCESS,
-			ITEM_CONSUME = net.minecraft.util.ItemActionResult.CONSUME,
-			ITEM_PASS    = net.minecraft.util.ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION,
-			ITEM_FAIL    = net.minecraft.util.ItemActionResult.FAIL;
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typedSuccess(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.success(stack);
-		}
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typedConsume(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.consume(stack);
-		}
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typePass(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.pass(stack);
-		}
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typedFail(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.fail(stack);
-		}
-
-	#else
-
-		public static final net.minecraft.util.ActionResult
-			SUCCESS = net.minecraft.util.ActionResult.SUCCESS,
-			CONSUME = net.minecraft.util.ActionResult.CONSUME,
-			PASS    = net.minecraft.util.ActionResult.PASS,
-			FAIL    = net.minecraft.util.ActionResult.FAIL,
-
-			ITEM_SUCCESS = net.minecraft.util.ActionResult.SUCCESS,
-			ITEM_CONSUME = net.minecraft.util.ActionResult.CONSUME,
-			ITEM_PASS    = net.minecraft.util.ActionResult.PASS,
-			ITEM_FAIL    = net.minecraft.util.ActionResult.FAIL;
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typedSuccess(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.success(stack);
-		}
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typedConsume(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.consume(stack);
-		}
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typePass(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.pass(stack);
-		}
-
-		public static net.minecraft.util.TypedActionResult<ItemStack> typedFail(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.fail(stack);
-		}
-
-	#endif
+	public static InteractionResultHolder<ItemStack> typedFail(ItemStack stack) {
+		return InteractionResultHolder.fail(stack);
+	}
 }

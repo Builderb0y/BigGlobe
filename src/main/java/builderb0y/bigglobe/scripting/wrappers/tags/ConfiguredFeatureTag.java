@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
@@ -29,16 +27,16 @@ public class ConfiguredFeatureTag extends TagWrapper<ConfiguredFeature<?, ?>, Co
 	}
 
 	public static ConfiguredFeatureTag of(int flags, String... ids) {
-		return new ConfiguredFeatureTag(DelayedEntryList.emptyOnClient(RegistryKeys.CONFIGURED_FEATURE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new ConfiguredFeatureTag(DelayedEntryList.emptyOnClient(Registries.CONFIGURED_FEATURE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override
-	public ConfiguredFeatureEntry wrap(RegistryEntry<ConfiguredFeature<?, ?>> entry) {
+	public ConfiguredFeatureEntry wrap(Holder<ConfiguredFeature<?, ?>> entry) {
 		return new ConfiguredFeatureEntry(entry);
 	}
 
 	@Override
-	public RegistryEntry<ConfiguredFeature<?, ?>> unwrap(ConfiguredFeatureEntry entry) {
+	public Holder<ConfiguredFeature<?, ?>> unwrap(ConfiguredFeatureEntry entry) {
 		return entry.entry;
 	}
 

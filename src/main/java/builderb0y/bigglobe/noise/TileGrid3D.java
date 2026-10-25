@@ -7,7 +7,8 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 public class TileGrid3D implements Grid3D {
 
 	public final Grid3D source;
-	public final @VerifyIntRange(min = 0L) @Alias("scale") int scaleX, scaleY, scaleZ;
+	public final @VerifyIntRange(min = 0L)
+	@Alias("scale") int scaleX, scaleY, scaleZ;
 
 	public TileGrid3D(Grid3D source, int scaleX, int scaleY, int scaleZ) {
 		this.source = source;

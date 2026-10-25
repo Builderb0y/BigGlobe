@@ -5,19 +5,19 @@ import static org.lwjgl.opengl.GL32C.*;
 public class GlState {
 
 	public static final int
-		CHANGED_FRAMEBUFFER    = 1 << 0,
-		CHANGED_VIEWPORT       = 1 << 1,
-		CHANGED_CULL_FACE      = 1 << 2,
-		CHANGED_DEPTH_TEST     = 1 << 3,
-		CHANGED_DEPTH_MASK     = 1 << 4,
-		CHANGED_BLEND          = 1 << 5,
+		CHANGED_FRAMEBUFFER = 1 << 0,
+		CHANGED_VIEWPORT = 1 << 1,
+		CHANGED_CULL_FACE = 1 << 2,
+		CHANGED_DEPTH_TEST = 1 << 3,
+		CHANGED_DEPTH_MASK = 1 << 4,
+		CHANGED_BLEND = 1 << 5,
 		CHANGED_CULL_FACE_MODE = 1 << 6,
-		CHANGED_BLEND_FUNC     = 1 << 7,
-		CHANGED_COLOR_MASK     = 1 << 8,
-		CHANGED_PROGRAM        = 1 << 9,
-		CHANGED_VAO            = 1 << 10,
+		CHANGED_BLEND_FUNC = 1 << 7,
+		CHANGED_COLOR_MASK = 1 << 8,
+		CHANGED_PROGRAM = 1 << 9,
+		CHANGED_VAO = 1 << 10,
 		CHANGED_ELEMENT_BUFFER = 1 << 11,
-		CHANGED_DEPTH_FUNC     = 1 << 12;
+		CHANGED_DEPTH_FUNC = 1 << 12;
 
 	public int changed;
 	public int framebuffer;
@@ -241,6 +241,7 @@ public class GlState {
 	}
 
 	public static void setEnabled(int flag, boolean enabled) {
-		if (enabled) glEnable(flag); else glDisable(flag);
+		if (enabled) glEnable(flag);
+		else glDisable(flag);
 	}
 }

@@ -40,11 +40,11 @@ public class CustomClassCompileContext extends DataCompileContext {
 			"<init>",
 			TypeInfos.VOID,
 			Arrays.stream(spec.fields)
-			.map((ClassColumnValueField field) -> new LazyVarInfo(
-				field.name(),
-				parent.getTypeContext(field.type()).type()
-			))
-			.toArray(LazyVarInfo.ARRAY_FACTORY)
+				.map((ClassColumnValueField field) -> new LazyVarInfo(
+					field.name(),
+					parent.getTypeContext(field.type()).type()
+				))
+				.toArray(LazyVarInfo.ARRAY_FACTORY)
 		);
 		invokeInstance(load("this", this.mainClass.info), MethodInfo.getConstructor(Object.class)).emitBytecode(this.constructor);
 		LoadInsnTree loadSelf = load(new LazyVarInfo("this", this.mainClass.info));
@@ -59,7 +59,7 @@ public class CustomClassCompileContext extends DataCompileContext {
 					parent.getTypeContext(field.type()).type()
 				)
 			)
-			.emitBytecode(this.constructor);
+				.emitBytecode(this.constructor);
 		}
 		UserClassDefiner.addToString(this.mainClass, spec.name, fieldCompileContexts);
 	}

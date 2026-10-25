@@ -18,7 +18,7 @@ public class BootstrapTraitsMethods {
 		//(WorldTraits$GeneratedBase_123, ScriptedColumn$Generated_123, value) -> void
 		MethodHandle setter
 	)
-	throws Exception {
+		throws Exception {
 		if (!checkTypes(type, void.class, ScriptedColumn.class, null)) {
 			throw new IllegalArgumentException("Invalid method type: " + type);
 		}
@@ -54,7 +54,7 @@ public class BootstrapTraitsMethods {
 		//(WorldTraits$GeneratedBase_123, ScriptedColumn$Generated_123, int) -> value
 		MethodHandle getter
 	)
-	throws Exception {
+		throws Exception {
 		if (!checkTypes(type, null, ScriptedColumn.class, int.class)) {
 			throw new IllegalArgumentException("Invalid method type: " + type);
 		}
@@ -90,7 +90,7 @@ public class BootstrapTraitsMethods {
 		//(WorldTraits$GeneratedBase_123, ScriptedColumn$Generated_123, int, value) -> void
 		MethodHandle setter
 	)
-	throws Exception {
+		throws Exception {
 		if (!checkTypes(type, void.class, ScriptedColumn.class, int.class, null)) {
 			throw new IllegalArgumentException("Invalid method type: " + type);
 		}

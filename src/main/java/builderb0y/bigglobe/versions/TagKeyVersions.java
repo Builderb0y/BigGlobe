@@ -1,17 +1,14 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 
 public class TagKeyVersions {
 
 	@SuppressWarnings("unchecked")
-	public static <T> RegistryKey<Registry<T>> registry(TagKey<T> key) {
-		#if MC_VERSION >= MC_1_21_2
-			return (RegistryKey<Registry<T>>)(key.registryRef());
-		#else
-			return (RegistryKey<Registry<T>>)(key.registry());
-		#endif
+	public static <T> ResourceKey<Registry<T>> registry(TagKey<T> key) {
+
+		return (ResourceKey<Registry<T>>)(key.registry());
 	}
 }

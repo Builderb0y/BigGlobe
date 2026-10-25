@@ -10,16 +10,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtEnd;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
@@ -29,10 +27,10 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyDepthSorter;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.util.NbtIo2;
 
 public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<SettingsSyncS2CPacketHandler.Receiving> {
@@ -47,35 +45,41 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	*/
 	public static class Receiving {
 
-		/** contains registry data needed by paramsNbt. */
+		/**
+		contains registry data needed by paramsNbt.
+		*/
 		public final ClientState.Syncing clientState;
-		/** contains usage of registry data. */
-		public final NbtElement paramsNbt;
+		/**
+		contains usage of registry data.
+		*/
+		public final Tag paramsNbt;
 
-		public Receiving(ClientState.Syncing clientState, NbtElement paramsNbt) {
+		public Receiving(ClientState.Syncing clientState, Tag paramsNbt) {
 			this.clientState = clientState;
 			this.paramsNbt = paramsNbt;
 		}
 
 		public ClientGeneratorParams compile() throws Exception {
-			return ColumnEntryRegistry.Loading.OVERRIDE.apply(new ColumnEntryRegistry.Loading(this.clientState.lookup(), true), (ColumnEntryRegistry.Loading loading) -> {
-				this.clientState.parse();
-				ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, this.paramsNbt, this.clientState.createOps(NbtOps.INSTANCE, false));
-				if (params != null) params.compile(loading);
-				return params;
-			});
+			return ColumnEntryRegistry.Loading.OVERRIDE.apply(
+				new ColumnEntryRegistry.Loading(this.clientState.lookup(), true), (ColumnEntryRegistry.Loading loading) -> {
+					this.clientState.parse();
+					ClientGeneratorParams params = BigGlobeAutoCodec.AUTO_CODEC.decode(ClientGeneratorParams.NULLABLE_CODER, this.paramsNbt, this.clientState.createOps(NbtOps.INSTANCE, false));
+					if (params != null) params.compile(loading);
+					return params;
+				}
+			);
 		}
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public @Nullable Receiving decode(PacketByteBuf buffer) {
+	public @Nullable Receiving decode(FriendlyByteBuf buffer) {
 		try {
 			GZIPInputStream stream = new GZIPInputStream(new ByteBufInputStream(buffer));
-			NbtElement syncingNbt = NbtIo2.read(stream);
-			NbtElement paramsNbt = NbtIo2.read(stream);
-			if (syncingNbt == NbtEnd.INSTANCE) {
-				if (paramsNbt == NbtEnd.INSTANCE) return null;
+			Tag syncingNbt = NbtIo2.read(stream);
+			Tag paramsNbt = NbtIo2.read(stream);
+			if (syncingNbt == EndTag.INSTANCE) {
+				if (paramsNbt == EndTag.INSTANCE) return null;
 				else throw new IllegalStateException("Received params NBT, but not syncing NBT?");
 			}
 			return new Receiving(
@@ -92,7 +96,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void process(Receiving receiving, PacketSender responseSender) {
-		ClientWorld world = MinecraftClient.getInstance().world;
+		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null) {
 			ClientGeneratorParams data;
 			try {
@@ -114,14 +118,14 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 					);
 				}
 			}
-			LodSystem.reload(LodSystemHolder.of(MinecraftClient.getInstance().worldRenderer), world, data);
+			LodSystem.reload(LodSystemHolder.of(Minecraft.getInstance().levelRenderer), world, data);
 		}
 	}
 
-	public void send(ServerWorld world, ServerPlayerEntity player) {
+	public void send(ServerLevel world, ServerPlayer player) {
 		ClientState.Syncing syncing;
 		ClientGeneratorParams params;
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			syncing = new ClientState.Syncing(generator);
 			params = new ClientGeneratorParams(generator, syncing);
 		}
@@ -129,9 +133,9 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 			syncing = null;
 			params = null;
 		}
-		NbtElement syncingNbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientState.Syncing.CODER, syncing, NbtOps.INSTANCE);
-		NbtElement paramsNbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientGeneratorParams.NULLABLE_CODER, params, NbtOps.INSTANCE);
-		PacketByteBuf buffer = this.buffer();
+		Tag syncingNbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientState.Syncing.CODER, syncing, NbtOps.INSTANCE);
+		Tag paramsNbt = BigGlobeAutoCodec.AUTO_CODEC.encode(ClientGeneratorParams.NULLABLE_CODER, params, NbtOps.INSTANCE);
+		FriendlyByteBuf buffer = this.buffer();
 		try {
 			GZIPOutputStream stream = new GZIPOutputStream(new ByteBufOutputStream(buffer));
 			NbtIo2.write(stream, syncingNbt);

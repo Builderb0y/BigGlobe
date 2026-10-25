@@ -6,7 +6,9 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.polynomials.Polynomial;
 import builderb0y.bigglobe.noise.polynomials.Polynomial4.PolyForm4;
 
-/** a ResampleGrid3D which internally interpolates between 8 sample points. */
+/**
+a ResampleGrid3D which internally interpolates between 8 sample points.
+*/
 public abstract class Resample64Grid3D extends ResampleGrid3D {
 
 	public Resample64Grid3D(Grid3D source, int scaleX, int scaleY, int scaleZ) {
@@ -133,7 +135,7 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 					this.source.getValue(seed, gridX, gridY + (scaleY << 1), gridZ),
 					this.source.getValue(seed, gridX, gridY + (scaleY << 1), gridZ + scaleZ),
 					this.source.getValue(seed, gridX, gridY + (scaleY << 1), gridZ + (scaleZ << 1)),
-					this.rcpZ,fracZ
+					this.rcpZ, fracZ
 				),
 				this.rcpY,
 				fracY
@@ -187,11 +189,11 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 		int scaleY = this.scaleY;
 		int scaleZ = this.scaleZ;
 		int modX = BigGlobeMath.modulus_BP(startX, scaleX);
-		int modY = BigGlobeMath.modulus_BP(y,      scaleY);
-		int modZ = BigGlobeMath.modulus_BP(z,      scaleZ);
+		int modY = BigGlobeMath.modulus_BP(y, scaleY);
+		int modZ = BigGlobeMath.modulus_BP(z, scaleZ);
 		int gridX = startX - modX;
-		int gridY = y      - modY;
-		int gridZ = z      - modZ;
+		int gridY = y - modY;
+		int gridZ = z - modZ;
 		double fracY = modY * this.rcpY;
 		double fracZ = modZ * this.rcpZ;
 		PolyForm4 formY = this.polyFormY();
@@ -343,7 +345,7 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 			),
 			this.rcpX
 		);
-		for (int index = 0; true /* break in the middle of the loop */;) {
+		for (int index = 0; true /* break in the middle of the loop */; ) {
 			samples.setD(index, polynomial.interpolate(modX * this.rcpX));
 			if (++index >= sampleCount) break;
 			if (++modX >= scaleX) {
@@ -398,12 +400,12 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 		int scaleX = this.scaleX;
 		int scaleY = this.scaleY;
 		int scaleZ = this.scaleZ;
-		int modX = BigGlobeMath.modulus_BP(x,      scaleX);
+		int modX = BigGlobeMath.modulus_BP(x, scaleX);
 		int modY = BigGlobeMath.modulus_BP(startY, scaleY);
-		int modZ = BigGlobeMath.modulus_BP(z,      scaleZ);
-		int gridX = x      - modX;
+		int modZ = BigGlobeMath.modulus_BP(z, scaleZ);
+		int gridX = x - modX;
 		int gridY = startY - modY;
-		int gridZ = z      - modZ;
+		int gridZ = z - modZ;
 		double fracX = modX * this.rcpX;
 		double fracZ = modZ * this.rcpZ;
 		PolyForm4 formX = this.polyFormX();
@@ -555,7 +557,7 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 			),
 			this.rcpY
 		);
-		for (int index = 0; true /* break in the middle of the loop */;) {
+		for (int index = 0; true /* break in the middle of the loop */; ) {
 			samples.setD(index, polynomial.interpolate(modY * this.rcpY));
 			if (++index >= sampleCount) break;
 			if (++modY >= scaleY) {
@@ -610,11 +612,11 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 		int scaleX = this.scaleX;
 		int scaleY = this.scaleY;
 		int scaleZ = this.scaleZ;
-		int modX = BigGlobeMath.modulus_BP(x,      scaleX);
-		int modY = BigGlobeMath.modulus_BP(y,      scaleY);
+		int modX = BigGlobeMath.modulus_BP(x, scaleX);
+		int modY = BigGlobeMath.modulus_BP(y, scaleY);
 		int modZ = BigGlobeMath.modulus_BP(startZ, scaleZ);
-		int gridX = x      - modX;
-		int gridY = y      - modY;
+		int gridX = x - modX;
+		int gridY = y - modY;
 		int gridZ = startZ - modZ;
 		double fracX = modX * this.rcpX;
 		double fracY = modY * this.rcpY;
@@ -767,7 +769,7 @@ public abstract class Resample64Grid3D extends ResampleGrid3D {
 			),
 			this.rcpZ
 		);
-		for (int index = 0; true /* break in the middle of the loop */;) {
+		for (int index = 0; true /* break in the middle of the loop */; ) {
 			samples.setD(index, polynomial.interpolate(modZ * this.rcpZ));
 			if (++index >= sampleCount) break;
 			if (++modZ >= scaleZ) {

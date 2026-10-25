@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.text.Text;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import builderb0y.scripting.util.PrintSink;
 
 @Environment(EnvType.CLIENT)
@@ -50,11 +48,11 @@ public class ClientPrintSink implements PrintSink {
 	@Override
 	@SuppressWarnings("deprecation")
 	public void println(String value) {
-		if (MinecraftClient.getInstance().getServer() != null) {
-			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		if (Minecraft.getInstance().getSingleplayerServer() != null) {
+			LocalPlayer player = Minecraft.getInstance().player;
 			if (player != null) {
-				MinecraftClient.getInstance().execute(() -> {
-					player.sendMessage(Text.literal("[Big Globe/Scripting]: " + value), false);
+				Minecraft.getInstance().execute(() -> {
+					player.displayClientMessage(Component.literal("[Big Globe/Scripting]: " + value), false);
 				});
 			}
 			else {

@@ -8,7 +8,8 @@ import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 
 public class SourceScriptTemplate extends ScriptTemplate {
 
-	public final @MultiLine @UseName("script") String source;
+	public final @MultiLine
+	@UseName("script") String source;
 
 	public SourceScriptTemplate(@MultiLine @UseName("script") String source, List<RequiredInput> inputs, ResolvedIncludes includes) {
 		super(inputs, includes);

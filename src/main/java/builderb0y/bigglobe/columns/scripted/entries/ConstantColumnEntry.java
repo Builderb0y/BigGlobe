@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -25,7 +23,7 @@ public class ConstantColumnEntry implements ColumnEntry, SimpleDependencyView {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return Stream.empty();
 	}
 

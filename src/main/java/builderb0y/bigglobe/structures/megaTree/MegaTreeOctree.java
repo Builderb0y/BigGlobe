@@ -1,11 +1,9 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-
 import builderb0y.bigglobe.math.BigGlobeMath;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 
 public class MegaTreeOctree {
 
@@ -17,7 +15,7 @@ public class MegaTreeOctree {
 		this.query = new Query(null);
 	}
 
-	public MegaTreeOctree(Box box) {
+	public MegaTreeOctree(AABB box) {
 		this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
 	}
 
@@ -57,7 +55,7 @@ public class MegaTreeOctree {
 		}
 	}
 
-	public static abstract class Node extends Box {
+	public static abstract class Node extends AABB {
 
 		public final double midX, midY, midZ;
 
@@ -68,7 +66,7 @@ public class MegaTreeOctree {
 			this.midZ = (z1 + z2) * 0.5D;
 		}
 
-		public Node(Box box) {
+		public Node(AABB box) {
 			this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
 		}
 
@@ -90,7 +88,7 @@ public class MegaTreeOctree {
 			super(x1, y1, z1, x2, y2, z2);
 		}
 
-		public EmptyNode(Box box) {
+		public EmptyNode(AABB box) {
 			super(box);
 		}
 
@@ -115,7 +113,7 @@ public class MegaTreeOctree {
 			this.ball = ball;
 		}
 
-		public SingleNode(Box box, Ball ball) {
+		public SingleNode(AABB box, Ball ball) {
 			super(box);
 			this.ball = ball;
 		}
@@ -157,7 +155,7 @@ public class MegaTreeOctree {
 			super(x1, y1, z1, x2, y2, z2);
 		}
 
-		public OctNode(Box box) {
+		public OctNode(AABB box) {
 			super(box);
 		}
 
@@ -214,14 +212,14 @@ public class MegaTreeOctree {
 		@Override
 		public void findClosest(Query query) {
 			Ball ballData = query.target;
-			double clampX = MathHelper.clamp(ballData.x(), this.effectiveMinX, this.effectiveMaxX);
-			double clampY = MathHelper.clamp(ballData.y(), this.effectiveMinY, this.effectiveMaxY);
-			double clampZ = MathHelper.clamp(ballData.z(), this.effectiveMinY, this.effectiveMaxZ);
+			double clampX = Mth.clamp(ballData.x(), this.effectiveMinX, this.effectiveMaxX);
+			double clampY = Mth.clamp(ballData.y(), this.effectiveMinY, this.effectiveMaxY);
+			double clampZ = Mth.clamp(ballData.z(), this.effectiveMinY, this.effectiveMaxZ);
 			if (BigGlobeMath.squareD(ballData.x() - clampX, ballData.y() - clampY, ballData.z() - clampZ) < query.distanceSquared) {
 				//containing corner first, then corners connected by a face,
 				//then corners connected by an edge, then the corner connected by a corner.
 				int containingCorner = this.getClosestCorner(query.target);
-				this.getNode(containingCorner        ).findClosest(query); //containing
+				this.getNode(containingCorner).findClosest(query); //containing
 				this.getNode(containingCorner ^ 0b100).findClosest(query); //connected by X face
 				this.getNode(containingCorner ^ 0b010).findClosest(query); //connected by Y face
 				this.getNode(containingCorner ^ 0b001).findClosest(query); //connected by Z face

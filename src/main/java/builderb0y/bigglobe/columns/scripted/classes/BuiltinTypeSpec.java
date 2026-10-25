@@ -1,16 +1,13 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.*;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.StringIdentifiable;
-
 import builderb0y.autocodec.data.*;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -44,7 +41,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 	}
 
 	@Override
-	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<RegistryEntry<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
+	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
 		super.createTypeInfo(hierarchy, cyclicDetector);
 		this.columnType = hierarchy.registry.columnCompileContext.columnTypeInfo();
 	}
@@ -94,13 +91,13 @@ public class BuiltinTypeSpec extends TypeSpec {
 			case DOUBLE -> ldc(asNumber(data).doubleValue());
 			case BOOLEAN -> ldc(asBoolean(data).value);
 
-			case BLOCK -> ldc(registry(hierarchy, data, RegistryKeys.BLOCK).value(), BlockWrapper.TYPE);
-			case BLOCK_TAG -> ldc(new BlockTag(tag(hierarchy, data, RegistryKeys.BLOCK)), BlockTag.TYPE);
+			case BLOCK -> ldc(registry(hierarchy, data, Registries.BLOCK).value(), BlockWrapper.TYPE);
+			case BLOCK_TAG -> ldc(new BlockTag(tag(hierarchy, data, Registries.BLOCK)), BlockTag.TYPE);
 			case BLOCK_STATE -> ldc(blockState(hierarchy, data), BlockStateWrapper.TYPE);
-			case BIOME -> ldc(new BiomeEntry(registry(hierarchy, data, RegistryKeys.BIOME)), BiomeEntry.TYPE);
-			case BIOME_TAG -> ldc(new BiomeTag(tag(hierarchy, data, RegistryKeys.BIOME)), BiomeTag.TYPE);
-			case CONFIGURED_FEATURE -> ldc(new ConfiguredFeatureEntry(registry(hierarchy, data, RegistryKeys.CONFIGURED_FEATURE)), ConfiguredFeatureEntry.TYPE);
-			case CONFIGURED_FEATURE_TAG -> ldc(new ConfiguredFeatureTag(tag(hierarchy, data, RegistryKeys.CONFIGURED_FEATURE)), ConfiguredFeatureTag.TYPE);
+			case BIOME -> ldc(new BiomeEntry(registry(hierarchy, data, Registries.BIOME)), BiomeEntry.TYPE);
+			case BIOME_TAG -> ldc(new BiomeTag(tag(hierarchy, data, Registries.BIOME)), BiomeTag.TYPE);
+			case CONFIGURED_FEATURE -> ldc(new ConfiguredFeatureEntry(registry(hierarchy, data, Registries.CONFIGURED_FEATURE)), ConfiguredFeatureEntry.TYPE);
+			case CONFIGURED_FEATURE_TAG -> ldc(new ConfiguredFeatureTag(tag(hierarchy, data, Registries.CONFIGURED_FEATURE)), ConfiguredFeatureTag.TYPE);
 			case WOOD_PALETTE -> ldc(new WoodPaletteEntry(registry(hierarchy, data, BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)), WoodPaletteEntry.INFO.type);
 			case WOOD_PALETTE_TAG -> ldc(new WoodPaletteTag(tag(hierarchy, data, BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)), WoodPaletteTag.TYPE);
 
@@ -126,30 +123,30 @@ public class BuiltinTypeSpec extends TypeSpec {
 		else throw new ConstantFormatException("Not a string: " + data);
 	}
 
-	public static <T> RegistryEntry<T> registry(ClassHierarchy hierarchy, Data data, RegistryKey<Registry<T>> registryKey) throws ConstantFormatException {
-		return hierarchy.registry.registries.getRegistry(registryKey).getEntry(RegistryKey.of(registryKey, IdentifierVersions.create(asString(data).value)));
+	public static <T> Holder<T> registry(ClassHierarchy hierarchy, Data data, ResourceKey<Registry<T>> registryKey) throws ConstantFormatException {
+		return hierarchy.registry.registries.getRegistry(registryKey).getEntry(ResourceKey.create(registryKey, IdentifierVersions.create(asString(data).value)));
 	}
 
-	public static <T> DelayedEntryList<T> tag(ClassHierarchy hierarchy, Data data, RegistryKey<Registry<T>> registryKey) throws ConstantFormatException {
+	public static <T> DelayedEntryList<T> tag(ClassHierarchy hierarchy, Data data, ResourceKey<Registry<T>> registryKey) throws ConstantFormatException {
 		ListData list = data.tryAsList();
 		DelayedEntryList<T> result;
 		if (list != null) {
 			result = new DelayedEntryList<>(
 				hierarchy.registry.registries.getRegistry(registryKey),
 				list
-				.value
-				.stream()
-				.map((Data data_) -> {
-					try {
-						return asString(data_);
-					}
-					catch (ConstantFormatException exception) {
-						throw AutoCodecUtil.rethrow(exception);
-					}
-				})
-				.map((StringData string) -> string.value)
-				.map(DelayedEntry::new)
-				.toList()
+					.value
+					.stream()
+					.map((Data data_) -> {
+						try {
+							return asString(data_);
+						}
+						catch (ConstantFormatException exception) {
+							throw AutoCodecUtil.rethrow(exception);
+						}
+					})
+					.map((StringData string) -> string.value)
+					.map(DelayedEntry::new)
+					.toList()
 			);
 		}
 		else {
@@ -164,13 +161,13 @@ public class BuiltinTypeSpec extends TypeSpec {
 
 	public static BlockState blockState(ClassHierarchy hierarchy, Data data) throws ConstantFormatException {
 		return (
-			BlockStateCoder.decodeStateWithMissingErrors(hierarchy.registry.registries.getRegistry(RegistryKeys.BLOCK), asString(data).value)
-			.unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new)
-			.state()
+			BlockStateCoder.decodeStateWithMissingErrors(hierarchy.registry.registries.getRegistry(Registries.BLOCK), asString(data).value)
+				.unwrapEager(BigGlobeMod.LOGGER::warn, IllegalArgumentException::new)
+				.state()
 		);
 	}
 
-	public static enum BuiltinJavaType implements StringIdentifiable {
+	public static enum BuiltinJavaType implements StringRepresentable {
 
 		//primitives
 		BYTE(TypeInfos.BYTE),
@@ -244,7 +241,7 @@ public class BuiltinTypeSpec extends TypeSpec {
 		}
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return this.lowerCaseName;
 		}
 	}

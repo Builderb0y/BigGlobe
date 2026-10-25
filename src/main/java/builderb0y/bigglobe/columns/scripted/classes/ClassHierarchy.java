@@ -2,17 +2,13 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
-import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.classes.TypeSpec.CompileStep;
+import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.ClassCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ScriptClassLoader;
@@ -20,7 +16,7 @@ import builderb0y.scripting.parsing.ScriptClassLoader;
 public class ClassHierarchy {
 
 	public final ColumnEntryRegistry registry;
-	public final Map<ElementSpec, RegistryEntry<ElementSpec>> elements;
+	public final Map<ElementSpec, Holder<ElementSpec>> elements;
 	public final List<TypeSpec> types;
 
 	public ClassHierarchy(ColumnEntryRegistry registry) throws CustomClassFormatException {
@@ -52,13 +48,14 @@ public class ClassHierarchy {
 
 	public void progressTo(CompileStep state) throws CustomClassFormatException {
 		CustomClassFormatException root = null;
-		for (TypeSpec type : this.types) try {
-			type.doProgressTo(state, this);
-		}
-		catch (Exception exception) {
-			if (root == null) root = new CustomClassFormatException("Exception " + state.description);
-			root.addSuppressed(new CustomClassFormatException("Exception " + state.description + " for " + UnregisteredObjectException.getID(this.entryOf(type)), exception));
-		}
+		for (TypeSpec type : this.types)
+			try {
+				type.doProgressTo(state, this);
+			}
+			catch (Exception exception) {
+				if (root == null) root = new CustomClassFormatException("Exception " + state.description);
+				root.addSuppressed(new CustomClassFormatException("Exception " + state.description + " for " + UnregisteredObjectException.getID(this.entryOf(type)), exception));
+			}
 		if (root != null) throw root;
 	}
 
@@ -74,11 +71,11 @@ public class ClassHierarchy {
 		}
 	}
 
-	public RegistryEntry<ElementSpec> entryOf(ElementSpec spec) {
+	public Holder<ElementSpec> entryOf(ElementSpec spec) {
 		return this.elements.get(spec);
 	}
 
-	public Identifier idOf(ElementSpec spec) {
+	public ResourceLocation idOf(ElementSpec spec) {
 		return UnregisteredObjectException.getID(this.entryOf(spec));
 	}
 }

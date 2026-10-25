@@ -2,9 +2,7 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.util.math.ColorHelper;
-
+import net.minecraft.util.FastColor;
 import builderb0y.bigglobe.rendering.NativeMemory;
 
 @Environment(EnvType.CLIENT)
@@ -40,11 +38,8 @@ public class CompactVertexConsumer extends VersionedVertexConsumer {
 
 	@Override
 	public void handleColor(int argb) {
-		#if MC_VERSION >= MC_1_21_2
-			this.handleColor(ColorHelper.getRed(argb), ColorHelper.getGreen(argb), ColorHelper.getBlue(argb), ColorHelper.getAlpha(argb));
-		#else
-			this.handleColor(ColorHelper.Argb.getRed(argb), ColorHelper.Argb.getGreen(argb), ColorHelper.Argb.getBlue(argb), ColorHelper.Argb.getAlpha(argb));
-		#endif
+
+		this.handleColor(FastColor.ARGB32.red(argb), FastColor.ARGB32.green(argb), FastColor.ARGB32.blue(argb), FastColor.ARGB32.alpha(argb));
 	}
 
 	@Override

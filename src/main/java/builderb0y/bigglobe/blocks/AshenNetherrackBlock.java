@@ -1,60 +1,55 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-public class AshenNetherrackBlock extends Block implements Fertilizable {
+public class AshenNetherrackBlock extends Block implements BonemealableBlock {
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> PATCH_CHARRED_GRASS = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("patch_charred_grass"));
+	public static final ResourceKey<ConfiguredFeature<?, ?>> PATCH_CHARRED_GRASS = ResourceKey.create(Registries.CONFIGURED_FEATURE, BigGlobeMod.modID("patch_charred_grass"));
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<AshenNetherrackBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(AshenNetherrackBlock.class);
+	public static final MapCodec<AshenNetherrackBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(AshenNetherrackBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public AshenNetherrackBlock(Settings settings) {
+	public AshenNetherrackBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public boolean isFertilizable(
-		WorldView world,
+	public boolean isValidBonemealTarget(
+		LevelReader world,
 		BlockPos pos,
 		BlockState state
-		#if MC_VERSION < MC_1_20_2 , boolean isClient #endif
+
 	) {
 		return true;
 	}
 
 	@Override
-	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
-		return world.getBlockState(pos.up()).isAir();
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+		return world.getBlockState(pos.above()).isAir();
 	}
 
 	@Override
-	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.getRegistryManager(), PATCH_CHARRED_GRASS);
-		if (feature != null) feature.generate(world, world.getChunkManager().getChunkGenerator(), random, pos.up());
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+		ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.registryAccess(), PATCH_CHARRED_GRASS);
+		if (feature != null) feature.place(world, world.getChunkSource().getGenerator(), random, pos.above());
 	}
 }

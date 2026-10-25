@@ -2,13 +2,11 @@ package builderb0y.bigglobe.structures.placement;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.gen.chunk.placement.StructurePlacement;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
-
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -22,7 +20,7 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
+import builderb0y.scripting.bytecode.InsnTrees;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.environments.Handlers;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
@@ -49,7 +47,7 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 	@Override
 	public Stream<ChunkPos> bigglobe_getNearbyStartChunks(
 		BigGlobeScriptedChunkGenerator generator,
-		StructurePlacementCalculator calculator,
+		ChunkGeneratorStructureState calculator,
 		int centerChunkX,
 		int centerChunkZ,
 		int chunkRange
@@ -81,17 +79,17 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 	}
 
 	@Override
-	public boolean shouldGenerate(StructurePlacementCalculator calculator, int chunkX, int chunkZ) {
+	public boolean isStructureChunk(ChunkGeneratorStructureState calculator, int chunkX, int chunkZ) {
 		return false;
 	}
 
 	@Override
-	public boolean isStartChunk(StructurePlacementCalculator calculator, int chunkX, int chunkZ) {
+	public boolean isPlacementChunk(ChunkGeneratorStructureState calculator, int chunkX, int chunkZ) {
 		return false;
 	}
 
 	@Override
-	public StructurePlacementType<?> getType() {
+	public StructurePlacementType<?> type() {
 		return BigGlobeStructurePlacementTypes.SCRIPTED;
 	}
 
@@ -121,31 +119,31 @@ public class ScriptedStructurePlacement extends StructurePlacement implements St
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(StructurePlacementScript.class, this.usage, registry.parserFlags())
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.addEnvironment(RandomScriptEnvironment.BASE)
-					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
-					.addEnvironment(WoodPaletteScriptEnvironment.BASE)
-					.configureEnvironment(MinecraftScriptEnvironment.create())
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
-						registry.setupExternalEnvironment(
-							environment
-							.addVariableLoad("worldSeed", TypeInfos.LONG)
-							.addVariableLoad("centerChunkX", TypeInfos.INT)
-							.addVariableLoad("centerChunkZ", TypeInfos.INT)
-							.addVariableLoad("chunkRange", TypeInfos.INT)
-							.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-							.configure(ScriptedColumn.hintsEnvironment())
-							.addFunction("addStart", Handlers.builder(ScriptedStructurePlacement.class, "outputStart").addArguments(load("builder", type(Stream.Builder.class)), "II").buildFunction()),
+						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+						.addEnvironment(MathScriptEnvironment.INSTANCE)
+						.addEnvironment(RandomScriptEnvironment.BASE)
+						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+						.configureEnvironment(GridScriptEnvironment.createWithSeed(load("worldSeed", TypeInfos.LONG)))
+						.addEnvironment(WoodPaletteScriptEnvironment.BASE)
+						.configureEnvironment(MinecraftScriptEnvironment.create())
+						.configureEnvironment((MutableScriptEnvironment environment) -> {
+							LoadInsnTree loadLookup = load("columns", InsnTrees.type(ScriptedColumnLookup.class));
+							registry.setupExternalEnvironment(
+								environment
+									.addVariableLoad("worldSeed", TypeInfos.LONG)
+									.addVariableLoad("centerChunkX", TypeInfos.INT)
+									.addVariableLoad("centerChunkZ", TypeInfos.INT)
+									.addVariableLoad("chunkRange", TypeInfos.INT)
+									.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
+									.configure(ScriptedColumn.hintsEnvironment())
+									.addFunction("addStart", Handlers.builder(ScriptedStructurePlacement.class, "outputStart").addArguments(load("builder", InsnTrees.type(Stream.Builder.class)), "II").buildFunction()),
 
-							new ExternalEnvironmentParams()
-							.withLookup(loadLookup)
-						);
-					})
-					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.parse(new ScriptClassLoader(registry.loader))
+								new ExternalEnvironmentParams()
+									.withLookup(loadLookup)
+							);
+						})
+						.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+						.parse(new ScriptClassLoader(registry.loader))
 				);
 			}
 

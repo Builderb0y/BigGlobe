@@ -23,12 +23,43 @@ public class HaltonIterator2D implements BoundedPointIterator2D, HaltonIterator 
 		this.y = this.computePosition(5, 3, this.minY, this.maxY);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double minY() { return this.minY; }
-	@Override public double maxY() { return this.maxY; }
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
-	@Override public int index() { return this.index; }
-	@Override public int offset() { return this.offset; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double minY() {
+		return this.minY;
+	}
+
+	@Override
+	public double maxY() {
+		return this.maxY;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
+
+	@Override
+	public int offset() {
+		return this.offset;
+	}
 }

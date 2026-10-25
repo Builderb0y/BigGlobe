@@ -1,22 +1,16 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import it.unimi.dsi.fastutil.Hash;
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -28,10 +22,11 @@ public class FieldSpec extends MemberSpec {
 		FULL_STRATEGY = HashStrategies.allOf(NAME_STRATEGY, TYPE_STRATEGY);
 
 	public final @IdentifierName String name;
-	public final RegistryEntry<ElementSpec> field_type;
-	public final @VerifyNullable @UseName("default") ScriptUsage defaultValue;
+	public final Holder<ElementSpec> field_type;
+	public final @VerifyNullable
+	@UseName("default") ScriptUsage defaultValue;
 
-	public FieldSpec(@IdentifierName String name, RegistryEntry<ElementSpec> field_type, @VerifyNullable ScriptUsage defaultValue) {
+	public FieldSpec(@IdentifierName String name, Holder<ElementSpec> field_type, @VerifyNullable ScriptUsage defaultValue) {
 		this.name = name;
 		this.field_type = field_type;
 		this.defaultValue = defaultValue;
@@ -58,8 +53,8 @@ public class FieldSpec extends MemberSpec {
 			this,
 			owner.classCompileContext.newField(
 				owner instanceof EnumClassSpec
-				? ACC_PUBLIC | ACC_FINAL
-				: ACC_PUBLIC,
+					? ACC_PUBLIC | ACC_FINAL
+					: ACC_PUBLIC,
 				this.name,
 				asType(this.field_type).getTypeInfo()
 			)

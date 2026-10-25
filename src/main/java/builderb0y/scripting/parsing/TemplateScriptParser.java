@@ -60,9 +60,11 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 				throw new ScriptParsingException("Unknown type: " + input.type(), null);
 			}
 			ExpressionParser parserCopy = new InnerMethodExpressionParser(parser, inputSource, type);
-			FunctionHandler.Named handler = new FunctionHandler.Named("invalid", (ExpressionParser parser_, String name, InsnTree... arguments) -> {
+			FunctionHandler.Named handler = new FunctionHandler.Named(
+				"invalid", (ExpressionParser parser_, String name, InsnTree... arguments) -> {
 				throw new ScriptParsingException(name + " is not allowed in script inputs", parser_.input);
-			});
+			}
+			);
 			parserCopy.environment.mutable().functions.put("return", Collections.singletonList(handler));
 			parser.environment.user().reserveVariable(input.name(), type);
 			InsnTree inputTree = parserCopy.nextScript().cast(parserCopy, type, CastMode.IMPLICIT_THROW, false);
@@ -70,8 +72,8 @@ public class TemplateScriptParser<I> extends ScriptParser<I> {
 			LazyVarInfo declaration = new LazyVarInfo(input.name(), type);
 			InsnTree initializer = new VariableDeclareAssignInsnTree(declaration, inputTree);
 			parser.environment.mutable()
-			.addVariable(input.name(), load(declaration))
-			.addVariable('$' + input.name(), inputTree);
+				.addVariable(input.name(), load(declaration))
+				.addVariable('$' + input.name(), inputTree);
 			initializers.add(initializer);
 		}
 		return initializers;

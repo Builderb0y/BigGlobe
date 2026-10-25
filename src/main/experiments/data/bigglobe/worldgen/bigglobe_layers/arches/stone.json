@@ -1,9 +1,0 @@
-{
-	"type": "simple_3d",
-	"state": "'minecraft:stone'",
-	"condition": "`bigglobe:arches/base_noise` < 0.0I",
-	"valid": {
-		"min_y": "-64",
-		"max_y": "192"
-	}
-}

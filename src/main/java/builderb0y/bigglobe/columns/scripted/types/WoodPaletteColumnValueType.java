@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.StringData;
@@ -12,6 +10,7 @@ import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import net.minecraft.core.Holder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -28,7 +27,7 @@ public class WoodPaletteColumnValueType extends AbstractColumnValueType {
 		if (data.isEmpty()) return ldc(null, this.getTypeInfo());
 		StringData stringData = data.tryAsString();
 		if (stringData == null) throw new ClassCastException("Not a String: " + data);
-		RegistryEntry<WoodPalette> entry = ConstantFactory.getEntryServerOnly(
+		Holder<WoodPalette> entry = ConstantFactory.getEntryServerOnly(
 			BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY,
 			stringData.value,
 			context.registry.constantFlags(),

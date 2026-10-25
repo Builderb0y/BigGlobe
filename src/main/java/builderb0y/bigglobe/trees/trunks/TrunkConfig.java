@@ -16,7 +16,9 @@ public abstract class TrunkConfig {
 	and false for trees grown from saplings.
 	*/
 	public boolean requireValidGround;
-	/** true for mangrove trees. */
+	/**
+	true for mangrove trees.
+	*/
 	public boolean canGenerateInLiquid;
 	public double currentFracY, currentRadius, currentX, currentY, currentZ;
 

@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.gen.structure.Structure;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
@@ -29,16 +27,16 @@ public class StructureTag extends TagWrapper<Structure, StructureEntry> {
 	}
 
 	public static StructureTag of(int flags, String... ids) {
-		return new StructureTag(DelayedEntryList.emptyOnClient(RegistryKeys.STRUCTURE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new StructureTag(DelayedEntryList.emptyOnClient(Registries.STRUCTURE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override
-	public StructureEntry wrap(RegistryEntry<Structure> entry) {
+	public StructureEntry wrap(Holder<Structure> entry) {
 		return new StructureEntry(entry);
 	}
 
 	@Override
-	public RegistryEntry<Structure> unwrap(StructureEntry entry) {
+	public Holder<Structure> unwrap(StructureEntry entry) {
 		return entry.entry;
 	}
 

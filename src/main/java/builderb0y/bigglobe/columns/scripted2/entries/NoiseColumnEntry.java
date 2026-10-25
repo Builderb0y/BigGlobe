@@ -22,11 +22,11 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.columns.scripted.MappedRangeArray;
 import builderb0y.bigglobe.columns.scripted.MappedRangeNumberArray;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
 import builderb0y.bigglobe.columns.scripted2.Valid;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
 import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Grid3D;
 import builderb0y.bigglobe.noise.Permuter;
@@ -74,10 +74,10 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		if (this.params.is_3d()) {
 			/**
 			this.grid3D.getValue(
-				this.seed(registry),
-				column.x,
-				y,
-				column.z
+			this.seed(registry),
+			column.x,
+			y,
+			column.z
 			)
 			*/
 			return invokeInstance(
@@ -92,9 +92,9 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		else {
 			/**
 			this.grid2D.getValue(
-				this.seed(registry),
-				column.x,
-				column.z
+			this.seed(registry),
+			column.x,
+			column.z
 			)
 			*/
 			return invokeInstance(
@@ -114,11 +114,11 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		InsnTree loadMappedArray = getField(loadColumn, context.valueField.info);
 		/**
 		this.grid3D.getBulkY(
-			this.seed(registry),
-			column.x,
-			column.backingArray.minCached,
-			column.z,
-			column.backingArray.cachedPrefix()
+		this.seed(registry),
+		column.x,
+		column.backingArray.minCached,
+		column.z,
+		column.backingArray.cachedPrefix()
 		*/
 		return invokeInstance(
 			ldc(this.grid3D, type(Grid3D.class)),
@@ -135,7 +135,9 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		return this.seed != null ? this.seed.value : Permuter.permute(0L, UnregisteredObjectException.getID(registry.entryOf(this)));
 	}
 
-	/** hacks to make 2 java fields share the same JSON field. */
+	/**
+	hacks to make 2 java fields share the same JSON field.
+	*/
 	public static class Coder extends NamedCoder<NoiseColumnEntry> {
 
 		public final AutoCoder<AccessSchema> params;
@@ -148,11 +150,15 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 		public Coder(FactoryContext<NoiseColumnEntry> context) {
 			super(context.type);
 			this.params = context.type(ReifiedType.from(AccessSchema.class)).forceCreateCoder();
-			this.valid  = context.type(ReifiedType.from(Valid.class).addAnnotation(VerifyNullable.INSTANCE)).forceCreateCoder();
-			this.cache  = context.type(new ReifiedType<@DefaultBoolean(true) Boolean>() {}).forceCreateCoder();
+			this.valid = context.type(ReifiedType.from(Valid.class).addAnnotation(VerifyNullable.INSTANCE)).forceCreateCoder();
+			this.cache = context.type(new ReifiedType<@DefaultBoolean(true) Boolean>() {
+
+			}).forceCreateCoder();
 			this.grid2D = context.type(ReifiedType.from(Grid2D.class)).forceCreateCoder();
 			this.grid3D = context.type(ReifiedType.from(Grid3D.class)).forceCreateCoder();
-			this.seed   = context.type(new ReifiedType<Seed>() {}).forceCreateCoder();
+			this.seed = context.type(new ReifiedType<Seed>() {
+
+			}).forceCreateCoder();
 		}
 
 		@Override
@@ -184,8 +190,8 @@ public class NoiseColumnEntry extends NonConstantColumnEntry {
 			map.put(
 				"grid",
 				entry.params.is_3d()
-				? context.object(entry.grid3D).encodeWith(this.grid3D)
-				: context.object(entry.grid2D).encodeWith(this.grid2D)
+					? context.object(entry.grid3D).encodeWith(this.grid3D)
+					: context.object(entry.grid2D).encodeWith(this.grid2D)
 			);
 			if (entry.seed != null) map.put("seed", context.object(entry.seed).encodeWith(this.seed));
 			return map;

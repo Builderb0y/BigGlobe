@@ -1,89 +1,84 @@
 package builderb0y.bigglobe.entities;
 
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableSet;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EntityType.EntityFactory;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityType.EntityFactory;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.level.block.Block;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.versions.RegistryVersions;
-
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.util.Util;
 
 public class BigGlobeEntityTypes {
 
-	static { BigGlobeMod.LOGGER.debug("Registering entity types..."); }
+	static {
+		BigGlobeMod.LOGGER.debug("Registering entity types...");
+	}
 
 	public static final EntityType<TorchArrowEntity> TORCH_ARROW = register(
 		"torch_arrow",
 		TorchArrowEntity::new,
-		SpawnGroup.MISC,
+		MobCategory.MISC,
 		true,
 		true,
 		false,
 		false,
 		ImmutableSet.of(),
-		EntityDimensions.changing(0.5F, 0.5F),
+		EntityDimensions.scalable(0.5F, 0.5F),
 		4,
 		20
 	);
 	public static final EntityType<RockEntity> ROCK = register(
 		"rock",
 		RockEntity::new,
-		SpawnGroup.MISC,
+		MobCategory.MISC,
 		true,
 		true,
 		false,
 		false,
 		ImmutableSet.of(),
-		EntityDimensions.changing(0.5F, 0.5F),
+		EntityDimensions.scalable(0.5F, 0.5F),
 		4,
 		20
 	);
 	public static final EntityType<StringEntity> STRING = register(
 		"string",
 		StringEntity::new,
-		SpawnGroup.MISC,
+		MobCategory.MISC,
 		true,
 		true,
 		false,
 		true,
 		ImmutableSet.of(),
-		EntityDimensions.changing(0.5F, 0.5F),
+		EntityDimensions.scalable(0.5F, 0.5F),
 		4,
 		20
 	);
 	public static final EntityType<WaypointEntity> WAYPOINT = register(
 		"waypoint",
 		WaypointEntity::new,
-		SpawnGroup.MISC,
+		MobCategory.MISC,
 		false,
 		false,
 		true,
 		true,
 		ImmutableSet.of(),
-		EntityDimensions.changing(2.0F, 2.0F),
+		EntityDimensions.scalable(2.0F, 2.0F),
 		8,
 		Integer.MAX_VALUE
 	);
 
-	static { BigGlobeMod.LOGGER.debug("Done registering entity types."); }
+	static {
+		BigGlobeMod.LOGGER.debug("Done registering entity types.");
+	}
 
 	public static <E extends Entity> EntityType<E> register(
 		String name,
 		EntityFactory<E> factory,
-		SpawnGroup spawnGroup,
+		MobCategory spawnGroup,
 		boolean saveable,
 		boolean summonable,
 		boolean fireImmune,
@@ -104,25 +99,21 @@ public class BigGlobeEntityTypes {
 				spawnableFarFromPlayer,
 				canSpawnInside,
 				dimensions,
-				#if MC_VERSION >= MC_1_20_5
-					1.0F,
-				#endif
+				1.0F,
 				maxTrackDistance,
 				trackTickInterval,
-				#if MC_VERSION >= MC_1_21_2
-					Util.createTranslationKey("entity", BigGlobeMod.modID(name)),
-					Optional.empty(),
-				#endif
-				FeatureSet.empty()
-				#if MC_VERSION >= MC_1_21_9 , true #endif
+				FeatureFlagSet.of()
 			)
 		);
 	}
 
 	public static <E extends Entity> EntityType<E> register(String name, EntityType<E> type) {
-		return Registry.register(Registries.ENTITY_TYPE, BigGlobeMod.modID(name), type);
+		return Registry.register(BuiltInRegistries.ENTITY_TYPE, BigGlobeMod.modID(name), type);
 	}
 
-	/** triggers static initializer. */
-	public static void init() {}
+	/**
+	triggers static initializer.
+	*/
+	public static void init() {
+	}
 }

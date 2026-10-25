@@ -11,7 +11,7 @@ public record LinearLowRandomSource(
 	@UseName("min") double minValue,
 	@UseName("max") @VerifySorted(greaterThan = "minValue") double maxValue
 )
-implements RandomSource {
+	implements RandomSource {
 
 	@Override
 	public double get(ScriptedColumn column, int y, long seed) {

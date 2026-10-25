@@ -3,13 +3,12 @@ package builderb0y.bigglobe.rendering.lods;
 import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -22,12 +21,10 @@ import builderb0y.bigglobe.versions.NbtVersions;
 public class LodChunkCache implements SafeCloseable {
 
 	public final LodGenerator generator;
-	public final ServerWorld world;
-	#if MC_VERSION >= MC_1_21_0
-		public final net.minecraft.server.world.ServerChunkLoadingManager loader;
-	#else
-		public final net.minecraft.server.world.ThreadedAnvilChunkStorage loader;
-	#endif
+	public final ServerLevel world;
+
+	public final ChunkMap loader;
+
 	public final TimestampedComputingCache<ChunkPos, LightweightChunk> chunks;
 	/**
 	querying whether or not a chunk exists is slow,
@@ -47,14 +44,12 @@ public class LodChunkCache implements SafeCloseable {
 		return thread;
 	});
 
-	public LodChunkCache(LodGenerator generator, ServerWorld world) {
+	public LodChunkCache(LodGenerator generator, ServerLevel world) {
 		this.generator = generator;
 		this.world = world;
-		#if MC_VERSION >= MC_1_21_0
-			this.loader = world.getChunkManager().chunkLoadingManager;
-		#else
-			this.loader = world.getChunkManager().threadedAnvilChunkStorage;
-		#endif
+
+		this.loader = world.getChunkSource().chunkMap;
+
 		this.chunks = new TimestampedComputingCache<>(Units.seconds(10.0D), Units.gigabytes(1.0D));
 		this.dirtyChunks = new ConcurrentLinkedQueue<>();
 	}
@@ -91,42 +86,44 @@ public class LodChunkCache implements SafeCloseable {
 		finally {
 			this.presentChunksLock.unlock();
 		}
-		return this.chunks.computeIfUnknown(chunkPos, (ChunkPos chunkPos_) -> {
-			Optional<NbtCompound> nbt;
-			try {
-				nbt = this.loader.getUpdatedChunkNbt(chunkPos_).join();
-			}
-			catch (CancellationException exception) {
-				return null;
-			}
-			catch (CompletionException exception) {
-				if (exception.getCause() instanceof CancellationException) return null;
-				else throw exception;
-			}
-			if (nbt.isEmpty()) {
-				this.presentChunksLock.lock();
+		return this.chunks.computeIfUnknown(
+			chunkPos, (ChunkPos chunkPos_) -> {
+				Optional<CompoundTag> nbt;
 				try {
-					this.presentChunks.set(chunkPos_.x, chunkPos_.z, false);
+					nbt = this.loader.readChunk(chunkPos_).join();
 				}
-				finally {
-					this.presentChunksLock.unlock();
+				catch (CancellationException exception) {
+					return null;
 				}
+				catch (CompletionException exception) {
+					if (exception.getCause() instanceof CancellationException) return null;
+					else throw exception;
+				}
+				if (nbt.isEmpty()) {
+					this.presentChunksLock.lock();
+					try {
+						this.presentChunks.set(chunkPos_.x, chunkPos_.z, false);
+					}
+					finally {
+						this.presentChunksLock.unlock();
+					}
+				}
+				return nbt.isPresent() ? this.convertChunk(chunkPos_, nbt.get()) : null;
 			}
-			return nbt.isPresent() ? this.convertChunk(chunkPos_, nbt.get()) : null;
-		});
+		);
 	}
 
-	public LightweightChunk convertChunk(ChunkPos chunkPos, NbtCompound root) {
+	public LightweightChunk convertChunk(ChunkPos chunkPos, CompoundTag root) {
 		if (
-			root.get("Status") instanceof NbtString string &&
+			root.get("Status") instanceof StringTag string &&
 			NbtVersions.stringValue(string).equals("minecraft:full") &&
-			root.get("sections") instanceof NbtList sectionsNbt
+			root.get("sections") instanceof ListTag sectionsNbt
 		) {
 			BlockSegmentList[] cullingData = (
 				BigGlobeConfig.INSTANCE.get().lodRendering.caveCullingDepth >= 0
-				&& !this.world.getDimension().hasCeiling()
-				? this.generator.generateCullingChunk(chunkPos)
-				: null
+				&& !this.world.dimensionType().hasCeiling()
+					? this.generator.generateCullingChunk(chunkPos)
+					: null
 			);
 			LightweightChunk result = new LightweightChunk(this.world, chunkPos);
 			result.update(this.world, sectionsNbt, cullingData);
@@ -156,8 +153,8 @@ public class LodChunkCache implements SafeCloseable {
 							chunks[index] = holder.value;
 						}
 						else {
-							futures[index] = this.loader.getUpdatedChunkNbt(chunkPos).thenApplyAsync(
-								(Optional<NbtCompound> optional) -> {
+							futures[index] = this.loader.readChunk(chunkPos).thenApplyAsync(
+								(Optional<CompoundTag> optional) -> {
 									if (optional.isEmpty()) {
 										//remember: this lambda runs in the ingester thread,
 										//not the thread that called getChunks().

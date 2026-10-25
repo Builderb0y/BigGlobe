@@ -27,8 +27,23 @@ public class AdditiveRecurrenceIterator1D implements BoundedPointIterator1D, Add
 		this.x = Interpolator.mixLinear(this.minX, this.maxX, (this.index * ADD1 + this.offsetX) % 1.0D);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double x() { return this.x; }
-	@Override public int index() { return this.index; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
 }

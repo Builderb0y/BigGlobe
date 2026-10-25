@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.blocks;
 
-import net.minecraft.state.property.IntProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public class BigGlobeBlockStateProperties {
 
-	public static final IntProperty AUTOMATA_STATE = IntProperty.of("state", 0, 2);
+	public static final IntegerProperty AUTOMATA_STATE = IntegerProperty.create("state", 0, 2);
 }

@@ -1,10 +1,8 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import java.util.stream.Stream;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBlockStateScript;
@@ -19,7 +17,7 @@ public class Simple3DLayer extends Layer {
 
 	public Simple3DLayer(
 		@VerifyNullable Valid valid,
-		RegistryEntry<Layer> @DefaultEmpty [] children,
+		Holder<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children,
 		ColumnToBlockStateScript.Holder state,
@@ -31,7 +29,7 @@ public class Simple3DLayer extends Layer {
 	}
 
 	@Override
-	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+	public void buildDependencyStream(Stream.Builder<Holder<? extends DependencyView>> builder) {
 		this.state.streamDirectDependencies().forEach(builder);
 		this.condition.streamDirectDependencies().forEach(builder);
 	}
@@ -43,7 +41,7 @@ public class Simple3DLayer extends Layer {
 		int maxY = Math.min(this.validMaxY(column), blocks.maxY());
 		int start = minY;
 		boolean haveState = this.condition.get(column, minY);
-		for (int y = minY; ++y < maxY;) {
+		for (int y = minY; ++y < maxY; ) {
 			boolean nextState = this.condition.get(column, y);
 			if (haveState != nextState) {
 				if (haveState) blocks.setBlockStates(start, y, state);

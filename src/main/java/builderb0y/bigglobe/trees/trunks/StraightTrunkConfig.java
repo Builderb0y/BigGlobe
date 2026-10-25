@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.trees.trunks;
 
 import java.util.random.RandomGenerator;
-
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class StraightTrunkConfig extends TrunkConfig {
 

@@ -3,15 +3,13 @@ package builderb0y.bigglobe.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.Vec3d;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
@@ -23,7 +21,6 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.ScriptLogger;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -35,7 +32,10 @@ import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParser;
+import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.SourceScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -43,55 +43,55 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class EvaluateCommand {
 
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
-			CommandManager
-			.literal(BigGlobeMod.MODID + ":evaluate")
-			.requires(CommandVersions.levelPredicate(4).and((ServerCommandSource source) -> getGenerator(source) != null))
-			.then(
-				CommandManager
-				.argument("script", StringArgumentType.greedyString())
-				.executes((CommandContext<ServerCommandSource> context) -> {
-					CommandScript.Holder script = new CommandScript.Holder(context.getArgument("script", String.class));
-					if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
-					BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
-					ServerWorld actualWorld = context.getSource().getWorld();
-					Vec3d position = context.getSource().getPosition();
-					BlockBox area = new BlockBox(
-						-30_000_000,
-						HeightLimitViewVersions.getMinY(actualWorld),
-						-30_000_000,
-						+30_000_000,
-						HeightLimitViewVersions.getMaxY(actualWorld),
-						+30_000_000
-					);
-					WorldWrapper world = new WorldWrapper(
-						new WorldDelegator(actualWorld),
-						generator,
-						Permuter.from(actualWorld.random),
-						new Coordination(SymmetricOffset.IDENTITY, area, area),
-						ColumnUsage.GENERIC.normalHints()
-					);
-					Object result = script.evaluate(
-						world,
-						BigGlobeMath.floorI(position.x),
-						BigGlobeMath.floorI(position.y),
-						BigGlobeMath.floorI(position.z)
-					);
-					if (result instanceof Throwable) {
-						context.getSource().sendError(Text.literal(" = " + result + "; check your logs for more info."));
-					}
-					else {
-						context.getSource().sendFeedback(() -> Text.literal(" = " + result), false);
-					}
-					return result instanceof Number number ? number.intValue() : 1;
-				})
-			)
+			Commands
+				.literal(BigGlobeMod.MODID + ":evaluate")
+				.requires(CommandVersions.levelPredicate(4).and((CommandSourceStack source) -> getGenerator(source) != null))
+				.then(
+					Commands
+						.argument("script", StringArgumentType.greedyString())
+						.executes((CommandContext<CommandSourceStack> context) -> {
+							CommandScript.Holder script = new CommandScript.Holder(context.getArgument("script", String.class));
+							if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
+							BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
+							ServerLevel actualWorld = context.getSource().getLevel();
+							Vec3 position = context.getSource().getPosition();
+							BoundingBox area = new BoundingBox(
+								-30_000_000,
+								HeightLimitViewVersions.getMinY(actualWorld),
+								-30_000_000,
+								+30_000_000,
+								HeightLimitViewVersions.getMaxY(actualWorld),
+								+30_000_000
+							);
+							WorldWrapper world = new WorldWrapper(
+								new WorldDelegator(actualWorld),
+								generator,
+								Permuter.from(actualWorld.random),
+								new Coordination(SymmetricOffset.IDENTITY, area, area),
+								ColumnUsage.GENERIC.normalHints()
+							);
+							Object result = script.evaluate(
+								world,
+								BigGlobeMath.floorI(position.x),
+								BigGlobeMath.floorI(position.y),
+								BigGlobeMath.floorI(position.z)
+							);
+							if (result instanceof Throwable) {
+								context.getSource().sendFailure(Component.literal(" = " + result + "; check your logs for more info."));
+							}
+							else {
+								context.getSource().sendSuccess(() -> Component.literal(" = " + result), false);
+							}
+							return result instanceof Number number ? number.intValue() : 1;
+						})
+				)
 		);
 	}
 
-	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(ServerCommandSource source) {
-		return source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
+	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(CommandSourceStack source) {
+		return source.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
 	}
 
 	public static interface CommandScript extends Script {
@@ -117,35 +117,35 @@ public class EvaluateCommand {
 							else return return_(value.cast(this, TypeInfos.OBJECT, CastMode.EXPLICIT_THROW, false));
 						}
 					}
-					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
-					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-					.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
-					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-					.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
-					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						environment
-						.addVariableLoad("originX", TypeInfos.INT)
-						.addVariableLoad("originY", TypeInfos.INT)
-						.addVariableLoad("originZ", TypeInfos.INT);
-						registry.setupExternalEnvironment(
-							environment,
-							new ExternalEnvironmentParams()
-							.withLookup(WORLD.loadSelf)
-							.withXZ(
-								load("originX", TypeInfos.INT),
-								load("originZ", TypeInfos.INT)
-							)
-							.withY(load("originY", TypeInfos.INT))
-						);
-					})
-					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.parse(new ScriptClassLoader(registry.loader))
+						.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+						.addEnvironment(MathScriptEnvironment.INSTANCE)
+						.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+						.configureEnvironment(SymmetryScriptEnvironment.create(WORLD.random))
+						.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+						.configureEnvironment(NbtScriptEnvironment.createMutable())
+						.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+						.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
+						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+						.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+						.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+						.configureEnvironment((MutableScriptEnvironment environment) -> {
+							environment
+								.addVariableLoad("originX", TypeInfos.INT)
+								.addVariableLoad("originY", TypeInfos.INT)
+								.addVariableLoad("originZ", TypeInfos.INT);
+							registry.setupExternalEnvironment(
+								environment,
+								new ExternalEnvironmentParams()
+									.withLookup(WORLD.loadSelf)
+									.withXZ(
+										load("originX", TypeInfos.INT),
+										load("originZ", TypeInfos.INT)
+									)
+									.withY(load("originY", TypeInfos.INT))
+							);
+						})
+						.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+						.parse(new ScriptClassLoader(registry.loader))
 				);
 			}
 

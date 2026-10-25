@@ -45,9 +45,9 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 	@Override
 	public void accept(MutableScriptEnvironment environment) {
 		environment
-		.addCast(type(String.class), this.tagType, true, this.makeCaster())
-		.addKeyword(this.tagTypeName, this.makeKeyword())
-		.addMethod(this.elementType, "isIn", this.makeIsIn());
+			.addCast(type(String.class), this.tagType, true, this.makeCaster())
+			.addKeyword(this.tagTypeName, this.makeKeyword())
+			.addMethod(this.elementType, "isIn", this.makeIsIn());
 	}
 
 	public CastHandler.Named makeCaster() {
@@ -94,10 +94,10 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 							yield ldc(
 								this.bootstrapConstant,
 								Stream.concat(
-									Stream.of(constant(AbstractConstantFactory.flags(parser, nullable))),
-									Arrays.stream(strings).map(InsnTree::getConstantValue)
-								)
-								.toArray(ConstantValue[]::new)
+										Stream.of(constant(AbstractConstantFactory.flags(parser, nullable))),
+										Arrays.stream(strings).map(InsnTree::getConstantValue)
+									)
+									.toArray(ConstantValue[]::new)
 							);
 						}
 						else {
@@ -123,7 +123,7 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 				GetMethodMode mode,
 				InsnTree... arguments
 			)
-			-> {
+				-> {
 				InsnTree tagArgument;
 				boolean needsCasting;
 				switch (arguments.length) {
@@ -139,10 +139,10 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 							tagArgument = ldc(
 								this.bootstrapConstant,
 								Stream.concat(
-									Stream.of(constant(AbstractConstantFactory.flags(parser, false))),
-									Arrays.stream(strings).map(InsnTree::getConstantValue)
-								)
-								.toArray(ConstantValue[]::new)
+										Stream.of(constant(AbstractConstantFactory.flags(parser, false))),
+										Arrays.stream(strings).map(InsnTree::getConstantValue)
+									)
+									.toArray(ConstantValue[]::new)
 							);
 						}
 						else {
@@ -158,8 +158,8 @@ public class TagParser implements Consumer<MutableScriptEnvironment> {
 
 				return new CastResult(
 					this.isIn.isStatic()
-					? invokeStatic(this.isIn, receiver, tagArgument)
-					: invokeInstance(receiver, this.isIn, tagArgument),
+						? invokeStatic(this.isIn, receiver, tagArgument)
+						: invokeInstance(receiver, this.isIn, tagArgument),
 					needsCasting
 				);
 			}

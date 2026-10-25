@@ -1,12 +1,11 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
-
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class SymmetricCoordinator extends ScratchPosCoordinator {
 
@@ -94,7 +93,7 @@ public class SymmetricCoordinator extends ScratchPosCoordinator {
 			public Symmetry currentSymmetry;
 
 			@Override
-			public BlockState get(BlockPos.Mutable pos) {
+			public BlockState get(BlockPos.MutableBlockPos pos) {
 				BlockState state = supplier.get(pos);
 				return state != null ? this.currentSymmetry.apply(state) : null;
 			}

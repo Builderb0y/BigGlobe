@@ -1,59 +1,107 @@
 package builderb0y.bigglobe.chunkgen;
 
 import java.util.Arrays;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.*;
-
+import net.minecraft.util.BitStorage;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.Palette;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.util.Tripwire;
 
 public class SectionGenerationContext {
 
-	public final Chunk chunk;
-	public final ChunkSection section;
+	public final ChunkAccess chunk;
+	public final LevelChunkSection section;
 	public final int sectionStartY;
 
-	public SectionGenerationContext(Chunk chunk, ChunkSection section, int sectionStartY) {
+	public SectionGenerationContext(ChunkAccess chunk, LevelChunkSection section, int sectionStartY) {
 		if ((sectionStartY & 15) != 0) {
 			throw new IllegalArgumentException("sectionStartY should be divisible by 16");
 		}
-		this.chunk         = chunk;
-		this.section       = section;
+		this.chunk = chunk;
+		this.section = section;
 		this.sectionStartY = sectionStartY;
 	}
 
-	public static SectionGenerationContext forSectionIndex(Chunk chunk, ChunkSection section, int index) {
-		return new SectionGenerationContext(chunk, section, chunk.sectionIndexToCoord(index) << 4);
+	public static SectionGenerationContext forSectionIndex(ChunkAccess chunk, LevelChunkSection section, int index) {
+		return new SectionGenerationContext(chunk, section, chunk.getSectionYFromSectionIndex(index) << 4);
 	}
 
-	public static SectionGenerationContext forSectionCoord(Chunk chunk, ChunkSection section, int sectionCoord) {
+	public static SectionGenerationContext forSectionCoord(ChunkAccess chunk, LevelChunkSection section, int sectionCoord) {
 		return new SectionGenerationContext(chunk, section, sectionCoord << 4);
 	}
 
-	public static SectionGenerationContext forBlockCoord(Chunk chunk, ChunkSection section, int blockCoord) {
+	public static SectionGenerationContext forBlockCoord(ChunkAccess chunk, LevelChunkSection section, int blockCoord) {
 		return new SectionGenerationContext(chunk, section, blockCoord);
 	}
 
-	public Chunk chunk() { return this.chunk; }
-	public ChunkPos chunkPos() { return this.chunk.getPos(); }
-	public ChunkSection section() { return this.section; }
-	public PalettedContainer<BlockState> container() { return this.section.getBlockStateContainer(); }
-	public Palette<BlockState> palette() { return SectionUtil.palette(this.container()); }
-	public PaletteStorage storage() { return SectionUtil.storage(this.container()); }
-	public int id(BlockState state) { return SectionUtil.id(this.container(), state); }
-	public int sectionX() { return this.chunkPos().x; }
-	public int sectionY() { return this.sectionStartY >> 4; }
-	public int sectionZ() { return this.chunkPos().z; }
-	public int startX() { return this.chunkPos().getStartX(); }
-	public int startY() { return this.sectionStartY; }
-	public int startZ() { return this.chunkPos().getStartZ(); }
-	public int endX() { return this.startX() | 15; }
-	public int endY() { return this.startY() | 15; }
-	public int endZ() { return this.startZ() | 15; }
+	public ChunkAccess chunk() {
+		return this.chunk;
+	}
+
+	public ChunkPos chunkPos() {
+		return this.chunk.getPos();
+	}
+
+	public LevelChunkSection section() {
+		return this.section;
+	}
+
+	public PalettedContainer<BlockState> container() {
+		return this.section.getStates();
+	}
+
+	public Palette<BlockState> palette() {
+		return SectionUtil.palette(this.container());
+	}
+
+	public BitStorage storage() {
+		return SectionUtil.storage(this.container());
+	}
+
+	public int id(BlockState state) {
+		return SectionUtil.id(this.container(), state);
+	}
+
+	public int sectionX() {
+		return this.chunkPos().x;
+	}
+
+	public int sectionY() {
+		return this.sectionStartY >> 4;
+	}
+
+	public int sectionZ() {
+		return this.chunkPos().z;
+	}
+
+	public int startX() {
+		return this.chunkPos().getMinBlockX();
+	}
+
+	public int startY() {
+		return this.sectionStartY;
+	}
+
+	public int startZ() {
+		return this.chunkPos().getMinBlockZ();
+	}
+
+	public int endX() {
+		return this.startX() | 15;
+	}
+
+	public int endY() {
+		return this.startY() | 15;
+	}
+
+	public int endZ() {
+		return this.startZ() | 15;
+	}
 
 	public void setAllStates(BlockState state, boolean distantHorizons) {
 		if (this.palette() instanceof SingularPalette_EntryAccess singular) {
@@ -73,16 +121,16 @@ public class SectionGenerationContext {
 				Tripwire.logWithStackTrace(this + " does not have a SingularPalette.");
 			}
 			long payload = this.id(state);
-			PaletteStorage storage = this.storage();
-			for (int bits = storage.getElementBits(); bits < 64; bits <<= 1) {
+			BitStorage storage = this.storage();
+			for (int bits = storage.getBits(); bits < 64; bits <<= 1) {
 				payload |= payload << bits;
 			}
-			Arrays.fill(storage.getData(), payload);
+			Arrays.fill(storage.getRaw(), payload);
 		}
 	}
 
 	public void recalculateCounts() {
-		this.section.calculateCounts();
+		this.section.recalcBlockCounts();
 	}
 
 	@Override

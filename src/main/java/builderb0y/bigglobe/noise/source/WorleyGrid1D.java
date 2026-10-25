@@ -39,7 +39,7 @@ public class WorleyGrid1D extends WorleyGrid implements Grid1D {
 		int maxCellX = Math.floorDiv(startX + sampleCount + this.scale, this.scale);
 		for (int cell = minCellX; cell <= maxCellX; cell++) {
 			double center = this.getCenterX(seed, cell);
-			int minX = Math.max( ceilI(center - this.scale), startX);
+			int minX = Math.max(ceilI(center - this.scale), startX);
 			int maxX = Math.min(floorI(center + this.scale), startX + sampleCount - 1);
 			for (int x = minX; x <= maxX; x++) {
 				int index = x - startX;

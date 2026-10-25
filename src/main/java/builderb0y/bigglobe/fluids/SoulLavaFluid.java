@@ -1,28 +1,31 @@
 package builderb0y.bigglobe.fluids;
 
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.FluidTags;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FlowableFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.*;
-
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.GameruleVersions;
 
-public abstract class SoulLavaFluid extends FlowableFluid {
+public abstract class SoulLavaFluid extends FlowingFluid {
 
 	@Override
 	public Fluid getFlowing() {
@@ -30,105 +33,88 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	}
 
 	@Override
-	public Fluid getStill() {
+	public Fluid getSource() {
 		return BigGlobeFluids.SOUL_LAVA;
 	}
 
 	@Override
-	public boolean isInfinite(
-		#if MC_VERSION >= MC_1_21_2
-			ServerWorld world
-		#else
-			World world
-		#endif
-	) {
+	public boolean canConvertToSource(Level world) {
 		return GameruleVersions.soulLavaSourceConversion(world);
 	}
 
 	@Override
-	public void beforeBreakingBlock(WorldAccess world, BlockPos pos, BlockState state) {
-		world.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
+	public void beforeDestroyingBlock(LevelAccessor world, BlockPos pos, BlockState state) {
+		world.levelEvent(LevelEvent.LAVA_FIZZ, pos, 0);
 	}
 
 	@Override
-	public int #if MC_VERSION >= MC_1_21_0 getMaxFlowDistance #else getFlowSpeed #endif (WorldView world) {
+	public int getSlopeFindDistance(LevelReader world) {
 		return this.isNether(world) ? 4 : 2;
 	}
 
 	@Override
-	public int getLevelDecreasePerBlock(WorldView world) {
+	public int getDropOff(LevelReader world) {
 		return this.isNether(world) ? 1 : 2;
 	}
 
 	@Override
-	public Item getBucketItem() {
+	public Item getBucket() {
 		return BigGlobeItems.SOUL_LAVA_BUCKET;
 	}
 
 	@Override
 	@SuppressWarnings("deprecation") //this is what vanilla does.
-	public boolean canBeReplacedWith(FluidState state, BlockView world, BlockPos pos, Fluid fluid, Direction direction) {
-		return state.getHeight(world, pos) >= 0.44444445F && fluid.isIn(FluidTags.WATER);
+	public boolean canBeReplacedWith(FluidState state, BlockGetter world, BlockPos pos, Fluid fluid, Direction direction) {
+		return state.getHeight(world, pos) >= 0.44444445F && fluid.is(FluidTags.WATER);
 	}
 
-	#if MC_VERSION >= MC_1_21_5
-
-		@Override
-		public void onEntityCollision(World world, BlockPos pos, Entity entity, net.minecraft.entity.EntityCollisionHandler handler) {
-			handler.addEvent(net.minecraft.entity.CollisionEvent.LAVA_IGNITE);
-			handler.addPostCallback(net.minecraft.entity.CollisionEvent.LAVA_IGNITE, Entity::setOnFireFromLava);
-		}
-
-	#endif
+	
 
 	@Override
-	public int getTickRate(WorldView world) {
+	public int getTickDelay(LevelReader world) {
 		return this.isNether(world) ? 10 : 30;
 	}
 
-	public boolean isNether(WorldView world) {
-		#if MC_VERSION >= MC_1_21_11
-			return world.getEnvironmentAttributes().getAttributeValue(net.minecraft.world.attribute.EnvironmentAttributes.FAST_LAVA_GAMEPLAY);
-		#else
-			return world.getDimension().ultrawarm();
-		#endif
+	public boolean isNether(LevelReader world) {
+
+		return world.dimensionType().ultraWarm();
 	}
 
 	@Override
-	public float getBlastResistance() {
+	public float getExplosionResistance() {
 		return 100.0F;
 	}
 
 	@Override
-	public BlockState toBlockState(FluidState state) {
-		return BigGlobeBlocks.SOUL_LAVA.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state));
+	public BlockState createLegacyBlock(FluidState state) {
+		return BigGlobeBlocks.SOUL_LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
 	}
 
 	@Override
-	public boolean matchesType(Fluid fluid) {
+	public boolean isSame(Fluid fluid) {
 		return fluid == BigGlobeFluids.SOUL_LAVA || fluid == BigGlobeFluids.FLOWING_SOUL_LAVA;
 	}
 
 	@Override
-	public Optional<SoundEvent> getBucketFillSound() {
-		return Optional.of(SoundEvents.ITEM_BUCKET_FILL_LAVA);
+	public Optional<SoundEvent> getPickupSound() {
+		return Optional.of(SoundEvents.BUCKET_FILL_LAVA);
 	}
 
 	public static class Flowing extends SoulLavaFluid {
 
 		@Override
-		protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder) {
-			super.appendProperties(builder);
+		protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+			super.createFluidStateDefinition(builder);
 			builder.add(LEVEL);
 		}
 
 		@Override
-		public int getLevel(FluidState state) {
-			return state.get(LEVEL);
+		public int getAmount(FluidState state) {
+			return state.getValue(LEVEL);
 		}
 
 		@Override
-		public boolean isStill(FluidState state) {
+		public boolean isSource(FluidState state) {
 			return false;
 		}
 	}
@@ -136,12 +122,12 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	public static class Still extends SoulLavaFluid {
 
 		@Override
-		public int getLevel(FluidState state) {
+		public int getAmount(FluidState state) {
 			return 8;
 		}
 
 		@Override
-		public boolean isStill(FluidState state) {
+		public boolean isSource(FluidState state) {
 			return true;
 		}
 	}

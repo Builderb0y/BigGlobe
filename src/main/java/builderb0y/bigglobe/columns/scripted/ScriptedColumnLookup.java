@@ -2,9 +2,7 @@ package builderb0y.bigglobe.columns.scripted;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-
-import net.minecraft.util.math.ColumnPos;
-
+import net.minecraft.server.level.ColumnPos;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.util.ScopeLocal;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -41,7 +39,7 @@ public interface ScriptedColumnLookup {
 			if (this.columns == null) {
 				this.columns = new Long2ObjectOpenHashMap<>(64);
 			}
-			return this.columns.computeIfAbsent(ColumnPos.pack(x, z), this);
+			return this.columns.computeIfAbsent(ColumnPos.asLong(x, z), this);
 		}
 
 		@Override

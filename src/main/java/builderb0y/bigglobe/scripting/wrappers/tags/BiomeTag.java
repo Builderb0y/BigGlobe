@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.biome.Biome;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.biome.Biome;
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
@@ -29,16 +27,16 @@ public class BiomeTag extends TagWrapper<Biome, BiomeEntry> {
 	}
 
 	public static BiomeTag of(int flags, String... ids) {
-		return new BiomeTag(DelayedEntryList.create(RegistryKeys.BIOME, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new BiomeTag(DelayedEntryList.create(Registries.BIOME, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override
-	public BiomeEntry wrap(RegistryEntry<Biome> entry) {
+	public BiomeEntry wrap(Holder<Biome> entry) {
 		return new BiomeEntry(entry);
 	}
 
 	@Override
-	public RegistryEntry<Biome> unwrap(BiomeEntry entry) {
+	public Holder<Biome> unwrap(BiomeEntry entry) {
 		return entry.entry;
 	}
 

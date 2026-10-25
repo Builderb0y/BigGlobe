@@ -15,19 +15,19 @@ public interface ConditionTree extends Opcodes {
 	/**
 	if both labels are non-null, jumps to ifTrue if our condition evaluates to true,
 	and jumps to ifFalse if our condition evaluates to false.
-
+	<p>
 	if ifTrue is non-null and ifFalse is null,
 	jumps to ifTrue if our condition evaluates to true,
 	but does not jump if our condition evaluates to false.
 	in other words, if our condition evaluates to false,
 	code will continue executing at the next available instruction after the condition.
-
+	<p>
 	if ifTrue is null and ifFalse is non-null,
 	jumps to ifFalse if our condition evaluates to false,
 	but does not jump if our condition evaluates to true.
 	in other words, if our condition evaluates to true,
 	code will continue executing at the next available instruction after the condition.
-
+	<p>
 	if ifTrue and ifFalse are the same label (including the case where both labels are null),
 	throws {@link IllegalArgumentException}. see also: {@link #checkLabels(Label, Label)}.
 	*/
@@ -41,12 +41,12 @@ public interface ConditionTree extends Opcodes {
 
 	public static int negateOpcode(int opcode) {
 		return switch (opcode) {
-			case IFEQ      -> IFNE;
-			case IFNE      -> IFEQ;
-			case IFLT      -> IFGE;
-			case IFGE      -> IFLT;
-			case IFGT      -> IFLE;
-			case IFLE      -> IFGT;
+			case IFEQ -> IFNE;
+			case IFNE -> IFEQ;
+			case IFLT -> IFGE;
+			case IFGE -> IFLT;
+			case IFGT -> IFLE;
+			case IFLE -> IFGT;
 			case IF_ICMPEQ -> IF_ICMPNE;
 			case IF_ICMPNE -> IF_ICMPEQ;
 			case IF_ICMPLT -> IF_ICMPGE;
@@ -55,7 +55,7 @@ public interface ConditionTree extends Opcodes {
 			case IF_ICMPLE -> IF_ICMPGT;
 			case IF_ACMPEQ -> IF_ACMPNE;
 			case IF_ACMPNE -> IF_ACMPEQ;
-			case IFNULL    -> IFNONNULL;
+			case IFNULL -> IFNONNULL;
 			case IFNONNULL -> IFNULL;
 			default -> throw new IllegalArgumentException("Invalid jump opcode");
 		};
@@ -63,12 +63,12 @@ public interface ConditionTree extends Opcodes {
 
 	public static int flipOpcode(int opcode) {
 		return switch (opcode) {
-			case IFEQ      -> IFEQ;
-			case IFNE      -> IFNE;
-			case IFLT      -> IFGT;
-			case IFGE      -> IFLE;
-			case IFGT      -> IFLT;
-			case IFLE      -> IFGE;
+			case IFEQ -> IFEQ;
+			case IFNE -> IFNE;
+			case IFLT -> IFGT;
+			case IFGE -> IFLE;
+			case IFGT -> IFLT;
+			case IFLE -> IFGE;
 			case IF_ICMPEQ -> IF_ICMPEQ;
 			case IF_ICMPNE -> IF_ICMPNE;
 			case IF_ICMPLT -> IF_ICMPGT;
@@ -77,7 +77,7 @@ public interface ConditionTree extends Opcodes {
 			case IF_ICMPLE -> IF_ICMPGE;
 			case IF_ACMPEQ -> IF_ACMPEQ;
 			case IF_ACMPNE -> IF_ACMPNE;
-			case IFNULL    -> IFNULL;
+			case IFNULL -> IFNULL;
 			case IFNONNULL -> IFNONNULL;
 			default -> throw new IllegalArgumentException("Invalid jump opcode");
 		};

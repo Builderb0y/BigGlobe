@@ -3,79 +3,62 @@ package builderb0y.bigglobe.blocks;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.*;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class SurfaceMaterialDecorationBlock extends Block implements Waterloggable {
+public abstract class SurfaceMaterialDecorationBlock extends Block implements SimpleWaterloggedBlock {
 
-	#if MC_VERSION >= MC_1_20_3
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public abstract MapCodec codec();
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public abstract MapCodec getCodec();
-	#endif
-
-	public SurfaceMaterialDecorationBlock(AbstractBlock.Settings settings) {
+	public SurfaceMaterialDecorationBlock(BlockBehaviour.Properties settings) {
 		super(settings);
-		this.setDefaultState(this.getDefaultState().with(Properties.WATERLOGGED, Boolean.FALSE));
+		this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE));
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public abstract VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context);
+	public abstract VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context);
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		BlockPos downPos = pos.down();
-		return world.getBlockState(downPos).isSideSolidFullSquare(world, downPos, Direction.UP);
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		BlockPos downPos = pos.below();
+		return world.getBlockState(downPos).isFaceSturdy(world, downPos, Direction.UP);
 	}
 
 	@Nullable
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(Properties.WATERLOGGED, context.getWorld().getFluidState(context.getBlockPos()).isEqualAndStill(Fluids.WATER));
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return this.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).isSourceOfType(Fluids.WATER));
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState getStateForNeighborUpdate(
-		#if MC_VERSION >= MC_1_21_2
-			BlockState state,
-			WorldView world,
-			net.minecraft.world.tick.ScheduledTickView tickView,
-			BlockPos pos,
-			Direction direction,
-			BlockPos neighborPos,
-			BlockState neighborState,
-			Random random
-		#else
-			BlockState state,
-			Direction direction,
-			BlockState neighborState,
-			WorldAccess world,
-			BlockPos pos,
-			BlockPos neighborPos
-		#endif
-	) {
-		if (state.get(Properties.WATERLOGGED)) {
-			#if MC_VERSION >= MC_1_21_2 tickView #else world #endif .scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+			world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
 		}
-		if (direction == Direction.DOWN && !this.canPlaceAt(state, world, pos)) {
+		if (direction == Direction.DOWN && !this.canSurvive(state, world, pos)) {
 			return BlockStates.AIR;
 		}
 		return state;
@@ -86,15 +69,15 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Wa
 	@SuppressWarnings("deprecation")
 	public FluidState getFluidState(BlockState state) {
 		return (
-			state.get(Properties.WATERLOGGED)
-			? Fluids.WATER.getStill(false)
-			: Fluids.EMPTY.getDefaultState()
+			state.getValue(BlockStateProperties.WATERLOGGED)
+				? Fluids.WATER.getSource(false)
+				: Fluids.EMPTY.defaultFluidState()
 		);
 	}
 
 	@Override
-	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		super.appendProperties(builder);
-		builder.add(Properties.WATERLOGGED);
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
+		builder.add(BlockStateProperties.WATERLOGGED);
 	}
 }

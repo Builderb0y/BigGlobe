@@ -2,39 +2,33 @@ package builderb0y.bigglobe.structures.dungeons;
 
 import java.util.List;
 import java.util.random.RandomGenerator;
-
-import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.material.Fluids;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.MobSpawnerBlockEntity;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.block.enums.WallShape;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.state.property.Properties;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureType;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -52,18 +46,14 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class SmallDungeonStructure extends AbstractDungeonStructure {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SmallDungeonStructure.class);
-	#else
-		public static final Codec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SmallDungeonStructure.class).codec();
-	#endif
+	public static final MapCodec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SmallDungeonStructure.class);
 
 	public SmallDungeonStructure(
-		Config config,
+		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
-		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
+		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config, min_y, surface_y, room_decorators, spawner_entries, palettes);
@@ -75,7 +65,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 	}
 
 	@Override
-	public StructureType<?> getType() {
+	public StructureType<?> type() {
 		return BigGlobeStructures.SMALL_DUNGEON_TYPE;
 	}
 
@@ -86,8 +76,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int y,
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
-			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
-			RegistryEntry<Structure> owningStructure
+			IRandomList<Holder<EntityType<?>>> spawnerEntries,
+			Holder<Structure> owningStructure
 		) {
 			super(column, y, random, random.nextInt(384) + 192, roomDecorators, spawnerEntries, owningStructure);
 		}
@@ -128,7 +118,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 		public Room(
 			StructurePieceType type,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
@@ -138,21 +128,21 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			this.setPos(0, 0, 0);
 		}
 
-		public Room(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Room(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			super.generate(
+			super.postProcess(
 				world,
 				structureAccessor,
 				chunkGenerator,
@@ -162,40 +152,40 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 				pivot
 			);
 			if (!this.hasPit() && this.support) {
-				BlockPos.Mutable pos = new BlockPos.Mutable();
+				BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 				int x = this.x(), y = this.y() - 1, z = this.z();
-				this.generateDown(world, chunkBox, pos.set(x,     y, z    ), this.palette().mainSupplier(), false);
-				this.generateDown(world, chunkBox, pos.set(x - 1, y, z    ), this.palette().mainSupplier(), false);
-				this.generateDown(world, chunkBox, pos.set(x + 1, y, z    ), this.palette().mainSupplier(), false);
-				this.generateDown(world, chunkBox, pos.set(x,     y, z - 1), this.palette().mainSupplier(), false);
-				this.generateDown(world, chunkBox, pos.set(x,     y, z + 1), this.palette().mainSupplier(), false);
-				this.generateDown(world, chunkBox, pos.set(x - 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.TALL, WallShape.TALL, WallShape.NONE, true), true);
-				this.generateDown(world, chunkBox, pos.set(x - 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.TALL, WallShape.NONE, WallShape.NONE, true), true);
-				this.generateDown(world, chunkBox, pos.set(x + 1, y, z - 1), this.palette().wallSupplier(WallShape.NONE, WallShape.NONE, WallShape.TALL, WallShape.TALL, true), true);
-				this.generateDown(world, chunkBox, pos.set(x + 1, y, z + 1), this.palette().wallSupplier(WallShape.TALL, WallShape.NONE, WallShape.NONE, WallShape.TALL, true), true);
+				this.generateDown(world, chunkBox, pos.set(x, y, z), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x, y, z - 1), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x, y, z + 1), this.palette().mainSupplier(), false);
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z - 1), this.palette().wallSupplier(WallSide.NONE, WallSide.TALL, WallSide.TALL, WallSide.NONE, true), true);
+				this.generateDown(world, chunkBox, pos.set(x - 1, y, z + 1), this.palette().wallSupplier(WallSide.TALL, WallSide.TALL, WallSide.NONE, WallSide.NONE, true), true);
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z - 1), this.palette().wallSupplier(WallSide.NONE, WallSide.NONE, WallSide.TALL, WallSide.TALL, true), true);
+				this.generateDown(world, chunkBox, pos.set(x + 1, y, z + 1), this.palette().wallSupplier(WallSide.TALL, WallSide.NONE, WallSide.NONE, WallSide.TALL, true), true);
 			}
 		}
 
 		public void generateDown(
-			StructureWorldAccess world,
-			BlockBox chunkBox,
-			BlockPos.Mutable pos,
+			WorldGenLevel world,
+			BoundingBox chunkBox,
+			BlockPos.MutableBlockPos pos,
 			CoordinateSupplier<BlockState> stateSupplier,
 			boolean wall
 		) {
-			if (chunkBox.contains(pos) && BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
-				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);
+			if (chunkBox.isInside(pos) && BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
+				world.setBlock(pos, this.palette().mainSupplier().get(pos), Block.UPDATE_ALL);
 				while (true) {
-					if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
+					if (world.isOutsideBuildHeight(pos.setY(pos.getY() - 1))) break;
 					BlockState toReplace = world.getBlockState(pos);
 					if (!BlockStateVersions.isReplaceable(toReplace)) break;
 					BlockState toPlace = stateSupplier.get(pos);
-					if (wall) toPlace = toPlace.with(Properties.WATERLOGGED, toReplace.getFluidState().isEqualAndStill(Fluids.WATER));
-					world.setBlockState(pos, toPlace, Block.NOTIFY_ALL);
-					if (wall) world.getChunk(pos).markBlockForPostProcessing(pos);
+					if (wall) toPlace = toPlace.setValue(BlockStateProperties.WATERLOGGED, toReplace.getFluidState().isSourceOfType(Fluids.WATER));
+					world.setBlock(pos, toPlace, Block.UPDATE_ALL);
+					if (wall) world.getChunk(pos).markPosForPostprocessing(pos);
 				}
 				pos.setY(pos.getY() + 1);
-				world.setBlockState(pos, this.palette().mainSupplier().get(pos), Block.NOTIFY_ALL);
+				world.setBlock(pos, this.palette().mainSupplier().get(pos), Block.UPDATE_ALL);
 			}
 		}
 
@@ -223,7 +213,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 		@Override
 		public void setPos(int x, int y, int z) {
-			this.boundingBox = new BlockBox(x - 2, this.hasPit() ? y - 2 : y, z - 2, x + 2, y + 4, z + 2);
+			this.boundingBox = new BoundingBox(x - 2, this.hasPit() ? y - 2 : y, z - 2, x + 2, y + 4, z + 2);
 		}
 	}
 
@@ -234,31 +224,31 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			long seed
 		) {
-			super(type, 0, new BlockBox(x, y, z, x, y, z), owningStructure, paletteIndex, direction, seed);
+			super(type, 0, new BoundingBox(x, y, z, x, y, z), owningStructure, paletteIndex, direction, seed);
 			this.setOrientation(direction);
 		}
 
-		public ChestPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public ChestPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			Coordinator root = this.coordinator(world, chunkBox);
-			root.setBlockStateAndBlockEntity(0, 0, 0, Blocks.CHEST.getDefaultState(), ChestBlockEntity.class, this::initChest);
+			root.setBlockStateAndBlockEntity(0, 0, 0, Blocks.CHEST.defaultBlockState(), ChestBlockEntity.class, this::initChest);
 		}
 	}
 
@@ -269,40 +259,40 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
-			RegistryEntry<EntityType<?>> spawnerType
+			Holder<EntityType<?>> spawnerType
 		) {
-			super(type, 0, new BlockBox(x, y, z, x, y, z), owningStructure, paletteIndex, spawnerType);
+			super(type, 0, new BoundingBox(x, y, z, x, y, z), owningStructure, paletteIndex, spawnerType);
 		}
 
-		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public SpawnerPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			this.coordinator(world, chunkBox)
-			.setBlockStateAndBlockEntity(
-				0, 0, 0,
-				Blocks.SPAWNER.getDefaultState(),
-				MobSpawnerBlockEntity.class,
-				this::initSpawner
-			);
+				.setBlockStateAndBlockEntity(
+					0, 0, 0,
+					Blocks.SPAWNER.defaultBlockState(),
+					SpawnerBlockEntity.class,
+					this::initSpawner
+				);
 		}
 
 		@Override
-		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
+		public void initSpawner(BlockPos pos, SpawnerBlockEntity spawner) {
 			super.initSpawner(pos, spawner);
-			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
+			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getSpawner());
 			logic.bigglobe_setRequiredPlayerRange(16);
 			logic.bigglobe_setMaxNearbyEntities(2);
 			logic.bigglobe_setSpawnCount(2);
@@ -316,12 +306,12 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
 		) {
-			super(type, 0, new BlockBox(x - 2, y, z - 2, x + 2, y + 4, z + 2), owningStructure, paletteIndex);
+			super(type, 0, new BoundingBox(x - 2, y, z - 2, x + 2, y + 4, z + 2), owningStructure, paletteIndex);
 			this.setOrientation(direction);
 			this.setBars((random.nextInt() & 7) == 0);
 			int width = random.nextInt(3) + 1;
@@ -330,7 +320,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			this.setRight(position + width - 1);
 		}
 
-		public Hall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -351,7 +341,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random,
@@ -360,8 +350,8 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			if (step != 0) y++;
 			return switch (step) {
 				case -1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
-				case  0 -> new Hall0(BigGlobeStructures.SMALL_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
-				case  1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 0 -> new Hall0(BigGlobeStructures.SMALL_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 1 -> new Hall1(BigGlobeStructures.SMALL_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
 				default -> throw new IllegalArgumentException(Integer.toString(step));
 			};
 		}
@@ -374,7 +364,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -382,7 +372,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall0(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall0(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -401,7 +391,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -409,7 +399,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall1(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall1(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 

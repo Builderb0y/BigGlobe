@@ -9,7 +9,7 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 public class ConstantConditionTree implements ConditionTree {
 
 	public static final ConstantConditionTree
-		TRUE  = new ConstantConditionTree(true ),
+		TRUE = new ConstantConditionTree(true),
 		FALSE = new ConstantConditionTree(false);
 
 	public final boolean value;

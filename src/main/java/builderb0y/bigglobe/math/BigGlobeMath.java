@@ -4,13 +4,13 @@ package builderb0y.bigglobe.math;
 public class BigGlobeMath {
 
 	public static final double
-		TAU    = Math.PI * 2.0D,
-		LN_2   = Math.log(2.0D),
+		TAU = Math.PI * 2.0D,
+		LN_2 = Math.log(2.0D),
 		LOG2_E = 1.0D / LN_2,
 		GOLDEN_RATIO = 1.618033988749895,
 		GOLDEN_ANGLE = 2.39996322972865332;
 
-	//////////////////////////////// square1 ////////////////////////////////
+	/// ///////////////////////////// square1 ////////////////////////////////
 
 	public static int squareI(int i) {
 		return i * i;
@@ -48,7 +48,7 @@ public class BigGlobeMath {
 		return squareD((double)(f));
 	}
 
-	//////////////////////////////// square2 ////////////////////////////////
+	/// ///////////////////////////// square2 ////////////////////////////////
 
 	public static int squareI(int i1, int i2) {
 		return i1 * i1 + i2 * i2;
@@ -86,7 +86,7 @@ public class BigGlobeMath {
 		return squareD((double)(f1), (double)(f2));
 	}
 
-	//////////////////////////////// square3 ////////////////////////////////
+	/// ///////////////////////////// square3 ////////////////////////////////
 
 	public static int squareI(int i1, int i2, int i3) {
 		return i1 * i1 + i2 * i2 + i3 * i3;
@@ -124,7 +124,7 @@ public class BigGlobeMath {
 		return squareD((double)(f1), (double)(f2), (double)(f3));
 	}
 
-	//////////////////////////////// floor, ceil, round ////////////////////////////////
+	/// ///////////////////////////// floor, ceil, round ////////////////////////////////
 
 	public static int floorI(float number) {
 		int floor = (int)(number);
@@ -202,11 +202,13 @@ public class BigGlobeMath {
 	//	for floats and doubles, if (b is NaN), then (a mod b) = b.
 	//	for floats and doubles, the sign bit of (a mod b) equals the sign bit of b.
 
-	/** returns (a mod b) when nothing is known in advance about the signs of a or b. */
+	/**
+	returns (a mod b) when nothing is known in advance about the signs of a or b.
+	*/
 	public static int modulus(int a, int b) {
-		if      (b > 0) return modulus_BP(a, b);
+		if (b > 0) return modulus_BP(a, b);
 		else if (b < 0) return modulus_BN(a, b);
-		else            return 0; //lim[b -> 0] (a mod b) = 0 for all values of a.
+		else return 0; //lim[b -> 0] (a mod b) = 0 for all values of a.
 	}
 
 	/**
@@ -227,11 +229,13 @@ public class BigGlobeMath {
 		return (a %= -b) > 0 ? a + b : a;
 	}
 
-	/** returns (a mod b) when nothing is known in advance about the signs of a or b. */
+	/**
+	returns (a mod b) when nothing is known in advance about the signs of a or b.
+	*/
 	public static long modulus(long a, long b) {
-		if      (b > 0L) return modulus_BP(a, b);
+		if (b > 0L) return modulus_BP(a, b);
 		else if (b < 0L) return modulus_BN(a, b);
-		else             return 0L; //lim[b -> 0] (a mod b) = 0 for all values of a.
+		else return 0L; //lim[b -> 0] (a mod b) = 0 for all values of a.
 	}
 
 	/**
@@ -252,11 +256,13 @@ public class BigGlobeMath {
 		return (a %= -b) > 0L ? a + b : a;
 	}
 
-	/** returns (a mod b) when nothing is known in advance about the signs of a or b. */
+	/**
+	returns (a mod b) when nothing is known in advance about the signs of a or b.
+	*/
 	public static float modulus(float a, float b) {
-		if      (b > 0.0F) return modulus_BP(a, b);
+		if (b > 0.0F) return modulus_BP(a, b);
 		else if (b < 0.0F) return modulus_BN(a, b);
-		else               return b; //+0.0, -0.0, and NaN.
+		else return b; //+0.0, -0.0, and NaN.
 	}
 
 	/**
@@ -282,11 +288,13 @@ public class BigGlobeMath {
 		return mod;
 	}
 
-	/** returns (a mod b) when nothing is known in advance about the signs of a or b. */
+	/**
+	returns (a mod b) when nothing is known in advance about the signs of a or b.
+	*/
 	public static double modulus(double a, double b) {
-		if      (b > 0.0D) return modulus_BP(a, b);
+		if (b > 0.0D) return modulus_BP(a, b);
 		else if (b < 0.0D) return modulus_BN(a, b);
-		else               return b; //+0.0, -0.0, and NaN.
+		else return b; //+0.0, -0.0, and NaN.
 	}
 
 	/**
@@ -314,13 +322,17 @@ public class BigGlobeMath {
 
 	//////////////////////////////// exponentials ////////////////////////////////
 
-	/** returns 2 raised to the power of value. */
+	/**
+	returns 2 raised to the power of value.
+	*/
 	public static float exp2(float value) {
 		//return FastExp.compute2(value);
 		return (float)(Math.exp(value * LN_2));
 	}
 
-	/** returns 2 raised to the power of value. */
+	/**
+	returns 2 raised to the power of value.
+	*/
 	public static double exp2(double value) {
 		//return FastExp.compute2(value);
 		return Math.exp(value * LN_2);
@@ -328,6 +340,7 @@ public class BigGlobeMath {
 
 	/**
 	returns {@link Math#E} raised to the power of value.
+
 	@see Math#exp(double)
 	*/
 	public static float exp(float value) {
@@ -337,6 +350,7 @@ public class BigGlobeMath {
 
 	/**
 	returns {@link Math#E} raised to the power of value.
+
 	@see Math#exp(double)
 	*/
 	public static double exp(double value) {
@@ -344,13 +358,17 @@ public class BigGlobeMath {
 		return Math.exp(value);
 	}
 
-	/** returns the logarithm of value in base 2. */
+	/**
+	returns the logarithm of value in base 2.
+	*/
 	public static float log2(float value) {
 		//return FastLog.compute2(value);
 		return (float)(Math.log(value) / LN_2);
 	}
 
-	/** returns the logarithm of value in base 2. */
+	/**
+	returns the logarithm of value in base 2.
+	*/
 	public static double log2(double value) {
 		//return FastLog.compute2(value);
 		return Math.log(value) / LN_2;
@@ -358,6 +376,7 @@ public class BigGlobeMath {
 
 	/**
 	returns the natural logarithm (base {@link Math#E}) of value.
+
 	@see Math#log(double)
 	*/
 	public static float ln(float value) {
@@ -367,6 +386,7 @@ public class BigGlobeMath {
 
 	/**
 	returns the natural logarithm (base {@link Math#E}) of value.
+
 	@see Math#log(double)
 	*/
 	public static double ln(double value) {
@@ -386,7 +406,7 @@ public class BigGlobeMath {
 		return Math.log((1.0D + x) / (1.0D - x)) * 0.5D;
 	}
 
-	//////////////////////////////// miscellaneous ////////////////////////////////
+	/// ///////////////////////////// miscellaneous ////////////////////////////////
 
 	public static float sigmoid01(float value) {
 		return 1.0F / (exp(-4.0F * value) + 1.0F);
@@ -406,34 +426,46 @@ public class BigGlobeMath {
 		//return 2.0D / (exp(-2.0D * value) + 1.0D) - 1.0D;
 	}
 
-	/** local maximum at value = 0 */
+	/**
+	local maximum at value = 0
+	*/
 	public static float fogify(float width, float value) {
 		return width / (squareF(value) + width);
 	}
 
-	/** local maximum at x = y = 0 */
+	/**
+	local maximum at x = y = 0
+	*/
 	public static float fogify(float width, float x, float y) {
 		return width / (squareF(x, y) + width);
 	}
 
-	/** local maximum at x = y = z = 0 */
+	/**
+	local maximum at x = y = z = 0
+	*/
 	public static float fogify(float width, float x, float y, float z) {
 		return width / (squareF(x, y, z) + width);
 	}
 
-	/** local minimum at value = 0 */
+	/**
+	local minimum at value = 0
+	*/
 	public static float upsideDownFogify(float width, float value) {
 		value *= value;
 		return value / (value + width);
 	}
 
-	/** local minimum at x = y = 0 */
+	/**
+	local minimum at x = y = 0
+	*/
 	public static float upsideDownFogify(float width, float x, float y) {
 		float value = squareF(x, y);
 		return value / (value + width);
 	}
 
-	/** local minimum at x = y = z = 0 */
+	/**
+	local minimum at x = y = z = 0
+	*/
 	public static float upsideDownFogify(float width, float x, float y, float z) {
 		float value = squareF(x, y, z);
 		return value / (value + width);

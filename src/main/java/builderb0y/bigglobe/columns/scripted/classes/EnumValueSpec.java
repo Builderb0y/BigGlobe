@@ -1,24 +1,22 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.FieldCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import net.minecraft.core.Holder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class EnumValueSpec extends MemberSpec {
 
-	public final RegistryEntry<ElementSpec> enum_type;
+	public final Holder<ElementSpec> enum_type;
 	public final @IdentifierName String name;
 
-	public EnumValueSpec(RegistryEntry<ElementSpec> enum_type, @IdentifierName String name) {
+	public EnumValueSpec(Holder<ElementSpec> enum_type, @IdentifierName String name) {
 		this.enum_type = enum_type;
 		this.name = name;
 	}
@@ -58,7 +56,7 @@ public class EnumValueSpec extends MemberSpec {
 				ldc(this.name)
 			)
 		)
-		.emitBytecode(((EnumClassSpec)(owner)).staticInitializer);
+			.emitBytecode(((EnumClassSpec)(owner)).staticInitializer);
 	}
 
 	@Override

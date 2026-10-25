@@ -28,14 +28,14 @@ public class SubtractInsnTree extends BinaryInsnTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT    -> ldc(Math.subtractExact(leftConstant. asInt(), rightConstant. asInt()));
-				case LONG   -> ldc(Math.subtractExact(leftConstant.asLong(), rightConstant.asLong()));
-				case FLOAT  -> ldc(leftConstant. asFloat() - rightConstant. asFloat());
+				case INT -> ldc(Math.subtractExact(leftConstant.asInt(), rightConstant.asInt()));
+				case LONG -> ldc(Math.subtractExact(leftConstant.asLong(), rightConstant.asLong()));
+				case FLOAT -> ldc(leftConstant.asFloat() - rightConstant.asFloat());
 				case DOUBLE -> ldc(leftConstant.asDouble() - rightConstant.asDouble());
-				default     -> throw new AssertionError(type);
+				default -> throw new AssertionError(type);
 			};
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		left = left.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new SubtractInsnTree(left, right, type.getOpcode(ISUB));
 	}

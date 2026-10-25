@@ -2,9 +2,7 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
@@ -33,12 +31,12 @@ public class StructurePlacementScriptTag extends TagWrapper<CombinedStructureScr
 	}
 
 	@Override
-	public StructurePlacementScriptEntry wrap(RegistryEntry<CombinedStructureScripts> entry) {
+	public StructurePlacementScriptEntry wrap(Holder<CombinedStructureScripts> entry) {
 		return new StructurePlacementScriptEntry(entry);
 	}
 
 	@Override
-	public RegistryEntry<CombinedStructureScripts> unwrap(StructurePlacementScriptEntry entry) {
+	public Holder<CombinedStructureScripts> unwrap(StructurePlacementScriptEntry entry) {
 		return entry.entry;
 	}
 

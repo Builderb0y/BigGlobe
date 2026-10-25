@@ -7,20 +7,19 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-
-import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
 
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 
 	@Unique
 	private LodSystem bigglobe_lodSystem;
 
-	@Shadow private @Nullable ClientWorld world;
+	@Shadow
+	private @Nullable ClientLevel level;
 
 	@Override
 	public @Nullable LodSystem bigglobe_getLodSystem() {
@@ -32,13 +31,13 @@ public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 		this.bigglobe_lodSystem = system;
 	}
 
-	@Inject(method = "reload()V", at = @At("HEAD"))
+	@Inject(method = "allChanged()V", at = @At("HEAD"))
 	private void bigglobe_reloadLods(CallbackInfo ci) {
-		LodSystem.reload(this, this.world);
+		LodSystem.reload(this, this.level);
 	}
 
-	@Inject(method = "setWorld", at = @At("HEAD"))
-	private void bigglobe_closeLodSystemOnWorldChange(ClientWorld world, CallbackInfo callback) {
+	@Inject(method = "setLevel", at = @At("HEAD"))
+	private void bigglobe_closeLodSystemOnWorldChange(ClientLevel world, CallbackInfo callback) {
 		this.bigglobe_closeLodSystem(null);
 	}
 

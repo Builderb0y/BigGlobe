@@ -18,7 +18,7 @@ public class ForMapIteratorInsnTree extends AbstractForIteratorInsnTree {
 
 	public static final MethodInfo
 		ENTRY_SET = MethodInfo.getMethod(Map.class, "entrySet"),
-		GET_KEY   = MethodInfo.getMethod(Map.Entry.class, "getKey"),
+		GET_KEY = MethodInfo.getMethod(Map.Entry.class, "getKey"),
 		GET_VALUE = MethodInfo.getMethod(Map.Entry.class, "getValue");
 
 	public VariableDeclarationInsnTree keyVariable, valueVariable;
@@ -33,10 +33,10 @@ public class ForMapIteratorInsnTree extends AbstractForIteratorInsnTree {
 		InsnTree body
 	) {
 		super(loopName);
-		this.keyVariable   = keyVariable;
+		this.keyVariable = keyVariable;
 		this.valueVariable = valueVariable;
-		this.iterator      = iterator;
-		this.body          = body;
+		this.iterator = iterator;
+		this.body = body;
 	}
 
 	@Override

@@ -2,14 +2,11 @@ package builderb0y.scripting.parsing.input;
 
 import java.util.Map;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -33,7 +30,9 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 
 	public static final TypelessCoderRegistry<ScriptUsage> CODER = new TypelessCoderRegistry<>(ReifiedType.from(ScriptUsage.class), BigGlobeAutoCodec.AUTO_CODEC) {
 
-		public final AutoCoder<@MultiLine String> sourceCoder = this.autoCodec.createCoder(new ReifiedType<@MultiLine String>() {});
+		public final AutoCoder<@MultiLine String> sourceCoder = this.autoCodec.createCoder(new ReifiedType<@MultiLine String>() {
+
+		});
 
 		@Override
 		@OverrideOnly
@@ -53,13 +52,15 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 			return super.encode(context);
 		}
 	};
+
 	static {
 		CODER.register(SourceScriptUsage.class);
 		CODER.register(FileScriptUsage.class);
 		CODER.register(TemplateScriptUsage.class);
 	}
 
-	public final @VerifyNullable @IdentifierName String debug_name;
+	public final @VerifyNullable
+	@IdentifierName String debug_name;
 	public final @VerifyNullable ResolvedIncludes includes;
 
 	public ScriptUsage(@VerifyNullable @IdentifierName String debug_name, @Nullable ResolvedIncludes includes) {
@@ -68,8 +69,8 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		Stream.Builder<RegistryEntry<? extends DependencyView>> builder = Stream.builder();
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		Stream.Builder<Holder<? extends DependencyView>> builder = Stream.builder();
 		if (this.includes != null) this.includes.streamDirectDependencies().forEach(builder);
 		if (this.getTemplate() != null) builder.accept(this.getTemplate());
 		if (this instanceof FileScriptUsage file) builder.accept(file.toEntry());
@@ -86,11 +87,11 @@ public abstract class ScriptUsage implements SimpleDependencyView {
 		return this.debug_name;
 	}
 
-	public @Nullable Identifier getFile() {
+	public @Nullable ResourceLocation getFile() {
 		return null;
 	}
 
-	public @Nullable RegistryEntry<ScriptTemplate> getTemplate() {
+	public @Nullable Holder<ScriptTemplate> getTemplate() {
 		return null;
 	}
 

@@ -1,36 +1,28 @@
 package builderb0y.bigglobe.mixins;
 
 import java.util.Optional;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.BlockUtil;
+import net.minecraft.BlockUtil.FoundRectangle;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.portal.PortalForcer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.NetherPortalBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.BlockLocating;
-import net.minecraft.world.BlockLocating.Rectangle;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.util.NetherPortalUtil;
-
-#if MC_VERSION >= MC_1_21_0
-	import net.minecraft.world.dimension.PortalForcer;
-#else
-	import net.minecraft.world.PortalForcer;
-#endif
 
 /**
 vanilla logic likes to place you on the surface of the lava ocean,
@@ -39,12 +31,14 @@ which is bad for gameplay. I'm making it so that you spawn in the cavern area, n
 @Mixin(PortalForcer.class)
 public class PortalForcer_PlaceInNetherCaverns {
 
-	@Shadow @Final private ServerWorld world;
+	@Shadow
+	@Final
+	private ServerLevel level;
 
 	@Inject(method = "createPortal", at = @At("HEAD"), cancellable = true)
-	private void bigglobe_overridePortalLocation(BlockPos pos, Direction.Axis axis, CallbackInfoReturnable<Optional<BlockLocating.Rectangle>> callback) {
+	private void bigglobe_overridePortalLocation(BlockPos pos, Direction.Axis axis, CallbackInfoReturnable<Optional<BlockUtil.FoundRectangle>> callback) {
 		if (
-			this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
+			this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
 			generator.nether_overrides != null &&
 			generator.nether_overrides.place_portal_at_high_y_level()
 		) {
@@ -54,34 +48,34 @@ public class PortalForcer_PlaceInNetherCaverns {
 				case Z -> new Vec3i(1, 5, 4);
 				case Y -> throw new IllegalArgumentException("Y axis");
 			};
-			BlockPos bestPos = NetherPortalUtil.findBestPortalPosition(this.world, pos, size);
+			BlockPos bestPos = NetherPortalUtil.findBestPortalPosition(this.level, pos, size);
 			if (bestPos != null) {
-				BlockBox box = NetherPortalUtil.toBoundingBox(bestPos, size);
+				BoundingBox box = NetherPortalUtil.toBoundingBox(bestPos, size);
 				BigGlobeMod.LOGGER.info("Found good portal location: " + box);
-				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-				BlockState portalState = Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, axis);
-				for (int z = box.getMinZ(); z <= box.getMaxZ(); z++) {
-					for (int x = box.getMinX(); x <= box.getMaxX(); x++) {
-						for (int y = box.getMinY(); y <= box.getMaxY(); y++) {
-							this.world.setBlockState(
+				BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+				BlockState portalState = Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, axis);
+				for (int z = box.minZ(); z <= box.maxZ(); z++) {
+					for (int x = box.minX(); x <= box.maxX(); x++) {
+						for (int y = box.minY(); y <= box.maxY(); y++) {
+							this.level.setBlock(
 								mutablePos.set(x, y, z),
-								(y != box.getMinY() && y != box.getMaxY()) && (
-									(x != box.getMinX() && x != box.getMaxX()) ||
-									(z != box.getMinZ() && z != box.getMaxZ())
+								(y != box.minY() && y != box.maxY()) && (
+									(x != box.minX() && x != box.maxX()) ||
+									(z != box.minZ() && z != box.maxZ())
 								)
-								? portalState
-								: BlockStates.OBSIDIAN,
-								Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+									? portalState
+									: BlockStates.OBSIDIAN,
+								Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
 							);
 						}
 					}
 				}
 				callback.setReturnValue(
 					Optional.of(
-						new Rectangle(
+						new FoundRectangle(
 							switch (axis) {
-								case X -> new BlockPos(box.getMinX() + 1, box.getMinY() + 1, box.getMinZ());
-								case Z -> new BlockPos(box.getMinX(), box.getMinY() + 1, box.getMinZ() + 1);
+								case X -> new BlockPos(box.minX() + 1, box.minY() + 1, box.minZ());
+								case Z -> new BlockPos(box.minX(), box.minY() + 1, box.minZ() + 1);
 								case Y -> throw new AssertionError("Y axis");
 							},
 							2,

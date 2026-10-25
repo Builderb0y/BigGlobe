@@ -1,12 +1,10 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
@@ -29,12 +27,12 @@ public class ItemWrapper {
 	public static Item getItem(String id, int flags) {
 		if (id == null) return null;
 		try {
-			Identifier identifier = IdentifierVersions.create(id);
-			if (Registries.ITEM.containsId(identifier)) {
-				return Registries.ITEM.get(identifier);
+			ResourceLocation ResourceLocation = IdentifierVersions.create(id);
+			if (BuiltInRegistries.ITEM.containsKey(ResourceLocation)) {
+				return BuiltInRegistries.ITEM.get(ResourceLocation);
 			}
 			else {
-				throw new IllegalArgumentException("Unknown item: " + identifier);
+				throw new IllegalArgumentException("Unknown item: " + ResourceLocation);
 			}
 		}
 		catch (RuntimeException exception) {
@@ -45,7 +43,7 @@ public class ItemWrapper {
 
 	@SuppressWarnings("deprecation")
 	public static String id(Item item) {
-		return UnregisteredObjectException.getID(item.getRegistryEntry()).toString();
+		return UnregisteredObjectException.getID(item.builtInRegistryHolder()).toString();
 	}
 
 	public static boolean isIn(Item item, ItemTag tag) {
@@ -53,6 +51,6 @@ public class ItemWrapper {
 	}
 
 	public static ItemStack getDefaultStack(Item item) {
-		return item.getDefaultStack();
+		return item.getDefaultInstance();
 	}
 }

@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.compat.voxy;
 
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.math.MathHelper;
 
 /**
 this class used to be used for generating chunks for voxy
@@ -24,8 +23,8 @@ that the chunk it represents won't be generated again.
 public class DistanceGraph {
 
 	public static final int
-		WORLD_SIZE_IN_BLOCKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000),
-		WORLD_SIZE_IN_CHUNKS = MathHelper.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
+		WORLD_SIZE_IN_BLOCKS = Mth.smallestEncompassingPowerOfTwo(30_000_000),
+		WORLD_SIZE_IN_CHUNKS = Mth.smallestEncompassingPowerOfTwo(30_000_000 >>> 4);
 
 	public Node root;
 	public Query query;
@@ -189,10 +188,10 @@ public class DistanceGraph {
 
 		public PartialNode(int minX, int maxX, int minZ, int maxZ, boolean full) {
 			super(minX, maxX, minZ, maxZ);
-			this.node00 = new LeafNode(minX,      this.midX, minZ,      this.midZ, full);
-			this.node01 = new LeafNode(minX,      this.midX, this.midZ, maxZ,      full);
-			this.node10 = new LeafNode(this.midX, maxX,      minZ,      this.midZ, full);
-			this.node11 = new LeafNode(this.midX, maxX,      this.midZ, maxZ,      full);
+			this.node00 = new LeafNode(minX, this.midX, minZ, this.midZ, full);
+			this.node01 = new LeafNode(minX, this.midX, this.midZ, maxZ, full);
+			this.node10 = new LeafNode(this.midX, maxX, minZ, this.midZ, full);
+			this.node11 = new LeafNode(this.midX, maxX, this.midZ, maxZ, full);
 		}
 
 		public PartialNode(Node bounds, boolean full) {
@@ -261,7 +260,6 @@ public class DistanceGraph {
 			else {
 				return this;
 			}
-
 		}
 
 		@Override

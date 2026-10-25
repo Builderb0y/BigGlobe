@@ -20,7 +20,7 @@ public abstract class AbstractUpdaterInsnTree implements UpdateInsnTree {
 	public TypeInfo getTypeInfo() {
 		return switch (this.mode) {
 			case VOID, VOID_ASSIGN -> TypeInfos.VOID;
-			case PRE,   PRE_ASSIGN -> this.getPreType();
+			case PRE, PRE_ASSIGN -> this.getPreType();
 			//in some cases, it may be possible to
 			//perform some operation to the right operand
 			//before the value to store can even be obtained.
@@ -43,12 +43,12 @@ public abstract class AbstractUpdaterInsnTree implements UpdateInsnTree {
 	public abstract InsnTree asStatement();
 
 	public static enum CombinedMode {
-		VOID       (UpdateOrder.VOID, false), //a += b
-		PRE        (UpdateOrder.PRE,  false), //a +: b
-		POST       (UpdateOrder.POST, false), //a :+ b
-		VOID_ASSIGN(UpdateOrder.VOID, true ), //a  = b
-		PRE_ASSIGN (UpdateOrder.PRE,  true ), //a =: b
-		POST_ASSIGN(UpdateOrder.POST, true ); //a := b
+		VOID(UpdateOrder.VOID, false), //a += b
+		PRE(UpdateOrder.PRE, false), //a +: b
+		POST(UpdateOrder.POST, false), //a :+ b
+		VOID_ASSIGN(UpdateOrder.VOID, true), //a  = b
+		PRE_ASSIGN(UpdateOrder.PRE, true), //a =: b
+		POST_ASSIGN(UpdateOrder.POST, true); //a := b
 
 		public final UpdateOrder order;
 		public final boolean isAssignment;
@@ -61,7 +61,7 @@ public abstract class AbstractUpdaterInsnTree implements UpdateInsnTree {
 		public static CombinedMode of(UpdateOrder order, boolean isAssignment) {
 			return switch (order) {
 				case VOID -> isAssignment ? CombinedMode.VOID_ASSIGN : CombinedMode.VOID;
-				case PRE  -> isAssignment ? CombinedMode. PRE_ASSIGN : CombinedMode. PRE;
+				case PRE -> isAssignment ? CombinedMode.PRE_ASSIGN : CombinedMode.PRE;
 				case POST -> isAssignment ? CombinedMode.POST_ASSIGN : CombinedMode.POST;
 			};
 		}

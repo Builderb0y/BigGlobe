@@ -2,37 +2,32 @@ package builderb0y.bigglobe.structures.dungeons;
 
 import java.util.List;
 import java.util.random.RandomGenerator;
-
-import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.MobSpawnerBlockEntity;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.block.enums.StairShape;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureType;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -50,18 +45,14 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class MediumDungeonStructure extends AbstractDungeonStructure {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class);
-	#else
-		public static final Codec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class).codec();
-	#endif
+	public static final MapCodec<MediumDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumDungeonStructure.class);
 
 	public MediumDungeonStructure(
-		Config config,
+		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
-		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
+		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config, min_y, surface_y, room_decorators, spawner_entries, palettes);
@@ -73,7 +64,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 	}
 
 	@Override
-	public StructureType<?> getType() {
+	public StructureType<?> type() {
 		return BigGlobeStructures.MEDIUM_DUNGEON_TYPE;
 	}
 
@@ -84,8 +75,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int y,
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
-			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
-			RegistryEntry<Structure> owningStructure
+			IRandomList<Holder<EntityType<?>>> spawnerEntries,
+			Holder<Structure> owningStructure
 		) {
 			super(column, y, random, (random.nextInt() & 255) + 128, roomDecorators, spawnerEntries, owningStructure);
 		}
@@ -126,7 +117,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 		public Room(
 			StructurePieceType type,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
@@ -136,26 +127,26 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			this.setPos(0, 0, 0);
 		}
 
-		public Room(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Room(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
 		public void setPos(int x, int y, int z) {
-			this.boundingBox = new BlockBox(x - 3, this.hasPit() ? y - 2 : y, z - 3, x + 3, y + 5, z + 3);
+			this.boundingBox = new BoundingBox(x - 3, this.hasPit() ? y - 2 : y, z - 3, x + 3, y + 5, z + 3);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			super.generate(
+			super.postProcess(
 				world,
 				structureAccessor,
 				chunkGenerator,
@@ -165,26 +156,26 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 				pivot
 			);
 			if (!this.hasPit() && this.support) {
-				BlockPos.Mutable pos = new BlockPos.Mutable();
+				BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 				int x = this.x(), y = this.y() - 1, z = this.z();
 				Coordinator rotator = this.coordinator(world, chunkBox).rotate4x90();
-				rotator.setBlockStateLine(-1, -1, -3, 0, 0, 3, 3, this.palette().stairsSupplier(BlockHalf.TOP, Direction.EAST, StairShape.STRAIGHT));
-				rotator.setBlockState(-2, -1, 0, this.palette().stairsSupplier(BlockHalf.TOP, Direction.WEST, StairShape.STRAIGHT));
-				this.generateDown(world, pos.set(x,     y, z    ), chunkBox);
-				this.generateDown(world, pos.set(x - 3, y, z    ), chunkBox);
-				this.generateDown(world, pos.set(x + 3, y, z    ), chunkBox);
-				this.generateDown(world, pos.set(x,     y, z - 3), chunkBox);
-				this.generateDown(world, pos.set(x,     y, z + 3), chunkBox);
+				rotator.setBlockStateLine(-1, -1, -3, 0, 0, 3, 3, this.palette().stairsSupplier(Half.TOP, Direction.EAST, StairsShape.STRAIGHT));
+				rotator.setBlockState(-2, -1, 0, this.palette().stairsSupplier(Half.TOP, Direction.WEST, StairsShape.STRAIGHT));
+				this.generateDown(world, pos.set(x, y, z), chunkBox);
+				this.generateDown(world, pos.set(x - 3, y, z), chunkBox);
+				this.generateDown(world, pos.set(x + 3, y, z), chunkBox);
+				this.generateDown(world, pos.set(x, y, z - 3), chunkBox);
+				this.generateDown(world, pos.set(x, y, z + 3), chunkBox);
 			}
 		}
 
-		public void generateDown(StructureWorldAccess world, BlockPos.Mutable pos, BlockBox chunkBox) {
-			if (chunkBox.contains(pos)) {
+		public void generateDown(WorldGenLevel world, BlockPos.MutableBlockPos pos, BoundingBox chunkBox) {
+			if (chunkBox.isInside(pos)) {
 				CoordinateSupplier<BlockState> mainSupplier = this.palette().mainSupplier();
 				while (true) {
 					if (BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
-						world.setBlockState(pos, mainSupplier.get(pos), Block.NOTIFY_ALL);
-						if (world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) break;
+						world.setBlock(pos, mainSupplier.get(pos), Block.UPDATE_ALL);
+						if (world.isOutsideBuildHeight(pos.setY(pos.getY() - 1))) break;
 					}
 					else {
 						break;
@@ -223,26 +214,26 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction facing,
 			long seed
 		) {
-			super(type, 0, new BlockBox(x - 1, y, z - 1, x + 1, y + 1, z + 1), owningStructure, paletteIndex, facing, seed);
+			super(type, 0, new BoundingBox(x - 1, y, z - 1, x + 1, y + 1, z + 1), owningStructure, paletteIndex, facing, seed);
 		}
 
-		public ChestPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public ChestPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
+		public void postProcess(WorldGenLevel world, StructureManager structureAccessor, ChunkGenerator chunkGenerator, RandomSource random, BoundingBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
 			Coordinator root = this.coordinator(world, chunkBox);
 			Palette palette = this.palette();
 			root.setBlockStateLine(-1, 0, 0, 1, 0, 0, 3, palette.mainSupplier());
-			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.CHEST.getDefaultState(), ChestBlockEntity.class, this::initChest);
-			root.flip4XZ().setBlockState(1, 0, 1, palette.stairsSupplier(BlockHalf.BOTTOM, Direction.NORTH, StairShape.STRAIGHT));
-			root.flip2X().setBlockState(1, 1, 0, palette.stairsSupplier(BlockHalf.BOTTOM, Direction.WEST, StairShape.STRAIGHT));
+			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.CHEST.defaultBlockState(), ChestBlockEntity.class, this::initChest);
+			root.flip4XZ().setBlockState(1, 0, 1, palette.stairsSupplier(Half.BOTTOM, Direction.NORTH, StairsShape.STRAIGHT));
+			root.flip2X().setBlockState(1, 1, 0, palette.stairsSupplier(Half.BOTTOM, Direction.WEST, StairsShape.STRAIGHT));
 		}
 	}
 
@@ -253,30 +244,30 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
-			RegistryEntry<EntityType<?>> spawnerType
+			Holder<EntityType<?>> spawnerType
 		) {
-			super(type, 0, new BlockBox(x - 1, y, z - 1, x + 1, y + 1, z + 1), owningStructure, paletteIndex, spawnerType);
+			super(type, 0, new BoundingBox(x - 1, y, z - 1, x + 1, y + 1, z + 1), owningStructure, paletteIndex, spawnerType);
 		}
 
-		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public SpawnerPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
+		public void postProcess(WorldGenLevel world, StructureManager structureAccessor, ChunkGenerator chunkGenerator, RandomSource random, BoundingBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
 			Coordinator root = this.coordinator(world, chunkBox);
 			Palette palette = this.palette();
 			root.setBlockState(0, 0, 0, palette.mainSupplier());
-			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.getDefaultState(), MobSpawnerBlockEntity.class, this::initSpawner);
-			root.rotate4x90().setBlockState(1, 0, 0, palette.stairsSupplier(BlockHalf.BOTTOM, Direction.WEST, StairShape.STRAIGHT));
+			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.defaultBlockState(), SpawnerBlockEntity.class, this::initSpawner);
+			root.rotate4x90().setBlockState(1, 0, 0, palette.stairsSupplier(Half.BOTTOM, Direction.WEST, StairsShape.STRAIGHT));
 		}
 
 		@Override
-		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
+		public void initSpawner(BlockPos pos, SpawnerBlockEntity spawner) {
 			super.initSpawner(pos, spawner);
-			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
+			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getSpawner());
 			logic.bigglobe_setRequiredPlayerRange(24);
 			logic.bigglobe_setMaxNearbyEntities(4);
 			logic.bigglobe_setSpawnCount(3);
@@ -290,12 +281,12 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
 		) {
-			super(type, 0, new BlockBox(x - 3, y, z - 3, x + 3, y + 5, z + 3), owningStructure, paletteIndex);
+			super(type, 0, new BoundingBox(x - 3, y, z - 3, x + 3, y + 5, z + 3), owningStructure, paletteIndex);
 			this.setOrientation(direction);
 			this.setBars((random.nextInt() & 7) == 0);
 			int width = random.nextInt(5) + 1;
@@ -304,7 +295,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			this.setRight(position + width - 1);
 		}
 
-		public Hall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -325,7 +316,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			int step,
@@ -335,9 +326,9 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			return switch (step) {
 				case -2 -> new Hall2(BigGlobeStructures.MEDIUM_DUNGEON_HALL2_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
 				case -1 -> new Hall1(BigGlobeStructures.MEDIUM_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
-				case  0 -> new Hall0(BigGlobeStructures.MEDIUM_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
-				case  1 -> new Hall1(BigGlobeStructures.MEDIUM_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
-				case  2 -> new Hall2(BigGlobeStructures.MEDIUM_DUNGEON_HALL2_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 0 -> new Hall0(BigGlobeStructures.MEDIUM_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 1 -> new Hall1(BigGlobeStructures.MEDIUM_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 2 -> new Hall2(BigGlobeStructures.MEDIUM_DUNGEON_HALL2_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
 				default -> throw new IllegalArgumentException(Integer.toString(step));
 			};
 		}
@@ -350,7 +341,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -358,7 +349,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall0(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall0(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -382,7 +373,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -390,7 +381,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall1(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall1(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -415,7 +406,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -423,7 +414,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall2(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall2(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 

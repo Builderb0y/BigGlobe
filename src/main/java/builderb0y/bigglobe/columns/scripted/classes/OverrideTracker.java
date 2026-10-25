@@ -3,13 +3,10 @@ package builderb0y.bigglobe.columns.scripted.classes;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
-import builderb0y.bigglobe.columns.scripted.classes.ConstructorSpec.ConstructorContext;
 import builderb0y.bigglobe.columns.scripted.classes.BaseMethodSpec.MethodSpecDesc;
+import builderb0y.bigglobe.columns.scripted.classes.ConstructorSpec.ConstructorContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.bigglobe.util.UnregisteredObjectException.getID;
@@ -17,18 +14,18 @@ import static builderb0y.bigglobe.util.UnregisteredObjectException.getID;
 public class OverrideTracker {
 
 	public final ClassHierarchy hierarchy;
-	public final RegistryEntry<ElementSpec> owner;
+	public final Holder<ElementSpec> owner;
 	public final Object2ObjectOpenHashMap<String, TrackedField> fields = new Object2ObjectOpenHashMap<>();
 	public final Object2ObjectOpenHashMap<MethodSpecDesc, TrackedMethod> methods = new Object2ObjectOpenHashMap<>();
 	public final Object2ObjectOpenHashMap<String, TrackedProperty> properties = new Object2ObjectOpenHashMap<>();
 	public final Object2ObjectOpenHashMap<String, TrackedEnumValue> enumValues = new Object2ObjectOpenHashMap<>();
 
-	public OverrideTracker(ClassHierarchy hierarchy, RegistryEntry<ElementSpec> owner) {
+	public OverrideTracker(ClassHierarchy hierarchy, Holder<ElementSpec> owner) {
 		this.hierarchy = hierarchy;
 		this.owner = owner;
 	}
 
-	public OverrideTracker(ClassHierarchy hierarchy, RegistryEntry<ElementSpec> owner, OverrideTracker from) {
+	public OverrideTracker(ClassHierarchy hierarchy, Holder<ElementSpec> owner, OverrideTracker from) {
 		this(hierarchy, owner);
 		this.fields.putAll(from.fields);
 		this.methods.putAll(from.methods);
@@ -44,7 +41,7 @@ public class OverrideTracker {
 		return false;
 	}
 
-	public Stream<RegistryEntry<ElementSpec>> getAbstractMembers() {
+	public Stream<Holder<ElementSpec>> getAbstractMembers() {
 		return Stream.concat(
 			this.methods.values().stream().filter((TrackedMethod method) -> method.type == TrackedMethod.Type.ABSTRACT).map(TrackedMethod::declaration),
 			this.properties.values().stream().filter((TrackedProperty property) -> property.type == TrackedProperty.Type.ABSTRACT).map(TrackedProperty::declaration)
@@ -64,7 +61,7 @@ public class OverrideTracker {
 	}
 
 	public void addNormalField(FieldSpec field) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(field);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(field);
 		TrackedProperty existingProperty = this.properties.get(field.name);
 		if (existingProperty != null) {
 			throw new CustomClassFormatException("Field " + getID(entry) + " in class " + getID(this.owner) + " conflicts with property " + getID(existingProperty.declaration) + " in class " + getID(existingProperty.owner));
@@ -87,7 +84,7 @@ public class OverrideTracker {
 	}
 
 	public void addEnumField(EnumValueSpec value) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(value);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(value);
 		TrackedField existingField = this.fields.get(value.name);
 		if (existingField != null) {
 			throw new CustomClassFormatException("Enum field " + getID(entry) + " in class " + getID(this.owner) + " conflicts with field " + getID(existingField.declaration) + " in class " + getID(existingField.owner));
@@ -106,7 +103,7 @@ public class OverrideTracker {
 	}
 
 	public void checkPropertyConflicts(BasePropertySpec property) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(property);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(property);
 		TrackedField existingField = this.fields.get(property.name());
 		if (existingField != null) {
 			if (existingField.type == TrackedField.Type.RESERVED) {
@@ -141,7 +138,7 @@ public class OverrideTracker {
 
 	public void addNormalProperty(NormalPropertySpec property) throws CustomClassFormatException {
 		this.checkPropertyConflicts(property);
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(property);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(property);
 		TrackedProperty existingProperty = this.properties.get(property.name);
 		if (existingProperty != null) {
 			if (existingProperty.owner == this.owner) {
@@ -157,7 +154,7 @@ public class OverrideTracker {
 
 	public void addOverrideProperty(OverridePropertySpec property) throws CustomClassFormatException {
 		this.checkPropertyConflicts(property);
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(property);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(property);
 		TrackedProperty existingProperty = this.properties.get(property.name());
 		if (existingProperty == null) {
 			throw new CustomClassFormatException("Property " + getID(entry) + " overrides property " + getID(property.override) + " but that property is not inherited by class " + getID(this.owner));
@@ -174,7 +171,7 @@ public class OverrideTracker {
 
 	public void addAbstractProperty(AbstractPropertySpec property) throws CustomClassFormatException {
 		this.checkPropertyConflicts(property);
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(property);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(property);
 		TrackedProperty existingProperty = this.properties.get(property.name);
 		if (existingProperty != null) {
 			if (existingProperty.owner == this.owner) {
@@ -189,7 +186,7 @@ public class OverrideTracker {
 	}
 
 	public void addConstructor(ConstructorSpec constructor) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(constructor);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(constructor);
 		ConstructorContext context = ((BaseClassSpec)(this.owner.value())).getCompileContext(constructor);
 		TrackedMethod existing = this.methods.get(context.descriptor);
 		if (existing != null) {
@@ -204,7 +201,7 @@ public class OverrideTracker {
 	}
 
 	public void checkPropertyConflicts(BaseMethodSpec method) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(method);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(method);
 		MethodSpecDesc desc = method.getDescriptor();
 		switch (desc.parameters().size()) {
 			case 0 -> {
@@ -223,7 +220,7 @@ public class OverrideTracker {
 	}
 
 	public void addInstanceMethod(NormalMethodSpec method) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(method);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(method);
 		MethodSpecDesc desc = method.getDescriptor();
 		TrackedMethod existingMethod = this.methods.get(desc);
 		if (existingMethod != null) {
@@ -242,7 +239,7 @@ public class OverrideTracker {
 	}
 
 	public void addAbstractMethod(AbstractMethodSpec method) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(method);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(method);
 		MethodSpecDesc desc = method.getDescriptor();
 		TrackedMethod existingMethod = this.methods.get(desc);
 		if (existingMethod != null) {
@@ -261,7 +258,7 @@ public class OverrideTracker {
 	}
 
 	public void addOverrideMethod(OverrideMethodSpec method) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = this.hierarchy.entryOf(method);
+		Holder<ElementSpec> entry = this.hierarchy.entryOf(method);
 		MethodSpecDesc desc = method.getDescriptor();
 		TrackedMethod existingMethod = this.methods.get(desc);
 		if (existingMethod == null) {
@@ -281,8 +278,8 @@ public class OverrideTracker {
 	}
 
 	public static record TrackedField(
-		RegistryEntry<ElementSpec> owner,
-		RegistryEntry<ElementSpec> declaration,
+		Holder<ElementSpec> owner,
+		Holder<ElementSpec> declaration,
 		Type type
 	) {
 
@@ -293,8 +290,8 @@ public class OverrideTracker {
 	}
 
 	public static record TrackedMethod(
-		RegistryEntry<ElementSpec> owner,
-		RegistryEntry<ElementSpec> declaration,
+		Holder<ElementSpec> owner,
+		Holder<ElementSpec> declaration,
 		Type type
 	) {
 
@@ -308,8 +305,8 @@ public class OverrideTracker {
 	}
 
 	public static record TrackedProperty(
-		RegistryEntry<ElementSpec> owner,
-		RegistryEntry<ElementSpec> declaration,
+		Holder<ElementSpec> owner,
+		Holder<ElementSpec> declaration,
 		Type type,
 		boolean hasSetter
 	) {
@@ -323,7 +320,9 @@ public class OverrideTracker {
 	}
 
 	public static record TrackedEnumValue(
-		RegistryEntry<ElementSpec> owner,
-		RegistryEntry<ElementSpec> declaration
-	) {}
+		Holder<ElementSpec> owner,
+		Holder<ElementSpec> declaration
+	) {
+
+	}
 }

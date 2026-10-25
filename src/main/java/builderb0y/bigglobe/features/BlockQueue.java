@@ -1,7 +1,14 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Map;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
@@ -9,16 +16,6 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.WorldAccess;
-
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
@@ -45,12 +42,12 @@ public class BlockQueue {
 	public BlockQueue(boolean causeBlockUpdates) {
 		this.flags = (
 			causeBlockUpdates
-			? Block.NOTIFY_ALL
-			: Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+				? Block.UPDATE_ALL
+				: Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
 		);
 	}
 
-	public BlockQueueStructureWorldAccess createWorld(StructureWorldAccess world) {
+	public BlockQueueStructureWorldAccess createWorld(WorldGenLevel world) {
 		return new BlockQueueStructureWorldAccess(world, this);
 	}
 
@@ -61,7 +58,7 @@ public class BlockQueue {
 	public void queueBlock(long pos, BlockState state) {
 		this.queuedBlocks.put(pos, state);
 		if (state.hasBlockEntity()) {
-			BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(BlockPos.fromLong(pos), state);
+			BlockEntity blockEntity = ((EntityBlock)(state.getBlock())).newBlockEntity(BlockPos.of(pos), state);
 			if (blockEntity != null) this.queueBlockEntity(pos, blockEntity);
 		}
 		else {
@@ -93,18 +90,18 @@ public class BlockQueue {
 		return this.queuedBlockEntities.get(pos);
 	}
 
-	public void placeQueuedBlocks(WorldAccess world) {
+	public void placeQueuedBlocks(LevelAccessor world) {
 		if (!this.queuedBlocks.isEmpty()) {
-			BlockPos.Mutable pos = new BlockPos.Mutable();
+			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 			for (
 				ObjectIterator<Long2ObjectMap.Entry<BlockState>> iterator = this.queuedBlocks.long2ObjectEntrySet().fastIterator();
 				iterator.hasNext();
 			) {
 				Long2ObjectMap.Entry<BlockState> entry = iterator.next();
-				world.setBlockState(pos.set(entry.getLongKey()), entry.getValue(), this.flags);
+				world.setBlock(pos.set(entry.getLongKey()), entry.getValue(), this.flags);
 			}
 			if (!this.queuedBlockEntities.isEmpty()) for (
-				ObjectIterator<Long2ObjectMap.Entry<BlockEntity>> iterator = this.queuedBlockEntities.long2ObjectEntrySet().fastIterator();
+														ObjectIterator<Long2ObjectMap.Entry<BlockEntity>> iterator = this.queuedBlockEntities.long2ObjectEntrySet().fastIterator();
 				iterator.hasNext();
 			) {
 				Long2ObjectMap.Entry<BlockEntity> entry = iterator.next();
@@ -130,7 +127,7 @@ public class BlockQueue {
 		return state != null ? state : BlockStates.AIR;
 	}
 
-	public BlockState getBlockState(BlockPos pos, BlockView fallback) {
+	public BlockState getBlockState(BlockPos pos, BlockGetter fallback) {
 		BlockState state = this.queuedBlocks.get(pos.asLong());
 		return state != null ? state : fallback.getBlockState(pos);
 	}
@@ -139,13 +136,13 @@ public class BlockQueue {
 	public String toString() {
 		return (
 			TypeFormatter.appendSimpleClassUnchecked(
-				new StringBuilder(32),
-				this.getClass()
-			)
-			.append(": { flags: ").append(this.flags)
-			.append(", size: ").append(this.queuedBlocks.size())
-			.append(" }")
-			.toString()
+					new StringBuilder(32),
+					this.getClass()
+				)
+				.append(": { flags: ").append(this.flags)
+				.append(", size: ").append(this.queuedBlocks.size())
+				.append(" }")
+				.toString()
 		);
 	}
 
@@ -182,9 +179,9 @@ public class BlockQueue {
 
 		public QueuedObject(long packed, T object) {
 			this(
-				BlockPos.unpackLongX(packed),
-				BlockPos.unpackLongY(packed),
-				BlockPos.unpackLongZ(packed),
+				BlockPos.getX(packed),
+				BlockPos.getY(packed),
+				BlockPos.getZ(packed),
 				packed,
 				object
 			);

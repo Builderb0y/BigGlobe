@@ -2,36 +2,35 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.profiler.Profiler;
-
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ChunkPos;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.LodOverrides;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.FastMath;
+import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.rendering.GLException;
 import builderb0y.bigglobe.rendering.OutOfVramException;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.rendering.lods.LodGenerator.LoadMode;
-import builderb0y.bigglobe.rendering.lods.LodRenderer.LodRenderState;
-import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.lods.LodGenerator.LodSupply;
+import builderb0y.bigglobe.rendering.lods.LodRenderer.LodRenderState;
 import builderb0y.bigglobe.rendering.lods.LodRenderer.MeshUploader;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 @Environment(EnvType.CLIENT)
@@ -40,44 +39,33 @@ public class LodSystem implements SafeCloseable {
 	public static final long CHUNK_REBUILD_DELAY = 2000L;
 
 	static {
-		#if MC_VERSION >= MC_1_21_9
-			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_EXTRACTION.register(context -> {
-				LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
-				if (system != null) {
-					system.renderState.setup(context);
-					system.renderingThisFrame = shouldRenderLods(context.camera());
-				}
-			});
-			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.START_MAIN.register(context -> {
-				LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
-				if (system != null) system.draw();
-			});
-		#else
-			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents.AFTER_SETUP.register(
-				context -> {
-					LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
-					if (system != null) {
-						system.renderState.setup(context);
-						system.renderingThisFrame = shouldRenderLods(context.camera());
-						system.draw();
-					}
-				}
-			);
-		#endif
+
+		WorldRenderEvents.AFTER_SETUP.register(context -> {
+			LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+			if (system != null) {
+				system.renderState.setup(context);
+				system.renderingThisFrame = shouldRenderLods(context.camera());
+			}
+		});
+		WorldRenderEvents.START_MAIN.register(context -> {
+			LodSystem system = LodSystemHolder.of(context.worldRenderer()).bigglobe_getLodSystem();
+			if (system != null) system.draw();
+		});
 	}
 
-	public static void init() {}
+	public static void init() {
+	}
 
 	/**
-	I would normally use {@link WorldRenderer#hasBlindnessOrDarkness(Camera)} for this,
+	I would normally use {@link LevelRenderer#doesMobEffectBlockSky(Camera)} for this,
 	but sodium mixes into that to also cancel when the camera is underwater.
 	*/
 	public static boolean shouldRenderLods(Camera camera) {
-		return !(camera.getFocusedEntity() instanceof LivingEntity entity && (entity.hasStatusEffect(StatusEffects.BLINDNESS) || entity.hasStatusEffect(StatusEffects.DARKNESS)));
+		return !(camera.getEntity() instanceof LivingEntity entity && (entity.hasEffect(MobEffects.BLINDNESS) || entity.hasEffect(MobEffects.DARKNESS)));
 	}
 
 	public LodOverrides overrides;
-	public ClientWorld world;
+	public ClientLevel world;
 	public LodGenerator generator;
 	public LodQuadTree tree;
 	public LodRenderer renderer;
@@ -91,7 +79,7 @@ public class LodSystem implements SafeCloseable {
 		ResourceTracker.closeAll(this.generator, this.tree, this.renderer);
 	}
 
-	public LodSystem(ClientWorld world, ClientGeneratorParams generator) {
+	public LodSystem(ClientLevel world, ClientGeneratorParams generator) {
 		this.overrides = generator.generatorLodOverrides;
 		String message = GLException.forceCheckMessage();
 		if (message != null) BigGlobeMod.LOGGER.warn("A GL exception occurred just before LOD system initialization: " + message);
@@ -111,12 +99,12 @@ public class LodSystem implements SafeCloseable {
 		}
 	}
 
-	public static void reload(LodSystemHolder holder, ClientWorld world) {
+	public static void reload(LodSystemHolder holder, ClientLevel world) {
 		ClientState state = ClientState.get(world);
 		reload(holder, world, state != null ? state.generatorParams : null);
 	}
 
-	public static void reload(LodSystemHolder holder, ClientWorld world, ClientGeneratorParams params) {
+	public static void reload(LodSystemHolder holder, ClientLevel world, ClientGeneratorParams params) {
 		LodSystem system = holder.bigglobe_getLodSystem();
 		if (system != null) {
 			system.close();
@@ -140,7 +128,7 @@ public class LodSystem implements SafeCloseable {
 
 	public static int countTotalNodes(LodQuadTree root) {
 		return root == null ? 0 : (
-			+ countTotalNodes(root.x0z0)
+			+countTotalNodes(root.x0z0)
 			+ countTotalNodes(root.x1z0)
 			+ countTotalNodes(root.x0z1)
 			+ countTotalNodes(root.x1z1)
@@ -151,7 +139,7 @@ public class LodSystem implements SafeCloseable {
 	public static int countRenderingNodes(LodQuadTree root) {
 		if (root != null && root.isInRange() && root.isInFrustum()) {
 			return root.getAncestorDepth() == 1 ? 1 : (
-				+ countRenderingNodes(root.x0z0)
+				+countRenderingNodes(root.x0z0)
 				+ countRenderingNodes(root.x0z1)
 				+ countRenderingNodes(root.x1z0)
 				+ countRenderingNodes(root.x1z1)
@@ -162,7 +150,7 @@ public class LodSystem implements SafeCloseable {
 
 	public static int countMeshes(LodQuadTree root) {
 		return root == null ? 0 : (
-			+ (root.passes != null ? 1 : 0)
+			+(root.passes != null ? 1 : 0)
 			+ countMeshes(root.x0z0)
 			+ countMeshes(root.x0z1)
 			+ countMeshes(root.x1z0)
@@ -172,7 +160,7 @@ public class LodSystem implements SafeCloseable {
 
 	public static int countDirty(LodQuadTree root) {
 		return root == null ? 0 : (
-			+ (root.rebuildTime != Long.MAX_VALUE ? 1 : 0)
+			+(root.rebuildTime != Long.MAX_VALUE ? 1 : 0)
 			+ countDirty(root.x0z0)
 			+ countDirty(root.x0z1)
 			+ countDirty(root.x1z0)
@@ -183,10 +171,10 @@ public class LodSystem implements SafeCloseable {
 	public void oom() {
 		this.currentQuality = Math.min(this.currentQuality, this.qualityLimit -= 0.5D);
 
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		Text text = Text.translatable("bigglobe.lod.oom", this.qualityLimit);
+		LocalPlayer player = Minecraft.getInstance().player;
+		Component text = Component.translatable("bigglobe.lod.oom", this.qualityLimit);
 		if (player != null) {
-			player.sendMessage(text, false);
+			player.displayClientMessage(text, false);
 		}
 		else {
 			BigGlobeMod.LOGGER.warn(text.getString());
@@ -222,10 +210,10 @@ public class LodSystem implements SafeCloseable {
 			BigGlobeMod.LOGGER.warn("Caught GL exception from some other unknown mod right before LOD rendering: " + existingMessage);
 		}
 		if (this.levelLimit > LodQuadTree.MIN_LEVEL && BigGlobeConfig.INSTANCE.get().lodRendering.showProgress) {
-			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			LocalPlayer player = Minecraft.getInstance().player;
 			if (player != null) {
 				int percent = 100 - (this.levelLimit - LodQuadTree.MIN_LEVEL) * 100 / (LodQuadTree.MAX_LEVEL - LodQuadTree.MIN_LEVEL);
-				player.sendMessage(Text.translatable("bigglobe.lod.generating", percent), true);
+				player.displayClientMessage(Component.translatable("bigglobe.lod.generating", percent), true);
 			}
 		}
 		try {
@@ -248,11 +236,7 @@ public class LodSystem implements SafeCloseable {
 
 		GLException failure = null;
 
-		#if MC_VERSION >= MC_1_21_2
-			Profiler profiler = net.minecraft.util.profiler.Profilers.get();
-		#else
-			Profiler profiler = this.renderState.profiler;
-		#endif
+		ProfilerFiller profiler = Minecraft.getInstance().getProfiler();
 
 		profiler.push("BG LODs");
 
@@ -267,7 +251,7 @@ public class LodSystem implements SafeCloseable {
 			profiler.push("Process Supply");
 			try {
 				try (MeshUploader uploader = this.renderer.finishMeshing()) {
-					for (LodSupply supply; (supply = this.generator.getSupply()) != null;) {
+					for (LodSupply supply; (supply = this.generator.getSupply()) != null; ) {
 						supply.apply(uploader, this.generator.maxLoadLevel);
 					}
 				}
@@ -313,7 +297,7 @@ public class LodSystem implements SafeCloseable {
 			this.updateTree(this.tree, System.currentTimeMillis(), null);
 			//this.verifyTree(this.tree);
 
-			profiler.swap("Opaque");
+			profiler.popPush("Opaque");
 			//must ensure either both passes are bound and unbound, or neither are.
 			try (var $ = this.renderer.bind(this.renderState, false)) {
 				GLException.check();
@@ -323,7 +307,7 @@ public class LodSystem implements SafeCloseable {
 			catch (GLException exception) {
 				failure = exception;
 			}
-			profiler.swap("Translucent");
+			profiler.popPush("Translucent");
 			try (var $ = this.renderer.bind(this.renderState, true)) {
 				GLException.check();
 				if (failure == null) {
@@ -532,9 +516,9 @@ public class LodSystem implements SafeCloseable {
 
 	public double squareDistanceTo(LodQuadTree tree) {
 		LodFrustum frustum = this.renderState.frustum;
-		double closestX = MathHelper.clamp(frustum.x, tree.minX(), tree.maxX());
-		double closestY = MathHelper.clamp(frustum.y, this.generator.generatorParams.minY, this.generator.generatorParams.maxY);
-		double closestZ = MathHelper.clamp(frustum.z, tree.minZ(), tree.maxZ());
+		double closestX = Mth.clamp(frustum.x, tree.minX(), tree.maxX());
+		double closestY = Mth.clamp(frustum.y, this.generator.generatorParams.minY, this.generator.generatorParams.maxY);
+		double closestZ = Mth.clamp(frustum.z, tree.minZ(), tree.maxZ());
 		return BigGlobeMath.squareD(closestX - frustum.x, closestY - frustum.y, closestZ - frustum.z);
 	}
 

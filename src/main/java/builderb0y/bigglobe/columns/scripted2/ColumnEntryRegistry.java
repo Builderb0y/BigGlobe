@@ -6,19 +6,16 @@ import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Consumer;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
-import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
-import builderb0y.bigglobe.columns.scripted.traits.TraitManager;
 import builderb0y.bigglobe.columns.scripted.classes.ClassHierarchy;
 import builderb0y.bigglobe.columns.scripted.classes.CustomClassFormatException;
 import builderb0y.bigglobe.columns.scripted.classes.TypeSpec;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
+import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
+import builderb0y.bigglobe.columns.scripted.traits.TraitManager;
 import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.scripting.environments.*;
@@ -43,7 +40,7 @@ public class ColumnEntryRegistry {
 	public final transient ClassHierarchy classHierarchy;
 	public final transient TraitManager traitManager;
 	public final transient ColumnCompileContext columnCompileContext;
-	public final transient Map<ColumnEntry, RegistryEntry<ColumnEntry>> columnEntryLookup;
+	public final transient Map<ColumnEntry, Holder<ColumnEntry>> columnEntryLookup;
 	public final transient ScriptClassLoader loader;
 	public final transient Class<? extends ScriptedColumn> columnClass;
 	public final transient MethodHandles.Lookup columnLookup;
@@ -90,18 +87,18 @@ public class ColumnEntryRegistry {
 			this.columnLookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
-					this.columnLookup,
-					"create",
-					MethodType.methodType(ScriptedColumn.Factory.class),
-					MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
+						this.columnLookup,
+						"create",
+						MethodType.methodType(ScriptedColumn.Factory.class),
+						MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
 						this.columnLookup.findConstructor(
-						this.columnClass,
-						MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
-					),
-					MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
-				)
-				.getTarget()
-				.invokeExact()
+							this.columnClass,
+							MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
+						),
+						MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
+					)
+					.getTarget()
+					.invokeExact()
 			);
 		}
 		catch (Throwable throwable) {
@@ -110,7 +107,7 @@ public class ColumnEntryRegistry {
 		this.traitManager.compile();
 	}
 
-	public RegistryEntry<ColumnEntry> entryOf(ColumnEntry entry) {
+	public Holder<ColumnEntry> entryOf(ColumnEntry entry) {
 		return this.columnEntryLookup.get(entry);
 	}
 
@@ -135,13 +132,14 @@ public class ColumnEntryRegistry {
 
 	public void progressTo(ColumnEntry.CompileStep step) throws ColumnValueException {
 		ColumnValueException root = null;
-		for (ColumnEntry entry : this.columnEntryLookup.keySet()) try {
-			step.action.execute(entry, this);
-		}
-		catch (Exception exception) {
-			if (root == null) root = new ColumnValueException("Exception " + step.description);
-			root.addSuppressed(new ColumnValueException("Exception " + step.description + " for " + UnregisteredObjectException.getID(this.entryOf(entry)), exception));
-		}
+		for (ColumnEntry entry : this.columnEntryLookup.keySet())
+			try {
+				step.action.execute(entry, this);
+			}
+			catch (Exception exception) {
+				if (root == null) root = new ColumnValueException("Exception " + step.description);
+				root.addSuppressed(new ColumnValueException("Exception " + step.description + " for " + UnregisteredObjectException.getID(this.entryOf(entry)), exception));
+			}
 		if (root != null) throw root;
 	}
 
@@ -154,30 +152,30 @@ public class ColumnEntryRegistry {
 		MutableDependencyView dependencies,
 		Consumer<MutableScriptEnvironment> extra
 	)
-	throws ScriptParsingException {
+		throws ScriptParsingException {
 		return (
 			new ScriptColumnEntryParser(code, method.clazz, method, this.parserFlags())
-			.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-			.addEnvironment(MathScriptEnvironment.INSTANCE)
-			.configureEnvironment(MinecraftScriptEnvironment.create())
-			.addEnvironment(SymmetryScriptEnvironment.INSTANCE)
-			.configureEnvironment(NbtScriptEnvironment.createMutable())
-			.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
-			.addEnvironment(RandomScriptEnvironment.BASE)
-			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-			.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-			.configureEnvironment(
-				this.environmentSetterUpper(
-					new ExternalEnvironmentParams()
-					.withColumn(loadColumn)
-					.withY(loadY)
-					.mutable()
-					.trackDependencies(dependencies),
-					loadCustomClass
+				.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+				.addEnvironment(MathScriptEnvironment.INSTANCE)
+				.configureEnvironment(MinecraftScriptEnvironment.create())
+				.addEnvironment(SymmetryScriptEnvironment.INSTANCE)
+				.configureEnvironment(NbtScriptEnvironment.createMutable())
+				.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
+				.addEnvironment(RandomScriptEnvironment.BASE)
+				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+				.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+				.configureEnvironment(
+					this.environmentSetterUpper(
+						new ExternalEnvironmentParams()
+							.withColumn(loadColumn)
+							.withY(loadY)
+							.mutable()
+							.trackDependencies(dependencies),
+						loadCustomClass
+					)
 				)
-			)
-			.configureEnvironment(extra)
-			.parseEntireInput()
+				.configureEnvironment(extra)
+				.parseEntireInput()
 		);
 	}
 
@@ -190,7 +188,7 @@ public class ColumnEntryRegistry {
 		MutableDependencyView dependencies,
 		Consumer<MutableScriptEnvironment> extra
 	)
-	throws ScriptParsingException {
+		throws ScriptParsingException {
 		this.parseCode(method, code, loadColumn, loadY, loadCustomClass, dependencies, extra).emitBytecode(method);
 		method.endCode();
 	}

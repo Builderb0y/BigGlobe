@@ -4,67 +4,69 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import org.apache.commons.lang3.mutable.MutableObject;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryOwner;
-import net.minecraft.util.Identifier;
 
 public class FakeRegistry<T> {
 
-	public final RegistryKey<Registry<T>> key;
-	public final RegistryEntryOwner<T> owner = new RegistryEntryOwner<>() {};
-	public final ReferenceQueue<RegistryEntry<T>> queue = new ReferenceQueue<>();
-	public final ConcurrentHashMap<T, WeakReference<RegistryEntry<T>>> cache = new ConcurrentHashMap<>(32);
+	public final ResourceKey<Registry<T>> key;
+	public final HolderOwner<T> owner = new HolderOwner<>() {
 
-	public FakeRegistry(Identifier key) {
-		this.key = RegistryKey.ofRegistry(key);
+	};
+	public final ReferenceQueue<Holder<T>> queue = new ReferenceQueue<>();
+	public final ConcurrentHashMap<T, WeakReference<Holder<T>>> cache = new ConcurrentHashMap<>(32);
+
+	public FakeRegistry(ResourceLocation key) {
+		this.key = ResourceKey.createRegistryKey(key);
 	}
 
-	public FakeRegistry(RegistryKey<Registry<T>> key) {
+	public FakeRegistry(ResourceKey<Registry<T>> key) {
 		this.key = key;
 	}
 
-	public synchronized RegistryEntry<T> getOrCreate(Identifier id, T object) {
-		class Ref extends WeakReference<RegistryEntry<T>> {
+	public synchronized Holder<T> getOrCreate(ResourceLocation id, T object) {
+		class Ref extends WeakReference<Holder<T>> {
 
 			public final T key;
 
-			public Ref(RegistryEntry<T> entry) {
+			public Ref(Holder<T> entry) {
 				super(entry, FakeRegistry.this.queue);
 				this.key = entry.value();
 			}
 		}
-		for (Reference<? extends RegistryEntry<T>> reference; (reference = this.queue.poll()) != null;) {
+		for (Reference<? extends Holder<T>> reference; (reference = this.queue.poll()) != null; ) {
 			this.cache.remove(((Ref)(reference)).key);
 		}
-		MutableObject<RegistryEntry<T>> result = new MutableObject<>();
-		this.cache.compute(object, (T value, WeakReference<RegistryEntry<T>> ref) -> {
-			RegistryEntry<T> entry;
-			if (ref != null) {
-				entry = ref.get();
-				if (entry != null) {
-					result.setValue(entry);
-					return ref;
+		MutableObject<Holder<T>> result = new MutableObject<>();
+		this.cache.compute(
+			object, (T value, WeakReference<Holder<T>> ref) -> {
+				Holder<T> entry;
+				if (ref != null) {
+					entry = ref.get();
+					if (entry != null) {
+						result.setValue(entry);
+						return ref;
+					}
 				}
+				entry = new RegistryEntryImpl<>(this.owner, this.key, id, value);
+				result.setValue(entry);
+				return new Ref(entry);
 			}
-			entry = new RegistryEntryImpl<>(this.owner, this.key, id, value);
-			result.setValue(entry);
-			return new Ref(entry);
-		});
+		);
 		return result.getValue();
 	}
 
-	public static class RegistryEntryImpl<T> extends RegistryEntry.Reference<T> {
+	public static class RegistryEntryImpl<T> extends Holder.Reference<T> {
 
-		public RegistryEntryImpl(RegistryEntryOwner<T> owner, RegistryKey<Registry<T>> key, Identifier id, T value) {
+		public RegistryEntryImpl(HolderOwner<T> owner, ResourceKey<Registry<T>> key, ResourceLocation id, T value) {
 			super(
-				RegistryEntry.Reference.Type.STAND_ALONE,
+				Holder.Reference.Type.STAND_ALONE,
 				owner,
-				RegistryKey.of(key, id),
+				ResourceKey.create(key, id),
 				value
 			);
 		}

@@ -61,15 +61,15 @@ public abstract class PowerInsnTree extends BinaryInsnTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (mode) {
-				case IIPOW -> ldc(FastPow.pow(leftConstant.   asInt(), rightConstant.   asInt()));
-				case LIPOW -> ldc(FastPow.pow(leftConstant.  asLong(), rightConstant.   asInt()));
-				case FIPOW -> ldc(FastPow.pow(leftConstant. asFloat(), rightConstant.   asInt()));
-				case DIPOW -> ldc(FastPow.pow(leftConstant.asDouble(), rightConstant.   asInt()));
-				case FFPOW -> ldc(FastPow.pow(leftConstant. asFloat(), rightConstant. asFloat()));
-				case DDPOW -> ldc(   Math.pow(leftConstant.asDouble(), rightConstant.asDouble()));
+				case IIPOW -> ldc(FastPow.pow(leftConstant.asInt(), rightConstant.asInt()));
+				case LIPOW -> ldc(FastPow.pow(leftConstant.asLong(), rightConstant.asInt()));
+				case FIPOW -> ldc(FastPow.pow(leftConstant.asFloat(), rightConstant.asInt()));
+				case DIPOW -> ldc(FastPow.pow(leftConstant.asDouble(), rightConstant.asInt()));
+				case FFPOW -> ldc(FastPow.pow(leftConstant.asFloat(), rightConstant.asFloat()));
+				case DDPOW -> ldc(Math.pow(leftConstant.asDouble(), rightConstant.asDouble()));
 			};
 		}
-		left  = left .cast(parser, mode.leftType,  CastMode.EXPLICIT_THROW, false);
+		left = left.cast(parser, mode.leftType, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, mode.rightType, CastMode.EXPLICIT_THROW, false);
 		if (rightConstant.isConstant()) {
 			return new VariableConstantPowerInsnTree(left, right, mode);
@@ -94,7 +94,7 @@ public abstract class PowerInsnTree extends BinaryInsnTree {
 				case DIPOW -> "(DI)D";
 				case FFPOW -> "(FF)F";
 				case DDPOW -> "(DD)D";
-				default    -> throw new AssertionError(this.mode);
+				default -> throw new AssertionError(this.mode);
 			},
 			false
 		);

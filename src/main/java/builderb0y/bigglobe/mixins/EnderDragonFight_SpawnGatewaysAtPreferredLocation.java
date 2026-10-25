@@ -5,20 +5,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
-
-import net.minecraft.entity.boss.dragon.EnderDragonFight;
-import net.minecraft.server.world.ServerWorld;
-
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.dimension.end.EndDragonFight;
 
-@Mixin(EnderDragonFight.class)
+@Mixin(EndDragonFight.class)
 public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 
-	@Shadow @Final private ServerWorld world;
+	@Shadow
+	@Final
+	private ServerLevel level;
 
-	@ModifyConstant(method = "generateNewEndGateway", constant = @Constant(doubleValue = 96.0D))
+	@ModifyConstant(method = "spawnNewGateway()V", constant = @Constant(doubleValue = 96.0D))
 	private double bigglobe_overrideRadius(double oldValue) {
-		if (this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			return generator.end_overrides.inner_gateways().radius();
 		}
 		else {
@@ -26,9 +26,9 @@ public class EnderDragonFight_SpawnGatewaysAtPreferredLocation {
 		}
 	}
 
-	@ModifyConstant(method = "generateNewEndGateway", constant = @Constant(intValue = 75))
+	@ModifyConstant(method = "spawnNewGateway()V", constant = @Constant(intValue = 75))
 	private int bigglobe_overrideHeight(int oldValue) {
-		if (this.world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (this.level.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			return generator.end_overrides.inner_gateways().height();
 		}
 		else {

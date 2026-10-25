@@ -1,11 +1,12 @@
 package builderb0y.bigglobe.items;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileItem;
+import net.minecraft.world.level.Level;
 
-public interface SlingshotAmmunition #if MC_VERSION >= MC_1_20_5 extends net.minecraft.item.ProjectileItem #endif {
+public interface SlingshotAmmunition extends ProjectileItem {
 
-	public abstract ProjectileEntity createProjectile(World world, LivingEntity user, ItemStack stack, ItemStack slingshot);
+	public abstract Projectile createProjectile(Level world, LivingEntity user, ItemStack stack, ItemStack slingshot);
 }

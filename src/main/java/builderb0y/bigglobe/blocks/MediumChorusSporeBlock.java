@@ -1,38 +1,34 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class MediumChorusSporeBlock extends ChorusSporeBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<MediumChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumChorusSporeBlock.class);
+	public static final MapCodec<MediumChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MediumChorusSporeBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public MediumChorusSporeBlock(Settings settings, RegistryEntry<Block> grow_into) {
+	public MediumChorusSporeBlock(Properties settings, Holder<Block> grow_into) {
 		super(settings, grow_into);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return VoxelShapes.fullCube();
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return Shapes.block();
 	}
 }

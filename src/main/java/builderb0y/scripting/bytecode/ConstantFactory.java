@@ -4,17 +4,14 @@ import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryOwner;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.FakeRegistry.RegistryEntryImpl;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
@@ -49,7 +46,7 @@ public class ConstantFactory extends AbstractConstantFactory {
 		this.hasFlags = hasFlags;
 	}
 
-	public static <T> RegistryEntry<T> getEntry(RegistryKey<Registry<T>> registryKey, String id, int flags) {
+	public static <T> Holder<T> getEntry(ResourceKey<Registry<T>> registryKey, String id, int flags) {
 		if (id == null) return null;
 		try {
 			return BigGlobeMod.getSidedRegistry(registryKey, (flags & CLIENT) != 0).requireByName(id);
@@ -60,12 +57,14 @@ public class ConstantFactory extends AbstractConstantFactory {
 		}
 	}
 
-	public static <T> RegistryEntry<T> getEntryServerOnly(RegistryKey<Registry<T>> registryKey, String id, int flags, T defaultValue) {
+	public static <T> Holder<T> getEntryServerOnly(ResourceKey<Registry<T>> registryKey, String id, int flags, T defaultValue) {
 		if (id == null) return null;
 		try {
 			if ((flags & CLIENT) != 0) {
 				return new RegistryEntryImpl<>(
-					new RegistryEntryOwner<>() {},
+					new HolderOwner<>() {
+
+					},
 					registryKey,
 					IdentifierVersions.create(id),
 					defaultValue

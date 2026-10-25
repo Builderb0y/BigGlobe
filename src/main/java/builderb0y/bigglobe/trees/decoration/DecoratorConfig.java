@@ -25,12 +25,12 @@ public class DecoratorConfig {
 		BlockDecorator[] branchBlock,
 		BlockDecorator[] leafBlock
 	) {
-		this.trunk       = trunk;
-		this.trunkLayer  = trunkLayer;
-		this.trunkBlock  = trunkBlock;
-		this.branch      = branch;
+		this.trunk = trunk;
+		this.trunkLayer = trunkLayer;
+		this.trunkBlock = trunkBlock;
+		this.branch = branch;
 		this.branchBlock = branchBlock;
-		this.leafBlock   = leafBlock;
+		this.leafBlock = leafBlock;
 	}
 
 	public static class Builder {
@@ -90,12 +90,12 @@ public class DecoratorConfig {
 
 		public DecoratorConfig build() {
 			return new DecoratorConfig(
-				toArray(this.trunk,       EMPTY_TRUNK_ARRAY),
-				toArray(this.trunkLayer,  EMPTY_TRUNK_LAYER_ARRAY),
-				toArray(this.trunkBlock,  EMPTY_BLOCK_ARRAY),
-				toArray(this.branch,      EMPTY_BRANCH_ARRAY),
+				toArray(this.trunk, EMPTY_TRUNK_ARRAY),
+				toArray(this.trunkLayer, EMPTY_TRUNK_LAYER_ARRAY),
+				toArray(this.trunkBlock, EMPTY_BLOCK_ARRAY),
+				toArray(this.branch, EMPTY_BRANCH_ARRAY),
 				toArray(this.branchBlock, EMPTY_BLOCK_ARRAY),
-				toArray(this.leafBlock,   EMPTY_BLOCK_ARRAY)
+				toArray(this.leafBlock, EMPTY_BLOCK_ARRAY)
 			);
 		}
 	}

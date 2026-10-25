@@ -2,22 +2,20 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.util.SafeCloseable;
-import builderb0y.bigglobe.rendering.lods.VertexHeap.Slice;
 import builderb0y.bigglobe.versions.RenderVersions;
+import builderb0y.bigglobe.rendering.lods.VertexHeap.Slice;
+import builderb0y.bigglobe.util.SafeCloseable;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 @Environment(EnvType.CLIENT)
 public record LodPasses(
 	@Nullable Geometry opaque,
 	@Nullable Geometry translucent
 )
-implements SafeCloseable {
+	implements SafeCloseable {
 
 	public @Nullable Geometry getGeometry(boolean translucent) {
 		return translucent ? this.translucent : this.opaque;
@@ -35,7 +33,7 @@ implements SafeCloseable {
 		int vertexCount,
 		int indexCount
 	)
-	implements SafeCloseable {
+		implements SafeCloseable {
 
 		public static Geometry from(CompactVertexConsumer builder, VertexHeap heap) {
 			try (builder) {
@@ -72,7 +70,7 @@ implements SafeCloseable {
 		CompactVertexConsumer opaque,
 		CompactVertexConsumer translucent
 	)
-	implements SafeCloseable, VersionedVertexConsumerProvider {
+		implements SafeCloseable, VersionedVertexConsumerProvider {
 
 		public Builder(CompactVertexFormat format, int initialVertexCount) {
 			this(
@@ -81,25 +79,14 @@ implements SafeCloseable {
 			);
 		}
 
-		#if MC_VERSION >= MC_1_21_6
-
-			@Override
-			public VertexConsumer getBuffer(net.minecraft.client.render.BlockRenderLayer layer) {
-				return layer.isTranslucent() ? this.translucent : this.opaque;
-			}
-
-		#else
-
-			@Override
-			public VertexConsumer getBuffer(RenderLayer layer) {
-				return RenderVersions.isTranslucent(layer) ? this.translucent : this.opaque;
-			}
-
-		#endif
+		@Override
+		public VertexConsumer getBuffer(RenderType layer) {
+			return RenderVersions.isTranslucent(layer) ? this.translucent : this.opaque;
+		}
 
 		public LodPasses build(VertexHeap heap) {
 			try (ResourceTracker tracker = new ResourceTracker()) {
-				Geometry opaque      = tracker.track(Geometry.from(this.opaque,      heap));
+				Geometry opaque = tracker.track(Geometry.from(this.opaque, heap));
 				Geometry translucent = tracker.track(Geometry.from(this.translucent, heap));
 				tracker.untrackAll(); //success.
 				return new LodPasses(opaque, translucent);

@@ -4,21 +4,20 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
-
-import net.minecraft.fluid.FlowableFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
 import builderb0y.bigglobe.BigGlobeMod;
 
 public class BigGlobeFluids {
 
-	public static final FlowableFluid
-		SOUL_LAVA         = register("soul_lava",         new SoulLavaFluid.Still()),
+	public static final FlowingFluid
+		SOUL_LAVA = register("soul_lava", new SoulLavaFluid.Still()),
 		FLOWING_SOUL_LAVA = register("flowing_soul_lava", new SoulLavaFluid.Flowing());
 
-	public static void init() {}
+	public static void init() {
+	}
 
 	@Environment(EnvType.CLIENT)
 	public static void initClient() {
@@ -33,6 +32,6 @@ public class BigGlobeFluids {
 	}
 
 	public static <F extends Fluid> F register(String name, F fluid) {
-		return Registry.register(Registries.FLUID, BigGlobeMod.modID(name), fluid);
+		return Registry.register(BuiltInRegistries.FLUID, BigGlobeMod.modID(name), fluid);
 	}
 }

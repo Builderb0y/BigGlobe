@@ -1,20 +1,17 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import org.joml.Vector3d;
-
-import net.minecraft.world.Heightmap;
-
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.FastMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.megaTree.MegaTreeStructure.MegaTreeContext;
 import builderb0y.bigglobe.util.Vectors;
+import net.minecraft.world.level.levelgen.Heightmap;
 
-import static builderb0y.bigglobe.math.BigGlobeMath.*;
+import static builderb0y.bigglobe.math.BigGlobeMath.floorI;
+import static builderb0y.bigglobe.math.BigGlobeMath.squareD;
 
 public class MegaTreeBranch {
 
@@ -39,14 +36,14 @@ public class MegaTreeBranch {
 		Vector3d velocity,
 		Vector3d acceleration
 	) {
-		this.context             = context;
-		this.totalSteps          = totalSteps;
-		this.currentStep         = 0;
+		this.context = context;
+		this.totalSteps = totalSteps;
+		this.currentStep = 0;
 		this.stepsUntilNextSplit = stepsUntilNextSplit;
-		this.startRadius         = startRadius;
-		this.velocity            = velocity;
-		this.acceleration        = acceleration;
-		this.lastBall            = new Ball(x, y, z, startRadius);
+		this.startRadius = startRadius;
+		this.velocity = velocity;
+		this.acceleration = acceleration;
+		this.lastBall = new Ball(x, y, z, startRadius);
 	}
 
 	public void generate() {
@@ -67,9 +64,9 @@ public class MegaTreeBranch {
 			Ball closestBall = context.octree.findClosestBall(this.lastBall);
 			if (closestBall != null) {
 				shyness
-				.set(this.lastBall.position())
-				.sub(closestBall.position())
-				.mul(4.0D / squareD(Math.max(1.0D, shyness.length() - this.lastBall.radius() - closestBall.radius())));
+					.set(this.lastBall.position())
+					.sub(closestBall.position())
+					.mul(4.0D / squareD(Math.max(1.0D, shyness.length() - this.lastBall.radius() - closestBall.radius())));
 			}
 			else {
 				shyness.set(0.0D);
@@ -77,20 +74,20 @@ public class MegaTreeBranch {
 			column.setParams(column.params.at(floorI(position.x), floorI(position.z)));
 			int surfaceY = (
 				surfaceYGetter != null
-				? surfaceYGetter.get(column)
-				: context.structureContext.chunkGenerator().getHeightOnGround(
+					? surfaceYGetter.get(column)
+					: context.structureContext.chunkGenerator().getFirstFreeHeight(
 					floorI(position.x),
 					floorI(position.z),
-					Heightmap.Type.OCEAN_FLOOR_WG,
-					context.structureContext.world(),
-					context.structureContext.noiseConfig()
+					Heightmap.Types.OCEAN_FLOOR_WG,
+					context.structureContext.heightAccessor(),
+					context.structureContext.randomState()
 				)
 			);
 			Vectors.setInSphere(scratchPos, context.permuter, 0.25D);
 			scratchPos.y += FastMath.Exp.fastExp2((surfaceY - position.y) * 0.125D + size * 0.015625D);
 			scratchPos.add(shyness)
-			.add(this.acceleration)
-			.mul(0.125D / this.startRadius);
+				.add(this.acceleration)
+				.mul(0.125D / this.startRadius);
 			Vector3d prevVelocity = this.velocity;
 			Vector3d nextVelocity = new Vector3d(prevVelocity).add(scratchPos).normalize();
 			this.acceleration = new Vector3d(nextVelocity).sub(prevVelocity).normalize();

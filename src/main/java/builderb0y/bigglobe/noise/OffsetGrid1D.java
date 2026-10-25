@@ -8,7 +8,7 @@ public class OffsetGrid1D implements Grid1D {
 	public final @Alias("offset") int offsetX;
 
 	public OffsetGrid1D(Grid1D source, int offsetX) {
-		this.source  = source;
+		this.source = source;
 		this.offsetX = offsetX;
 	}
 

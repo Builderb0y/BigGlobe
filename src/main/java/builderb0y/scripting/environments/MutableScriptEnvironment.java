@@ -30,21 +30,21 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	public static final Predicate<Method>
-		IS_STATIC   = (Method method) ->  Modifier.isStatic(method.getModifiers()),
+		IS_STATIC = (Method method) -> Modifier.isStatic(method.getModifiers()),
 		IS_INSTANCE = (Method method) -> !Modifier.isStatic(method.getModifiers()),
-		NO_ARGS     = (Method method) -> method.getParameterCount() == 0;
+		NO_ARGS = (Method method) -> method.getParameterCount() == 0;
 
-	public Map<String,              VariableHandler.Named > variables          = new HashMap<>(16);
-	public Map<NamedType,              FieldHandler.Named > fields             = new HashMap<>(16);
-	public Map<String,         List<FunctionHandler.Named>> functions          = new HashMap<>(64);
-	public Map<NamedType,      List<  MethodHandler.Named>> methods            = new HashMap<>(64);
-	public Map<NamedType,           VariableHandler.Named > qualifiedVariables = new HashMap<>(64);
-	public Map<NamedType,      List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
-	public Map<String,                     TypeInfo       > types              = new HashMap<>(16);
-	public Map<String,               KeywordHandler.Named > keywords           = new HashMap<>(16);
-	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords     = new HashMap<>(16);
+	public Map<String, VariableHandler.Named> variables = new HashMap<>(16);
+	public Map<NamedType, FieldHandler.Named> fields = new HashMap<>(16);
+	public Map<String, List<FunctionHandler.Named>> functions = new HashMap<>(64);
+	public Map<NamedType, List<MethodHandler.Named>> methods = new HashMap<>(64);
+	public Map<NamedType, VariableHandler.Named> qualifiedVariables = new HashMap<>(64);
+	public Map<NamedType, List<FunctionHandler.Named>> qualifiedFunctions = new HashMap<>(64);
+	public Map<String, TypeInfo> types = new HashMap<>(16);
+	public Map<String, KeywordHandler.Named> keywords = new HashMap<>(16);
+	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords = new HashMap<>(16);
 	//         from           to
-	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters            = new HashMap<>(64);
+	public Map<TypeInfo, Map<TypeInfo, CastHandlerHolder>> casters = new HashMap<>(64);
 
 	public static IdentifierDescriptor prefix(String type, String name, String descriptor, Object value) {
 		return new IdentifierDescriptor(
@@ -62,51 +62,51 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	@Override
 	public Stream<IdentifierDescriptor> listIdentifiers() {
 		return Stream.of(
-			this.variables.entrySet().stream().map((Map.Entry<String, VariableHandler.Named> entry) -> {
-				return prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
-			}),
+				this.variables.entrySet().stream().map((Map.Entry<String, VariableHandler.Named> entry) -> {
+					return prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
+				}),
 
-			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldHandler.Named> entry) -> {
-				return prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
-			}),
+				this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldHandler.Named> entry) -> {
+					return prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+				}),
 
-			this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler.Named>> entry) -> {
-				return entry.getValue().stream().map((FunctionHandler.Named handler) -> {
-					return prefix("Function", entry.getKey(), entry.getKey(), handler);
-				});
-			}),
+				this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler.Named>> entry) -> {
+					return entry.getValue().stream().map((FunctionHandler.Named handler) -> {
+						return prefix("Function", entry.getKey(), entry.getKey(), handler);
+					});
+				}),
 
-			this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler.Named>> entry) -> {
-				return entry.getValue().stream().map((MethodHandler.Named handler) -> {
-					return prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
-				});
-			}),
+				this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler.Named>> entry) -> {
+					return entry.getValue().stream().map((MethodHandler.Named handler) -> {
+						return prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
+					});
+				}),
 
-			this.qualifiedVariables.entrySet().stream().map((Map.Entry<NamedType, VariableHandler.Named> entry) -> {
-				return prefix("Qualified variable", entry.getKey().name, entry.getKey().toString(), entry.getValue());
-			}),
+				this.qualifiedVariables.entrySet().stream().map((Map.Entry<NamedType, VariableHandler.Named> entry) -> {
+					return prefix("Qualified variable", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+				}),
 
-			this.qualifiedFunctions.entrySet().stream().flatMap((Map.Entry<NamedType, List<FunctionHandler.Named>> entry) -> {
-				return entry.getValue().stream().map((FunctionHandler.Named handler) -> {
-					return prefix("Qualified function", entry.getKey().name, entry.getKey().toString(), handler);
-				});
-			}),
+				this.qualifiedFunctions.entrySet().stream().flatMap((Map.Entry<NamedType, List<FunctionHandler.Named>> entry) -> {
+					return entry.getValue().stream().map((FunctionHandler.Named handler) -> {
+						return prefix("Qualified function", entry.getKey().name, entry.getKey().toString(), handler);
+					});
+				}),
 
-			this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
-				return prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
-			}),
+				this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
+					return prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
+				}),
 
-			this.keywords.entrySet().stream().map((Map.Entry<String, KeywordHandler.Named> entry) -> {
-				return prefix("Keyword", entry.getKey(), entry.getKey(), entry.getValue());
-			}),
+				this.keywords.entrySet().stream().map((Map.Entry<String, KeywordHandler.Named> entry) -> {
+					return prefix("Keyword", entry.getKey(), entry.getKey(), entry.getValue());
+				}),
 
-			this.memberKeywords.entrySet().stream().flatMap((Map.Entry<NamedType, List<MemberKeywordHandler.Named>> entry) -> {
-				return entry.getValue().stream().map((MemberKeywordHandler.Named handler) -> {
-					return prefix("Member keyword", entry.getKey().name, entry.getKey().toString(), handler);
-				});
-			})
-		)
-		.flatMap(Function.identity());
+				this.memberKeywords.entrySet().stream().flatMap((Map.Entry<NamedType, List<MemberKeywordHandler.Named>> entry) -> {
+					return entry.getValue().stream().map((MemberKeywordHandler.Named handler) -> {
+						return prefix("Member keyword", entry.getKey().name, entry.getKey().toString(), handler);
+					});
+				})
+			)
+				.flatMap(Function.identity());
 	}
 
 	public MutableScriptEnvironment addAllVariables(MutableScriptEnvironment that) {
@@ -134,11 +134,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllFunctions(MutableScriptEnvironment that) {
 		if (!that.functions.isEmpty()) {
 			for (Map.Entry<String, List<FunctionHandler.Named>> entry : that.functions.entrySet()) {
-				this.functions.compute(entry.getKey(), (String key, List<FunctionHandler.Named> list) -> {
-					if (list != null) list.addAll(entry.getValue());
-					else list = new ArrayList<>(entry.getValue());
-					return list;
-				});
+				this.functions.compute(
+					entry.getKey(), (String key, List<FunctionHandler.Named> list) -> {
+						if (list != null) list.addAll(entry.getValue());
+						else list = new ArrayList<>(entry.getValue());
+						return list;
+					}
+				);
 			}
 		}
 		return this;
@@ -147,11 +149,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllMethods(MutableScriptEnvironment that) {
 		if (!that.methods.isEmpty()) {
 			for (Map.Entry<NamedType, List<MethodHandler.Named>> entry : that.methods.entrySet()) {
-				this.methods.compute(entry.getKey(), (NamedType key, List<MethodHandler.Named> list) -> {
-					if (list != null) list.addAll(entry.getValue());
-					else list = new ArrayList<>(entry.getValue());
-					return list;
-				});
+				this.methods.compute(
+					entry.getKey(), (NamedType key, List<MethodHandler.Named> list) -> {
+						if (list != null) list.addAll(entry.getValue());
+						else list = new ArrayList<>(entry.getValue());
+						return list;
+					}
+				);
 			}
 		}
 		return this;
@@ -160,11 +164,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllQualifiedFunctions(MutableScriptEnvironment that) {
 		if (!that.qualifiedFunctions.isEmpty()) {
 			for (Map.Entry<NamedType, List<FunctionHandler.Named>> entry : that.qualifiedFunctions.entrySet()) {
-				this.qualifiedFunctions.compute(entry.getKey(), (NamedType key, List<FunctionHandler.Named> list) -> {
-					if (list != null) list.addAll(entry.getValue());
-					else list = new ArrayList<>(entry.getValue());
-					return list;
-				});
+				this.qualifiedFunctions.compute(
+					entry.getKey(), (NamedType key, List<FunctionHandler.Named> list) -> {
+						if (list != null) list.addAll(entry.getValue());
+						else list = new ArrayList<>(entry.getValue());
+						return list;
+					}
+				);
 			}
 		}
 		return this;
@@ -206,11 +212,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAllMemberKeywords(MutableScriptEnvironment that) {
 		if (!that.memberKeywords.isEmpty()) {
 			for (Map.Entry<NamedType, List<MemberKeywordHandler.Named>> entry : that.memberKeywords.entrySet()) {
-				this.memberKeywords.compute(entry.getKey(), (NamedType key, List<MemberKeywordHandler.Named> list) -> {
-					if (list != null) list.addAll(entry.getValue());
-					else list = new ArrayList<>(entry.getValue());
-					return list;
-				});
+				this.memberKeywords.compute(
+					entry.getKey(), (NamedType key, List<MemberKeywordHandler.Named> list) -> {
+						if (list != null) list.addAll(entry.getValue());
+						else list = new ArrayList<>(entry.getValue());
+						return list;
+					}
+				);
 			}
 		}
 		return this;
@@ -239,16 +247,16 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public MutableScriptEnvironment addAll(MutableScriptEnvironment that) {
 		return (
 			this
-			.addAllVariables         (that)
-			.addAllFields            (that)
-			.addAllFunctions         (that)
-			.addAllMethods           (that)
-			.addAllQualifiedVariables(that)
-			.addAllQualifiedFunctions(that)
-			.addAllTypes             (that)
-			.addAllKeywords          (that)
-			.addAllMemberKeywords    (that)
-			.addAllCasters           (that)
+				.addAllVariables(that)
+				.addAllFields(that)
+				.addAllFunctions(that)
+				.addAllMethods(that)
+				.addAllQualifiedVariables(that)
+				.addAllQualifiedFunctions(that)
+				.addAllTypes(that)
+				.addAllKeywords(that)
+				.addAllMemberKeywords(that)
+				.addAllCasters(that)
 		);
 	}
 
@@ -264,7 +272,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////////////////////// variables ////////////////////////////////
+	/// ///////////////////////////// variables ////////////////////////////////
 
 	public MutableScriptEnvironment addVariable(String name, VariableHandler.Named variableHandler) {
 		if (this.variables.putIfAbsent(name, variableHandler) != null) {
@@ -277,7 +285,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addVariable(name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name1) -> tree));
 	}
 
-	//////////////// load ////////////////
+	/// ///////////// load ////////////////
 
 	public MutableScriptEnvironment addVariableLoad(String name, LazyVarInfo variable) {
 		return this.addVariable(name, load(variable));
@@ -291,7 +299,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addVariable(name, load(name, type));
 	}
 
-	//////////////// getField ////////////////
+	/// ///////////// getField ////////////////
 
 	public MutableScriptEnvironment addVariableRenamedGetField(InsnTree receiver, String name, FieldInfo field) {
 		return this.addVariable(name, InsnTrees.getField(receiver, field));
@@ -316,7 +324,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// getStatic ////////////////
+	/// ///////////// getStatic ////////////////
 
 	public MutableScriptEnvironment addVariableGetStatic(String name, FieldInfo field) {
 		return this.addVariable(name, getStatic(field));
@@ -337,7 +345,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// invoke ////////////////
+	/// ///////////// invoke ////////////////
 
 	public MutableScriptEnvironment addVariableRenamedInvoke(InsnTree receiver, String name, MethodInfo method) {
 		return this.addVariable(name, Handlers.builder(method).addImplicitArgument(receiver).buildVariable());
@@ -358,13 +366,13 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// getter setter ////////////////
+	/// ///////////// getter setter ////////////////
 
 	public MutableScriptEnvironment addVariableGetterSetter(InsnTree receiver, String name, MethodInfo getter, MethodInfo setter) {
 		return this.addVariable(name, new GetterSetterInsnTree(receiver, getter, setter));
 	}
 
-	//////////////// invokeStatic ////////////////
+	/// ///////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addVariableInvokeStatic(String name, MethodInfo method) {
 		return this.addVariable(name, Handlers.builder(method).buildVariable());
@@ -385,7 +393,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// constant ////////////////
+	/// ///////////// constant ////////////////
 
 	public MutableScriptEnvironment addVariableConstant(String name, ConstantValue constant) {
 		return this.addVariable(name, ldc(constant));
@@ -435,7 +443,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addVariable(name, ldc(constant, type));
 	}
 
-	//////////////////////////////// fields ////////////////////////////////
+	/// ///////////////////////////// fields ////////////////////////////////
 
 	public MutableScriptEnvironment addField(TypeInfo owner, String name, FieldHandler.Named fieldHandler) {
 		if (this.fields.putIfAbsent(new NamedType(owner, name), fieldHandler) != null) {
@@ -444,7 +452,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// get ////////////////
+	/// ///////////// get ////////////////
 
 	public MutableScriptEnvironment addFieldGet(String name, FieldInfo field) {
 		return this.addField(field.owner, name, new FieldHandler.Named(field.toString(), (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> mode.makeField(parser, receiver, field)));
@@ -465,7 +473,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// invoke ////////////////
+	/// ///////////// invoke ////////////////
 
 	public MutableScriptEnvironment addFieldInvoke(String name, MethodInfo getter) {
 		return this.addField(getter.owner, name, Handlers.builder(getter).addReceiverArgument(getter.owner).buildField());
@@ -490,7 +498,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// invokeStatic ////////////////
+	/// ///////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addFieldInvokeStatic(String name, MethodInfo getter) {
 		return this.addField(getter.paramTypes[0], name, Handlers.builder(getter).addReceiverArgument(getter.paramTypes[0]).buildField());
@@ -511,18 +519,20 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// getter setter ////////////////
+	/// ///////////// getter setter ////////////////
 
 	public MutableScriptEnvironment addFieldGetterSetter(TypeInfo owner, String name, MethodInfo getter, MethodInfo setter) {
-		return this.addField(owner, name, new FieldHandler.Named(
-			"getter: " + getter + ", setter: " + setter,
-			(ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-				if (getter.isDeprecated() || setter.isDeprecated()) {
-					BigGlobeMod.LOGGER.warn("Deprecated field used: " + name + '\n' + parser.input.getSourceForError());
+		return this.addField(
+			owner, name, new FieldHandler.Named(
+				"getter: " + getter + ", setter: " + setter,
+				(ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
+					if (getter.isDeprecated() || setter.isDeprecated()) {
+						BigGlobeMod.LOGGER.warn("Deprecated field used: " + name + '\n' + parser.input.getSourceForError());
+					}
+					return mode.makeGetterSetter(parser, receiver, getter, setter);
 				}
-				return mode.makeGetterSetter(parser, receiver, getter, setter);
-			}
-		));
+			)
+		);
 	}
 
 	public MutableScriptEnvironment addFieldGetterSetterInstance(Class<?> in, String exposedName, String internalName, Class<?> type) {
@@ -545,7 +555,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addFieldGetterSetterStatic(owner, in, name, name, type);
 	}
 
-	//////////////////////////////// functions ////////////////////////////////
+	/// ///////////////////////////// functions ////////////////////////////////
 
 	public MutableScriptEnvironment addFunction(String name, FunctionHandler.Named functionHandler) {
 		this.functions.computeIfAbsent(name, (String $) -> new ArrayList<>(8)).add(functionHandler);
@@ -553,12 +563,16 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addFunctionNoArgs(String name, InsnTree tree) {
-		return this.addFunction(name, new FunctionHandler.Named("noArgs: " + tree.describe(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-			return arguments.length == 0 ? new CastResult(tree, false) : null;
-		}));
+		return this.addFunction(
+			name, new FunctionHandler.Named(
+				"noArgs: " + tree.describe(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
+				return arguments.length == 0 ? new CastResult(tree, false) : null;
+			}
+			)
+		);
 	}
 
-	//////////////// invokeStatic ////////////////
+	/// ///////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addFunctionInvokeStatic(String name, MethodInfo method) {
 		return this.addFunction(name, Handlers.builder(method).addArguments((Object[])(method.paramTypes)).buildFunction());
@@ -608,7 +622,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////// invoke ////////////////
+	/// ///////////// invoke ////////////////
 
 	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
 		return this.addFunction(name, Handlers.builder(method).addImplicitArgument(receiver).addArguments((Object[])(method.paramTypes)).buildFunction());
@@ -647,14 +661,14 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////////////////////// methods ////////////////////////////////
+	/// ///////////////////////////// methods ////////////////////////////////
 
 	public MutableScriptEnvironment addMethod(TypeInfo owner, String name, MethodHandler.Named methodHandler) {
 		this.methods.computeIfAbsent(new NamedType(owner, name), (NamedType $) -> new ArrayList<>(8)).add(methodHandler);
 		return this;
 	}
 
-	//////////////// invoke ////////////////
+	/// ///////////// invoke ////////////////
 
 	public MutableScriptEnvironment addMethodInvoke(String name, MethodInfo method) {
 		return this.addMethod(method.owner, name, Handlers.builder(method).addReceiverArgument(method.owner).addArguments((Object[])(method.paramTypes)).buildMethod());
@@ -701,7 +715,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addMethodInvoke(name, MethodInfo.findMethod(in, name, returnType, paramTypes));
 	}
 
-	//////////////// invokeStatic ////////////////
+	/// ///////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addMethodInvokeStatic(String name, MethodInfo method) {
 		return this.addMethod(method.paramTypes[0], name, Handlers.builder(method).addReceiverArgument(method.paramTypes[0]).addArguments((Object[])(Arrays.copyOfRange(method.paramTypes, 1, method.paramTypes.length))).buildMethod());
@@ -752,7 +766,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addMethodInvokeStatic(exposedName, MethodInfo.findMethod(in, actualName, returnType, paramTypes));
 	}
 
-	//////////////////////////////// types ////////////////////////////////
+	/// ///////////////////////////// types ////////////////////////////////
 
 	public MutableScriptEnvironment addType(String name, TypeInfo type) {
 		if (this.types.putIfAbsent(name, type) != null) {
@@ -765,7 +779,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addType(name, TypeInfo.of(type));
 	}
 
-	//////////////////////////////// qualified variables ////////////////////////////////
+	/// ///////////////////////////// qualified variables ////////////////////////////////
 
 	public MutableScriptEnvironment addQualifiedVariable(TypeInfo owner, String name, VariableHandler.Named variableHandler) {
 		NamedType key = new NamedType(owner, name);
@@ -779,7 +793,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addQualifiedVariable(owner, name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name1) -> tree));
 	}
 
-	//////////////// getStatic ////////////////
+	/// ///////////// getStatic ////////////////
 
 	public MutableScriptEnvironment addQualifiedVariableGetStatic(TypeInfo owner, String name, FieldInfo field) {
 		return this.addQualifiedVariable(owner, name, getStatic(field));
@@ -816,7 +830,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addQualifiedVariableGetStatics(TypeInfo.of(in), in, names);
 	}
 
-	//////////////// invokeStatic ////////////////
+	/// ///////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addQualifiedVariableInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
 		if (method.paramTypes.length != 0) throw new IllegalArgumentException("Qualified static getter requires parameters");
@@ -854,20 +868,24 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addQualifiedVariableInvokeStatics(TypeInfo.of(in), in, names);
 	}
 
-	//////////////////////////////// qualified functions ////////////////////////////////
+	/// ///////////////////////////// qualified functions ////////////////////////////////
 
 	public MutableScriptEnvironment addQualifiedFunction(TypeInfo owner, String name, FunctionHandler.Named functionHandler) {
 		this.qualifiedFunctions.computeIfAbsent(new NamedType(owner, name), (NamedType $) -> new ArrayList<>()).add(functionHandler);
 		return this;
 	}
 
-	//////////////// invokeStatic ////////////////
+	/// ///////////// invokeStatic ////////////////
 
 	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(TypeInfo owner, String name, MethodInfo method) {
-		return this.addQualifiedFunction(owner, name, new FunctionHandler.Named("invokeStatic: " + method, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != arguments);
-		}));
+		return this.addQualifiedFunction(
+			owner, name, new FunctionHandler.Named(
+				"invokeStatic: " + method, (ExpressionParser parser, String name1, InsnTree... arguments) -> {
+				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
+				return castArguments == null ? null : new CastResult(invokeStatic(method, castArguments), castArguments != arguments);
+			}
+			)
+		);
 	}
 
 	public MutableScriptEnvironment addQualifiedFunctionInvokeStatic(String name, MethodInfo method) {
@@ -945,13 +963,17 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 
 	//todo: finish this section.
 
-	//////////////// constructor ////////////////
+	/// ///////////// constructor ////////////////
 
 	public MutableScriptEnvironment addQualifiedConstructor(MethodInfo constructor) {
-		return this.addQualifiedFunction(constructor.owner, "new", new FunctionHandler.Named("constructor: " + constructor, (ExpressionParser parser, String name, InsnTree... arguments) -> {
-			InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
-			return castArguments == null ? null : new CastResult(newInstance(constructor, castArguments), castArguments != arguments);
-		}));
+		return this.addQualifiedFunction(
+			constructor.owner, "new", new FunctionHandler.Named(
+				"constructor: " + constructor, (ExpressionParser parser, String name, InsnTree... arguments) -> {
+				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, constructor, CastMode.IMPLICIT_NULL, arguments);
+				return castArguments == null ? null : new CastResult(newInstance(constructor, castArguments), castArguments != arguments);
+			}
+			)
+		);
 	}
 
 	public MutableScriptEnvironment addQualifiedConstructor(Class<?> in) {
@@ -969,7 +991,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////////////////////// enums ////////////////////////////////
+	/// ///////////////////////////// enums ////////////////////////////////
 
 	public <E extends Enum<E>> MutableScriptEnvironment addEnum(Class<E> enumClass) {
 		return this.addEnum(enumClass.getSimpleName(), enumClass, E::name);
@@ -985,7 +1007,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////////////////////// keywords ////////////////////////////////
+	/// ///////////////////////////// keywords ////////////////////////////////
 
 	public MutableScriptEnvironment addKeyword(String name, KeywordHandler.Named keywordHandler) {
 		if (this.keywords.putIfAbsent(name, keywordHandler) != null) {
@@ -999,7 +1021,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this;
 	}
 
-	//////////////////////////////// casting ////////////////////////////////
+	/// ///////////////////////////// casting ////////////////////////////////
 
 	public MutableScriptEnvironment addCast(TypeInfo from, TypeInfo to, boolean implicit, CastHandler castHandler) {
 		while (castHandler instanceof CastHandlerHolder holder) {
@@ -1052,7 +1074,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return this.addCast(factory.inType, factory.outType, implicit, (ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit_, boolean nullable) -> factory.create(parser, value, implicit_, nullable).tree);
 	}
 
-	//////////////////////////////// getters ////////////////////////////////
+	/// ///////////////////////////// getters ////////////////////////////////
 
 	public static record InsnTreeSource(InsnTree tree, Object source) {
 
@@ -1063,15 +1085,15 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 				default -> throw new ScriptParsingException(
 					"Ambiguous call matches the following:\n\t" +
 					sources
-					.stream()
-					.map(InsnTreeSource::source)
-					.map(Object::toString)
-					.collect(Collectors.joining("\n\t")) +
+						.stream()
+						.map(InsnTreeSource::source)
+						.map(Object::toString)
+						.collect(Collectors.joining("\n\t")) +
 					"\nActual form: " +
 					Arrays
-					.stream(arguments)
-					.map(InsnTree::describe)
-					.collect(Collectors.joining(", ", "(", ")")),
+						.stream(arguments)
+						.map(InsnTree::describe)
+						.collect(Collectors.joining(", ", "(", ")")),
 
 					parser.input
 				);
@@ -1281,9 +1303,11 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		return null;
 	}
 
-	//////////////////////////////// handlers ////////////////////////////////
+	/// ///////////////////////////// handlers ////////////////////////////////
 
-	public static record CastResult(InsnTree tree, boolean requiredCasting) {}
+	public static record CastResult(InsnTree tree, boolean requiredCasting) {
+
+	}
 
 	@FunctionalInterface
 	public static interface VariableHandler {
@@ -1423,7 +1447,8 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 		public @Nullable TypeInfo owner;
 		public @Nullable String name;
 
-		public NamedType() {}
+		public NamedType() {
+		}
 
 		public NamedType(@Nullable TypeInfo owner, String name) {
 			this.owner = owner;

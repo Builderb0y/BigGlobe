@@ -5,21 +5,19 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.RunArgs;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.rendering.Matrices;
 import builderb0y.bigglobe.rendering.hyperspace.HyperspaceRenderer;
 import builderb0y.bigglobe.rendering.waypoints.WaypointWarpRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.main.GameConfig;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public class MinecraftClient_LoadingFinishedHook {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
-	private void bigglobe_finishLoading(RunArgs args, CallbackInfo callback) {
+	private void bigglobe_finishLoading(GameConfig args, CallbackInfo callback) {
 		if (BigGlobeMod.MIXIN_AUDIT) {
 			BigGlobeMod.LOGGER.info("Performing audit...");
 			MixinEnvironment.getCurrentEnvironment().audit();

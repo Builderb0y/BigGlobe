@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.EmptyBlockView;
-
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, BlockSegmentList.LitSegment> {
 
@@ -92,10 +90,10 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, Bloc
 
 	public void computeLightLevels(byte topLightLevel) {
 		byte lightLevel = topLightLevel;
-		for (int index = this.size(); --index >= 0;) {
+		for (int index = this.size(); --index >= 0; ) {
 			LitSegment segment = this.get(index);
 			segment.skylightLevel = lightLevel;
-			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - BlockStateVersions.getOpacity(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY() - segment.minY()), 0));
+			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - BlockStateVersions.getOpacity(segment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO) * (segment.maxY() - segment.minY()), 0));
 		}
 	}
 
@@ -108,11 +106,11 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockState, Bloc
 		}
 
 		public int getLightLevel(int y, int lod) {
-			return MathHelper.clamp(this.skylightLevel - ((this.maxY - y) << lod) * BlockStateVersions.getOpacity(this.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN), 0, 15);
+			return Mth.clamp(this.skylightLevel - ((this.maxY - y) << lod) * BlockStateVersions.getOpacity(this.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO), 0, 15);
 		}
 
 		public int getBlockLight() {
-			return this.value.getLuminance();
+			return this.value.getLightEmission();
 		}
 
 		public int minY() {

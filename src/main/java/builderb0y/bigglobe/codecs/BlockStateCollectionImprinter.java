@@ -1,13 +1,10 @@
 package builderb0y.bigglobe.codecs;
 
 import java.util.Collection;
-
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.RegistryKeys;
-
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.common.FactoryException;
 import builderb0y.autocodec.decoders.DecodeException;
@@ -38,10 +35,10 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	public <T_Encoded> void imprintEntry(ImprintContext<T_Encoded, Collection<BlockState>> context) throws ImprintException {
 		try {
 			BlockStateCoder
-			.decodeBlockOrTag(AbstractRegistryCoder.registry(RegistryKeys.BLOCK, context), context.forceAsString().value)
-			.unwrapLazy(context.logger()::logErrorLazy, ImprintException::new)
-			.getMatchingStates()
-			.forEach(context.object::add);
+				.decodeBlockOrTag(AbstractRegistryCoder.registry(Registries.BLOCK, context), context.forceAsString().value)
+				.unwrapLazy(context.logger()::logErrorLazy, ImprintException::new)
+				.getMatchingStates()
+				.forEach(context.object::add);
 		}
 		catch (DecodeException exception) {
 			throw new ImprintException(exception);

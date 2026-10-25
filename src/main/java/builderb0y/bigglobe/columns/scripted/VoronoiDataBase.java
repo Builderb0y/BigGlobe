@@ -15,16 +15,18 @@ import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-/** subclassed at runtime to add necessary fields. */
+/**
+subclassed at runtime to add necessary fields.
+*/
 public abstract class VoronoiDataBase implements ColumnValueHolder {
 
 	public static final int
 		SOFT_DISTANCE_SQUARED_INDEX = 0,
-		SOFT_DISTANCE_INDEX         = 1,
-		HARD_DISTANCE_INDEX         = 2,
-		EUCLIDEAN_DISTANCE_INDEX    = 3,
-		CENTER_COLUMN_INDEX         = 4,
-		BUILTIN_FLAG_COUNT          = 5;
+		SOFT_DISTANCE_INDEX = 1,
+		HARD_DISTANCE_INDEX = 2,
+		EUCLIDEAN_DISTANCE_INDEX = 3,
+		CENTER_COLUMN_INDEX = 4,
+		BUILTIN_FLAG_COUNT = 5;
 
 	public static final Info INFO = new Info();
 
@@ -55,8 +57,8 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 			salted_seed,
 			get_center_base,
 			pre_compute_center_base;
-			//note: when adding things here, be sure to update
-			//AbstractVoronoiDataCompileContext accordingly.
+		//note: when adding things here, be sure to update
+		//AbstractVoronoiDataCompileContext accordingly.
 
 		public InsnTree column(InsnTree receiver) {
 			return invokeInstance(receiver, this.column);
@@ -161,40 +163,40 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 		public void addAll(MutableScriptEnvironment environment, @Nullable InsnTree loadVoronoiCell) {
 			if (loadVoronoiCell != null) {
 				environment
-				.addVariable("id",                         this.id                            (loadVoronoiCell))
-				.addVariable("cell_x",                     this.get_cell_x                    (loadVoronoiCell))
-				.addVariable("cell_z",                     this.get_cell_z                    (loadVoronoiCell))
-				.addVariable("center_x",                   this.get_center_x                  (loadVoronoiCell))
-				.addVariable("center_z",                   this.get_center_z                  (loadVoronoiCell))
-				.addVariable("soft_distance_squared",      this.get_soft_distance_squared     (loadVoronoiCell))
-				.addVariable("dx_soft_distance_squared",   this.get_dx_soft_distance_squared  (loadVoronoiCell))
-				.addVariable("dz_soft_distance_squared",   this.get_dz_soft_distance_squared  (loadVoronoiCell))
-				.addVariable("soft_distance",              this.get_soft_distance             (loadVoronoiCell))
-				.addVariable("dx_soft_distance",           this.get_dx_soft_distance          (loadVoronoiCell))
-				.addVariable("dz_soft_distance",           this.get_dz_soft_distance          (loadVoronoiCell))
-				.addVariable("hard_distance_squared",      this.get_hard_distance_squared     (loadVoronoiCell))
-				.addVariable("hard_distance",              this.get_hard_distance             (loadVoronoiCell))
-				.addVariable("euclidean_distance_squared", this.get_euclidean_distance_squared(loadVoronoiCell))
-				.addVariable("euclidean_distance",         this.get_euclidean_distance        (loadVoronoiCell))
+					.addVariable("id", this.id(loadVoronoiCell))
+					.addVariable("cell_x", this.get_cell_x(loadVoronoiCell))
+					.addVariable("cell_z", this.get_cell_z(loadVoronoiCell))
+					.addVariable("center_x", this.get_center_x(loadVoronoiCell))
+					.addVariable("center_z", this.get_center_z(loadVoronoiCell))
+					.addVariable("soft_distance_squared", this.get_soft_distance_squared(loadVoronoiCell))
+					.addVariable("dx_soft_distance_squared", this.get_dx_soft_distance_squared(loadVoronoiCell))
+					.addVariable("dz_soft_distance_squared", this.get_dz_soft_distance_squared(loadVoronoiCell))
+					.addVariable("soft_distance", this.get_soft_distance(loadVoronoiCell))
+					.addVariable("dx_soft_distance", this.get_dx_soft_distance(loadVoronoiCell))
+					.addVariable("dz_soft_distance", this.get_dz_soft_distance(loadVoronoiCell))
+					.addVariable("hard_distance_squared", this.get_hard_distance_squared(loadVoronoiCell))
+					.addVariable("hard_distance", this.get_hard_distance(loadVoronoiCell))
+					.addVariable("euclidean_distance_squared", this.get_euclidean_distance_squared(loadVoronoiCell))
+					.addVariable("euclidean_distance", this.get_euclidean_distance(loadVoronoiCell))
 				;
 			}
 			else {
 				environment
-				.addFieldInvoke("id",                         this.id                            )
-				.addFieldInvoke("cell_x",                     this.get_cell_x                    )
-				.addFieldInvoke("cell_z",                     this.get_cell_z                    )
-				.addFieldInvoke("center_x",                   this.get_center_x                  )
-				.addFieldInvoke("center_z",                   this.get_center_z                  )
-				.addFieldInvoke("soft_distance_squared",      this.get_soft_distance_squared     )
-				.addFieldInvoke("dx_soft_distance_squared",   this.get_dx_soft_distance_squared  )
-				.addFieldInvoke("dz_soft_distance_squared",   this.get_dz_soft_distance_squared  )
-				.addFieldInvoke("soft_distance",              this.get_soft_distance             )
-				.addFieldInvoke("dx_soft_distance",           this.get_dx_soft_distance          )
-				.addFieldInvoke("dz_soft_distance",           this.get_dz_soft_distance          )
-				.addFieldInvoke("hard_distance_squared",      this.get_hard_distance_squared     )
-				.addFieldInvoke("hard_distance",              this.get_hard_distance             )
-				.addFieldInvoke("euclidean_distance_squared", this.get_euclidean_distance_squared)
-				.addFieldInvoke("euclidean_distance",         this.get_euclidean_distance        )
+					.addFieldInvoke("id", this.id)
+					.addFieldInvoke("cell_x", this.get_cell_x)
+					.addFieldInvoke("cell_z", this.get_cell_z)
+					.addFieldInvoke("center_x", this.get_center_x)
+					.addFieldInvoke("center_z", this.get_center_z)
+					.addFieldInvoke("soft_distance_squared", this.get_soft_distance_squared)
+					.addFieldInvoke("dx_soft_distance_squared", this.get_dx_soft_distance_squared)
+					.addFieldInvoke("dz_soft_distance_squared", this.get_dz_soft_distance_squared)
+					.addFieldInvoke("soft_distance", this.get_soft_distance)
+					.addFieldInvoke("dx_soft_distance", this.get_dx_soft_distance)
+					.addFieldInvoke("dz_soft_distance", this.get_dz_soft_distance)
+					.addFieldInvoke("hard_distance_squared", this.get_hard_distance_squared)
+					.addFieldInvoke("hard_distance", this.get_hard_distance)
+					.addFieldInvoke("euclidean_distance_squared", this.get_euclidean_distance_squared)
+					.addFieldInvoke("euclidean_distance", this.get_euclidean_distance)
 				;
 			}
 		}
@@ -366,17 +368,17 @@ public abstract class VoronoiDataBase implements ColumnValueHolder {
 		}
 		return (
 			builder
-			.append(this.id())
-			.append("{ center: ")
-			.append(this.get_center_x())
-			.append(", ")
-			.append(this.get_center_z())
-			.append(", cell: ")
-			.append(this.get_cell_x())
-			.append(", ")
-			.append(this.get_cell_z())
-			.append(" }")
-			.toString()
+				.append(this.id())
+				.append("{ center: ")
+				.append(this.get_center_x())
+				.append(", ")
+				.append(this.get_center_z())
+				.append(", cell: ")
+				.append(this.get_cell_x())
+				.append(", ")
+				.append(this.get_cell_z())
+				.append(" }")
+				.toString()
 		);
 	}
 

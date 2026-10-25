@@ -1,40 +1,34 @@
 package builderb0y.bigglobe.items;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SignItem;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import builderb0y.bigglobe.util.WorldUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SignItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class ColoredSignItem extends SignItem {
 
 	public final DyeColor color;
 
-	public ColoredSignItem(Settings settings, Block standingBlock, Block wallBlock, DyeColor color) {
-		#if MC_VERSION >= MC_1_21_2
-			super(standingBlock, wallBlock, settings);
-		#else
-			super(settings, standingBlock, wallBlock);
-		#endif
+	public ColoredSignItem(Properties settings, Block standingBlock, Block wallBlock, DyeColor color) {
+		super(settings, standingBlock, wallBlock);
 		this.color = color;
 	}
 
 	@Override
-	public boolean postPlacement(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
+	public boolean updateCustomBlockEntityTag(BlockPos pos, Level world, @Nullable Player player, ItemStack stack, BlockState state) {
 		SignBlockEntity sign = WorldUtil.getBlockEntity(world, pos, SignBlockEntity.class);
 		if (sign != null) {
 			//set before reading from stack NBT.
-			sign.setText(sign.getFrontText().withColor(this.color), true );
-			sign.setText(sign.getBackText ().withColor(this.color), false);
+			sign.setText(sign.getFrontText().setColor(this.color), true);
+			sign.setText(sign.getBackText().setColor(this.color), false);
 		}
-		return super.postPlacement(pos, world, player, stack, state);
+		return super.updateCustomBlockEntityTag(pos, world, player, stack, state);
 	}
 }

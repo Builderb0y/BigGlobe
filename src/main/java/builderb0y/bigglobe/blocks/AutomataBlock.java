@@ -1,40 +1,32 @@
 package builderb0y.bigglobe.blocks;
 
-import com.mojang.serialization.MapCodec;
-import it.unimi.dsi.fastutil.longs.Long2LongMap;
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import java.util.Map;
 import java.util.WeakHashMap;
-
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class AutomataBlock extends Block {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<AutomataBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(AutomataBlock.class);
+	public static final MapCodec<AutomataBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(AutomataBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public static final WeakHashMap<BlockView, Long2LongOpenHashMap> BURNOUT_MAP = new WeakHashMap<>();
+	public static final WeakHashMap<BlockGetter, Long2LongOpenHashMap> BURNOUT_MAP = new WeakHashMap<>();
 
 	public static final int DELAY = 2;
 
@@ -43,67 +35,60 @@ public class AutomataBlock extends Block {
 	//faster than map lookup based property checks.
 	public final BlockState full, empty;
 
-	public AutomataBlock(Settings settings, boolean natural) {
+	public AutomataBlock(Properties settings, boolean natural) {
 		super(settings);
 		this.natural = natural;
-		this.setDefaultState(this.getDefaultState().with(BigGlobeBlockStateProperties.AUTOMATA_STATE, 0));
-		this.empty = this.getDefaultState();
-		this.full = this.empty.with(BigGlobeBlockStateProperties.AUTOMATA_STATE, 2);
+		this.registerDefaultState(this.defaultBlockState().setValue(BigGlobeBlockStateProperties.AUTOMATA_STATE, 0));
+		this.empty = this.defaultBlockState();
+		this.full = this.empty.setValue(BigGlobeBlockStateProperties.AUTOMATA_STATE, 2);
 	}
 
 	@Override
-	public void neighborUpdate(
-		#if MC_VERSION >= MC_1_21_3
-			BlockState state,
-			World world,
-			BlockPos pos,
-			Block sourceBlock,
-			@Nullable net.minecraft.world.block.WireOrientation wireOrientation,
-			boolean notify
-		#else
-			BlockState state,
-			World world,
-			BlockPos pos,
-			Block sourceBlock,
-			BlockPos sourcePos,
-			boolean notify
-		#endif
+	public void neighborChanged(
+
+		BlockState state,
+		Level world,
+		BlockPos pos,
+		Block sourceBlock,
+		BlockPos sourcePos,
+		boolean notify
+
 	) {
 		if (
 			state == this.empty &&
-			world instanceof ServerWorld serverWorld &&
-			serverWorld.getReceivedStrongRedstonePower(pos) > 0
+			world instanceof ServerLevel serverWorld &&
+			serverWorld.getDirectSignalTo(pos) > 0
 		) {
-			this.activate(serverWorld, pos, new BlockPos.Mutable());
+			this.activate(serverWorld, pos, new BlockPos.MutableBlockPos());
 		}
 	}
 
 	@Override
-	public void onBlockBreakStart(BlockState state, World world, BlockPos pos, PlayerEntity player) {
-		super.onBlockBreakStart(state, world, pos, player);
-		if (this.natural && world instanceof ServerWorld serverWorld) {
-			this.activate(serverWorld, pos, new BlockPos.Mutable());
+	public void attack(BlockState state, Level world, BlockPos pos, Player player) {
+		super.attack(state, world, pos, player);
+		if (this.natural && world instanceof ServerLevel serverWorld) {
+			this.activate(serverWorld, pos, new BlockPos.MutableBlockPos());
 		}
 	}
 
 	@Override
-	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, #if MC_VERSION >= MC_1_21_5 double #else float #endif fallDistance) {
-		super.onLandedUpon(world, state, pos, entity, fallDistance);
-		if (this.natural && world instanceof ServerWorld serverWorld && !entity.bypassesLandingEffects()) {
-			this.activate(serverWorld, pos, new BlockPos.Mutable());
+	public void fallOn(Level world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+		super.fallOn(world, state, pos, entity, fallDistance);
+		if (this.natural && world instanceof ServerLevel serverWorld && !entity.isSuppressingBounce()) {
+			this.activate(serverWorld, pos, new BlockPos.MutableBlockPos());
 		}
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		super.scheduledTick(state, world, pos, random);
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+		super.tick(state, world, pos, random);
 		this.tick(world, pos, state, random);
 	}
 
-	public void tick(ServerWorld world, BlockPos pos, BlockState state, Random random) {
-		switch (state.get(BigGlobeBlockStateProperties.AUTOMATA_STATE)) {
+	public void tick(ServerLevel world, BlockPos pos, BlockState state, RandomSource random) {
+		switch (state.getValue(BigGlobeBlockStateProperties.AUTOMATA_STATE)) {
 			case 0 -> {
-				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+				BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 				int count = this.countFull(world, pos, mutablePos);
 				if (count == 1 || count == 2) {
 					this.activate(world, pos, mutablePos);
@@ -114,12 +99,12 @@ public class AutomataBlock extends Block {
 			}
 			case 2 -> {
 				this.changeState(world, pos, 1);
-				world.scheduleBlockTick(pos, this, DELAY);
+				world.scheduleTick(pos, this, DELAY);
 			}
 		}
 	}
 
-	public int countFull(ServerWorld world, BlockPos pos, BlockPos.Mutable mutablePos) {
+	public int countFull(ServerLevel world, BlockPos pos, BlockPos.MutableBlockPos mutablePos) {
 		int count = 0;
 		outer:
 		for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
@@ -139,42 +124,37 @@ public class AutomataBlock extends Block {
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
-		super.onBlockAdded(state, world, pos, oldState, notify);
-		world.scheduleBlockTick(pos, this, 2);
+	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify) {
+		super.onPlace(state, world, pos, oldState, notify);
+		world.scheduleTick(pos, this, 2);
 	}
 
 	@Override
-	public void onStateReplaced(
+	public void onRemove(
 		BlockState state,
-		#if MC_VERSION >= MC_1_21_5 ServerWorld #else World #endif world,
+		Level world,
 		BlockPos pos,
-		#if MC_VERSION < MC_1_21_5 BlockState newState, #endif
+		BlockState newState,
 		boolean moved
 	) {
-		super.onStateReplaced(state, world, pos, #if MC_VERSION < MC_1_21_5 newState, #endif moved);
-		if (
-			this.natural
-			#if MC_VERSION < MC_1_21_5
-				&& !newState.isOf(this)
-			#endif
-		) {
+		super.onRemove(state, world, pos, newState, moved);
+		if (this.natural) {
 			Long2LongOpenHashMap worldMap = BURNOUT_MAP.get(world);
 			if (worldMap != null) worldMap.remove(pos.asLong());
 		}
 	}
 
-	public void activate(ServerWorld world, BlockPos pos, BlockPos.Mutable mutablePos) {
+	public void activate(ServerLevel world, BlockPos pos, BlockPos.MutableBlockPos mutablePos) {
 		if (this.natural) {
-			Long2LongOpenHashMap worldMap = BURNOUT_MAP.computeIfAbsent(world, (BlockView $) -> new Long2LongOpenHashMap());
-			long time = world.getTime();
+			Long2LongOpenHashMap worldMap = BURNOUT_MAP.computeIfAbsent(world, (BlockGetter $) -> new Long2LongOpenHashMap());
+			long time = world.getGameTime();
 			long deadline = worldMap.put(pos.asLong(), time + 20L);
 			if (deadline > time) {
 				return;
 			}
 		}
 		this.changeState(world, pos, 2);
-		world.scheduleBlockTick(pos, this, DELAY);
+		world.scheduleTick(pos, this, DELAY);
 		for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
 			mutablePos.setZ(pos.getZ() + offsetZ);
 			for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -183,26 +163,26 @@ public class AutomataBlock extends Block {
 					if (offsetX == 0 && offsetY == 0 && offsetZ == 0) continue;
 					BlockState adjacent = world.getBlockState(mutablePos.setY(pos.getY() + offsetY));
 					if (adjacent.getBlock() instanceof AutomataBlock automata && adjacent == automata.empty) {
-						world.scheduleBlockTick(mutablePos, automata, DELAY);
+						world.scheduleTick(mutablePos, automata, DELAY);
 					}
 				}
 			}
 		}
 	}
 
-	public void changeState(ServerWorld world, BlockPos pos, int toState) {
-		world.addSyncedBlockEvent(pos, this, 0, toState);
+	public void changeState(ServerLevel world, BlockPos pos, int toState) {
+		world.blockEvent(pos, this, 0, toState);
 	}
 
 	@Override
-	public boolean onSyncedBlockEvent(BlockState state, World world, BlockPos pos, int type, int data) {
-		world.setBlockState(pos, state.with(BigGlobeBlockStateProperties.AUTOMATA_STATE, data), Block.NOTIFY_LISTENERS);
+	public boolean triggerEvent(BlockState state, Level world, BlockPos pos, int type, int data) {
+		world.setBlock(pos, state.setValue(BigGlobeBlockStateProperties.AUTOMATA_STATE, data), Block.UPDATE_CLIENTS);
 		return false;
 	}
 
 	@Override
-	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		super.appendProperties(builder);
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
 		builder.add(BigGlobeBlockStateProperties.AUTOMATA_STATE);
 	}
 }

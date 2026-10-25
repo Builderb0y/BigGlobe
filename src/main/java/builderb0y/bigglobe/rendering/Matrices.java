@@ -2,10 +2,10 @@ package builderb0y.bigglobe.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-
-import net.minecraft.util.math.Vec3d;
-
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.versions.RenderVersions;
 
@@ -17,30 +17,25 @@ public class Matrices {
 		cameraY,
 		cameraZ;
 	public static Matrix4f
-		modelView         = new Matrix4f(),
-		modelViewInverse  = new Matrix4f(),
-		projection        = new Matrix4f(),
+		modelView = new Matrix4f(),
+		modelViewInverse = new Matrix4f(),
+		projection = new Matrix4f(),
 		projectionInverse = new Matrix4f();
 	public static float
 		partialTicks,
 		dayTimeInSeconds;
 
 	public static void init() {
-		#if MC_VERSION >= MC_1_21_9
-			net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_EXTRACTION.register(Matrices::update);
-		#else
-			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents.START.register(Matrices::update);
-		#endif
+
+		WorldRenderEvents.AFTER_SETUP.register(Matrices::update);
 	}
 
 	public static void update(
-		#if MC_VERSION >= MC_1_21_9
-			net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
-		#else
-			net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
-		#endif
+
+		WorldRenderContext context
+
 	) {
-		Vec3d cameraPos = RenderVersions.getCameraPosition(context.camera());
+		Vec3 cameraPos = RenderVersions.getCameraPosition(context.camera());
 		cameraX = cameraPos.x;
 		cameraY = cameraPos.y;
 		cameraZ = cameraPos.z;
@@ -52,7 +47,7 @@ public class Matrices {
 				(
 					(float)(
 						BigGlobeMath.modulus_BP(
-							context.world().getTime(),
+							context.world().getGameTime(),
 							24000L
 						)
 					)

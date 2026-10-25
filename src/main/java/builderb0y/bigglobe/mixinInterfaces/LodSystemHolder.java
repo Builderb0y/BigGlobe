@@ -1,10 +1,8 @@
 package builderb0y.bigglobe.mixinInterfaces;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.render.WorldRenderer;
-
 import builderb0y.bigglobe.rendering.lods.LodSystem;
+import net.minecraft.client.renderer.LevelRenderer;
 
 public interface LodSystemHolder {
 
@@ -12,7 +10,7 @@ public interface LodSystemHolder {
 
 	public abstract void bigglobe_setLodSystem(@Nullable LodSystem system);
 
-	public static LodSystemHolder of(WorldRenderer worldRenderer) {
+	public static LodSystemHolder of(LevelRenderer worldRenderer) {
 		return (LodSystemHolder)(worldRenderer);
 	}
 }

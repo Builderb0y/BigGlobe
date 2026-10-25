@@ -2,14 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import com.google.common.collect.ImmutableList;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.RegistryKeys;
-
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;
@@ -50,7 +45,7 @@ public class BlockWrapper {
 
 	@SuppressWarnings("deprecation")
 	public static String id(Block block) {
-		return UnregisteredObjectException.getID(block.getRegistryEntry()).toString();
+		return UnregisteredObjectException.getID(block.builtInRegistryHolder()).toString();
 	}
 
 	public static boolean isIn(Block block, BlockTag tag) {
@@ -58,20 +53,20 @@ public class BlockWrapper {
 	}
 
 	public static BlockState getDefaultStateNullable(Block block) {
-		return block == null ? null : block.getDefaultState();
+		return block == null ? null : block.defaultBlockState();
 	}
 
 	public static BlockState getDefaultState(Block block) {
-		return block.getDefaultState();
+		return block.defaultBlockState();
 	}
 
 	public static BlockState getRandomState(Block block, RandomGenerator random) {
-		ImmutableList<BlockState> states = block.getStateManager().getStates();
+		ImmutableList<BlockState> states = block.getStateDefinition().getPossibleStates();
 		return states.get(random.nextInt(states.size()));
 	}
 
 	public static BlockState getRandomState(Block block, long seed) {
-		ImmutableList<BlockState> states = block.getStateManager().getStates();
+		ImmutableList<BlockState> states = block.getStateDefinition().getPossibleStates();
 		return states.get(Permuter.nextBoundedInt(seed, states.size()));
 	}
 }

@@ -1,13 +1,12 @@
 package builderb0y.bigglobe.features.dispatch;
 
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
@@ -24,12 +23,12 @@ public class FeatureDispatchers implements DelayedCompileable {
 
 	public final DelayedEntryList<ConfiguredFeature<?, ?>>[] rock_replacers;
 	public transient ConfiguredRockReplacerFeature<?> @Nullable [] flattenedRockReplacers;
-	public final RegistryEntry<FeatureDispatcher> raw, normal;
+	public final Holder<FeatureDispatcher> raw, normal;
 
 	public FeatureDispatchers(
 		DelayedEntryList<ConfiguredFeature<?, ?>>[] rock_replacers,
-		RegistryEntry<FeatureDispatcher> raw,
-		RegistryEntry<FeatureDispatcher> normal
+		Holder<FeatureDispatcher> raw,
+		Holder<FeatureDispatcher> normal
 	) {
 		this.rock_replacers = rock_replacers;
 		this.raw = raw;
@@ -44,17 +43,17 @@ public class FeatureDispatchers implements DelayedCompileable {
 
 	@SuppressWarnings("unchecked")
 	public void checkCyclicDependencies(
-		RegistryEntry<FeatureDispatcher> root,
-		RegistryEntry<FeatureDispatcher> entry,
-		Set<RegistryEntry<FeatureDispatcher>> seen
+		Holder<FeatureDispatcher> root,
+		Holder<FeatureDispatcher> entry,
+		Set<Holder<FeatureDispatcher>> seen
 	) {
 		if (seen.add(entry)) {
 			entry
-			.value()
-			.streamDirectDependencies()
-			.filter(dependency -> dependency.value() instanceof FeatureDispatcher)
-			.map((RegistryEntry<? extends DependencyView> e) -> (RegistryEntry<FeatureDispatcher>)(e))
-			.forEach((RegistryEntry<FeatureDispatcher> e) -> this.checkCyclicDependencies(root, e, seen));
+				.value()
+				.streamDirectDependencies()
+				.filter(dependency -> dependency.value() instanceof FeatureDispatcher)
+				.map((Holder<? extends DependencyView> e) -> (Holder<FeatureDispatcher>)(e))
+				.forEach((Holder<FeatureDispatcher> e) -> this.checkCyclicDependencies(root, e, seen));
 		}
 		else {
 			throw new IllegalStateException("Feature dispatcher " + UnregisteredObjectException.getID(entry) + " generates more than once in root " + UnregisteredObjectException.getID(root));
@@ -85,23 +84,23 @@ public class FeatureDispatchers implements DelayedCompileable {
 		if (this.flattenedRockReplacers == null) {
 			this.flattenedRockReplacers = (
 				Arrays
-				.stream(this.rock_replacers)
-				.flatMap(DelayedEntryList::entryStream)
-				.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
-					//entry.value().feature().is(RockReplacerFeature).unless(
-					//	log warning
-					//)
-					if (entry.value().feature() instanceof RockReplacerFeature<?>) {
-						return true;
-					}
-					else {
-						BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
-						return false;
-					}
-				})
-				.map(RegistryEntry::value)
-				.map(ConfiguredRockReplacerFeature::new)
-				.toArray(ConfiguredRockReplacerFeature[]::new)
+					.stream(this.rock_replacers)
+					.flatMap(DelayedEntryList::entryStream)
+					.filter((Holder<ConfiguredFeature<?, ?>> entry) -> {
+						//entry.value().feature().is(RockReplacerFeature).unless(
+						//	log warning
+						//)
+						if (entry.value().feature() instanceof RockReplacerFeature<?>) {
+							return true;
+						}
+						else {
+							BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
+							return false;
+						}
+					})
+					.map(Holder::value)
+					.map(ConfiguredRockReplacerFeature::new)
+					.toArray(ConfiguredRockReplacerFeature[]::new)
 			);
 		}
 		return this.flattenedRockReplacers;

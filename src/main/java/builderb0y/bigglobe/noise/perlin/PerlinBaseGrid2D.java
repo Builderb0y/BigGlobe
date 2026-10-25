@@ -13,7 +13,8 @@ public abstract class PerlinBaseGrid2D implements Grid2D {
 		SLOPE_Y_SALT = Permuter.permute(0L, 'y');
 
 	public final Seed salt;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @Alias("scale") int scaleX, scaleY;
+	public final @VerifyIntRange(min = 0, minInclusive = false)
+	@Alias("scale") int scaleX, scaleY;
 	public final transient double rcpX, rcpY;
 	public final double max_slope, max_offset;
 
@@ -21,7 +22,7 @@ public abstract class PerlinBaseGrid2D implements Grid2D {
 		this.salt = salt;
 		this.rcpX = 1.0D / (this.scaleX = scaleX);
 		this.rcpY = 1.0D / (this.scaleY = scaleY);
-		this.max_slope  = max_slope;
+		this.max_slope = max_slope;
 		this.max_offset = max_offset;
 	}
 

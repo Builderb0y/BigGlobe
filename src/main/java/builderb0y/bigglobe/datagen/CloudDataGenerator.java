@@ -77,12 +77,12 @@ public class CloudDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"parent": "minecraft:block/cube_all",
-					"textures": {
-						"all": "bigglobe:block/%NAME"
-					}
-				}""".replace("%NAME", fileName)
+					{
+						"parent": "minecraft:block/cube_all",
+						"textures": {
+							"all": "bigglobe:block/%NAME"
+						}
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}
@@ -93,9 +93,9 @@ public class CloudDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"parent": "bigglobe:block/%NAME"
-				}""".replace("%NAME", fileName)
+					{
+						"parent": "bigglobe:block/%NAME"
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}
@@ -106,11 +106,11 @@ public class CloudDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"variants": {
-						"": { "model": "bigglobe:block/%NAME" }
-					}
-				}""".replace("%NAME", fileName)
+					{
+						"variants": {
+							"": { "model": "bigglobe:block/%NAME" }
+						}
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}
@@ -121,19 +121,19 @@ public class CloudDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"type": "minecraft:block",
-					"pools": [{
-						"rolls": 1,
-						"entries": [{
-							"type": "minecraft:item",
-							"name": "bigglobe:%NAME"
-						}],
-						"conditions": [{
-							"condition": "minecraft:survives_explosion"
+					{
+						"type": "minecraft:block",
+						"pools": [{
+							"rolls": 1,
+							"entries": [{
+								"type": "minecraft:item",
+								"name": "bigglobe:%NAME"
+							}],
+							"conditions": [{
+								"condition": "minecraft:survives_explosion"
+							}]
 						}]
-					}]
-				}""".replace("%NAME", fileName)
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}

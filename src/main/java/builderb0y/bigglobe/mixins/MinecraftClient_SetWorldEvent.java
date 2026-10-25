@@ -6,56 +6,34 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.world.ClientWorld;
-
 import builderb0y.bigglobe.util.ClientWorldEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public class MinecraftClient_SetWorldEvent {
 
-	@Shadow @Nullable public ClientWorld world;
+	@Shadow
+	@Nullable
+	public ClientLevel level;
 
-	@Inject(method = "joinWorld", at = @At("HEAD"))
-	private void bigglobe_unloadOnJoinWorld(ClientWorld world, #if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_9 net.minecraft.client.gui.screen.DownloadingTerrainScreen.WorldEntryReason reason, #endif CallbackInfo callback) {
-		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, world);
+	@Inject(method = "setLevel", at = @At("HEAD"))
+	private void bigglobe_unloadOnJoinWorld(ClientLevel world, CallbackInfo callback) {
+		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.level, world);
 	}
 
-	#if MC_VERSION >= MC_1_21_6
-
-		@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;Z)V", at = @At("HEAD"))
-		private void bigglobe_unloadOnDisconnect(Screen screen, boolean transferring, CallbackInfo callback) {
-			if (this.world != null) {
-				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
-			}
+	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At("HEAD"))
+	private void bigglobe_unloadOnDisconnect(Screen screen, boolean transferring, CallbackInfo callback) {
+		if (this.level != null) {
+			ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.level, null);
 		}
+	}
 
-		@Inject(method = "enterReconfiguration", at = @At("HEAD"))
-		private void bigglobe_unloadOnReconfiguration(Screen screen, CallbackInfo callback) {
-			if (this.world != null) {
-				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
-			}
+	@Inject(method = "clearClientLevel", at = @At("HEAD"))
+	private void bigglobe_unloadOnReconfiguration(Screen screen, CallbackInfo callback) {
+		if (this.level != null) {
+			ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.level, null);
 		}
-
-	#elif MC_VERSION >= MC_1_20_2
-
-		@Inject(method = { "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", "enterReconfiguration" }, at = @At("HEAD"))
-		private void bigglobe_unloadOnDisconnect(Screen screen, CallbackInfo callback) {
-			if (this.world != null) {
-				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
-			}
-		}
-
-	#else
-
-		@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
-		private void bigglobe_unloadOnDisconnect(Screen screen, CallbackInfo callback) {
-			if (this.world != null) {
-				ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.world, null);
-			}
-		}
-
-	#endif
+	}
 }

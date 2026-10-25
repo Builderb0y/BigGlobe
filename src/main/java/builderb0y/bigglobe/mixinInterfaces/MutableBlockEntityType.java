@@ -1,13 +1,13 @@
 package builderb0y.bigglobe.mixinInterfaces;
 
 import java.util.Set;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntityType;
-
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import builderb0y.bigglobe.mixins.BlockEntityType_AddBlockHook;
 
-/** implemented by {@link BlockEntityType} by {@link BlockEntityType_AddBlockHook} */
+/**
+implemented by {@link BlockEntityType} by {@link BlockEntityType_AddBlockHook}
+*/
 public interface MutableBlockEntityType {
 
 	public abstract Set<Block> bigglobe_getBlocks();

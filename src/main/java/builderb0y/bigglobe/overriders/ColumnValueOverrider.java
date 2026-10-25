@@ -2,19 +2,15 @@ package builderb0y.bigglobe.overriders;
 
 import java.lang.reflect.Method;
 import java.util.List;
-
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureSet.StructureSelectionEntry;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 import com.google.common.collect.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructureSet;
-import net.minecraft.structure.StructureSet.WeightedEntry;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureType;
-
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -58,30 +54,30 @@ public interface ColumnValueOverrider extends ColumnScript {
 	}
 
 	public static double distanceToSquare(ScriptedColumn column, StructurePiece piece) {
-		BlockBox box = piece.getBoundingBox();
-		return distanceToSquare(column, box.getMinX(), box.getMinZ(), box.getMaxX(), box.getMaxZ());
+		BoundingBox box = piece.getBoundingBox();
+		return distanceToSquare(column, box.minX(), box.minZ(), box.maxX(), box.maxZ());
 	}
 
 	public static double distanceToCircle(ScriptedColumn column, double centerX, double centerZ, double radius) {
 		return Math.max(Math.sqrt(BigGlobeMath.squareD(centerX - column.x(), centerZ - column.z())) - radius, 0.0D);
 	}
 
-	public static double _distanceToCircle(ScriptedColumn column, BlockBox box, double radius) {
+	public static double _distanceToCircle(ScriptedColumn column, BoundingBox box, double radius) {
 		return distanceToCircle(
 			column,
-			(box.getMinX() + box.getMaxX()) * 0.5D,
-			(box.getMinZ() + box.getMaxZ()) * 0.5D,
+			(box.minX() + box.maxX()) * 0.5D,
+			(box.minZ() + box.maxZ()) * 0.5D,
 			radius
 		);
 	}
 
-	public static double _distanceToCircle(ScriptedColumn column, BlockBox box) {
+	public static double _distanceToCircle(ScriptedColumn column, BoundingBox box) {
 		return _distanceToCircle(
 			column,
 			box,
 			Math.min(
-				box.getMaxX() - box.getMinX(),
-				box.getMaxZ() - box.getMinZ()
+				box.maxX() - box.minX(),
+				box.maxZ() - box.minZ()
 			)
 			* 0.5D
 		);
@@ -115,7 +111,7 @@ public interface ColumnValueOverrider extends ColumnScript {
 			}
 			if (this.structure != null) {
 				if (this.structure_type != null) {
-					return this.structure.objectSet().contains(structure) || this.structure_type.objectSet().contains(structure.getType());
+					return this.structure.objectSet().contains(structure) || this.structure_type.objectSet().contains(structure.type());
 				}
 				else {
 					return this.structure.objectSet().contains(structure);
@@ -123,7 +119,7 @@ public interface ColumnValueOverrider extends ColumnScript {
 			}
 			else {
 				if (this.structure_type != null) {
-					return this.structure_type.objectSet().contains(structure.getType());
+					return this.structure_type.objectSet().contains(structure.type());
 				}
 				else {
 					return true; //allow { "radius": ... } to match all structures.
@@ -133,7 +129,7 @@ public interface ColumnValueOverrider extends ColumnScript {
 
 		public static int getSearchRadius(StructureFilter[] filters, StructureSet set, int baseRadius) {
 			int radius = baseRadius;
-			List<WeightedEntry> structures = set.structures();
+			List<StructureSelectionEntry> structures = set.structures();
 			int structureCount = structures.size();
 			for (StructureFilter filter : filters) {
 				if (radius >= filter.radius_in_chunks) continue;
@@ -185,15 +181,17 @@ public interface ColumnValueOverrider extends ColumnScript {
 		public int getSearchRadius(Structure structure) {
 			if (this.structure_filter == null) return 1;
 			synchronized (this.cachedRadii) {
-				return this.cachedRadii.computeIfAbsent(structure, (Structure structure_) -> {
-					int radius = -1;
-					for (StructureFilter filter : this.structure_filter) {
-						if (filter.radius_in_chunks > radius && filter.matches(structure)) {
-							radius = filter.radius_in_chunks;
+				return this.cachedRadii.computeIfAbsent(
+					structure, (Structure structure_) -> {
+						int radius = -1;
+						for (StructureFilter filter : this.structure_filter) {
+							if (filter.radius_in_chunks > radius && filter.matches(structure)) {
+								radius = filter.radius_in_chunks;
+							}
 						}
+						return radius;
 					}
-					return radius;
-				});
+				);
 			}
 		}
 
@@ -203,9 +201,9 @@ public interface ColumnValueOverrider extends ColumnScript {
 		}
 	}
 
-	public static int getSearchRadius(RegistryEntry<Entry>[] overriders, StructureSet set) {
+	public static int getSearchRadius(net.minecraft.core.Holder<Entry>[] overriders, StructureSet set) {
 		int radius = -1;
-		for (RegistryEntry<Entry> overrider : overriders) {
+		for (net.minecraft.core.Holder<Entry> overrider : overriders) {
 			radius = overrider.value().getSearchRadius(set, radius);
 		}
 		return radius;
@@ -233,20 +231,24 @@ public interface ColumnValueOverrider extends ColumnScript {
 			super.addExtraFunctionsToEnvironment(parameters, environment);
 			InsnTree loadColumn = load(parameters.actualColumn);
 			environment
-			.addAll(StructureScriptEnvironment.INSTANCE)
-			.configure(NbtScriptEnvironment.createImmutable())
-			.addFieldGet(ScriptedStructure.Piece.class, "data")
-			.addVariableLoad("structures", type(ScriptStructures.class))
-			.configure(JavaUtilScriptEnvironment.withoutRandom())
-			.addAll(WoodPaletteScriptEnvironment.BASE);
+				.addAll(StructureScriptEnvironment.INSTANCE)
+				.configure(NbtScriptEnvironment.createImmutable())
+				.addFieldGet(ScriptedStructure.Piece.class, "data")
+				.addVariableLoad("structures", type(ScriptStructures.class))
+				.configure(JavaUtilScriptEnvironment.withoutRandom())
+				.addAll(WoodPaletteScriptEnvironment.BASE);
 			for (String name : new String[] { "distanceToSquare", "distanceToCircle" }) {
 				for (Method method : ReflectionData.forClass(ColumnValueOverrider.class).getDeclaredMethods(name)) {
 					MethodInfo info = MethodInfo.forMethod(method);
-					environment.addFunction(name, new FunctionHandler.Named(info.toString(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-						InsnTree[] prefixedArguments = ObjectArrays.concat(loadColumn, arguments);
-						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, info, CastMode.IMPLICIT_NULL, prefixedArguments);
-						return castArguments == null ? null : new CastResult(invokeStatic(info, castArguments), castArguments != prefixedArguments);
-					}));
+					environment.addFunction(
+						name, new FunctionHandler.Named(
+							info.toString(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
+							InsnTree[] prefixedArguments = ObjectArrays.concat(loadColumn, arguments);
+							InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, info, CastMode.IMPLICIT_NULL, prefixedArguments);
+							return castArguments == null ? null : new CastResult(invokeStatic(info, castArguments), castArguments != prefixedArguments);
+						}
+						)
+					);
 				}
 			}
 		}

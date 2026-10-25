@@ -1,9 +1,5 @@
 package builderb0y.bigglobe.structures;
 
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.mixins.StructureAccessor_WorldAccess;
@@ -11,6 +7,9 @@ import builderb0y.bigglobe.overriders.Overrider.ColumnValueOverridersWithRadiusC
 import builderb0y.bigglobe.scripting.wrappers.ArrayWrapper;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.StructureManager;
 
 public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 
@@ -24,17 +23,17 @@ public class ScriptStructures extends ArrayWrapper<StructureStartWrapper> {
 	public static ScriptStructures[] getStructures(
 		BigGlobeScriptedChunkGenerator generator,
 		ScriptedColumnLookup columns,
-		StructureAccessor accessor,
+		StructureManager accessor,
 		ChunkPos chunkPos,
 		ColumnValueOverridersWithRadiusCache overriders
 	) {
 		StructureAccessor_WorldAccess structureAccessorAccessor = (StructureAccessor_WorldAccess)(accessor);
-		if (structureAccessorAccessor.bigglobe_getWorld() instanceof ServerWorldAccess serverAccess) {
+		if (structureAccessorAccessor.bigglobe_getWorld() instanceof ServerLevelAccessor serverAccess) {
 			return generator.structureManager.computeRelevantStructuresForOverriders(
 				new StructureGenerationParams(
 					generator,
 					columns,
-					serverAccess.toServerWorld(),
+					serverAccess.getLevel(),
 					chunkPos
 				),
 				overriders

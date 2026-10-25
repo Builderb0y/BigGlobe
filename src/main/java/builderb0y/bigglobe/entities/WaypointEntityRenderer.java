@@ -3,80 +3,74 @@ package builderb0y.bigglobe.entities;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.Vec3d;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity.Orbit;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.rendering.waypoints.WaypointWarpRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 @Environment(EnvType.CLIENT)
 public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntity, WaypointEntityRenderer.State> {
 
-	public static final Identifier TEXTURE = BigGlobeMod.mcID("textures/particle/flash.png");
-	public static RenderLayer LIGHTNING_LAYER;
+	public static RenderType LIGHTNING_LAYER;
+
 	static {
-		#if MC_VERSION >= MC_1_21_11
-			RenderLayer layer = RenderLayers.lightning();
-		#else
-			RenderLayer layer = RenderLayer.getLightning();
-		#endif
+		RenderType layer = RenderType.lightning();
 		got:
 		if (FabricLoader.getInstance().isModLoaded("iris")) {
 			try {
-				layer = (RenderLayer)(Class.forName("net.irisshaders.iris.pathways.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
+				layer = (RenderType)(Class.forName("net.irisshaders.iris.pathways.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
 				BigGlobeMod.LOGGER.info("Using new iris lightning render layer.");
 				break got;
 			}
-			catch (Exception ignored) {}
+			catch (Exception ignored) {
+			}
 			try {
-				layer = (RenderLayer)(Class.forName("net.coderbot.iris.pipeline.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
+				layer = (RenderType)(Class.forName("net.coderbot.iris.pipeline.LightningHandler").getDeclaredField("IRIS_LIGHTNING").get(null));
 				BigGlobeMod.LOGGER.info("Using old iris lightning render layer.");
 				break got;
 			}
-			catch (Exception ignored) {}
+			catch (Exception ignored) {
+			}
 			BigGlobeMod.LOGGER.info("Could not locate iris lightning render layer...");
 		}
 		LIGHTNING_LAYER = layer;
 	}
 
-	public WaypointEntityRenderer(EntityRendererFactory.Context context) {
+	public WaypointEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	public RenderLayer getRenderLayer() {
+	public RenderType getRenderLayer() {
 		return LIGHTNING_LAYER;
 	}
 
 	@Override
-	public void doRender(WaypointEntityRenderer.State state, MatrixStack.Entry matrices, VertexConsumer buffer, Vec3d camera, int light) {
+	public void doRender(WaypointEntityRenderer.State state, PoseStack.Pose matrices, VertexConsumer buffer, Vec3 camera, int light) {
 		Vector3f cameraToPos = new Vector3f(
 			(float)(state.x - camera.x),
 			(float)(state.y - camera.y + 1.0D),
 			(float)(state.z - camera.z)
 		);
 		Vector4f
-			transform    = new Vector4f();
+			transform = new Vector4f();
 		Vector3f
-			position     = new Vector3f(),
-			tangent      = new Vector3f(),
-			side         = new Vector3f(),
+			position = new Vector3f(),
+			tangent = new Vector3f(),
+			side = new Vector3f(),
 			prevPosition = new Vector3f(),
-			prevTangent  = new Vector3f(),
-			prevSide     = new Vector3f();
+			prevTangent = new Vector3f(),
+			prevSide = new Vector3f();
 		float
-			size         = 0.0F,
-			prevSize     = 0.0F;
+			size = 0.0F,
+			prevSize = 0.0F;
 		int maxOrbits = BigGlobeMath.roundI(state.health / WaypointEntity.MAX_HEALTH * state.orbits.length);
 		for (int orbitIndex = 0; orbitIndex < maxOrbits; orbitIndex++) {
 			Orbit orbit = state.orbits[orbitIndex];
@@ -141,8 +135,6 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 						transform
 					);
 
-
-
 					vertex(
 						buffer,
 						matrices,
@@ -194,15 +186,11 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 				}
 			}
 		}
-		#if MC_VERSION < MC_1_21_2
-			WaypointWarpRenderer renderer = WaypointWarpRenderer.INSTANCE;
-			if (renderer != null) renderer.markWaypointVisible(state.x, state.y, state.z, state.age, state.health);
-		#endif
 	}
 
 	public static void vertex(
 		VertexConsumer buffer,
-		MatrixStack.Entry matrices,
+		PoseStack.Pose matrices,
 		float x,
 		float y,
 		float z,
@@ -212,53 +200,17 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 		float a,
 		Vector4f scratch
 	) {
-		#if MC_VERSION < MC_1_20_5
-			//use w=0 instead of w=1 because the translation
-			//component of the matrices offsets from being relative
-			//to the entity to being relative to the camera.
-			//however, our positions are already relative to the camera,
-			//so offset is necessary.
-			matrices.getPositionMatrix().transform(scratch.set(x, y, z, 0.0F));
-			x = scratch.x;
-			y = scratch.y;
-			z = scratch.z;
-		#endif
-		buffer.vertex(x, y, z).color(r, g, b, a) #if MC_VERSION < MC_1_21_0 .next() #endif;
+		buffer.addVertex(x, y, z).setColor(r, g, b, a);
 	}
-
-	#if MC_VERSION < MC_1_20_4
-
-		//1.20.4 has this built in, so this override is only necessary in older versions.
-		@Override
-		public boolean hasLabel(WaypointEntity entity) {
-			return (
-				entity.shouldRenderName() || (
-					entity.hasCustomName() &&
-					MinecraftClient.getInstance().crosshairTarget instanceof EntityHitResult hit &&
-					hit.getEntity() == entity
-				)
-			);
-		}
-
-	#endif
-
-	#if MC_VERSION < MC_1_21_2
-
-		@Override
-		public Identifier getTexture(WaypointEntity entity) {
-			return TEXTURE;
-		}
-
-	#endif
 
 	@Override
 	public WaypointEntityRenderer.State createState() {
-		return new State();
+		return new WaypointEntityRenderer.State();
 	}
 
 	@Override
 	public void updateState(WaypointEntity entity, WaypointEntityRenderer.State state, float partialTicks) {
-		state.age = entity.age + partialTicks;
+		state.ageInTicks = entity.tickCount + partialTicks;
 		state.partialTicks = partialTicks;
 		state.health = entity.health;
 		state.orbits = Orbit.copy(entity.orbits, state.orbits);
@@ -266,10 +218,7 @@ public class WaypointEntityRenderer extends BigGlobeEntityRenderer<WaypointEntit
 
 	public static class State extends BigGlobeEntityRenderer.State {
 
-		#if MC_VERSION <= MC_1_21_1
-			public float age;
-		#endif
-		public float health, partialTicks;
+		public float health, partialTicks, ageInTicks;
 		public WaypointEntity.Orbit[] orbits;
 	}
 }

@@ -24,14 +24,46 @@ public interface PrintSink {
 	public static PrintSink forPrintStream(PrintStream stream) {
 		Objects.requireNonNull(stream, "stream");
 		return new PrintSink() {
-			@Override public void println(int     value) { stream.println(value); }
-			@Override public void println(long    value) { stream.println(value); }
-			@Override public void println(float   value) { stream.println(value); }
-			@Override public void println(double  value) { stream.println(value); }
-			@Override public void println(char    value) { stream.println(value); }
-			@Override public void println(boolean value) { stream.println(value); }
-			@Override public void println(String  value) { stream.println(value); }
-			@Override public void println(Object  value) { stream.println(value); }
+
+			@Override
+			public void println(int value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(long value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(float value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(double value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(char value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(boolean value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(String value) {
+				stream.println(value);
+			}
+
+			@Override
+			public void println(Object value) {
+				stream.println(value);
+			}
 		};
 	}
 }

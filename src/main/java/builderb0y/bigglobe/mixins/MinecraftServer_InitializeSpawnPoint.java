@@ -4,14 +4,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.MiscConfiguredFeatures;
-import net.minecraft.world.level.ServerWorldProperties;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.storage.ServerLevelData;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.WorldPropertiesVersions;
@@ -19,23 +16,20 @@ import builderb0y.bigglobe.versions.WorldPropertiesVersions;
 @Mixin(MinecraftServer.class)
 public class MinecraftServer_InitializeSpawnPoint {
 
-	@Inject(method = "setupSpawn", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "setInitialSpawn", at = @At("HEAD"), cancellable = true)
 	private static void bigglobe_setupSpawn(
-		ServerWorld world,
-		ServerWorldProperties worldProperties,
+		ServerLevel world,
+		ServerLevelData worldProperties,
 		boolean bonusChest,
 		boolean debugWorld,
-		#if MC_VERSION >= MC_1_21_9
-			net.minecraft.world.chunk.ChunkLoadProgress loadProgress,
-		#endif
 		CallbackInfo callback
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {
 			if (bonusChest) {
-				ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.getRegistryManager(), MiscConfiguredFeatures.BONUS_CHEST);
-				if (feature != null) feature.generate(
+				ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.registryAccess(), MiscOverworldFeatures.BONUS_CHEST);
+				if (feature != null) feature.place(
 					world,
-					world.getChunkManager().getChunkGenerator(),
+					world.getChunkSource().getGenerator(),
 					world.random,
 					WorldPropertiesVersions.getSpawnPos(worldProperties)
 				);

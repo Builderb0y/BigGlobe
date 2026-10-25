@@ -7,8 +7,8 @@ public interface HaltonIterator extends BoundedPointIterator {
 
 	public default double computePosition(int step, int base, double min, double max) {
 		double position = min;
-		double offset   = max - min;
-		for (int index = this.index() * step + this.offset(); index > 0;) {
+		double offset = max - min;
+		for (int index = this.index() * step + this.offset(); index > 0; ) {
 			offset /= base;
 			position += offset * (index % base);
 			index /= base;

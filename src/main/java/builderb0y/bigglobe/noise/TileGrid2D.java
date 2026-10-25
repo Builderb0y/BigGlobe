@@ -7,7 +7,8 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 public class TileGrid2D implements Grid2D {
 
 	public final Grid2D source;
-	public final @VerifyIntRange(min = 0L) @Alias("scale") int scaleX, scaleY;
+	public final @VerifyIntRange(min = 0L)
+	@Alias("scale") int scaleX, scaleY;
 
 	public TileGrid2D(Grid2D source, int scaleX, int scaleY) {
 		this.source = source;

@@ -5,16 +5,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
-
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ColumnPos;
+import net.minecraft.world.level.ChunkPos;
 import it.unimi.dsi.fastutil.HashCommon;
 import org.jetbrains.annotations.Range;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ColumnPos;
-import net.minecraft.util.math.Vec3i;
-
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.scripting.bytecode.CastingSupport;
 
 /**
@@ -34,8 +30,8 @@ if a sequence of pseudorandom values is desired,
 the recommended way of generating them is to add {@link #PHI64}
 to the seed every time a new pseudorandom value is generated.
 for example:
-	float  firstValue = Permuter.nextPositiveFloat(seed += Permuter.PHI64);
-	float secondValue = Permuter.nextPositiveFloat(seed += Permuter.PHI64);
+float  firstValue = Permuter.nextPositiveFloat(seed += Permuter.PHI64);
+float secondValue = Permuter.nextPositiveFloat(seed += Permuter.PHI64);
 
 in case an actual {@link RandomGenerator} instance is needed,
 this class implements that too, and the seed is updated as described above.
@@ -60,7 +56,7 @@ public class Permuter implements RandomGenerator {
 		this.seed = seed;
 	}
 
-	public static Permuter from(net.minecraft.util.math.random.Random random) {
+	public static Permuter from(net.minecraft.util.RandomSource random) {
 		return random instanceof MojangPermuter mojangPermuter ? mojangPermuter.permuter : new Permuter(random.nextLong());
 	}
 
@@ -121,12 +117,16 @@ public class Permuter implements RandomGenerator {
 		return this.nextLong() & ((1L << numberOfBits) - 1);
 	}
 
-	/** simulates calling {@link #nextInt()} (distance) times, but faster. */
+	/**
+	simulates calling {@link #nextInt()} (distance) times, but faster.
+	*/
 	public void skip(int distance) {
 		this.seed += PHI64 * distance;
 	}
 
-	/** simulates calling {@link #nextInt()} (distance) times, but faster. */
+	/**
+	simulates calling {@link #nextInt()} (distance) times, but faster.
+	*/
 	public void skip(long distance) {
 		this.seed += PHI64 * distance;
 	}
@@ -138,7 +138,9 @@ public class Permuter implements RandomGenerator {
 	//with the values produced by similarly-named instance methods
 	//on any implementation of RandomGenerator, INCLUDING Permuter!
 
-	/** same as {@link jdk.internal.util.random.RandomSupport#mixStafford13(long)}. */
+	/**
+	same as {@link jdk.internal.util.random.RandomSupport#mixStafford13(long)}.
+	*/
 	public static long stafford(long z) {
 		z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L;
 		z = (z ^ (z >>> 27)) * 0x94D049BB133111EBL;
@@ -178,6 +180,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 2 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -192,6 +195,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 3 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -208,6 +212,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 4 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -226,6 +231,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 5 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -246,6 +252,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 6 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -268,6 +275,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 7 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -292,6 +300,7 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	permutes the seed with 8 salt values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(
@@ -322,6 +331,7 @@ public class Permuter implements RandomGenerator {
 	used as a salt value to permute the seed with.
 	if the provided vararg array is empty,
 	then the seed will be returned as-is.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, byte... salts) {
@@ -335,6 +345,7 @@ public class Permuter implements RandomGenerator {
 	used as a salt value to permute the seed with.
 	if the provided vararg array is empty,
 	then the seed will be returned as-is.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, short... salts) {
@@ -348,6 +359,7 @@ public class Permuter implements RandomGenerator {
 	used as a salt value to permute the seed with.
 	if the provided vararg array is empty,
 	then the seed will be returned as-is.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, int... salts) {
@@ -361,6 +373,7 @@ public class Permuter implements RandomGenerator {
 	used as a salt value to permute the seed with.
 	if the provided vararg array is empty,
 	then the seed will be returned as-is.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, char... salts) {
@@ -375,6 +388,7 @@ public class Permuter implements RandomGenerator {
 	if the provided CharSequence has a
 	{@link CharSequence#length() length} of 0,
 	then the seed will be returned as-is.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, CharSequence saltSequence) {
@@ -385,34 +399,35 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	permutes the seed with an Identifier.
-	first, the seed is permuted with the identifier's
-	{@link Identifier#getNamespace() namespace}
+	permutes the seed with an ResourceLocation.
+	first, the seed is permuted with the ResourceLocation's
+	{@link ResourceLocation#getNamespace() namespace}
 	via {@link #permute(long, CharSequence)}.
 	next, the seed is permuted with the literal
 	char value ':' via {@link #permute(long, int)}.
-	lastly, the seed is permuted with the identifier's
-	{@link Identifier#getPath() path}, again using
+	lastly, the seed is permuted with the ResourceLocation's
+	{@link ResourceLocation#getPath() path}, again using
 	{@link #permute(long, CharSequence)}.
 	the reason for permuting with ':' is to ensure that
-	permute(seed, identifier) == permute(seed, identifier.toString()).
+	permute(seed, ResourceLocation) == permute(seed, ResourceLocation.toString()).
 	note however that the reverse may not be true. in other words,
-	permute(seed, string) may not be equal to permute(seed, new Identifier(string)),
-	even when the string encodes a valid Identifier.
+	permute(seed, string) may not be equal to permute(seed, new ResourceLocation(string)),
+	even when the string encodes a valid ResourceLocation.
 	in particular, these two will not be equal
 	when the string does not contain a namespace,
 	as the default namespace "minecraft" is used in this case.
 	*/
-	public static long permute(long seed, Identifier identifier) {
-		seed = permute(seed, identifier.getNamespace());
+	public static long permute(long seed, ResourceLocation ResourceLocation) {
+		seed = permute(seed, ResourceLocation.getNamespace());
 		seed = permute(seed, ':');
-		seed = permute(seed, identifier.getPath());
+		seed = permute(seed, ResourceLocation.getPath());
 		return seed;
 	}
 
 	/**
 	permutes the seed with the vector's {@link Vec3i#getX() x},
 	{@link Vec3i#getY() y}, and {@link Vec3i#getZ() z} values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, Vec3i vector) {
@@ -422,6 +437,7 @@ public class Permuter implements RandomGenerator {
 	/**
 	permutes the seed with the position's {@link ColumnPos#x x}
 	and {@link ColumnPos#z z} values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, ColumnPos pos) {
@@ -431,6 +447,7 @@ public class Permuter implements RandomGenerator {
 	/**
 	permutes the seed with the position's {@link ChunkPos#x x}
 	and {@link ChunkPos#z z} values.
+
 	@see #permute(long, int)
 	*/
 	public static long permute(long seed, ChunkPos chunkPos) {
@@ -525,6 +542,7 @@ public class Permuter implements RandomGenerator {
 	/**
 	returns a pseudorandom int between 0 (inclusive)
 	and max (exclusive) based on the given seed.
+
 	@throws IllegalArgumentException if max is less than or equal to 0.
 	*/
 	public static int nextBoundedInt(long seed, int max) {
@@ -546,6 +564,7 @@ public class Permuter implements RandomGenerator {
 	/**
 	returns a pseudorandom int between min (inclusive)
 	and max (exclusive) based on the given seed.
+
 	@throws IllegalArgumentException if max is less than or equal to min.
 	*/
 	public static int nextBoundedInt(long seed, int min, int max) {
@@ -566,8 +585,8 @@ public class Permuter implements RandomGenerator {
 
 	/**
 	returns a pseudorandom long between 0 and {@link Long#MAX_VALUE}
-	(both inclusive) based on the given seed.
-	*/
+	 (both inclusive) based on the given seed.
+	 */
 	public static long nextPositiveLong(long seed) {
 		return nextUniformLong(seed) & 0x7FFF_FFFF_FFFF_FFFFL;
 	}
@@ -577,10 +596,11 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom long between 0 (inclusive)
-	and max (exclusive) based on the given seed.
-	@throws IllegalArgumentException if max is less than or equal to 0.
-	*/
+	 returns a pseudorandom long between 0 (inclusive)
+	 and max (exclusive) based on the given seed.
+
+	 @throws IllegalArgumentException if max is less than or equal to 0.
+	 */
 	public static long nextBoundedLong(long seed, long max) {
 		if (max <= 0L) throw new IllegalArgumentException("bound must be positive.");
 		if (max <= Integer.MAX_VALUE) return (long)(nextBoundedInt(seed, (int)(max)));
@@ -598,18 +618,19 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom long between min (inclusive)
-	and max (exclusive) based on the given seed.
-	@throws IllegalArgumentException if max is less than or equal to min.
-	*/
+	 returns a pseudorandom long between min (inclusive)
+	 and max (exclusive) based on the given seed.
+
+	 @throws IllegalArgumentException if max is less than or equal to min.
+	 */
 	public static long nextBoundedLong(long seed, long min, long max) {
 		return nextBoundedLong(seed, max - min) + min;
 	}
 
 	/**
-	returns a pseudorandom float between 0.0 (inclusive)
-	and 1.0 (exclusive) based on the given seed.
-	*/
+	 returns a pseudorandom float between 0.0 (inclusive)
+	 and 1.0 (exclusive) based on the given seed.
+	 */
 	public static float nextPositiveFloat(long seed) {
 		return (nextUniformLong(seed) >>> (64 - 24)) * 0x1.0p-24F;
 	}
@@ -619,9 +640,9 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom float between -1.0 (inclusive)
-	and +1.0 (exclusive) based on the given seed.
-	*/
+	 returns a pseudorandom float between -1.0 (inclusive)
+	 and +1.0 (exclusive) based on the given seed.
+	 */
 	public static float nextUniformFloat(long seed) {
 		return (nextUniformLong(seed) >> (64 - 25)) * 0x1.0p-24F;
 	}
@@ -635,13 +656,14 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom float between 0.0 (inclusive)
-	and max (exclusive) based on the given seed.
-	@throws IllegalArgumentException if:
-		max is {@link Float#POSITIVE_INFINITY},
-		max {@link Float#isNaN() is NaN},
-		or max is less than or equal to 0.0.
-	*/
+	 returns a pseudorandom float between 0.0 (inclusive)
+	 and max (exclusive) based on the given seed.
+
+	 @throws IllegalArgumentException if:
+	 max is {@link Float#POSITIVE_INFINITY},
+	 max {@link Float#isNaN() is NaN},
+	 or max is less than or equal to 0.0.
+	 */
 	public static float nextBoundedFloat(long seed, float max) {
 		if (!(max > 0.0F && max < Float.POSITIVE_INFINITY)) {
 			throw new IllegalArgumentException("bound must be positive and finite.");
@@ -657,15 +679,16 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom float between min (inclusive)
-	and max (exclusive) based on the given seed.
-	@throws IllegalArgumentException if:
-		min is {@link Float#NEGATIVE_INFINITY},
-		max is {@link Float#POSITIVE_INFINITY},
-		min {@link Float#isNaN() is NaN},
-		max {@link Float#isNaN() is NaN},
-		or max is less than or equal to min.
-	*/
+	 returns a pseudorandom float between min (inclusive)
+	 and max (exclusive) based on the given seed.
+
+	 @throws IllegalArgumentException if:
+	 min is {@link Float#NEGATIVE_INFINITY},
+	 max is {@link Float#POSITIVE_INFINITY},
+	 min {@link Float#isNaN() is NaN},
+	 max {@link Float#isNaN() is NaN},
+	 or max is less than or equal to min.
+	 */
 	public static float nextBoundedFloat(long seed, float min, float max) {
 		return nextBoundedFloat(seed, max - min) + min;
 	}
@@ -675,9 +698,9 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom double between 0.0 (inclusive)
-	and 1.0 (exclusive) based on the given seed.
-	*/
+	 returns a pseudorandom double between 0.0 (inclusive)
+	 and 1.0 (exclusive) based on the given seed.
+	 */
 	public static double nextPositiveDouble(long seed) {
 		return (nextUniformLong(seed) >>> (64 - 53)) * 0x1.0p-53D;
 	}
@@ -687,9 +710,9 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom double between -1.0 (inclusive)
-	and +1.0 (exclusive) based on the given seed.
-	*/
+	 returns a pseudorandom double between -1.0 (inclusive)
+	 and +1.0 (exclusive) based on the given seed.
+	 */
 	public static double nextUniformDouble(long seed) {
 		return (nextUniformLong(seed) >> (64 - 54)) * 0x1.0p-53D;
 	}
@@ -703,13 +726,14 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom double between 0.0 (inclusive)
-	and max (exclusive) based on the given seed.
-	@throws IllegalArgumentException if:
-		max is {@link Double#POSITIVE_INFINITY},
-		max {@link Double#isNaN() is NaN},
-		or max is less than or equal to 0.0.
-	*/
+	 returns a pseudorandom double between 0.0 (inclusive)
+	 and max (exclusive) based on the given seed.
+
+	 @throws IllegalArgumentException if:
+	 max is {@link Double#POSITIVE_INFINITY},
+	 max {@link Double#isNaN() is NaN},
+	 or max is less than or equal to 0.0.
+	 */
 	public static double nextBoundedDouble(long seed, double max) {
 		if (!(max > 0.0D && max < Double.POSITIVE_INFINITY)) {
 			throw new IllegalArgumentException("bound must be positive and finite.");
@@ -725,15 +749,16 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom double between min (inclusive)
-	and max (exclusive) based on the given seed.
-	@throws IllegalArgumentException if:
-		min is {@link Double#NEGATIVE_INFINITY},
-		max is {@link Double#POSITIVE_INFINITY},
-		min {@link Double#isNaN() is NaN},
-		max {@link Double#isNaN() is NaN},
-		or max is less than or equal to min.
-	*/
+	 returns a pseudorandom double between min (inclusive)
+	 and max (exclusive) based on the given seed.
+
+	 @throws IllegalArgumentException if:
+	 min is {@link Double#NEGATIVE_INFINITY},
+	 max is {@link Double#POSITIVE_INFINITY},
+	 min {@link Double#isNaN() is NaN},
+	 max {@link Double#isNaN() is NaN},
+	 or max is less than or equal to min.
+	 */
 	public static double nextBoundedDouble(long seed, double min, double max) {
 		return nextBoundedDouble(seed, max - min) + min;
 	}
@@ -743,10 +768,10 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom boolean with a
-	50% chance of being true and a 50% chance
-	of being false based on the given seed.
-	*/
+	 returns a pseudorandom boolean with a
+	 50% chance of being true and a 50% chance
+	 of being false based on the given seed.
+	 */
 	public static boolean nextBoolean(long seed) {
 		return nextUniformInt(seed) < 0;
 	}
@@ -756,10 +781,10 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom boolean with a (chance)
-	chance of being true and a (1.0 - chance)
-	chance of being false based on the given seed.
-	*/
+	 returns a pseudorandom boolean with a (chance)
+	 chance of being true and a (1.0 - chance)
+	 chance of being false based on the given seed.
+	 */
 	public static boolean nextChancedBoolean(long seed, float chance) {
 		return chance > 0.0F && (chance >= 1.0F || nextPositiveFloat(seed) < chance);
 	}
@@ -773,10 +798,10 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a pseudorandom boolean with a (chance)
-	chance of being true and a (1.0 - chance)
-	chance of being false based on the given seed.
-	*/
+	 returns a pseudorandom boolean with a (chance)
+	 chance of being true and a (1.0 - chance)
+	 chance of being false based on the given seed.
+	 */
 	public static boolean nextChancedBoolean(long seed, double chance) {
 		return chance > 0.0D && (chance >= 1.0D || nextPositiveDouble(seed) < chance);
 	}
@@ -790,15 +815,15 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	rounds the number either up or down, randomly, based on the given seed.
-	the number is more likely to round up the closer it is to ceil(number).
-	likewise, the number is more likely to round down the closer it is to floor(number).
-	for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
-	and a 75% chance of rounding down to 1. the rounded value is returned as an int.
-	if the number is already an integer, it will be cast to an int and returned as-is.
-	in other words, the number 3.0 has a 100% chance of rounding to 3,
-	and a 0% chance of rounding to 2 or 4.
-	*/
+	 rounds the number either up or down, randomly, based on the given seed.
+	 the number is more likely to round up the closer it is to ceil(number).
+	 likewise, the number is more likely to round down the closer it is to floor(number).
+	 for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
+	 and a 75% chance of rounding down to 1. the rounded value is returned as an int.
+	 if the number is already an integer, it will be cast to an int and returned as-is.
+	 in other words, the number 3.0 has a 100% chance of rounding to 3,
+	 and a 0% chance of rounding to 2 or 4.
+	 */
 	public static int roundRandomlyI(long seed, float number) {
 		return CastingSupport.floorInt(number + nextPositiveFloat(seed));
 	}
@@ -808,15 +833,15 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	rounds the number either up or down, randomly, based on the given seed.
-	the number is more likely to round up the closer it is to ceil(number).
-	likewise, the number is more likely to round down the closer it is to floor(number).
-	for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
-	and a 75% chance of rounding down to 1. the rounded value is returned as an int.
-	if the number is already an integer, it will be cast to an int and returned as-is.
-	in other words, the number 3.0 has a 100% chance of rounding to 3,
-	and a 0% chance of rounding to 2 or 4.
-	*/
+	 rounds the number either up or down, randomly, based on the given seed.
+	 the number is more likely to round up the closer it is to ceil(number).
+	 likewise, the number is more likely to round down the closer it is to floor(number).
+	 for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
+	 and a 75% chance of rounding down to 1. the rounded value is returned as an int.
+	 if the number is already an integer, it will be cast to an int and returned as-is.
+	 in other words, the number 3.0 has a 100% chance of rounding to 3,
+	 and a 0% chance of rounding to 2 or 4.
+	 */
 	public static int roundRandomlyI(long seed, double number) {
 		return CastingSupport.floorInt(number + nextPositiveDouble(seed));
 	}
@@ -826,15 +851,15 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	rounds the number either up or down, randomly, based on the given seed.
-	the number is more likely to round up the closer it is to ceil(number).
-	likewise, the number is more likely to round down the closer it is to floor(number).
-	for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
-	and a 75% chance of rounding down to 1. the rounded value is returned as a long.
-	if the number is already an integer, it will be cast to a long and returned as-is.
-	in other words, the number 3.0 has a 100% chance of rounding to 3,
-	and a 0% chance of rounding to 2 or 4.
-	*/
+	 rounds the number either up or down, randomly, based on the given seed.
+	 the number is more likely to round up the closer it is to ceil(number).
+	 likewise, the number is more likely to round down the closer it is to floor(number).
+	 for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
+	 and a 75% chance of rounding down to 1. the rounded value is returned as a long.
+	 if the number is already an integer, it will be cast to a long and returned as-is.
+	 in other words, the number 3.0 has a 100% chance of rounding to 3,
+	 and a 0% chance of rounding to 2 or 4.
+	 */
 	public static long roundRandomlyL(long seed, float number) {
 		return CastingSupport.floorLong(number + nextPositiveFloat(seed));
 	}
@@ -844,15 +869,15 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	rounds the number either up or down, randomly, based on the given seed.
-	the number is more likely to round up the closer it is to ceil(number).
-	likewise, the number is more likely to round down the closer it is to floor(number).
-	for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
-	and a 75% chance of rounding down to 1. the rounded value is returned as a long.
-	if the number is already an integer, it will be cast to a long and returned as-is.
-	in other words, the number 3.0 has a 100% chance of rounding to 3,
-	and a 0% chance of rounding to 2 or 4.
-	*/
+	 rounds the number either up or down, randomly, based on the given seed.
+	 the number is more likely to round up the closer it is to ceil(number).
+	 likewise, the number is more likely to round down the closer it is to floor(number).
+	 for example, if the number is 1.25, then it has a 25% chance of rounding up to 2,
+	 and a 75% chance of rounding down to 1. the rounded value is returned as a long.
+	 if the number is already an integer, it will be cast to a long and returned as-is.
+	 in other words, the number 3.0 has a 100% chance of rounding to 3,
+	 and a 0% chance of rounding to 2 or 4.
+	 */
 	public static long roundRandomlyL(long seed, double number) {
 		return CastingSupport.floorLong(number + nextPositiveDouble(seed));
 	}
@@ -862,9 +887,9 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a random element from the provided array, based on the provided seed.
-	all elements of the array are equally likely to be selected.
-	*/
+	 returns a random element from the provided array, based on the provided seed.
+	 all elements of the array are equally likely to be selected.
+	 */
 	public static <T> T choose(long seed, T[] values) {
 		return values[nextBoundedInt(seed, values.length)];
 	}
@@ -874,9 +899,9 @@ public class Permuter implements RandomGenerator {
 	}
 
 	/**
-	returns a random element from the provided list, based on the provided seed.
-	all elements of the list are equally likely to be selected.
-	*/
+	 returns a random element from the provided list, based on the provided seed.
+	 all elements of the list are equally likely to be selected.
+	 */
 	public static <T> T choose(long seed, List<T> values) {
 		return values.get(nextBoundedInt(seed, values.size()));
 	}

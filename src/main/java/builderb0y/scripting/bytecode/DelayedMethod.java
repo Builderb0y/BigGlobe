@@ -6,13 +6,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.google.common.base.Suppliers;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.UserMethodDefiner;
 import builderb0y.scripting.util.TypeMerger;
 
@@ -61,10 +59,10 @@ public class DelayedMethod {
 			this.methodName + '_' + parser.clazz.memberUniquifier++,
 			this.returnType,
 			Stream.concat(
-				this.userParameters.stream(),
-				this.streamCapturedArgs()
-			)
-			.toArray(LazyVarInfo.ARRAY_FACTORY)
+					this.userParameters.stream(),
+					this.streamCapturedArgs()
+				)
+				.toArray(LazyVarInfo.ARRAY_FACTORY)
 		);
 		this.methodInfo = method.info;
 		return method;
@@ -100,8 +98,8 @@ public class DelayedMethod {
 			return new LazyElvisInsnTree(
 				() -> this.delegate.get().elvis(parser, alternative),
 				alternative.jumpsUnconditionally()
-				? this.type
-				: TypeMerger.computeMostSpecificType(
+					? this.type
+					: TypeMerger.computeMostSpecificType(
 					this.type,
 					alternative.getTypeInfo()
 				)

@@ -1,32 +1,32 @@
 package builderb0y.bigglobe.structures;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.Structure.GenerationStub;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureSet.StructureSelectionEntry;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import com.google.common.base.Predicates;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.structure.StructureSet;
-import net.minecraft.structure.StructureSet.WeightedEntry;
-import net.minecraft.structure.StructureStart;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.Structure.StructurePosition;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
@@ -54,19 +54,19 @@ public class ActiveStructureManager extends StructureManager {
 
 	public final TimestampedComputingCache<ChunkPos, FinalStructures>
 		intersectingStructures = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D)),
-		finalStructures        = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
+		finalStructures = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
 	public final TimestampedComputingCache<StructureKey, SectionSortedStructurePieces>
-		potentialStructures    = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
-	public final Object2ObjectOpenHashMap<RegistryEntry<StructureSet>, OptionalInt>
-		structureSetSizeCache  = new Object2ObjectOpenHashMap<>();
+		potentialStructures = new TimestampedComputingCache<>(Units.seconds(60.0D), Units.gigabytes(1.0D));
+	public final Object2ObjectOpenHashMap<Holder<StructureSet>, OptionalInt>
+		structureSetSizeCache = new Object2ObjectOpenHashMap<>();
 	public final ReentrantReadWriteLock
-		sizeCacheLock          = new ReentrantReadWriteLock();
+		sizeCacheLock = new ReentrantReadWriteLock();
 
 	public static <T> Stream<T> maybeParallel(Stream<T> stream) {
 		return BigGlobeConfig.INSTANCE.get().c2meIntegration.multiThreadedStructures() ? stream.parallel() : stream.sequential();
 	}
 
-	public OptionalInt maxSize(RegistryEntry<StructureSet> set) {
+	public OptionalInt maxSize(Holder<StructureSet> set) {
 		OptionalInt result;
 		this.sizeCacheLock.readLock().lock();
 		try {
@@ -80,16 +80,16 @@ public class ActiveStructureManager extends StructureManager {
 			try {
 				result = this.structureSetSizeCache.computeIfAbsent(
 					set,
-					(RegistryEntry<StructureSet> set_) -> (
+					(Holder<StructureSet> set_) -> (
 						set_
-						.value()
-						.structures()
-						.stream()
-						.map(WeightedEntry::structure)
-						.map(RegistryEntry<Structure>::value)
-						.map(SizedStructure.class::cast)
-						.mapToInt(SizedStructure::bigglobe_getMaxRadiusInChunks)
-						.max()
+							.value()
+							.structures()
+							.stream()
+							.map(StructureSelectionEntry::structure)
+							.map(Holder<Structure>::value)
+							.map(SizedStructure.class::cast)
+							.mapToInt(SizedStructure::bigglobe_getMaxRadiusInChunks)
+							.max()
 					)
 				);
 			}
@@ -100,57 +100,59 @@ public class ActiveStructureManager extends StructureManager {
 		return result;
 	}
 
-	public static Stream<StructureKey> getFilteredStartChunks(StructureGenerationParams params, RegistryEntry<StructureSet> set, int radius) {
+	public static Stream<StructureKey> getFilteredStartChunks(StructureGenerationParams params, Holder<StructureSet> set, int radius) {
 		return maybeParallel(
 			(
 				(StreamableStructurePlacement)(
 					set.value().placement()
 				)
 			)
-			.bigglobe_getFilteredStartChunks(
-				params.generator(),
-				params.structurePlacementCalculator(),
-				params.chunkPos().x,
-				params.chunkPos().z,
-				radius
-			)
+				.bigglobe_getFilteredStartChunks(
+					params.generator(),
+					params.structurePlacementCalculator(),
+					params.chunkPos().x,
+					params.chunkPos().z,
+					radius
+				)
 		)
-		.map((ChunkPos chunkPos) -> new StructureKey(chunkPos.x, chunkPos.z, set));
+				.map((ChunkPos chunkPos) -> new StructureKey(chunkPos.x, chunkPos.z, set));
 	}
 
 	@Override
 	public FinalStructures getIntersectingStructures(StructureGenerationParams params) {
-		return this.intersectingStructures.computeIfUnknown(params.chunkPos(), (ChunkPos pos) -> {
-			return this.computeIntersectingStructures(params);
-		});
+		return this.intersectingStructures.computeIfUnknown(
+			params.chunkPos(), (ChunkPos pos) -> {
+				return this.computeIntersectingStructures(params);
+			}
+		);
 	}
 
 	public FinalStructures computeIntersectingStructures(StructureGenerationParams params) {
 		return (
 			maybeParallel(
 				params
-				.structurePlacementCalculator()
-				.getStructureSets()
-				.stream()
+					.structurePlacementCalculator()
+					.possibleStructureSets()
+					.stream()
 			)
-			.flatMap((RegistryEntry<StructureSet> set) -> {
-				return this.maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
-			})
-			.map(StructureKey::chunkPos)
-			.distinct()
-			.flatMap((ChunkPos pos) -> maybeParallel(this.getFinalStructures(params.at(pos)).stream()))
-			.filter((StructureStart start) -> (
-				params.chunkPos().x >= start.getBoundingBox().getMinX() >> 4 &&
-				params.chunkPos().z >= start.getBoundingBox().getMinZ() >> 4 &&
-				params.chunkPos().x <= start.getBoundingBox().getMaxX() >> 4 &&
-				params.chunkPos().z <= start.getBoundingBox().getMaxZ() >> 4
-			))
-			.sorted(
-				Comparator
-				.comparing((StructureStart start) -> start.getStructure().getFeatureGenerationStep())
-				.thenComparing((StructureStart start) -> structureID(start.getStructure()))
-			)
-			.collect(Collectors.toCollection(FinalStructures::new))
+				.flatMap((Holder<StructureSet> set) -> {
+					return this.maxSize(set).stream().mapToObj((int radius) -> getFilteredStartChunks(params, set, radius)).flatMap(Function.identity());
+				})
+				.map(StructureKey::chunkPos)
+				.distinct()
+				.flatMap((ChunkPos pos) -> maybeParallel(this.getFinalStructures(params.at(pos)).stream()))
+				.filter((StructureStart start) -> (
+					params.chunkPos().x >= start.getBoundingBox().minX() >> 4 &&
+					params.chunkPos().z >= start.getBoundingBox().minZ() >> 4 &&
+					params.chunkPos().x <= start.getBoundingBox().maxX() >> 4 &&
+					params.chunkPos().z <= start.getBoundingBox().maxZ() >> 4
+				))
+				.sorted(
+					Comparator
+						.comparing((StructureStart start) -> start.getStructure().step())
+						.thenComparing((StructureStart start) -> structureID(start.getStructure()))
+				)
+				.collect(Collectors.toCollection(FinalStructures::new))
 		);
 	}
 
@@ -160,62 +162,62 @@ public class ActiveStructureManager extends StructureManager {
 		//ability to lookup the key associated with a given object.
 		Registry<Structure> structureRegistry = RegistryVersions.getRegistry(
 			params.dynamicRegistries(),
-			RegistryKeys.STRUCTURE
+			Registries.STRUCTURE
 		);
 		@SuppressWarnings("unchecked")
 		@Nullable List<@NotNull StructureStartWrapper> @NotNull [] intermediate = new List[overriders.overriders().length];
 		params
-		.structurePlacementCalculator()
-		.getStructureSets()
-		.stream()
-		.flatMap((RegistryEntry<StructureSet> set) -> {
-			OptionalInt size = this.maxSize(set);
-			if (size.isEmpty()) return Stream.empty();
-			int extra = overriders.getSearchRadius(set);
-			if (extra < 0) return Stream.empty();
-			return getFilteredStartChunks(params, set, size.getAsInt() + extra);
-		})
-		.map(StructureKey::chunkPos)
-		.distinct()
-		.flatMap((ChunkPos pos) -> this.getFinalStructures(params.at(pos)).stream())
-		.sorted(
-			Comparator
-			.comparing((StructureStart start) -> start.getStructure().getFeatureGenerationStep())
-			.thenComparing((StructureStart start) -> structureID(start.getStructure()))
-		)
-		.forEachOrdered((StructureStart start) -> {
-			for (int index : overriders.getIndices(start.getStructure())) {
-				List<StructureStartWrapper> structures = intermediate[index];
-				if (structures == null) {
-					structures = intermediate[index] = new ArrayList<>();
+			.structurePlacementCalculator()
+			.possibleStructureSets()
+			.stream()
+			.flatMap((Holder<StructureSet> set) -> {
+				OptionalInt size = this.maxSize(set);
+				if (size.isEmpty()) return Stream.empty();
+				int extra = overriders.getSearchRadius(set);
+				if (extra < 0) return Stream.empty();
+				return getFilteredStartChunks(params, set, size.getAsInt() + extra);
+			})
+			.map(StructureKey::chunkPos)
+			.distinct()
+			.flatMap((ChunkPos pos) -> this.getFinalStructures(params.at(pos)).stream())
+			.sorted(
+				Comparator
+					.comparing((StructureStart start) -> start.getStructure().step())
+					.thenComparing((StructureStart start) -> structureID(start.getStructure()))
+			)
+			.forEachOrdered((StructureStart start) -> {
+				for (int index : overriders.getIndices(start.getStructure())) {
+					List<StructureStartWrapper> structures = intermediate[index];
+					if (structures == null) {
+						structures = intermediate[index] = new ArrayList<>();
+					}
+					ColumnValueOverrider.Entry overrider = overriders.overriders()[index].value();
+					int extra = overrider.getSearchRadius(start.getStructure());
+					if (
+						(start.getBoundingBox().minX() >> 4) - extra <= params.chunkPos().x &&
+						(start.getBoundingBox().minZ() >> 4) - extra <= params.chunkPos().z &&
+						(start.getBoundingBox().maxX() >> 4) + extra >= params.chunkPos().x &&
+						(start.getBoundingBox().maxZ() >> 4) + extra >= params.chunkPos().z
+					) {
+						structures.add(
+							StructureStartWrapper.of(
+								RegistryVersions.getEntry(
+									structureRegistry,
+									start.getStructure()
+								),
+								start
+							)
+						);
+					}
 				}
-				ColumnValueOverrider.Entry overrider = overriders.overriders()[index].value();
-				int extra = overrider.getSearchRadius(start.getStructure());
-				if (
-					(start.getBoundingBox().getMinX() >> 4) - extra <= params.chunkPos().x &&
-					(start.getBoundingBox().getMinZ() >> 4) - extra <= params.chunkPos().z &&
-					(start.getBoundingBox().getMaxX() >> 4) + extra >= params.chunkPos().x &&
-					(start.getBoundingBox().getMaxZ() >> 4) + extra >= params.chunkPos().z
-				) {
-					structures.add(
-						StructureStartWrapper.of(
-							RegistryVersions.getEntry(
-								structureRegistry,
-								start.getStructure()
-							),
-							start
-						)
-					);
-				}
-			}
-		});
+			});
 		return CollectionTransformer.convertArray(
 			intermediate,
 			ScriptStructures[]::new,
 			(List<StructureStartWrapper> wrappers) -> (
 				wrappers == null
-				? ScriptStructures.EMPTY_SCRIPT_STRUCTURES
-				: new ScriptStructures(
+					? ScriptStructures.EMPTY_SCRIPT_STRUCTURES
+					: new ScriptStructures(
 					wrappers.toArray(
 						StructureStartWrapper.ARRAY_FACTORY
 					)
@@ -226,9 +228,11 @@ public class ActiveStructureManager extends StructureManager {
 
 	@Override
 	public FinalStructures getFinalStructures(StructureGenerationParams params) {
-		return this.finalStructures.computeIfUnknown(params.chunkPos(), (ChunkPos chunkPos) -> {
-			return this.computeFinalStructures(params);
-		});
+		return this.finalStructures.computeIfUnknown(
+			params.chunkPos(), (ChunkPos chunkPos) -> {
+				return this.computeFinalStructures(params);
+			}
+		);
 	}
 
 	public FinalStructures computeFinalStructures(StructureGenerationParams params) {
@@ -239,42 +243,42 @@ public class ActiveStructureManager extends StructureManager {
 		//also compute the size of the largest one.
 		maybeParallel(
 			params
-			.structurePlacementCalculator()
-			.getStructureSets()
-			.stream()
+				.structurePlacementCalculator()
+				.possibleStructureSets()
+				.stream()
 		)
-		.flatMap((RegistryEntry<StructureSet> set) -> {
-			return getFilteredStartChunks(params, set, 0);
-		})
-		.forEach((StructureKey key) -> {
-			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
-			if (!pieces.isEmpty()) synchronized (starts) {
-				starts.addElementToEnd(pieces);
-				this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
-			}
-		});
+			.flatMap((Holder<StructureSet> set) -> {
+				return getFilteredStartChunks(params, set, 0);
+			})
+			.forEach((StructureKey key) -> {
+				SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
+				if (!pieces.isEmpty()) synchronized (starts) {
+					starts.addElementToEnd(pieces);
+					this.maxSize(key.set()).ifPresent((int size) -> maxSizeForChunk.setValue(Math.max(maxSizeForChunk.getValue(), size)));
+				}
+			});
 		if (starts.isEmpty()) return new FinalStructures(0);
 
 		//step 2: get all the structures which could potentially collide with anything in the current chunk.
 		maybeParallel(
 			params
-			.structurePlacementCalculator()
-			.getStructureSets()
-			.stream()
+				.structurePlacementCalculator()
+				.possibleStructureSets()
+				.stream()
 		)
-		.flatMap((RegistryEntry<StructureSet> set) -> {
-			return this.maxSize(set).stream().mapToObj((int radius) -> {
-				return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
+			.flatMap((Holder<StructureSet> set) -> {
+				return this.maxSize(set).stream().mapToObj((int radius) -> {
+						return getFilteredStartChunks(params, set, maxSizeForChunk.getValue() + radius);
+					})
+						.flatMap(Function.identity());
 			})
-			.flatMap(Function.identity());
-		})
-		.filter((StructureKey key) -> key.chunkX() != params.chunkPos().x || key.chunkZ() != params.chunkPos().z)
-		.forEach((StructureKey key) -> {
-			SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
-			if (!pieces.isEmpty()) synchronized (starts) {
-				starts.addElementToEnd(pieces);
-			}
-		});
+			.filter((StructureKey key) -> key.chunkX() != params.chunkPos().x || key.chunkZ() != params.chunkPos().z)
+			.forEach((StructureKey key) -> {
+				SectionSortedStructurePieces pieces = this.getPotentialStructures(params.at(key.chunkX(), key.chunkZ()), key.set());
+				if (!pieces.isEmpty()) synchronized (starts) {
+					starts.addElementToEnd(pieces);
+				}
+			});
 
 		//step 3: filter, log, and convert.
 		LinkedArrayList<SectionSortedStructurePieces> filtered = removeIntersections(params, starts);
@@ -295,7 +299,7 @@ public class ActiveStructureManager extends StructureManager {
 		LinkedArrayList<SectionSortedStructurePieces> filtered = new LinkedArrayList<>();
 		outer:
 		for (LinkedArrayList.Node<SectionSortedStructurePieces> current = list.first; current != null; current = current.next) {
-			if (current.element.startWrapper.start().getPos().equals(params.chunkPos())) {
+			if (current.element.startWrapper.start().getChunkPos().equals(params.chunkPos())) {
 				for (LinkedArrayList.Node<SectionSortedStructurePieces> other = list.first; other != null; other = other.next) {
 					if (other == current) continue;
 					if (SectionSortedStructurePieces.intersects(current.element, other.element)) {
@@ -320,13 +324,15 @@ public class ActiveStructureManager extends StructureManager {
 		return filtered;
 	}
 
-	public @NotNull SectionSortedStructurePieces getPotentialStructures(StructureGenerationParams params, RegistryEntry<StructureSet> set) {
-		return this.potentialStructures.computeIfUnknown(new StructureKey(params.chunkPos().x, params.chunkPos().z, set), (StructureKey chunkPos) -> {
-			return this.computePotentialStructures(params, set);
-		});
+	public @NotNull SectionSortedStructurePieces getPotentialStructures(StructureGenerationParams params, Holder<StructureSet> set) {
+		return this.potentialStructures.computeIfUnknown(
+			new StructureKey(params.chunkPos().x, params.chunkPos().z, set), (StructureKey chunkPos) -> {
+				return this.computePotentialStructures(params, set);
+			}
+		);
 	}
 
-	public @NotNull SectionSortedStructurePieces computePotentialStructures(StructureGenerationParams params, RegistryEntry<StructureSet> set) {
+	public @NotNull SectionSortedStructurePieces computePotentialStructures(StructureGenerationParams params, Holder<StructureSet> set) {
 		StructureStartWrapper wrapper = this.computeStructureStart(params, set);
 		if (wrapper != null) {
 			return new SectionSortedStructurePieces(set, wrapper);
@@ -336,17 +342,17 @@ public class ActiveStructureManager extends StructureManager {
 		}
 	}
 
-	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, RegistryEntry<StructureSet> set) {
+	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, Holder<StructureSet> set) {
 		Permuter structureChooser = new Permuter(0L);
 		long chunkSeed = Permuter.permute(params.columnSeed() ^ 0x767DB826EDD5532EL, params.chunkPos().x, params.chunkPos().z);
 		structureChooser.setSeed(Permuter.permute(chunkSeed, UnregisteredObjectException.getID(set).hashCode()));
-		List<WeightedEntry> possibilities = new ArrayList<>(set.value().structures());
+		List<StructureSelectionEntry> possibilities = new ArrayList<>(set.value().structures());
 		int totalWeight = getTotalWeight(possibilities);
 		while (!possibilities.isEmpty()) {
 			int index = getRandomIndex(possibilities, totalWeight, structureChooser);
-			WeightedEntry entry = possibilities.get(index);
+			StructureSelectionEntry entry = possibilities.get(index);
 			StructureStartWrapper structure = this.computeStructureStart(params, entry);
-			if (structure != null && structure.start().hasChildren()) {
+			if (structure != null && structure.start().isValid()) {
 				return structure;
 			}
 			else {
@@ -362,7 +368,7 @@ public class ActiveStructureManager extends StructureManager {
 		return null;
 	}
 
-	public static int getTotalWeight(List<WeightedEntry> list) {
+	public static int getTotalWeight(List<StructureSelectionEntry> list) {
 		int sum = 0;
 		for (int index = 0, size = list.size(); index < size; index++) {
 			sum += list.get(index).weight();
@@ -370,7 +376,7 @@ public class ActiveStructureManager extends StructureManager {
 		return sum;
 	}
 
-	public static int getRandomIndex(List<WeightedEntry> list, int totalWeight, RandomGenerator random) {
+	public static int getRandomIndex(List<StructureSelectionEntry> list, int totalWeight, RandomGenerator random) {
 		int rng = random.nextInt(totalWeight);
 		for (int index = 0, size = list.size(); index < size; index++) {
 			if ((rng -= list.get(index).weight()) < 0) {
@@ -380,7 +386,7 @@ public class ActiveStructureManager extends StructureManager {
 		throw new IllegalStateException("either the RandomGenerator messed up, or the weights changed.");
 	}
 
-	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, WeightedEntry weightedEntry) {
+	public @Nullable StructureStartWrapper computeStructureStart(StructureGenerationParams params, StructureSelectionEntry weightedEntry) {
 		if (ValkyrienSkiesCompat.isInShipyard(params.chunkPos())) {
 			if (canLog(weightedEntry.structure())) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos() + " because Valkyrien Skies reserves this area.");
@@ -389,20 +395,20 @@ public class ActiveStructureManager extends StructureManager {
 		}
 
 		Structure structure = weightedEntry.structure().value();
-		RegistryEntryList<Biome> validBiomes = structure.getValidBiomes();
+		HolderSet<Biome> validBiomes = structure.biomes();
 		while (structure instanceof DelegatingStructure delegating && delegating.canDelegateStart()) {
 			structure = delegating.delegate().value();
 		}
 
-		StructurePosition newStartPosition;
+		GenerationStub newStartPosition;
 		try {
-			newStartPosition = structure.getValidStructurePosition(
-				params.toStructureContext(Predicates.alwaysTrue())
-			)
-			.orElse(null);
+			newStartPosition = structure.findValidGenerationPoint(
+					params.toStructureContext(Predicates.alwaysTrue())
+				)
+								.orElse(null);
 		}
 		catch (Exception exception) {
-			Identifier structureID = structureID(structure);
+			ResourceLocation structureID = structureID(structure);
 			BigGlobeMod.LOGGER.error("Caught exception while generating StructurePosition for structure " + structureID + ". Please report this to the developers of mod " + structureID.getNamespace(), exception);
 			return null;
 		}
@@ -414,26 +420,26 @@ public class ActiveStructureManager extends StructureManager {
 			return null;
 		}
 
-		StructurePiecesCollector collector;
+		StructurePiecesBuilder collector;
 		try {
-			collector = newStartPosition.generate();
+			collector = newStartPosition.getPiecesBuilder();
 		}
 		catch (Exception exception) {
-			Identifier structureID = structureID(structure);
+			ResourceLocation structureID = structureID(structure);
 			BigGlobeMod.LOGGER.error("Caught exception while generating StructurePiecesCollector for structure " + structureID + ". Please report this to the developers of mod " + structureID.getNamespace(), exception);
 			return null;
 		}
 
-		StructureStart newStart = new StructureStart(weightedEntry.structure().value(), params.chunkPos(), 0, collector.toList());
-		if (!newStart.hasChildren()) {
+		StructureStart newStart = new StructureStart(weightedEntry.structure().value(), params.chunkPos(), 0, collector.build());
+		if (!newStart.isValid()) {
 			if (canLog(weightedEntry.structure())) {
 				BigGlobeMod.LOGGER.info("Structure " + UnregisteredObjectException.getID(weightedEntry.structure()) + " did not spawn in chunk " + params.chunkPos() + " because the resulting structure has no pieces.");
 			}
 			return null;
 		}
-		int structureX = Interpolator.clamp(newStart.getBoundingBox().getMinX(), newStart.getBoundingBox().getMaxX(), newStartPosition.position().getX());
-		int structureY = Interpolator.clamp(newStart.getBoundingBox().getMinY(), newStart.getBoundingBox().getMaxY(), newStartPosition.position().getY());
-		int structureZ = Interpolator.clamp(newStart.getBoundingBox().getMinZ(), newStart.getBoundingBox().getMaxZ(), newStartPosition.position().getZ());
+		int structureX = Interpolator.clamp(newStart.getBoundingBox().minX(), newStart.getBoundingBox().maxX(), newStartPosition.position().getX());
+		int structureY = Interpolator.clamp(newStart.getBoundingBox().minY(), newStart.getBoundingBox().maxY(), newStartPosition.position().getY());
+		int structureZ = Interpolator.clamp(newStart.getBoundingBox().minZ(), newStart.getBoundingBox().maxZ(), newStartPosition.position().getZ());
 		if (
 			(
 				newStartPosition.position().getX() != structureX ||
@@ -446,7 +452,7 @@ public class ActiveStructureManager extends StructureManager {
 		}
 
 		StructureStartWrapper wrapper = StructureStartWrapper.of(weightedEntry.structure(), newStart);
-		int oldY = newStart.getBoundingBox().getMinY();
+		int oldY = newStart.getBoundingBox().minY();
 		if (
 			!this.canStructureSpawn(
 				params,
@@ -467,12 +473,12 @@ public class ActiveStructureManager extends StructureManager {
 			return null;
 		}
 
-		int newY = newStart.getBoundingBox().getMinY();
-		RegistryEntry<Biome> biome = params.biomeSource().getBiome(
-			(structureX                ) >> 2,
+		int newY = newStart.getBoundingBox().minY();
+		Holder<Biome> biome = params.biomeSource().getNoiseBiome(
+			(structureX) >> 2,
 			(structureY + (newY - oldY)) >> 2,
-			(structureZ                ) >> 2,
-			params.noiseConfig().getMultiNoiseSampler()
+			(structureZ) >> 2,
+			params.noiseConfig().sampler()
 		);
 
 		if (!validBiomes.contains(biome)) {
@@ -506,10 +512,10 @@ public class ActiveStructureManager extends StructureManager {
 						start.getBoundingBox().getCenter() +
 						" because overrider " +
 						RegistryVersions.getRegistry(
-							BigGlobeMod.getCurrentServer().getRegistryManager(),
-							BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
-						)
-						.getId(overrider) +
+								BigGlobeMod.getCurrentServer().registryAccess(),
+								BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY
+							)
+							.getKey(overrider) +
 						" said no."
 					);
 				}

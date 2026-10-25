@@ -2,7 +2,10 @@ package builderb0y.bigglobe;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -17,30 +20,31 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.*;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourcePack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Holder;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.gen.WorldPreset;
-import net.minecraft.world.level.storage.LevelStorage;
-
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.blocks.SoulCauldronBlock;
 import builderb0y.bigglobe.brewing.BigGlobeBrewing;
-import builderb0y.bigglobe.chunkgen.*;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.EmptyChunkGenerator;
 import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
@@ -68,17 +72,27 @@ import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ExpressionParser;
 
+@net.neoforged.fml.common.Mod(BigGlobeMod.MODID)
 public class BigGlobeMod implements ModInitializer {
 
+	public BigGlobeMod(net.neoforged.bus.api.IEventBus modEventBus) {
+		this.onInitialize();
+		if (net.neoforged.fml.loading.FMLEnvironment.dist == net.neoforged.api.distmarker.Dist.CLIENT) {
+			new BigGlobeClient().onInitializeClient();
+		}
+		BigGlobeNeoForgeEvents.register(modEventBus);
+	}
+
+
 	public static final String
-		MODID   = "bigglobe",
+		MODID = "bigglobe",
 		MODNAME = "Big Globe";
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MODNAME);
 	public static final boolean
 		REGEN_WORLDS = Boolean.getBoolean(MODID + ".regenWorlds"),
-		MIXIN_AUDIT  = Boolean.getBoolean(MODID + ".mixinAudit");
-	public static final RegistryKey<WorldPreset> BIG_GLOBE_WORLD_PRESET_KEY = RegistryKey.of(RegistryKeys.WORLD_PRESET, modID("bigglobe"));
+		MIXIN_AUDIT = Boolean.getBoolean(MODID + ".mixinAudit");
+	public static final ResourceKey<WorldPreset> BIG_GLOBE_WORLD_PRESET_KEY = ResourceKey.create(Registries.WORLD_PRESET, modID("bigglobe"));
 
 	public static MinecraftServer currentServer;
 	public static BetterRegistry.Lookup currentRegistries;
@@ -126,10 +140,10 @@ public class BigGlobeMod implements ModInitializer {
 			currentRegistries = new BetterRegistry.Lookup() {
 
 				@Override
-				public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
+				public <T> BetterRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
 					return new BetterHardCodedRegistry<>(
 						RegistryVersions.getRegistry(
-							server.getRegistryManager(),
+							server.registryAccess(),
 							key
 						)
 					);
@@ -165,15 +179,15 @@ public class BigGlobeMod implements ModInitializer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> BetterRegistry<T> getRegistry(RegistryKey<? extends Registry<? extends T>> key) {
-		return getCurrentRegistries().getRegistry((RegistryKey<Registry<T>>)(key));
+	public static <T> BetterRegistry<T> getRegistry(ResourceKey<? extends Registry<? extends T>> key) {
+		return getCurrentRegistries().getRegistry((ResourceKey<Registry<T>>)(key));
 	}
 
-	public static <T> BetterRegistry<T> getSidedRegistry(RegistryKey<? extends Registry<? extends T>> key, boolean client) {
+	public static <T> BetterRegistry<T> getSidedRegistry(ResourceKey<? extends Registry<? extends T>> key, boolean client) {
 		return client ? getClientRegistry(key) : getRegistry(key);
 	}
 
-	public static <T> BetterRegistry<T> getClientRegistry(RegistryKey<? extends Registry<? extends T>> key) {
+	public static <T> BetterRegistry<T> getClientRegistry(ResourceKey<? extends Registry<? extends T>> key) {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			return getClientRegistry0(key);
 		}
@@ -183,15 +197,15 @@ public class BigGlobeMod implements ModInitializer {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static <T> BetterRegistry<T> getClientRegistry0(RegistryKey<? extends Registry<? extends T>> key) {
-		ClientWorld world = MinecraftClient.getInstance().world;
+	public static <T> BetterRegistry<T> getClientRegistry0(ResourceKey<? extends Registry<? extends T>> key) {
+		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null) {
-			Registry<T> registry = world.getRegistryManager().getOptional(key).orElse(null);
+			Registry<T> registry = (Registry<T>)(Object) world.registryAccess().registry(key).orElse(null);
 			if (registry != null) {
 				return new BetterHardCodedRegistry<>(registry);
 			}
 			else {
-				throw new IllegalStateException("Client registry " + key.getValue() + " not available");
+				throw new IllegalStateException("Client registry " + key.location() + " not available");
 			}
 		}
 		else {
@@ -204,52 +218,52 @@ public class BigGlobeMod implements ModInitializer {
 		else throw new IllegalStateException("Resources not available at this time.");
 	}
 
-	public static @NotNull Identifier modID(@NotNull String path) {
+	public static @NotNull ResourceLocation modID(@NotNull String path) {
 		return IdentifierVersions.create(MODID, path);
 	}
 
-	public static @NotNull Identifier mcID(@NotNull String path) {
+	public static @NotNull ResourceLocation mcID(@NotNull String path) {
 		return IdentifierVersions.vanilla(path);
 	}
 
-	public static <T> SimpleRegistry<T> newRegistry(RegistryKey<Registry<T>> key) {
-		return FabricRegistryBuilder.from(new SimpleRegistry<>(key, Lifecycle.experimental())).buildAndRegister();
+	public static <T> MappedRegistry<T> newRegistry(ResourceKey<Registry<T>> key) {
+		return FabricRegistryBuilder.from(new MappedRegistry<>(key, Lifecycle.experimental())).buildAndRegister();
 	}
 
 	public static void regenWorlds(MinecraftServer server) {
-		if (!server.getDefaultGameMode().isSurvivalLike()) {
+		if (!server.getDefaultGameType().isSurvival()) {
 			@SuppressWarnings({ "CastToIncompatibleInterface", "resource" })
-			LevelStorage.Session session = ((MinecraftServer_SessionAccess)(server)).bigglobe_getSession();
+			LevelStorageSource.LevelStorageAccess session = ((MinecraftServer_SessionAccess)(server)).bigglobe_getSession();
 
 			MutableBoolean deletedAnything = new MutableBoolean(false);
 			RegistryVersions
-			.getRegistry(
-				server.getRegistryManager(),
-				RegistryKeys.DIMENSION
-			)
-			.streamEntries()
-			//only delete dimensions generated by big globe.
-			.filter((RegistryEntry<DimensionOptions> options) -> options.value().chunkGenerator() instanceof BigGlobeScriptedChunkGenerator)
-			.peek((RegistryEntry<DimensionOptions> options) -> LOGGER.info("Found " + MODNAME + " dimension " + UnregisteredObjectException.getKey(options)))
-			.map((RegistryEntry<DimensionOptions> options) -> session.getWorldDirectory(
-				RegistryKey.of(RegistryKeys.WORLD, UnregisteredObjectException.getID(options))
-			))
-			.flatMap((Path dimensionFolder) ->
-				Stream.of("advancements", "data", "entities", "playerdata", "poi", "region", "stats")
-				.map(dimensionFolder::resolve)
-			)
-			.forEach((Path toDelete) -> {
-				if (Files.exists(toDelete)) try {
-					deletedAnything.setTrue();
-					PathUtils.deleteDirectory(toDelete);
-					LOGGER.info("Deleted " + toDelete);
-				}
-				catch (Exception exception) {
-					LOGGER.error("Could not delete " + toDelete, exception);
-				}
-			});
+				.getRegistry(
+					server.registryAccess(),
+					Registries.LEVEL_STEM
+				)
+				.holders()
+				//only delete dimensions generated by big globe.
+				.filter((Holder<LevelStem> options) -> options.value().generator() instanceof BigGlobeScriptedChunkGenerator)
+				.peek((Holder<LevelStem> options) -> LOGGER.info("Found " + MODNAME + " dimension " + UnregisteredObjectException.getKey(options)))
+				.map((Holder<LevelStem> options) -> session.getDimensionPath(
+					ResourceKey.create(Registries.DIMENSION, UnregisteredObjectException.getID(options))
+				))
+				.flatMap((Path dimensionFolder) ->
+							Stream.of("advancements", "data", "entities", "playerdata", "poi", "region", "stats")
+								.map(dimensionFolder::resolve)
+				)
+				.forEach((Path toDelete) -> {
+					if (Files.exists(toDelete)) try {
+						deletedAnything.setTrue();
+						PathUtils.deleteDirectory(toDelete);
+						LOGGER.info("Deleted " + toDelete);
+					}
+					catch (Exception exception) {
+						LOGGER.error("Could not delete " + toDelete, exception);
+					}
+				});
 			if (deletedAnything.isTrue()) {
-				Path voxy = session.getWorldDirectory(World.OVERWORLD).resolve("voxy");
+				Path voxy = session.getDimensionPath(Level.OVERWORLD).resolve("voxy");
 				if (Files.exists(voxy)) try {
 					PathUtils.deleteDirectory(voxy);
 					LOGGER.info("Deleted " + voxy);
@@ -270,32 +284,32 @@ public class BigGlobeMod implements ModInitializer {
 		}
 
 		@Override
-		public Set<String> getAllNamespaces() {
-			return this.delegate.get().getAllNamespaces();
+		public Set<String> getNamespaces() {
+			return this.delegate.get().getNamespaces();
 		}
 
 		@Override
-		public List<Resource> getAllResources(Identifier id) {
-			return this.delegate.get().getAllResources(id);
+		public List<Resource> getResourceStack(ResourceLocation id) {
+			return this.delegate.get().getResourceStack(id);
 		}
 
 		@Override
-		public Map<Identifier, Resource> findResources(String startingPath, Predicate<Identifier> allowedPathPredicate) {
-			return this.delegate.get().findResources(startingPath, allowedPathPredicate);
+		public Map<ResourceLocation, Resource> listResources(String startingPath, Predicate<ResourceLocation> allowedPathPredicate) {
+			return this.delegate.get().listResources(startingPath, allowedPathPredicate);
 		}
 
 		@Override
-		public Map<Identifier, List<Resource>> findAllResources(String startingPath, Predicate<Identifier> allowedPathPredicate) {
-			return this.delegate.get().findAllResources(startingPath, allowedPathPredicate);
+		public Map<ResourceLocation, List<Resource>> listResourceStacks(String startingPath, Predicate<ResourceLocation> allowedPathPredicate) {
+			return this.delegate.get().listResourceStacks(startingPath, allowedPathPredicate);
 		}
 
 		@Override
-		public Stream<ResourcePack> streamResourcePacks() {
-			return this.delegate.get().streamResourcePacks();
+		public Stream<PackResources> listPacks() {
+			return this.delegate.get().listPacks();
 		}
 
 		@Override
-		public Optional<Resource> getResource(Identifier id) {
+		public Optional<Resource> getResource(ResourceLocation id) {
 			return this.delegate.get().getResource(id);
 		}
 	}

@@ -17,8 +17,8 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ObjectCompareConditionTree implements ConditionTree {
 
 	public static final MethodInfo
-		COMPARE_G              = new MethodInfo(ACC_PUBLIC | ACC_STATIC | MethodInfo.PURE, type(ObjectCompareConditionTree.class), "compareG", TypeInfos.INT, TypeInfos.COMPARABLE, TypeInfos.COMPARABLE),
-		COMPARE_L              = new MethodInfo(ACC_PUBLIC | ACC_STATIC | MethodInfo.PURE, type(ObjectCompareConditionTree.class), "compareL", TypeInfos.INT, TypeInfos.COMPARABLE, TypeInfos.COMPARABLE);
+		COMPARE_G = new MethodInfo(ACC_PUBLIC | ACC_STATIC | MethodInfo.PURE, type(ObjectCompareConditionTree.class), "compareG", TypeInfos.INT, TypeInfos.COMPARABLE, TypeInfos.COMPARABLE),
+		COMPARE_L = new MethodInfo(ACC_PUBLIC | ACC_STATIC | MethodInfo.PURE, type(ObjectCompareConditionTree.class), "compareL", TypeInfos.INT, TypeInfos.COMPARABLE, TypeInfos.COMPARABLE);
 
 	public final InsnTree loader;
 	public final int opcode;

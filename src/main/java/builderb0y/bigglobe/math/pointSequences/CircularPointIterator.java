@@ -32,6 +32,13 @@ public class CircularPointIterator implements PointIterator2D {
 		return this.circumference.index();
 	}
 
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
 }

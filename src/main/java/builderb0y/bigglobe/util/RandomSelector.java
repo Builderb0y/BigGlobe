@@ -34,7 +34,10 @@ public class RandomSelector<T> {
 		return Collector.of(
 			() -> new RandomSelector<>(random),
 			(RandomSelector<T_Element> selector, T_Merged merged) -> selector.accept(elementGetter.apply(merged), weightGetter.applyAsDouble(merged)),
-			(RandomSelector<T_Element> selector1, RandomSelector<T_Element> selector2) -> { selector1.accept(selector2); return selector1; },
+			(RandomSelector<T_Element> selector1, RandomSelector<T_Element> selector2) -> {
+				selector1.accept(selector2);
+				return selector1;
+			},
 			(RandomSelector<T_Element> selector) -> selector.value,
 			Characteristics.UNORDERED
 		);

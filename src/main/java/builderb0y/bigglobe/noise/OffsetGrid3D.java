@@ -8,7 +8,7 @@ public class OffsetGrid3D implements Grid3D {
 	public final @Alias("offset") int offsetX, offsetY, offsetZ;
 
 	public OffsetGrid3D(Grid3D source, int offsetX, int offsetY, int offsetZ) {
-		this.source  = source;
+		this.source = source;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
 		this.offsetZ = offsetZ;

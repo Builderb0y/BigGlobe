@@ -3,30 +3,21 @@ package builderb0y.bigglobe.features;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
-import builderb0y.autocodec.verifiers.VerifyContext;
-import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToDoubleScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBooleanScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -37,11 +28,11 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
@@ -55,17 +46,17 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 	}
 
 	@Override
-	public boolean generate(FeatureContext<Config> context) {
-		Config config = context.getConfig();
+	public boolean place(FeaturePlaceContext<Config> context) {
+		Config config = context.config();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		if (config.delay_generation && distantHorizons) return false;
-		if (!(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
-		Permuter permuter = Permuter.from(context.getRandom());
-		BlockPos origin = context.getOrigin();
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
+		Permuter permuter = Permuter.from(context.random());
+		BlockPos origin = context.origin();
 		double startX = origin.getX() + Permuter.nextUniformDouble(permuter) * 0.5D;
 		int startY = origin.getY();
 		double startZ = origin.getZ() + Permuter.nextUniformDouble(permuter) * 0.5D;
-		ScriptedColumnLookup columns = generator.newColumnLookup(context.getWorld(), ColumnUsage.FEATURES.maybeDhHints(distantHorizons));
+		ScriptedColumnLookup columns = generator.newColumnLookup(context.level(), ColumnUsage.FEATURES.maybeDhHints(distantHorizons));
 		ScriptedColumn column = columns.lookupColumn(origin.getX(), origin.getZ());
 		double height = config.height.get(column, permuter, origin.getY());
 		if (!(height > 0.0D)) return false;
@@ -105,10 +96,10 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 					new ShelfDecorator(
 						shelves,
 						branchesConfig != null
-						? branchesConfig.startFracY
-						: config.stump != null
-						? config.stump.cutoff_frac.minValue()
-						: 1.0D,
+							? branchesConfig.startFracY
+							: config.stump != null
+							? config.stump.cutoff_frac.minValue()
+							: 1.0D,
 						shelves.totalWeight
 					)
 				);
@@ -116,10 +107,10 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		}
 		return new TreeGenerator(
 			columns,
-			context.getWorld(),
+			context.level(),
 			config.delay_generation
-			? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
-			: new BlockQueue(false),
+				? new SerializableBlockQueue(origin.getX(), origin.getY(), origin.getZ(), false)
+				: new BlockQueue(false),
 			permuter,
 			config.palette.value(),
 			config.ground_replacements,
@@ -127,15 +118,15 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			branchesConfig,
 			decoratorsBuilder.build(),
 			config.stump != null
-			? config.stump.cutoff_frac
-			: null
+				? config.stump.cutoff_frac
+				: null
 		)
-		.generate();
+				.generate();
 	}
 
 	public static record Config(
 		@DefaultBoolean(false) boolean delay_generation,
-		RegistryEntry<WoodPalette> palette,
+		Holder<WoodPalette> palette,
 		BlockState2ObjectMap<BlockState> ground_replacements,
 		ColumnRandomYToDoubleScript.Holder height,
 		TrunkFactory trunk,
@@ -144,23 +135,31 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@VerifyNullable Decorations decorations,
 		@VerifyNullable Stump stump
 	)
-	implements FeatureConfig {}
+		implements FeatureConfiguration {
+
+	}
 
 	public static record Stump(
 		RandomSource cutoff_frac
-	) {}
+	) {
+
+	}
 
 	public static record Branches(
 		RandomSource start_frac_y,
 		RandomSource count_per_layer,
 		ScriptedBranchShape.Holder length_function,
 		ScriptedBranchShape.Holder height_function
-	) {}
+	) {
+
+	}
 
 	public static record Shelf(
 		BlockState state,
 		ColumnRestriction restrictions
-	) {}
+	) {
+
+	}
 
 	public static record Decorations(
 		BlockDecorator @VerifyNullable [] trunk,
@@ -182,9 +181,9 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		}
 
 		public void addTo(DecoratorConfig.Builder builder) {
-			builder.trunkBlock  = addAll(this.trunk,    builder. trunkBlock);
+			builder.trunkBlock = addAll(this.trunk, builder.trunkBlock);
 			builder.branchBlock = addAll(this.branches, builder.branchBlock);
-			builder.leafBlock   = addAll(this.leaves,   builder.  leafBlock);
+			builder.leafBlock = addAll(this.leaves, builder.leafBlock);
 			if (this.ball_leaves != null) {
 				BallLeafDecorator decorator = new BallLeafDecorator(this.ball_leaves.inner_state);
 				builder.branch(decorator).trunk(decorator);
@@ -195,5 +194,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		}
 	}
 
-	public static record BallLeaves(BlockState inner_state) {}
+	public static record BallLeaves(BlockState inner_state) {
+
+	}
 }

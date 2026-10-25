@@ -11,7 +11,10 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment.*;
+import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
+import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
+import builderb0y.scripting.environments.MutableScriptEnvironment.NamedType;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.StackMap;
@@ -22,59 +25,59 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class UserScriptEnvironment implements ScriptEnvironment {
 
 	public ExpressionParser parser;
-	public StackMap<String,         PendingLocal    > variables;
-	public StackMap<NamedType,      FieldInfo       > fields;
-	public StackMap<String,    List<FunctionHandler>> functions;
-	public StackMap<NamedType, List<MethodHandler  >> methods;
-	public StackMap<String,         TypeInfo        > types;
+	public StackMap<String, PendingLocal> variables;
+	public StackMap<NamedType, FieldInfo> fields;
+	public StackMap<String, List<FunctionHandler>> functions;
+	public StackMap<NamedType, List<MethodHandler>> methods;
+	public StackMap<String, TypeInfo> types;
 	public Set<DelayedMethod> delayedMethods;
 
 	public UserScriptEnvironment() {
 		this.variables = new StackMap<>(8);
-		this.fields    = new StackMap<>(8);
+		this.fields = new StackMap<>(8);
 		this.functions = new StackMap<>(4);
-		this.methods   = new StackMap<>(4);
-		this.types     = new StackMap<>(4);
+		this.methods = new StackMap<>(4);
+		this.types = new StackMap<>(4);
 		this.delayedMethods = Collections.emptySet();
 	}
 
 	public UserScriptEnvironment(UserScriptEnvironment from) {
 		this.variables = new StackMap<>(from.variables);
-		this.fields    = new StackMap<>(from.fields);
+		this.fields = new StackMap<>(from.fields);
 		this.functions = new StackMap<>(from.functions);
-		this.methods   = new StackMap<>(from.methods);
-		this.types     = new StackMap<>(from.types);
+		this.methods = new StackMap<>(from.methods);
+		this.types = new StackMap<>(from.types);
 		this.delayedMethods = new HashSet<>(from.delayedMethods);
 	}
 
 	@Override
 	public Stream<IdentifierDescriptor> listIdentifiers() {
 		return Stream.of(
-			this.variables.entrySet().stream().map((Map.Entry<String, PendingLocal> entry) -> {
-				return MutableScriptEnvironment.prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
-			}),
+				this.variables.entrySet().stream().map((Map.Entry<String, PendingLocal> entry) -> {
+					return MutableScriptEnvironment.prefix("Variable", entry.getKey(), entry.getKey(), entry.getValue());
+				}),
 
-			this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldInfo> entry) -> {
-				return MutableScriptEnvironment.prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
-			}),
+				this.fields.entrySet().stream().map((Map.Entry<NamedType, FieldInfo> entry) -> {
+					return MutableScriptEnvironment.prefix("Field", entry.getKey().name, entry.getKey().toString(), entry.getValue());
+				}),
 
-			this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler>> entry) -> {
-				return entry.getValue().stream().map((FunctionHandler handler) -> {
-					return MutableScriptEnvironment.prefix("Function", entry.getKey(), entry.getKey(), handler);
-				});
-			}),
+				this.functions.entrySet().stream().flatMap((Map.Entry<String, List<FunctionHandler>> entry) -> {
+					return entry.getValue().stream().map((FunctionHandler handler) -> {
+						return MutableScriptEnvironment.prefix("Function", entry.getKey(), entry.getKey(), handler);
+					});
+				}),
 
-			this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler>> entry) -> {
-				return entry.getValue().stream().map((MethodHandler handler) -> {
-					return MutableScriptEnvironment.prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
-				});
-			}),
+				this.methods.entrySet().stream().flatMap((Map.Entry<NamedType, List<MethodHandler>> entry) -> {
+					return entry.getValue().stream().map((MethodHandler handler) -> {
+						return MutableScriptEnvironment.prefix("Method", entry.getKey().name, entry.getKey().toString(), handler);
+					});
+				}),
 
-			this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
-				return MutableScriptEnvironment.prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
-			})
-		)
-		.flatMap(Function.identity());
+				this.types.entrySet().stream().map((Map.Entry<String, TypeInfo> entry) -> {
+					return MutableScriptEnvironment.prefix("Type", entry.getKey(), entry.getKey(), entry.getValue());
+				})
+			)
+				.flatMap(Function.identity());
 	}
 
 	public void reserveVariable(String name) {
@@ -146,28 +149,32 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public void addClassFunction(TypeInfo type, String name, MethodInfo method) {
-		this.addClassFunction(name, (ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
-			ConstantValue constant = receiver.getConstantValue();
-			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments != null) return new CastResult(mode.makeInvoker(parser, method, castArguments), castArguments != arguments);
+		this.addClassFunction(
+			name, (ExpressionParser parser, InsnTree receiver, String name_, GetMethodMode mode, InsnTree... arguments) -> {
+				ConstantValue constant = receiver.getConstantValue();
+				if (constant.isConstant() && constant.asJavaObject().equals(type)) {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments != null) return new CastResult(mode.makeInvoker(parser, method, castArguments), castArguments != arguments);
+				}
+				return null;
 			}
-			return null;
-		});
+		);
 	}
 
 	public void addConstructor(TypeInfo type, MethodInfo method) {
-		this.addClassFunction("new", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
-			ConstantValue constant = receiver.getConstantValue();
-			if (constant.isConstant() && constant.asJavaObject().equals(type)) {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments != null) return new CastResult(newInstance(method, castArguments), castArguments != arguments);
+		this.addClassFunction(
+			"new", (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+				ConstantValue constant = receiver.getConstantValue();
+				if (constant.isConstant() && constant.asJavaObject().equals(type)) {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, method, CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments != null) return new CastResult(newInstance(method, castArguments), castArguments != arguments);
+				}
+				return null;
 			}
-			return null;
-		});
+		);
 	}
 
-	//////////////////////////////// getters ////////////////////////////////
+	/// ///////////////////////////// getters ////////////////////////////////
 
 	@Override
 	public @Nullable InsnTree getVariable(ExpressionParser parser, String name) throws ScriptParsingException {
@@ -252,18 +259,18 @@ public class UserScriptEnvironment implements ScriptEnvironment {
 
 	public void push() {
 		this.variables.push();
-		this.fields   .push();
+		this.fields.push();
 		this.functions.push();
-		this.methods  .push();
-		this.types    .push();
+		this.methods.push();
+		this.types.push();
 	}
 
 	public void pop() {
 		this.variables.pop();
-		this.fields   .pop();
+		this.fields.pop();
 		this.functions.pop();
-		this.methods  .pop();
-		this.types    .pop();
+		this.methods.pop();
+		this.types.pop();
 	}
 
 	public boolean isFullyPopped() {

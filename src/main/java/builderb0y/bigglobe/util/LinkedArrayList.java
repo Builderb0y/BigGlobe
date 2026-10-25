@@ -47,9 +47,13 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	public static boolean ASSERTS = false;
 
-	/** the first and last node in this list, or null if the list is empty. */
+	/**
+	the first and last node in this list, or null if the list is empty.
+	*/
 	public @Nullable Node<T> first, last;
-	/** the number of nodes in this list. */
+	/**
+	the number of nodes in this list.
+	*/
 	public int size;
 	/**
 	all nodes in this list in array form.
@@ -62,7 +66,8 @@ public class LinkedArrayList<T> implements Cloneable {
 	public @Nullable NodeList nodeList;
 	public @Nullable ElementList elementList;
 
-	public LinkedArrayList() {}
+	public LinkedArrayList() {
+	}
 
 	//////////////////////////////// Factory methods ////////////////////////////////
 
@@ -74,7 +79,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		return new LinkedArrayList<>();
 	}
 
-	/** creates a new LinkedArrayList containing only this node. */
+	/**
+	creates a new LinkedArrayList containing only this node.
+	*/
 	public static <T> LinkedArrayList<T> ofNode(Node<T> node) {
 		LinkedArrayList<T> list = new LinkedArrayList<>();
 		list.first = list.last = node.initListIndex(0);
@@ -83,7 +90,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		return list;
 	}
 
-	/** creates a new LinkedArrayList containing only this element. */
+	/**
+	creates a new LinkedArrayList containing only this element.
+	*/
 	public static <T> LinkedArrayList<T> ofElement(T element) {
 		return ofNode(new Node<>(element));
 	}
@@ -99,11 +108,11 @@ public class LinkedArrayList<T> implements Cloneable {
 		LinkedArrayList<T> list = new LinkedArrayList<>();
 		int length = nodes.length;
 		if (length == 0) return list;
-		list.size  = length;
+		list.size = length;
 		list.first = nodes[0].initListIndex(0);
-		list.last  = nodes[--length];
+		list.last = nodes[--length];
 		list.arrayCache = nodes;
-		for (int i = 0; i < length;) {
+		for (int i = 0; i < length; ) {
 			link(nodes[i++], nodes[i].initListIndex(i));
 		}
 		if (ASSERTS) list.checkLinks();
@@ -131,7 +140,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		return list;
 	}
 
-	/** creates a new LinkedArrayList containing all the elements in the provided array. */
+	/**
+	creates a new LinkedArrayList containing all the elements in the provided array.
+	*/
 	@SafeVarargs
 	public static <T> LinkedArrayList<T> ofElements(T... elements) {
 		LinkedArrayList<T> list = new LinkedArrayList<>();
@@ -147,7 +158,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		return list;
 	}
 
-	/** returns a new LinkedArrayList containing all the elements in the provided collection. */
+	/**
+	returns a new LinkedArrayList containing all the elements in the provided collection.
+	*/
 	public static <T> LinkedArrayList<T> ofElements(Collection<? extends T> elements) {
 		LinkedArrayList<T> list = new LinkedArrayList<>();
 		int size = elements.size();
@@ -179,17 +192,23 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	//////////////////////////////// Query methods ////////////////////////////////
 
-	/** returns the number of nodes in this list. */
+	/**
+	returns the number of nodes in this list.
+	*/
 	public int size() {
 		return this.size;
 	}
 
-	/** returns true if there are no nodes in this list, false otherwise. */
+	/**
+	returns true if there are no nodes in this list, false otherwise.
+	*/
 	public boolean isEmpty() {
 		return this.size == 0;
 	}
 
-	/** returns true if there are any nodes in this list, false otherwise. */
+	/**
+	returns true if there are any nodes in this list, false otherwise.
+	*/
 	public boolean isNotEmpty() {
 		return this.size != 0;
 	}
@@ -249,7 +268,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 		else {
 			node = this.getLastNode();
-			for (int i = this.size(); --i > index;) node = node.getPrev();
+			for (int i = this.size(); --i > index; ) node = node.getPrev();
 		}
 		return node;
 	}
@@ -382,24 +401,32 @@ public class LinkedArrayList<T> implements Cloneable {
 		return null;
 	}
 
-	/** returns the index of the first node which contains element. */
+	/**
+	returns the index of the first node which contains element.
+	*/
 	public int indexOfElement(Object element, int index) {
 		Node<T> node = this.getFirstNodeFor(element, index);
 		return node != null ? node.index : Node.NOT_IN_LIST;
 	}
 
-	/** returns the index of the last node which contains element. */
+	/**
+	returns the index of the last node which contains element.
+	*/
 	public int lastIndexOfElement(Object element, int index) {
 		Node<T> node = this.getLastNodeFor(element, index);
 		return node != null ? node.index : Node.NOT_IN_LIST;
 	}
 
-	/** returns true if the specified node is part of this list, false otherwise. */
+	/**
+	returns true if the specified node is part of this list, false otherwise.
+	*/
 	public boolean containsNode(Node<?> node, boolean cache) {
 		return this.indexOfNode(node, cache) != Node.NOT_IN_LIST;
 	}
 
-	/** returns all nodes in this list as an array. */
+	/**
+	returns all nodes in this list as an array.
+	*/
 	@Contract("true -> !null")
 	public Node<T>[] getArrayCache(boolean create) {
 		if (this.arrayCache == null) {
@@ -505,7 +532,9 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	//////////////// Adding nodes ////////////////
 
-	/** adds toAdd to the beginning of this list. */
+	/**
+	adds toAdd to the beginning of this list.
+	*/
 	public void addNodeToStart(Node<T> toAdd) {
 		toAdd.initListIndex(0);
 		this.arrayCache = null;
@@ -520,7 +549,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		this.addNodeToStart(new Node<>(element));
 	}
 
-	/** removes all the nodes from toAdd, and adds them to the start of this list instead. */
+	/**
+	removes all the nodes from toAdd, and adds them to the start of this list instead.
+	*/
 	public void addListToStart(LinkedArrayList<T> toAdd) {
 		if (toAdd.isEmpty()) return;
 		this.arrayCache = null;
@@ -536,7 +567,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		if (ASSERTS) toAdd.checkLinks();
 	}
 
-	/** adds toAdd to the end of this list. */
+	/**
+	adds toAdd to the end of this list.
+	*/
 	public void addNodeToEnd(Node<T> toAdd) {
 		toAdd.initListIndex(this.size());
 		this.arrayCache = null;
@@ -551,7 +584,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		this.addNodeToEnd(new Node<>(element));
 	}
 
-	/** removes all the nodes from toAdd, and adds them to the end of this list instead. */
+	/**
+	removes all the nodes from toAdd, and adds them to the end of this list instead.
+	*/
 	public void addListToEnd(LinkedArrayList<T> toAdd) {
 		if (toAdd.isEmpty()) return;
 		this.arrayCache = null;
@@ -567,7 +602,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		if (ASSERTS) toAdd.checkLinks();
 	}
 
-	/** inserts toInsert before existingNode in this list. */
+	/**
+	inserts toInsert before existingNode in this list.
+	*/
 	public void insertNodeBefore(Node<T> existingNode, Node<T> toInsert) {
 		existingNode.ensureInList();
 		if (existingNode == this.first) {
@@ -588,7 +625,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		this.insertNodeBefore(existingNode, new Node<>(toInsert));
 	}
 
-	/** removes all nodes from toInsert and inserts them before existingNode in this list. */
+	/**
+	removes all nodes from toInsert and inserts them before existingNode in this list.
+	*/
 	public void insertListBefore(Node<T> existingNode, LinkedArrayList<T> toInsert) {
 		if (existingNode == this.first) {
 			this.addListToStart(toInsert);
@@ -608,7 +647,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 	}
 
-	/** inserts toInsert after existingNode in this list. */
+	/**
+	inserts toInsert after existingNode in this list.
+	*/
 	public void insertNodeAfter(Node<T> existingNode, Node<T> toInsert) {
 		existingNode.ensureInList();
 		if (existingNode == this.last) {
@@ -629,7 +670,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		this.insertNodeAfter(existingNode, new Node<>(toInsert));
 	}
 
-	/** removes all nodes from toInsert and inserts them after existingNode in this list. */
+	/**
+	removes all nodes from toInsert and inserts them after existingNode in this list.
+	*/
 	public void insertListAfter(Node<T> existingNode, LinkedArrayList<T> toInsert) {
 		if (existingNode == this.last) {
 			this.addListToEnd(toInsert);
@@ -649,7 +692,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 	}
 
-	//////////////// Removing nodes ////////////////
+	/// ///////////// Removing nodes ////////////////
 
 	public Node<T> removeFirstNode() {
 		Node<T> node = this.getFirstNode();
@@ -677,7 +720,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		return this.removeLastNode().element;
 	}
 
-	/** removes toRemove from this list. */
+	/**
+	removes toRemove from this list.
+	*/
 	public void removeNode(Node<T> toRemove) {
 		toRemove.ensureInList();
 		this.arrayCache = null;
@@ -690,7 +735,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		if (ASSERTS) this.checkLinks();
 	}
 
-	/** removes all nodes between and including fromHere and toHere from this list. */
+	/**
+	removes all nodes between and including fromHere and toHere from this list.
+	*/
 	public void removeNodeRange(Node<T> fromHere, Node<T> toHere) {
 		fromHere.ensureInList();
 		toHere.ensureInList();
@@ -705,7 +752,9 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	//////////////// Replacing nodes ////////////////
 
-	/** removes replaceThis from this list and inserts withThis where replaceThis used to be. */
+	/**
+	removes replaceThis from this list and inserts withThis where replaceThis used to be.
+	*/
 	public void replaceNode(Node<T> replaceThis, Node<T> withThis) {
 		replaceThis.ensureInList();
 		if (this.arrayCache != null) {
@@ -720,7 +769,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		link(prev, withThis);
 		link(withThis, next);
 		if (replaceThis == this.first) this.first = withThis;
-		if (replaceThis == this.last ) this.last  = withThis;
+		if (replaceThis == this.last) this.last = withThis;
 		if (ASSERTS) this.checkLinks();
 	}
 
@@ -751,7 +800,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		if (ASSERTS) withThis.checkLinks();
 	}
 
-	/** removes all the nodes between and including fromHere and toHere and inserts all nodes in withThis in their place. */
+	/**
+	removes all the nodes between and including fromHere and toHere and inserts all nodes in withThis in their place.
+	*/
 	public void replaceNodeRange(Node<T> fromHere, Node<T> toHere, Node<T> withThis) {
 		if (fromHere == toHere) {
 			this.replaceNode(fromHere, withThis);
@@ -850,13 +901,13 @@ public class LinkedArrayList<T> implements Cloneable {
 	sorts the nodes in this LinkedArrayList in ascending order,
 	according to the provided comparator.
 	after this call returns, for each index in the list, {@code
-		comparator.compare(list.getNode(index), list.getNode(index + 1))
+	comparator.compare(list.getNode(index), list.getNode(index + 1))
 	}
 	will be strictly negative, assuming neither the
 	nodes nor the comparator is modified during sorting.
 	to sort in descending order instead, reverse the comparator
 	before passing it into this method {@link Comparator#reversed()}.
-
+	<p>
 	if the provided comparator is null, the nodes will be sorted according to their natural order.
 	note however that at the time of writing this, {@link Node} does not
 	implement {@link Comparable}, and thus does not have a natural order.
@@ -864,9 +915,9 @@ public class LinkedArrayList<T> implements Cloneable {
 	with a {@link ClassCastException} unless the list is empty.
 	or unless you're doing something very weird by subclassing {@link Node}.
 	or mixing into it, I guess.
-
+	<p>
 	to sort the *elements* in this list, use {@link #sortElements(Comparator)} instead.
-
+	<p>
 	if the comparator throws an exception from its {@link Comparator#compare(Object, Object)}
 	method, the list will be left in an undefined order,
 	but will otherwise have a valid internal structure.
@@ -903,28 +954,30 @@ public class LinkedArrayList<T> implements Cloneable {
 	sorts the elements in this LinkedArrayList in ascending order,
 	according to the provided comparator.
 	after this call returns, for each index in the list, {@code
-		comparator.compare(list.getElement(index), list.getElement(index + 1))
+	comparator.compare(list.getElement(index), list.getElement(index + 1))
 	}
 	will be strictly negative, assuming neither the
 	elements nor the comparator is modified during sorting.
 	to sort in descending order instead, reverse the comparator
 	before passing it into this method {@link Comparator#reversed()}.
-
-	if the provided comparator is null, the elements will be sorted according to their natural order.
-	as such, if the elements do not implement {@link Comparable}, then a null
-	comparator will fail with a {@link ClassCastException} unless the list is empty.
-
-	to sort the *nodes* in this list, use {@link #sortNodes(Comparator)} instead.
-
-	if the comparator throws an exception from its {@link Comparator#compare(Object, Object)}
-	method, the list will be left in an undefined order,
-	but will otherwise have a valid internal structure.
-	*/
+	 <p>
+	 if the provided comparator is null, the elements will be sorted according to their natural order.
+	 as such, if the elements do not implement {@link Comparable}, then a null
+	 comparator will fail with a {@link ClassCastException} unless the list is empty.
+	 <p>
+	 to sort the *nodes* in this list, use {@link #sortNodes(Comparator)} instead.
+	 <p>
+	 if the comparator throws an exception from its {@link Comparator#compare(Object, Object)}
+	 method, the list will be left in an undefined order,
+	 but will otherwise have a valid internal structure.
+	 */
 	public void sortElements(@Nullable Comparator<? super T> comparator) {
 		this.sortNodes(Comparator.comparing(Node::getElement, comparator != null ? comparator : (Comparator<? super T>)(Comparator.naturalOrder())));
 	}
 
-	/** removes all the nodes from this list. */
+	/**
+	 removes all the nodes from this list.
+	 */
 	public void clear() {
 		if (this.isEmpty()) return;
 		countAndRemove(this.first, this.last);
@@ -935,7 +988,7 @@ public class LinkedArrayList<T> implements Cloneable {
 
 	//////////////////////////////// Utility methods ////////////////////////////////
 
-	//////////////// Iterators ////////////////
+	/// ///////////// Iterators ////////////////
 
 	public static <T> Iterator<Node<T>> nodeIteratorStartingAt(Node<T> start) {
 		NodeIterator<T> iterator = new NodeIterator<>();
@@ -961,7 +1014,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		return iterator;
 	}
 
-	//////////////// Spliterators ////////////////
+	/// ///////////// Spliterators ////////////////
 
 	public static <T> Spliterator<Node<T>> nodeSpliteratorStartingAt(Node<T> start) {
 		return Spliterators.spliteratorUnknownSize(nodeIteratorStartingAt(start), Spliterator.ORDERED);
@@ -979,7 +1032,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		return Spliterators.spliteratorUnknownSize(elementIteratorEndingAt(end), Spliterator.ORDERED);
 	}
 
-	//////////////// Streams ////////////////
+	/// ///////////// Streams ////////////////
 
 	public static <T> Stream<Node<T>> nodeStreamStartingAt(Node<T> start) {
 		return StreamSupport.stream(nodeSpliteratorStartingAt(start), false);
@@ -1001,11 +1054,14 @@ public class LinkedArrayList<T> implements Cloneable {
 		return Collector.of(
 			LinkedArrayList::new,
 			LinkedArrayList::addElementToEnd,
-			(LinkedArrayList<T> list1, LinkedArrayList<T> list2) -> { list1.addListToEnd(list2); return list1; }
+			(LinkedArrayList<T> list1, LinkedArrayList<T> list2) -> {
+				list1.addListToEnd(list2);
+				return list1;
+			}
 		);
 	}
 
-	//////////////////////////////// Internal methods ////////////////////////////////
+	/// ///////////////////////////// Internal methods ////////////////////////////////
 
 	@SuppressWarnings({ "AssertWithSideEffects", "ConstantConditions" })
 	public static void checkAssertsEnabled() {
@@ -1015,9 +1071,9 @@ public class LinkedArrayList<T> implements Cloneable {
 	}
 
 	/**
-	verifies that all nodes in this list are linked together correctly.
-	if the arrayCache is present, will also verify that all nodes have the correct index.
-	*/
+	 verifies that all nodes in this list are linked together correctly.
+	 if the arrayCache is present, will also verify that all nodes have the correct index.
+	 */
 	public void checkLinks() {
 		checkAssertsEnabled();
 		Node<T>[] arrayCache = this.arrayCache;
@@ -1026,7 +1082,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 		if (this.isEmpty()) {
 			assert this.first == null : "List is empty, but first is " + this.first;
-			assert this.last  == null : "List is empty, but last is " + this.last;
+			assert this.last == null : "List is empty, but last is " + this.last;
 		}
 		else {
 			Node<T> current = this.first;
@@ -1052,7 +1108,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 	}
 
-	/** counts the number of nodes between and including start and end. */
+	/**
+	 counts the number of nodes between and including start and end.
+	 */
 	public static <T> int count(Node<T> start, Node<T> end) {
 		int count = 1;
 		for (Node<T> node = start; node != end; node = node.getNext()) {
@@ -1062,9 +1120,9 @@ public class LinkedArrayList<T> implements Cloneable {
 	}
 
 	/**
-	counts the number of nodes between and including start and end
-	and un-links all nodes in this range.
-	*/
+	 counts the number of nodes between and including start and end
+	 and un-links all nodes in this range.
+	 */
 	public static <T> int countAndRemove(Node<T> start, Node<T> end) {
 		int count = 1;
 		for (Node<T> node = start; node != end; node = node.removeAndGetNext()) {
@@ -1074,7 +1132,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		return count;
 	}
 
-	/** links the two nodes together, and zaps dangling links if they exist. */
+	/**
+	 links the two nodes together, and zaps dangling links if they exist.
+	 */
 	public static <T> void link(@Nullable Node<T> node1, @Nullable Node<T> node2) {
 		if (node1 == node2) {
 			if (node1 == null) return;
@@ -1090,7 +1150,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 	}
 
-	//////////////////////////////// Wrappers for java collections ////////////////////////////////
+	/// ///////////////////////////// Wrappers for java collections ////////////////////////////////
 
 	public class NodeList extends AbstractList<Node<T>> implements Deque<Node<T>>, Cloneable {
 
@@ -1321,7 +1381,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		@Override
 		public boolean removeIf(Predicate<? super Node<T>> filter) {
 			boolean removed = false;
-			for (Node<T> node = LinkedArrayList.this.first; node != null;) {
+			for (Node<T> node = LinkedArrayList.this.first; node != null; ) {
 				Node<T> next = node.next;
 				if (filter.test(node)) {
 					LinkedArrayList.this.removeNode(node);
@@ -1672,7 +1732,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		@Override
 		public boolean removeIf(Predicate<? super T> filter) {
 			boolean removed = false;
-			for (Node<T> node = LinkedArrayList.this.first; node != null;) {
+			for (Node<T> node = LinkedArrayList.this.first; node != null; ) {
 				Node<T> next = node.next;
 				if (filter.test(node.element)) {
 					LinkedArrayList.this.removeNode(node);
@@ -2115,7 +2175,7 @@ public class LinkedArrayList<T> implements Cloneable {
 
 		public void forAllNodes(Consumer<? super Node<T>> action) {
 			Node<T> node = this.head;
-			for (int remaining = this.remaining; remaining-- != 0;) {
+			for (int remaining = this.remaining; remaining-- != 0; ) {
 				action.accept(node);
 				node = node.getNext();
 			}
@@ -2125,7 +2185,7 @@ public class LinkedArrayList<T> implements Cloneable {
 
 		public void forAllElements(Consumer<? super T> action) {
 			Node<T> node = this.head;
-			for (int remaining = this.remaining; remaining-- != 0;) {
+			for (int remaining = this.remaining; remaining-- != 0; ) {
 				action.accept(node.element);
 				node = node.getNext();
 			}
@@ -2136,7 +2196,7 @@ public class LinkedArrayList<T> implements Cloneable {
 		public Node<T> skip(int count) {
 			Node<T> head = this.head;
 			Node<T> tail = head;
-			for (int i = count; i-- != 0;) {
+			for (int i = count; i-- != 0; ) {
 				tail = tail.getNext();
 			}
 			this.remaining -= count;
@@ -2208,23 +2268,29 @@ public class LinkedArrayList<T> implements Cloneable {
 		@SuppressWarnings("rawtypes")
 		public static final Node[] EMPTY_ARRAY = new Node[0];
 
-		/** the index to use for nodes which are not currently in a list */
+		/**
+		 the index to use for nodes which are not currently in a list
+		 */
 		public static final int NOT_IN_LIST = -1;
 
-		/** the current element that this node holds. */
+		/**
+		 the current element that this node holds.
+		 */
 		public T element;
 
-		/** if this node is currently in a list, prev and next represent the nodes before and after it in that list. */
+		/**
+		 if this node is currently in a list, prev and next represent the nodes before and after it in that list.
+		 */
 		public @Nullable Node<T> prev, next;
 
 		/**
-		an internal tracker for LinkedArrayList's caching system.
-		if this node is currently in a list, then this value represents the node's index in that list.
-		otherwise, the value is set to NOT_IN_LIST.
-		note: any addition/removal of nodes from a list will NOT shift the remaining indexes.
-		as such, this value should NOT be trusted to be correct!
-		instead, you should use LinkedArrayList.indexOfNode(node).
-		*/
+		 an internal tracker for LinkedArrayList's caching system.
+		 if this node is currently in a list, then this value represents the node's index in that list.
+		 otherwise, the value is set to NOT_IN_LIST.
+		 note: any addition/removal of nodes from a list will NOT shift the remaining indexes.
+		 as such, this value should NOT be trusted to be correct!
+		 instead, you should use LinkedArrayList.indexOfNode(node).
+		 */
 		public int index = NOT_IN_LIST;
 
 		public Node(T element) {
@@ -2232,9 +2298,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 
 		/**
-		returns the previous node if it exists
-		if it does not exist, throws a NoSuchElementException
-		*/
+		 returns the previous node if it exists
+		 if it does not exist, throws a NoSuchElementException
+		 */
 		@NotNull
 		public Node<T> getPrev() {
 			Node<T> prev;
@@ -2243,9 +2309,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 
 		/**
-		returns the next node if it exists
-		if it does not exist, throws a NoSuchElementException
-		*/
+		 returns the next node if it exists
+		 if it does not exist, throws a NoSuchElementException
+		 */
 		@NotNull
 		public Node<T> getNext() {
 			Node<T> next;
@@ -2254,9 +2320,9 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 
 		/**
-		returns the element, always.
-		for use in method references.
-		*/
+		 returns the element, always.
+		 for use in method references.
+		 */
 		public T getElement() {
 			return this.element;
 		}
@@ -2276,7 +2342,7 @@ public class LinkedArrayList<T> implements Cloneable {
 			}
 		}
 
-		//////////////////////////////// Utility methods for LinkedArrayList ////////////////////////////////
+		/// ///////////////////////////// Utility methods for LinkedArrayList ////////////////////////////////
 
 		public boolean isInList() {
 			return this.index != NOT_IN_LIST;
@@ -2302,16 +2368,18 @@ public class LinkedArrayList<T> implements Cloneable {
 		}
 
 		/**
-		called when this node is added to a list.
-		returns itself for convenience.
-		*/
+		 called when this node is added to a list.
+		 returns itself for convenience.
+		 */
 		public Node<T> initListIndex(int index) {
 			this.ensureNotInList();
 			this.index = index;
 			return this;
 		}
 
-		/** called when this node is removed from a list. */
+		/**
+		 called when this node is removed from a list.
+		 */
 		public void removedFromList() {
 			this.ensureInList();
 			this.index = NOT_IN_LIST;

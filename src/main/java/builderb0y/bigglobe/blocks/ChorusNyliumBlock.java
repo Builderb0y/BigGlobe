@@ -1,60 +1,55 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-public class ChorusNyliumBlock extends Block implements Fertilizable {
+public class ChorusNyliumBlock extends Block implements BonemealableBlock {
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> FEATURE_KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("patch_chorus_spores"));
+	public static final ResourceKey<ConfiguredFeature<?, ?>> FEATURE_KEY = ResourceKey.create(Registries.CONFIGURED_FEATURE, BigGlobeMod.modID("patch_chorus_spores"));
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<ChorusNyliumBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChorusNyliumBlock.class);
+	public static final MapCodec<ChorusNyliumBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChorusNyliumBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public ChorusNyliumBlock(Settings settings) {
+	public ChorusNyliumBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public boolean isFertilizable(
-		WorldView world,
+	public boolean isValidBonemealTarget(
+		LevelReader world,
 		BlockPos pos,
 		BlockState state
-		#if MC_VERSION < MC_1_20_2 , boolean isClient #endif
+
 	) {
 		return true;
 	}
 
 	@Override
-	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
 		return true;
 	}
 
 	@Override
-	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.getRegistryManager(), FEATURE_KEY);
-		if (feature != null) feature.generate(world, world.getChunkManager().getChunkGenerator(), random, pos.up());
+	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+		ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.registryAccess(), FEATURE_KEY);
+		if (feature != null) feature.place(world, world.getChunkSource().getGenerator(), random, pos.above());
 	}
 }

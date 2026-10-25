@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:script",
-	"params": {
-		"type": "double",
-		"is_3d": false
-	},
-	"script": "(1.0L - fastExp(-0.5L * warp_radius)) * 256.0L + 256.0L"
-}

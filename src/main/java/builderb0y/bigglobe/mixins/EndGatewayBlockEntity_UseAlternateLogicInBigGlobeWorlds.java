@@ -6,32 +6,31 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.EndGatewayBlockEntity;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.WorldChunk;
-
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBooleanScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 
-/** vanilla end gateway logic is a mess. */
-@Mixin(EndGatewayBlockEntity.class)
+/**
+vanilla end gateway logic is a mess.
+*/
+@Mixin(TheEndGatewayBlockEntity.class)
 public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 
 	@Unique
@@ -44,10 +43,10 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	highest non-empty chunk section as a starting point,
 	which means it could detect ring and bridge clouds, which is undesirable.
 	*/
-	@Inject(method = "findTeleportLocation", at = @At("HEAD"), cancellable = true)
-	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerWorld world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3d> callback) {
+	@Inject(method = "findExitPortalXZPosTentative", at = @At("HEAD"), cancellable = true)
+	private static void bigglobe_useColumnMaxYForOutwardSearch(ServerLevel world, BlockPos gatewayPos, CallbackInfoReturnable<Vec3> callback) {
 		bigglobe_exitPosition = null;
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			ScriptedColumn column = generator.newColumn(world, 0, 0, ColumnUsage.GENERIC.normalHints());
 			Vector2d direction = new Vector2d(gatewayPos.getX(), gatewayPos.getZ()).normalize();
 			Vector2d position = new Vector2d();
@@ -61,14 +60,14 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 				if (condition.get(column)) {
 					bigglobe_exitPosition = position;
 					callback.setReturnValue(
-						new Vec3d(
+						new Vec3(
 							position.x,
-							generator.getHeightOnGround(
+							generator.getFirstFreeHeight(
 								BigGlobeMath.floorI(position.x),
 								BigGlobeMath.floorI(position.y),
-								Heightmap.Type.WORLD_SURFACE_WG,
+								Heightmap.Types.WORLD_SURFACE_WG,
 								world,
-								world.getChunkManager().getNoiseConfig()
+								world.getChunkSource().randomState()
 							),
 							position.y
 						)
@@ -93,33 +92,33 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	my logic for what I'm looking for is simply a place nearby
 	the found terrain where a player can safely be teleported to.
 	*/
-	@Inject(method = "findPortalPosition", at = @At("HEAD"), cancellable = true)
-	private static void bigglobe_useColumnMaxYForPositionInsideChunk(WorldChunk chunk, CallbackInfoReturnable<BlockPos> callback) {
-		World world = chunk.getWorld();
+	@Inject(method = "findValidSpawnInChunk", at = @At("HEAD"), cancellable = true)
+	private static void bigglobe_useColumnMaxYForPositionInsideChunk(LevelChunk chunk, CallbackInfoReturnable<BlockPos> callback) {
+		Level world = chunk.getLevel();
 		Vector2d basePosition = bigglobe_exitPosition;
 		if (basePosition != null) {
 			bigglobe_exitPosition = null;
-			if (world.getChunkManager() instanceof ServerChunkManager manager && manager.getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
-				BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+			if (world.getChunkSource() instanceof ServerChunkCache manager && manager.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+				BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 				for (
 					GoldenSpiralIterator iterator = new GoldenSpiralIterator(basePosition.x, basePosition.y, 2.0D, world.random.nextLong());
 					iterator.radius <= 64.0D;
 					iterator.next()
 				) {
-					int topY = generator.getHeight(iterator.floorX(), iterator.floorY(), Heightmap.Type.WORLD_SURFACE_WG, world, manager.getNoiseConfig());
+					int topY = generator.getBaseHeight(iterator.floorX(), iterator.floorY(), Heightmap.Types.WORLD_SURFACE_WG, world, manager.randomState());
 					if (topY > HeightLimitViewVersions.getMinY(world)) {
 						mutablePos.set(iterator.floorX(), topY, iterator.floorY());
-						Chunk newChunk = world.getChunk(mutablePos);
+						ChunkAccess newChunk = world.getChunk(mutablePos);
 						if (
 							BlockStateVersions.isOpaqueFullCube(
 								newChunk.getBlockState(mutablePos.setY(topY - 1)),
 								world,
 								mutablePos
 							) &&
-							newChunk.getBlockState(mutablePos.setY(topY    )).isAir() &&
+							newChunk.getBlockState(mutablePos.setY(topY)).isAir() &&
 							newChunk.getBlockState(mutablePos.setY(topY + 1)).isAir()
 						) {
-							callback.setReturnValue(mutablePos.setY(topY - 1).toImmutable());
+							callback.setReturnValue(mutablePos.setY(topY - 1).immutable());
 							return;
 						}
 					}
@@ -141,12 +140,12 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 	and once to position the player around the return gateway.
 	but positioning the player only checks a 5 block radius instead of a 16 block radius.
 	*/
-	@Inject(method = "findExitPortalPos", at = @At("HEAD"), cancellable = true)
-	private static void bigglobe_useAlternateLogicForHighestYLevelSearch(BlockView world, BlockPos pos, int searchRadius, boolean force, CallbackInfoReturnable<BlockPos> callback) {
-		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
-			BlockPos.Mutable
-				search = new BlockPos.Mutable(),
-				found  = pos.mutableCopy().setY(HeightLimitViewVersions.getMinY(world));
+	@Inject(method = "findTallestBlock", at = @At("HEAD"), cancellable = true)
+	private static void bigglobe_useAlternateLogicForHighestYLevelSearch(BlockGetter world, BlockPos pos, int searchRadius, boolean force, CallbackInfoReturnable<BlockPos> callback) {
+		if (world instanceof ServerLevel serverWorld && serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
+			BlockPos.MutableBlockPos
+				search = new BlockPos.MutableBlockPos(),
+				found = pos.mutable().setY(HeightLimitViewVersions.getMinY(world));
 			for (int offsetX = -searchRadius; offsetX <= searchRadius; offsetX++) {
 				innerSquare:
 				for (int offsetZ = -searchRadius; offsetZ <= searchRadius; offsetZ++) {
@@ -162,12 +161,12 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 				}
 			}
 			if (found.getY() == HeightLimitViewVersions.getMinY(world)) found.set(pos);
-			callback.setReturnValue(found.toImmutable());
+			callback.setReturnValue(found.immutable());
 		}
 	}
 
-	private static boolean bigglobe_canSpawnOn(BlockView world, BlockPos pos) {
+	private static boolean bigglobe_canSpawnOn(BlockGetter world, BlockPos pos) {
 		BlockState state = world.getBlockState(pos);
-		return state.isFullCube(world, pos) && !state.isOf(Blocks.BEDROCK);
+		return state.isCollisionShapeFullBlock(world, pos) && !state.is(Blocks.BEDROCK);
 	}
 }

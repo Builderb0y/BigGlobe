@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToBlockStateScript;
@@ -15,7 +13,7 @@ public class RootLayer extends Layer {
 	public final ColumnToBlockStateScript.Holder state;
 
 	public RootLayer(
-		RegistryEntry<Layer> @DefaultEmpty [] children,
+		Holder<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children,
 		ColumnToBlockStateScript.Holder state
@@ -25,7 +23,7 @@ public class RootLayer extends Layer {
 	}
 
 	@Override
-	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+	public void buildDependencyStream(Stream.Builder<Holder<? extends DependencyView>> builder) {
 		this.state.streamDirectDependencies().forEach(builder);
 	}
 

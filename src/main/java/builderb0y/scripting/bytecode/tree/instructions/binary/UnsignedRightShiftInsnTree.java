@@ -16,6 +16,7 @@ public class UnsignedRightShiftInsnTree extends BinaryInsnTree {
 	public static final MethodInfo
 		INT_SHIFT = MethodInfo.findMethod(UnsignedRightShiftInsnTree.class, "shift", int.class, int.class, int.class).pure(),
 		LONG_SHIFT = MethodInfo.findMethod(UnsignedRightShiftInsnTree.class, "shift", long.class, long.class, int.class).pure();
+
 	public UnsignedRightShiftInsnTree(InsnTree left, InsnTree right, int opcode) {
 		super(left, right, opcode);
 	}
@@ -31,11 +32,11 @@ public class UnsignedRightShiftInsnTree extends BinaryInsnTree {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
 		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
-		if (leftConstant.isConstant() &&rightConstant.isConstant()) {
+		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT  -> ldc(shift(leftConstant. asInt(), rightConstant.asInt()));
+				case INT -> ldc(shift(leftConstant.asInt(), rightConstant.asInt()));
 				case LONG -> ldc(shift(leftConstant.asLong(), rightConstant.asInt()));
-				default   -> throw new AssertionError(type);
+				default -> throw new AssertionError(type);
 			};
 		}
 		left = left.cast(parser, type, CastMode.IMPLICIT_THROW, false);
@@ -79,7 +80,7 @@ public class UnsignedRightShiftInsnTree extends BinaryInsnTree {
 				this.left,
 				this.right
 			)
-			.emitBytecode(method);
+				.emitBytecode(method);
 		}
 	}
 

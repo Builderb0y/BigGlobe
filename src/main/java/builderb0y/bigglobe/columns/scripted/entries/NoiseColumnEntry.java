@@ -1,8 +1,5 @@
 package builderb0y.bigglobe.columns.scripted.entries;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,30 +87,34 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		computeAllMethod.setCode(
 			context.root().registry.parserFlags(),
 			"""
-			grid.getBulkY(
-				seed(salt),
-				column.x(),
-				valueField.minCached,
-				column.z(),
-				valueField.array.prefix(valueField.maxCached - valueField.minCached)
-			)
-			""",
+				grid.getBulkY(
+					seed(salt),
+					column.x(),
+					valueField.minCached,
+					column.z(),
+					valueField.array.prefix(valueField.maxCached - valueField.minCached)
+				)
+				""",
 			(MutableScriptEnvironment environment) -> {
 				environment
-				.addVariableConstant("grid", constantGrid)
-				.addMethodInvoke(Grid3D.class, "getBulkY")
-				.addVariable("column", context.loadColumn())
-				.addFunction("seed", new FunctionHandler.Named("seed(long salt)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-					return new CastResult(context.loadSeed(arguments[0]), false);
-				}))
-				.addVariableConstant("salt", this.getSeed(memory))
-				.addMethodInvoke(ScriptedColumn.INFO.x)
-				.addMethodInvoke(ScriptedColumn.INFO.z)
-				.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
-				.addFieldGet(MappedRangeArray.INFO.minCached)
-				.addFieldGet(MappedRangeArray.INFO.maxCached)
-				.addFieldGet(MappedRangeNumberArray.ARRAY)
-				.addMethodInvoke(NumberArray.class, "prefix")
+					.addVariableConstant("grid", constantGrid)
+					.addMethodInvoke(Grid3D.class, "getBulkY")
+					.addVariable("column", context.loadColumn())
+					.addFunction(
+						"seed", new FunctionHandler.Named(
+							"seed(long salt)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+							return new CastResult(context.loadSeed(arguments[0]), false);
+						}
+						)
+					)
+					.addVariableConstant("salt", this.getSeed(memory))
+					.addMethodInvoke(ScriptedColumn.INFO.x)
+					.addMethodInvoke(ScriptedColumn.INFO.z)
+					.addVariableRenamedGetField(context.loadSelf(), "valueField", memory.getTyped(ColumnEntryMemory.FIELD).info)
+					.addFieldGet(MappedRangeArray.INFO.minCached)
+					.addFieldGet(MappedRangeArray.INFO.maxCached)
+					.addFieldGet(MappedRangeNumberArray.ARRAY)
+					.addMethodInvoke(NumberArray.class, "prefix")
 				;
 			}
 		);
@@ -137,24 +138,26 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		computeMethod.setCode(
 			context.root().registry.parserFlags(),
 			this.params.type() instanceof FloatColumnValueType
-			? "return(float(grid.getValue(column.seed # salt, column.x, y, column.z)))"
-			: "return(grid.getValue(column.seed # salt, column.x, y, column.z))",
+				? "return(float(grid.getValue(column.seed # salt, column.x, y, column.z)))"
+				: "return(grid.getValue(column.seed # salt, column.x, y, column.z))",
 			(MutableScriptEnvironment environment) -> {
 				environment
-				.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
-				.addMethodInvoke(this.is3D() ? Grid3D.class : Grid2D.class, "getValue")
-				.addVariable("column", context.loadColumn())
-				.addFieldInvoke("seed", ScriptedColumn.INFO.baseSeed)
-				.addVariableConstant("salt", this.getSeed(memory))
-				.addFieldInvoke(ScriptedColumn.INFO.x)
-				.addVariableLoad("y", TypeInfos.INT)
-				.addFieldInvoke(ScriptedColumn.INFO.z)
+					.addVariableConstant("grid", memory.getTyped(CONSTANT_GRID))
+					.addMethodInvoke(this.is3D() ? Grid3D.class : Grid2D.class, "getValue")
+					.addVariable("column", context.loadColumn())
+					.addFieldInvoke("seed", ScriptedColumn.INFO.baseSeed)
+					.addVariableConstant("salt", this.getSeed(memory))
+					.addFieldInvoke(ScriptedColumn.INFO.x)
+					.addVariableLoad("y", TypeInfos.INT)
+					.addFieldInvoke(ScriptedColumn.INFO.z)
 				;
 			}
 		);
 	}
 
-	/** hacks to make 2 java fields share the same JSON field. */
+	/**
+	hacks to make 2 java fields share the same JSON field.
+	*/
 	public static class Coder extends NamedCoder<NoiseColumnEntry> {
 
 		public final AutoCoder<AccessSchema> params;
@@ -167,11 +170,15 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 		public Coder(FactoryContext<NoiseColumnEntry> context) {
 			super(context.type);
 			this.params = context.type(ReifiedType.from(AccessSchema.class)).forceCreateCoder();
-			this.valid  = context.type(ReifiedType.from(Valid.class).addAnnotation(VerifyNullable.INSTANCE)).forceCreateCoder();
-			this.cache  = context.type(new ReifiedType<@DefaultBoolean(true) Boolean>() {}).forceCreateCoder();
+			this.valid = context.type(ReifiedType.from(Valid.class).addAnnotation(VerifyNullable.INSTANCE)).forceCreateCoder();
+			this.cache = context.type(new ReifiedType<@DefaultBoolean(true) Boolean>() {
+
+			}).forceCreateCoder();
 			this.grid2D = context.type(ReifiedType.from(Grid2D.class)).forceCreateCoder();
 			this.grid3D = context.type(ReifiedType.from(Grid3D.class)).forceCreateCoder();
-			this.seed   = context.type(new ReifiedType<Seed>() {}).forceCreateCoder();
+			this.seed = context.type(new ReifiedType<Seed>() {
+
+			}).forceCreateCoder();
 		}
 
 		@Override
@@ -203,8 +210,8 @@ public class NoiseColumnEntry extends AbstractColumnEntry {
 			map.put(
 				"grid",
 				entry.params.is_3d()
-				? context.object(entry.grid3D).encodeWith(this.grid3D)
-				: context.object(entry.grid2D).encodeWith(this.grid2D)
+					? context.object(entry.grid3D).encodeWith(this.grid3D)
+					: context.object(entry.grid2D).encodeWith(this.grid2D)
 			);
 			if (entry.seed != null) map.put("seed", context.object(entry.seed).encodeWith(this.seed));
 			return map;

@@ -1,16 +1,12 @@
 package builderb0y.scripting.parsing;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -63,7 +59,8 @@ public class ExpressionParser {
 
 	public static final Path CLASS_DUMP_DIRECTORY = ScriptClassLoader.initDumpDirectory("builderb0y.bytecode.dumpScripts", "bigglobe_scripts");
 
-	public static void clinit() {}
+	public static void clinit() {
+	}
 
 	public static final int
 		CLIENT = 1 << 0;
@@ -149,22 +146,22 @@ public class ExpressionParser {
 		return (
 			new StringBuilder(
 				"""
-				Congrats! You found a bug in my script parser!
-				Normally this error would've been caught earlier,
-				and you would've received a more helpful error message
-				telling you where the problem in your script was.
-				But in this case the script parser
-				doesn't know what went wrong or where.
-				Go ask Builderb0y for help instead,
-				and tell him the following details:
-				"""
+					Congrats! You found a bug in my script parser!
+					Normally this error would've been caught earlier,
+					and you would've received a more helpful error message
+					telling you where the problem in your script was.
+					But in this case the script parser
+					doesn't know what went wrong or where.
+					Go ask Builderb0y for help instead,
+					and tell him the following details:
+					"""
 			)
-			.append('\n')
-			.append("Script source:\n").append(ScriptLogger.addLineNumbers(this.input.getSource())).append('\n')
-			.append("Compiled bytecode:\n").append(this.clazz.dump()).append('\n')
-			.append("ASM errors: ").append(this.testForASMErrors()).append('\n')
-			.append("Parser class: ").append(this.getClass().getName()).append('\n')
-			.append("Environment: ").append(this.environment).append('\n')
+				.append('\n')
+				.append("Script source:\n").append(ScriptLogger.addLineNumbers(this.input.getSource())).append('\n')
+				.append("Compiled bytecode:\n").append(this.clazz.dump()).append('\n')
+				.append("ASM errors: ").append(this.testForASMErrors()).append('\n')
+				.append("Parser class: ").append(this.getClass().getName()).append('\n')
+				.append("Environment: ").append(this.environment).append('\n')
 		);
 	}
 
@@ -221,8 +218,11 @@ public class ExpressionParser {
 					return left;
 				}
 				switch (this.input.peek()) {
-					case ')', ']', '}' -> { return left; }
-					default -> {}
+					case ')', ']', '}' -> {
+						return left;
+					}
+					default -> {
+					}
 				}
 				//another operator (except ++ and --) indicates that said
 				//operator didn't get processed sooner when it should have.
@@ -231,7 +231,8 @@ public class ExpressionParser {
 					case ",", ":" -> { //indicates the end of this statement list.
 						return left;
 					}
-					case "", "++", "++:", ":++", "--", "--:", ":--", "!", "~" -> {} //indicates that there's another statement to read.
+					case "", "++", "++:", ":++", "--", "--:", ":--", "!", "~" -> {
+					} //indicates that there's another statement to read.
 					default -> { //indicates that there's an operator which didn't get consumed properly.
 						this.input.onCharsRead(operator);
 						throw new ScriptParsingException("Unknown or unexpected operator: " + operator, this.input);
@@ -290,60 +291,216 @@ public class ExpressionParser {
 			UpdateOp op;
 			UpdateOrder order;
 			switch (operator) {
-				case "="    -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.VOID; }
-				case "+="   -> { op = UpdateOp.ADD;                  order = UpdateOrder.VOID; }
-				case "-="   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.VOID; }
-				case "*="   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.VOID; }
-				case "/="   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.VOID; }
-				case "%="   -> { op = UpdateOp.MODULO;               order = UpdateOrder.VOID; }
-				case "^="   -> { op = UpdateOp.POWER;                order = UpdateOrder.VOID; }
-				case "&="   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.VOID; }
-				case "|="   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.VOID; }
-				case "#="   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.VOID; }
-				case "&&="  -> { op = UpdateOp.AND;                  order = UpdateOrder.VOID; }
-				case "||="  -> { op = UpdateOp.OR;                   order = UpdateOrder.VOID; }
-				case "##="  -> { op = UpdateOp.XOR;                  order = UpdateOrder.VOID; }
-				case "<<="  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.VOID; }
-				case ">>="  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.VOID; }
-				case "<<<=" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.VOID; }
-				case ">>>=" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.VOID; }
+				case "=" -> {
+					op = UpdateOp.ASSIGN;
+					order = UpdateOrder.VOID;
+				}
+				case "+=" -> {
+					op = UpdateOp.ADD;
+					order = UpdateOrder.VOID;
+				}
+				case "-=" -> {
+					op = UpdateOp.SUBTRACT;
+					order = UpdateOrder.VOID;
+				}
+				case "*=" -> {
+					op = UpdateOp.MULTIPLY;
+					order = UpdateOrder.VOID;
+				}
+				case "/=" -> {
+					op = UpdateOp.DIVIDE;
+					order = UpdateOrder.VOID;
+				}
+				case "%=" -> {
+					op = UpdateOp.MODULO;
+					order = UpdateOrder.VOID;
+				}
+				case "^=" -> {
+					op = UpdateOp.POWER;
+					order = UpdateOrder.VOID;
+				}
+				case "&=" -> {
+					op = UpdateOp.BITWISE_AND;
+					order = UpdateOrder.VOID;
+				}
+				case "|=" -> {
+					op = UpdateOp.BITWISE_OR;
+					order = UpdateOrder.VOID;
+				}
+				case "#=" -> {
+					op = UpdateOp.BITWISE_XOR;
+					order = UpdateOrder.VOID;
+				}
+				case "&&=" -> {
+					op = UpdateOp.AND;
+					order = UpdateOrder.VOID;
+				}
+				case "||=" -> {
+					op = UpdateOp.OR;
+					order = UpdateOrder.VOID;
+				}
+				case "##=" -> {
+					op = UpdateOp.XOR;
+					order = UpdateOrder.VOID;
+				}
+				case "<<=" -> {
+					op = UpdateOp.SIGNED_LEFT_SHIFT;
+					order = UpdateOrder.VOID;
+				}
+				case ">>=" -> {
+					op = UpdateOp.SIGNED_RIGHT_SHIFT;
+					order = UpdateOrder.VOID;
+				}
+				case "<<<=" -> {
+					op = UpdateOp.UNSIGNED_LEFT_SHIFT;
+					order = UpdateOrder.VOID;
+				}
+				case ">>>=" -> {
+					op = UpdateOp.UNSIGNED_RIGHT_SHIFT;
+					order = UpdateOrder.VOID;
+				}
 
-				case ":="   -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.POST; }
-				case ":+"   -> { op = UpdateOp.ADD;                  order = UpdateOrder.POST; }
-				case ":-"   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.POST; }
-				case ":*"   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.POST; }
-				case ":/"   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.POST; }
-				case ":%"   -> { op = UpdateOp.MODULO;               order = UpdateOrder.POST; }
-				case ":^"   -> { op = UpdateOp.POWER;                order = UpdateOrder.POST; }
-				case ":&"   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.POST; }
-				case ":|"   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.POST; }
-				case ":#"   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.POST; }
-				case ":&&"  -> { op = UpdateOp.AND;                  order = UpdateOrder.POST; }
-				case ":||"  -> { op = UpdateOp.OR;                   order = UpdateOrder.POST; }
-				case ":##"  -> { op = UpdateOp.XOR;                  order = UpdateOrder.POST; }
-				case ":<<"  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.POST; }
-				case ":>>"  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.POST; }
-				case ":<<<" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.POST; }
-				case ":>>>" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.POST; }
+				case ":=" -> {
+					op = UpdateOp.ASSIGN;
+					order = UpdateOrder.POST;
+				}
+				case ":+" -> {
+					op = UpdateOp.ADD;
+					order = UpdateOrder.POST;
+				}
+				case ":-" -> {
+					op = UpdateOp.SUBTRACT;
+					order = UpdateOrder.POST;
+				}
+				case ":*" -> {
+					op = UpdateOp.MULTIPLY;
+					order = UpdateOrder.POST;
+				}
+				case ":/" -> {
+					op = UpdateOp.DIVIDE;
+					order = UpdateOrder.POST;
+				}
+				case ":%" -> {
+					op = UpdateOp.MODULO;
+					order = UpdateOrder.POST;
+				}
+				case ":^" -> {
+					op = UpdateOp.POWER;
+					order = UpdateOrder.POST;
+				}
+				case ":&" -> {
+					op = UpdateOp.BITWISE_AND;
+					order = UpdateOrder.POST;
+				}
+				case ":|" -> {
+					op = UpdateOp.BITWISE_OR;
+					order = UpdateOrder.POST;
+				}
+				case ":#" -> {
+					op = UpdateOp.BITWISE_XOR;
+					order = UpdateOrder.POST;
+				}
+				case ":&&" -> {
+					op = UpdateOp.AND;
+					order = UpdateOrder.POST;
+				}
+				case ":||" -> {
+					op = UpdateOp.OR;
+					order = UpdateOrder.POST;
+				}
+				case ":##" -> {
+					op = UpdateOp.XOR;
+					order = UpdateOrder.POST;
+				}
+				case ":<<" -> {
+					op = UpdateOp.SIGNED_LEFT_SHIFT;
+					order = UpdateOrder.POST;
+				}
+				case ":>>" -> {
+					op = UpdateOp.SIGNED_RIGHT_SHIFT;
+					order = UpdateOrder.POST;
+				}
+				case ":<<<" -> {
+					op = UpdateOp.UNSIGNED_LEFT_SHIFT;
+					order = UpdateOrder.POST;
+				}
+				case ":>>>" -> {
+					op = UpdateOp.UNSIGNED_RIGHT_SHIFT;
+					order = UpdateOrder.POST;
+				}
 
-				case "=:"   -> { op = UpdateOp.ASSIGN;               order = UpdateOrder.PRE; }
-				case "+:"   -> { op = UpdateOp.ADD;                  order = UpdateOrder.PRE; }
-				case "-:"   -> { op = UpdateOp.SUBTRACT;             order = UpdateOrder.PRE; }
-				case "*:"   -> { op = UpdateOp.MULTIPLY;             order = UpdateOrder.PRE; }
-				case "/:"   -> { op = UpdateOp.DIVIDE;               order = UpdateOrder.PRE; }
-				case "%:"   -> { op = UpdateOp.MODULO;               order = UpdateOrder.PRE; }
-				case "^:"   -> { op = UpdateOp.POWER;                order = UpdateOrder.PRE; }
-				case "&:"   -> { op = UpdateOp.BITWISE_AND;          order = UpdateOrder.PRE; }
-				case "|:"   -> { op = UpdateOp.BITWISE_OR;           order = UpdateOrder.PRE; }
-				case "#:"   -> { op = UpdateOp.BITWISE_XOR;          order = UpdateOrder.PRE; }
-				case "&&:"  -> { op = UpdateOp.AND;                  order = UpdateOrder.PRE; }
-				case "||:"  -> { op = UpdateOp.OR;                   order = UpdateOrder.PRE; }
-				case "##:"  -> { op = UpdateOp.XOR;                  order = UpdateOrder.PRE; }
-				case "<<:"  -> { op = UpdateOp.SIGNED_LEFT_SHIFT;    order = UpdateOrder.PRE; }
-				case ">>:"  -> { op = UpdateOp.SIGNED_RIGHT_SHIFT;   order = UpdateOrder.PRE; }
-				case "<<<:" -> { op = UpdateOp.UNSIGNED_LEFT_SHIFT;  order = UpdateOrder.PRE; }
-				case ">>>:" -> { op = UpdateOp.UNSIGNED_RIGHT_SHIFT; order = UpdateOrder.PRE; }
-				default     -> { op = null; order = null; }
+				case "=:" -> {
+					op = UpdateOp.ASSIGN;
+					order = UpdateOrder.PRE;
+				}
+				case "+:" -> {
+					op = UpdateOp.ADD;
+					order = UpdateOrder.PRE;
+				}
+				case "-:" -> {
+					op = UpdateOp.SUBTRACT;
+					order = UpdateOrder.PRE;
+				}
+				case "*:" -> {
+					op = UpdateOp.MULTIPLY;
+					order = UpdateOrder.PRE;
+				}
+				case "/:" -> {
+					op = UpdateOp.DIVIDE;
+					order = UpdateOrder.PRE;
+				}
+				case "%:" -> {
+					op = UpdateOp.MODULO;
+					order = UpdateOrder.PRE;
+				}
+				case "^:" -> {
+					op = UpdateOp.POWER;
+					order = UpdateOrder.PRE;
+				}
+				case "&:" -> {
+					op = UpdateOp.BITWISE_AND;
+					order = UpdateOrder.PRE;
+				}
+				case "|:" -> {
+					op = UpdateOp.BITWISE_OR;
+					order = UpdateOrder.PRE;
+				}
+				case "#:" -> {
+					op = UpdateOp.BITWISE_XOR;
+					order = UpdateOrder.PRE;
+				}
+				case "&&:" -> {
+					op = UpdateOp.AND;
+					order = UpdateOrder.PRE;
+				}
+				case "||:" -> {
+					op = UpdateOp.OR;
+					order = UpdateOrder.PRE;
+				}
+				case "##:" -> {
+					op = UpdateOp.XOR;
+					order = UpdateOrder.PRE;
+				}
+				case "<<:" -> {
+					op = UpdateOp.SIGNED_LEFT_SHIFT;
+					order = UpdateOrder.PRE;
+				}
+				case ">>:" -> {
+					op = UpdateOp.SIGNED_RIGHT_SHIFT;
+					order = UpdateOrder.PRE;
+				}
+				case "<<<:" -> {
+					op = UpdateOp.UNSIGNED_LEFT_SHIFT;
+					order = UpdateOrder.PRE;
+				}
+				case ">>>:" -> {
+					op = UpdateOp.UNSIGNED_RIGHT_SHIFT;
+					order = UpdateOrder.PRE;
+				}
+				default -> {
+					op = null;
+					order = null;
+				}
 			}
 			if (op != null) {
 				this.input.onCharsRead(operator);
@@ -443,46 +600,168 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "<"    -> { this.input.onCharsRead(operator); left = bool(        lt(this, left, this.nextSum()) ); }
-					case "<="   -> { this.input.onCharsRead(operator); left = bool(        le(this, left, this.nextSum()) ); }
-					case ">"    -> { this.input.onCharsRead(operator); left = bool(        gt(this, left, this.nextSum()) ); }
-					case ">="   -> { this.input.onCharsRead(operator); left = bool(        ge(this, left, this.nextSum()) ); }
-					case "=="   -> { this.input.onCharsRead(operator); left = bool(        eq(this, left, this.nextSum()) ); }
-					case "!="   -> { this.input.onCharsRead(operator); left = bool(        ne(this, left, this.nextSum()) ); }
-					case "==="  -> { this.input.onCharsRead(operator); left = bool(identityEq(this, left, this.nextSum()) ); }
-					case "!=="  -> { this.input.onCharsRead(operator); left = bool(identityNe(this, left, this.nextSum()) ); }
-					case "!>"   -> { this.input.onCharsRead(operator); left = bool(    not(gt(this, left, this.nextSum()))); }
-					case "!<"   -> { this.input.onCharsRead(operator); left = bool(    not(lt(this, left, this.nextSum()))); }
-					case "!>="  -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum()))); }
-					case "!<="  -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum()))); }
+					case "<" -> {
+						this.input.onCharsRead(operator);
+						left = bool(lt(this, left, this.nextSum()));
+					}
+					case "<=" -> {
+						this.input.onCharsRead(operator);
+						left = bool(le(this, left, this.nextSum()));
+					}
+					case ">" -> {
+						this.input.onCharsRead(operator);
+						left = bool(gt(this, left, this.nextSum()));
+					}
+					case ">=" -> {
+						this.input.onCharsRead(operator);
+						left = bool(ge(this, left, this.nextSum()));
+					}
+					case "==" -> {
+						this.input.onCharsRead(operator);
+						left = bool(eq(this, left, this.nextSum()));
+					}
+					case "!=" -> {
+						this.input.onCharsRead(operator);
+						left = bool(ne(this, left, this.nextSum()));
+					}
+					case "===" -> {
+						this.input.onCharsRead(operator);
+						left = bool(identityEq(this, left, this.nextSum()));
+					}
+					case "!==" -> {
+						this.input.onCharsRead(operator);
+						left = bool(identityNe(this, left, this.nextSum()));
+					}
+					case "!>" -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(gt(this, left, this.nextSum())));
+					}
+					case "!<" -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(lt(this, left, this.nextSum())));
+					}
+					case "!>=" -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(ge(this, left, this.nextSum())));
+					}
+					case "!<=" -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(le(this, left, this.nextSum())));
+					}
 
-					case ".<"   -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".<="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".>"   -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".>="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".=="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        eq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".!="  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(        ne(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".===" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(identityEq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".!==" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(identityNe(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right) ); }
-					case ".!>"  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right))); }
-					case ".!<"  -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right))); }
-					case ".!>=" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right))); }
-					case ".!<=" -> { this.input.onCharsRead(operator); InsnTree right = this.nextSum(); left = bool(    not(le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right))); }
+					case ".<" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".<=" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".>" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".>=" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".==" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(eq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".!=" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(ne(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".===" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(identityEq(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".!==" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(identityNe(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right));
+					}
+					case ".!>" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(not(gt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right)));
+					}
+					case ".!<" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(not(lt(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right)));
+					}
+					case ".!>=" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(not(ge(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right)));
+					}
+					case ".!<=" -> {
+						this.input.onCharsRead(operator);
+						InsnTree right = this.nextSum();
+						left = bool(not(le(this, left.cast(this, right.getTypeInfo(), CastMode.EXPLICIT_THROW, false), right)));
+					}
 
-					case "<."   -> { this.input.onCharsRead(operator); left = bool(        lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case "<=."  -> { this.input.onCharsRead(operator); left = bool(        le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case ">."   -> { this.input.onCharsRead(operator); left = bool(        gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case ">=."  -> { this.input.onCharsRead(operator); left = bool(        ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case "==."  -> { this.input.onCharsRead(operator); left = bool(        eq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case "!=."  -> { this.input.onCharsRead(operator); left = bool(        ne(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case "===." -> { this.input.onCharsRead(operator); left = bool(identityEq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case "!==." -> { this.input.onCharsRead(operator); left = bool(identityNe(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)) ); }
-					case "!>."  -> { this.input.onCharsRead(operator); left = bool(    not(gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)))); }
-					case "!<."  -> { this.input.onCharsRead(operator); left = bool(    not(lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)))); }
-					case "!>=." -> { this.input.onCharsRead(operator); left = bool(    not(ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)))); }
-					case "!<=." -> { this.input.onCharsRead(operator); left = bool(    not(le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)))); }
+					case "<." -> {
+						this.input.onCharsRead(operator);
+						left = bool(lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case "<=." -> {
+						this.input.onCharsRead(operator);
+						left = bool(le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case ">." -> {
+						this.input.onCharsRead(operator);
+						left = bool(gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case ">=." -> {
+						this.input.onCharsRead(operator);
+						left = bool(ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case "==." -> {
+						this.input.onCharsRead(operator);
+						left = bool(eq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case "!=." -> {
+						this.input.onCharsRead(operator);
+						left = bool(ne(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case "===." -> {
+						this.input.onCharsRead(operator);
+						left = bool(identityEq(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case "!==." -> {
+						this.input.onCharsRead(operator);
+						left = bool(identityNe(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false)));
+					}
+					case "!>." -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(gt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false))));
+					}
+					case "!<." -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(lt(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false))));
+					}
+					case "!>=." -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(ge(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false))));
+					}
+					case "!<=." -> {
+						this.input.onCharsRead(operator);
+						left = bool(not(le(this, left, this.nextSum().cast(this, left.getTypeInfo(), CastMode.EXPLICIT_THROW, false))));
+					}
 
-					default     -> { return left; }
+					default -> {
+						return left;
+					}
 				}
 			}
 		}
@@ -500,12 +779,29 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "+" -> { this.input.onCharsRead(operator); left =  add(this, left, this.nextProduct()); }
-					case "-" -> { this.input.onCharsRead(operator); left =  sub(this, left, this.nextProduct()); }
-					case "&" -> { this.input.onCharsRead(operator); left = band(this, left, this.nextProduct()); }
-					case "|" -> { this.input.onCharsRead(operator); left =  bor(this, left, this.nextProduct()); }
-					case "#" -> { this.input.onCharsRead(operator); left = bxor(this, left, this.nextProduct()); }
-					default  -> { return left; }
+					case "+" -> {
+						this.input.onCharsRead(operator);
+						left = add(this, left, this.nextProduct());
+					}
+					case "-" -> {
+						this.input.onCharsRead(operator);
+						left = sub(this, left, this.nextProduct());
+					}
+					case "&" -> {
+						this.input.onCharsRead(operator);
+						left = band(this, left, this.nextProduct());
+					}
+					case "|" -> {
+						this.input.onCharsRead(operator);
+						left = bor(this, left, this.nextProduct());
+					}
+					case "#" -> {
+						this.input.onCharsRead(operator);
+						left = bxor(this, left, this.nextProduct());
+					}
+					default -> {
+						return left;
+					}
 				}
 			}
 		}
@@ -523,14 +819,37 @@ public class ExpressionParser {
 			while (true) {
 				String operator = this.input.peekOperatorAfterWhitespace();
 				switch (operator) {
-					case "*"   -> { this.input.onCharsRead(operator); left =  mul(this, left, this.nextExponent()); }
-					case "<<"  -> { this.input.onCharsRead(operator); left =  shl(this, left, this.nextExponent()); }
-					case "<<<" -> { this.input.onCharsRead(operator); left = ushl(this, left, this.nextExponent()); }
-					case "/"   -> { this.input.onCharsRead(operator); left =  div(this, left, this.nextExponent()); }
-					case ">>"  -> { this.input.onCharsRead(operator); left =  shr(this, left, this.nextExponent()); }
-					case ">>>" -> { this.input.onCharsRead(operator); left = ushr(this, left, this.nextExponent()); }
-					case "%"   -> { this.input.onCharsRead(operator); left =  mod(this, left, this.nextExponent()); }
-					default    -> { return left; }
+					case "*" -> {
+						this.input.onCharsRead(operator);
+						left = mul(this, left, this.nextExponent());
+					}
+					case "<<" -> {
+						this.input.onCharsRead(operator);
+						left = shl(this, left, this.nextExponent());
+					}
+					case "<<<" -> {
+						this.input.onCharsRead(operator);
+						left = ushl(this, left, this.nextExponent());
+					}
+					case "/" -> {
+						this.input.onCharsRead(operator);
+						left = div(this, left, this.nextExponent());
+					}
+					case ">>" -> {
+						this.input.onCharsRead(operator);
+						left = shr(this, left, this.nextExponent());
+					}
+					case ">>>" -> {
+						this.input.onCharsRead(operator);
+						left = ushr(this, left, this.nextExponent());
+					}
+					case "%" -> {
+						this.input.onCharsRead(operator);
+						left = mod(this, left, this.nextExponent());
+					}
+					default -> {
+						return left;
+					}
 				}
 			}
 		}
@@ -591,7 +910,7 @@ public class ExpressionParser {
 			String operator = this.input.peekOperatorAfterWhitespace();
 			if (!operator.isEmpty() && operator.charAt(0) == '.') {
 				this.input.onCharsRead(operator);
-				boolean isAssign   = false;
+				boolean isAssign = false;
 				boolean isNullable = false;
 				boolean isReceiver = false;
 				for (int index = 1, length = operator.length(); index < length; index++) {
@@ -663,12 +982,14 @@ public class ExpressionParser {
 			return switch (prefixOperator) {
 				case "+" -> {
 					this.input.onCharsRead(prefixOperator);
-					yield this.nextPrefixTerm(NegateMode.NONE, tree -> {
-						if (!tree.getTypeInfo().isNumber()) {
-							throw new ScriptParsingException("Non-numeric term for unary '+': " + tree.getTypeInfo(), this.input);
+					yield this.nextPrefixTerm(
+						NegateMode.NONE, tree -> {
+							if (!tree.getTypeInfo().isNumber()) {
+								throw new ScriptParsingException("Non-numeric term for unary '+': " + tree.getTypeInfo(), this.input);
+							}
+							return tree;
 						}
-						return tree;
-					});
+					);
 				}
 				case "-" -> {
 					this.input.onCharsRead(prefixOperator);
@@ -680,12 +1001,14 @@ public class ExpressionParser {
 				}
 				case "~" -> {
 					this.input.onCharsRead(prefixOperator);
-					yield this.nextPrefixTerm(NegateMode.BITWISE, tree -> {
-						//it is safe to use tree.getTypeInfo() directly
-						//without sanity checking that it is numeric here,
-						//because bxor() will check that immediately afterwards.
-						return bxor(this, tree, ldc(-1, tree.getTypeInfo()));
-					});
+					yield this.nextPrefixTerm(
+						NegateMode.BITWISE, tree -> {
+							//it is safe to use tree.getTypeInfo() directly
+							//without sanity checking that it is numeric here,
+							//because bxor() will check that immediately afterwards.
+							return bxor(this, tree, ldc(-1, tree.getTypeInfo()));
+						}
+					);
 				}
 				case "!" -> {
 					this.input.onCharsRead(prefixOperator);
@@ -755,11 +1078,9 @@ public class ExpressionParser {
 				case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
 					yield this.nextNumber(NegateMode.NONE);
 				}
-				case
-					'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-					'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-					'_', '`'
-				-> {
+				case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+				'_', '`' -> {
 					yield this.nextIdentifier(this.input.readIdentifier());
 				}
 				case '\'', '"' -> {
@@ -784,7 +1105,6 @@ public class ExpressionParser {
 			throw new ScriptParsingException("Script too long or too complex", error, this.input);
 		}
 	}
-
 
 	public InsnTree nextString(char quote) throws ScriptParsingException {
 		StringBuilder string = new StringBuilder();
@@ -855,7 +1175,8 @@ public class ExpressionParser {
 		try {
 			BigDecimal number = NumberParser.parse(this.input);
 			switch (negateMode) {
-				case NONE -> {}
+				case NONE -> {
+				}
 				case ARITHMETIC -> number = number.negate();
 				case BITWISE -> {
 					if (number.scale() > 0) throw new ScriptParsingException("Can't bitwise negate non-integer", this.input);
@@ -1120,7 +1441,7 @@ public class ExpressionParser {
 		return return_(value.cast(this, this.getMainReturnType(), CastMode.IMPLICIT_THROW, false));
 	}
 
-	public String listCandidates(String identifier, String prefix, String suffix) {
+	public String listCandidates(String ResourceLocation, String prefix, String suffix) {
 		record DescribedStringSimilarity(IdentifierDescriptor descriptor, StringSimilarity similarity) implements Comparable<DescribedStringSimilarity> {
 
 			@Override
@@ -1130,21 +1451,21 @@ public class ExpressionParser {
 		}
 		return (
 			this
-			.environment
-			.listIdentifiers()
-			.map((IdentifierDescriptor descriptor) -> {
-				StringSimilarity similarity = StringSimilarity.compare(identifier, descriptor.name());
-				return similarity.compareTo(StringSimilarity.NO_MATCH) > 0 ? new DescribedStringSimilarity(descriptor, similarity) : null;
-			})
-			.filter(Objects::nonNull)
-			.sorted(Comparator.reverseOrder())
-			.limit(10L)
-			.map((DescribedStringSimilarity described) -> "\t" + described.descriptor.value())
-			.collect(Collectors.joining(
-				"\n",
-				prefix + "\nCandidates:\n",
-				'\n' + suffix
-			))
+				.environment
+				.listIdentifiers()
+				.map((IdentifierDescriptor descriptor) -> {
+					StringSimilarity similarity = StringSimilarity.compare(ResourceLocation, descriptor.name());
+					return similarity.compareTo(StringSimilarity.NO_MATCH) > 0 ? new DescribedStringSimilarity(descriptor, similarity) : null;
+				})
+				.filter(Objects::nonNull)
+				.sorted(Comparator.reverseOrder())
+				.limit(10L)
+				.map((DescribedStringSimilarity described) -> "\t" + described.descriptor.value())
+				.collect(Collectors.joining(
+					"\n",
+					prefix + "\nCandidates:\n",
+					'\n' + suffix
+				))
 		);
 	}
 
@@ -1185,7 +1506,9 @@ public class ExpressionParser {
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@UseVerifier(name = "verifyName", in = ExpressionParser.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	public static @interface IdentifierName {}
+	public static @interface IdentifierName {
+
+	}
 
 	public void beginCodeBlock() throws ScriptParsingException {
 		this.input.expectAfterWhitespace('(');

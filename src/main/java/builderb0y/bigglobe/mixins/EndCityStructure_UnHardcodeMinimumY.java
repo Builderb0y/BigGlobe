@@ -3,19 +3,17 @@ package builderb0y.bigglobe.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
-
-import net.minecraft.world.gen.structure.EndCityStructure;
-import net.minecraft.world.gen.structure.Structure;
-
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.structures.EndCityStructure;
 
 @Mixin(EndCityStructure.class)
 public class EndCityStructure_UnHardcodeMinimumY {
 
-	@ModifyConstant(method = "getStructurePosition", constant = @Constant(intValue = 60))
-	private int bigglobe_replaceMinimumY(int oldValue, Structure.Context context) {
+	@ModifyConstant(method = "findGenerationPoint", constant = @Constant(intValue = 60))
+	private int bigglobe_replaceMinimumY(int oldValue, Structure.GenerationContext context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			return generator.getMinimumY() + 1;
+			return generator.getMinY() + 1;
 		}
 		else {
 			return oldValue;

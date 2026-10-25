@@ -2,7 +2,8 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 public class ConstantFormatException extends Exception {
 
-	public ConstantFormatException() {}
+	public ConstantFormatException() {
+	}
 
 	public ConstantFormatException(String message) {
 		super(message);

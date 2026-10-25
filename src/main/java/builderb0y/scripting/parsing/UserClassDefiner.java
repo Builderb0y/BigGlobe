@@ -18,9 +18,9 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class UserClassDefiner {
 
 	public static final MethodInfo
-		OBJECT_CONSTRUCTOR         = MethodInfo.getConstructor(Object.class),
+		OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class),
 		MAKE_CONCAT_WITH_CONSTANTS = MethodInfo.getMethod(StringConcatFactory.class, "makeConcatWithConstants"),
-		HASH_MIX                   = MethodInfo.findMethod(HashCommon.class, "mix", int.class, int.class).pure();
+		HASH_MIX = MethodInfo.findMethod(HashCommon.class, "mix", int.class, int.class).pure();
 
 	public final ExpressionParser parser;
 	public final String className;
@@ -120,7 +120,7 @@ public class UserClassDefiner {
 						new FieldInfo(ACC_PUBLIC, this.innerClassType, field.name(), field.info.type),
 						ldc(field.initializer)
 					)
-					.emitBytecode(noArgConstructor);
+						.emitBytecode(noArgConstructor);
 				}
 			}
 			return_(noop).emitBytecode(noArgConstructor);
@@ -133,9 +133,9 @@ public class UserClassDefiner {
 				"<init>",
 				TypeInfos.VOID,
 				fields
-				.stream()
-				.map((FieldCompileContext field) -> new LazyVarInfo(field.name(), field.info.type))
-				.toArray(LazyVarInfo.ARRAY_FACTORY)
+					.stream()
+					.map((FieldCompileContext field) -> new LazyVarInfo(field.name(), field.info.type))
+					.toArray(LazyVarInfo.ARRAY_FACTORY)
 			);
 			LazyVarInfo self = new LazyVarInfo("this", fullArgConstructor.clazz.info);
 			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(fullArgConstructor);
@@ -145,7 +145,7 @@ public class UserClassDefiner {
 					new FieldInfo(ACC_PUBLIC, this.innerClassType, field.name(), field.info.type),
 					load(field.name(), field.info.type)
 				)
-				.emitBytecode(fullArgConstructor);
+					.emitBytecode(fullArgConstructor);
 			}
 			return_(noop).emitBytecode(fullArgConstructor);
 			fullArgConstructor.endCode();
@@ -157,9 +157,9 @@ public class UserClassDefiner {
 				"<init>",
 				TypeInfos.VOID,
 				nonDefaulted
-				.stream()
-				.map((FieldCompileContext field) -> new LazyVarInfo(field.name(), field.info.type))
-				.toArray(LazyVarInfo.ARRAY_FACTORY)
+					.stream()
+					.map((FieldCompileContext field) -> new LazyVarInfo(field.name(), field.info.type))
+					.toArray(LazyVarInfo.ARRAY_FACTORY)
 			);
 			LazyVarInfo self = new LazyVarInfo("this", someArgsConstructor.clazz.info);
 			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(someArgsConstructor);
@@ -169,7 +169,7 @@ public class UserClassDefiner {
 					new FieldInfo(ACC_PUBLIC, this.innerClassType, field.info.name, field.info.type),
 					field.initializer != null ? ldc(field.initializer) : load(field.name(), field.info.type)
 				)
-				.emitBytecode(someArgsConstructor);
+					.emitBytecode(someArgsConstructor);
 			}
 			return_(noop).emitBytecode(someArgsConstructor);
 			someArgsConstructor.endCode();
@@ -199,12 +199,12 @@ public class UserClassDefiner {
 					constant(pattern.toString())
 				},
 				fields
-				.stream()
-				.map((FieldCompileContext field) -> getField(load(self), field.info))
-				.toArray(InsnTree.ARRAY_FACTORY)
+					.stream()
+					.map((FieldCompileContext field) -> getField(load(self), field.info))
+					.toArray(InsnTree.ARRAY_FACTORY)
 			)
 		)
-		.emitBytecode(toString);
+			.emitBytecode(toString);
 		toString.endCode();
 	}
 
@@ -221,7 +221,7 @@ public class UserClassDefiner {
 					getField(load(self), fields.get(0).info)
 				)
 			)
-			.emitBytecode(hashCode);
+				.emitBytecode(hashCode);
 			for (int index = 1, size = fields.size(); index < size; index++) {
 				invokeStatic(
 					HASH_MIX,
@@ -233,7 +233,7 @@ public class UserClassDefiner {
 						)
 					)
 				)
-				.emitBytecode(hashCode);
+					.emitBytecode(hashCode);
 			}
 			return_(getFromStack(TypeInfos.INT)).emitBytecode(hashCode);
 		}
@@ -253,7 +253,7 @@ public class UserClassDefiner {
 				not(condition(this.parser, instanceOf(load(object), this.innerClassType))),
 				return_(ldc(false))
 			)
-			.emitBytecode(equals);
+				.emitBytecode(equals);
 			store(that, load(object).cast(this.parser, this.innerClassType, CastMode.EXPLICIT_THROW, false)).emitBytecode(equals);
 			for (FieldCompileContext field : fields) {
 				ifThen(
@@ -269,7 +269,7 @@ public class UserClassDefiner {
 					),
 					return_(ldc(false))
 				)
-				.emitBytecode(equals);
+					.emitBytecode(equals);
 			}
 			return_(ldc(true)).emitBytecode(equals);
 		}
@@ -279,20 +279,6 @@ public class UserClassDefiner {
 	public void exposeToScript(List<FieldCompileContext> fields, List<FieldCompileContext> nonDefaulted) {
 		this.parser.environment.user().types.put(this.className, this.innerClassType);
 		this
-		.parser
-		.environment
-		.user()
-		.addConstructor(
-			this.innerClassType,
-			new MethodInfo(
-				ACC_PUBLIC,
-				this.innerClassType,
-				"<init>",
-				TypeInfos.VOID
-			)
-		);
-		if (!fields.isEmpty()) {
-			this
 			.parser
 			.environment
 			.user()
@@ -302,15 +288,11 @@ public class UserClassDefiner {
 					ACC_PUBLIC,
 					this.innerClassType,
 					"<init>",
-					TypeInfos.VOID,
-					fields
-					.stream()
-					.map((FieldCompileContext field) -> field.info.type)
-					.toArray(TypeInfo.ARRAY_FACTORY)
+					TypeInfos.VOID
 				)
 			);
-			if (nonDefaulted.size() != fields.size()) {
-				this
+		if (!fields.isEmpty()) {
+			this
 				.parser
 				.environment
 				.user()
@@ -321,12 +303,30 @@ public class UserClassDefiner {
 						this.innerClassType,
 						"<init>",
 						TypeInfos.VOID,
-						nonDefaulted
-						.stream()
-						.map((FieldCompileContext field) -> field.info.type)
-						.toArray(TypeInfo.ARRAY_FACTORY)
+						fields
+							.stream()
+							.map((FieldCompileContext field) -> field.info.type)
+							.toArray(TypeInfo.ARRAY_FACTORY)
 					)
 				);
+			if (nonDefaulted.size() != fields.size()) {
+				this
+					.parser
+					.environment
+					.user()
+					.addConstructor(
+						this.innerClassType,
+						new MethodInfo(
+							ACC_PUBLIC,
+							this.innerClassType,
+							"<init>",
+							TypeInfos.VOID,
+							nonDefaulted
+								.stream()
+								.map((FieldCompileContext field) -> field.info.type)
+								.toArray(TypeInfo.ARRAY_FACTORY)
+						)
+					);
 			}
 		}
 		fields.stream().map((FieldCompileContext field) -> field.info).forEach(this.parser.environment.user()::addFieldGetterAndSetter);

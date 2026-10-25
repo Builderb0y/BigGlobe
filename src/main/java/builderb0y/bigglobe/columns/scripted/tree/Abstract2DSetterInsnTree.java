@@ -38,8 +38,8 @@ public abstract class Abstract2DSetterInsnTree extends AbstractUpdaterInsnTree {
 				this.emitGet(method); //column oldValue
 				method.node.visitInsn(
 					this.getter.returnType.isDoubleWidth()
-					? DUP2_X1
-					: DUP_X1
+						? DUP2_X1
+						: DUP_X1
 				); //oldValue column oldValue
 				this.updater.emitBytecode(method); //oldValue column newValue
 				this.emitSet(method); //oldValue
@@ -50,8 +50,8 @@ public abstract class Abstract2DSetterInsnTree extends AbstractUpdaterInsnTree {
 				this.updater.emitBytecode(method); //column newValue
 				method.node.visitInsn(
 					this.getter.returnType.isDoubleWidth()
-					? DUP2_X1
-					: DUP_X1
+						? DUP2_X1
+						: DUP_X1
 				); //newValue column newValue
 				this.emitSet(method); //newValue
 			}
@@ -78,8 +78,8 @@ public abstract class Abstract2DSetterInsnTree extends AbstractUpdaterInsnTree {
 				this.updater.emitBytecode(method); //column newValue
 				method.node.visitInsn(
 					this.getter.returnType.isDoubleWidth()
-					? DUP2_X1
-					: DUP_X1
+						? DUP2_X1
+						: DUP_X1
 				); //newValue column newValue
 				this.emitSet(method); //newValue
 			}

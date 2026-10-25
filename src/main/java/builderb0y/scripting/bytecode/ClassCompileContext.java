@@ -2,7 +2,10 @@ package builderb0y.scripting.bytecode;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -151,7 +154,7 @@ public class ClassCompileContext {
 				new MethodInfo(ACC_PUBLIC, this.info.superClass, "<init>", TypeInfos.VOID)
 			)
 		)
-		.emitBytecode(constructor);
+			.emitBytecode(constructor);
 		constructor.endCode();
 	}
 

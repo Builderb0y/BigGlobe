@@ -18,15 +18,15 @@ effectively, in this case the jump is replaced with {@link Opcodes#POP}
 or {@link Opcodes#POP2}, depending on how many operands are on the stack.
 
 example code to generate a GOTO for the next instruction: {@code
-	block (
-		break()
-	)
+block (
+break()
+)
 }
 example code to generate an IF_ICMPEQ for the next instruction: {@code
-	block (
-		int a = int b := 1
-		if (a == b: break())
-	)
+block (
+int a = int b := 1
+if (a == b: break())
+)
 }
 */
 public class JumpToNextInstructionOptimizer implements MethodOptimizer {
@@ -36,7 +36,7 @@ public class JumpToNextInstructionOptimizer implements MethodOptimizer {
 	@Override
 	public boolean optimize(MethodNode method) {
 		boolean changedAny = false;
-		for (AbstractInsnNode instruction = method.instructions.getFirst(); instruction != null;) {
+		for (AbstractInsnNode instruction = method.instructions.getFirst(); instruction != null; ) {
 			AbstractInsnNode next = instruction.getNext();
 			if (instruction instanceof JumpInsnNode jump) {
 				if (isJumpToNextInstruction(jump)) {

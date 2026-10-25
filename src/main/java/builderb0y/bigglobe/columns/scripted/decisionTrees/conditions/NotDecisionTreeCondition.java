@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -24,12 +21,12 @@ public class NotDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return this.condition.streamDirectDependencies();
 	}
 
 	@Override
-	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+	public ConditionTree createCondition(Holder<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
 		return not(this.condition.createCondition(selfEntry, selfSeed, context, loadY));
 	}
 }

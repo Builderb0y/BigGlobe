@@ -54,7 +54,7 @@ public class ElvisGetInsnTree implements InsnTree {
 	) {
 
 		public static final BytecodeEmitter
-			POP  = (MethodCompileContext method) -> method.node.visitInsn(Opcodes.POP);
+			POP = (MethodCompileContext method) -> method.node.visitInsn(Opcodes.POP);
 
 		public static ElvisEmitters forField(
 			InsnTree object,
@@ -63,8 +63,8 @@ public class ElvisGetInsnTree implements InsnTree {
 		) {
 			TypeInfo commonType = (
 				alternative.jumpsUnconditionally()
-				? field.type
-				: TypeMerger.computeMostSpecificType(
+					? field.type
+					: TypeMerger.computeMostSpecificType(
 					field.type,
 					alternative.getTypeInfo()
 				)
@@ -86,8 +86,8 @@ public class ElvisGetInsnTree implements InsnTree {
 		) {
 			TypeInfo commonType = (
 				alternative.jumpsUnconditionally()
-				? getter.returnType
-				: TypeMerger.computeMostSpecificType(
+					? getter.returnType
+					: TypeMerger.computeMostSpecificType(
 					getter.returnType,
 					alternative.getTypeInfo()
 				)
@@ -108,8 +108,8 @@ public class ElvisGetInsnTree implements InsnTree {
 		) {
 			TypeInfo commonType = (
 				alternative.jumpsUnconditionally()
-				? method.getTypeInfo()
-				: TypeMerger.computeMostSpecificType(
+					? method.getTypeInfo()
+					: TypeMerger.computeMostSpecificType(
 					method.getTypeInfo(),
 					alternative.getTypeInfo()
 				)

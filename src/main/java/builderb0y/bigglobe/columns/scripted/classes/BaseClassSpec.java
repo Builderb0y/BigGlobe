@@ -5,16 +5,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -30,7 +27,10 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableD
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.ClassCompileContext;
+import builderb0y.scripting.bytecode.FieldCompileContext;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.update.AbstractObjectUpdaterInsnTree.ObjectUpdaterEmitters;
@@ -47,8 +47,10 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public abstract class BaseClassSpec extends TypeSpec {
 
 	public final @IdentifierName String name;
-	public final @UseName("abstract") @DefaultBoolean(false) boolean isAbstract;
-	public final @UseName("extends") @VerifyNullable RegistryEntry<ElementSpec> parent;
+	public final @UseName("abstract")
+	@DefaultBoolean(false) boolean isAbstract;
+	public final @UseName("extends")
+	@VerifyNullable Holder<ElementSpec> parent;
 	public final DelayedEntryList<ElementSpec> members;
 	public transient TypeInfo typeInfo;
 	public transient ClassCompileContext classCompileContext;
@@ -60,7 +62,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 	public BaseClassSpec(
 		@IdentifierName String name,
 		boolean isAbstract,
-		@Nullable RegistryEntry<ElementSpec> parent,
+		@Nullable Holder<ElementSpec> parent,
 		DelayedEntryList<ElementSpec> members
 	) {
 		this.name = name;
@@ -68,15 +70,18 @@ public abstract class BaseClassSpec extends TypeSpec {
 		this.parent = parent;
 		this.members = members;
 		this.memberCompileContexts = new Reference2ReferenceOpenHashMap<>();
-		Set<RegistryEntry<? extends DependencyView>> primaryConstructorDependencies = new HashSet<>();
+		Set<Holder<? extends DependencyView>> primaryConstructorDependencies = new HashSet<>();
 		this.primaryConstructorDependencies = (SetBasedMutableDependencyView)(() -> primaryConstructorDependencies);
 	}
 
-	public void checkField(ClassHierarchy hierarchy, FieldSpec spec) throws CustomClassFormatException {}
+	public void checkField(ClassHierarchy hierarchy, FieldSpec spec) throws CustomClassFormatException {
+	}
 
-	public void checkProperty(ClassHierarchy hierarchy, BasePropertySpec spec) throws CustomClassFormatException {}
+	public void checkProperty(ClassHierarchy hierarchy, BasePropertySpec spec) throws CustomClassFormatException {
+	}
 
-	public void checkMethod(ClassHierarchy hierarchy, BaseMethodSpec spec) throws CustomClassFormatException {}
+	public void checkMethod(ClassHierarchy hierarchy, BaseMethodSpec spec) throws CustomClassFormatException {
+	}
 
 	public void checkConstructor(ClassHierarchy hierarchy, ConstructorSpec spec) throws CustomClassFormatException {
 		if (this.isAbstract) {
@@ -116,7 +121,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 						)
 					)
 				)
-				.emitBytecode(this.primaryConstructor);
+					.emitBytecode(this.primaryConstructor);
 			}
 		}
 	}
@@ -205,8 +210,8 @@ public abstract class BaseClassSpec extends TypeSpec {
 	}
 
 	@Override
-	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<RegistryEntry<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
-		RegistryEntry<ElementSpec> entry = hierarchy.entryOf(this);
+	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
+		Holder<ElementSpec> entry = hierarchy.entryOf(this);
 		if (cyclicDetector.add(entry)) try {
 			TypeInfo superClass;
 			if (this.parent != null) {
@@ -233,7 +238,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 			cyclicDetector.remove(entry);
 		}
 		else {
-			throw new CustomClassFormatException("Cyclic inheritance chain: " + cyclicDetector.stream().dropWhile((RegistryEntry<ElementSpec> e) -> e != entry).map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(" -> ")) + " -> " + UnregisteredObjectException.getID(entry));
+			throw new CustomClassFormatException("Cyclic inheritance chain: " + cyclicDetector.stream().dropWhile((Holder<ElementSpec> e) -> e != entry).map(UnregisteredObjectException::getID).map(ResourceLocation::toString).collect(Collectors.joining(" -> ")) + " -> " + UnregisteredObjectException.getID(entry));
 		}
 	}
 
@@ -242,7 +247,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 		if (this.parent != null && asType(this.parent).isFinal()) {
 			throw new CustomClassFormatException("Class " + hierarchy.idOf(this) + " cannot extend " + UnregisteredObjectException.getID(this.parent));
 		}
-		for (RegistryEntry<ElementSpec> element : this.members.entryList()) {
+		for (Holder<ElementSpec> element : this.members.entryList()) {
 			MemberSpec member = asMember(element);
 			member.verify(hierarchy, this);
 			member.track(this.overrideTracker);
@@ -252,7 +257,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 			BigGlobeMod.LOGGER.warn("Custom class " + hierarchy.idOf(this) + " is marked as abstract, but has no abstract methods. This may be a mistake.");
 		}
 		else if (!this.isAbstract && isAbstract) {
-			throw new CustomClassFormatException("Custom class " + hierarchy.idOf(this) + " is not marked as abstract, but contains or inherits abstract members: " + this.overrideTracker.getAbstractMembers().map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(", ", "[", "]")));
+			throw new CustomClassFormatException("Custom class " + hierarchy.idOf(this) + " is not marked as abstract, but contains or inherits abstract members: " + this.overrideTracker.getAbstractMembers().map(UnregisteredObjectException::getID).map(ResourceLocation::toString).collect(Collectors.joining(", ", "[", "]")));
 		}
 	}
 
@@ -266,14 +271,14 @@ public abstract class BaseClassSpec extends TypeSpec {
 
 	@Override
 	public void createMembers(ClassHierarchy hierarchy) {
-		for (RegistryEntry<ElementSpec> member : this.members.entryList()) {
+		for (Holder<ElementSpec> member : this.members.entryList()) {
 			asMember(member).create(hierarchy, this);
 		}
 	}
 
 	@Override
 	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {
-		for (RegistryEntry<ElementSpec> member : this.members.entryList()) {
+		for (Holder<ElementSpec> member : this.members.entryList()) {
 			asMember(member).compile(hierarchy, this);
 		}
 	}
@@ -286,7 +291,7 @@ public abstract class BaseClassSpec extends TypeSpec {
 	@Override
 	public void setupEnvironment(MutableScriptEnvironment environment, @Nullable InsnTree loadCustomClass) {
 		super.setupEnvironment(environment, loadCustomClass);
-		for (RegistryEntry<ElementSpec> member : this.members.entryList()) {
+		for (Holder<ElementSpec> member : this.members.entryList()) {
 			asMember(member).setupEnvironment(environment, this, loadCustomClass);
 		}
 	}

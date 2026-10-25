@@ -2,11 +2,8 @@ package builderb0y.bigglobe.columns.scripted.decisionTrees.results;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
@@ -25,7 +22,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ScriptedDecitionTreeResult implements DecisionTreeResult, SetBasedMutableDependencyView {
 
 	public final ScriptUsage script;
-	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public ScriptedDecitionTreeResult(ScriptUsage script) {
 		this.script = script;
@@ -33,12 +30,12 @@ public class ScriptedDecitionTreeResult implements DecisionTreeResult, SetBasedM
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return this.dependencies;
 	}
 
 	@Override
-	public InsnTree createResult(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, AccessSchema accessSchema, @Nullable InsnTree loadY) throws ScriptParsingException {
+	public InsnTree createResult(Holder<DecisionTreeSettings> selfEntry, DataCompileContext context, AccessSchema accessSchema, @Nullable InsnTree loadY) throws ScriptParsingException {
 		MethodCompileContext decisionTreeMethod = context.mainClass.newMethod(
 			ACC_PUBLIC,
 			"decision_tree_result_" + DataCompileContext.internalName(UnregisteredObjectException.getID(selfEntry), context.mainClass.memberUniquifier++),

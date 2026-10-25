@@ -13,6 +13,7 @@ public class TracyWrapper {
 
 	public static final boolean ENABLED;
 	public static final DecimalFormat FORMAT;
+
 	static {
 		boolean tracy = Boolean.getBoolean(BigGlobeMod.MODID + ".tracy");
 		/*

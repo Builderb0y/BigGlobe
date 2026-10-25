@@ -39,16 +39,16 @@ public record AccessSchema(ColumnValueType type, boolean is_3d) {
 	public LazyVarInfo[] getterParameters() {
 		return (
 			this.is_3d
-			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) }
-			: LazyVarInfo.ARRAY_FACTORY.empty()
+				? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT) }
+				: LazyVarInfo.ARRAY_FACTORY.empty()
 		);
 	}
 
 	public LazyVarInfo[] setterParameters(DataCompileContext context) {
 		return (
 			this.is_3d
-			? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.root().getAccessContext(this).exposedType()) }
-			: new LazyVarInfo[] { new LazyVarInfo("value", context.root().getAccessContext(this).exposedType()) }
+				? new LazyVarInfo[] { new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", context.root().getAccessContext(this).exposedType()) }
+				: new LazyVarInfo[] { new LazyVarInfo("value", context.root().getAccessContext(this).exposedType()) }
 		);
 	}
 
@@ -59,8 +59,8 @@ public record AccessSchema(ColumnValueType type, boolean is_3d) {
 			name,
 			context.root().getAccessContext(this).exposedType(),
 			this.is_3d
-			? new TypeInfo[] { TypeInfos.INT }
-			: TypeInfo.ARRAY_FACTORY.empty()
+				? new TypeInfo[] { TypeInfos.INT }
+				: TypeInfo.ARRAY_FACTORY.empty()
 		);
 	}
 
@@ -71,8 +71,8 @@ public record AccessSchema(ColumnValueType type, boolean is_3d) {
 			name,
 			TypeInfos.VOID,
 			this.is_3d
-			? new TypeInfo[] { TypeInfos.INT, context.root().getAccessContext(this).exposedType() }
-			: new TypeInfo[] { context.root().getAccessContext(this).exposedType() }
+				? new TypeInfo[] { TypeInfos.INT, context.root().getAccessContext(this).exposedType() }
+				: new TypeInfo[] { context.root().getAccessContext(this).exposedType() }
 		);
 	}
 

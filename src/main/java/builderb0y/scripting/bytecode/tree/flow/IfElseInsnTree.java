@@ -24,9 +24,9 @@ public class IfElseInsnTree implements InsnTree {
 		TypeInfo type
 	) {
 		this.condition = condition;
-		this.trueBody  = trueBody;
+		this.trueBody = trueBody;
 		this.falseBody = falseBody;
-		this.type      = type;
+		this.type = type;
 	}
 
 	public static InsnTree create(ExpressionParser parser, ConditionTree condition, InsnTree trueBody, InsnTree falseBody) throws ScriptParsingException {

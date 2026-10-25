@@ -11,13 +11,11 @@ import java.util.function.Consumer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagGroupLoader.TrackedEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.tags.TagLoader.EntryWithSource;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -67,17 +65,17 @@ public class ColumnEntryRegistry {
 	public final transient LinkedBlockingQueue<ScriptedColumn[]> chunkReuseColumns;
 
 	public ColumnEntryRegistry(BetterRegistry.Lookup registries, boolean client) throws ScriptParsingException {
-		this.client         = client;
-		this.registries     = registries;
-		this.columnContext  = new ColumnCompileContext(this);
+		this.client = client;
+		this.registries = registries;
+		this.columnContext = new ColumnCompileContext(this);
 		//this.classHierarchy = new ClassHierarchy(this);
 		this.voronoiManager = new VoronoiManager(this);
-		this.traitManager   = new TraitManager(this);
+		this.traitManager = new TraitManager(this);
 
 		BetterRegistry<ColumnEntry> entries = registries.getRegistry(BigGlobeDynamicRegistries.COLUMN_ENTRY_REGISTRY_KEY);
-		Map<RegistryEntry<ColumnEntry>, Exception> exceptions = new HashMap<>(0);
+		Map<Holder<ColumnEntry>, Exception> exceptions = new HashMap<>(0);
 
-		entries.streamEntries().forEach((RegistryEntry<ColumnEntry> entry) -> {
+		entries.streamEntries().forEach((Holder<ColumnEntry> entry) -> {
 			try {
 				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
 					context.getMemories().put(
@@ -93,38 +91,38 @@ public class ColumnEntryRegistry {
 		checkExceptions(exceptions);
 
 		entries
-		.streamEntries()
-		.sorted(Comparator.comparing((RegistryEntry<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
-		.forEach((RegistryEntry<ColumnEntry> entry) -> {
-			try {
-				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-					entry.value().emitFieldGetterAndSetter(context.getMemories().get(entry.value()), context);
-				});
-			}
-			catch (Exception exception) {
-				exceptions.put(entry, exception);
-			}
-		});
+			.streamEntries()
+			.sorted(Comparator.comparing((Holder<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
+			.forEach((Holder<ColumnEntry> entry) -> {
+				try {
+					this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+						entry.value().emitFieldGetterAndSetter(context.getMemories().get(entry.value()), context);
+					});
+				}
+				catch (Exception exception) {
+					exceptions.put(entry, exception);
+				}
+			});
 		checkExceptions(exceptions);
 
 		entries
-		.streamEntries()
-		.sorted(Comparator.comparing((RegistryEntry<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
-		.forEach((RegistryEntry<ColumnEntry> entry) -> {
-			try {
-				this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
-					try {
-						entry.value().emitComputer(context.getMemories().get(entry.value()), context);
-					}
-					catch (ScriptParsingException exception) {
-						throw AutoCodecUtil.rethrow(exception);
-					}
-				});
-			}
-			catch (Exception exception) {
-				exceptions.put(entry, exception);
-			}
-		});
+			.streamEntries()
+			.sorted(Comparator.comparing((Holder<ColumnEntry> entry) -> entry.value() instanceof VoronoiColumnEntry)) //voronoi last.
+			.forEach((Holder<ColumnEntry> entry) -> {
+				try {
+					this.voronoiManager.getValidOn(entry.value()).forEach((DataCompileContext context) -> {
+						try {
+							entry.value().emitComputer(context.getMemories().get(entry.value()), context);
+						}
+						catch (ScriptParsingException exception) {
+							throw AutoCodecUtil.rethrow(exception);
+						}
+					});
+				}
+				catch (Exception exception) {
+					exceptions.put(entry, exception);
+				}
+			});
 		checkExceptions(exceptions);
 
 		this.columnContext.prepareForCompile();
@@ -134,18 +132,18 @@ public class ColumnEntryRegistry {
 			this.columnLookup = (MethodHandles.Lookup)(this.columnClass.getDeclaredMethod("lookup").invoke(null, (Object[])(null)));
 			this.columnFactory = (ScriptedColumn.Factory)(
 				LambdaMetafactory.metafactory(
-					this.columnLookup,
-					"create",
-					MethodType.methodType(ScriptedColumn.Factory.class),
-					MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
+						this.columnLookup,
+						"create",
+						MethodType.methodType(ScriptedColumn.Factory.class),
+						MethodType.methodType(ScriptedColumn.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses),
 						this.columnLookup.findConstructor(
-						this.columnClass,
-						MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
-					),
-					MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
-				)
-				.getTarget()
-				.invokeExact()
+							this.columnClass,
+							MethodType.methodType(void.class, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
+						),
+						MethodType.methodType(this.columnClass, ScriptedColumn.CONSTRUCTOR_INFO.parameterClasses)
+					)
+					.getTarget()
+					.invokeExact()
 			);
 		}
 		catch (Throwable throwable) {
@@ -164,11 +162,11 @@ public class ColumnEntryRegistry {
 		}
 	}
 
-	public static void checkExceptions(Map<RegistryEntry<ColumnEntry>, Exception> exceptions) {
+	public static void checkExceptions(Map<Holder<ColumnEntry>, Exception> exceptions) {
 		if (!exceptions.isEmpty()) {
 			RuntimeException exception = new RuntimeException("Exception compiling column entries; see below.");
-			for (Map.Entry<RegistryEntry<ColumnEntry>, Exception> entry : exceptions.entrySet()) {
-				exception.addSuppressed(new RuntimeException("Exception compiling " + entry.getKey().getKey().map(RegistryKey::getValue).map(Identifier::toString).orElse("<unknown>"), entry.getValue()));
+			for (Map.Entry<Holder<ColumnEntry>, Exception> entry : exceptions.entrySet()) {
+				exception.addSuppressed(new RuntimeException("Exception compiling " + entry.getKey().unwrapKey().map(ResourceKey::location).map(ResourceLocation::toString).orElse("<unknown>"), entry.getValue()));
 			}
 			throw exception;
 		}
@@ -182,7 +180,7 @@ public class ColumnEntryRegistry {
 		return this.client ? AbstractConstantFactory.CLIENT : 0;
 	}
 
-	public ColumnEntryMemory createColumnEntryMemory(RegistryEntry<ColumnEntry> entry) {
+	public ColumnEntryMemory createColumnEntryMemory(Holder<ColumnEntry> entry) {
 		ColumnEntryMemory memory = new ColumnEntryMemory(entry);
 		AccessSchema accessSchema = entry.value().getAccessSchema();
 		memory.putTyped(ColumnEntryMemory.TYPE_CONTEXT, this.columnContext.getTypeContext(accessSchema.type()));
@@ -190,7 +188,7 @@ public class ColumnEntryRegistry {
 		return memory;
 	}
 
-	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, @Nullable InsnTree loadY, MutableDependencyView dependencies, @Nullable Identifier caller) {
+	public void setupInternalEnvironment(MutableScriptEnvironment environment, DataCompileContext context, @Nullable InsnTree loadY, MutableDependencyView dependencies, @Nullable ResourceLocation caller) {
 		VoronoiDataBase.INFO.addAll(environment, null);
 		this.traitManager.setupInternalEnvironment(environment, context.loadColumn(), loadY, dependencies);
 		for (ColumnEntryMemory memory : context.getMemories().values()) {
@@ -224,9 +222,13 @@ public class ColumnEntryRegistry {
 	public static class Loading {
 
 		public static final boolean SKIP_STACK_TRACES = Boolean.getBoolean("bigglobe.I_understand_that_disabling_column_entry_registry_loading_stack_traces_means_that_I_am_not_allowed_to_report_bugs");
-		/** the Loading instance used on the server thread when loading the world. */
+		/**
+		the Loading instance used on the server thread when loading the world.
+		*/
 		public static Loading LOADING;
-		/** the Loading instance used on the client thread during synchronization of {@link ClientGeneratorParams}. */
+		/**
+		the Loading instance used on the client thread during synchronization of {@link ClientGeneratorParams}.
+		*/
 		public static final ScopeLocal<Loading> OVERRIDE = new ScopeLocal<>();
 
 		static {
@@ -244,7 +246,7 @@ public class ColumnEntryRegistry {
 
 		//these have to be static because tags are actually loaded before registry entries, for some reason.
 		public static InvalidTagHandling invalidTagHandling;
-		public static Map<Identifier, List<TrackedEntry>> invalidTags;
+		public static Map<ResourceLocation, List<EntryWithSource>> invalidTags;
 
 		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client) {
 			this.client = client;
@@ -310,20 +312,22 @@ public class ColumnEntryRegistry {
 			return this.columnEntryRegistry;
 		}
 
-		public static boolean addInvalidTag(Identifier identifier, List<TrackedEntry> entries) {
+		public static boolean addInvalidTag(ResourceLocation ResourceLocation, List<EntryWithSource> entries) {
 			return switch (invalidTagHandling) {
 				case VANILLA -> false;
 				case FORCE_LOAD -> {
-					BigGlobeMod.LOGGER.warn("Tag " + Objects.toString(identifier, "<unknown>") + " contains invalid entries: " + entries + "; forcing it to load anyway.");
+					BigGlobeMod.LOGGER.warn("Tag " + Objects.toString(ResourceLocation, "<unknown>") + " contains invalid entries: " + entries + "; forcing it to load anyway.");
 					yield true;
 				}
 				case FORCE_ABORT -> {
-					invalidTags.merge(identifier, new ArrayList<>(entries), (List<TrackedEntry> list1, List<TrackedEntry> list2) -> {
-						ArrayList<TrackedEntry> result = new ArrayList<>(list1.size() + list2.size());
-						result.addAll(list1);
-						result.addAll(list2);
-						return result;
-					});
+					invalidTags.merge(
+						ResourceLocation, new ArrayList<>(entries), (List<EntryWithSource> list1, List<EntryWithSource> list2) -> {
+							ArrayList<EntryWithSource> result = new ArrayList<>(list1.size() + list2.size());
+							result.addAll(list1);
+							result.addAll(list2);
+							return result;
+						}
+					);
 					yield true;
 				}
 			};
@@ -345,13 +349,17 @@ public class ColumnEntryRegistry {
 			}
 			if (!this.compileables.isEmpty()) {
 				MutableObject<RuntimeException> mainException = new MutableObject<>(null);
-				try (AsyncConsumer<Exception> async = new AsyncConsumer<>(BigGlobeThreadPool.mainExecutor(), (Exception exception) -> {
-					if (exception != null) {
-						RuntimeException main = mainException.getValue();
-						if (main == null) mainException.setValue(main = new RuntimeException("Some registry objects failed to compile, see below:"));
-						main.addSuppressed(exception);
+				try (
+					AsyncConsumer<Exception> async = new AsyncConsumer<>(
+						BigGlobeThreadPool.mainExecutor(), (Exception exception) -> {
+						if (exception != null) {
+							RuntimeException main = mainException.getValue();
+							if (main == null) mainException.setValue(main = new RuntimeException("Some registry objects failed to compile, see below:"));
+							main.addSuppressed(exception);
+						}
 					}
-				})) {
+					)
+				) {
 					for (DelayedCompileable compileable : this.compileables) {
 						async.submit(() -> {
 							try {
@@ -364,20 +372,20 @@ public class ColumnEntryRegistry {
 						});
 					}
 					if (!this.client) {
-						Consumer<RegistryEntry<Overrider>> action = (
+						Consumer<Holder<Overrider>> action = (
 							BigGlobeConfig.INSTANCE.get().dataPackDebugging.rejectUnusedOverriders
-							? (RegistryEntry<Overrider> entry) -> async.submit(() -> new RuntimeException(_unusedMessage(entry)))
-							: (RegistryEntry<Overrider> entry) -> BigGlobeMod.LOGGER.warn(_unusedMessage(entry))
+								? (Holder<Overrider> entry) -> async.submit(() -> new RuntimeException(_unusedMessage(entry)))
+								: (Holder<Overrider> entry) -> BigGlobeMod.LOGGER.warn(_unusedMessage(entry))
 						);
 						this
-						.columnEntryRegistry
-						.registries
-						.getRegistry(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
-						.streamEntries()
-						.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
-						.forEach(action);
+							.columnEntryRegistry
+							.registries
+							.getRegistry(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
+							.streamEntries()
+							.filter((Holder<Overrider> entry) -> entry.tags().findAny().isEmpty())
+							.forEach(action);
 						if (invalidTagHandling == InvalidTagHandling.FORCE_ABORT) {
-							for (Map.Entry<Identifier, List<TrackedEntry>> invalidTag : invalidTags.entrySet()) {
+							for (Map.Entry<ResourceLocation, List<EntryWithSource>> invalidTag : invalidTags.entrySet()) {
 								async.submit(() -> new RuntimeException("Tag " + Objects.toString(invalidTag.getKey(), "<unknown>") + " contains invalid entries: " + invalidTag.getValue()));
 							}
 						}
@@ -390,14 +398,16 @@ public class ColumnEntryRegistry {
 		}
 	}
 
-	public static String _unusedMessage(RegistryEntry<Overrider> entry) {
+	public static String _unusedMessage(Holder<Overrider> entry) {
 		return UnregisteredObjectException.getKey(entry) + " is not in any tags. It will not be able to function unless you add it to a tag which the chunk generator uses.";
 	}
 
 	@UseVerifier(name = "postConstruct", in = DelayedCompileable.class, usage = MemberUsage.METHOD_IS_HANDLER, strict = false)
 	public static interface DelayedCompileable {
 
-		/** called when the {@link ColumnEntryRegistry} is constructed. */
+		/**
+		called when the {@link ColumnEntryRegistry} is constructed.
+		*/
 		public abstract void compile(ColumnEntryRegistry registry) throws ScriptParsingException;
 
 		public default void delay() {

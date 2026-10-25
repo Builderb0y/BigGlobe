@@ -2,12 +2,8 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -33,24 +29,24 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class NormalPropertySpec extends BasePropertySpec {
 
 	public final @IdentifierName String name;
-	public final RegistryEntry<ElementSpec> property_type;
+	public final Holder<ElementSpec> property_type;
 	public final @DefaultBoolean(false) boolean is_3d;
 	public final ScriptUsage get;
 	public final @VerifyNullable ScriptUsage set;
-	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public NormalPropertySpec(
 		@IdentifierName String name,
-		RegistryEntry<ElementSpec> property_type,
+		Holder<ElementSpec> property_type,
 		boolean is_3d,
 		ScriptUsage get,
 		@VerifyNullable ScriptUsage set
 	) {
-		this.name          = name;
+		this.name = name;
 		this.property_type = property_type;
-		this.is_3d         = is_3d;
-		this.get           = get;
-		this.set           = set;
+		this.is_3d = is_3d;
+		this.get = get;
+		this.set = set;
 	}
 
 	@Override
@@ -122,13 +118,17 @@ public class NormalPropertySpec extends BasePropertySpec {
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
 		PropertyCompileContext propertyContext = owner.getCompileContext(this);
 		InsnTree loadY = this.is_3d ? load("y", TypeInfos.INT) : null;
-		compile(hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
-			if (this.is_3d) environment.addVariableLoad("y", TypeInfos.INT);
-		});
-		if (this.set != null) compile(hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
-			if (this.is_3d) environment.addVariableLoad("y", TypeInfos.INT);
-			environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
-		});
+		compile(
+			hierarchy, owner, propertyContext.get, this.get, loadY, this, (MutableScriptEnvironment environment) -> {
+				if (this.is_3d) environment.addVariableLoad("y", TypeInfos.INT);
+			}
+		);
+		if (this.set != null) compile(
+			hierarchy, owner, propertyContext.set, this.set, loadY, this, (MutableScriptEnvironment environment) -> {
+				if (this.is_3d) environment.addVariableLoad("y", TypeInfos.INT);
+				environment.addVariableLoad("value", asType(this.getPropertyType()).getTypeInfo());
+			}
+		);
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class NormalPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public RegistryEntry<ElementSpec> getPropertyType() {
+	public Holder<ElementSpec> getPropertyType() {
 		return this.property_type;
 	}
 
@@ -157,7 +157,7 @@ public class NormalPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return this.dependencies;
 	}
 }

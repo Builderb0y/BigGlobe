@@ -5,13 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.Holder;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
@@ -27,12 +24,12 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 
 	public static final Strategy<BaseMethodSpec>
 		DESC_STRATEGY = HashStrategies.allOf(
-			NAME_STRATEGY,
-			HashStrategies.map(
-				HashStrategies.orderedArrayStrategy(ParameterSpec.TYPE_STRATEGY),
-				BaseMethodSpec::getParameters
-			)
-		);
+		NAME_STRATEGY,
+		HashStrategies.map(
+			HashStrategies.orderedArrayStrategy(ParameterSpec.TYPE_STRATEGY),
+			BaseMethodSpec::getParameters
+		)
+	);
 
 	public transient MethodSpecDesc desc;
 
@@ -43,7 +40,7 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 		return this.desc;
 	}
 
-	public abstract RegistryEntry<ElementSpec> getReturnType();
+	public abstract Holder<ElementSpec> getReturnType();
 
 	public abstract ParameterSpec[] getParameters();
 
@@ -71,12 +68,12 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 				this.name(),
 				asType(this.getReturnType()).getTypeInfo(),
 				Arrays
-				.stream(this.getParameters())
-				.map((ParameterSpec parameter) -> new LazyVarInfo(
-					parameter.name,
-					asType(parameter.type).getTypeInfo()
-				))
-				.toArray(LazyVarInfo.ARRAY_FACTORY)
+					.stream(this.getParameters())
+					.map((ParameterSpec parameter) -> new LazyVarInfo(
+						parameter.name,
+						asType(parameter.type).getTypeInfo()
+					))
+					.toArray(LazyVarInfo.ARRAY_FACTORY)
 			)
 		);
 	}
@@ -98,9 +95,9 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 			FULL_STRATEGY = HashStrategies.allOf(NAME_STRATEGY, TYPE_STRATEGY);
 
 		public final @IdentifierName String name;
-		public final RegistryEntry<ElementSpec> type;
+		public final Holder<ElementSpec> type;
 
-		public ParameterSpec(String name, RegistryEntry<ElementSpec> type) {
+		public ParameterSpec(String name, Holder<ElementSpec> type) {
 			this.name = name;
 			this.type = type;
 		}
@@ -111,7 +108,7 @@ public abstract class BaseMethodSpec extends MemberSpec implements SetBasedMutab
 			}
 		}
 
-		public RegistryEntry<ElementSpec> type() {
+		public Holder<ElementSpec> type() {
 			return this.type;
 		}
 

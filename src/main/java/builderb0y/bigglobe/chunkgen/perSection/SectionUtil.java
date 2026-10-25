@@ -1,10 +1,9 @@
 package builderb0y.bigglobe.chunkgen.perSection;
 
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.world.chunk.Palette;
-import net.minecraft.world.chunk.PalettedContainer;
-
 import builderb0y.bigglobe.mixins.PalettedContainer_DataAccess;
+import net.minecraft.util.BitStorage;
+import net.minecraft.world.level.chunk.Palette;
+import net.minecraft.world.level.chunk.PalettedContainer;
 
 @SuppressWarnings("CastToIncompatibleInterface")
 public class SectionUtil {
@@ -15,10 +14,10 @@ public class SectionUtil {
 	}
 
 	public static <T> int id(PalettedContainer<T> container, T state) {
-		return data(container).palette().index(state #if MC_VERSION >= MC_1_21_9 , container #endif);
+		return data(container).palette().idFor(state);
 	}
 
-	public static <T> PaletteStorage storage(PalettedContainer<T> container) {
+	public static <T> BitStorage storage(PalettedContainer<T> container) {
 		return data(container).storage();
 	}
 

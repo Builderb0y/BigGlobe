@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.compat.voxy;
 
-import java.io.*;
+import java.io.IOException;
 
 import builderb0y.bigglobe.compat.voxy.DistanceGraph.LeafNode;
 import builderb0y.bigglobe.compat.voxy.DistanceGraph.PartialNode;

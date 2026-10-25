@@ -1,15 +1,11 @@
 package builderb0y.bigglobe.trees.decoration;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList.KnownTotalWeightRandomList;
 import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
-import builderb0y.bigglobe.versions.BlockStateVersions;
+import net.minecraft.core.BlockPos;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -46,8 +42,8 @@ public class ShelfDecorator implements TrunkLayerDecorator {
 			double shelfRadius2 = shelfRadius * shelfRadius;
 			int minX = ceilI(centerX - shelfRadius), maxX = floorI(centerX + shelfRadius);
 			int minZ = ceilI(centerZ - shelfRadius), maxZ = floorI(centerZ + shelfRadius);
-			BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-			BlockPos.Mutable  offsetPos = new BlockPos.Mutable();
+			BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+			BlockPos.MutableBlockPos offsetPos = new BlockPos.MutableBlockPos();
 			mutablePos.setY(y);
 			for (int x = minX; x <= maxX; x++) {
 				mutablePos.setX(x);

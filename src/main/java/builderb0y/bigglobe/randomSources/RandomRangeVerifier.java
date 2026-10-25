@@ -59,13 +59,13 @@ public class RandomRangeVerifier implements AutoVerifier<RandomSource> {
 		if (
 			(
 				this.minInclusive
-				? Double.compare(min, this.min) >= 0
-				: Double.compare(min, this.min) > 0
+					? Double.compare(min, this.min) >= 0
+					: Double.compare(min, this.min) > 0
 			)
 			&& (
 				this.maxInclusive
-				? Double.compare(max, this.max) <= 0
-				: Double.compare(max, this.max) < 0
+					? Double.compare(max, this.max) <= 0
+					: Double.compare(max, this.max) < 0
 			)
 		) {
 			return;

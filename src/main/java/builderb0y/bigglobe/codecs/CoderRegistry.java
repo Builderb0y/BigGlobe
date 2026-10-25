@@ -1,23 +1,21 @@
 package builderb0y.bigglobe.codecs;
 
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.KeyDispatchCoder.DispatchCoder;
 import builderb0y.autocodec.coders.LookupCoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
+import net.minecraft.resources.ResourceLocation;
 
 public class CoderRegistry<E extends CoderRegistryTyped<E>> extends DispatchCoder<E> {
 
-	public final Identifier registryID;
+	public final ResourceLocation registryID;
 
-	public CoderRegistry(Identifier registryID) {
+	public CoderRegistry(ResourceLocation registryID) {
 		this(registryID, "type");
 	}
 
-	public CoderRegistry(Identifier registryID, String key) {
+	public CoderRegistry(ResourceLocation registryID, String key) {
 		super("CoderRegistry<" + registryID + '>', new IdentifierLookupCoder<>(registryID), key);
 		this.registryID = registryID;
 	}
@@ -26,29 +24,29 @@ public class CoderRegistry<E extends CoderRegistryTyped<E>> extends DispatchCode
 		return (IdentifierLookupCoder<E>)(this.keyCoder);
 	}
 
-	public Identifier getType(E value) {
+	public ResourceLocation getType(E value) {
 		return this.lookup().encode.get(value.getCoder());
 	}
 
-	public <E2 extends E> void register(Identifier id, AutoCoder<E2> coder) {
+	public <E2 extends E> void register(ResourceLocation id, AutoCoder<E2> coder) {
 		this.lookup().add(id, coder);
 	}
 
-	public <E2 extends E> void registerAuto(Identifier id, ReifiedType<E2> type) {
+	public <E2 extends E> void registerAuto(ResourceLocation id, ReifiedType<E2> type) {
 		this.register(id, BigGlobeAutoCodec.AUTO_CODEC.createCoder(type));
 	}
 
-	public <E2 extends E> void registerAuto(Identifier id, Class<E2> clazz) {
+	public <E2 extends E> void registerAuto(ResourceLocation id, Class<E2> clazz) {
 		this.registerAuto(id, ReifiedType.from(clazz));
 	}
 
-	public String toString(Identifier id) {
+	public String toString(ResourceLocation id) {
 		return id.getNamespace().equals(this.registryID.getNamespace()) ? id.getPath() : id.toString();
 	}
 
-	public static class IdentifierLookupCoder<E> extends LookupCoder<Identifier, AutoCoder<? extends E>> {
+	public static class IdentifierLookupCoder<E> extends LookupCoder<ResourceLocation, AutoCoder<? extends E>> {
 
-		public IdentifierLookupCoder(@NotNull Identifier registryKey) {
+		public IdentifierLookupCoder(@NotNull ResourceLocation registryKey) {
 			super(
 				"IdentifierLookupCoder<" + registryKey + '>',
 				BigGlobeAutoCodec.createNamespacedIdentifierCodec(registryKey.getNamespace())

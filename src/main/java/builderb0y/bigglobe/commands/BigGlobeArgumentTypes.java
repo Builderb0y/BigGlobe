@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.commands;
 
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.commands.RespawnCommand.RespawnModeArgumentType;
 
@@ -14,7 +12,7 @@ public class BigGlobeArgumentTypes {
 		ArgumentTypeRegistry.registerArgumentType(
 			BigGlobeMod.modID("respawn_mode"),
 			RespawnModeArgumentType.class,
-			ConstantArgumentSerializer.of(RespawnModeArgumentType::new)
+			SingletonArgumentInfo.contextFree(RespawnModeArgumentType::new)
 		);
 		BigGlobeMod.LOGGER.debug("Done registering command argument types.");
 	}

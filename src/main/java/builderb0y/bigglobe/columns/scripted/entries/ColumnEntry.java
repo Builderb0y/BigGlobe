@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Supplier;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.UnknownNullability;
 import org.objectweb.asm.tree.AnnotationNode;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -58,11 +55,11 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 	public static final CoderRegistry<ColumnEntry> REGISTRY = Testing.TESTING ? null : new CoderRegistry<>(BigGlobeMod.modID("column_value"));
 	public static final Object INITIALIZER = new Object() {{
 		if (REGISTRY != null) {
-			REGISTRY.registerAuto(BigGlobeMod.modID("constant"),          ConstantColumnEntry.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("noise"),                NoiseColumnEntry.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("script"),              ScriptColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("noise"), NoiseColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptColumnEntry.class);
 			REGISTRY.registerAuto(BigGlobeMod.modID("decision_tree"), DecisionTreeColumnEntry.class);
-			REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"),            VoronoiColumnEntry.class);
+			REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"), VoronoiColumnEntry.class);
 		}
 	}};
 
@@ -74,7 +71,8 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		return this.hasField();
 	}
 
-	public default void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {}
+	public default void populateField(ColumnEntryMemory memory, DataCompileContext context, FieldCompileContext getterMethod) {
+	}
 
 	@MustBeInvokedByOverriders
 	public default void populateGetter(ColumnEntryMemory memory, DataCompileContext context, MethodCompileContext getterMethod) {
@@ -122,7 +120,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 	public default void setupMemory(ColumnEntryMemory memory, DataCompileContext context) {
 		int uniqueIndex = context.mainClass.memberUniquifier++;
-		Identifier accessID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
+		ResourceLocation accessID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
 		String internalName = DataCompileContext.internalName(accessID, uniqueIndex);
 		memory.putTyped(ColumnEntryMemory.INTERNAL_NAME, internalName);
 
@@ -155,8 +153,8 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			context.loadSelf(),
 			memory.getTyped(ColumnEntryMemory.GETTER).info,
 			this.getAccessSchema().is_3d()
-			? new InsnTree[] { load("y", TypeInfos.INT) }
-			: InsnTree.ARRAY_FACTORY.empty()
+				? new InsnTree[] { load("y", TypeInfos.INT) }
+				: InsnTree.ARRAY_FACTORY.empty()
 		);
 	}
 
@@ -165,8 +163,8 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			context.loadSelf(),
 			memory.getTyped(ColumnEntryMemory.SETTER).info,
 			this.getAccessSchema().is_3d()
-			? new InsnTree[] { load("y", TypeInfos.INT), value }
-			: new InsnTree[] { value }
+				? new InsnTree[] { load("y", TypeInfos.INT), value }
+				: new InsnTree[] { value }
 		);
 	}
 
@@ -182,9 +180,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		boolean useColumn,
 		@Nullable InsnTree loadY,
 		MutableDependencyView dependencies,
-		@Nullable Identifier callerPrefix
+		@Nullable ResourceLocation callerPrefix
 	) {
-		Identifier selfID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
+		ResourceLocation selfID = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID);
 		this.implSetupInternalEnvironment(environment, memory, context, useColumn, loadY, dependencies, selfID.toString());
 		if (callerPrefix != null && callerPrefix.getNamespace().equals(selfID.getNamespace())) {
 			int start = relativize(selfID.getPath(), callerPrefix.getPath());
@@ -233,47 +231,71 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		String name
 	) {
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
-		RegistryEntry<ColumnEntry> self = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
+		Holder<ColumnEntry> self = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
 		InsnTree loadHolder = useColumn ? context.loadColumn() : context.loadSelf();
 		if (getter.paramTypes.length > 0) {
-			environment.addFunction(name, new FunctionHandler.Named("functionInvoke: " + getter + " for receiver " + loadHolder.describe(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments == null) return null;
-				dependencies.addDependency(self);
-				return new CastResult(invokeInstance(loadHolder, getter, castArguments), castArguments != arguments);
-			}));
-			environment.addMethod(getter.owner, name, new MethodHandler.Named("methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
-				InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
-				if (castArguments == null) return null;
-				dependencies.addDependency(self);
-				return new CastResult(mode.makeInvoker(parser, receiver, getter, castArguments), castArguments != arguments);
-			}));
+			environment.addFunction(
+				name, new FunctionHandler.Named(
+					"functionInvoke: " + getter + " for receiver " + loadHolder.describe(), (ExpressionParser parser, String name1, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments == null) return null;
+					dependencies.addDependency(self);
+					return new CastResult(invokeInstance(loadHolder, getter, castArguments), castArguments != arguments);
+				}
+				)
+			);
+			environment.addMethod(
+				getter.owner, name, new MethodHandler.Named(
+					"methodInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetMethodMode mode, InsnTree... arguments) -> {
+					InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, getter, CastMode.IMPLICIT_NULL, arguments);
+					if (castArguments == null) return null;
+					dependencies.addDependency(self);
+					return new CastResult(mode.makeInvoker(parser, receiver, getter, castArguments), castArguments != arguments);
+				}
+				)
+			);
 			if (loadY != null) {
-				environment.addVariable(name, new VariableHandler.Named("functionInvoke: " + getter + " for receiver " + loadHolder.describe() + " at Y level " + loadY.describe(), (ExpressionParser parser, String name1) -> {
-					dependencies.addDependency(self);
-					return invokeInstance(loadHolder, getter, loadY);
-				}));
-				environment.addField(getter.owner, name, new FieldHandler.Named("methodInvoke: " + getter + " at Y level " + loadY.describe(), (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-					dependencies.addDependency(self);
-					return mode.makeInvoker(parser, receiver, getter, loadY);
-				}));
+				environment.addVariable(
+					name, new VariableHandler.Named(
+						"functionInvoke: " + getter + " for receiver " + loadHolder.describe() + " at Y level " + loadY.describe(), (ExpressionParser parser, String name1) -> {
+						dependencies.addDependency(self);
+						return invokeInstance(loadHolder, getter, loadY);
+					}
+					)
+				);
+				environment.addField(
+					getter.owner, name, new FieldHandler.Named(
+						"methodInvoke: " + getter + " at Y level " + loadY.describe(), (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
+						dependencies.addDependency(self);
+						return mode.makeInvoker(parser, receiver, getter, loadY);
+					}
+					)
+				);
 			}
 		}
 		else {
 			InsnTree tree = invokeInstance(loadHolder, getter);
-			environment.addVariable(name, new VariableHandler.Named(tree.describe(), (ExpressionParser parser, String name1) -> {
-				dependencies.addDependency(self);
-				return tree;
-			}));
-			environment.addField(getter.owner, name, new FieldHandler.Named("fieldInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
-				dependencies.addDependency(self);
-				return mode.makeInvoker(parser, receiver, getter);
-			}));
+			environment.addVariable(
+				name, new VariableHandler.Named(
+					tree.describe(), (ExpressionParser parser, String name1) -> {
+					dependencies.addDependency(self);
+					return tree;
+				}
+				)
+			);
+			environment.addField(
+				getter.owner, name, new FieldHandler.Named(
+					"fieldInvoke: " + getter, (ExpressionParser parser, InsnTree receiver, String name1, GetFieldMode mode) -> {
+					dependencies.addDependency(self);
+					return mode.makeInvoker(parser, receiver, getter);
+				}
+				)
+			);
 		}
 	}
 
 	public default void setupExternalEnvironment(MutableScriptEnvironment environment, ColumnEntryMemory memory, ColumnCompileContext context, ExternalEnvironmentParams params) {
-		RegistryEntry<ColumnEntry> entry = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
+		Holder<ColumnEntry> entry = memory.getTyped(ColumnEntryMemory.REGISTRY_ENTRY);
 		String exposedName = memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString();
 		MethodInfo getter = memory.getTyped(ColumnEntryMemory.GETTER).info;
 		MethodInfo setter = memory.getTyped(ColumnEntryMemory.ENTRY).isSettable() ? memory.getTyped(ColumnEntryMemory.SETTER).info : null;
@@ -315,17 +337,53 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		public InsnTree loadColumn, loadLookup, loadX, loadY, loadZ, offsetY;
 		public boolean mutable;
 		public @Nullable MutableDependencyView dependencies;
-		public @Nullable Identifier caller;
+		public @Nullable ResourceLocation caller;
 
-		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) { this.loadColumn = loadColumn; return this; }
-		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) { this.loadLookup = loadLookup; return this; }
-		public ExternalEnvironmentParams withXZ    (InsnTree loadX, InsnTree loadZ) { this.loadX = loadX; this.loadZ = loadZ; return this; }
-		public ExternalEnvironmentParams withY     (InsnTree loadY     ) { this.loadY      = loadY     ; return this; }
-		public ExternalEnvironmentParams offsetY   (InsnTree offsetY   ) { this.offsetY    = offsetY   ; return this; }
-		public ExternalEnvironmentParams mutable   (boolean  mutable   ) { this.mutable    = mutable   ; return this; }
-		public ExternalEnvironmentParams mutable   (                   ) { this.mutable    = true      ; return this; }
-		public ExternalEnvironmentParams trackDependencies(MutableDependencyView dependencies) { this.dependencies = dependencies; return this; }
-		public ExternalEnvironmentParams withCaller(Identifier caller  ) { this.caller     = caller    ; return this; }
+		public ExternalEnvironmentParams withColumn(InsnTree loadColumn) {
+			this.loadColumn = loadColumn;
+			return this;
+		}
+
+		public ExternalEnvironmentParams withLookup(InsnTree loadLookup) {
+			this.loadLookup = loadLookup;
+			return this;
+		}
+
+		public ExternalEnvironmentParams withXZ(InsnTree loadX, InsnTree loadZ) {
+			this.loadX = loadX;
+			this.loadZ = loadZ;
+			return this;
+		}
+
+		public ExternalEnvironmentParams withY(InsnTree loadY) {
+			this.loadY = loadY;
+			return this;
+		}
+
+		public ExternalEnvironmentParams offsetY(InsnTree offsetY) {
+			this.offsetY = offsetY;
+			return this;
+		}
+
+		public ExternalEnvironmentParams mutable(boolean mutable) {
+			this.mutable = mutable;
+			return this;
+		}
+
+		public ExternalEnvironmentParams mutable() {
+			this.mutable = true;
+			return this;
+		}
+
+		public ExternalEnvironmentParams trackDependencies(MutableDependencyView dependencies) {
+			this.dependencies = dependencies;
+			return this;
+		}
+
+		public ExternalEnvironmentParams withCaller(ResourceLocation caller) {
+			this.caller = caller;
+			return this;
+		}
 
 		public boolean requiresNoArguments(boolean is3D) {
 			return (!is3D || this.loadY != null) && (this.loadColumn != null || (this.loadX != null && this.loadZ != null));
@@ -335,7 +393,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			return (
 				'(' +
 				(this.loadColumn != null ? "forbidden" : this.loadX != null ? "optional" : "required") + " int x, " +
-				(!is3D                   ? "forbidden" : this.loadY != null ? "optional" : "required") + " int y, " +
+				(!is3D ? "forbidden" : this.loadY != null ? "optional" : "required") + " int y, " +
 				(this.loadColumn != null ? "forbidden" : this.loadX != null ? "optional" : "required") + " int z" +
 				')'
 			);
@@ -354,7 +412,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 			@Nullable MethodInfo valueSetter,
 			InsnTree... arguments
 		)
-		throws ScriptParsingException {
+			throws ScriptParsingException {
 			InsnTree loadColumn = this.loadColumn;
 			if (arguments.length != 0 && arguments[0].getTypeInfo().extendsOrImplements(ScriptedColumn.INFO.type)) {
 				loadColumn = arguments[0];
@@ -399,9 +457,9 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 
 			StringBuilder error = null;
 			if (loadColumn == null) error = appendIfMissing(error, name, x, "x");
-			if (is3D                   ) error = appendIfMissing(error, name, y, "y");
+			if (is3D) error = appendIfMissing(error, name, y, "y");
 			if (loadColumn == null) error = appendIfMissing(error, name, z, "z");
-			if (error           != null) throw new ScriptParsingException(error.toString(), parser.input);
+			if (error != null) throw new ScriptParsingException(error.toString(), parser.input);
 
 			if (!this.mutable) valueSetter = null;
 			if (this.offsetY != null) y = new AddInsnTree(y, this.offsetY, IADD);
@@ -455,16 +513,16 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 	/**
 	a quick-and-dirty way of transferring information between
 	{@link #emitFieldGetterAndSetter(ColumnEntryMemory, DataCompileContext)},
-	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, InsnTree, MutableDependencyView, Identifier)},
+	{@link #setupInternalEnvironment(MutableScriptEnvironment, ColumnEntryMemory, DataCompileContext, boolean, InsnTree, MutableDependencyView, ResourceLocation)},
 	and {@link #emitComputer(ColumnEntryMemory, DataCompileContext)}.
 	*/
 	public static class ColumnEntryMemory extends HashMap<ColumnEntryMemory.Key<?>, Object> {
 
-		public static final Key<RegistryEntry<ColumnEntry>>
+		public static final Key<Holder<ColumnEntry>>
 			REGISTRY_ENTRY = new Key<>("registryEntry");
 		public static final Key<ColumnEntry>
 			ENTRY = new Key<>("entry");
-		public static final Key<Identifier>
+		public static final Key<ResourceLocation>
 			ACCESSOR_ID = new Key<>("accessorID");
 		public static final Key<Integer>
 			FLAGS_INDEX = new Key<>("flagsIndex");
@@ -484,7 +542,7 @@ public interface ColumnEntry extends CoderRegistryTyped<ColumnEntry>, Dependency
 		public static final Key<AccessContext>
 			ACCESS_CONTEXT = new Key<>("accessContext");
 
-		public ColumnEntryMemory(RegistryEntry<ColumnEntry> entry) {
+		public ColumnEntryMemory(Holder<ColumnEntry> entry) {
 			this.putTyped(REGISTRY_ENTRY, entry);
 			this.putTyped(ACCESSOR_ID, UnregisteredObjectException.getID(entry));
 			this.putTyped(ENTRY, entry.value());

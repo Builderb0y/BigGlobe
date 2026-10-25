@@ -16,7 +16,8 @@ public class NativeMemory implements SafeCloseable {
 	public long capacity;
 	public long used;
 
-	public NativeMemory() {}
+	public NativeMemory() {
+	}
 
 	public NativeMemory(long capacity) {
 		this.address = nmemAllocChecked(capacity);
@@ -64,8 +65,8 @@ public class NativeMemory implements SafeCloseable {
 
 			this.address = (
 				this.address == 0L
-				? nmemAllocChecked(newCapacity)
-				: nmemReallocChecked(this.address, newCapacity)
+					? nmemAllocChecked(newCapacity)
+					: nmemReallocChecked(this.address, newCapacity)
 			);
 			this.capacity = newCapacity;
 		}

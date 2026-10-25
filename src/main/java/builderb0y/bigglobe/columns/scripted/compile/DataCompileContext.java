@@ -6,13 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import net.minecraft.resources.ResourceLocation;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Identifier;
-
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.ColumnValueInfo.Mutability;
 import builderb0y.bigglobe.columns.scripted.ColumnValueHolder.UnresolvedColumnValueInfo;
 import builderb0y.bigglobe.columns.scripted.ScriptColumnEntryParser;
@@ -20,10 +17,10 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.WoodPaletteScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.BooleanToConditionTree;
@@ -65,7 +62,7 @@ public abstract class DataCompileContext {
 
 	public ColumnCompileContext root() {
 		DataCompileContext context = this;
-		for (DataCompileContext next; (next = context.parent) != null; context = next);
+		for (DataCompileContext next; (next = context.parent) != null; context = next) ;
 		return (ColumnCompileContext)(context);
 	}
 
@@ -85,12 +82,12 @@ public abstract class DataCompileContext {
 		this.children.forEach(DataCompileContext::prepareForCompile);
 	}
 
-	public static String internalName(Identifier selfID, int fieldIndex) {
+	public static String internalName(ResourceLocation selfID, int fieldIndex) {
 		StringBuilder builder = (
 			new StringBuilder(selfID.getNamespace().length() + selfID.getPath().length() + 16)
-			.append(selfID.getNamespace())
-			.append('_')
-			.append(selfID.getPath())
+				.append(selfID.getNamespace())
+				.append('_')
+				.append(selfID.getPath())
 		);
 		for (int index = 0, length = builder.length(); index < length; index++) {
 			char old = builder.charAt(index);
@@ -112,29 +109,29 @@ public abstract class DataCompileContext {
 		ScriptUsage script,
 		boolean includeY,
 		MutableDependencyView dependencies,
-		@Nullable Identifier caller,
+		@Nullable ResourceLocation caller,
 		int parserFlags
 	)
-	throws ScriptParsingException {
+		throws ScriptParsingException {
 		new ScriptColumnEntryParser(script, this.mainClass, method, parserFlags)
-		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.configureEnvironment(JavaUtilScriptEnvironment.noAllocateNoModify())
-		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-		.configureEnvironment(MinecraftScriptEnvironment.create())
-		.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
-		.configureEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
-		.configureEnvironment((MutableScriptEnvironment environment) -> {
-			if (includeY) {
-				environment.addVariableLoad("y", TypeInfos.INT);
-				this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies, caller);
-			}
-			else {
-				this.root().registry.setupInternalEnvironment(environment, this, null, dependencies, caller);
-			}
-		})
-		.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-		.parseEntireInput()
-		.emitBytecode(method);
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.configureEnvironment(JavaUtilScriptEnvironment.noAllocateNoModify())
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+			.configureEnvironment(MinecraftScriptEnvironment.create())
+			.configureEnvironment(WoodPaletteScriptEnvironment.create(null))
+			.configureEnvironment(ScriptedColumn.baseEnvironment(this.loadColumn()))
+			.configureEnvironment((MutableScriptEnvironment environment) -> {
+				if (includeY) {
+					environment.addVariableLoad("y", TypeInfos.INT);
+					this.root().registry.setupInternalEnvironment(environment, this, load("y", TypeInfos.INT), dependencies, caller);
+				}
+				else {
+					this.root().registry.setupInternalEnvironment(environment, this, null, dependencies, caller);
+				}
+			})
+			.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+			.parseEntireInput()
+			.emitBytecode(method);
 		method.endCode();
 	}
 
@@ -220,18 +217,18 @@ public abstract class DataCompileContext {
 			MethodCompileContext getColumnValues = this.mainClass.newMethod(ACC_PUBLIC, "getColumnValues", type(List.class));
 			UnresolvedColumnValueInfo[] bootstrapConstant = (
 				this.preprocessColumnValueInfos(
-					memoryMap
-					.entrySet()
-					.stream()
-					.map((Map.Entry<ColumnEntry, ColumnEntryMemory> entry) -> new UnresolvedColumnValueInfo(
-						entry.getValue().getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(),
-						entry.getValue().getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
-						entry.getKey().getAccessSchema().is_3d(),
-						entry.getKey().hasField() ? entry.getKey().isSettable() ? Mutability.CACHED : Mutability.VORONOI : Mutability.COMPUTED
-					))
-				)
-				.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
-				.toArray(UnresolvedColumnValueInfo[]::new)
+						memoryMap
+							.entrySet()
+							.stream()
+							.map((Map.Entry<ColumnEntry, ColumnEntryMemory> entry) -> new UnresolvedColumnValueInfo(
+								entry.getValue().getTyped(ColumnEntryMemory.ACCESSOR_ID).toString(),
+								entry.getValue().getTyped(ColumnEntryMemory.ACCESS_CONTEXT).exposedType(),
+								entry.getKey().getAccessSchema().is_3d(),
+								entry.getKey().hasField() ? entry.getKey().isSettable() ? Mutability.CACHED : Mutability.VORONOI : Mutability.COMPUTED
+							))
+					)
+					.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
+					.toArray(UnresolvedColumnValueInfo[]::new)
 			);
 			return_(
 				ldc(
@@ -239,12 +236,14 @@ public abstract class DataCompileContext {
 					getColumnValues.clazz.newConstant(bootstrapConstant, type(UnresolvedColumnValueInfo[].class))
 				)
 			)
-			.emitBytecode(getColumnValues);
+				.emitBytecode(getColumnValues);
 			getColumnValues.endCode();
 		}
 	}
 
-	public Stream<UnresolvedColumnValueInfo> preprocessColumnValueInfos(Stream<UnresolvedColumnValueInfo> infos) { return infos; }
+	public Stream<UnresolvedColumnValueInfo> preprocessColumnValueInfos(Stream<UnresolvedColumnValueInfo> infos) {
+		return infos;
+	}
 
 	public static enum PreprocessMethod {
 		IS_COLUMN_VALUE_PRESENT,
@@ -253,9 +252,12 @@ public abstract class DataCompileContext {
 		PRE_COMPUTE_COLUMN_VALUE;
 	}
 
-	public void preprocessColumnValueCases(Int2ObjectSortedMap<InsnTree> cases, PreprocessMethod method) {}
+	public void preprocessColumnValueCases(Int2ObjectSortedMap<InsnTree> cases, PreprocessMethod method) {
+	}
 
-	public Stream<String> preprocessValidColumnValues(Stream<String> valid) { return valid; }
+	public Stream<String> preprocessValidColumnValues(Stream<String> valid) {
+		return valid;
+	}
 
 	public void emitSwitchCases(Int2ObjectSortedMap<InsnTree> cases, Stream<ColumnEntryMemory> memoryMap, MethodCompileContext method, PreprocessMethod preprocessMethod) {
 		this.preprocessColumnValueCases(cases, preprocessMethod);
@@ -268,7 +270,7 @@ public abstract class DataCompileContext {
 				cases,
 				TypeInfos.VOID
 			)
-			.emitBytecode(method);
+				.emitBytecode(method);
 		}
 		this.errorOnInvalidColumnValue(memoryMap.map((ColumnEntryMemory memory) -> memory.getTyped(ColumnEntryMemory.ACCESSOR_ID).toString())).emitBytecode(method);
 		method.endCode();
@@ -305,33 +307,33 @@ public abstract class DataCompileContext {
 
 	public static InsnTree toObject(InsnTree getter, String id) {
 		return switch (getter.getTypeInfo().getSort()) {
-			case VOID    -> throw new IllegalStateException("Column value " + id + " produced a void-typed getter: " + getter.describe());
-			case BOOLEAN -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Boolean  .class, "valueOf", Boolean  .class, boolean.class), getter), TypeInfos.OBJECT);
-			case BYTE    -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Byte     .class, "valueOf", Byte     .class, byte   .class), getter), TypeInfos.OBJECT);
-			case CHAR    -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Character.class, "valueOf", Character.class, char   .class), getter), TypeInfos.OBJECT);
-			case SHORT   -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Short    .class, "valueOf", Short    .class, short  .class), getter), TypeInfos.OBJECT);
-			case INT     -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Integer  .class, "valueOf", Integer  .class, int    .class), getter), TypeInfos.OBJECT);
-			case LONG    -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Long     .class, "valueOf", Long     .class, long   .class), getter), TypeInfos.OBJECT);
-			case FLOAT   -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Float    .class, "valueOf", Float    .class, float  .class), getter), TypeInfos.OBJECT);
-			case DOUBLE  -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Double   .class, "valueOf", Double   .class, double .class), getter), TypeInfos.OBJECT);
-			case OBJECT  -> getter.getTypeInfo().equals(TypeInfos.OBJECT) ? getter : new IdentityCastInsnTree(getter, TypeInfos.OBJECT);
-			case ARRAY   -> new IdentityCastInsnTree(getter, TypeInfos.OBJECT);
+			case VOID -> throw new IllegalStateException("Column value " + id + " produced a void-typed getter: " + getter.describe());
+			case BOOLEAN -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Boolean.class, "valueOf", Boolean.class, boolean.class), getter), TypeInfos.OBJECT);
+			case BYTE -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Byte.class, "valueOf", Byte.class, byte.class), getter), TypeInfos.OBJECT);
+			case CHAR -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Character.class, "valueOf", Character.class, char.class), getter), TypeInfos.OBJECT);
+			case SHORT -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Short.class, "valueOf", Short.class, short.class), getter), TypeInfos.OBJECT);
+			case INT -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Integer.class, "valueOf", Integer.class, int.class), getter), TypeInfos.OBJECT);
+			case LONG -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Long.class, "valueOf", Long.class, long.class), getter), TypeInfos.OBJECT);
+			case FLOAT -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Float.class, "valueOf", Float.class, float.class), getter), TypeInfos.OBJECT);
+			case DOUBLE -> new IdentityCastInsnTree(invokeStatic(MethodInfo.findMethod(Double.class, "valueOf", Double.class, double.class), getter), TypeInfos.OBJECT);
+			case OBJECT -> getter.getTypeInfo().equals(TypeInfos.OBJECT) ? getter : new IdentityCastInsnTree(getter, TypeInfos.OBJECT);
+			case ARRAY -> new IdentityCastInsnTree(getter, TypeInfos.OBJECT);
 		};
 	}
 
 	public static InsnTree fromObject(InsnTree value, TypeInfo type, String id) {
 		return switch (type.getSort()) {
-			case VOID    -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to void.");
-			case BOOLEAN -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.BOOLEAN_WRAPPER, false), MethodInfo.getMethod(Boolean  .class, "booleanValue"));
-			case BYTE    -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.   BYTE_WRAPPER, false), MethodInfo.getMethod(Byte     .class,    "byteValue"));
-			case CHAR    -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.   CHAR_WRAPPER, false), MethodInfo.getMethod(Character.class,    "charValue"));
-			case SHORT   -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.  SHORT_WRAPPER, false), MethodInfo.getMethod(Short    .class,   "shortValue"));
-			case INT     -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.    INT_WRAPPER, false), MethodInfo.getMethod(Integer  .class,     "intValue"));
-			case LONG    -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.   LONG_WRAPPER, false), MethodInfo.getMethod(Long     .class,    "longValue"));
-			case FLOAT   -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.  FLOAT_WRAPPER, false), MethodInfo.getMethod(Float    .class,   "floatValue"));
-			case DOUBLE  -> invokeInstance(new DirectCastInsnTree(value, TypeInfos. DOUBLE_WRAPPER, false), MethodInfo.getMethod(Double   .class,  "doubleValue"));
-			case OBJECT  -> new DirectCastInsnTree(value, type, false);
-			case ARRAY   -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to array.");
+			case VOID -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to void.");
+			case BOOLEAN -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.BOOLEAN_WRAPPER, false), MethodInfo.getMethod(Boolean.class, "booleanValue"));
+			case BYTE -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.BYTE_WRAPPER, false), MethodInfo.getMethod(Byte.class, "byteValue"));
+			case CHAR -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.CHAR_WRAPPER, false), MethodInfo.getMethod(Character.class, "charValue"));
+			case SHORT -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.SHORT_WRAPPER, false), MethodInfo.getMethod(Short.class, "shortValue"));
+			case INT -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.INT_WRAPPER, false), MethodInfo.getMethod(Integer.class, "intValue"));
+			case LONG -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.LONG_WRAPPER, false), MethodInfo.getMethod(Long.class, "longValue"));
+			case FLOAT -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.FLOAT_WRAPPER, false), MethodInfo.getMethod(Float.class, "floatValue"));
+			case DOUBLE -> invokeInstance(new DirectCastInsnTree(value, TypeInfos.DOUBLE_WRAPPER, false), MethodInfo.getMethod(Double.class, "doubleValue"));
+			case OBJECT -> new DirectCastInsnTree(value, type, false);
+			case ARRAY -> throw new IllegalArgumentException("Attempt to cast " + id + " (" + value.describe() + ") to array.");
 		};
 	}
 }

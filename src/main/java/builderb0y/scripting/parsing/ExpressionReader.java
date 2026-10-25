@@ -1,8 +1,7 @@
 package builderb0y.scripting.parsing;
 
+import net.minecraft.CharPredicate;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.function.CharPredicate;
 
 /**
 lowest-level parsing logic for scripts,
@@ -24,11 +23,13 @@ public class ExpressionReader {
 		this.column = 1;
 	}
 
-	/** replaces "\r" and "\r\n" with "\n". */
+	/**
+	replaces "\r" and "\r\n" with "\n".
+	*/
 	public static String canonicalizeLineEndings(String input) {
 		int length = input.length();
 		StringBuilder builder = new StringBuilder(length);
-		for (int index = 0; index < length;) {
+		for (int index = 0; index < length; ) {
 			char c = input.charAt(index);
 			if (c == '\r') {
 				index++;
@@ -370,7 +371,7 @@ public class ExpressionReader {
 	/**
 	returns true if the provided character counts as an operator character.
 	operator characters include the following:
-		!#%&*+,-./:<=>?@\^|~
+	!#%&*+,-./:<=>?@\^|~
 	*/
 	public static boolean isOperatorSymbol(char c) {
 		return switch (c) {
@@ -433,7 +434,7 @@ public class ExpressionReader {
 				c = this.peek();
 				if (c == 0 || c == '\n') {
 					this.setCursor(start);
-					throw new ScriptParsingException("Un-terminated escaped identifier", this);
+					throw new ScriptParsingException("Un-terminated escaped ResourceLocation", this);
 				}
 				if (c == '`') {
 					this.onCharRead('`');
@@ -455,8 +456,8 @@ public class ExpressionReader {
 
 	@Deprecated
 	public String readIdentifier() throws ScriptParsingException {
-		String identifier = this.readIdentifierOrNull();
-		return identifier != null ? identifier : "";
+		String ResourceLocation = this.readIdentifierOrNull();
+		return ResourceLocation != null ? ResourceLocation : "";
 	}
 
 	public String readIdentifierAfterWhitespace() throws ScriptParsingException {
@@ -467,9 +468,9 @@ public class ExpressionReader {
 	@Deprecated
 	public String peekIdentifier() throws ScriptParsingException {
 		CursorPos revert = this.getCursor();
-		String identifier = this.readIdentifier();
+		String ResourceLocation = this.readIdentifier();
 		this.setCursor(revert);
-		return identifier;
+		return ResourceLocation;
 	}
 
 	public String peekIdentifierAfterWhitespace() throws ScriptParsingException {
@@ -478,24 +479,24 @@ public class ExpressionReader {
 	}
 
 	@Deprecated
-	public boolean hasIdentifier(String identifier) throws ScriptParsingException {
+	public boolean hasIdentifier(String ResourceLocation) throws ScriptParsingException {
 		char c = this.peek();
 		if (isLetterOrUnderscore(c)) {
 			if (
-				this.input.regionMatches(this.cursor, identifier, 0, identifier.length()) &&
-				!isLetterNumberOrUnderscore(this.getChar(this.cursor + identifier.length()))
+				this.input.regionMatches(this.cursor, ResourceLocation, 0, ResourceLocation.length()) &&
+				!isLetterNumberOrUnderscore(this.getChar(this.cursor + ResourceLocation.length()))
 			) {
-				this.onCharsRead(identifier);
+				this.onCharsRead(ResourceLocation);
 				return true;
 			}
 		}
 		else if (c == '`') {
 			if (
-				this.input.regionMatches(this.cursor + 1, identifier, 0, identifier.length()) &&
-				this.getChar(this.cursor + identifier.length() + 2) == '`'
+				this.input.regionMatches(this.cursor + 1, ResourceLocation, 0, ResourceLocation.length()) &&
+				this.getChar(this.cursor + ResourceLocation.length() + 2) == '`'
 			) {
 				this.onCharRead('`');
-				this.onCharsRead(identifier);
+				this.onCharsRead(ResourceLocation);
 				this.onCharRead('`');
 				return true;
 			}
@@ -503,16 +504,16 @@ public class ExpressionReader {
 		return false;
 	}
 
-	public boolean hasIdentifierAfterWhitespace(String identifier) throws ScriptParsingException {
+	public boolean hasIdentifierAfterWhitespace(String ResourceLocation) throws ScriptParsingException {
 		this.skipWhitespace();
-		return this.hasIdentifier(identifier);
+		return this.hasIdentifier(ResourceLocation);
 	}
 
 	@Deprecated
 	public String expectIdentifier() throws ScriptParsingException {
-		String identifier = this.readIdentifier();
-		if (!identifier.isEmpty()) return identifier;
-		else throw new ScriptParsingException("Expected identifier", this);
+		String ResourceLocation = this.readIdentifier();
+		if (!ResourceLocation.isEmpty()) return ResourceLocation;
+		else throw new ScriptParsingException("Expected ResourceLocation", this);
 	}
 
 	public String expectIdentifierAfterWhitespace() throws ScriptParsingException {
@@ -521,15 +522,15 @@ public class ExpressionReader {
 	}
 
 	@Deprecated
-	public void expectIdentifier(String identifier) throws ScriptParsingException {
-		if (!this.hasIdentifier(identifier)) {
-			throw new ScriptParsingException("Expected '" + identifier + '\'', this);
+	public void expectIdentifier(String ResourceLocation) throws ScriptParsingException {
+		if (!this.hasIdentifier(ResourceLocation)) {
+			throw new ScriptParsingException("Expected '" + ResourceLocation + '\'', this);
 		}
 	}
 
-	public void expectIdentifierAfterWhitespace(String identifier) throws ScriptParsingException {
+	public void expectIdentifierAfterWhitespace(String ResourceLocation) throws ScriptParsingException {
 		this.skipWhitespace();
-		this.expectIdentifier(identifier);
+		this.expectIdentifier(ResourceLocation);
 	}
 
 	public String getSource() {
@@ -560,9 +561,11 @@ public class ExpressionReader {
 
 	public void setCursor(CursorPos position) {
 		this.cursor = position.cursor;
-		this.line   = position.line  ;
+		this.line = position.line;
 		this.column = position.column;
 	}
 
-	public static record CursorPos(int cursor, int line, int column) {}
+	public static record CursorPos(int cursor, int line, int column) {
+
+	}
 }

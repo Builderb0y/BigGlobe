@@ -2,8 +2,7 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class CraftingGrid extends ArrayWrapper<ItemStack> {
 
@@ -14,10 +13,10 @@ public class CraftingGrid extends ArrayWrapper<ItemStack> {
 	public CraftingGrid(Stream<ItemStack> stream, int width, int height, boolean mutable) {
 		super(
 			stream
-			//~~defend against scripts modifying immutable crafting grids.~~
-			//ItemStack's are now immutable to scripts.
-			//.map(ItemStack::copy)
-			.toArray(ItemStack[]::new)
+				//~~defend against scripts modifying immutable crafting grids.~~
+				//ItemStack's are now immutable to scripts.
+				//.map(ItemStack::copy)
+				.toArray(ItemStack[]::new)
 		);
 		this.width = width;
 		this.height = height;

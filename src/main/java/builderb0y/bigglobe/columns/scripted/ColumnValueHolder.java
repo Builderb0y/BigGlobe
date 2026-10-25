@@ -30,8 +30,7 @@ public interface ColumnValueHolder {
 	returns the column value associated with (name), wrapped in an object if necessary.
 
 	@throws IllegalArgumentException if (name) does not represent a column value known to this holder.
-
-	@throws Throwable if the act of computing this column value threw an exception.
+	@throws Throwable                if the act of computing this column value threw an exception.
 	the exception is not wrapped.
 	*/
 	public abstract Object getColumnValue(String name, int y) throws Throwable;

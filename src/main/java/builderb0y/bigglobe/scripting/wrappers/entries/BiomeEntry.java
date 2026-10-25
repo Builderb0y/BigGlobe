@@ -1,12 +1,9 @@
 package builderb0y.bigglobe.scripting.wrappers.entries;
 
 import java.lang.invoke.MethodHandles;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.biome.Biome;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.biome.Biome;
 import builderb0y.bigglobe.mixinInterfaces.BiomeDownfallAccessor;
 import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
 import builderb0y.scripting.bytecode.ConstantFactory;
@@ -17,7 +14,7 @@ public class BiomeEntry extends EntryWrapper<Biome, BiomeTag> {
 	public static final TypeInfo TYPE = TypeInfo.of(BiomeEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
-	public BiomeEntry(RegistryEntry<Biome> entry) {
+	public BiomeEntry(Holder<Biome> entry) {
 		super(entry);
 	}
 
@@ -26,12 +23,12 @@ public class BiomeEntry extends EntryWrapper<Biome, BiomeTag> {
 	}
 
 	public static BiomeEntry of(String id, int flags) {
-		RegistryEntry<Biome> entry = ConstantFactory.getEntry(RegistryKeys.BIOME, id, flags);
+		Holder<Biome> entry = ConstantFactory.getEntry(Registries.BIOME, id, flags);
 		return entry != null ? new BiomeEntry(entry) : null;
 	}
 
 	public float temperature() {
-		return this.object().getTemperature();
+		return this.object().getBaseTemperature();
 	}
 
 	public float downfall() {

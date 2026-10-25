@@ -55,15 +55,15 @@ public class ConstantInsnTree implements InsnTree {
 				}
 			}
 			return switch (type.getSort()) {
-				case BYTE    -> ldc(this.value.asByte   ());
-				case SHORT   -> ldc(this.value.asShort  ());
-				case INT     -> ldc(this.value.asInt    ());
-				case LONG    -> ldc(this.value.asLong   ());
-				case FLOAT   -> ldc(this.value.asFloat  ());
-				case DOUBLE  -> ldc(this.value.asDouble ());
-				case CHAR    -> ldc(this.value.asChar   ());
+				case BYTE -> ldc(this.value.asByte());
+				case SHORT -> ldc(this.value.asShort());
+				case INT -> ldc(this.value.asInt());
+				case LONG -> ldc(this.value.asLong());
+				case FLOAT -> ldc(this.value.asFloat());
+				case DOUBLE -> ldc(this.value.asDouble());
+				case CHAR -> ldc(this.value.asChar());
 				case BOOLEAN -> ldc(this.value.asBoolean());
-				default      -> throw new AssertionError(type);
+				default -> throw new AssertionError(type);
 			};
 		}
 		return InsnTree.super.doCast(parser, type, mode, nullable);

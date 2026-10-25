@@ -4,17 +4,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
-import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -41,23 +36,23 @@ public abstract class DecisionTreeSettings implements SimpleDependencyView {
 	}
 
 	public InsnTree createInsnTree(
-		RegistryEntry<DecisionTreeSettings> selfEntry,
+		Holder<DecisionTreeSettings> selfEntry,
 		AccessSchema accessSchema,
 		DataCompileContext context,
-		@Nullable Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches,
+		@Nullable Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches,
 		@Nullable InsnTree loadY
 	) {
 		return new Context(accessSchema, context, loadY, patches).createInsnTree(selfEntry);
 	}
 
-	public abstract InsnTree doCreateResult(RegistryEntry<DecisionTreeSettings> selfEntry, Context context) throws ScriptParsingException;
+	public abstract InsnTree doCreateResult(Holder<DecisionTreeSettings> selfEntry, Context context) throws ScriptParsingException;
 
 	public static class Context {
 
 		public final AccessSchema accessSchema;
 		public final DataCompileContext dataContext;
 		public final @Nullable InsnTree loadY;
-		public final Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches;
+		public final Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches;
 		/**
 		under normal circumstances, I would use CyclicDependencyAnalyzer
 		after all the decision trees had been converted to bytecode.
@@ -67,13 +62,13 @@ public abstract class DecisionTreeSettings implements SimpleDependencyView {
 		a StackOverflowError is thrown before any bytecode gets emitted.
 		so, I need a secondary dependency analysis specifically for decision trees.
 		*/
-		public final Set<RegistryEntry<DecisionTreeSettings>> stack;
+		public final Set<Holder<DecisionTreeSettings>> stack;
 
 		public Context(
 			AccessSchema accessSchema,
 			DataCompileContext dataContext,
 			@Nullable InsnTree loadY,
-			Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches
+			Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches
 		) {
 			this.accessSchema = accessSchema;
 			this.dataContext = dataContext;
@@ -82,21 +77,21 @@ public abstract class DecisionTreeSettings implements SimpleDependencyView {
 			this.stack = new ReferenceLinkedOpenHashSet<>(16);
 		}
 
-		public InsnTree createInsnTree(RegistryEntry<DecisionTreeSettings> selfEntry) {
+		public InsnTree createInsnTree(Holder<DecisionTreeSettings> selfEntry) {
 			if (this.patches != null) selfEntry = this.patches.getOrDefault(selfEntry, selfEntry);
 			if (!this.stack.add(selfEntry)) {
-				RegistryEntry<DecisionTreeSettings> selfEntry_ = selfEntry;
+				Holder<DecisionTreeSettings> selfEntry_ = selfEntry;
 				throw new CyclicDependencyException(
 					Stream
-					.concat(
-						this.stack
-						.stream()
-						.dropWhile((RegistryEntry<? extends DependencyView> compare) -> compare != selfEntry_),
-						Stream.of(selfEntry)
-					)
-					.map(UnregisteredObjectException::getID)
-					.map(Identifier::toString)
-					.collect(Collectors.joining(" -> "))
+						.concat(
+							this.stack
+								.stream()
+								.dropWhile((Holder<? extends DependencyView> compare) -> compare != selfEntry_),
+							Stream.of(selfEntry)
+						)
+						.map(UnregisteredObjectException::getID)
+						.map(ResourceLocation::toString)
+						.collect(Collectors.joining(" -> "))
 				);
 			}
 			try {
@@ -111,6 +106,5 @@ public abstract class DecisionTreeSettings implements SimpleDependencyView {
 				this.stack.remove(selfEntry);
 			}
 		}
-
 	}
 }

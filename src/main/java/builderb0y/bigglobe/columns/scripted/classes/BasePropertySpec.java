@@ -1,10 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import it.unimi.dsi.fastutil.Hash;
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBasedMutableDependencyView;
 import builderb0y.scripting.bytecode.LazyVarInfo;
@@ -18,7 +16,7 @@ public abstract class BasePropertySpec extends MemberSpec implements SetBasedMut
 		TYPE_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), BasePropertySpec::getPropertyType),
 		FULL_STRATEGY = HashStrategies.allOf(NAME_STRATEGY, TYPE_STRATEGY);
 
-	public abstract RegistryEntry<ElementSpec> getPropertyType();
+	public abstract Holder<ElementSpec> getPropertyType();
 
 	public abstract int flags();
 
@@ -39,13 +37,13 @@ public abstract class BasePropertySpec extends MemberSpec implements SetBasedMut
 					builder.appendIfNotNull(this.is3D() ? new LazyVarInfo("y", TypeInfos.INT) : null).toArray(LazyVarInfo.ARRAY_FACTORY)
 				),
 				this.isSettable()
-				? owner.classCompileContext.newMethod(
+					? owner.classCompileContext.newMethod(
 					this.flags(),
 					this.name(),
 					TypeInfos.VOID,
 					builder.append(new LazyVarInfo("value", asType(this.getPropertyType()).getTypeInfo())).toArray(LazyVarInfo.ARRAY_FACTORY)
 				)
-				: null
+					: null
 			)
 		);
 	}

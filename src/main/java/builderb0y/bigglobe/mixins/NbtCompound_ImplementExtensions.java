@@ -2,33 +2,32 @@ package builderb0y.bigglobe.mixins;
 
 import java.util.Map;
 import java.util.Set;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-
 import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 
 /**
-{@link NbtCompound#put(String, NbtElement)} returns the old value,
-but {@link NbtCompound#remove(String)} doesn't.
+{@link CompoundTag#put(String, Tag)} returns the old value,
+but {@link CompoundTag#remove(String)} doesn't.
 returning the old value is required for some pre-update script operators.
 */
-@Mixin(NbtCompound.class)
+@Mixin(CompoundTag.class)
 public class NbtCompound_ImplementExtensions implements NbtCompoundExtensions {
 
-	@Shadow @Final private Map<String, NbtElement> entries;
+	@Shadow
+	@Final
+	private Map<String, Tag> tags;
 
 	@Override
-	public NbtElement bigglobe_remove(String key) {
-		return this.entries.remove(key);
+	public Tag bigglobe_remove(String key) {
+		return this.tags.remove(key);
 	}
 
 	@Override
-	public Set<Map.Entry<String, NbtElement>> bigglobe_getEntrySet() {
-		return this.entries.entrySet();
+	public Set<Map.Entry<String, Tag>> bigglobe_getEntrySet() {
+		return this.tags.entrySet();
 	}
 }

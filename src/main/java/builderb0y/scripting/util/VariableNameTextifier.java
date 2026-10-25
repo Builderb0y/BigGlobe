@@ -16,7 +16,7 @@ public class VariableNameTextifier extends Textifier {
 	public VariableNameTextifier() {
 		super(Opcodes.ASM9);
 		this.localVariables.defaultReturnValue("<unknown>");
-		this.tab  = "\t";
+		this.tab = "\t";
 		this.ltab = "\t\t";
 		this.tab2 = "\t\t\t";
 		this.tab3 = "\t\t\t\t";

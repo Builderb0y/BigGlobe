@@ -1,14 +1,12 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowerBlock;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -17,48 +15,28 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 @AddPseudoField("suspicious_stew_effect")
 public class NetherFlowerBlock extends FlowerBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<NetherFlowerBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(NetherFlowerBlock.class);
-
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
-
-	#if MC_VERSION >= MC_1_20_5
-
-		public NetherFlowerBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, float effect_duration, Settings settings) {
-			super(suspicious_stew_effect, effect_duration, settings);
-		}
-
-		public RegistryEntry<StatusEffect> suspicious_stew_effect() {
-			return this.getStewEffects().effects().get(0).effect();
-		}
-
-		public float effect_duration() {
-			return this.getStewEffects().effects().get(0).duration() / 20.0F;
-		}
-	#else
-
-		public NetherFlowerBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, int effect_duration, Settings settings) {
-			super(suspicious_stew_effect.value(), effect_duration, settings);
-		}
-
-		#if MC_VERSION >= MC_1_20_3
-			public RegistryEntry<StatusEffect> suspicious_stew_effect() {
-				return this.getStewEffects().get(0).effect().getRegistryEntry();
-			}
-
-			public int effect_duration() {
-				return this.getStewEffects().get(0).duration();
-			}
-		#endif
-	#endif
+	public static final MapCodec<NetherFlowerBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(NetherFlowerBlock.class);
 
 	@Override
-	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
+
+	public NetherFlowerBlock(Holder<MobEffect> suspicious_stew_effect, float effect_duration, Properties settings) {
+		super(suspicious_stew_effect, effect_duration, settings);
+	}
+
+	public Holder<MobEffect> suspicious_stew_effect() {
+		return this.getSuspiciousEffects().effects().get(0).effect();
+	}
+
+	public float effect_duration() {
+		return this.getSuspiciousEffects().effects().get(0).duration() / 20.0F;
+	}
+
+	@Override
+	public boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
 		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 }

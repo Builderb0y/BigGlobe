@@ -28,19 +28,19 @@ public class BitwiseAndInsnTree extends BinaryInsnTree {
 
 	public static InsnTree create(ExpressionParser parser, InsnTree left, InsnTree right) {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
-		ConstantValue leftConstant  = left .getConstantValue();
+		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case BOOLEAN -> ldc(        leftConstant.asBoolean() & rightConstant.asBoolean());
-				case BYTE    -> ldc((byte )(leftConstant.asByte   () & rightConstant.asByte   ()));
-				case SHORT   -> ldc((short)(leftConstant.asShort  () & rightConstant.asShort  ()));
-				case INT     -> ldc(        leftConstant.asInt    () & rightConstant.asInt    ());
-				case LONG    -> ldc(        leftConstant.asLong   () & rightConstant.asLong   ());
-				default      -> throw new AssertionError(type);
+				case BOOLEAN -> ldc(leftConstant.asBoolean() & rightConstant.asBoolean());
+				case BYTE -> ldc((byte)(leftConstant.asByte() & rightConstant.asByte()));
+				case SHORT -> ldc((short)(leftConstant.asShort() & rightConstant.asShort()));
+				case INT -> ldc(leftConstant.asInt() & rightConstant.asInt());
+				case LONG -> ldc(leftConstant.asLong() & rightConstant.asLong());
+				default -> throw new AssertionError(type);
 			};
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		left = left.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new BitwiseAndInsnTree(left, right, type.getOpcode(IAND));
 	}

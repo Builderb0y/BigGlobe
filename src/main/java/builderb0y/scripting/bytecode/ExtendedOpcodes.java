@@ -12,28 +12,50 @@ public interface ExtendedOpcodes extends Opcodes {
 	public static final int
 		/** int raised to the power of int; used by {@link PowerInsnTree}. */
 		IIPOW = 256,
-		/** long raised to the power of int; used by {@link PowerInsnTree}. */
-		LIPOW = 257,
-		/** float raised to the power of int; used by {@link PowerInsnTree}. */
-		FIPOW = 258,
-		/** double raised to the power of int; used by {@link PowerInsnTree}. */
-		DIPOW = 259,
-		/** float raised to the power of float; used by {@link PowerInsnTree}. */
-		FFPOW = 260,
-		/** double raised to the power of double; used by {@link PowerInsnTree}. */
-		DDPOW = 261,
-		/** int shifted left in an unsigned fashion; used by {@link UnsignedLeftShiftInsnTree}. */
-		IUSHL = 262,
-		/** long shifted left in n unsigned fashion; used by {@link UnsignedLeftShiftInsnTree}. */
-		LUSHL = 263,
-		/** float shifted left in a signed fashion; used by {@link SignedLeftShiftInsnTree}. */
-		FSHL  = 264,
-		/** double shifted left in a signed fashion; used by {@link SignedLeftShiftInsnTree}. */
-		DSHL  = 265,
-		/** float shifted left in a signed fashion; used by {@link SignedRightShiftInsnTree}. */
-		FSHR  = 266,
-		/** double shifted left in a signed fashion; used by {@link SignedRightShiftInsnTree}. */
-		DSHR  = 267;
+	/**
+	long raised to the power of int; used by {@link PowerInsnTree}.
+	*/
+	LIPOW = 257,
+	/**
+	float raised to the power of int; used by {@link PowerInsnTree}.
+	*/
+	FIPOW = 258,
+	/**
+	double raised to the power of int; used by {@link PowerInsnTree}.
+	*/
+	DIPOW = 259,
+	/**
+	float raised to the power of float; used by {@link PowerInsnTree}.
+	*/
+	FFPOW = 260,
+	/**
+	double raised to the power of double; used by {@link PowerInsnTree}.
+	*/
+	DDPOW = 261,
+	/**
+	int shifted left in an unsigned fashion; used by {@link UnsignedLeftShiftInsnTree}.
+	*/
+	IUSHL = 262,
+	/**
+	long shifted left in n unsigned fashion; used by {@link UnsignedLeftShiftInsnTree}.
+	*/
+	LUSHL = 263,
+	/**
+	float shifted left in a signed fashion; used by {@link SignedLeftShiftInsnTree}.
+	*/
+	FSHL = 264,
+	/**
+	double shifted left in a signed fashion; used by {@link SignedLeftShiftInsnTree}.
+	*/
+	DSHL = 265,
+	/**
+	float shifted left in a signed fashion; used by {@link SignedRightShiftInsnTree}.
+	*/
+	FSHR = 266,
+	/**
+	double shifted left in a signed fashion; used by {@link SignedRightShiftInsnTree}.
+	*/
+	DSHR = 267;
 
 	public static final int
 		/**

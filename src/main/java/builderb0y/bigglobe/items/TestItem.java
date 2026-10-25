@@ -1,21 +1,19 @@
 package builderb0y.bigglobe.items;
 
 import com.google.common.base.Predicates;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.Structure.GenerationStub;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import org.jetbrains.annotations.TestOnly;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePiecesList;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.Structure.StructurePosition;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -24,59 +22,59 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 public class TestItem extends Item {
 
 	public TestItem() {
-		super(new Item.Settings());
+		super(new Item.Properties());
 	}
 
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public ActionResult useOnBlock(ItemUsageContext context) {
-		if (!(context.getWorld() instanceof ServerWorld world)) return ActionResult.SUCCESS;
+	public InteractionResult useOn(UseOnContext context) {
+		if (!(context.getLevel() instanceof ServerLevel world)) return InteractionResult.SUCCESS;
 
 		this.placeStructure(
 			world,
-			context.getBlockPos(),
+			context.getClickedPos(),
 			RegistryVersions.getRegistry(
-				world.getRegistryManager(),
-				RegistryKeys.STRUCTURE
-			)
-			.get(BigGlobeMod.modID("dungeons/large"))
+					world.registryAccess(),
+					Registries.STRUCTURE
+				)
+				.get(BigGlobeMod.modID("dungeons/large"))
 		);
-		return ActionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
-	public void placeStructure(ServerWorld world, BlockPos pos, Structure structure) {
+	public void placeStructure(ServerLevel world, BlockPos pos, Structure structure) {
 		System.out.println("spawning structure");
 		ChunkPos chunkPos = new ChunkPos(pos);
-		StructurePosition position = (
-			structure.getValidStructurePosition(
-				new Structure.Context(
-					world.getRegistryManager(),
-					world.getChunkManager().getChunkGenerator(),
-					world.getChunkManager().getChunkGenerator().getBiomeSource(),
-					world.getChunkManager().getNoiseConfig(),
-					world.getStructureTemplateManager(),
-					world.getSeed(),
-					chunkPos,
-					world,
-					Predicates.alwaysTrue()
+		GenerationStub position = (
+			structure.findValidGenerationPoint(
+					new Structure.GenerationContext(
+						world.registryAccess(),
+						world.getChunkSource().getGenerator(),
+						world.getChunkSource().getGenerator().getBiomeSource(),
+						world.getChunkSource().randomState(),
+						world.getStructureManager(),
+						world.getSeed(),
+						chunkPos,
+						world,
+						Predicates.alwaysTrue()
+					)
 				)
-			)
-			.orElse(null)
+				.orElse(null)
 		);
 		if (position != null) {
-			StructurePiecesList pieces = position.generate().toList();
-			BlockBox firstBox = pieces.pieces().get(0).getBoundingBox();
+			PiecesContainer pieces = position.getPiecesBuilder().build();
+			BoundingBox firstBox = pieces.pieces().get(0).getBoundingBox();
 			BlockPos pivot = firstBox.getCenter();
-			pivot = new BlockPos(pivot.getX(), firstBox.getMinY(), pivot.getZ());
-			int offset = pos.getY() - pieces.getBoundingBox().getMinY() - 1;
-			BlockBox infiniteBox = BlockBox.infinite();
+			pivot = new BlockPos(pivot.getX(), firstBox.minY(), pivot.getZ());
+			int offset = pos.getY() - pieces.calculateBoundingBox().minY() - 1;
+			BoundingBox infiniteBox = BoundingBox.infinite();
 			for (StructurePiece piece : pieces.pieces()) {
-				piece.translate(0, offset, 0);
-				piece.generate(
+				piece.move(0, offset, 0);
+				piece.postProcess(
 					world,
-					world.getStructureAccessor(),
-					world.getChunkManager().getChunkGenerator(),
-					world.random,
+					world.structureManager(),
+					world.getChunkSource().getGenerator(),
+					world.getRandom(),
 					infiniteBox,
 					chunkPos,
 					pivot

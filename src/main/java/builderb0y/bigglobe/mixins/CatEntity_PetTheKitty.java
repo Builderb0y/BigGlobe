@@ -4,48 +4,46 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.entity.EntityStatuses;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-
 import builderb0y.bigglobe.versions.EntityVersions;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityEvent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 /**
 in vanilla, you can't pet cats. this is obviously a bug, so I'm fixing it.
 if anyone finds this code and wants it in production,
 let me know and I'll make a separate mod for it.
 */
-@Mixin(CatEntity.class)
-public abstract class CatEntity_PetTheKitty extends TameableEntity {
+@Mixin(Cat.class)
+public abstract class CatEntity_PetTheKitty extends TamableAnimal {
 
-	public CatEntity_PetTheKitty(EntityType<? extends TameableEntity> entityType, World world) {
+	public CatEntity_PetTheKitty(EntityType<? extends TamableAnimal> entityType, Level world) {
 		super(entityType, world);
 	}
 
-	@Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
-	public void bigglobe_petTheKitty(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> callback) {
-		if (player.isSneaking() && player.getStackInHand(hand).isEmpty()) {
-			if (EntityVersions.getWorld(this).isClient()) {
-				this.handleStatus(EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+	@Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
+	public void bigglobe_petTheKitty(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> callback) {
+		if (player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()) {
+			if (EntityVersions.getWorld(this).isClientSide()) {
+				this.handleEntityEvent(EntityEvent.TAMING_SUCCEEDED);
 				EntityVersions.getWorld(this).playSound(
 					player,
 					this.getX(),
 					this.getY(),
 					this.getZ(),
-					SoundEvents.ENTITY_CAT_PURR,
-					this.getSoundCategory(),
+					SoundEvents.CAT_PURR,
+					this.getSoundSource(),
 					this.getSoundVolume(),
-					this.getSoundPitch()
+					this.getVoicePitch()
 				);
 			}
-			callback.setReturnValue(ActionResult.SUCCESS);
+			callback.setReturnValue(InteractionResult.SUCCESS);
 		}
 	}
 }

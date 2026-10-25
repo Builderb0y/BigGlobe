@@ -1,23 +1,23 @@
 package builderb0y.bigglobe.settings;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.MapLike;
 import org.jetbrains.annotations.NotNull;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseEncoder;
 import builderb0y.autocodec.annotations.UseImprinter;
 import builderb0y.autocodec.common.FactoryContext;
-import builderb0y.autocodec.data.*;
+import builderb0y.autocodec.data.Data;
+import builderb0y.autocodec.data.EmptyData;
+import builderb0y.autocodec.data.ListData;
+import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.AutoDecoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
@@ -31,7 +31,7 @@ import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.util.DFUVersions;
 
 @UseImprinter(name = "new", in = VariationsList.Imprinter.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
-@UseEncoder  (name = "new", in = VariationsList.Encoder  .class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
+@UseEncoder(name = "new", in = VariationsList.Encoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 public class VariationsList<T> {
 
 	public static <T> T unwrap(DataResult<T> result) {
@@ -77,24 +77,24 @@ public class VariationsList<T> {
 			Data defaults = root.getMember("defaults");
 			if (!defaults.isEmpty()) {
 				Data[] layers = (
-					variations.value.stream() /* [ {}, {} ] */ .flatMap(
-						VariationsList::expand /* {} */
-					)
-					.toArray(Data.ARRAY_FACTORY)
+					variations.value.stream() /* [ {}, {} ] */.flatMap(
+							VariationsList::expand /* {} */
+						)
+						.toArray(Data.ARRAY_FACTORY)
 				);
 				return flatten(Stream.of(defaults), layers, deep);
 			}
 			else {
 				Data[] layers = (
-					variations.value.stream() /* [ [ {}, {} ], [ {}, {} ] ] */ .map(
-						(Data list /* [ {}, {} ] */) -> {
-							return ListData.collect(
-								forceStream(list)
-								.flatMap(VariationsList::expand /* {} */)
-							);
-						}
-					)
-					.toArray(Data.ARRAY_FACTORY)
+					variations.value.stream() /* [ [ {}, {} ], [ {}, {} ] ] */.map(
+							(Data list /* [ {}, {} ] */) -> {
+								return ListData.collect(
+									forceStream(list)
+										.flatMap(VariationsList::expand /* {} */)
+								);
+							}
+						)
+						.toArray(Data.ARRAY_FACTORY)
 				);
 				Stream<Data> stream = forceStream(layers[0]);
 				for (int index = 1, length = layers.length; index < length; index++) {

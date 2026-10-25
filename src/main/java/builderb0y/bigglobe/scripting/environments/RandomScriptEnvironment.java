@@ -3,8 +3,6 @@ package builderb0y.bigglobe.scripting.environments;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
@@ -28,8 +26,6 @@ import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.MemberKeywordHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
-import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode;
 import builderb0y.scripting.environments.ScriptEnvironment.MemberKeywordMode.MemberKeywordFunction;
 import builderb0y.scripting.parsing.ExpressionParser;
@@ -42,6 +38,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class RandomScriptEnvironment {
 
 	public static final RandomGeneratorInfo RNG_INFO = new RandomGeneratorInfo();
+
 	public static class RandomGeneratorInfo extends InfoHolder {
 
 		public MethodInfo nextBoolean;
@@ -85,6 +82,7 @@ public class RandomScriptEnvironment {
 	}
 
 	public static final PermuterInfo PERMUTER_INFO = new PermuterInfo();
+
 	@SuppressWarnings("unused")
 	public static class PermuterInfo extends InfoHolder {
 
@@ -267,41 +265,53 @@ public class RandomScriptEnvironment {
 
 	public static final MutableScriptEnvironment BASE = (
 		new MutableScriptEnvironment()
-		.addType("Random", RandomGenerator.class)
-		.addQualifiedFunction(type(RandomGenerator.class), "new", new FunctionHandler.Named("Random.new(long [, int...])", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-			if (arguments.length == 0) return null;
-			CastResult seed = createSeed(parser, arguments);
-			return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
-		}))
-		.addMethodInvoke("nextInt", RNG_INFO.nextInt)
-		.addMethodInvoke("nextInt", RNG_INFO.nextIntBound)
-		.addMethodInvoke("nextInt", RNG_INFO.nextIntOriginBound)
-		.addMethodInvoke("nextLong", RNG_INFO.nextLong)
-		.addMethodInvoke("nextLong", RNG_INFO.nextLongBound)
-		.addMethodInvoke("nextLong", RNG_INFO.nextLongOriginBound)
-		.addMethodInvoke("nextFloat", RNG_INFO.nextFloat)
-		.addMethodInvoke("nextFloat", RNG_INFO.nextFloatBound)
-		.addMethodInvoke("nextFloat", RNG_INFO.nextFloatOriginBound)
-		.addMethodInvoke("nextDouble", RNG_INFO.nextDouble)
-		.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
-		.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
-		.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
-		.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanF)
-		.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanD)
-		.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
-		.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
-		.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
-		.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
-		.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
-		.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
-		.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
-		.addMemberKeyword(type(RandomGenerator.class), "if", new MemberKeywordHandler.Named("random.if (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-			return wrapRandomIf(parser, receiver, false, mode);
-		}))
-		.addMemberKeyword(type(RandomGenerator.class), "unless", new MemberKeywordHandler.Named("random.unless (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-			return wrapRandomIf(parser, receiver, true, mode);
-		}))
-		.addMemberKeyword(type(RandomGenerator.class), "switch", new MemberKeywordHandler.Named("random.switch(case1, case2, ...) or random.switch(weight1: case1, weight2: case2, ...)", randomSwitch()))
+			.addType("Random", RandomGenerator.class)
+			.addQualifiedFunction(
+				type(RandomGenerator.class), "new", new FunctionHandler.Named(
+					"Random.new(long [, int...])", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					if (arguments.length == 0) return null;
+					CastResult seed = createSeed(parser, arguments);
+					return new CastResult(newInstance(PERMUTER_INFO.constructor, seed.tree()), seed.requiredCasting());
+				}
+				)
+			)
+			.addMethodInvoke("nextInt", RNG_INFO.nextInt)
+			.addMethodInvoke("nextInt", RNG_INFO.nextIntBound)
+			.addMethodInvoke("nextInt", RNG_INFO.nextIntOriginBound)
+			.addMethodInvoke("nextLong", RNG_INFO.nextLong)
+			.addMethodInvoke("nextLong", RNG_INFO.nextLongBound)
+			.addMethodInvoke("nextLong", RNG_INFO.nextLongOriginBound)
+			.addMethodInvoke("nextFloat", RNG_INFO.nextFloat)
+			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatBound)
+			.addMethodInvoke("nextFloat", RNG_INFO.nextFloatOriginBound)
+			.addMethodInvoke("nextDouble", RNG_INFO.nextDouble)
+			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleBound)
+			.addMethodInvoke("nextDouble", RNG_INFO.nextDoubleOriginBound)
+			.addMethodInvoke("nextBoolean", RNG_INFO.nextBoolean)
+			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanF)
+			.addMethodInvokeStatic("nextBoolean", PERMUTER_INFO.rngNextChancedBooleanD)
+			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussian)
+			.addMethodInvoke("nextGaussian", RNG_INFO.nextGaussianMeanDev)
+			.addMethodInvoke("nextExponential", RNG_INFO.nextExponential)
+			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyIF)
+			.addMethodInvokeStatic("roundInt", PERMUTER_INFO.rngRoundRandomlyID)
+			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLF)
+			.addMethodInvokeStatic("roundLong", PERMUTER_INFO.rngRoundRandomlyLD)
+			.addMemberKeyword(
+				type(RandomGenerator.class), "if", new MemberKeywordHandler.Named(
+					"random.if (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+					return wrapRandomIf(parser, receiver, false, mode);
+				}
+				)
+			)
+			.addMemberKeyword(
+				type(RandomGenerator.class), "unless", new MemberKeywordHandler.Named(
+					"random.unless (chance: body)", (ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
+					return wrapRandomIf(parser, receiver, true, mode);
+				}
+				)
+			)
+			.addMemberKeyword(type(RandomGenerator.class), "switch", new MemberKeywordHandler.Named("random.switch(case1, case2, ...) or random.switch(weight1: case1, weight2: case2, ...)", randomSwitch()))
 	);
 
 	public static Consumer<MutableScriptEnvironment> create(InsnTree loader) {
@@ -433,21 +443,21 @@ public class RandomScriptEnvironment {
 					"randomSwitch",
 					TypeInfos.INT,
 					Stream.concat(
-						Stream.of(receiver.getTypeInfo()),
-						weights
-						.stream()
-						.filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic())
-						.map(InsnTree::getTypeInfo)
-					)
-					.toArray(TypeInfo.ARRAY_FACTORY)
+							Stream.of(receiver.getTypeInfo()),
+							weights
+								.stream()
+								.filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic())
+								.map(InsnTree::getTypeInfo)
+						)
+						.toArray(TypeInfo.ARRAY_FACTORY)
 				);
 				ConstantValue[] constantArgs = Stream.concat(
-					Stream.of(constant(weightType)),
-					weights
-					.stream()
-					.map((InsnTree tree) -> tree.getConstantValue().isConstantOrDynamic() ? tree.getConstantValue() : constant(0, tree.getTypeInfo()))
-				)
-				.toArray(ConstantValue.ARRAY_FACTORY);
+						Stream.of(constant(weightType)),
+						weights
+							.stream()
+							.map((InsnTree tree) -> tree.getConstantValue().isConstantOrDynamic() ? tree.getConstantValue() : constant(0, tree.getTypeInfo()))
+					)
+												.toArray(ConstantValue.ARRAY_FACTORY);
 				InsnTree[] runtimeArgs = weights.stream().filter((InsnTree tree) -> !tree.getConstantValue().isConstantOrDynamic()).toArray(InsnTree.ARRAY_FACTORY);
 				selector = (InsnTree actualReceiver) -> switch_(
 					parser,
@@ -463,13 +473,15 @@ public class RandomScriptEnvironment {
 			else {
 				throw new ScriptParsingException("Expected ',' or ':'", parser.input);
 			}
-			return (switch (mode) {
-				case NORMAL -> MemberKeywordMode.NORMAL;
-				case NULLABLE -> MemberKeywordMode.NULLABLE;
-				case RECEIVER -> MemberKeywordMode.RECEIVER;
-				case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
-			})
-			.apply(receiver, selector);
+			return (
+				switch (mode) {
+					case NORMAL -> MemberKeywordMode.NORMAL;
+					case NULLABLE -> MemberKeywordMode.NULLABLE;
+					case RECEIVER -> MemberKeywordMode.RECEIVER;
+					case NULLABLE_RECEIVER -> MemberKeywordMode.NULLABLE_RECEIVER;
+				}
+			)
+					.apply(receiver, selector);
 		};
 	}
 }

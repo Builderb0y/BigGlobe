@@ -8,119 +8,99 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.*;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-
-import builderb0y.bigglobe.BigGlobeMod;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.Level;
 import builderb0y.bigglobe.versions.ActionResultVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
-
-#if MC_VERSION >= MC_1_21_2
-	import net.minecraft.item.consume.UseAction;
-	import net.minecraft.util.ActionResult;
-#else
-	import net.minecraft.util.TypedActionResult;
-	import net.minecraft.util.UseAction;
-#endif
 
 /**
 mostly a copy-paste of {@link BowItem} but edited to work with rocks,
 which are not an instance of {@link ArrowItem}.
 */
-public class SlingshotItem extends RangedWeaponItem
-	#if MC_VERSION < MC_1_20_5
-	implements Vanishable
-	#endif
-{
+public class SlingshotItem extends ProjectileWeaponItem {
 
-	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.isIn(BigGlobeItemTags.SLINGSHOT_AMMUNITION);
+	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.is(BigGlobeItemTags.SLINGSHOT_AMMUNITION);
 
-	public SlingshotItem(Settings settings) {
+	public SlingshotItem(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public
-		#if MC_VERSION >= MC_1_21_2
-			boolean
-		#else
-			void
-		#endif
-	onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+	public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
 		float progress;
-		if (!(user instanceof PlayerEntity playerEntity)) {
-			return #if MC_VERSION >= MC_1_21_2 false #endif;
+		if (!(user instanceof Player playerEntity)) {
+			return;
 		}
-		boolean creative = playerEntity.getAbilities().creativeMode;
+		boolean creative = playerEntity.getAbilities().instabuild;
 		ItemStack ammunitionStack = EntityVersions.getAmmunition(playerEntity, stack);
 		if ((ammunitionStack.isEmpty() || ammunitionStack.getItem() == Items.ARROW) && !creative) {
-			return #if MC_VERSION >= MC_1_21_2 false #endif;
+			return;
 		}
 		if (ammunitionStack.isEmpty() || ammunitionStack.getItem() == Items.ARROW) {
 			ammunitionStack = new ItemStack(BigGlobeItems.ROCK);
 		}
-		if ((progress = BowItem.getPullProgress(this.getMaxUseTime(stack #if MC_VERSION >= MC_1_21_0 , user #endif) - remainingUseTicks)) < 0.1F) {
-			return #if MC_VERSION >= MC_1_21_2 false #endif;
+		if ((progress = BowItem.getPowerForTime(this.getUseDuration(stack, user) - remainingUseTicks)) < 0.1F) {
+			return;
 		}
-		boolean creativeRock = creative && ammunitionStack.isOf(BigGlobeItems.ROCK);
-		if (!world.isClient()) {
+		boolean creativeRock = creative && ammunitionStack.is(BigGlobeItems.ROCK);
+		if (!world.isClientSide()) {
 			SlingshotAmmunition arrowItem = ammunitionStack.getItem() instanceof SlingshotAmmunition ammo ? ammo : (SlingshotAmmunition)(BigGlobeItems.ROCK);
-			ProjectileEntity projectile = arrowItem.createProjectile(world, user, ammunitionStack, stack);
-			projectile.setVelocity(playerEntity, playerEntity.getPitch(), playerEntity.getYaw(), 0.0F, progress * 1.5F, 1.0F);
-			ItemStackVersions.damage(stack, playerEntity, playerEntity.getActiveHand());
-			world.spawnEntity(projectile);
+			Projectile projectile = arrowItem.createProjectile(world, user, ammunitionStack, stack);
+			projectile.shootFromRotation(playerEntity, playerEntity.getXRot(), playerEntity.getYRot(), 0.0F, progress * 1.5F, 1.0F);
+			ItemStackVersions.damage(stack, playerEntity, playerEntity.getUsedItemHand());
+			world.addFreshEntity(projectile);
 		}
-		world.playSound(null, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (world.getRandom().nextFloat() * 0.4F + 1.2F) + progress * 0.5F);
-		if (!creativeRock && !playerEntity.getAbilities().creativeMode) {
-			ammunitionStack.decrement(1);
+		world.playSound(null, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F / (world.getRandom().nextFloat() * 0.4F + 1.2F) + progress * 0.5F);
+		if (!creativeRock && !playerEntity.getAbilities().instabuild) {
+			ammunitionStack.shrink(1);
 			if (ammunitionStack.isEmpty()) {
-				playerEntity.getInventory().removeOne(ammunitionStack);
+				playerEntity.getInventory().removeItem(ammunitionStack);
 			}
 		}
-		playerEntity.incrementStat(Stats.USED.getOrCreateStat(this));
-		#if MC_VERSION >= MC_1_21_2
-			return true;
-		#endif
+		playerEntity.awardStat(Stats.ITEM_USED.get(this));
+
+		return;
 	}
 
-	#if MC_VERSION >= MC_1_20_5
+	@Override
+	public void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
 
-		@Override
-		public void shoot(LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
-
-		}
-
-	#endif
+	}
 
 	@Override
-	public int getMaxUseTime(ItemStack stack #if MC_VERSION >= MC_1_21_0 , LivingEntity user #endif) {
+	public int getUseDuration(ItemStack stack, LivingEntity user) {
 		return 72000;
 	}
 
 	public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
-	/** this is a client-side class, so we need to be extra careful to not load it on the server. */
+	/**
+	this is a client-side class, so we need to be extra careful to not load it on the server.
+	*/
 	public static final Class<?> PLAYER_ENTITY_RENDERER = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ? getPlayerEntityRenderer() : null;
 
 	@Environment(EnvType.CLIENT)
 	public static Class<?> getPlayerEntityRenderer() {
-		return PlayerEntityRenderer.class;
+		return PlayerRenderer.class;
 	}
 
 	@Override
-	public UseAction getUseAction(ItemStack stack) {
+	public UseAnim getUseAnimation(ItemStack stack) {
 		/**
 		welcome to hacky code 101.
 		the first person renderer needs to apply no offsets, rotations,
@@ -131,33 +111,27 @@ public class SlingshotItem extends RangedWeaponItem
 		or technically the caller's caller, since the first
 		caller is always {@link ItemStack#getUseAction()}.
 		*/
-		return STACK_WALKER.walk(stream -> stream.map(StackFrame::getDeclaringClass).skip(3).findFirst()).orElse(null) == PLAYER_ENTITY_RENDERER ? UseAction.TOOT_HORN : UseAction.NONE;
+		return STACK_WALKER.walk(stream -> stream.map(StackFrame::getDeclaringClass).skip(3).findFirst()).orElse(null) == PLAYER_ENTITY_RENDERER ? UseAnim.TOOT_HORN : UseAnim.NONE;
 	}
 
 	@Override
-	public
-		#if MC_VERSION >= MC_1_21_2
-			ActionResult
-		#else
-			TypedActionResult<ItemStack>
-		#endif
-	use(World world, PlayerEntity user, Hand hand) {
-		ItemStack itemStack = user.getStackInHand(hand);
+	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+		ItemStack itemStack = user.getItemInHand(hand);
 		boolean hasAmmunition = !EntityVersions.getAmmunition(user, itemStack).isEmpty();
-		if (user.getAbilities().creativeMode || hasAmmunition) {
-			user.setCurrentHand(hand);
+		if (user.getAbilities().instabuild || hasAmmunition) {
+			user.startUsingItem(hand);
 			return ActionResultVersions.typedConsume(itemStack);
 		}
 		return ActionResultVersions.typedFail(itemStack);
 	}
 
 	@Override
-	public Predicate<ItemStack> getProjectiles() {
+	public Predicate<ItemStack> getAllSupportedProjectiles() {
 		return AMMUNITION_PREDICATE;
 	}
 
 	@Override
-	public int getRange() {
+	public int getDefaultProjectileRange() {
 		return 15;
 	}
 }

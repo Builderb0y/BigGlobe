@@ -5,7 +5,9 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 
-/** note: minY and maxY are INCLUSIVE. */
+/**
+note: minY and maxY are INCLUSIVE.
+*/
 public abstract class SegmentList<T_Segment extends SegmentList.Segment> extends ObjectArrayList<T_Segment> {
 
 	public static final boolean ASSERTS = false;
@@ -101,7 +103,7 @@ public abstract class SegmentList<T_Segment extends SegmentList.Segment> extends
 			}
 			else {
 				T_Segment highest = this.get(this.size() - 1);
-				T_Segment lowest  = this.get(0);
+				T_Segment lowest = this.get(0);
 				if (minY > highest.maxY) {
 					//new segment is above all other segments.
 					this.add(result = this.newSegment(minY, maxY));
@@ -160,10 +162,12 @@ public abstract class SegmentList<T_Segment extends SegmentList.Segment> extends
 									T_Segment clone = (T_Segment)(segment.clone());
 									segment.maxY = minY - 1;
 									clone.minY = maxY + 1;
-									this.addAll(minIndex + 1, List.of(
-										result = this.newSegment(minY, maxY),
-										clone
-									));
+									this.addAll(
+										minIndex + 1, List.of(
+											result = this.newSegment(minY, maxY),
+											clone
+										)
+									);
 									this.mergeAt(minIndex + 1);
 								}
 							}
@@ -230,7 +234,7 @@ public abstract class SegmentList<T_Segment extends SegmentList.Segment> extends
 			}
 			else {
 				T_Segment highest = this.get(this.size() - 1);
-				T_Segment lowest  = this.get(0);
+				T_Segment lowest = this.get(0);
 				if (minY > highest.maxY) {
 					//new segment is above all other segments.
 					//nothing to do in this case.

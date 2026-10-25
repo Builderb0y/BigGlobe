@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.features.dispatch;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
@@ -18,13 +16,13 @@ public class TagFeatureDispatcher implements FeatureDispatcher {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return this.tag.entryStream();
 	}
 
 	@Override
-	public void generate(WorldWrapper world, Permuter random, long chunkSeed, RegistryEntry<FeatureDispatcher> selfEntry) {
-		for (RegistryEntry<FeatureDispatcher> entry : this.tag.entryList()) {
+	public void generate(WorldWrapper world, Permuter random, long chunkSeed, Holder<FeatureDispatcher> selfEntry) {
+		for (Holder<FeatureDispatcher> entry : this.tag.entryList()) {
 			entry.value().generate(world, random, chunkSeed, entry);
 		}
 	}

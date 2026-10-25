@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.PalettedContainer;
-
+import net.minecraft.util.BitStorage;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
@@ -36,30 +34,32 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 	public void replaceRocks(
 		BigGlobeScriptedChunkGenerator generator,
 		WorldWrapper worldWrapper,
-		Chunk chunk,
+		ChunkAccess chunk,
 		int minSection,
 		int maxSection,
 		Config config
 	) {
 		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x, chunk.getPos().z);
-		Async.loop(BigGlobeThreadPool.autoExecutor(), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int yCoord) -> {
-			ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(yCoord));
-			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, yCoord);
-			PaletteIdReplacer replacer = PaletteIdReplacer.of(context, config.blocks);
-			if (replacer != null) {
-				PalettedContainer<BlockState> container = section.getBlockStateContainer();
-				PaletteStorage storage = SectionUtil.storage(container);
-				long sectionSeed = Permuter.permute(chunkSeed, yCoord);
-				for (int attempt = config.count; --attempt >= 0;) {
-					int index = ((int)(Permuter.permute(sectionSeed, attempt))) & 4095;
-					int oldID = storage.get(index);
-					int newID = replacer.getReplacement(oldID);
-					if (oldID != newID) {
-						storage.set(index, newID);
+		Async.loop(
+			BigGlobeThreadPool.autoExecutor(), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int yCoord) -> {
+				LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(yCoord));
+				SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, yCoord);
+				PaletteIdReplacer replacer = PaletteIdReplacer.of(context, config.blocks);
+				if (replacer != null) {
+					PalettedContainer<BlockState> container = section.getStates();
+					BitStorage storage = SectionUtil.storage(container);
+					long sectionSeed = Permuter.permute(chunkSeed, yCoord);
+					for (int attempt = config.count; --attempt >= 0; ) {
+						int index = ((int)(Permuter.permute(sectionSeed, attempt))) & 4095;
+						int oldID = storage.get(index);
+						int newID = replacer.getReplacement(oldID);
+						if (oldID != newID) {
+							storage.set(index, newID);
+						}
 					}
 				}
 			}
-		});
+		);
 	}
 
 	public static class Config extends DummyConfig {

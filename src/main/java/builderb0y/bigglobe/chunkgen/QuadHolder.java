@@ -1,10 +1,5 @@
 package builderb0y.bigglobe.chunkgen;
 
-import net.minecraft.block.FluidBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.EmptyBlockView;
-
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList;
 import builderb0y.bigglobe.chunkgen.scripted.BlockSegmentList.LitSegment;
 import builderb0y.bigglobe.chunkgen.scripted.Layer;
@@ -13,12 +8,16 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.LiquidBlock;
 
 public class QuadHolder<T> {
 
 	public T object00, object01, object10, object11;
 
-	public QuadHolder() {}
+	public QuadHolder() {
+	}
 
 	public QuadHolder(T object00, T object01, T object10, T object11) {
 		this.set(object00, object01, object10, object11);
@@ -63,7 +62,8 @@ public class QuadHolder<T> {
 
 	public static class QuadColumn extends QuadHolder<ScriptedColumn> {
 
-		public QuadColumn() {}
+		public QuadColumn() {
+		}
 
 		public QuadColumn(ScriptedColumn object00, ScriptedColumn object01, ScriptedColumn object10, ScriptedColumn object11) {
 			super(object00, object01, object10, object11);
@@ -93,7 +93,8 @@ public class QuadHolder<T> {
 
 	public static class QuadList extends QuadHolder<BlockSegmentList> {
 
-		public QuadList() {}
+		public QuadList() {
+		}
 
 		public QuadList(BlockSegmentList object00, BlockSegmentList object01, BlockSegmentList object10, BlockSegmentList object11) {
 			super(object00, object01, object10, object11);
@@ -138,7 +139,7 @@ public class QuadHolder<T> {
 					}
 				}
 				//ensure liquids can't overwrite normal blocks.
-				else if (segment.value.getBlock() instanceof FluidBlock) {
+				else if (segment.value.getBlock() instanceof LiquidBlock) {
 					LitSegment existing = newList.getOverlappingSegment(minY);
 					if (existing != null && !existing.value.isAir() && existing.value.getFluidState().isEmpty()) {
 						minY = Math.min(Math.max(minY, existing.maxY + 1), maxY);
@@ -160,7 +161,7 @@ public class QuadHolder<T> {
 
 		public static void copyAir(BlockSegmentList source, BlockSegmentList destination) {
 			for (LitSegment segment : source) {
-				if (!BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+				if (!BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
 					destination.addSegment(segment.minY, segment.maxY, segment.value);
 					LitSegment newSegment = destination.getOverlappingSegment(segment.minY);
 					newSegment.skylightLevel = (byte)(Math.max(newSegment.skylightLevel, segment.skylightLevel));
@@ -173,7 +174,7 @@ public class QuadHolder<T> {
 			for (LitSegment segment : list) {
 				int minY = segment.minY >> deltaLod, maxY = segment.maxY >> deltaLod;
 				//ensure culling blocks can't overwrite non-culling blocks.
-				if (BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+				if (BlockStateVersions.isOpaqueFullCube(segment.value, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
 					LitSegment existing = newList.getOverlappingSegment(minY);
 					if (existing != null) {
 						minY = Math.max(minY, existing.maxY + 1);

@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.world.biome.Biome;
-
 import builderb0y.bigglobe.blocks.RiverWaterBlock;
 
 @Mixin(Biome.class)
@@ -24,7 +22,7 @@ public class Biome_DontFreezeRiverWater {
 	my workaround is to spoof the block when it's an instance of RiverWaterBlock,
 	and leave the instanceof check as-is.
 	*/
-	@ModifyExpressionValue(method = "canSetIce(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Z)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;getBlock()Lnet/minecraft/block/Block;"))
+	@ModifyExpressionValue(method = "shouldFreeze(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Z)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getBlock()Lnet/minecraft/world/level/block/Block;"))
 	private Block bigglobe_checkRiverWater(Block block) {
 		if (block instanceof RiverWaterBlock) return Blocks.AIR; //or any other non-fluid block.
 		else return block;

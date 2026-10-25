@@ -3,66 +3,61 @@ package builderb0y.bigglobe.blocks;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FlowableFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.versions.GameruleVersions;
 
 @AddPseudoField("fluid")
-public class RiverWaterBlock extends FluidBlock {
+public class RiverWaterBlock extends LiquidBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<RiverWaterBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RiverWaterBlock.class);
+	public static final MapCodec<RiverWaterBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RiverWaterBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public RiverWaterBlock(RegistryEntry<Fluid> fluid, Settings settings) {
-		super((FlowableFluid)(fluid.value()), settings);
+	public RiverWaterBlock(Holder<Fluid> fluid, Properties settings) {
+		super((FlowingFluid)(fluid.value()), settings);
 	}
 
 	@SuppressWarnings("deprecation")
-	public RegistryEntry<Fluid> fluid() {
-		return this.fluid.getRegistryEntry();
+	public Holder<Fluid> fluid() {
+		return this.fluid.builtInRegistryHolder();
 	}
 
-	public boolean isDangerous(World world) {
-		if (world instanceof ServerWorld serverWorld) {
+	public boolean isDangerous(Level world) {
+		if (world instanceof ServerLevel serverWorld) {
 			return GameruleVersions.dangerousRapids(serverWorld);
 		}
 		else {
@@ -74,60 +69,44 @@ public class RiverWaterBlock extends FluidBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(
-		BlockState state,
-		World world,
-		BlockPos pos,
-		Entity entity
-		#if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif
-		#if MC_VERSION >= MC_1_21_9 , boolean movingFastOrBlockPosIsInsideDestinationBox #endif
-	) {
-		super.onEntityCollision(
-			state,
-			world,
-			pos,
-			entity
-			#if MC_VERSION >= MC_1_21_5 , handler #endif
-			#if MC_VERSION >= MC_1_21_9 , movingFastOrBlockPosIsInsideDestinationBox #endif
-		);
+	public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) { super.entityInside(state, world, pos, entity);
 		if (
-			#if MC_VERSION >= MC_1_21_9 movingFastOrBlockPosIsInsideDestinationBox && #endif
 			this.isDangerous(world) &&
 			!(
-				entity instanceof PlayerEntity player &&
+				entity instanceof Player player &&
 				player.getAbilities().flying
 			)
-			&& entity.getBlockPos().equals(pos)) {
-			BlockPos.Mutable mutablePos = pos.mutableCopy();
-			while (world.getBlockState(mutablePos.setY(mutablePos.getY() + 1)).getBlock() == this);
-			Vec3d velocity = this.fluid.getVelocity(world, mutablePos.setY(mutablePos.getY() - 1), world.getFluidState(mutablePos));
+			&& entity.blockPosition().equals(pos)) {
+			BlockPos.MutableBlockPos mutablePos = pos.mutable();
+			while (world.getBlockState(mutablePos.setY(mutablePos.getY() + 1)).getBlock() == this) ;
+			Vec3 velocity = this.fluid.getFlow(world, mutablePos.setY(mutablePos.getY() - 1), world.getFluidState(mutablePos));
 			//adding velocity to velocity is normally incredibly dangerous,
 			//since this can result in exponential growth.
 			//however, the water naturally slows you down, preventing this growth.
 			//so, why do I still add it to itself anyway?
 			//it's so that the change to velocity is slightly smoother.
-			entity.addVelocity(
-				world.random.nextTriangular((velocity.x + entity.getVelocity().x) * 0.125D, 0.125D),
-				world.random.nextTriangular((velocity.y + entity.getVelocity().y) * 0.125D, 0.25D ),
-				world.random.nextTriangular((velocity.z + entity.getVelocity().z) * 0.125D, 0.125D)
+			entity.push(
+				world.random.triangle((velocity.x + entity.getDeltaMovement().x) * 0.125D, 0.125D),
+				world.random.triangle((velocity.y + entity.getDeltaMovement().y) * 0.125D, 0.25D),
+				world.random.triangle((velocity.z + entity.getDeltaMovement().z) * 0.125D, 0.125D)
 			);
 		}
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-		super.randomDisplayTick(state, world, pos, random);
+	public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+		super.animateTick(state, world, pos, random);
 		ClientState clientState;
-		if (world.isClient() && (clientState = ClientState.get(world)) != null && clientState.dangerousRapids) {
+		if (world.isClientSide() && (clientState = ClientState.get(world)) != null && clientState.dangerousRapids) {
 			if (random.nextInt(64) == 0) {
-				world.playSound(MinecraftClient.getInstance().player, pos, SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
+				world.playSound(Minecraft.getInstance().player, pos, SoundEvents.WATER_AMBIENT, SoundSource.BLOCKS, 4.0F, random.nextFloat() + 0.5F);
 			}
-			if (world.getBlockState(pos.up()).getBlock() != this) {
+			if (world.getBlockState(pos.above()).getBlock() != this) {
 				//world.addParticle() has an overload which takes particle velocity,
 				//but falling water particles in particular don't use the velocity parameter.
 				//so, I have to set the velocity manually.
-				Particle particle = MinecraftClient.getInstance().particleManager.addParticle(
+				Particle particle = Minecraft.getInstance().particleEngine.createParticle(
 					ParticleTypes.FALLING_WATER,
 					pos.getX() + random.nextDouble(),
 					pos.getY() + random.nextDouble(),
@@ -137,64 +116,46 @@ public class RiverWaterBlock extends FluidBlock {
 					0.0D
 				);
 				if (particle != null) {
-					Vec3d velocity = world.getFluidState(pos).getVelocity(world, pos);
-					particle.setVelocity(velocity.x * 0.25D, (velocity.y + random.nextDouble()) * 0.25D, velocity.z * 0.25D);
+					Vec3 velocity = world.getFluidState(pos).getFlow(world, pos);
+					particle.setParticleSpeed(velocity.x * 0.25D, (velocity.y + random.nextDouble()) * 0.25D, velocity.z * 0.25D);
 				}
 			}
 		}
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return (
-			context.isAbove(COLLISION_SHAPE, pos, true) &&
-			context.canWalkOnFluid(world.getFluidState(pos.up()), state.getFluidState())
-			? COLLISION_SHAPE
-			: VoxelShapes.empty()
+			context.isAbove(STABLE_SHAPE, pos, true) &&
+			context.canStandOnFluid(world.getFluidState(pos.above()), state.getFluidState())
+				? STABLE_SHAPE
+				: Shapes.empty()
 		);
 	}
 
 	@Override
-	public boolean hasRandomTicks(BlockState state) {
+	public boolean isRandomlyTicking(BlockState state) {
 		return false;
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+	public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
 		//no-op.
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify) {
 		//no-op.
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(
-		#if MC_VERSION >= MC_1_21_2
-			BlockState state,
-			WorldView world,
-			net.minecraft.world.tick.ScheduledTickView tickView,
-			BlockPos pos,
-			Direction direction,
-			BlockPos neighborPos,
-			BlockState neighborState,
-			Random random
-		#else
-			BlockState state,
-			Direction direction,
-			BlockState neighborState,
-			WorldAccess world,
-			BlockPos pos,
-			BlockPos neighborPos
-		#endif
-	) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
 		return state;
 	}
 
 	@Override
-	public ItemStack tryDrainFluid(#if MC_VERSION >= MC_1_21_5 @Nullable LivingEntity drainer, #elif MC_VERSION >= MC_1_20_2 @Nullable PlayerEntity player, #endif WorldAccess world, BlockPos pos, BlockState state) {
+	public ItemStack pickupBlock(@Nullable Player player, LevelAccessor world, BlockPos pos, BlockState state) {
 		//don't set block to air.
-		return state.get(LEVEL) == 0 ? new ItemStack(this.fluid.getBucketItem()) : ItemStack.EMPTY;
+		return state.getValue(LEVEL) == 0 ? new ItemStack(this.fluid.getBucket()) : ItemStack.EMPTY;
 	}
 }

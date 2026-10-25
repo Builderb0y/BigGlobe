@@ -12,27 +12,27 @@ import net.minecraft.nbt.*;
 
 /**
 it genuinely surprises me that {@link NbtIo} doesn't have
-simple methods for reading and writing {@link NbtElement}'s.
+simple methods for reading and writing {@link Tag}'s.
 */
 public class NbtIo2 {
 
-	//////////////////////////////// writing ////////////////////////////////
+	/// ///////////////////////////// writing ////////////////////////////////
 
-	public static void write(OutputStream stream, NbtElement element) throws IOException {
-		if (element == null) element = NbtEnd.INSTANCE;
+	public static void write(OutputStream stream, Tag element) throws IOException {
+		if (element == null) element = EndTag.INSTANCE;
 		DataOutputStream data = new DataOutputStream(stream);
-		data.writeByte(element.getType());
+		data.writeByte(element.getId());
 		element.write(data);
 		data.flush(); //don't close data, because that would likely close stream too.
 	}
 
-	public static void writeCompressed(OutputStream stream, NbtElement element) throws IOException {
+	public static void writeCompressed(OutputStream stream, Tag element) throws IOException {
 		GZIPOutputStream zip = new GZIPOutputStream(stream);
 		write(zip, element);
 		zip.finish();
 	}
 
-	public static void write(ByteBuf buffer, NbtElement element) {
+	public static void write(ByteBuf buffer, Tag element) {
 		try {
 			write(new ByteBufOutputStream(buffer), element);
 		}
@@ -41,7 +41,7 @@ public class NbtIo2 {
 		}
 	}
 
-	public static void writeCompressed(ByteBuf buffer, NbtElement element) {
+	public static void writeCompressed(ByteBuf buffer, Tag element) {
 		try {
 			GZIPOutputStream zip = new GZIPOutputStream(new ByteBufOutputStream(buffer));
 			write(zip, element);
@@ -52,33 +52,28 @@ public class NbtIo2 {
 		}
 	}
 
-	//////////////////////////////// reading ////////////////////////////////
+	/// ///////////////////////////// reading ////////////////////////////////
 
-	public static NbtElement read(InputStream stream, long limit) throws IOException {
+	public static Tag read(InputStream stream, long limit) throws IOException {
 		DataInputStream data = new DataInputStream(stream);
-		NbtType<?> type = NbtTypes.byId(data.readUnsignedByte());
-		#if MC_VERSION >= MC_1_20_4
-			return type.read(data, NbtSizeTracker.of(limit));
-		#elif MC_VERSION >= MC_1_20_2
-			return type.read(data, NbtTagSizeTracker.of(limit));
-		#else
-			return type.read(data, 0, new NbtTagSizeTracker(limit));
-		#endif
+		TagType<?> type = TagTypes.getType(data.readUnsignedByte());
+
+		return type.load(data, NbtAccounter.create(limit));
 	}
 
-	public static NbtElement read(InputStream stream) throws IOException {
+	public static Tag read(InputStream stream) throws IOException {
 		return read(stream, Long.MAX_VALUE);
 	}
 
-	public static NbtElement readCompressed(InputStream stream, long limit) throws IOException {
+	public static Tag readCompressed(InputStream stream, long limit) throws IOException {
 		return read(new GZIPInputStream(stream), limit);
 	}
 
-	public static NbtElement readCompressed(InputStream stream) throws IOException {
+	public static Tag readCompressed(InputStream stream) throws IOException {
 		return read(new GZIPInputStream(stream), Long.MAX_VALUE);
 	}
 
-	public static NbtElement read(ByteBuf buffer, long limit) {
+	public static Tag read(ByteBuf buffer, long limit) {
 		try {
 			return read(new ByteBufInputStream(buffer), limit);
 		}
@@ -87,7 +82,7 @@ public class NbtIo2 {
 		}
 	}
 
-	public static NbtElement read(ByteBuf buffer) {
+	public static Tag read(ByteBuf buffer) {
 		try {
 			return read(new ByteBufInputStream(buffer), Long.MAX_VALUE);
 		}
@@ -96,7 +91,7 @@ public class NbtIo2 {
 		}
 	}
 
-	public static NbtElement readCompressed(ByteBuf buffer, long limit) {
+	public static Tag readCompressed(ByteBuf buffer, long limit) {
 		try {
 			return read(new GZIPInputStream(new ByteBufInputStream(buffer)), limit);
 		}
@@ -105,7 +100,7 @@ public class NbtIo2 {
 		}
 	}
 
-	public static NbtElement readCompressed(ByteBuf buffer) {
+	public static Tag readCompressed(ByteBuf buffer) {
 		try {
 			return read(new GZIPInputStream(new ByteBufInputStream(buffer)), Long.MAX_VALUE);
 		}

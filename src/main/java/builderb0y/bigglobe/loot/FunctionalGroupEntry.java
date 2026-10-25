@@ -1,65 +1,42 @@
 package builderb0y.bigglobe.loot;
 
+import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootChoice;
-import net.minecraft.loot.LootTableReporter;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.entry.LootPoolEntry;
-import net.minecraft.loot.entry.LootPoolEntryType;
-import net.minecraft.loot.function.LootFunction;
-import net.minecraft.loot.function.LootFunctionTypes;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.ValidationContext;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.DefaultEmpty;
-
-#if MC_VERSION >= MC_1_20_2
-	import java.util.Arrays;
-	import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-#else
-	import com.google.gson.JsonDeserializationContext;
-	import com.google.gson.JsonObject;
-	import com.google.gson.JsonSerializationContext;
-	import org.apache.commons.lang3.ArrayUtils;
-	import net.minecraft.util.JsonHelper;
-#endif
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 @AddPseudoField("conditions")
-public class FunctionalGroupEntry extends LootPoolEntry {
+public class FunctionalGroupEntry extends LootPoolEntryContainer {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final LootPoolEntryType SERIALIZER = new LootPoolEntryType(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(FunctionalGroupEntry.class));
-	#elif MC_VERSION >= MC_1_20_2
-		public static final LootPoolEntryType SERIALIZER = new LootPoolEntryType(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(FunctionalGroupEntry.class).codec());
-	#else
-		public static final Serializer SERIALIZER = new Serializer();
-	#endif
+	public static final LootPoolEntryType SERIALIZER = new LootPoolEntryType(BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(FunctionalGroupEntry.class));
 
-	public final LootPoolEntry[] children;
-	public final LootFunction @DefaultEmpty [] functions;
+	public final LootPoolEntryContainer[] children;
+	public final LootItemFunction @DefaultEmpty [] functions;
 	public final transient BiFunction<ItemStack, LootContext, ItemStack> compiledFunctions;
 
-	public FunctionalGroupEntry(LootPoolEntry[] children, LootCondition[] conditions, LootFunction[] functions) {
-		#if MC_VERSION >= MC_1_20_2
-			super(Arrays.asList(conditions));
-			this.compiledFunctions = LootFunctionTypes.join(Arrays.asList(functions));
-		#else
-			super(conditions);
-			this.compiledFunctions = LootFunctionTypes.join(functions);
-		#endif
+	public FunctionalGroupEntry(LootPoolEntryContainer[] children, LootItemCondition[] conditions, LootItemFunction[] functions) {
+
+		super(Arrays.asList(conditions));
+		this.compiledFunctions = LootItemFunctions.compose(Arrays.asList(functions));
+
 		this.children = children;
 		this.functions = functions;
 	}
 
-	public LootCondition @DefaultEmpty [] conditions() {
-		#if MC_VERSION >= MC_1_20_2
-			return this.conditions.toArray(new LootCondition[this.conditions.size()]);
-		#else
-			return this.conditions;
-		#endif
+	public LootItemCondition @DefaultEmpty [] conditions() {
+
+		return this.conditions.toArray(new LootItemCondition[this.conditions.size()]);
 	}
 
 	@Override
@@ -69,53 +46,35 @@ public class FunctionalGroupEntry extends LootPoolEntry {
 
 	@Override
 	@SuppressWarnings("NonShortCircuitBooleanExpression")
-	public boolean expand(LootContext context, Consumer<LootChoice> choiceConsumer) {
+	public boolean expand(LootContext context, Consumer<LootPoolEntry> choiceConsumer) {
 		boolean success = false;
-		for (LootPoolEntry child : this.children) {
-			success |= child.expand(context, (LootChoice choice) -> {
-				choiceConsumer.accept(new LootChoice() {
+		for (LootPoolEntryContainer child : this.children) {
+			success |= child.expand(
+				context, (LootPoolEntry choice) -> {
+					choiceConsumer.accept(new LootPoolEntry() {
 
-					@Override
-					public int getWeight(float luck) {
-						return choice.getWeight(luck);
-					}
+						@Override
+						public int getWeight(float luck) {
+							return choice.getWeight(luck);
+						}
 
-					@Override
-					public void generateLoot(Consumer<ItemStack> lootConsumer, LootContext context) {
-						choice.generateLoot(LootFunction.apply(FunctionalGroupEntry.this.compiledFunctions, lootConsumer, context), context);
-					}
-				});
-			});
+						@Override
+						public void createItemStack(Consumer<ItemStack> lootConsumer, LootContext context) {
+							choice.createItemStack(LootItemFunction.decorate(FunctionalGroupEntry.this.compiledFunctions, lootConsumer, context), context);
+						}
+					});
+				}
+			);
 		}
 		return success;
 	}
 
 	@Override
-	public void validate(LootTableReporter reporter) {
+	public void validate(ValidationContext reporter) {
 		super.validate(reporter);
-		LootFunction[] functions = this.functions;
+		LootItemFunction[] functions = this.functions;
 		for (int index = 0, length = functions.length; index < length; index++) {
-			final int index_ = index; //lambdas -_-
-			functions[index].validate(reporter.makeChild(#if MC_VERSION >= MC_1_21_6 () -> #endif ".functions[" + index_ + ']'));
+			functions[index].validate(reporter.forChild(".functions[" + index + ']'));
 		}
 	}
-
-	#if MC_VERSION < MC_1_20_2
-		public static class Serializer extends LootPoolEntry.Serializer<FunctionalGroupEntry> {
-
-			@Override
-			public void addEntryFields(JsonObject json, FunctionalGroupEntry entry, JsonSerializationContext context) {
-				if (!ArrayUtils.isEmpty(entry.functions)) {
-					json.add("functions", context.serialize(entry.functions));
-				}
-			}
-
-			@Override
-			public FunctionalGroupEntry fromJson(JsonObject json, JsonDeserializationContext context, LootCondition[] conditions) {
-				LootPoolEntry[] children = JsonHelper.deserialize(json, "children", context, LootPoolEntry[].class);
-				LootFunction[] functions = JsonHelper.deserialize(json, "functions", new LootFunction[0], context, LootFunction[].class);
-				return new FunctionalGroupEntry(children, conditions, functions);
-			}
-		}
-	#endif
 }

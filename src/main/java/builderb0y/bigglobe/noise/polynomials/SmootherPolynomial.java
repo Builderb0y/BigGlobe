@@ -15,9 +15,9 @@ public class SmootherPolynomial extends Polynomial2 {
 	@Override
 	public void update(double value0, double value1, double rcp) {
 		double diff = value1 - value0;
-		this.term0 = diff *   6.0D;
+		this.term0 = diff * 6.0D;
 		this.term1 = diff * -15.0D;
-		this.term2 = diff *  10.0D;
+		this.term2 = diff * 10.0D;
 	}
 
 	@Override

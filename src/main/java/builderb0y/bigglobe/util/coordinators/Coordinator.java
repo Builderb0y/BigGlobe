@@ -4,26 +4,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.chunk.Chunk;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.coordinators.AbstractLimitAreaCoordinator.InBox;
@@ -46,10 +43,10 @@ public interface Coordinator {
 	creates a Coordinator which delegates all calls to the provided world,
 	without performing any pre-processing on the coordinates.
 	the setBlockFlags are used as the flags in
-	{@link StructureWorldAccess#setBlockState(BlockPos, BlockState, int)}
+	{@link WorldGenLevel#setBlock(BlockPos, BlockState, int)}
 	when calling {@link #setBlockState(int, int, int, BlockState)} and similar methods.
 	*/
-	public static Coordinator forWorld(StructureWorldAccess world, int setBlockFlags) {
+	public static Coordinator forWorld(WorldGenLevel world, int setBlockFlags) {
 		return new WorldCoordinator(world, setBlockFlags);
 	}
 
@@ -57,7 +54,7 @@ public interface Coordinator {
 	creates a Coordinator which delegates all calls to the provided chunk,
 	without performing any pre-processing on the coordinates.
 	*/
-	public static Coordinator forChunk(Chunk chunk) {
+	public static Coordinator forChunk(ChunkAccess chunk) {
 		return new ChunkCoordinator(chunk);
 	}
 
@@ -70,14 +67,14 @@ public interface Coordinator {
 			if (coordinator instanceof CombinedCoordinator || coordinator instanceof DropCoordinator) {
 				coordinators = (
 					Arrays.stream(coordinators)
-					.flatMap((Coordinator nested) ->
-						nested instanceof CombinedCoordinator
-						? Arrays.stream(((CombinedCoordinator)(nested)).delegates)
-						: Stream.of(nested)
-					)
-					.filter((Coordinator nested) -> !(nested instanceof DropCoordinator))
-					.distinct()
-					.toArray(Coordinator[]::new)
+						.flatMap((Coordinator nested) ->
+									nested instanceof CombinedCoordinator
+										? Arrays.stream(((CombinedCoordinator)(nested)).delegates)
+										: Stream.of(nested)
+						)
+						.filter((Coordinator nested) -> !(nested instanceof DropCoordinator))
+						.distinct()
+						.toArray(Coordinator[]::new)
 				);
 				break;
 			}
@@ -99,7 +96,7 @@ public interface Coordinator {
 		return DropCoordinator.INSTANCE;
 	}
 
-	//////////////////////////////// actions ////////////////////////////////
+	/// ///////////////////////////// actions ////////////////////////////////
 
 	public abstract void genericPos(int x, int y, int z, CoordinatorRunnable callback);
 
@@ -166,7 +163,9 @@ public interface Coordinator {
 		if (length <= 0) return;
 		action.run(this, x, y, z, 0);
 		for (int index = 1; index < length; index++) {
-			x += dx; y += dy; z += dz;
+			x += dx;
+			y += dy;
+			z += dz;
 			action.run(this, x, y, z, index);
 		}
 	}
@@ -184,7 +183,9 @@ public interface Coordinator {
 		if (length == 0) return;
 		if (args[0] != null) action.run(this, x, y, z, 0, args[0]);
 		for (int index = 1; index < length; index++) {
-			x += dx; y += dy; z += dz;
+			x += dx;
+			y += dy;
+			z += dz;
 			if (args[index] != null) action.run(this, x, y, z, index, args[index]);
 		}
 	}
@@ -221,7 +222,9 @@ public interface Coordinator {
 		}
 	}
 
-	/** invokes the action at the (possibly pre-processed) coordinates. */
+	/**
+	invokes the action at the (possibly pre-processed) coordinates.
+	*/
 	public default void getCoordinates(int x, int y, int z, CoordinateRunnable action) {
 		this.genericPos(x, y, z, action, CoordinatorConsumer.getCoordinates());
 	}
@@ -244,19 +247,19 @@ public interface Coordinator {
 	*/
 	public default Stream<BlockPos> streamCoordinates(int x, int y, int z) {
 		Stream.Builder<BlockPos> builder = Stream.builder();
-		this.getCoordinates(x, y, z, (BlockPos.Mutable pos) -> builder.accept(pos.toImmutable()));
+		this.getCoordinates(x, y, z, (BlockPos.MutableBlockPos pos) -> builder.accept(pos.immutable()));
 		return builder.build();
 	}
 
 	public default Stream<BlockPos> streamCoordinatesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		Stream.Builder<BlockPos> builder = Stream.builder();
-		this.getCoordinatesCuboid(minX, minY, minZ, maxX, maxY, maxZ, (BlockPos.Mutable pos) -> builder.accept(pos.toImmutable()));
+		this.getCoordinatesCuboid(minX, minY, minZ, maxX, maxY, maxZ, (BlockPos.MutableBlockPos pos) -> builder.accept(pos.immutable()));
 		return builder.build();
 	}
 
 	public default Stream<BlockPos> streamCoordinatesLine(int x, int y, int z, int dx, int dy, int dz, int length) {
 		Stream.Builder<BlockPos> builder = Stream.builder();
-		this.getCoordinatesLine(x, y, z, dx, dy, dz, length, (BlockPos.Mutable pos) -> builder.accept(pos.toImmutable()));
+		this.getCoordinatesLine(x, y, z, dx, dy, dz, length, (BlockPos.MutableBlockPos pos) -> builder.accept(pos.immutable()));
 		return builder.build();
 	}
 
@@ -328,7 +331,7 @@ public interface Coordinator {
 	pre-processed) coordinates, invokes the action at those coordinates
 	using the {@link BlockEntity} as the extra argument for the action.
 	the generic type B is not bounded to extend BlockEntity to
-	allow it to be an interface type. for example, {@link Inventory}.
+	allow it to be an interface type. for example, {@link Container}.
 	*/
 	public default <B> void getBlockEntity(int x, int y, int z, Class<B> blockEntityType, CoordinateConsumer<B> action) {
 		this.genericPos(x, y, z, blockEntityType, action, CoordinatorBiConsumer.getBlockEntityByClass());
@@ -364,19 +367,19 @@ public interface Coordinator {
 	coordinates, using the Chunk at those
 	coordinates as the extra argument for the action.
 	*/
-	public default void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {
+	public default void getChunk(int x, int y, int z, CoordinateConsumer<ChunkAccess> action) {
 		this.genericPos(x, y, z, action, CoordinatorConsumer.getChunk());
 	}
 
-	public default void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<Chunk> action) {
+	public default void getChunkCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateConsumer<ChunkAccess> action) {
 		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, action, CoordinatorConsumer.getChunk());
 	}
 
-	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<Chunk> action) {
+	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateConsumer<ChunkAccess> action) {
 		this.genericLine(x, y, z, dx, dy, dz, length, action, LineConsumer.getChunk());
 	}
 
-	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<Chunk>... actions) {
+	public default void getChunkLine(int x, int y, int z, int dx, int dy, int dz, CoordinateConsumer<ChunkAccess>... actions) {
 		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.getChunk(), actions);
 	}
 
@@ -411,7 +414,7 @@ public interface Coordinator {
 	then, if a BlockEntity which is an instance of B
 	was created as a result of setting the BlockState,
 	the provided action will be invoked on it.
-
+	<p>
 	this method is a shortcut to calling
 	setBlockState() followed by getBlockEntity().
 	however, if the provided BlockState is null,
@@ -435,13 +438,14 @@ public interface Coordinator {
 		this.genericLine(x, y, z, dx, dy, dz, length, state, blockEntityClass, action, LineTriConsumer.setBlockStateAndBlockEntityByClass());
 	}
 
-	/**(
+	/**
+	(
 	sets the BlockState at the (possibly pre-processed)
 	coordinates to the provided BlockState.
 	then, if a BlockEntity which is an instance of B
 	was created as a result of setting the BlockState,
 	the provided action will be invoked on it.
-
+	<p>
 	this method is a shortcut to calling
 	setBlockState() followed by getBlockEntity().
 	however, if the provided BlockState is null,
@@ -497,11 +501,11 @@ public interface Coordinator {
 	to the BlockState returned by the mapper.
 	if the mapper returns null (or the same BlockState
 	that was provided to it), this method does nothing.
-	note: if coordinate pre-processing results in coordinates
-	being duplicated, the mapper will be invoked on all of them.
-	in other words, this method will NOT abort on
-	the first null returned by the mapper.
-	*/
+	 note: if coordinate pre-processing results in coordinates
+	 being duplicated, the mapper will be invoked on all of them.
+	 in other words, this method will NOT abort on
+	 the first null returned by the mapper.
+	 */
 	public default void modifyBlockState(int x, int y, int z, CoordinateUnaryOperator<BlockState> mapper) {
 		this.genericPos(x, y, z, mapper, CoordinatorConsumer.modifyBlockState());
 	}
@@ -519,20 +523,20 @@ public interface Coordinator {
 	}
 
 	/**
-	first, invokes the boxSupplier at the (possibly pre-processed) coordinates.
-	next, gets the list of entities of the specified type in that box.
-	lastly, invokes the entityAction at those coordinates using the
-	list of entities as the extra argument for the entityAction.
-	*/
-	public default <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+	 first, invokes the boxSupplier at the (possibly pre-processed) coordinates.
+	 next, gets the list of entities of the specified type in that box.
+	 lastly, invokes the entityAction at those coordinates using the
+	 list of entities as the extra argument for the entityAction.
+	 */
+	public default <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
 		this.genericPos(x, y, z, entityType, boxSupplier, entityAction, CoordinatorTriConsumer.getEntities());
 	}
 
-	public default <E extends Entity> void getEntitiesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+	public default <E extends Entity> void getEntitiesCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
 		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, entityType, boxSupplier, entityAction, CoordinatorTriConsumer.getEntities());
 	}
 
-	public default <E extends Entity> void getEntitiesLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+	public default <E extends Entity> void getEntitiesLine(int x, int y, int z, int dx, int dy, int dz, int length, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
 		this.genericLine(x, y, z, dx, dy, dz, length, entityType, boxSupplier, entityAction, LineTriConsumer.getEntities());
 	}
 
@@ -543,43 +547,45 @@ public interface Coordinator {
 	//genericLine() can be used instead if absolutely necessary.
 
 	/**
-	invokes the supplier at the (possibly pre-processed)
-	coordinates, and adds the returned Entity to the world.
-	if the supplier returns null, this method does nothing.
-	note: if coordinate pre-processing results in coordinates
-	being duplicated, the supplier will be invoked on all of them.
-	in other words, this method will NOT abort on
-	the first null returned by the supplier.
-	*/
-	public default void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
+	 invokes the supplier at the (possibly pre-processed)
+	 coordinates, and adds the returned Entity to the world.
+	 if the supplier returns null, this method does nothing.
+	 note: if coordinate pre-processing results in coordinates
+	 being duplicated, the supplier will be invoked on all of them.
+	 in other words, this method will NOT abort on
+	 the first null returned by the supplier.
+	 */
+	public default void addEntity(int x, int y, int z, CoordinateFunction<ServerLevel, Entity> supplier) {
 		this.genericPos(x, y, z, supplier, CoordinatorConsumer.addEntity());
 	}
 
-	public default void addEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateFunction<ServerWorld, Entity> supplier) {
+	public default void addEntityCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CoordinateFunction<ServerLevel, Entity> supplier) {
 		this.genericCuboid(minX, minY, minZ, maxX, maxY, maxZ, supplier, CoordinatorConsumer.addEntity());
 	}
 
-	public default void addEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateFunction<ServerWorld, Entity> supplier) {
+	public default void addEntityLine(int x, int y, int z, int dx, int dy, int dz, int length, CoordinateFunction<ServerLevel, Entity> supplier) {
 		this.genericLine(x, y, z, dx, dy, dz, length, supplier, LineConsumer.addEntity());
 	}
 
-	public default void addEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateFunction<ServerWorld, Entity>... suppliers) {
+	public default void addEntityLine(int x, int y, int z, int dx, int dy, int dz, CoordinateFunction<ServerLevel, Entity>... suppliers) {
 		this.genericLine(x, y, z, dx, dy, dz, LineConsumer.addEntity(), suppliers);
 	}
 
 	//////////////////////////////// coordinate manipulation ////////////////////////////////
 
-	/** translates coordinates by the specified offset before using them. */
+	/**
+	 translates coordinates by the specified offset before using them.
+	 */
 	public default Coordinator translate(int offsetX, int offsetY, int offsetZ) {
 		if (offsetX == 0 && offsetY == 0 && offsetZ == 0) return this;
 		else return new TranslateCoordinator(this, offsetX, offsetY, offsetZ);
 	}
 
 	/**
-	translates coordinates by the specified offset before using them.
-	if the offset is a mutable position, then lazy can be set to true
-	to allow the offset to be changed after this method returns.
-	*/
+	 translates coordinates by the specified offset before using them.
+	 if the offset is a mutable position, then lazy can be set to true
+	 to allow the offset to be changed after this method returns.
+	 */
 	public default Coordinator translate(Vec3i offset, boolean lazy) {
 		if (lazy) {
 			return new LazyTranslateCoordinator(this, offset);
@@ -590,22 +596,22 @@ public interface Coordinator {
 	}
 
 	/**
-	translates coordinates by multiple different offsets before using them.
-	example usage:
-	multiTranslate(
-		1, 0, 0,
-		0, 1, 0,
-		0, 0, 1
-	)
-	is equivalent to:
-	combine(
-		translate(1, 0, 0),
-		translate(0, 1, 0),
-		translate(0, 0, 1)
-	)
-	if the offsets array's length is not a multiple of 3, throws an IllegalArgumentException.
-	if the offsets array contains duplicate triplets, only one will be used.
-	*/
+	 translates coordinates by multiple different offsets before using them.
+	 example usage:
+	 multiTranslate(
+	 1, 0, 0,
+	 0, 1, 0,
+	 0, 0, 1
+	 )
+	 is equivalent to:
+	 combine(
+	 translate(1, 0, 0),
+	 translate(0, 1, 0),
+	 translate(0, 0, 1)
+	 )
+	 if the offsets array's length is not a multiple of 3, throws an IllegalArgumentException.
+	 if the offsets array contains duplicate triplets, only one will be used.
+	 */
 	public default Coordinator multiTranslate(int... offsets) {
 		if (offsets.length == 0) return warnDrop("no offsets provided");
 		if (offsets.length == 3) return this.translate(offsets[0], offsets[1], offsets[2]);
@@ -615,42 +621,42 @@ public interface Coordinator {
 		}
 		return combine(
 			IntStream.range(0, count)
-			.map((int index) -> index + (index << 1))
-			.mapToObj((int base) -> this.translate(offsets[base], offsets[base + 1], offsets[base + 2]))
-			.distinct()
-			.toArray(Coordinator[]::new)
+				.map((int index) -> index + (index << 1))
+				.mapToObj((int base) -> this.translate(offsets[base], offsets[base + 1], offsets[base + 2]))
+				.distinct()
+				.toArray(Coordinator[]::new)
 		);
 	}
 
 	/**
-	translates coordinates by multiple different offsets before using them.
-	example usage:
-	multiTranslate(
-		new Vec3i(1, 0, 0),
-		new Vec3i(0, 1, 0),
-		new Vec3i(0, 0, 1)
-	)
-	is equivalent to:
-	combine(
-		translate(1, 0, 0),
-		translate(0, 1, 0),
-		translate(0, 0, 1)
-	)
-	if the offsets array contains duplicate vectors, only one will be used.
-	for technical reasons, this method does not have a lazy parameter.
-	this is because it would be easy to detect when an element in the array changes,
-	but it would not be easy to detect when an element in the array is directly replaced.
-	in other words, offsets[0].setPos(1, 2, 3) is easy to detect,
-	but offsets[0] = new BlockPos(1, 2, 3) is hard to detect.
-	*/
+	 translates coordinates by multiple different offsets before using them.
+	 example usage:
+	 multiTranslate(
+	 new Vec3i(1, 0, 0),
+	 new Vec3i(0, 1, 0),
+	 new Vec3i(0, 0, 1)
+	 )
+	 is equivalent to:
+	 combine(
+	 translate(1, 0, 0),
+	 translate(0, 1, 0),
+	 translate(0, 0, 1)
+	 )
+	 if the offsets array contains duplicate vectors, only one will be used.
+	 for technical reasons, this method does not have a lazy parameter.
+	 this is because it would be easy to detect when an element in the array changes,
+	 but it would not be easy to detect when an element in the array is directly replaced.
+	 in other words, offsets[0].setPos(1, 2, 3) is easy to detect,
+	 but offsets[0] = new BlockPos(1, 2, 3) is hard to detect.
+	 */
 	public default Coordinator multiTranslate(Vec3i... offsets) {
 		if (offsets.length == 0) return warnDrop("no offsets provided");
 		if (offsets.length == 1) return this.translate(offsets[0], false);
 		return combine(
 			Arrays.stream(offsets)
-			.map((Vec3i offset) -> this.translate(offset, false))
-			.distinct()
-			.toArray(Coordinator[]::new)
+				.map((Vec3i offset) -> this.translate(offset, false))
+				.distinct()
+				.toArray(Coordinator[]::new)
 		);
 	}
 
@@ -675,115 +681,115 @@ public interface Coordinator {
 	}
 
 	/**
-	rotates all coordinates about the origin by the provided amount before using them.
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support rotation via
-	{@link BlockState#rotate(BlockRotation)} will be rotated accordingly.
-	*/
-	public default Coordinator rotate1x(BlockRotation rotation) {
+	 rotates all coordinates about the origin by the provided amount before using them.
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support rotation via
+	 {@link BlockState#rotate(Rotation)} will be rotated accordingly.
+	 */
+	public default Coordinator rotate1x(Rotation rotation) {
 		return this.symmetric(Symmetry.of(rotation));
 	}
 
 	/**
-	duplicates all coordinates 4 times,
-	rotated around the Y axis in units of 90 degrees.
-	to rotate around a different point,
-	use translate(centerOfRotation).rotate4x90().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support rotation via
-	{@link BlockState#rotate(BlockRotation)} will be rotated accordingly.
-	*/
+	 duplicates all coordinates 4 times,
+	 rotated around the Y axis in units of 90 degrees.
+	 to rotate around a different point,
+	 use translate(centerOfRotation).rotate4x90().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support rotation via
+	 {@link BlockState#rotate(Rotation)} will be rotated accordingly.
+	 */
 	public default Coordinator rotate4x90() {
 		return this.symmetric(Symmetry.IDENTITY, Symmetry.ROTATE_90, Symmetry.ROTATE_180, Symmetry.ROTATE_270);
 	}
 
 	/**
-	duplicates all coordinates twice,
-	rotated around the Y axis in units of 180 degrees.
-	to rotate around a different point,
-	use translate(centerOfRotation).rotate2x180().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support rotation via
-	{@link BlockState#rotate(BlockRotation)} will be rotated accordingly.
-	*/
+	 duplicates all coordinates twice,
+	 rotated around the Y axis in units of 180 degrees.
+	 to rotate around a different point,
+	 use translate(centerOfRotation).rotate2x180().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support rotation via
+	 {@link BlockState#rotate(Rotation)} will be rotated accordingly.
+	 */
 	public default Coordinator rotate2x180() {
 		return this.symmetric(Symmetry.IDENTITY, Symmetry.ROTATE_180);
 	}
 
 	/**
-	flips all coordinates along the X axis, centered at X = 0.
-	to flip around a different center point,
-	use translate(centerOfFlip).flip1X().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support flipping via
-	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
-	*/
+	 flips all coordinates along the X axis, centered at X = 0.
+	 to flip around a different center point,
+	 use translate(centerOfFlip).flip1X().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support flipping via
+	 {@link BlockState#mirror(Mirror)} will be flipped accordingly.
+	 */
 	public default Coordinator flip1X() {
 		return this.symmetric(Symmetry.FLIP_0);
 	}
 
 	/**
-	flips all coordinates along the Z axis, centered at Z = 0.
-	to flip around a different center point,
-	use translate(centerOfFlip).flip1Z().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support flipping via
-	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
-	*/
+	 flips all coordinates along the Z axis, centered at Z = 0.
+	 to flip around a different center point,
+	 use translate(centerOfFlip).flip1Z().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support flipping via
+	 {@link BlockState#mirror(Mirror)} will be flipped accordingly.
+	 */
 	public default Coordinator flip1Z() {
 		return this.symmetric(Symmetry.FLIP_90);
 	}
 
 	/**
-	duplicates all coordinates twice,
-	where one copy is left as-is, and the other is
-	flipped along the X axis, centered at X = 0.
-	to flip around a different center point,
-	use translate(centerOfFlip).flip2X().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support flipping via
-	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
-	*/
+	 duplicates all coordinates twice,
+	 where one copy is left as-is, and the other is
+	 flipped along the X axis, centered at X = 0.
+	 to flip around a different center point,
+	 use translate(centerOfFlip).flip2X().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support flipping via
+	 {@link BlockState#mirror(Mirror)} will be flipped accordingly.
+	 */
 	public default Coordinator flip2X() {
 		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_0);
 	}
 
 	/**
-	duplicates all coordinates twice,
-	where one copy is left as-is, and the other is
-	flipped along the Z axis, centered at Z = 0.
-	to flip around a different center point,
-	use translate(centerOfFlip).flip2Z().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support flipping via
-	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
-	*/
+	 duplicates all coordinates twice,
+	 where one copy is left as-is, and the other is
+	 flipped along the Z axis, centered at Z = 0.
+	 to flip around a different center point,
+	 use translate(centerOfFlip).flip2Z().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support flipping via
+	 {@link BlockState#mirror(Mirror)} will be flipped accordingly.
+	 */
 	public default Coordinator flip2Z() {
 		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_90);
 	}
 
 	/**
-	duplicates all coordinates 4 times,
-	flipped along the X and X axes, centered at X = 0 and Z = 0.
-	to flip around a different center point,
-	use translate(centerOfFlip).flip4XZ().
-	when calling {@link #setBlockState(int, int, int, BlockState)}
-	or similar methods, any blocks which support flipping via
-	{@link BlockState#mirror(BlockMirror)} will be flipped accordingly.
-	*/
+	 duplicates all coordinates 4 times,
+	 flipped along the X and X axes, centered at X = 0 and Z = 0.
+	 to flip around a different center point,
+	 use translate(centerOfFlip).flip4XZ().
+	 when calling {@link #setBlockState(int, int, int, BlockState)}
+	 or similar methods, any blocks which support flipping via
+	 {@link BlockState#mirror(Mirror)} will be flipped accordingly.
+	 */
 	public default Coordinator flip4XZ() {
 		return this.symmetric(Symmetry.IDENTITY, Symmetry.FLIP_90, Symmetry.FLIP_0, Symmetry.ROTATE_180);
 	}
 
 	/**
-	duplicates all coordinates count times in a straight line.
-	the name comes from the worldedit command "//stack".
-	to duplicate coordinates in a 2D grid pattern,
-	use stack(x1, y1, z1, count1).stack(x2, y2, z2, count2) for
-	the unit vectors (x1, y1, z1) and (x2, y2, z2).
-	the same approach can be used to duplicate blocks in a
-	3D grid pattern, using 3 chained invocations of stack().
-	*/
+	 duplicates all coordinates count times in a straight line.
+	 the name comes from the worldedit command "//stack".
+	 to duplicate coordinates in a 2D grid pattern,
+	 use stack(x1, y1, z1, count1).stack(x2, y2, z2, count2) for
+	 the unit vectors (x1, y1, z1) and (x2, y2, z2).
+	 the same approach can be used to duplicate blocks in a
+	 3D grid pattern, using 3 chained invocations of stack().
+	 */
 	public default Coordinator stack(int dx, int dy, int dz, int count) {
 		if (count <= 0) return warnDrop("Count was less than or equal to 0");
 		if (count == 1 || (dx == 0 && dy == 0 && dz == 0)) return this;
@@ -791,18 +797,18 @@ public interface Coordinator {
 	}
 
 	/**
-	restricts coordinates based on the provided predicate.
-	no actions will be performed on coordinates which the predicate rejects.
-	*/
+	 restricts coordinates based on the provided predicate.
+	 no actions will be performed on coordinates which the predicate rejects.
+	 */
 	public default Coordinator limitArea(CoordinateBooleanSupplier predicate) {
 		return new LimitArea(this, predicate);
 	}
 
 	/**
-	restricts coordinates based on the provided box.
-	no actions will be performed on coordinates which are outside this box.
-	the bounds of the box are INCLUSIVE!
-	*/
+	 restricts coordinates based on the provided box.
+	 no actions will be performed on coordinates which are outside this box.
+	 the bounds of the box are INCLUSIVE!
+	 */
 	public default Coordinator inBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		if (maxX >= minX && maxZ >= minZ && maxY >= minY) {
 			return new InBox(this, minX, minY, minZ, maxX, maxY, maxZ);
@@ -813,18 +819,18 @@ public interface Coordinator {
 	}
 
 	/**
-	restricts coordinates based on the provided box.
-	no actions will be performed on coordinates which are outside this box.
-	if lazy is set to true, then the box can be modified after this method returns,
-	and the returned Coordinator will respect these modifications.
-	the bounds of the box are INCLUSIVE!
-	*/
-	public default Coordinator inBox(BlockBox box, boolean lazy) {
+	 restricts coordinates based on the provided box.
+	 no actions will be performed on coordinates which are outside this box.
+	 if lazy is set to true, then the box can be modified after this method returns,
+	 and the returned Coordinator will respect these modifications.
+	 the bounds of the box are INCLUSIVE!
+	 */
+	public default Coordinator inBox(BoundingBox box, boolean lazy) {
 		if (lazy) {
 			return new LazyInBox(this, box);
 		}
 		else {
-			return this.inBox(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ());
+			return this.inBox(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
 		}
 	}
 }

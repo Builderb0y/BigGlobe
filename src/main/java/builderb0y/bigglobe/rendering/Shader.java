@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.SafeCloseable;
 
-import static org.lwjgl.opengl.GL11C.GL_TRUE;
+import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL20C.*;
 
 @Environment(EnvType.CLIENT)
@@ -49,8 +49,17 @@ public class Shader implements SafeCloseable {
 
 	@Override
 	public void close() {
-		if (this.fragmentStage != 0) { glDeleteShader(this.fragmentStage); this.fragmentStage = 0; }
-		if (this.vertexStage != 0) { glDeleteShader(this.vertexStage); this.vertexStage = 0; }
-		if (this.program != 0) { glDeleteProgram(this.program); this.program = 0; }
+		if (this.fragmentStage != 0) {
+			glDeleteShader(this.fragmentStage);
+			this.fragmentStage = 0;
+		}
+		if (this.vertexStage != 0) {
+			glDeleteShader(this.vertexStage);
+			this.vertexStage = 0;
+		}
+		if (this.program != 0) {
+			glDeleteProgram(this.program);
+			this.program = 0;
+		}
 	}
 }

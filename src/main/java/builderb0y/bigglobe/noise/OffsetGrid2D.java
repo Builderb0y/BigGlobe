@@ -8,7 +8,7 @@ public class OffsetGrid2D implements Grid2D {
 	public final @Alias("offset") int offsetX, offsetY;
 
 	public OffsetGrid2D(Grid2D source, int offsetX, int offsetY) {
-		this.source  = source;
+		this.source = source;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
 	}

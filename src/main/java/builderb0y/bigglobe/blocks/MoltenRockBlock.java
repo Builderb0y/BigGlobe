@@ -1,26 +1,24 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.*;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.features.AbstractOreFeature;
 import builderb0y.bigglobe.features.OreFeature;
@@ -31,19 +29,17 @@ import builderb0y.bigglobe.util.RandomSelector;
 
 public class MoltenRockBlock extends Block {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<MoltenRockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MoltenRockBlock.class);
+	public static final MapCodec<MoltenRockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MoltenRockBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
 	public final @VerifyIntRange(min = 1, max = 8) int heat;
 
-	public MoltenRockBlock(Settings settings, int heat) {
+	public MoltenRockBlock(Properties settings, int heat) {
 		super(settings);
 		this.heat = heat;
 	}
@@ -51,32 +47,14 @@ public class MoltenRockBlock extends Block {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState getStateForNeighborUpdate(
-		#if MC_VERSION >= MC_1_21_2
-			BlockState state,
-			WorldView world,
-			net.minecraft.world.tick.ScheduledTickView tickView,
-			BlockPos pos,
-			Direction direction,
-			BlockPos neighborPos,
-			BlockState neighborState,
-			Random random
-		#else
-			BlockState state,
-			Direction direction,
-			BlockState neighborState,
-			WorldAccess world,
-			BlockPos pos,
-			BlockPos neighborPos
-		#endif
-	) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
 		if (
-			world instanceof ServerWorld serverWorld &&
-			neighborState.getFluidState().isIn(FluidTags.WATER)
+			world instanceof ServerLevel serverWorld &&
+			neighborState.getFluidState().is(FluidTags.WATER)
 		) {
-			serverWorld.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
+			serverWorld.levelEvent(LevelEvent.LAVA_FIZZ, pos, 0);
 			if (
-				serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
+				serverWorld.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator &&
 				serverWorld.random.nextFloat() < BigGlobeConfig.INSTANCE.get().moltenRockOreificationChance &&
 				serverWorld.random.nextInt(8) < this.heat
 			) {
@@ -114,23 +92,20 @@ public class MoltenRockBlock extends Block {
 	}
 
 	@Override
-	public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
-		super.onSteppedOn(world, pos, state, entity);
+	public void stepOn(Level world, BlockPos pos, BlockState state, Entity entity) {
+		super.stepOn(world, pos, state, entity);
 		if (
-			world instanceof ServerWorld serverWorld &&
+			world instanceof ServerLevel serverWorld &&
 			entity instanceof LivingEntity living &&
-			#if MC_VERSION < MC_1_21_0
-				//MC 1.21 checks this condition automatically.
-				!EnchantmentHelper.hasFrostWalker(living) &&
-			#endif
+
 			world.random.nextInt((10 - this.heat) * 10) == 0
 		) {
-			entity.damage(#if MC_VERSION >= MC_1_21_2 serverWorld, #endif world.getDamageSources().hotFloor(), this.heat * 0.5F);
+			entity.hurt(world.damageSources().hotFloor(), this.heat * 0.5F);
 		}
 	}
 
 	@Override
-	public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
+	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
 		return 1.0F;
 	}
 }

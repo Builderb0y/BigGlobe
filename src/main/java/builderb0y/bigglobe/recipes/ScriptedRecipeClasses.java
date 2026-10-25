@@ -1,15 +1,11 @@
 package builderb0y.bigglobe.recipes;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.SimpleDelayedCompileable;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.CraftingGridScriptEnvironment;
@@ -18,29 +14,38 @@ import builderb0y.bigglobe.scripting.environments.NbtScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.CraftingGrid;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedRecipeClasses {
 
-	public static final AutoCoder<CraftingRecipeCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingRecipeCategory.CODEC);
+	public static final AutoCoder<CraftingBookCategory> CATEGORY_CODER = BigGlobeAutoCodec.AUTO_CODEC.wrapDFUCodec(CraftingBookCategory.CODEC);
 
-	/** workaround for only some MC versions needing "value": {} */
+	/**
+	workaround for only some MC versions needing "value": {}
+	*/
 	public static record ScriptedRecipeData(
 		@UseCoder(
 			name = "CATEGORY_CODER",
 			in = ScriptedRecipeClasses.class,
 			usage = MemberUsage.FIELD_CONTAINS_HANDLER
 		)
-		CraftingRecipeCategory category,
+		CraftingBookCategory category,
 		int width,
 		int height,
 		CraftingMatchesScript.Holder matches,
 		CraftingOutputScript.Holder output,
 		CraftingRemainderScript.@VerifyNullable Holder remainder
-	) {}
+	) {
+
+	}
 
 	public static interface CraftingMatchesScript extends Script {
 
@@ -57,14 +62,14 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingMatchesScript.class, this.usage, 0)
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.addEnvironment(ItemScriptEnvironment.INSTANCE)
-					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) ->
-						environment.addVariableLoad("input", type(CraftingGrid.class))
-					)
-					.parse(new ScriptClassLoader())
+						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+						.configureEnvironment(NbtScriptEnvironment.createMutable())
+						.addEnvironment(ItemScriptEnvironment.INSTANCE)
+						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
+						.configureEnvironment((MutableScriptEnvironment environment) ->
+												environment.addVariableLoad("input", type(CraftingGrid.class))
+						)
+						.parse(new ScriptClassLoader())
 				);
 			}
 
@@ -96,14 +101,14 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingOutputScript.class, this.usage, 0)
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.addEnvironment(ItemScriptEnvironment.INSTANCE)
-					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) ->
-						environment.addVariableLoad("input", type(CraftingGrid.class))
-					)
-					.parse(new ScriptClassLoader())
+						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+						.configureEnvironment(NbtScriptEnvironment.createMutable())
+						.addEnvironment(ItemScriptEnvironment.INSTANCE)
+						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
+						.configureEnvironment((MutableScriptEnvironment environment) ->
+												environment.addVariableLoad("input", type(CraftingGrid.class))
+						)
+						.parse(new ScriptClassLoader())
 				);
 			}
 
@@ -136,16 +141,16 @@ public class ScriptedRecipeClasses {
 			public void compile() throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(CraftingRemainderScript.class, this.usage, 0)
-					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.addEnvironment(ItemScriptEnvironment.INSTANCE)
-					.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) ->
-						environment
-						.addVariableLoad("input",  type(CraftingGrid.class))
-						.addVariableLoad("output", type(CraftingGrid.class))
-					)
-					.parse(new ScriptClassLoader())
+						.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+						.configureEnvironment(NbtScriptEnvironment.createMutable())
+						.addEnvironment(ItemScriptEnvironment.INSTANCE)
+						.addEnvironment(CraftingGridScriptEnvironment.INSTANCE)
+						.configureEnvironment((MutableScriptEnvironment environment) ->
+												environment
+													.addVariableLoad("input", type(CraftingGrid.class))
+													.addVariableLoad("output", type(CraftingGrid.class))
+						)
+						.parse(new ScriptClassLoader())
 				);
 			}
 

@@ -1,34 +1,22 @@
 package builderb0y.bigglobe.spawning;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.collection.Weighted;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
-
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.util.DelayedEntryList;
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 
 public record ExtraSpawn(
 	DelayedEntryList<Biome> biomes,
-	RegistryEntry<EntityType<?>> type,
+	Holder<EntityType<?>> type,
 	@VerifyIntRange(min = 0L) int weight,
 	@VerifyIntRange(min = 1L) int minCount,
 	@VerifySorted(greaterThanOrEqual = "minCount") int maxCount
 ) {
 
-	#if MC_VERSION >= MC_1_21_5
-
-		public Weighted<SpawnEntry> toEntry() {
-			return new Weighted<>(new SpawnEntry(this.type.value(), this.minCount, this.maxCount), this.weight);
-		}
-
-	#else
-
-		public SpawnEntry toEntry() {
-			return new SpawnEntry(this.type.value(), this.weight, this.minCount, this.maxCount);
-		}
-
-	#endif
+	public SpawnerData toEntry() {
+		return new SpawnerData(this.type.value(), this.weight, this.minCount, this.maxCount);
+	}
 }

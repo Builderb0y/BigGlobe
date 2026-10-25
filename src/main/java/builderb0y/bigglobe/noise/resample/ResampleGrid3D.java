@@ -8,7 +8,8 @@ import builderb0y.bigglobe.noise.polynomials.Polynomial.PolyForm;
 public abstract class ResampleGrid3D implements Grid3D {
 
 	public final Grid3D source;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @Alias("scale") int scaleX, scaleY, scaleZ;
+	public final @VerifyIntRange(min = 0, minInclusive = false)
+	@Alias("scale") int scaleX, scaleY, scaleZ;
 	public final transient double rcpX, rcpY, rcpZ;
 	public final transient double minValue, maxValue;
 

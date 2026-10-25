@@ -18,11 +18,8 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.opengl.*;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import builderb0y.autocodec.annotations.*;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.UndergroundMode;
@@ -38,11 +35,13 @@ public class BigGlobeConfig {
 
 	@Excluded
 	public static final Supplier<BigGlobeConfig> INSTANCE = ClothConfigCompat.init();
-	public static void init() {}
+
+	public static void init() {
+	}
 
 	public void validatePostLoad() {
 		this.threads = Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
-		this.moltenRockOreificationChance = MathHelper.clamp(this.moltenRockOreificationChance, 0.0F, 1.0F);
+		this.moltenRockOreificationChance = Mth.clamp(this.moltenRockOreificationChance, 0.0F, 1.0F);
 		this.dataPackDebugging.validatePostLoad();
 		this.lodRendering.validatePostLoad();
 		this.distantHorizonsIntegration.validatePostLoad();
@@ -192,8 +191,8 @@ public class BigGlobeConfig {
 			public boolean isEnabled() {
 				return switch (this) {
 					case AUTO -> !InstalledMods.DISTANT_HORIZONS && !InstalledMods.VOXY;
-					case ON   -> true;
-					case OFF  -> false;
+					case ON -> true;
+					case OFF -> false;
 				};
 			}
 		}
@@ -220,10 +219,10 @@ public class BigGlobeConfig {
 			public LodRenderer createRenderer(LodRendering config) {
 				int quads = config.maxQuads;
 				return switch (this) {
-					case            AUTO -> new SidedSeparateLodRenderer(quads);
+					case AUTO -> new SidedSeparateLodRenderer(quads);
 					case SIMPLE_SEPARATE -> new SimpleLodRenderer(quads);
-					case  SIDED_SEPARATE -> new SidedSeparateLodRenderer(quads);
-					case  SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
+					case SIDED_SEPARATE -> new SidedSeparateLodRenderer(quads);
+					case SIDED_COMBINED -> new SidedCombinedLodRenderer(quads);
 				};
 			}
 		}
@@ -315,9 +314,9 @@ public class BigGlobeConfig {
 		public boolean showProgress = true;
 
 		public void validatePostLoad() {
-			this.maxQuads = MathHelper.clamp(this.maxQuads, 10_000_000, 100_000_000);
-			this.quality = MathHelper.clamp(this.quality, -2.0D, 2.0D);
-			this.maxLodForChunkLoading = MathHelper.clamp(this.maxLodForChunkLoading, 0, 5);
+			this.maxQuads = Mth.clamp(this.maxQuads, 10_000_000, 100_000_000);
+			this.quality = Mth.clamp(this.quality, -2.0D, 2.0D);
+			this.maxLodForChunkLoading = Mth.clamp(this.maxLodForChunkLoading, 0, 5);
 			this.verticalCompression = Math.max(this.verticalCompression, 0);
 			this.caveCullingDepth = Math.max(this.caveCullingDepth, -1);
 			this.minViewDistance = Math.max(this.minViewDistance, 1.0F / 256.0F);
@@ -332,25 +331,25 @@ public class BigGlobeConfig {
 
 		@Environment(EnvType.CLIENT)
 		public void maybeReloadLODs() {
-			MinecraftClient client = MinecraftClient.getInstance();
-			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.worldRenderer) : null;
+			Minecraft client = Minecraft.getInstance();
+			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.levelRenderer) : null;
 			if (
-				this.renderingEnabled()    != previousEnabled               ||
-				this.rendererBackend       != previousRendererBackend       ||
-				this.maxQuads              != previousMaxQuads              ||
-				this.undergroundMode       != previousUndergroundMode       ||
+				this.renderingEnabled() != previousEnabled ||
+				this.rendererBackend != previousRendererBackend ||
+				this.maxQuads != previousMaxQuads ||
+				this.undergroundMode != previousUndergroundMode ||
 				this.maxLodForChunkLoading != previousMaxLodForChunkLoading ||
-				this.verticalCompression   != previousVerticalCompression   ||
-				this.caveCullingDepth      != previousCaveCullingDepth
+				this.verticalCompression != previousVerticalCompression ||
+				this.caveCullingDepth != previousCaveCullingDepth
 			) {
-				previousEnabled               = this.renderingEnabled();
-				previousRendererBackend       = this.rendererBackend;
-				previousMaxQuads              = this.maxQuads;
-				previousUndergroundMode       = this.undergroundMode;
+				previousEnabled = this.renderingEnabled();
+				previousRendererBackend = this.rendererBackend;
+				previousMaxQuads = this.maxQuads;
+				previousUndergroundMode = this.undergroundMode;
 				previousMaxLodForChunkLoading = this.maxLodForChunkLoading;
-				previousVerticalCompression   = this.verticalCompression;
-				previousCaveCullingDepth      = this.caveCullingDepth;
-				if (holder != null) LodSystem.reload(holder, client.world);
+				previousVerticalCompression = this.verticalCompression;
+				previousCaveCullingDepth = this.caveCullingDepth;
+				if (holder != null) LodSystem.reload(holder, client.level);
 			}
 			else if (holder != null) {
 				LodSystem system = holder.bigglobe_getLodSystem();
@@ -380,7 +379,8 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public UndergroundMode undergroundMode = UndergroundMode.FILL;
 
-		public void validatePostLoad() {}
+		public void validatePostLoad() {
+		}
 	}
 
 	@Tooltip(count = 2)
@@ -407,7 +407,8 @@ public class BigGlobeConfig {
 		@DefaultIgnore
 		public boolean lightAir = false;
 
-		public void validatePostLoad() {}
+		public void validatePostLoad() {
+		}
 	}
 
 	@Tooltip(count = 2)
@@ -432,14 +433,16 @@ public class BigGlobeConfig {
 	tricks AutoCodec into ignoring missing data and leaving
 	the java object as it was after initialization,
 	while simultaneously tricking intellij into
-	*not* complaining that the object can be null.
+	not* complaining that the object can be null.
 	*/
 	@VerifyNullable
 	@Mirror(VerifyNullable.class)
 	@Target(ElementType.TYPE_USE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@SuppressWarnings("NullableProblems")
-	public static @interface DefaultIgnore {}
+	public static @interface DefaultIgnore {
+
+	}
 
 	@Excluded
 	@Tooltip(count = 1)

@@ -6,7 +6,8 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class OutOfVramException extends RuntimeException {
 
-	public OutOfVramException() {}
+	public OutOfVramException() {
+	}
 
 	public OutOfVramException(String message) {
 		super(message);

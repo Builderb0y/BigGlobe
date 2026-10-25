@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.randomSources;
 
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYRNGScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -39,7 +37,7 @@ public class ScriptedRandomSource implements RandomSource {
 			if (this.script.script == null) {
 				throw new IllegalStateException("Trying to determine if script requires column before script is compiled OR script failed to compile.");
 			}
-			this.requiresColumn = this.script.streamDirectDependencies().map(RegistryEntry::value).anyMatch(dependency -> dependency instanceof ColumnEntry || dependency instanceof WorldTrait);
+			this.requiresColumn = this.script.streamDirectDependencies().map(Holder::value).anyMatch(dependency -> dependency instanceof ColumnEntry || dependency instanceof WorldTrait);
 		}
 		return this.requiresColumn;
 	}

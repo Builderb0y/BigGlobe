@@ -4,8 +4,9 @@ import java.util.random.RandomGenerator;
 
 import org.junit.jupiter.api.Test;
 
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockBox;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
@@ -27,24 +28,24 @@ public class ScriptedStructureTest {
 			int z = random.nextInt(-100, 101);
 			int size = random.nextInt(10);
 			SymmetricOffset offset = SymmetricOffset.IDENTITY.rotateAround(x, z, Symmetry.VALUES[random.nextInt(8)]);
-			BlockBox oldBox = new BlockBox(x - size, y - size, z - size, x + size, y + size, z + size);
-			BlockPos.Mutable pos1 = Coordination.rotate(
-				new BlockPos.Mutable(
-					oldBox.getMinX(),
-					oldBox.getMinY(),
-					oldBox.getMinZ()
+			BoundingBox oldBox = new BoundingBox(x - size, y - size, z - size, x + size, y + size, z + size);
+			BlockPos.MutableBlockPos pos1 = Coordination.rotate(
+				new BlockPos.MutableBlockPos(
+					oldBox.minX(),
+					oldBox.minY(),
+					oldBox.minZ()
 				),
 				offset
 			);
-			BlockPos.Mutable pos2 = Coordination.rotate(
-				new BlockPos.Mutable(
-					oldBox.getMaxX(),
-					oldBox.getMaxY(),
-					oldBox.getMaxZ()
+			BlockPos.MutableBlockPos pos2 = Coordination.rotate(
+				new BlockPos.MutableBlockPos(
+					oldBox.maxX(),
+					oldBox.maxY(),
+					oldBox.maxZ()
 				),
 				offset
 			);
-			BlockBox newBox = WorldUtil.createBlockBox(pos1.getX(), pos1.getY(), pos1.getZ(), pos2.getX(), pos2.getY(), pos2.getZ());
+			BoundingBox newBox = WorldUtil.createBlockBox(pos1.getX(), pos1.getY(), pos1.getZ(), pos2.getX(), pos2.getY(), pos2.getZ());
 			assertEquals(oldBox, newBox);
 		}
 	}

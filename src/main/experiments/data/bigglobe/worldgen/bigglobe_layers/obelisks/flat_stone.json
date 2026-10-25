@@ -1,7 +1,0 @@
-{
-	"type": "simple_2d",
-	"state": "'minecraft:stone'",
-	"valid": {
-		"max_y": "`bigglobe:obelisks/obelisk_voronoi`.min_y"
-	}
-}

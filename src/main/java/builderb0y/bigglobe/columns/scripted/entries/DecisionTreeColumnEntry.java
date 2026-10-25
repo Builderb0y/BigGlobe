@@ -4,18 +4,16 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.columns.scripted.decisionTrees.ConditionBasedDecisionTreeSettings;
-import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
+import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.Valid;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
-import builderb0y.bigglobe.columns.scripted.AccessSchema;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.ConditionBasedDecisionTreeSettings;
+import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -27,15 +25,15 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 
-	public final RegistryEntry<DecisionTreeSettings> root;
-	public final @VerifyNullable Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches;
+	public final Holder<DecisionTreeSettings> root;
+	public final @VerifyNullable Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches;
 
 	public DecisionTreeColumnEntry(
 		AccessSchema params,
 		@VerifyNullable Valid valid,
 		@DefaultBoolean(true) boolean cache,
-		RegistryEntry<DecisionTreeSettings> root,
-		@VerifyNullable Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches,
+		Holder<DecisionTreeSettings> root,
+		@VerifyNullable Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches,
 		DecodeContext<?> decodeContext
 	) {
 		super(params, valid, cache, decodeContext);
@@ -44,8 +42,8 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		Stream<RegistryEntry<? extends DependencyView>> result = Stream.concat(super.streamDirectDependencies(), Stream.of(this.root));
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		Stream<Holder<? extends DependencyView>> result = Stream.concat(super.streamDirectDependencies(), Stream.of(this.root));
 		if (this.patches != null) {
 			result = Stream.of(result, this.patches.keySet().stream(), this.patches.values().stream()).flatMap(Function.identity());
 		}
@@ -70,11 +68,11 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.decisionTrees) {
 			BigGlobeMod.LOGGER.info(
 				Printer.parse(this.root, this.patches).print(
-					new StringBuilder(1024)
-					.append(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID))
-					.append(" decision tree, as requested in Big Globe's config file:\n")
-				)
-				.toString()
+						new StringBuilder(1024)
+							.append(memory.getTyped(ColumnEntryMemory.ACCESSOR_ID))
+							.append(" decision tree, as requested in Big Globe's config file:\n")
+					)
+					.toString()
 			);
 		}
 	}
@@ -96,13 +94,13 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 			this.name = name;
 		}
 
-		public static Printer parse(RegistryEntry<DecisionTreeSettings> root, Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches) {
+		public static Printer parse(Holder<DecisionTreeSettings> root, Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches) {
 			Printer printer = convert(root, patches);
 			printer.updateDepthSize(0, BigInteger.ZERO);
 			return printer;
 		}
 
-		public static Printer convert(RegistryEntry<DecisionTreeSettings> entry, Map<RegistryEntry<DecisionTreeSettings>, RegistryEntry<DecisionTreeSettings>> patches) {
+		public static Printer convert(Holder<DecisionTreeSettings> entry, Map<Holder<DecisionTreeSettings>, Holder<DecisionTreeSettings>> patches) {
 			if (patches != null) entry = patches.getOrDefault(entry, entry);
 			Printer printer = new Printer(UnregisteredObjectException.getID(entry).toString());
 			if (entry.value() instanceof ConditionBasedDecisionTreeSettings condition) {
@@ -129,8 +127,8 @@ public class DecisionTreeColumnEntry extends AbstractColumnEntry {
 			for (int index = 0; index < this.depth; index++) {
 				builder.append(
 					index == this.depth - 1
-					? (this.path.testBit(this.depth - 1) ? "┌───" : "└───")
-					: (bits.testBit(index) ? "│   " : "    ")
+						? (this.path.testBit(this.depth - 1) ? "┌───" : "└───")
+						: (bits.testBit(index) ? "│   " : "    ")
 				);
 			}
 			builder.append(this.name).append('\n');

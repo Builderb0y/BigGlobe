@@ -1,20 +1,15 @@
 package builderb0y.bigglobe.chunkgen.perSection;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.world.chunk.Palette;
-import net.minecraft.world.chunk.PalettedContainer;
-
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.SingularPalette_EntryAccess;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
+import net.minecraft.util.BitStorage;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.Palette;
+import net.minecraft.world.level.chunk.PalettedContainer;
 
 public class PaletteIdReplacer {
 
@@ -40,15 +35,15 @@ public class PaletteIdReplacer {
 		while (true) {
 			boolean changed = false;
 			Palette<BlockState> palette = context.palette();
-			PaletteStorage storage = context.storage();
+			BitStorage storage = context.storage();
 			int size = palette.getSize();
 			short[] lookup = new short[size];
 			for (int id = 0; id < size; id++) {
-				BlockState from = palette.get(id);
+				BlockState from = palette.valueFor(id);
 				BlockState to = replacements.runtimeStates.get(from);
 				if (to != null) {
 					changed = true;
-					lookup[id] = BigGlobeMath.toShortExact(palette.index(to #if MC_VERSION >= MC_1_21_9 , container #endif));
+					lookup[id] = BigGlobeMath.toShortExact(palette.idFor(to));
 				}
 				else {
 					lookup[id] = BigGlobeMath.toShortExact(id);

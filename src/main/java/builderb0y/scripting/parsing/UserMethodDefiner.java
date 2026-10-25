@@ -10,8 +10,11 @@ import com.google.common.collect.ObjectArrays;
 
 import builderb0y.bigglobe.chunkgen.scripted.SurfaceScript.AnyNumericTypeExpressionParser;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.DelayedMethod;
 import builderb0y.scripting.bytecode.DelayedMethod.LazyInvokeInsnTree;
+import builderb0y.scripting.bytecode.InsnTrees;
+import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.ReturnInsnTree;
@@ -61,10 +64,10 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 	public Stream<LazyVarInfo> streamUserParameters() {
 		return (
 			Arrays
-			.stream(this.userParameters.parameters())
-			.map((UserParameter parameter) -> (
-				new LazyVarInfo(parameter.name(), parameter.type())
-			))
+				.stream(this.userParameters.parameters())
+				.map((UserParameter parameter) -> (
+					new LazyVarInfo(parameter.name(), parameter.type())
+				))
 		);
 	}
 
@@ -103,7 +106,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				new Named(
 					"User function: " + this.returnType.getClassName() + ' ' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
 					this.parser.method.info.isStatic()
-					? (ExpressionParser parser, String name, InsnTree... arguments) -> {
+						? (ExpressionParser parser, String name, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
@@ -118,7 +121,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 							castArguments != arguments
 						);
 					}
-					: (ExpressionParser parser, String name, InsnTree... arguments) -> {
+						: (ExpressionParser parser, String name, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
@@ -163,7 +166,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				new MethodHandler.Named(
 					"User extension method: " + this.returnType.getClassName() + ' ' + this.typeBeingExtended.getClassName() + '.' + this.methodName + Arrays.stream(this.userParameters.parameters()).map(UserParameter::toString).collect(Collectors.joining(", ", "(", ")")),
 					this.parser.method.info.isStatic()
-					? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						? (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
@@ -181,7 +184,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 							castArguments != arguments
 						);
 					}
-					: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
+						: (ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 						InsnTree[] castArguments = ScriptEnvironment.castArguments(parser, name, Arrays.stream(this.userParameters.parameters()).map(UserParameter::type).toArray(TypeInfo.ARRAY_FACTORY), CastMode.IMPLICIT_NULL, arguments);
 						if (castArguments == null) return null;
 						if (method.body != null) method.streamCapturedArgs().forEach(parser.environment.user()::markVariableUsed);
@@ -228,30 +231,30 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			this.parse();
 			if (wasEmpty) this.parser.finishDelayedMethods();
 			LazyVarInfo
-				mainColumn       = new LazyVarInfo("mainColumn",       columnType),
-				adjacentColumnX  = new LazyVarInfo("adjacentColumnX",  columnType),
-				adjacentColumnZ  = new LazyVarInfo("adjacentColumnZ",  columnType),
+				mainColumn = new LazyVarInfo("mainColumn", columnType),
+				adjacentColumnX = new LazyVarInfo("adjacentColumnX", columnType),
+				adjacentColumnZ = new LazyVarInfo("adjacentColumnZ", columnType),
 				adjacentColumnXZ = new LazyVarInfo("adjacentColumnXZ", columnType);
 
 			InsnTree normalInvoker, adjacentInvoker;
 			InsnTree[] normalArgs = this.newMethod.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY);
 			InsnTree[] adjacentArgs = this.newMethod.streamCapturedArgs().map((LazyVarInfo variable) -> {
-				return switch (variable.name) {
-					case "mainColumn"       -> z ? adjacentColumnZ  : adjacentColumnX ;
-					case "adjacentColumnX"  -> z ? adjacentColumnXZ : mainColumn      ;
-					case "adjacentColumnZ"  -> z ? mainColumn       : adjacentColumnXZ;
-					case "adjacentColumnXZ" -> z ? adjacentColumnX  : adjacentColumnZ ;
-					default -> variable;
-				};
-			})
-			.map(InsnTrees::load)
-			.toArray(InsnTree.ARRAY_FACTORY);
+					return switch (variable.name) {
+						case "mainColumn" -> z ? adjacentColumnZ : adjacentColumnX;
+						case "adjacentColumnX" -> z ? adjacentColumnXZ : mainColumn;
+						case "adjacentColumnZ" -> z ? mainColumn : adjacentColumnXZ;
+						case "adjacentColumnXZ" -> z ? adjacentColumnX : adjacentColumnZ;
+						default -> variable;
+					};
+				})
+										.map(InsnTrees::load)
+										.toArray(InsnTree.ARRAY_FACTORY);
 			if (this.newMethod.methodInfo.isStatic()) {
-				normalInvoker   = invokeStatic(this.newMethod.methodInfo, normalArgs);
+				normalInvoker = invokeStatic(this.newMethod.methodInfo, normalArgs);
 				adjacentInvoker = invokeStatic(this.newMethod.methodInfo, adjacentArgs);
 			}
 			else {
-				normalInvoker   = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, normalArgs);
+				normalInvoker = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, normalArgs);
 				adjacentInvoker = invokeInstance(load("this", this.parser.clazz.info), this.newMethod.methodInfo, adjacentArgs);
 			}
 			return DivideInsnTree.create(
@@ -260,9 +263,9 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 				sub(
 					this.parser,
 					z ? ScriptedColumn.INFO.z(load(adjacentColumnZ)) : ScriptedColumn.INFO.x(load(adjacentColumnX)),
-					z ? ScriptedColumn.INFO.z(load(mainColumn     )) : ScriptedColumn.INFO.x(load(mainColumn     ))
+					z ? ScriptedColumn.INFO.z(load(mainColumn)) : ScriptedColumn.INFO.x(load(mainColumn))
 				)
-				.cast(this.parser, this.newMethod.returnType, CastMode.IMPLICIT_THROW, false)
+					.cast(this.parser, this.newMethod.returnType, CastMode.IMPLICIT_THROW, false)
 			);
 		}
 

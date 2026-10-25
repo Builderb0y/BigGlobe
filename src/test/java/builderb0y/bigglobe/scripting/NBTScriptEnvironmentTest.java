@@ -20,27 +20,27 @@ public class NBTScriptEnvironmentTest {
 
 	@Test
 	public void testConstructors() throws ScriptParsingException {
-		NbtCompound expected = new NbtCompound();
-		expected.put("byte", NbtByte.of((byte)(42)));
-		expected.put("short", NbtShort.of((short)(42)));
-		expected.put("int", NbtInt.of((int)(42)));
-		expected.put("long", NbtLong.of((long)(42)));
-		expected.put("float", NbtFloat.of((float)(42)));
-		expected.put("double", NbtDouble.of((double)(42)));
-		expected.put("string", NbtString.of("42"));
-		expected.put("byteArray0", new NbtByteArray(new byte[] {}));
-		expected.put("byteArray1", new NbtByteArray(new byte[] { 42 }));
-		expected.put("byteArray2", new NbtByteArray(new byte[] { 42, 123 }));
-		expected.put("intArray0", new NbtIntArray(new int[] {}));
-		expected.put("intArray1", new NbtIntArray(new int[] { 42 }));
-		expected.put("intArray2", new NbtIntArray(new int[] { 42, 123 }));
-		expected.put("longArray0", new NbtLongArray(new long[] {}));
-		expected.put("longArray1", new NbtLongArray(new long[] { 42 }));
-		expected.put("longArray2", new NbtLongArray(new long[] { 42, 123 }));
+		CompoundTag expected = new CompoundTag();
+		expected.put("byte", ByteTag.valueOf((byte)(42)));
+		expected.put("short", ShortTag.valueOf((short)(42)));
+		expected.put("int", IntTag.valueOf((int)(42)));
+		expected.put("long", LongTag.valueOf((long)(42)));
+		expected.put("float", FloatTag.valueOf((float)(42)));
+		expected.put("double", DoubleTag.valueOf((double)(42)));
+		expected.put("string", StringTag.valueOf("42"));
+		expected.put("byteArray0", new ByteArrayTag(new byte[] {}));
+		expected.put("byteArray1", new ByteArrayTag(new byte[] { 42 }));
+		expected.put("byteArray2", new ByteArrayTag(new byte[] { 42, 123 }));
+		expected.put("intArray0", new IntArrayTag(new int[] {}));
+		expected.put("intArray1", new IntArrayTag(new int[] { 42 }));
+		expected.put("intArray2", new IntArrayTag(new int[] { 42, 123 }));
+		expected.put("longArray0", new LongArrayTag(new long[] {}));
+		expected.put("longArray1", new LongArrayTag(new long[] { 42 }));
+		expected.put("longArray2", new LongArrayTag(new long[] { 42, 123 }));
 		expected.put("list0", listOf());
-		expected.put("list1", listOf(NbtByte.of((byte)(42))));
-		expected.put("list2", listOf(NbtByte.of((byte)(42)), NbtByte.of((byte)(123))));
-		NbtCompound nestedCompound = new NbtCompound();
+		expected.put("list1", listOf(ByteTag.valueOf((byte)(42))));
+		expected.put("list2", listOf(ByteTag.valueOf((byte)(42)), ByteTag.valueOf((byte)(123))));
+		CompoundTag nestedCompound = new CompoundTag();
 		nestedCompound.putByte("a", (byte)(1));
 		nestedCompound.putByte("b", (byte)(2));
 		expected.put("compound", nestedCompound);
@@ -108,14 +108,14 @@ public class NBTScriptEnvironmentTest {
 			c
 			"""
 		);
-		assertSuccess(NbtByte.of((byte)(1)),
+		assertSuccess(ByteTag.valueOf((byte)(1)),
 			"""
 			Nbt nbt = nbtCompound()
 			nbt.a = 1Y
 			nbt.a
 			"""
 		);
-		assertSuccess(NbtByte.of((byte)(1)),
+		assertSuccess(ByteTag.valueOf((byte)(1)),
 			"""
 			Nbt nbt = nbtCompound()
 			nbt.('a') = 1Y
@@ -124,14 +124,14 @@ public class NBTScriptEnvironmentTest {
 		);
 	}
 
-	public static NbtList listOf(NbtElement... elements) {
-		NbtList list = new NbtList();
+	public static ListTag listOf(Tag... elements) {
+		ListTag list = new ListTag();
 		list.addAll(Arrays.asList(elements));
 		return list;
 	}
 
-	public static NbtCompound compound(Consumer<NbtCompound> initializer) {
-		NbtCompound compound = new NbtCompound();
+	public static CompoundTag compound(Consumer<CompoundTag> initializer) {
+		CompoundTag compound = new CompoundTag();
 		initializer.accept(compound);
 		return compound;
 	}

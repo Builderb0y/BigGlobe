@@ -1,11 +1,10 @@
 package builderb0y.bigglobe.trees.decoration;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-
 import builderb0y.bigglobe.trees.TreeGenerator;
 import builderb0y.bigglobe.trees.branches.BranchConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -37,10 +36,10 @@ public class BallLeafDecorator implements BranchDecorator, TrunkDecorator {
 		int minX = floorI(centerX - radius) + 1;
 		int minY = floorI(centerY - radius) + 1;
 		int minZ = floorI(centerZ - radius) + 1;
-		int maxX =  ceilI(centerX + radius) - 1;
-		int maxY =  ceilI(centerY + radius) - 1;
-		int maxZ =  ceilI(centerZ + radius) - 1;
-		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+		int maxX = ceilI(centerX + radius) - 1;
+		int maxY = ceilI(centerY + radius) - 1;
+		int maxZ = ceilI(centerZ + radius) - 1;
+		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 		BlockState leafState = generator.palette.leavesState(generator.random, 1, false, false);
 		for (int x = minX; x <= maxX; x++) {
 			mutablePos.setX(x);
@@ -62,7 +61,7 @@ public class BallLeafDecorator implements BranchDecorator, TrunkDecorator {
 				}
 				if (placed) while (generator.random.nextBoolean()) {
 					mutablePos.setY(mutablePos.getY() - 1);
-					if (generator.worldQueue.isOutOfHeightLimit(mutablePos)) break;
+					if (generator.worldQueue.isOutsideBuildHeight(mutablePos)) break;
 					if (generator.canLeavesReplace(generator.worldQueue.getBlockState(mutablePos))) {
 						generator.queueAndDecorateLeaf(mutablePos, leafState);
 					}

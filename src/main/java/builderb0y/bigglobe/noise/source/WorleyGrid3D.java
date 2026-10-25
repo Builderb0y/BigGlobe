@@ -33,11 +33,11 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 	@Override
 	public double getValue(long seed, int x, int y, int z) {
 		seed ^= this.salt.value;
-		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(y - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
-		int minCellZ = Math.floorDiv( ceilI(z - this.radius), this.scale);
+		int minCellZ = Math.floorDiv(ceilI(z - this.radius), this.scale);
 		int maxCellZ = Math.floorDiv(floorI(z + this.radius), this.scale);
 		double value = Double.POSITIVE_INFINITY;
 		for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
@@ -58,11 +58,11 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
 		samples.fillD(Double.POSITIVE_INFINITY);
-		int minCellX = Math.floorDiv( ceilI(startX - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(startX - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(startX + sampleCount + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(y - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
-		int minCellZ = Math.floorDiv( ceilI(z - this.radius), this.scale);
+		int minCellZ = Math.floorDiv(ceilI(z - this.radius), this.scale);
 		int maxCellZ = Math.floorDiv(floorI(z + this.radius), this.scale);
 		double radius2 = squareD(this.radius);
 		for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
@@ -71,7 +71,7 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 					double centerX = this.getCenterX(seed, cellX, cellY, cellZ);
 					double centerY = this.getCenterY(seed, cellX, cellY, cellZ);
 					double centerZ = this.getCenterZ(seed, cellX, cellY, cellZ);
-					double yz2     = squareD(centerY - y, centerZ - z);
+					double yz2 = squareD(centerY - y, centerZ - z);
 					int limit = startX + sampleCount - 1;
 					for (int x = Math.min(floorI(centerX), limit); x >= startX; x--) {
 						double distance = squareD(centerX - x) + yz2;
@@ -96,11 +96,11 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
 		samples.fillD(Double.POSITIVE_INFINITY);
-		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(startY - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(startY - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(startY + sampleCount + this.radius), this.scale);
-		int minCellZ = Math.floorDiv( ceilI(z - this.radius), this.scale);
+		int minCellZ = Math.floorDiv(ceilI(z - this.radius), this.scale);
 		int maxCellZ = Math.floorDiv(floorI(z + this.radius), this.scale);
 		double radius2 = squareD(this.radius);
 		for (int cellY = minCellY; cellY <= maxCellY; cellY++) {
@@ -109,7 +109,7 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 					double centerX = this.getCenterX(seed, cellX, cellY, cellZ);
 					double centerY = this.getCenterY(seed, cellX, cellY, cellZ);
 					double centerZ = this.getCenterZ(seed, cellX, cellY, cellZ);
-					double xz2     = squareD(centerX - x, centerZ - z);
+					double xz2 = squareD(centerX - x, centerZ - z);
 					int limit = startY + sampleCount - 1;
 					for (int y = Math.min(floorI(centerY), limit); y >= startY; y--) {
 						double distance = squareD(centerY - y) + xz2;
@@ -134,11 +134,11 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
 		samples.fillD(Double.POSITIVE_INFINITY);
-		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(y - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
-		int minCellZ = Math.floorDiv( ceilI(startZ - this.radius), this.scale);
+		int minCellZ = Math.floorDiv(ceilI(startZ - this.radius), this.scale);
 		int maxCellZ = Math.floorDiv(floorI(startZ + sampleCount + this.radius), this.scale);
 		double radius2 = squareD(this.radius);
 		for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
@@ -147,7 +147,7 @@ public class WorleyGrid3D extends WorleyGrid implements Grid3D {
 					double centerX = this.getCenterX(seed, cellX, cellY, cellZ);
 					double centerY = this.getCenterY(seed, cellX, cellY, cellZ);
 					double centerZ = this.getCenterZ(seed, cellX, cellY, cellZ);
-					double xy2     = squareD(centerX - x, centerY - y);
+					double xy2 = squareD(centerX - x, centerY - y);
 					int limit = startZ + sampleCount - 1;
 					for (int z = Math.min(floorI(centerZ), limit); z >= startZ; z--) {
 						double distance = squareD(centerZ - z) + xy2;

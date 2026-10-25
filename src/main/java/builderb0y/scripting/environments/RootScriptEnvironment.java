@@ -2,7 +2,6 @@ package builderb0y.scripting.environments;
 
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.CastingSupport;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -14,7 +13,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class RootScriptEnvironment extends MultiScriptEnvironment {
 
 	public static final int
-		USER_INDEX    = 0,
+		USER_INDEX = 0,
 		MUTABLE_INDEX = 1;
 
 	public RootScriptEnvironment() {

@@ -11,7 +11,7 @@ optimizes cases where a GOTO instruction jumps to a return instruction.
 in these cases, the return is inlined into the goto's location.
 
 example code which generates such a case: {@code
-	return(condition ? a : b)
+return(condition ? a : b)
 }
 */
 public class JumpToReturnOptimizer implements MethodOptimizer {
@@ -21,7 +21,7 @@ public class JumpToReturnOptimizer implements MethodOptimizer {
 	@Override
 	public boolean optimize(MethodNode method) {
 		boolean changed = false;
-		for (AbstractInsnNode node = method.instructions.getFirst(); node != null;) {
+		for (AbstractInsnNode node = method.instructions.getFirst(); node != null; ) {
 			AbstractInsnNode next = node.getNext();
 			if (node.getOpcode() == GOTO) {
 				AbstractInsnNode target = ((JumpInsnNode)(node)).label;
@@ -32,7 +32,8 @@ public class JumpToReturnOptimizer implements MethodOptimizer {
 						method.instructions.set(node, new InsnNode(target.getOpcode()));
 						changed = true;
 					}
-					default -> {}
+					default -> {
+					}
 				}
 			}
 			node = next;

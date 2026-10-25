@@ -3,11 +3,9 @@ package builderb0y.bigglobe.structures.placement;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.gen.chunk.placement.StructurePlacement;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.mixins.ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently;
 
@@ -22,11 +20,11 @@ public interface StreamableStructurePlacement {
 	the returned Stream should, in general, contain
 	chunk positions which meet the following criteria:
 	{@code
-		Math.max(
-			Math.abs(chunkPos.x - centerChunkX),
-			Math.abs(chunkPos.z - centerChunkZ)
-		)
-		<= chunkRange
+	Math.max(
+	Math.abs(chunkPos.x - centerChunkX),
+	Math.abs(chunkPos.z - centerChunkZ)
+	)
+	<= chunkRange
 	}
 	however, this is not a strong requirement.
 	{@link ConcentricRingsStructurePlacement_ImplementStreamableStructurePlacementMoreEfficiently}
@@ -37,7 +35,7 @@ public interface StreamableStructurePlacement {
 	*/
 	public abstract Stream<ChunkPos> bigglobe_getNearbyStartChunks(
 		BigGlobeScriptedChunkGenerator generator,
-		StructurePlacementCalculator calculator,
+		ChunkGeneratorStructureState calculator,
 		int centerChunkX,
 		int centerChunkZ,
 		int chunkRange
@@ -45,19 +43,19 @@ public interface StreamableStructurePlacement {
 
 	public default Stream<ChunkPos> bigglobe_getFilteredStartChunks(
 		BigGlobeScriptedChunkGenerator generator,
-		StructurePlacementCalculator calculator,
+		ChunkGeneratorStructureState calculator,
 		int centerChunkX,
 		int centerChunkZ,
 		int chunkRange
 	) {
 		return this.bigglobe_getNearbyStartChunks(
-			generator,
-			calculator,
-			centerChunkX,
-			centerChunkZ,
-			chunkRange
-		)
-		.filter(rangeFilter(centerChunkX, centerChunkZ, chunkRange));
+				generator,
+				calculator,
+				centerChunkX,
+				centerChunkZ,
+				chunkRange
+			)
+				.filter(rangeFilter(centerChunkX, centerChunkZ, chunkRange));
 	}
 
 	public static int distance(ChunkPos chunkPos, int centerChunkX, int centerChunkZ) {

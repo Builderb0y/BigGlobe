@@ -5,9 +5,6 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -25,6 +22,7 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.util.InfoHolder;
+import net.minecraft.core.Holder;
 
 /**
 the common superinterface of all grids.
@@ -41,6 +39,7 @@ such a way that the "real" minimum or maximum value never exceeds a certain hard
 public interface Grid {
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public MethodInfo minValue, maxValue, getDimensions;
@@ -84,22 +83,22 @@ public interface Grid {
 	public abstract int getDimensions();
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static class GridRegistryEntryCoder<G extends Grid> extends NamedCoder<RegistryEntry<G>> {
+	public static class GridRegistryEntryCoder<G extends Grid> extends NamedCoder<Holder<G>> {
 
-		public final AutoCoder<RegistryEntry<Grid>> fallback;
+		public final AutoCoder<Holder<Grid>> fallback;
 		public final int dimensions;
 
-		public GridRegistryEntryCoder(@NotNull ReifiedType<RegistryEntry<G>> handledType, AutoCoder<RegistryEntry<Grid>> fallback, int dimensions) {
+		public GridRegistryEntryCoder(@NotNull ReifiedType<Holder<G>> handledType, AutoCoder<Holder<Grid>> fallback, int dimensions) {
 			super(handledType);
 			this.fallback = fallback;
 			this.dimensions = dimensions;
 		}
 
 		@Override
-		public <T_Encoded> @Nullable RegistryEntry<G> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-			RegistryEntry<Grid> entry = context.decodeWith(this.fallback);
+		public <T_Encoded> @Nullable Holder<G> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+			Holder<Grid> entry = context.decodeWith(this.fallback);
 			if (entry.value().getDimensions() == this.dimensions) {
-				return (RegistryEntry<G>)(entry);
+				return (Holder<G>)(entry);
 			}
 			else {
 				throw new DecodeException(() -> "Requested " + this.dimensions + " dimensions, but " + UnregisteredObjectException.getID(entry) + " is of " + entry.value().getDimensions() + " dimensions.");
@@ -107,13 +106,13 @@ public interface Grid {
 		}
 
 		@Override
-		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, RegistryEntry<G>> context) throws EncodeException {
+		public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, Holder<G>> context) throws EncodeException {
 			return (
 				(EncodeContext)(
 					context
 				)
 			)
-			.encodeWith(this.fallback);
+					.encodeWith(this.fallback);
 		}
 
 		public static class Factory extends NamedCoderFactory {
@@ -123,10 +122,10 @@ public interface Grid {
 			@Override
 			@OverrideOnly
 			public <T_HandledType> @Nullable AutoCoder<?> tryCreate(@NotNull FactoryContext<T_HandledType> context) throws FactoryException {
-				ReifiedType<?> gridType = context.type.resolveParameter(RegistryEntry.class);
+				ReifiedType<?> gridType = context.type.resolveParameter(Holder.class);
 				Class<?> rawType;
 				if (gridType != null && (rawType = gridType.getRawClass()) != null && Grid.class.isAssignableFrom(rawType)) {
-					AutoCoder<RegistryEntry<Grid>> fallback = context.type(ReifiedType.<RegistryEntry<Grid>>parameterize(RegistryEntry.class, ReifiedType.from(Grid.class))).forceCreateCoder();
+					AutoCoder<Holder<Grid>> fallback = context.type(ReifiedType.<Holder<Grid>>parameterize(Holder.class, ReifiedType.from(Grid.class))).forceCreateCoder();
 					if (rawType == Grid1D.class) {
 						return new GridRegistryEntryCoder(context.type, fallback, 1);
 					}

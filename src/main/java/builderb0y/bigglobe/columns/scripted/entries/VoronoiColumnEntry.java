@@ -3,16 +3,13 @@ package builderb0y.bigglobe.columns.scripted.entries;
 import java.lang.invoke.*;
 import java.lang.reflect.Modifier;
 import java.util.Map;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.columns.scripted.*;
-import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiBaseCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.VoronoiImplCompileContext;
@@ -34,6 +31,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class VoronoiColumnEntry extends AbstractColumnEntry {
 
 	public static final MethodHandle RANDOMIZE;
+
 	static {
 		try {
 			RANDOMIZE = MethodHandles.lookup().findStatic(VoronoiColumnEntry.class, "randomize", MethodType.methodType(VoronoiDataBase.class, IRandomList.class, long.class, ScriptedColumn.class, Cell.class));
@@ -81,26 +79,26 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 			option.asSubclass(VoronoiDataBase.class);
 			VoronoiDataBase.Factory factory = (VoronoiDataBase.Factory)(
 				LambdaMetafactory.altMetafactory(
-					lookup,
-					"create",
-					MethodType.methodType(VoronoiDataBase.Factory.class),
-					factoryType,
-					lookup.findConstructor(option, constructorType),
-					MethodType.methodType(option, methodType.parameterType(0), VoronoiDiagram2D.Cell.class),
-					LambdaMetafactory.FLAG_BRIDGES,
-					1,
-					MethodType.methodType(VoronoiDataBase.class, ScriptedColumn.class, VoronoiDiagram2D.Cell.class)
-				)
-				.getTarget()
-				.invokeExact()
+						lookup,
+						"create",
+						MethodType.methodType(VoronoiDataBase.Factory.class),
+						factoryType,
+						lookup.findConstructor(option, constructorType),
+						MethodType.methodType(option, methodType.parameterType(0), VoronoiDiagram2D.Cell.class),
+						LambdaMetafactory.FLAG_BRIDGES,
+						1,
+						MethodType.methodType(VoronoiDataBase.class, ScriptedColumn.class, VoronoiDiagram2D.Cell.class)
+					)
+					.getTarget()
+					.invokeExact()
 			);
 			double weight = option.getDeclaredField("WEIGHT").getDouble(null);
 			list.add(factory, weight);
 		}
 		return new ConstantCallSite(
 			MethodHandles
-			.insertArguments(RANDOMIZE, 0, list.optimize(), seed)
-			.asType(methodType)
+				.insertArguments(RANDOMIZE, 0, list.optimize(), seed)
+				.asType(methodType)
 		);
 	}
 
@@ -143,11 +141,11 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "get_" + entry.getKey(), context.root().getTypeContext(entry.getValue().type()).type(), entry.getValue().getterParameters());
 			voronoiBaseContext.mainClass.newMethod(ACC_PUBLIC | ACC_ABSTRACT, "set_" + entry.getKey(), TypeInfos.VOID, entry.getValue().setterParameters(context));
 		}
-		for (RegistryEntry<VoronoiSettings> voronoiEntry : voronoiManager.getOptionsFor(this)) {
+		for (Holder<VoronoiSettings> voronoiEntry : voronoiManager.getOptionsFor(this)) {
 			VoronoiImplCompileContext implContext = voronoiManager.getImplContextFor(voronoiEntry.value());
 			implContext.mainClass.newField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "WEIGHT", TypeInfos.DOUBLE).node.value = voronoiEntry.value().weight();
 
-			for (Map.Entry<String, RegistryEntry<ColumnEntry>> export : voronoiEntry.value().exports().entrySet()) {
+			for (Map.Entry<String, Holder<ColumnEntry>> export : voronoiEntry.value().exports().entrySet()) {
 				AccessSchema schema = export.getValue().value().getAccessSchema();
 				MethodCompileContext getterDelegator = implContext.mainClass.newMethod(ACC_PUBLIC, "get_" + export.getKey(), implContext.root().getTypeContext(schema.type()).type(), schema.getterParameters());
 				LazyVarInfo self = new LazyVarInfo("this", getterDelegator.clazz.info);
@@ -160,7 +158,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 						loadY != null ? new InsnTree[] { load(loadY) } : InsnTree.ARRAY_FACTORY.empty()
 					)
 				)
-				.emitBytecode(getterDelegator);
+					.emitBytecode(getterDelegator);
 				getterDelegator.endCode();
 
 				LazyVarInfo value = new LazyVarInfo("value", implContext.root().getAccessContext(schema).exposedType());
@@ -173,7 +171,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 							loadY != null ? new InsnTree[] { load(loadY), load(value) } : new InsnTree[] { load(value) }
 						)
 					)
-					.emitBytecode(setterDelegator);
+						.emitBytecode(setterDelegator);
 				}
 				else {
 					return_(noop).emitBytecode(setterDelegator);
@@ -218,7 +216,7 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 				}
 			)
 		)
-		.emitBytecode(computeMethod);
+			.emitBytecode(computeMethod);
 		computeMethod.endCode();
 	}
 
@@ -230,18 +228,16 @@ public class VoronoiColumnEntry extends AbstractColumnEntry {
 	public static <T> void checkNotReserved(VerifyContext<T, String> context) throws VerifyException {
 		String name = context.object;
 		if (name != null) switch (name) {
-			case
-				"cell_x",
-				"cell_z",
-				"center_x",
-				"center_z",
-				"soft_distance_squared",
-				"soft_distance",
-				"hard_distance",
-				"hard_distance_squared",
-				"euclidean_distance_squared",
-				"euclidean_distance"
-			-> {
+			case "cell_x",
+			"cell_z",
+			"center_x",
+			"center_z",
+			"soft_distance_squared",
+			"soft_distance",
+			"hard_distance",
+			"hard_distance_squared",
+			"euclidean_distance_squared",
+			"euclidean_distance" -> {
 				throw new VerifyException(() -> "Export name " + name + " is built-in, and cannot be overridden.");
 			}
 		}

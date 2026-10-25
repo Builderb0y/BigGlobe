@@ -8,7 +8,7 @@ public class GoldenSpiralIterator implements PointIterator2D {
 
 	//https://en.wikipedia.org/wiki/Golden_angle
 	public static final double
-		GOLDEN_ANGLE     = 2.39996322972865332D,
+		GOLDEN_ANGLE = 2.39996322972865332D,
 		SIN_GOLDEN_ANGLE = Math.sin(GOLDEN_ANGLE),
 		COS_GOLDEN_ANGLE = Math.cos(GOLDEN_ANGLE);
 
@@ -43,14 +43,25 @@ public class GoldenSpiralIterator implements PointIterator2D {
 		double normX = this.normX;
 		double normZ = this.normY;
 		this.normX = normX * COS_GOLDEN_ANGLE + normZ * -SIN_GOLDEN_ANGLE;
-		this.normY = normX * SIN_GOLDEN_ANGLE + normZ *  COS_GOLDEN_ANGLE;
+		this.normY = normX * SIN_GOLDEN_ANGLE + normZ * COS_GOLDEN_ANGLE;
 		this.index++;
 		this.radius = this.index * this.radiusStepSize;
 		this.x = this.originX + this.normX * this.radius;
 		this.y = this.originY + this.normY * this.radius;
 	}
 
-	@Override public int index() { return this.index; }
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
+	@Override
+	public int index() {
+		return this.index;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
 }

@@ -4,9 +4,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.update.AbstractUpdaterInsnTree;
 
 //world_traits.`example_mod:example_value`(x, z) = value
 public class LookupTraits2DSetterInsnTree extends Abstract2DSetterInsnTree {

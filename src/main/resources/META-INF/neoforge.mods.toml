@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "CC-BY-NC 4.0"
+issueTrackerURL = "https://github.com/Builderb0y/BigGlobe/issues"
+
+[[mods]]
+modId = "bigglobe"
+version = "${mod_version}"
+displayName = "Big Globe"
+description = "Round earth is a hoax invented by Big Globe to sell more globes!"
+authors = "Builderb0y"
+
+[[dependencies.bigglobe]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.bigglobe]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "bigglobe.mixins.json"

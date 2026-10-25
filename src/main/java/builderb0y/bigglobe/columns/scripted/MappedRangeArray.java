@@ -7,6 +7,7 @@ import builderb0y.scripting.util.InfoHolder;
 public abstract class MappedRangeArray {
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public FieldInfo

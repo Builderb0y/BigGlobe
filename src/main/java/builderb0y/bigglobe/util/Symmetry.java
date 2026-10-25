@@ -1,11 +1,9 @@
 package builderb0y.bigglobe.util;
 
 import java.util.random.RandomGenerator;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.bigglobe.math.BigGlobeMath;
 
 /**
@@ -15,10 +13,25 @@ this is because minecraft's coordinate system has z oriented this way.
 */
 public enum Symmetry {
 	IDENTITY {
-		@Override public int    getX(int    x, int    z) { return  x; }
-		@Override public int    getZ(int    x, int    z) { return  z; }
-		@Override public double getX(double x, double z) { return  x; }
-		@Override public double getZ(double x, double z) { return  z; }
+		@Override
+		public int getX(int x, int z) {
+			return x;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return z;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return x;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return z;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
@@ -46,177 +59,282 @@ public enum Symmetry {
 		}
 	},
 	ROTATE_90 {
-		@Override public int    getX(int    x, int    z) { return -z; }
-		@Override public int    getZ(int    x, int    z) { return  x; }
-		@Override public double getX(double x, double z) { return -z; }
-		@Override public double getZ(double x, double z) { return  x; }
+		@Override
+		public int getX(int x, int z) {
+			return -z;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return x;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return -z;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return x;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.CLOCKWISE_90);
+			return state.rotate(Rotation.CLOCKWISE_90);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> ROTATE_90;
-				case ROTATE_90  -> ROTATE_180;
+				case IDENTITY -> ROTATE_90;
+				case ROTATE_90 -> ROTATE_180;
 				case ROTATE_180 -> ROTATE_270;
 				case ROTATE_270 -> IDENTITY;
-				case FLIP_0     -> FLIP_45;
-				case FLIP_45    -> FLIP_90;
-				case FLIP_90    -> FLIP_135;
-				case FLIP_135   -> FLIP_0;
+				case FLIP_0 -> FLIP_45;
+				case FLIP_45 -> FLIP_90;
+				case FLIP_90 -> FLIP_135;
+				case FLIP_135 -> FLIP_0;
 			};
 		}
 	},
 	ROTATE_180 {
-		@Override public int    getX(int    x, int    z) { return -x; }
-		@Override public int    getZ(int    x, int    z) { return -z; }
-		@Override public double getX(double x, double z) { return -x; }
-		@Override public double getZ(double x, double z) { return -z; }
+		@Override
+		public int getX(int x, int z) {
+			return -x;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return -z;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return -x;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return -z;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.CLOCKWISE_180);
+			return state.rotate(Rotation.CLOCKWISE_180);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> ROTATE_180;
-				case ROTATE_90  -> ROTATE_270;
+				case IDENTITY -> ROTATE_180;
+				case ROTATE_90 -> ROTATE_270;
 				case ROTATE_180 -> IDENTITY;
 				case ROTATE_270 -> ROTATE_90;
-				case FLIP_0     -> FLIP_90;
-				case FLIP_45    -> FLIP_135;
-				case FLIP_90    -> FLIP_0;
-				case FLIP_135   -> FLIP_45;
+				case FLIP_0 -> FLIP_90;
+				case FLIP_45 -> FLIP_135;
+				case FLIP_90 -> FLIP_0;
+				case FLIP_135 -> FLIP_45;
 			};
 		}
 	},
 	ROTATE_270 {
-		@Override public int    getX(int    x, int    z) { return  z; }
-		@Override public int    getZ(int    x, int    z) { return -x; }
-		@Override public double getX(double x, double z) { return  z; }
-		@Override public double getZ(double x, double z) { return -x; }
+		@Override
+		public int getX(int x, int z) {
+			return z;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return -x;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return z;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return -x;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
+			return state.rotate(Rotation.COUNTERCLOCKWISE_90);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> ROTATE_270;
-				case ROTATE_90  -> IDENTITY;
+				case IDENTITY -> ROTATE_270;
+				case ROTATE_90 -> IDENTITY;
 				case ROTATE_180 -> ROTATE_90;
 				case ROTATE_270 -> ROTATE_180;
-				case FLIP_0     -> FLIP_135;
-				case FLIP_45    -> FLIP_0;
-				case FLIP_90    -> FLIP_45;
-				case FLIP_135   -> FLIP_90;
+				case FLIP_0 -> FLIP_135;
+				case FLIP_45 -> FLIP_0;
+				case FLIP_90 -> FLIP_45;
+				case FLIP_135 -> FLIP_90;
 			};
 		}
 	},
 	FLIP_0 {
-		@Override public int    getX(int    x, int    z) { return -x; }
-		@Override public int    getZ(int    x, int    z) { return  z; }
-		@Override public double getX(double x, double z) { return -x; }
-		@Override public double getZ(double x, double z) { return  z; }
+		@Override
+		public int getX(int x, int z) {
+			return -x;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return z;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return -x;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return z;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.mirror(BlockMirror.FRONT_BACK);
+			return state.mirror(Mirror.FRONT_BACK);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> FLIP_0;
-				case ROTATE_90  -> FLIP_135;
+				case IDENTITY -> FLIP_0;
+				case ROTATE_90 -> FLIP_135;
 				case ROTATE_180 -> FLIP_90;
 				case ROTATE_270 -> FLIP_45;
-				case FLIP_0     -> IDENTITY;
-				case FLIP_45    -> ROTATE_270;
-				case FLIP_90    -> ROTATE_180;
-				case FLIP_135   -> ROTATE_90;
+				case FLIP_0 -> IDENTITY;
+				case FLIP_45 -> ROTATE_270;
+				case FLIP_90 -> ROTATE_180;
+				case FLIP_135 -> ROTATE_90;
 			};
 		}
 	},
 	FLIP_45 {
-		@Override public int    getX(int    x, int    z) { return  z; }
-		@Override public int    getZ(int    x, int    z) { return  x; }
-		@Override public double getX(double x, double z) { return  z; }
-		@Override public double getZ(double x, double z) { return  x; }
+		@Override
+		public int getX(int x, int z) {
+			return z;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return x;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return z;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return x;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.CLOCKWISE_90).mirror(BlockMirror.FRONT_BACK);
+			return state.rotate(Rotation.CLOCKWISE_90).mirror(Mirror.FRONT_BACK);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> FLIP_45;
-				case ROTATE_90  -> FLIP_0;
+				case IDENTITY -> FLIP_45;
+				case ROTATE_90 -> FLIP_0;
 				case ROTATE_180 -> FLIP_135;
 				case ROTATE_270 -> FLIP_90;
-				case FLIP_0     -> ROTATE_90;
-				case FLIP_45    -> IDENTITY;
-				case FLIP_90    -> ROTATE_270;
-				case FLIP_135   -> ROTATE_180;
+				case FLIP_0 -> ROTATE_90;
+				case FLIP_45 -> IDENTITY;
+				case FLIP_90 -> ROTATE_270;
+				case FLIP_135 -> ROTATE_180;
 			};
 		}
 	},
 	FLIP_90 {
-		@Override public int    getX(int    x, int    z) { return  x; }
-		@Override public int    getZ(int    x, int    z) { return -z; }
-		@Override public double getX(double x, double z) { return  x; }
-		@Override public double getZ(double x, double z) { return -z; }
+		@Override
+		public int getX(int x, int z) {
+			return x;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return -z;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return x;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return -z;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.mirror(BlockMirror.LEFT_RIGHT);
+			return state.mirror(Mirror.LEFT_RIGHT);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> FLIP_90;
-				case ROTATE_90  -> FLIP_45;
+				case IDENTITY -> FLIP_90;
+				case ROTATE_90 -> FLIP_45;
 				case ROTATE_180 -> FLIP_0;
 				case ROTATE_270 -> FLIP_135;
-				case FLIP_0     -> ROTATE_180;
-				case FLIP_45    -> ROTATE_90;
-				case FLIP_90    -> IDENTITY;
-				case FLIP_135   -> ROTATE_270;
+				case FLIP_0 -> ROTATE_180;
+				case FLIP_45 -> ROTATE_90;
+				case FLIP_90 -> IDENTITY;
+				case FLIP_135 -> ROTATE_270;
 			};
 		}
 	},
 	FLIP_135 {
-		@Override public int    getX(int    x, int    z) { return -z; }
-		@Override public int    getZ(int    x, int    z) { return -x; }
-		@Override public double getX(double x, double z) { return -z; }
-		@Override public double getZ(double x, double z) { return -x; }
+		@Override
+		public int getX(int x, int z) {
+			return -z;
+		}
+
+		@Override
+		public int getZ(int x, int z) {
+			return -x;
+		}
+
+		@Override
+		public double getX(double x, double z) {
+			return -z;
+		}
+
+		@Override
+		public double getZ(double x, double z) {
+			return -x;
+		}
 
 		@Override
 		public BlockState apply(BlockState state) {
-			return state.rotate(BlockRotation.CLOCKWISE_90).mirror(BlockMirror.LEFT_RIGHT);
+			return state.rotate(Rotation.CLOCKWISE_90).mirror(Mirror.LEFT_RIGHT);
 		}
 
 		@Override
 		public Symmetry andThen(Symmetry after) {
 			return switch (after) {
-				case IDENTITY   -> FLIP_135;
-				case ROTATE_90  -> FLIP_90;
+				case IDENTITY -> FLIP_135;
+				case ROTATE_90 -> FLIP_90;
 				case ROTATE_180 -> FLIP_45;
 				case ROTATE_270 -> FLIP_0;
-				case FLIP_0     -> ROTATE_270;
-				case FLIP_45    -> ROTATE_180;
-				case FLIP_90    -> ROTATE_90;
-				case FLIP_135   -> IDENTITY;
+				case FLIP_0 -> ROTATE_270;
+				case FLIP_45 -> ROTATE_180;
+				case FLIP_90 -> ROTATE_90;
+				case FLIP_135 -> IDENTITY;
 			};
 		}
 	};
@@ -225,18 +343,18 @@ public enum Symmetry {
 
 	public static final Symmetry[] VALUES = values();
 
-	public static Symmetry of(BlockRotation rotation) {
+	public static Symmetry of(Rotation rotation) {
 		return switch (rotation) {
-			case NONE                -> IDENTITY;
-			case CLOCKWISE_90        -> ROTATE_90;
-			case CLOCKWISE_180       -> ROTATE_180;
+			case NONE -> IDENTITY;
+			case CLOCKWISE_90 -> ROTATE_90;
+			case CLOCKWISE_180 -> ROTATE_180;
 			case COUNTERCLOCKWISE_90 -> ROTATE_270;
 		};
 	}
 
-	public static Symmetry of(BlockMirror mirror) {
+	public static Symmetry of(Mirror mirror) {
 		return switch (mirror) {
-			case NONE       -> IDENTITY;
+			case NONE -> IDENTITY;
 			case LEFT_RIGHT -> FLIP_90;
 			case FRONT_BACK -> FLIP_0;
 		};
@@ -244,10 +362,10 @@ public enum Symmetry {
 
 	public static Symmetry rotation(int degrees) {
 		return switch (BigGlobeMath.modulus_BP(degrees, 360)) {
-			case 90  -> ROTATE_90;
+			case 90 -> ROTATE_90;
 			case 180 -> ROTATE_180;
 			case 270 -> ROTATE_270;
-			default  -> IDENTITY;
+			default -> IDENTITY;
 		};
 	}
 
@@ -257,11 +375,11 @@ public enum Symmetry {
 
 	public static Symmetry flip(int degrees) {
 		return switch (BigGlobeMath.modulus_BP(degrees, 180)) {
-			case 0   -> FLIP_0;
-			case 45  -> FLIP_45;
-			case 90  -> FLIP_90;
+			case 0 -> FLIP_0;
+			case 45 -> FLIP_45;
+			case 90 -> FLIP_90;
 			case 135 -> FLIP_135;
-			default  -> IDENTITY;
+			default -> IDENTITY;
 		};
 	}
 
@@ -295,14 +413,14 @@ public enum Symmetry {
 
 	public Symmetry inverse() {
 		return switch (this) {
-			case IDENTITY   -> IDENTITY;
-			case ROTATE_90  -> ROTATE_270;
+			case IDENTITY -> IDENTITY;
+			case ROTATE_90 -> ROTATE_270;
 			case ROTATE_180 -> ROTATE_180;
 			case ROTATE_270 -> ROTATE_90;
-			case FLIP_0     -> FLIP_0;
-			case FLIP_45    -> FLIP_45;
-			case FLIP_90    -> FLIP_90;
-			case FLIP_135   -> FLIP_135;
+			case FLIP_0 -> FLIP_0;
+			case FLIP_45 -> FLIP_45;
+			case FLIP_90 -> FLIP_90;
+			case FLIP_135 -> FLIP_135;
 		};
 	}
 

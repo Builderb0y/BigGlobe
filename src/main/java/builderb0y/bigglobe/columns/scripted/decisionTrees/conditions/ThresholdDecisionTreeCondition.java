@@ -2,12 +2,9 @@ package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -26,10 +23,10 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ThresholdDecisionTreeCondition extends AbstractThresholdDecisionTreeCondition {
 
-	public final RegistryEntry<ColumnEntry> column_value;
+	public final Holder<ColumnEntry> column_value;
 
 	public ThresholdDecisionTreeCondition(
-		RegistryEntry<ColumnEntry> column_value,
+		Holder<ColumnEntry> column_value,
 		double min,
 		double max,
 		@DefaultBoolean(true) boolean smooth_min,
@@ -40,10 +37,10 @@ public class ThresholdDecisionTreeCondition extends AbstractThresholdDecisionTre
 	}
 
 	@Override
-	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
-		List<RegistryEntry<VoronoiSettings>> enablers = context.root().registry.voronoiManager.getEnablingSettings(this.column_value.value());
+	public ConditionTree createCondition(Holder<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+		List<Holder<VoronoiSettings>> enablers = context.root().registry.voronoiManager.getEnablingSettings(this.column_value.value());
 		if (!enablers.isEmpty()) {
-			throw new DecisionTreeException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is enabled by " + enablers.stream().map(UnregisteredObjectException::getID).map(Identifier::toString).collect(Collectors.joining(", ", "[ ", " ]")) + ", and therefore cannot be used as a decision tree threshold.");
+			throw new DecisionTreeException("Column value " + UnregisteredObjectException.getID(this.column_value) + " is enabled by " + enablers.stream().map(UnregisteredObjectException::getID).map(ResourceLocation::toString).collect(Collectors.joining(", ", "[ ", " ]")) + ", and therefore cannot be used as a decision tree threshold.");
 		}
 		ColumnEntryMemory memory = context.root().registry.columnContext.memories.get(this.column_value.value());
 		if (memory == null) {
@@ -60,8 +57,8 @@ public class ThresholdDecisionTreeCondition extends AbstractThresholdDecisionTre
 				context.loadColumn(),
 				getter.info,
 				requiresY
-				? new InsnTree[] { loadY }
-				: InsnTree.ARRAY_FACTORY.empty()
+					? new InsnTree[] { loadY }
+					: InsnTree.ARRAY_FACTORY.empty()
 			),
 			selfSeed,
 			context

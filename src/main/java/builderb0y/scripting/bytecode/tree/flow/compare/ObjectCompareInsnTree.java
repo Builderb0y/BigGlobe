@@ -37,11 +37,11 @@ public class ObjectCompareInsnTree extends FloatLikeCompareInsnTree {
 
 		LabelNode
 			greaterIncomparable = labelNode(),
-			greaterThan         = labelNode(),
-			lessThan            = labelNode(),
-			equalTo             = labelNode(),
-			incomparable        = labelNode(),
-			end                 = labelNode();
+			greaterThan = labelNode(),
+			lessThan = labelNode(),
+			equalTo = labelNode(),
+			incomparable = labelNode(),
+			end = labelNode();
 
 		method.node.visitJumpInsn(IFGT, greaterIncomparable.getLabel());
 		//less than or equal.

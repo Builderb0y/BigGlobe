@@ -35,18 +35,18 @@ public abstract class ChangeRangeGrid implements UnaryGrid {
 			)
 		) {
 			throw new VerifyException(() ->
-				context
-				.pathToStringBuilder()
-				.append(" cannot change range from [")
-				.append(grid.getGrid().minValue())
-				.append(", ")
-				.append(grid.getGrid().maxValue())
-				.append("] to [")
-				.append(grid.min)
-				.append(", ")
-				.append(grid.max)
-				.append(']')
-				.toString()
+										context
+											.pathToStringBuilder()
+											.append(" cannot change range from [")
+											.append(grid.getGrid().minValue())
+											.append(", ")
+											.append(grid.getGrid().maxValue())
+											.append("] to [")
+											.append(grid.min)
+											.append(", ")
+											.append(grid.max)
+											.append(']')
+											.toString()
 			);
 		}
 	}

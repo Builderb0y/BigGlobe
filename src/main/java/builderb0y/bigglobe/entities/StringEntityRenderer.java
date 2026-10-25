@@ -4,58 +4,54 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.versions.EntityVersions;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 @Environment(EnvType.CLIENT)
 public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, StringEntityRenderer.State> {
 
-	public static final Identifier TEXTURE = BigGlobeMod.modID("textures/entity/string.png");
+	public static final ResourceLocation TEXTURE = BigGlobeMod.modID("textures/entity/string.png");
 
-	public StringEntityRenderer(EntityRendererFactory.Context context) {
+	public StringEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	public RenderLayer getRenderLayer() {
-		#if MC_VERSION >= MC_1_21_11
-			return RenderLayers.entitySolid(TEXTURE);
-		#else
-			return RenderLayer.getEntitySolid(TEXTURE);
-		#endif
+	public RenderType getRenderLayer() {
+		return RenderType.entitySolid(TEXTURE);
 	}
 
 	@Override
-	public void doRender(State state, MatrixStack.Entry matrix, VertexConsumer buffer, Vec3d cameraPosition, int light) {
+	public void doRender(StringEntityRenderer.State state, PoseStack.Pose matrix, VertexConsumer buffer, Vec3 cameraPosition, int light) {
 		Vector3d scratch = new Vector3d();
 		class VertexHelper {
 
 			public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier) {
 				return this.add(
 					pos, u, v, normal, normalMultiplier,
-					LightmapTextureManager.pack(
+					LightTexture.pack(
 						lerpInt(
-							LightmapTextureManager.getBlockLightCoordinates(light),
-							LightmapTextureManager.getBlockLightCoordinates(state.lightC),
+							LightTexture.block(light),
+							LightTexture.block(state.lightC),
 							u
 						),
 						lerpInt(
-							LightmapTextureManager.getSkyLightCoordinates(light),
-							LightmapTextureManager.getSkyLightCoordinates(state.lightC),
+							LightTexture.sky(light),
+							LightTexture.sky(state.lightC),
 							u
 						)
 					)
@@ -64,13 +60,13 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 
 			public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier, int lightLevel) {
 				buffer
-				.vertex(matrix.getPositionMatrix(), (float)(pos.x - state.posB.x), (float)(pos.y - state.posB.y), (float)(pos.z - state.posB.z))
-				.color(255, 255, 255, 255)
-				.texture(u, v)
-				.overlay(OverlayTexture.DEFAULT_UV)
-				.light(lightLevel)
-				.normal(matrix #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
-				#if MC_VERSION < MC_1_21_0 .next() #endif
+					.addVertex(matrix.pose(), (float)(pos.x - state.posB.x), (float)(pos.y - state.posB.y), (float)(pos.z - state.posB.z))
+					.setColor(255, 255, 255, 255)
+					.setUv(u, v)
+					.setOverlay(OverlayTexture.NO_OVERLAY)
+					.setLight(lightLevel)
+					.setNormal(matrix, (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
+
 				;
 				return this;
 			}
@@ -86,10 +82,10 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 			from.setFrac(0.0D);
 			if (!state.prevEntity) {
 				helper
-				.add(scratch.set(from.position).sub(from.right).add(from.up), 0.0F,   0.5F,   from.forward, -1.0D, state.lightB)
-				.add(scratch.set(from.position).sub(from.right),              0.0F,   0.625F, from.forward, -1.0D, state.lightB)
-				.add(scratch.set(from.position).add(from.right),              0.125F, 0.625F, from.forward, -1.0D, state.lightB)
-				.add(scratch.set(from.position).add(from.right).add(from.up), 0.125F, 0.5F,   from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).sub(from.right).add(from.up), 0.0F, 0.5F, from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).sub(from.right), 0.0F, 0.625F, from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).add(from.right), 0.125F, 0.625F, from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).add(from.right).add(from.up), 0.125F, 0.5F, from.forward, -1.0D, state.lightB)
 				;
 			}
 			int segmentCount = Math.max(this.calcSegments(state.posA, state.posB, state.posC), this.calcSegments(state.posB, state.posC, state.posD));
@@ -187,22 +183,22 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		}
 	}
 
-	public static @Nullable Vec3d getPos(Entity entity, float tickDelta) {
-		return entity == null ? null : new Vec3d(
+	public static @Nullable Vec3 getPos(Entity entity, float tickDelta) {
+		return entity == null ? null : new Vec3(
 			Interpolator.mixLinear(EntityVersions.prevX(entity), entity.getX(), tickDelta),
 			Interpolator.mixLinear(EntityVersions.prevY(entity), entity.getY(), tickDelta),
 			Interpolator.mixLinear(EntityVersions.prevZ(entity), entity.getZ(), tickDelta)
 		);
 	}
 
-	public int calcSegments(Vec3d a, Vec3d b, Vec3d c) {
+	public int calcSegments(Vec3 a, Vec3 b, Vec3 c) {
 		a = a.subtract(b);
 		c = c.subtract(b);
 		//b = Vec3d.ZERO;
-		double div = a.lengthSquared() * c.lengthSquared();
+		double div = a.lengthSqr() * c.lengthSqr();
 		if (div == 0.0D) return 1;
-		double dot = a.dotProduct(c) / Math.sqrt(div);
-		dot = MathHelper.clamp(dot, -1.0D, 1.0D);
+		double dot = a.dot(c) / Math.sqrt(div);
+		dot = Mth.clamp(dot, -1.0D, 1.0D);
 		//approximation:
 		return Math.min(Math.max(BigGlobeMath.ceilI(Math.sqrt(dot + 1.0D) * 8.0D), 1), 8);
 		//exact:
@@ -210,29 +206,18 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		//return Math.min(Math.max(BigGlobeMath.ceilI(16.0D - angle * (16.0D / Math.PI)), 1), 8);
 	}
 
-	#if MC_VERSION >= MC_1_21_2
-
-		@Override
-		public boolean shouldRender(StringEntity entity, Frustum frustum, double x, double y, double z) {
-			return entity.shouldRender(x, y, z) && frustum.isVisible(entity.getVisibilityBoundingBox());
-		}
-
-	#else
-
-		@Override
-		public Identifier getTexture(StringEntity entity) {
-			return TEXTURE;
-		}
-
-	#endif
-
 	@Override
-	public State createState() {
-		return new State();
+	public boolean shouldRender(StringEntity entity, Frustum frustum, double x, double y, double z) {
+		return entity.shouldRender(x, y, z) && frustum.isVisible(entity.getVisibilityBoundingBox());
 	}
 
 	@Override
-	public void updateState(StringEntity entity, State state, float partialTicks) {
+	public StringEntityRenderer.State createState() {
+		return new StringEntityRenderer.State();
+	}
+
+	@Override
+	public void updateState(StringEntity entity, StringEntityRenderer.State state, float partialTicks) {
 		Entity prevEntity = entity.getPrevEntity();
 		Entity nextEntity = entity.getNextEntity();
 		Entity nextNextEntity = nextEntity instanceof StringEntity string ? string.getNextEntity() : null;
@@ -245,8 +230,8 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		if (state.posA == null) state.posA = state.posB;
 		if (state.posD == null) state.posD = state.posC;
 
-		state.lightB = this.dispatcher.getLight(entity, partialTicks);
-		state.lightC = entity.getNextEntity() != null ? this.dispatcher.getLight(entity.getNextEntity(), partialTicks) : 0;
+		state.lightB = this.entityRenderDispatcher.getPackedLightCoords(entity, partialTicks);
+		state.lightC = entity.getNextEntity() != null ? this.entityRenderDispatcher.getPackedLightCoords(entity.getNextEntity(), partialTicks) : 0;
 
 		state.prevEntity = prevEntity != null;
 		state.nextEntity = nextEntity != null;
@@ -255,7 +240,7 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 
 	public static class State extends BigGlobeEntityRenderer.State {
 
-		public Vec3d posA, posB, posC, posD;
+		public Vec3 posA, posB, posC, posD;
 		public int lightB, lightC;
 		public boolean prevEntity, nextEntity, nextNextEntity;
 	}
@@ -288,7 +273,7 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 			this.derivativeTerm1 = that.derivativeTerm1;
 			this.derivativeTerm2 = that.derivativeTerm2;
 			this.derivativeTerm3 = that.derivativeTerm3;
-			this.derivative      = that.derivative;
+			this.derivative = that.derivative;
 		}
 
 		public void setFrac(double frac) {
@@ -304,7 +289,7 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		public final BendComponent x, y, z;
 		public final Vector3d position, forward, right, up;
 
-		public BendVector(Vec3d a, Vec3d b, Vec3d c, Vec3d d) {
+		public BendVector(Vec3 a, Vec3 b, Vec3 c, Vec3 d) {
 			this.x        = new BendComponent(a.x, b.x, c.x, d.x);
 			this.y        = new BendComponent(a.y, b.y, c.y, d.y);
 			this.z        = new BendComponent(a.z, b.z, c.z, d.z);

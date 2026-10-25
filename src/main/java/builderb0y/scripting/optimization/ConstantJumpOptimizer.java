@@ -20,7 +20,7 @@ public class ConstantJumpOptimizer implements MethodOptimizer {
 	@Override
 	public boolean optimize(MethodNode method) {
 		boolean changed = false;
-		for (AbstractInsnNode maybeLoadConstant = method.instructions.getFirst(); maybeLoadConstant != null;) {
+		for (AbstractInsnNode maybeLoadConstant = method.instructions.getFirst(); maybeLoadConstant != null; ) {
 			AbstractInsnNode next = maybeLoadConstant.getNext();
 			ConstantValue constant = getConstant(maybeLoadConstant);
 			if (constant != null) {
@@ -30,8 +30,8 @@ public class ConstantJumpOptimizer implements MethodOptimizer {
 					case IFNE -> constant.asInt() != 0;
 					case IFLE -> constant.asInt() <= 0;
 					case IFGE -> constant.asInt() >= 0;
-					case IFLT -> constant.asInt() <  0;
-					case IFGT -> constant.asInt() >  0;
+					case IFLT -> constant.asInt() < 0;
+					case IFGT -> constant.asInt() > 0;
 					case IFNULL -> constant.asJavaObject() == null;
 					case IFNONNULL -> constant.asJavaObject() != null;
 					default -> null;

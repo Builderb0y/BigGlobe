@@ -3,14 +3,12 @@ package builderb0y.bigglobe.networking.packets;
 import java.util.Objects;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
@@ -26,20 +24,20 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 
 	public static final WaypointRenameC2SPacket INSTANCE = new WaypointRenameC2SPacket();
 
-	public void send(int id, Hand hand) {
-		PacketByteBuf buffer = this.buffer();
+	public void send(int id, InteractionHand hand) {
+		FriendlyByteBuf buffer = this.buffer();
 		buffer.writeVarInt(id);
-		buffer.writeEnumConstant(hand);
+		buffer.writeEnum(hand);
 		BigGlobeNetwork.INSTANCE.sendToServer(buffer);
 	}
 
 	@Override
-	public Data decode(ServerPlayerEntity player, PacketByteBuf buffer) {
-		return new Data(buffer.readVarInt(), buffer.readEnumConstant(Hand.class));
+	public Data decode(ServerPlayer player, FriendlyByteBuf buffer) {
+		return new Data(buffer.readVarInt(), buffer.readEnum(InteractionHand.class));
 	}
 
 	@Override
-	public void process(ServerPlayerEntity player, Data data, PacketSender responseSender) {
+	public void process(ServerPlayer player, Data data, PacketSender responseSender) {
 		if (!player.isSpectator()) {
 			ServerWaypointManager manager = ServerWaypointManager.get(EntityVersions.getServerWorld(player));
 			if (manager != null) {
@@ -48,19 +46,19 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 					if (waypoint.owner() == null || waypoint.owner().equals(GameProfileVersions.getUUID(player.getGameProfile()))) {
 						if (
 							(
-								EntityVersions.getWorld(player).getRegistryKey() == HyperspaceConstants.WORLD_KEY ||
-								EntityVersions.getWorld(player).getRegistryKey() == waypoint.pos().world()
+								EntityVersions.getWorld(player).dimension() == HyperspaceConstants.WORLD_KEY ||
+								EntityVersions.getWorld(player).dimension() == waypoint.pos().world()
 							)
-							&& player.getEyePos().squaredDistanceTo(waypoint.pos().x(), waypoint.pos().y(), waypoint.pos().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
+							&& player.getEyePosition().distanceToSqr(waypoint.pos().x(), waypoint.pos().y(), waypoint.pos().z()) <= EntityVersions.getEntityReachDistanceSquared(player)
 						) {
-							ItemStack heldItem = player.getStackInHand(data.hand);
+							ItemStack heldItem = player.getItemInHand(data.hand);
 							if (heldItem.getItem() == Items.NAME_TAG) {
-								Text name = ItemStackVersions.getCustomName(heldItem);
+								Component name = ItemStackVersions.getCustomName(heldItem);
 								if (!Objects.equals(name, waypoint.name())) {
 									if (!player.isCreative()) {
-										heldItem.decrement(1);
+										heldItem.shrink(1);
 									}
-									player.swingHand(data.hand);
+									player.swing(data.hand);
 									manager.removeWaypoint(data.id, true);
 									manager.addWaypoint(waypoint.withName(name), true);
 								}
@@ -68,9 +66,9 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 							else if (heldItem.getItem() instanceof AuraBottleItem bottle) {
 								if (waypoint.color() != bottle.color) {
 									if (!player.isCreative()) {
-										heldItem.decrement(1);
+										heldItem.shrink(1);
 									}
-									player.swingHand(data.hand);
+									player.swing(data.hand);
 									manager.removeWaypoint(data.id, true);
 									manager.addWaypoint(waypoint.withColor(bottle.color), true);
 								}
@@ -100,5 +98,7 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 		}
 	}
 
-	public static record Data(int id, Hand hand) {}
+	public static record Data(int id, InteractionHand hand) {
+
+	}
 }

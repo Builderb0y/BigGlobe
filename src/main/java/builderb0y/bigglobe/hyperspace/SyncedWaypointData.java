@@ -1,13 +1,10 @@
 package builderb0y.bigglobe.hyperspace;
 
-
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.versions.GameProfileVersions;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 /**
 information about a waypoint for the purposes of syncing that waypoint to a client.
@@ -23,11 +20,11 @@ public record SyncedWaypointData(
 	boolean owned,
 	PackedWorldPos destinationPosition,
 	PackedWorldPos displayedPosition,
-	@Nullable Text name,
+	@Nullable Component name,
 	CloudColor color
 ) {
 
-	public PlayerWaypointData resolve(PlayerEntity player) {
+	public PlayerWaypointData resolve(Player player) {
 		return new PlayerWaypointData(
 			new ServerWaypointData(
 				this.id,

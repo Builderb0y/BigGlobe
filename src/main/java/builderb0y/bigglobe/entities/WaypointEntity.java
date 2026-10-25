@@ -5,26 +5,24 @@ import java.util.random.RandomGenerator;
 
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
-
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.world.World;
-
 import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.hyperspace.ServerWaypointData;
 import builderb0y.bigglobe.items.AuraBottleItem;
@@ -43,55 +41,58 @@ import builderb0y.bigglobe.versions.ItemStackVersions;
 public class WaypointEntity extends Entity {
 
 	public static final float MAX_HEALTH = 5.0F;
+
 	static {
-		AttackEntityCallback.EVENT.register((PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
+		AttackEntityCallback.EVENT.register((Player player, Level world, InteractionHand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
 			if (
 				entity instanceof WaypointEntity waypoint &&
 				waypoint.isFake &&
 				waypoint.data != null
 			) {
 				if (!player.isSpectator()) {
-					waypoint.implDamage(player.getDamageSources().playerAttack(player), 1.0F);
+					waypoint.implDamage(player.damageSources().playerAttack(player), 1.0F);
 					if (!(waypoint.health > 0.0F)) {
 						WaypointRemoveC2SPacket.INSTANCE.send(waypoint.data.id());
 					}
 				}
-				return ActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 			else {
-				return ActionResult.PASS;
+				return InteractionResult.PASS;
 			}
 		});
-		UseEntityCallback.EVENT.register((PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
+		UseEntityCallback.EVENT.register((Player player, Level world, InteractionHand hand, Entity entity, @Nullable EntityHitResult hitResult) -> {
 			if (
 				entity instanceof WaypointEntity waypoint &&
 				waypoint.isFake &&
 				waypoint.data != null && (
-					player.getStackInHand(hand).getItem() == Items.NAME_TAG ||
-					player.getStackInHand(hand).getItem() instanceof AuraBottleItem
+					player.getItemInHand(hand).getItem() == Items.NAME_TAG ||
+					player.getItemInHand(hand).getItem() instanceof AuraBottleItem
 				)
 			) {
 				if (!player.isSpectator()) {
 					WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
 				}
-				return ActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 			else {
-				return ActionResult.PASS;
+				return InteractionResult.PASS;
 			}
 		});
 	}
 
 	public @Nullable ServerWaypointData data;
-	/** true if this entity is client-side only and does not exist on the server. */
+	/**
+	true if this entity is client-side only and does not exist on the server.
+	*/
 	public boolean isFake;
 	public float health;
 	public CloudColor color = CloudColor.BLANK;
 	public Orbit[] orbits;
 
-	public WaypointEntity(EntityType<?> type, World world) {
+	public WaypointEntity(EntityType<?> type, Level world) {
 		super(type, world);
-		if (world.isClient()) {
+		if (world.isClientSide()) {
 			this.orbits = new Orbit[16];
 			Permuter permuter = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
 			for (int index = 0; index < this.orbits.length; index++) {
@@ -128,7 +129,7 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public boolean canHit() {
+	public boolean isPickable() {
 		return true;
 	}
 
@@ -138,13 +139,13 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public boolean canUsePortals(#if MC_VERSION >= MC_1_21_0 boolean allowVehicles #endif) {
+	public boolean canUsePortal(boolean allowVehicles) {
 		return false;
 	}
 
 	@Nullable
 	@Override
-	public ItemStack getPickBlockStack() {
+	public ItemStack getPickResult() {
 		if (this.data != null) {
 			Item item = this.data.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
 			if (item != null) {
@@ -159,16 +160,16 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public void onPlayerCollision(PlayerEntity player) {
-		super.onPlayerCollision(player);
-		if (player.hasPortalCooldown()) {
+	public void playerTouch(Player player) {
+		super.playerTouch(player);
+		if (player.isOnPortalCooldown()) {
 			player.setPortalCooldown(20);
 			return;
 		}
 		if (
 			this.isFake &&
 			this.data != null &&
-			player.getEyePos().squaredDistanceTo(
+			player.getEyePosition().distanceToSqr(
 				this.getX(),
 				this.getY() + 1.0D,
 				this.getZ()
@@ -181,7 +182,7 @@ public class WaypointEntity extends Entity {
 
 	public boolean isVulnerableTo(DamageSource damageSource) {
 		return (
-			damageSource.getSource() instanceof PlayerEntity player && (
+			damageSource.getDirectEntity() instanceof Player player && (
 				this.data == null ||
 				this.data.owner() == null ||
 				this.data.owner().equals(GameProfileVersions.getUUID(player.getGameProfile()))
@@ -194,7 +195,7 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public boolean damage(#if MC_VERSION >= MC_1_21_2 ServerWorld world, #endif DamageSource source, float amount) {
+	public boolean hurt(DamageSource source, float amount) {
 		return this.implDamage(source, amount);
 	}
 
@@ -202,7 +203,7 @@ public class WaypointEntity extends Entity {
 		if (this.isInvulnerableTo(source)) {
 			return false;
 		}
-		if (this.isFake != EntityVersions.getWorld(this).isClient()) {
+		if (this.isFake != EntityVersions.getWorld(this).isClientSide()) {
 			return true;
 		}
 		float newHealth = this.health - amount;
@@ -218,7 +219,7 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public void tick() {
-		if (EntityVersions.getWorld(this).isClient()) {
+		if (EntityVersions.getWorld(this).isClientSide()) {
 			for (Orbit orbit : this.orbits) {
 				orbit.tick();
 			}
@@ -227,8 +228,8 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public PistonBehavior getPistonBehavior() {
-		return PistonBehavior.IGNORE;
+	public PushReaction getPistonPushReaction() {
+		return PushReaction.IGNORE;
 	}
 
 	@Override
@@ -242,40 +243,24 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public boolean canAvoidTraps() {
+	public boolean isIgnoringBlockTriggers() {
 		return true;
 	}
 
 	@Override
-	public void initDataTracker(#if MC_VERSION >= MC_1_20_5 DataTracker.Builder builder #endif) {
+	public void defineSynchedData(SynchedEntityData.Builder builder) {
 		//not synced.
 	}
 
-	#if MC_VERSION >= MC_1_21_6
+	@Override
+	public void readAdditionalSaveData(CompoundTag view) {
+		//not savable.
+	}
 
-		@Override
-		public void readCustomData(net.minecraft.storage.ReadView view) {
-			//not savable.
-		}
-
-		@Override
-		public void writeCustomData(net.minecraft.storage.WriteView view) {
-			//not savable.
-		}
-
-	#else
-
-		@Override
-		public void writeCustomDataToNbt(NbtCompound nbt) {
-			//not savable.
-		}
-
-		@Override
-		public void readCustomDataFromNbt(NbtCompound nbt) {
-			//not savable.
-		}
-
-	#endif
+	@Override
+	public void addAdditionalSaveData(CompoundTag view) {
+		//not savable.
+	}
 
 	public static class Orbit {
 
@@ -314,7 +299,8 @@ public class WaypointEntity extends Entity {
 			return to;
 		}
 
-		public Orbit() {}
+		public Orbit() {
+		}
 
 		public Orbit(RandomGenerator random, float radius) {
 			Vector3f scratch = new Vector3f();

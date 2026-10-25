@@ -68,7 +68,6 @@ public interface ScriptEnvironment {
 	public static enum GetFieldMode {
 
 		NORMAL {
-
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new NormalInstanceGetFieldInsnTree(receiver, field);
@@ -91,7 +90,6 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE {
-
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new NullableInstanceGetFieldInsnTree(receiver, field);
@@ -114,7 +112,6 @@ public interface ScriptEnvironment {
 		},
 
 		RECEIVER {
-
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new ReceiverInstanceGetFieldInsnTree(receiver, field);
@@ -137,7 +134,6 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE_RECEIVER {
-
 			@Override
 			public InsnTree makeField(ExpressionParser parser, InsnTree receiver, FieldInfo field) {
 				return new NullableReceiverInstanceGetFieldInsnTree(receiver, field);
@@ -212,7 +208,6 @@ public interface ScriptEnvironment {
 	public static enum GetMethodMode {
 
 		NORMAL {
-
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new NormalInvokeInsnTree(method, extraArguments);
@@ -220,7 +215,6 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE {
-
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new NullableInvokeInsnTree(method, extraArguments);
@@ -228,7 +222,6 @@ public interface ScriptEnvironment {
 		},
 
 		RECEIVER {
-
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new ReceiverInvokeInsnTree(method, extraArguments);
@@ -236,7 +229,6 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE_RECEIVER {
-
 			@Override
 			public InsnTree makeInvoker(ExpressionParser parser, MethodInfo method, InsnTree... extraArguments) {
 				return new NullableReceiverInvokeInsnTree(method, extraArguments);
@@ -284,7 +276,6 @@ public interface ScriptEnvironment {
 	public static enum MemberKeywordMode {
 
 		NORMAL {
-
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return function.apply(receiver);
@@ -292,7 +283,6 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE {
-
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return new NullMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
@@ -300,7 +290,6 @@ public interface ScriptEnvironment {
 		},
 
 		RECEIVER {
-
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return new ReceiverMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
@@ -308,7 +297,6 @@ public interface ScriptEnvironment {
 		},
 
 		NULLABLE_RECEIVER {
-
 			@Override
 			public InsnTree apply(InsnTree receiver, MemberKeywordFunction function) throws ScriptParsingException {
 				return new NullableReceiverMapperInsnTree(receiver, function.apply(getFromStack(receiver.getTypeInfo())));
@@ -355,6 +343,7 @@ public interface ScriptEnvironment {
 	/**
 	returns an InsnTree which will cast the provided value to the specified type,
 	or null if this ScriptEnvironment does not know how to perform such a cast.
+
 	@param implicit if true, this ScriptEnvironment is required to perform the cast implicitly.
 	*/
 	public default @Nullable InsnTree cast(ExpressionParser parser, InsnTree value, TypeInfo to, boolean implicit, boolean nullable) {
@@ -363,7 +352,9 @@ public interface ScriptEnvironment {
 
 	public abstract Stream<IdentifierDescriptor> listIdentifiers();
 
-	public record IdentifierDescriptor(String name, Object value) {}
+	public record IdentifierDescriptor(String name, Object value) {
+
+	}
 
 	public static InsnTree[] castArguments(ExpressionParser parser, MethodInfo method, CastMode mode, InsnTree... arguments) {
 		return castArguments(parser, method.name, method.paramTypes, mode, arguments);

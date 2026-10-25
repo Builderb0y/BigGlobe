@@ -2,14 +2,10 @@ package builderb0y.bigglobe.commands;
 
 import java.util.Comparator;
 import java.util.Locale;
-
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.StringIdentifiable;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -26,18 +22,19 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 	public double maxPathLength = 16.0D;
 
 	public LocateMinMaxCommand(
-		ServerCommandSource source,
+		CommandSourceStack source,
 		BoundedPointIterator2D iterator,
 		ColumnToDoubleScript.Holder script,
 		CompareMode compareMode,
 		int radius
 	) {
 		super(source);
-		this.iterator    = iterator;
-		this.script      = script;
+		this.iterator = iterator;
+		this.script = script;
 		this.compareMode = compareMode;
-		this.radius      = radius;
+		this.radius = radius;
 	}
+
 	@Override
 	public void addResult(Result result) {
 		super.addResult(result);
@@ -123,10 +120,10 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 	public void sendFeedback() {
 		if (this.isValid()) {
 			if (this.results.isEmpty()) {
-				this.source.sendError(Text.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".fail", this.script.getSource(), this.radius));
+				this.source.sendFailure(Component.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".fail", this.script.getSource(), this.radius));
 			}
 			else {
-				this.source.sendFeedback(() -> Text.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".success", this.script.getSource(), this.radius), false);
+				this.source.sendSuccess(() -> Component.translatable("commands." + BigGlobeMod.MODID + ".locate." + this.compareMode.lowerCaseName + ".success", this.script.getSource(), this.radius), false);
 				this.sendResults();
 			}
 		}
@@ -152,10 +149,9 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 		}
 	}
 
-	public static enum CompareMode implements Comparator<Result>, StringIdentifiable {
+	public static enum CompareMode implements Comparator<Result>, StringRepresentable {
 
 		MIN {
-
 			@Override
 			public int compare(Result r1, Result r2) {
 				return Double.compare(r1.value, r2.value);
@@ -168,7 +164,6 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 		},
 
 		MAX {
-
 			@Override
 			public int compare(Result r1, Result r2) {
 				return Double.compare(r2.value, r1.value);
@@ -185,7 +180,7 @@ public class LocateMinMaxCommand extends AsyncLocateCommand<Result> {
 		public abstract Result getBest(Result r1, Result r2);
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return this.lowerCaseName;
 		}
 	}

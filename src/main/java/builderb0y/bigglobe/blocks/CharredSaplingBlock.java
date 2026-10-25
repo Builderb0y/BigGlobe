@@ -1,49 +1,37 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SaplingBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.grower.TreeGrower;
+import net.minecraft.world.level.block.state.BlockState;
+import builderb0y.autocodec.annotations.AddPseudoField;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
-#if MC_VERSION >= MC_1_20_3
-	import net.minecraft.block.SaplingGenerator;
-
-	import builderb0y.autocodec.annotations.AddPseudoField;
-	import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-#else
-	import net.minecraft.block.sapling.SaplingGenerator;
-#endif
-
-#if MC_VERSION >= MC_1_20_3
 @AddPseudoField("generator")
-#endif
+
 public class CharredSaplingBlock extends SaplingBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<CharredSaplingBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CharredSaplingBlock.class);
+	public static final MapCodec<CharredSaplingBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CharredSaplingBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-		public SaplingGenerator generator() {
-			return this.generator;
-		}
-	#endif
+	public TreeGrower generator() {
+		return this.treeGrower;
+	}
 
-	public CharredSaplingBlock(SaplingGenerator generator, Settings settings) {
+	public CharredSaplingBlock(TreeGrower generator, Properties settings) {
 		super(generator, settings);
 	}
 
-
 	@Override
-	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+	public boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
 		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 }

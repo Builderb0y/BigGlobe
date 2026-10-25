@@ -1,7 +1,5 @@
 package builderb0y.scripting.bytecode.tree.instructions.binary;
 
-import net.minecraft.util.math.MathHelper;
-
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -26,7 +24,7 @@ public class MultiplyInsnTree extends BinaryInsnTree {
 
 	public static InsnTree create(ExpressionParser parser, InsnTree left, InsnTree right) {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
-		ConstantValue leftConstant  = left .getConstantValue();
+		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
 		ConstantValue scalar;
 		InsnTree variable;
@@ -71,10 +69,11 @@ public class MultiplyInsnTree extends BinaryInsnTree {
 						return new SignedLeftShiftInsnTree(variable, ldc(shift), LSHL);
 					}
 				}
-				default -> {}
+				default -> {
+				}
 			}
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		left = left.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new MultiplyInsnTree(left, right, type.getOpcode(IMUL));
 	}

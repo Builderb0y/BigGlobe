@@ -18,9 +18,9 @@ public class FieldInfo implements Typeable {
 
 	public FieldInfo(int access, TypeInfo owner, String name, TypeInfo type) {
 		this.access = access;
-		this.owner  = owner;
-		this.name   = name;
-		this.type   = type;
+		this.owner = owner;
+		this.name = name;
+		this.type = type;
 		if (owner.isPrimitive()) {
 			throw new IllegalArgumentException("Primitive class cannot have fields: " + this);
 		}

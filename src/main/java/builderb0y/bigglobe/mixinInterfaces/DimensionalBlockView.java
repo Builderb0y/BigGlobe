@@ -2,16 +2,15 @@ package builderb0y.bigglobe.mixinInterfaces;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-
 import builderb0y.bigglobe.BigGlobeMod;
 
-/** implemented on {@link BlockView} via mixin. */
+/**
+implemented on {@link BlockGetter} via mixin.
+*/
 public interface DimensionalBlockView {
 
 	public static final ClassValue<@Nullable Field> DELEGATE = new ClassValue<>() {
@@ -21,7 +20,7 @@ public interface DimensionalBlockView {
 			Field found = null;
 			for (Class<?> search = type; search != null; search = search.getSuperclass()) {
 				for (Field field : search.getDeclaredFields()) {
-					if (!Modifier.isStatic(field.getModifiers()) && World.class.isAssignableFrom(field.getType())) {
+					if (!Modifier.isStatic(field.getModifiers()) && Level.class.isAssignableFrom(field.getType())) {
 						if (found == null) {
 							found = field;
 						}
@@ -46,14 +45,14 @@ public interface DimensionalBlockView {
 		}
 	};
 
-	public default @Nullable RegistryKey<World> bigglobe_getDimension() {
-		if (this instanceof World world) {
-			return world.getRegistryKey();
+	public default @Nullable ResourceKey<Level> bigglobe_getDimension() {
+		if (this instanceof Level world) {
+			return world.dimension();
 		}
 		else {
 			Field field = DELEGATE.get(this.getClass());
 			if (field != null) try {
-				return ((World)(field.get(this))).getRegistryKey();
+				return ((Level)(field.get(this))).dimension();
 			}
 			catch (ReflectiveOperationException exception) {
 				BigGlobeMod.LOGGER.error("Could not access " + field + " but it was previously marked as accessible?", exception);

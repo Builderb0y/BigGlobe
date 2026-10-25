@@ -32,13 +32,13 @@ public class NewArrayWithLengthInsnTree implements InsnTree {
 	public void emitBytecode(MethodCompileContext method) {
 		this.length.emitBytecode(method);
 		switch (this.arrayType.componentType.getSort()) {
-			case BYTE    -> method.node.visitIntInsn(NEWARRAY, T_BYTE);
-			case SHORT   -> method.node.visitIntInsn(NEWARRAY, T_SHORT);
-			case INT     -> method.node.visitIntInsn(NEWARRAY, T_INT);
-			case LONG    -> method.node.visitIntInsn(NEWARRAY, T_LONG);
-			case FLOAT   -> method.node.visitIntInsn(NEWARRAY, T_FLOAT);
-			case DOUBLE  -> method.node.visitIntInsn(NEWARRAY, T_DOUBLE);
-			case CHAR    -> method.node.visitIntInsn(NEWARRAY, T_CHAR);
+			case BYTE -> method.node.visitIntInsn(NEWARRAY, T_BYTE);
+			case SHORT -> method.node.visitIntInsn(NEWARRAY, T_SHORT);
+			case INT -> method.node.visitIntInsn(NEWARRAY, T_INT);
+			case LONG -> method.node.visitIntInsn(NEWARRAY, T_LONG);
+			case FLOAT -> method.node.visitIntInsn(NEWARRAY, T_FLOAT);
+			case DOUBLE -> method.node.visitIntInsn(NEWARRAY, T_DOUBLE);
+			case CHAR -> method.node.visitIntInsn(NEWARRAY, T_CHAR);
 			case BOOLEAN -> method.node.visitIntInsn(NEWARRAY, T_BOOLEAN);
 			case OBJECT, ARRAY -> method.node.visitTypeInsn(ANEWARRAY, this.arrayType.componentType.getInternalName());
 			case VOID -> throw new IllegalStateException("Can't allocate an array of voids");

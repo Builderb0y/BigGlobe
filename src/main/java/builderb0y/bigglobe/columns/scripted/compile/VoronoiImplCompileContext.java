@@ -2,11 +2,8 @@ package builderb0y.bigglobe.columns.scripted.compile;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-
+import net.minecraft.core.Holder;
 import org.objectweb.asm.Type;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.VoronoiDataBase;
 import builderb0y.bigglobe.columns.scripted.VoronoiSettings;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
@@ -22,10 +19,10 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class VoronoiImplCompileContext extends AbstractVoronoiDataCompileContext {
 
-	public final RegistryEntry<VoronoiSettings> voronoiSettings;
+	public final Holder<VoronoiSettings> voronoiSettings;
 	public final Map<ColumnEntry, ColumnEntryMemory> memories;
 
-	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, RegistryEntry<VoronoiSettings> entry) {
+	public VoronoiImplCompileContext(VoronoiBaseCompileContext parent, Holder<VoronoiSettings> entry) {
 		super(parent);
 		this.voronoiSettings = entry;
 		this.flagsIndex = VoronoiDataBase.BUILTIN_FLAG_COUNT;
@@ -61,7 +58,7 @@ public class VoronoiImplCompileContext extends AbstractVoronoiDataCompileContext
 			load(column),
 			load(cell)
 		)
-		.emitBytecode(this.constructor);
+			.emitBytecode(this.constructor);
 
 		MethodCompileContext id = this.mainClass.newMethod(ACC_PUBLIC, "id", TypeInfos.STRING);
 		return_(ldc(UnregisteredObjectException.getID(entry).toString())).emitBytecode(id);
@@ -94,8 +91,8 @@ public class VoronoiImplCompileContext extends AbstractVoronoiDataCompileContext
 	public InsnTree loadSeed(InsnTree salt) {
 		return (
 			salt != null
-			? VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt)
-			: VoronoiDataBase.INFO.unsalted_seed(this.loadSelf())
+				? VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt)
+				: VoronoiDataBase.INFO.unsalted_seed(this.loadSelf())
 		);
 	}
 

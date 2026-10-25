@@ -3,11 +3,8 @@ package builderb0y.bigglobe.columns.restrictions;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -20,10 +17,10 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 public abstract class PropertyColumnRestriction extends ScriptErrorCatcher.Impl implements ColumnRestriction, DelayedCompileable {
 
-	public final RegistryEntry<ColumnEntry> property;
+	public final Holder<ColumnEntry> property;
 	public MethodHandle getter;
 
-	public PropertyColumnRestriction(RegistryEntry<ColumnEntry> property) {
+	public PropertyColumnRestriction(Holder<ColumnEntry> property) {
 		this.property = property;
 	}
 

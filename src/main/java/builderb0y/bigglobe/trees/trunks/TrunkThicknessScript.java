@@ -6,7 +6,10 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -25,15 +28,15 @@ public interface TrunkThicknessScript extends Script {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(TrunkThicknessScript.class, this.usage, registry.parserFlags())
-				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					environment
-					.addVariableLoad("height", TypeInfos.DOUBLE)
-					.addVariableLoad("fraction", TypeInfos.DOUBLE)
-					.addVariableLoad("minThickness", TypeInfos.DOUBLE);
-				})
-				.parse(new ScriptClassLoader())
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						environment
+							.addVariableLoad("height", TypeInfos.DOUBLE)
+							.addVariableLoad("fraction", TypeInfos.DOUBLE)
+							.addVariableLoad("minThickness", TypeInfos.DOUBLE);
+					})
+					.parse(new ScriptClassLoader())
 			);
 		}
 

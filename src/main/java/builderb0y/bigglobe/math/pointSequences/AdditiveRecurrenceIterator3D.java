@@ -41,14 +41,53 @@ public class AdditiveRecurrenceIterator3D implements BoundedPointIterator3D, Add
 		this.z = Interpolator.mixLinear(this.minZ, this.maxZ, (this.index * ADD3 + this.offsetZ) % 1.0D);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double minY() { return this.minY; }
-	@Override public double maxY() { return this.maxY; }
-	@Override public double minZ() { return this.minZ; }
-	@Override public double maxZ() { return this.maxZ; }
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
-	@Override public double z() { return this.z; }
-	@Override public int index() { return this.index; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double minY() {
+		return this.minY;
+	}
+
+	@Override
+	public double maxY() {
+		return this.maxY;
+	}
+
+	@Override
+	public double minZ() {
+		return this.minZ;
+	}
+
+	@Override
+	public double maxZ() {
+		return this.maxZ;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
+
+	@Override
+	public double z() {
+		return this.z;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
 }

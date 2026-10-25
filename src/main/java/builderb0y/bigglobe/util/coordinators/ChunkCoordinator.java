@@ -1,26 +1,24 @@
 package builderb0y.bigglobe.util.coordinators;
 
 import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.chunk.Chunk;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
 import builderb0y.bigglobe.versions.ChunkVersions;
 
 public class ChunkCoordinator extends ScratchPosCoordinator {
 
-	public final Chunk chunk;
+	public final ChunkAccess chunk;
 
-	public ChunkCoordinator(Chunk chunk) {
+	public ChunkCoordinator(ChunkAccess chunk) {
 		this.chunk = chunk;
 	}
 
@@ -78,14 +76,14 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	}
 
 	@Override
-	public void getChunk(int x, int y, int z, CoordinateConsumer<Chunk> action) {
+	public void getChunk(int x, int y, int z, CoordinateConsumer<ChunkAccess> action) {
 		action.accept(this.scratchPos.set(x, y, z), this.chunk);
 	}
 
 	@Override
 	public void setBlockState(int x, int y, int z, BlockState state) {
 		if (state == null) return;
-		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.UPDATE_CLIENTS);
 	}
 
 	@Override
@@ -93,13 +91,13 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 		if (supplier == null) return;
 		BlockState state = supplier.get(this.scratchPos.set(x, y, z));
 		if (state == null) return;
-		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.UPDATE_CLIENTS);
 	}
 
 	@Override
 	public <B> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, Class<B> blockEntityClass, CoordinateConsumer<B> action) {
 		if (state == null) return;
-		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.UPDATE_CLIENTS);
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityClass);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
@@ -107,7 +105,7 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 	@Override
 	public <B extends BlockEntity> void setBlockStateAndBlockEntity(int x, int y, int z, BlockState state, BlockEntityType<B> blockEntityType, CoordinateConsumer<B> action) {
 		if (state == null) return;
-		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.NOTIFY_LISTENERS);
+		ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), state, Block.UPDATE_CLIENTS);
 		B blockEntity = WorldUtil.getBlockEntity(this.chunk, this.scratchPos.set(x, y, z), blockEntityType);
 		if (blockEntity != null) action.accept(this.scratchPos, blockEntity);
 	}
@@ -117,17 +115,17 @@ public class ChunkCoordinator extends ScratchPosCoordinator {
 		BlockState oldState = this.chunk.getBlockState(this.scratchPos.set(x, y, z));
 		BlockState newState = mapper.apply(this.scratchPos, oldState);
 		if (newState != oldState && newState != null) {
-			ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), newState, Block.NOTIFY_LISTENERS);
+			ChunkVersions.setBlockState(this.chunk, this.scratchPos.set(x, y, z), newState, Block.UPDATE_CLIENTS);
 		}
 	}
 
 	@Override
-	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<Box> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
+	public <E extends Entity> void getEntities(int x, int y, int z, Class<E> entityType, CoordinateSupplier<AABB> boxSupplier, CoordinateConsumer<List<E>> entityAction) {
 		throw new UnsupportedOperationException("Chunks don't store entities.");
 	}
 
 	@Override
-	public void addEntity(int x, int y, int z, CoordinateFunction<ServerWorld, Entity> supplier) {
+	public void addEntity(int x, int y, int z, CoordinateFunction<ServerLevel, Entity> supplier) {
 		throw new UnsupportedOperationException("No world object to create entities from.");
 	}
 

@@ -2,9 +2,12 @@ package builderb0y.bigglobe.codecs.registries;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.*;
-
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.EmptyData;
@@ -13,8 +16,6 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-
-import net.minecraft.registry.entry.RegistryEntryOwner;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterDynamicRegistry;
 
 public class BetterRegistryLookupCoder extends NamedCoder<BetterRegistry.Lookup> {
@@ -39,14 +40,14 @@ public class BetterRegistryLookupCoder extends NamedCoder<BetterRegistry.Lookup>
 		return new BetterRegistry.Lookup() {
 
 			@Override
-			public <T> BetterRegistry<T> getRegistry(RegistryKey<Registry<T>> key) {
-				RegistryEntryLookup<T> lookup = registryOps.getEntryLookup(key).orElse(null);
+			public <T> BetterRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
+				HolderGetter<T> lookup = registryOps.getter(key).orElse(null);
 				if (lookup == null) {
-					throw new IllegalStateException("Missing registry: " + key.getValue());
+					throw new IllegalStateException("Missing registry: " + key.location());
 				}
-				RegistryEntryOwner<T> owner = registryOps.getOwner(key).orElse(null);
-				if (!(owner instanceof RegistryWrapper.Impl<T> impl)) {
-					throw new IllegalStateException("Owner is not a RegistryWrapper.Impl: " + owner + " in registry " + key.getValue());
+				HolderOwner<T> owner = registryOps.owner(key).orElse(null);
+				if (!(owner instanceof HolderLookup.RegistryLookup<T> impl)) {
+					throw new IllegalStateException("Owner is not a RegistryWrapper.Impl: " + owner + " in registry " + key.location());
 				}
 				return new BetterDynamicRegistry<>(impl, lookup);
 			}

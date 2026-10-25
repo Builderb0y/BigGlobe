@@ -1,7 +1,11 @@
 package builderb0y.bigglobe.mixins;
 
 import java.util.List;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentPieces;
+import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentPieces.OceanMonumentPiece;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -9,19 +13,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import net.minecraft.structure.OceanMonumentGenerator;
-import net.minecraft.structure.OceanMonumentGenerator.Piece;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.Direction;
-
-@Mixin(OceanMonumentGenerator.Base.class)
-public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMonumentGenerator.Piece {
+@Mixin(OceanMonumentPieces.MonumentBuilding.class)
+public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMonumentPieces.OceanMonumentPiece {
 
 	@Shadow
-	private @Final List<Piece> children;
+	private @Final List<OceanMonumentPiece> childPieces;
 
-	public OceanMonumentGeneratorBase_VanillaBugFixes(StructurePieceType type, Direction orientation, int length, BlockBox box) {
+	public OceanMonumentGeneratorBase_VanillaBugFixes(StructurePieceType type, Direction orientation, int length, BoundingBox box) {
 		super(type, orientation, length, box);
 	}
 
@@ -35,7 +33,7 @@ public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMo
 	but nevertheless, I don't want to mess with vanilla
 	behavior in edge cases that I can't foresee.
 	*/
-	@ModifyVariable(method = "generate", at = @At(value = "STORE"), ordinal = 0)
+	@ModifyVariable(method = "postProcess", at = @At(value = "STORE"), ordinal = 0)
 	private int bigglobe_dontFillStupidAreasWithWater(int old) {
 		return 23;
 	}
@@ -54,10 +52,10 @@ public abstract class OceanMonumentGeneratorBase_VanillaBugFixes extends OceanMo
 	*/
 	@Unique
 	@Override
-	public void translate(int x, int y, int z) {
-		super.translate(x, y, z);
-		for (Piece child : this.children) {
-			child.translate(x, y, z);
+	public void move(int x, int y, int z) {
+		super.move(x, y, z);
+		for (OceanMonumentPiece child : this.childPieces) {
+			child.move(x, y, z);
 		}
 	}
 }

@@ -108,12 +108,12 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			Class<? extends ScriptedGrid.Parser> parserClass,
 			int dimensions
 		) {
-			this.gridClass   = gridClass;
+			this.gridClass = gridClass;
 			this.parserClass = parserClass;
-			this.name        = Type.getInternalName(gridClass);
-			this.desc        = Type.getDescriptor(gridClass);
-			this.type        = TypeInfo.of(gridClass);
-			this.dimensions  = dimensions;
+			this.name = Type.getInternalName(gridClass);
+			this.desc = Type.getDescriptor(gridClass);
+			this.type = TypeInfo.of(gridClass);
+			this.dimensions = dimensions;
 		}
 	}
 
@@ -159,7 +159,7 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 			CHECK_NAN = MethodInfo.getMethod(Parser.class, "checkNaN"),
 			OBJECT_CONSTRUCTOR = MethodInfo.getConstructor(Object.class),
 
-			GETD = MethodInfo.getMethod(NumberArray.class, "getD"),
+		GETD = MethodInfo.getMethod(NumberArray.class, "getD"),
 			SETD = MethodInfo.getMethod(NumberArray.class, "setD"),
 			ALLOCATED = MethodInfo.getMethod(NumberArray.class, "allocateDoublesDirect"),
 			LENGTH = MethodInfo.getMethod(NumberArray.class, "length");
@@ -287,11 +287,11 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 				"<init>",
 				TypeInfos.VOID,
 				this
-				.gridInputs
-				.keySet()
-				.stream()
-				.map((String name) -> new LazyVarInfo(name, this.gridTypeInfo.type))
-				.toArray(LazyVarInfo[]::new)
+					.gridInputs
+					.keySet()
+					.stream()
+					.map((String name) -> new LazyVarInfo(name, this.gridTypeInfo.type))
+					.toArray(LazyVarInfo[]::new)
 			);
 			LazyVarInfo self = new LazyVarInfo("this", constructor.clazz.info);
 			invokeInstance(load(self), OBJECT_CONSTRUCTOR).emitBytecode(constructor);
@@ -302,7 +302,7 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 					new LoadInsnTree(self),
 					input.fieldInfo(constructor), new LoadInsnTree(parameter)
 				)
-				.emitBytecode(constructor);
+					.emitBytecode(constructor);
 				constructor.node.visitLabel(label());
 			}
 			constructor.node.visitInsn(RETURN);
@@ -345,12 +345,12 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 						types('J', 'I', dimensions)
 					),
 					Stream.concat(
-						Stream.of(load(seed)),
-						Arrays.stream(coordinates).map(InsnTrees::load)
-					)
-					.toArray(InsnTree[]::new)
+							Stream.of(load(seed)),
+							Arrays.stream(coordinates).map(InsnTrees::load)
+						)
+						.toArray(InsnTree[]::new)
 				)
-				.emitBytecode(getValue);
+					.emitBytecode(getValue);
 			}
 			getValue.node.visitMethodInsn(INVOKESTATIC, getValue.clazz.info.getInternalName(), "evaluate", '(' + "I".repeat(dimensions) + "D".repeat(this.gridInputs.size()) + ")D", false);
 			getValue.node.visitInsn(DRETURN);
@@ -415,15 +415,19 @@ public abstract class ScriptedGrid<G extends Grid> extends ScriptErrorCatcher.Im
 		public Stream<IdentifierDescriptor> listIdentifiers() {
 			return Stream.concat(
 				IntStream.range('x', 'x' + this.gridTypeInfo.dimensions).mapToObj((int c) -> {
-					return new IdentifierDescriptor(String.valueOf((char)(c)), TaskLogger.lazyMessage(() -> {
+					return new IdentifierDescriptor(
+						String.valueOf((char)(c)), TaskLogger.lazyMessage(() -> {
 						return "int " + (char)(c) + ": the " + (char)(c) + " coordinate of the current position";
-					}));
+					})
+					);
 				}),
 
 				this.inputs.values().stream().map((Input input) -> {
-					return new IdentifierDescriptor(input.name, TaskLogger.lazyMessage(() -> {
+					return new IdentifierDescriptor(
+						input.name, TaskLogger.lazyMessage(() -> {
 						return "double " + input.name + ": user-defined input @ " + input.index;
-					}));
+					})
+					);
 				})
 			);
 		}

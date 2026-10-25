@@ -2,52 +2,30 @@ package builderb0y.bigglobe.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.core.Holder.Reference;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry.Reference;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.WorldPreset;
-import net.minecraft.world.gen.WorldPresets;
-
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
 @Mixin(WorldPresets.class)
 public class WorldPresets_MakeBigGlobeTheDefaultWorldType2 {
 
-	#if MC_VERSION > MC_1_21_1
-
-		@WrapOperation(method = "createDemoOptions", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/RegistryWrapper$Impl;getOrThrow(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/registry/entry/RegistryEntry$Reference;"))
-		private static Reference<WorldPreset> bigglobe_modifyDefaultPreset(RegistryWrapper.Impl<WorldPreset> instance, RegistryKey<WorldPreset> key, Operation<Reference<WorldPreset>> original) {
-			Identifier identifier = Identifier.tryParse(BigGlobeConfig.INSTANCE.get().defaultWorldType);
-			if (identifier != null) {
-				RegistryKey<WorldPreset> newKey = RegistryKey.of(RegistryKeys.WORLD_PRESET, identifier);
-				Reference<WorldPreset> result = instance.getOptional(newKey).orElse(null);
-				if (result != null) {
-					return result;
-				}
+	@WrapOperation(method = "createNormalWorldDimensions", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/HolderLookup$RegistryLookup;getOrThrow(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Holder$Reference;"))
+	private static Reference<WorldPreset> bigglobe_modifyDefaultPreset(HolderLookup.RegistryLookup<WorldPreset> instance, ResourceKey<WorldPreset> key, Operation<Reference<WorldPreset>> original) {
+		ResourceLocation id = ResourceLocation.tryParse(BigGlobeConfig.INSTANCE.get().defaultWorldType);
+		if (id != null) {
+			ResourceKey<WorldPreset> newKey = ResourceKey.create(Registries.WORLD_PRESET, id);
+			Reference<WorldPreset> result = instance.get(newKey).orElse(null);
+			if (result != null) {
+				return result;
 			}
-			return original.call(instance, key);
 		}
-
-	#else
-
-		@WrapOperation(method = "createDemoOptions", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;entryOf(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/registry/entry/RegistryEntry$Reference;"))
-		private static Reference<WorldPreset> bigglobe_modifyDefaultPreset(Registry<WorldPreset> instance, RegistryKey<WorldPreset> key, Operation<Reference<WorldPreset>> original) {
-			Identifier identifier = Identifier.tryParse(BigGlobeConfig.INSTANCE.get().defaultWorldType);
-			if (identifier != null) {
-				RegistryKey<WorldPreset> newKey = RegistryKey.of(RegistryKeys.WORLD_PRESET, identifier);
-				Reference<WorldPreset> result = instance.getEntry(newKey).orElse(null);
-				if (result != null) {
-					return result;
-				}
-			}
-			return original.call(instance, key);
-		}
-
-	#endif
+		return original.call(instance, key);
+	}
 }

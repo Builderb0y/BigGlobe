@@ -2,9 +2,7 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-
+import net.minecraft.client.Minecraft;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
@@ -25,7 +23,10 @@ public class SidedCombinedLodRenderer extends AbstractLodRenderer {
 
 	@Override
 	public void close() {
-		if (this.transformationTexture != 0) { glDeleteTextures(this.transformationTexture); this.transformationTexture = 0; }
+		if (this.transformationTexture != 0) {
+			glDeleteTextures(this.transformationTexture);
+			this.transformationTexture = 0;
+		}
 		ResourceTracker.closeAll(
 			super::close,
 			this.shader,
@@ -102,7 +103,7 @@ public class SidedCombinedLodRenderer extends AbstractLodRenderer {
 				this.drawCount = 0;
 			}
 			if (this.state.inTranslucentPass) {
-				this.depthBuffer.copyTo(RenderVersions.glID(MinecraftClient.getInstance().getFramebuffer()));
+				this.depthBuffer.copyTo(RenderVersions.glID(Minecraft.getInstance().getMainRenderTarget()));
 				this.state.restore();
 			}
 		};

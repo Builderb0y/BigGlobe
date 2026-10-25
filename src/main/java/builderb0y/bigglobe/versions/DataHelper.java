@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtEnd;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.RegistryOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
@@ -35,27 +36,13 @@ public class DataHelper<T_Owner> {
 		return this.new EntryBuilder<>(name);
 	}
 
-	public void read(
-		T_Owner owner,
-		#if MC_VERSION >= MC_1_21_6
-			net.minecraft.storage.ReadView data
-		#else
-			NbtCompound data
-		#endif
-	) {
+	public void read(T_Owner owner, CompoundTag data) {
 		for (Entry<?> entry : this.entries) {
 			entry.read(owner, data);
 		}
 	}
 
-	public void write(
-		T_Owner owner,
-		#if MC_VERSION >= MC_1_21_6
-			net.minecraft.storage.WriteView data
-		#else
-			NbtCompound data
-		#endif
-	) {
+	public void write(T_Owner owner, CompoundTag data) {
 		for (Entry<?> entry : this.entries) {
 			entry.write(owner, data);
 		}
@@ -73,31 +60,25 @@ public class DataHelper<T_Owner> {
 			this.accessor = Objects.requireNonNull(builder.accessor, "accessor");
 		}
 
-		#if MC_VERSION >= MC_1_21_6
+		public void read(T_Owner owner, CompoundTag nbt) {
+			Tag input = nbt.get(this.name);
+			if (input == null) input = EndTag.INSTANCE;
+			RegistryOps<Tag> ops = BigGlobeMod.currentServer != null
+				? RegistryOps.create(NbtOps.INSTANCE, BigGlobeMod.currentServer.registryAccess())
+				: RegistryOps.create(NbtOps.INSTANCE, HolderLookup.Provider.create(Stream.empty()));
+			this.accessor.set(owner, this.codec.parse(ops, input).resultOrPartial(BigGlobeMod.LOGGER::error).orElse(null));
+		}
 
-			public void read(T_Owner owner, net.minecraft.storage.ReadView data) {
-				this.accessor.set(owner, data.read(this.name, this.codec).orElse(null));
+		public void write(T_Owner owner, CompoundTag nbt) {
+			T_Component component = this.accessor.get(owner);
+			if (component != null) {
+				RegistryOps<Tag> ops = BigGlobeMod.currentServer != null
+					? RegistryOps.create(NbtOps.INSTANCE, BigGlobeMod.currentServer.registryAccess())
+					: RegistryOps.create(NbtOps.INSTANCE, HolderLookup.Provider.create(Stream.empty()));
+				Tag tag = this.codec.encodeStart(ops, component).resultOrPartial(BigGlobeMod.LOGGER::error).orElse(null);
+				if (tag != null) nbt.put(this.name, tag);
 			}
-
-			public void write(T_Owner owner, net.minecraft.storage.WriteView data) {
-				T_Component component = this.accessor.get(owner);
-				if (component != null) data.put(this.name, this.codec, component);
-			}
-
-		#else
-
-			public void read(T_Owner owner, NbtCompound nbt) {
-				NbtElement input = nbt.get(this.name);
-				if (input == null) input = NbtEnd.INSTANCE;
-				this.accessor.set(owner, this.codec.parse(RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager()), input).resultOrPartial(BigGlobeMod.LOGGER::error).orElse(null));
-			}
-
-			public void write(T_Owner owner, NbtCompound nbt) {
-				T_Component component = this.accessor.get(owner);
-				if (component != null) nbt.put(this.name, this.codec.encodeStart(RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager()), component).resultOrPartial(BigGlobeMod.LOGGER::error).orElse(null));
-			}
-
-		#endif
+		}
 	}
 
 	public class EntryBuilder<T_Component> {
@@ -220,14 +201,15 @@ public class DataHelper<T_Owner> {
 			VarHandle[] handles = new VarHandle[parts.length];
 			Class<?> intermediate = ownerClass;
 			Field field = null;
-			for (int index = 0; index < parts.length; index++) try {
-				field = intermediate.getField(parts[index]);
-				handles[index] = MethodHandles.lookup().unreflectVarHandle(field);
-				intermediate = field.getType();
-			}
-			catch (ReflectiveOperationException exception) {
-				throw AutoCodecUtil.rethrow(exception);
-			}
+			for (int index = 0; index < parts.length; index++)
+				try {
+					field = intermediate.getField(parts[index]);
+					handles[index] = MethodHandles.lookup().unreflectVarHandle(field);
+					intermediate = field.getType();
+				}
+				catch (ReflectiveOperationException exception) {
+					throw AutoCodecUtil.rethrow(exception);
+				}
 			ReifiedType<?> componentType = ReifiedType.from(field.getAnnotatedType());
 			return new FieldAccessor() {
 

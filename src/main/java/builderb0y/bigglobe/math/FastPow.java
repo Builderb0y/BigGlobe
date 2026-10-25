@@ -24,10 +24,10 @@ granted, it's *roughly* O(1), but some specific powers can be done MUCH faster.
 for example, x * x * x is faster than pow(x, 3.0).
 pow(x, 2.0) is actually the same speed as x * x due to that power being special-cased.
 x * x * x * x is faster than pow(x, 4.0), but square(square(x)) is even faster than x * x * x * x.
-	pow(x, 5) = square(square(x)) * x
-	pow(x, 6) = square(square(x) * x)
-	pow(x, 7) = square(square(x) * x) * x
-	pow(x, 8) = square(square(square(x)))
+pow(x, 5) = square(square(x)) * x
+pow(x, 6) = square(square(x) * x)
+pow(x, 7) = square(square(x) * x) * x
+pow(x, 8) = square(square(square(x)))
 and so on. binary arithmetic can be used to reduce any
 integer power into a few multiply and square operations.
 
@@ -88,25 +88,40 @@ public class FastPow {
 			return this.lookup.lookupClass().asSubclass(FastPowOperator.class);
 		}
 
-		public int power() { return this.operator.getPower(); }
+		public int power() {
+			return this.operator.getPower();
+		}
 
-		public MethodHandle    intHandle() { return this.   intCallSite.getTarget(); }
-		public MethodHandle   longHandle() { return this.  longCallSite.getTarget(); }
-		public MethodHandle  floatHandle() { return this. floatCallSite.getTarget(); }
-		public MethodHandle doubleHandle() { return this.doubleCallSite.getTarget(); }
+		public MethodHandle intHandle() {
+			return this.intCallSite.getTarget();
+		}
+
+		public MethodHandle longHandle() {
+			return this.longCallSite.getTarget();
+		}
+
+		public MethodHandle floatHandle() {
+			return this.floatCallSite.getTarget();
+		}
+
+		public MethodHandle doubleHandle() {
+			return this.doubleCallSite.getTarget();
+		}
 	}
 
 	public static final Int2ObjectMap<CacheEntry> CACHE = new Int2ObjectOpenHashMap<>(4);
 
-	/** returns a {@link FastPowOperator} which raises numbers to the provided power. */
+	/**
+	returns a {@link FastPowOperator} which raises numbers to the provided power.
+	*/
 	public static FastPowOperator getOperator(int power) {
 		return getCacheEntry(power).operator;
 	}
 
 	public static final MethodType
-		INT_METHOD_TYPE    = MethodType.methodType(   int.class,    int.class),
-		LONG_METHOD_TYPE   = MethodType.methodType(  long.class,   long.class),
-		FLOAT_METHOD_TYPE  = MethodType.methodType( float.class,  float.class),
+		INT_METHOD_TYPE = MethodType.methodType(int.class, int.class),
+		LONG_METHOD_TYPE = MethodType.methodType(long.class, long.class),
+		FLOAT_METHOD_TYPE = MethodType.methodType(float.class, float.class),
 		DOUBLE_METHOD_TYPE = MethodType.methodType(double.class, double.class);
 	public static final MethodInfo
 		MATH_POW = MethodInfo.getMethod(Math.class, "pow");
@@ -120,9 +135,9 @@ public class FastPow {
 	first 3 parameters are provided automatically by the VM, but the first 2 are ignored.
 	*/
 	public static CallSite getCallSite(MethodHandles.Lookup lookup, String name, MethodType methodType, int power) {
-		if (methodType ==    INT_METHOD_TYPE) return getCacheEntry(power).   intCallSite;
-		if (methodType ==   LONG_METHOD_TYPE) return getCacheEntry(power).  longCallSite;
-		if (methodType ==  FLOAT_METHOD_TYPE) return getCacheEntry(power). floatCallSite;
+		if (methodType == INT_METHOD_TYPE) return getCacheEntry(power).intCallSite;
+		if (methodType == LONG_METHOD_TYPE) return getCacheEntry(power).longCallSite;
+		if (methodType == FLOAT_METHOD_TYPE) return getCacheEntry(power).floatCallSite;
 		if (methodType == DOUBLE_METHOD_TYPE) return getCacheEntry(power).doubleCallSite;
 		throw new WrongMethodTypeException(methodType.toString());
 	}
@@ -138,7 +153,7 @@ public class FastPow {
 		}
 	}
 
-	//////////////////////////////// default handling ////////////////////////////////
+	/// ///////////////////////////// default handling ////////////////////////////////
 
 	public static int pow(int a, int b) {
 		if (b > 0) {
@@ -220,37 +235,37 @@ public class FastPow {
 		return (float)(Math.exp((double)(x)));
 	}
 
-	//////////////////////////////// special cases ////////////////////////////////
+	/// ///////////////////////////// special cases ////////////////////////////////
 
 	public static int negativeEven(int operand) {
-		if (operand ==  1) return 1;
-		if (operand ==  0) throw new ArithmeticException("divide by 0");
+		if (operand == 1) return 1;
+		if (operand == 0) throw new ArithmeticException("divide by 0");
 		if (operand == -1) return 1;
 		return 0;
 	}
 
 	public static long negativeEven(long operand) {
-		if (operand ==  1L) return 1L;
-		if (operand ==  0L) throw new ArithmeticException("divide by 0");
+		if (operand == 1L) return 1L;
+		if (operand == 0L) throw new ArithmeticException("divide by 0");
 		if (operand == -1L) return 1L;
 		return 0L;
 	}
 
 	public static int negativeOdd(int operand) {
-		if (operand ==  1) return 1;
-		if (operand ==  0) throw new ArithmeticException("divide by 0");
+		if (operand == 1) return 1;
+		if (operand == 0) throw new ArithmeticException("divide by 0");
 		if (operand == -1) return -1;
 		return 0;
 	}
 
 	public static long negativeOdd(long operand) {
-		if (operand ==  1L) return 1L;
-		if (operand ==  0L) throw new ArithmeticException("divide by 0");
+		if (operand == 1L) return 1L;
+		if (operand == 0L) throw new ArithmeticException("divide by 0");
 		if (operand == -1L) return -1L;
 		return 0L;
 	}
 
-	//////////////////////////////// bytecode generation ////////////////////////////////
+	/// ///////////////////////////// bytecode generation ////////////////////////////////
 
 	//only used when synchronized on CACHE, so it's safe to have this be non-atomic.
 	public static int counter;
@@ -295,7 +310,7 @@ public class FastPow {
 			(MethodCompileContext floatMethod, LazyVarInfo operand) -> {
 				AbstractInsnNode first = floatMethod.node.instructions.getFirst();
 				if (!emitNormalInstructions(floatMethod, operand, power, 8)) {
-					for (AbstractInsnNode remove; (remove = first.getNext()) != null;) {
+					for (AbstractInsnNode remove; (remove = first.getNext()) != null; ) {
 						floatMethod.node.instructions.remove(remove);
 					}
 					fallback(operand, power).emitBytecode(floatMethod);
@@ -326,7 +341,7 @@ public class FastPow {
 					floatMethod.node.instructions.add(new InsnNode(operand.type.getOpcode(IDIV)));
 				}
 				else {
-					for (AbstractInsnNode remove; (remove = first.getNext()) != null;) {
+					for (AbstractInsnNode remove; (remove = first.getNext()) != null; ) {
 						floatMethod.node.instructions.remove(remove);
 					}
 					fallback(operand, power).emitBytecode(floatMethod);
@@ -337,9 +352,11 @@ public class FastPow {
 	}
 
 	public static void emitZero(ClassCompileContext clazz) {
-		emitMethods(clazz, (MethodCompileContext method, LazyVarInfo operand) -> {
-			return_(ldc(1, operand.type)).emitBytecode(method);
-		});
+		emitMethods(
+			clazz, (MethodCompileContext method, LazyVarInfo operand) -> {
+				return_(ldc(1, operand.type)).emitBytecode(method);
+			}
+		);
 	}
 
 	public static boolean emitNormalInstructions(MethodCompileContext method, LazyVarInfo operand, int power, int limit) {
@@ -360,7 +377,9 @@ public class FastPow {
 		return true;
 	}
 
-	/** returns an InsnTree which represents Math.pow(operand, power). */
+	/**
+	returns an InsnTree which represents Math.pow(operand, power).
+	*/
 	public static InsnTree fallback(LazyVarInfo operand, int power) {
 		return CastingSupport.primitiveCast(
 			invokeStatic(
@@ -380,13 +399,13 @@ public class FastPow {
 	}
 
 	public static void emitMethods(ClassCompileContext clazz, MethodPopulator intConsumer, MethodPopulator floatConsumer) {
-		emitMethod(clazz, ACC_PUBLIC, "applyAsInt",       TypeInfos.INT,      intConsumer);
-		emitMethod(clazz, ACC_PUBLIC, "applyAsLong",      TypeInfos.LONG,     intConsumer);
-		emitMethod(clazz, ACC_PUBLIC, "applyAsFloat",     TypeInfos.FLOAT,  floatConsumer);
-		emitMethod(clazz, ACC_PUBLIC, "applyAsDouble",    TypeInfos.DOUBLE, floatConsumer);
-		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.INT,      intConsumer);
-		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.LONG,     intConsumer);
-		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.FLOAT,  floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsInt", TypeInfos.INT, intConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsLong", TypeInfos.LONG, intConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsFloat", TypeInfos.FLOAT, floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC, "applyAsDouble", TypeInfos.DOUBLE, floatConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.INT, intConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.LONG, intConsumer);
+		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.FLOAT, floatConsumer);
 		emitMethod(clazz, ACC_PUBLIC | ACC_STATIC, "pow", TypeInfos.DOUBLE, floatConsumer);
 	}
 

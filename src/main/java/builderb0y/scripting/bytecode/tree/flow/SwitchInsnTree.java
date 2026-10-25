@@ -17,23 +17,25 @@ import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
+import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.util.TypeInfos;
 import builderb0y.scripting.util.TypeMerger;
-import builderb0y.scripting.parsing.ExpressionParser;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class SwitchInsnTree implements InsnTree {
 
 	public InsnTree value;
-	/** the map's {@link Int2ObjectMap#defaultReturnValue()} is used to store the default branch. */
+	/**
+	the map's {@link Int2ObjectMap#defaultReturnValue()} is used to store the default branch.
+	*/
 	public Int2ObjectSortedMap<InsnTree> cases;
 	public TypeInfo type;
 
 	public SwitchInsnTree(InsnTree value, Int2ObjectSortedMap<InsnTree> cases, TypeInfo type) {
 		this.value = value;
 		this.cases = cases;
-		this.type  = type;
+		this.type = type;
 	}
 
 	public static SwitchInsnTree create(ExpressionParser parser, InsnTree value, Int2ObjectSortedMap<InsnTree> cases) {
@@ -62,9 +64,9 @@ public class SwitchInsnTree implements InsnTree {
 		else {
 			return TypeMerger.computeMostSpecificType(
 				Stream.concat(Stream.of(defaultCase), cases.values().stream())
-				.filter((InsnTree tree) -> !tree.jumpsUnconditionally())
-				.map(InsnTree::getTypeInfo)
-				.toArray(TypeInfo.ARRAY_FACTORY)
+					.filter((InsnTree tree) -> !tree.jumpsUnconditionally())
+					.map(InsnTree::getTypeInfo)
+					.toArray(TypeInfo.ARRAY_FACTORY)
 			);
 		}
 	}

@@ -1,12 +1,12 @@
 package builderb0y.bigglobe.noise;
 
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
 
 public class TemplateGrid1D implements Grid1D {
 
-	public final RegistryEntry<Grid1D> template;
+	public final Holder<Grid1D> template;
 
-	public TemplateGrid1D(RegistryEntry<Grid1D> template) {
+	public TemplateGrid1D(Holder<Grid1D> template) {
 		this.template = template;
 	}
 

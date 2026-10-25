@@ -1,7 +1,0 @@
-{
-	"type": "bigglobe:root",
-	"state": "'minecraft:air'",
-	"children": [
-		"bigglobe:voronoi_subdivision/wool"
-	]
-}

@@ -5,7 +5,10 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -14,17 +17,16 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.imageio.ImageIO;
 
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.HashCommon;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.fabricmc.loader.api.FabricLoader;
-
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
@@ -36,16 +38,19 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 
 public class DependencyDepthSorter {
 
-	public static final Hash.Strategy<RegistryEntry<?>> REGISTRY_ENTRY_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), UnregisteredObjectException::getKey);
+	public static final Hash.Strategy<Holder<?>> REGISTRY_ENTRY_STRATEGY = HashStrategies.map(HashStrategies.identityStrategy(), UnregisteredObjectException::getKey);
 	public static final Object2ObjectLinkedOpenHashMap<String, CompletableFuture<Void>> saveTasks = new Object2ObjectLinkedOpenHashMap<>();
 	public static final String GRAPH_DIRECTORY_NAME = "bigglobe_dependency_graphs";
 	public static final Path GRAPH_DIRECTORY_PATH = FabricLoader.getInstance().getGameDir().resolve(GRAPH_DIRECTORY_NAME);
 	public static final File GRAPH_DIRECTORY_FILE = GRAPH_DIRECTORY_PATH.toFile();
 
 	public final WorldTraits traits;
-	public final List<List<RegistryEntry<? extends DependencyView>>> results = new ArrayList<>(16);
-	public final Object2IntOpenCustomHashMap<RegistryEntry<? extends DependencyView>> cache = new Object2IntOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
-	{ this.cache.defaultReturnValue(-1); }
+	public final List<List<Holder<? extends DependencyView>>> results = new ArrayList<>(16);
+	public final Object2IntOpenCustomHashMap<Holder<? extends DependencyView>> cache = new Object2IntOpenCustomHashMap<>(256, REGISTRY_ENTRY_STRATEGY);
+
+	{
+		this.cache.defaultReturnValue(-1);
+	}
 
 	public static void start(WorldTraits traits, BetterRegistry<ColumnEntry> columns, String name) {
 		synchronized (saveTasks) {
@@ -54,13 +59,13 @@ public class DependencyDepthSorter {
 			saveTasks.put(
 				name,
 				CompletableFuture.runAsync(() -> {
-					DependencyDepthSorter sorter = new DependencyDepthSorter(traits);
-					columns.streamEntries().forEach(sorter::recursiveComputeDepth);
-					sorter.outputResults(name);
-				})
-				.whenComplete((Void result, Throwable throwable) -> {
-					if (throwable != null) BigGlobeMod.LOGGER.error("Exception generating dependency graph:", throwable);
-				})
+						DependencyDepthSorter sorter = new DependencyDepthSorter(traits);
+						columns.streamEntries().forEach(sorter::recursiveComputeDepth);
+						sorter.outputResults(name);
+					})
+					.whenComplete((Void result, Throwable throwable) -> {
+						if (throwable != null) BigGlobeMod.LOGGER.error("Exception generating dependency graph:", throwable);
+					})
 			);
 		}
 	}
@@ -69,13 +74,13 @@ public class DependencyDepthSorter {
 		this.traits = traits;
 	}
 
-	public int recursiveComputeDepth(RegistryEntry<? extends DependencyView> entry) {
+	public int recursiveComputeDepth(Holder<? extends DependencyView> entry) {
 		int depth = this.cache.getInt(entry);
 		if (depth < 0) {
 			OptionalInt optional = (
 				skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits)
-				.mapToInt(this::recursiveComputeDepth)
-				.max()
+					.mapToInt(this::recursiveComputeDepth)
+					.max()
 			);
 			depth = optional.isPresent() ? optional.getAsInt() + 1 : 0;
 			this.cache.put(entry, depth);
@@ -87,12 +92,12 @@ public class DependencyDepthSorter {
 		return depth;
 	}
 
-	public static Stream<? extends RegistryEntry<? extends DependencyView>> skipNonColumnEntries(Stream<? extends RegistryEntry<? extends DependencyView>> stream, WorldTraits traits) {
+	public static Stream<? extends Holder<? extends DependencyView>> skipNonColumnEntries(Stream<? extends Holder<? extends DependencyView>> stream, WorldTraits traits) {
 		return stream.flatMap(
-			(RegistryEntry<? extends DependencyView> element) -> (
+			(Holder<? extends DependencyView> element) -> (
 				element.value() instanceof ColumnEntry
-				? Stream.of(element)
-				: skipNonColumnEntries(element.value().streamDirectDependencies(element, traits), traits)
+					? Stream.of(element)
+					: skipNonColumnEntries(element.value().streamDirectDependencies(element, traits), traits)
 			)
 		);
 	}
@@ -110,7 +115,9 @@ public class DependencyDepthSorter {
 		}
 	}
 
-	/** returns true if the file contents changed. */
+	/**
+	returns true if the file contents changed.
+	*/
 	public boolean outputGraphViz(String name) {
 		try {
 			Path path = GRAPH_DIRECTORY_PATH.resolve(name + ".gv.txt");
@@ -135,40 +142,40 @@ public class DependencyDepthSorter {
 		out.println("digraph bigglobe_column_values {");
 		out.println("\trankdir=\"RL\"");
 		SubGraph root = new SubGraph();
-		for (RegistryEntry<? extends DependencyView> entry : this.cache.keySet()) {
-			String identifier = keyToString(UnregisteredObjectException.getKey(entry));
+		for (Holder<? extends DependencyView> entry : this.cache.keySet()) {
+			String ResourceLocation = keyToString(UnregisteredObjectException.getKey(entry));
 			SubGraph graph = root;
-			String[] split = identifier.split("[/:]");
+			String[] split = ResourceLocation.split("[/:]");
 			for (String part : split) {
 				graph = graph.computeIfAbsent(part, $ -> new SubGraph());
 			}
-			graph.fullName = identifier;
+			graph.fullName = ResourceLocation;
 		}
 		root.printAll(out, null, 0);
 		this
-		.cache
-		.keySet()
-		.stream()
-		.sorted(Comparator.comparing(UnregisteredObjectException::getID))
-		.forEachOrdered((RegistryEntry<? extends DependencyView> entry) -> {
-			String dependencyString = (
-				skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits)
-				.map(UnregisteredObjectException::getKey)
-				.sorted(Comparator.comparing(RegistryKey::getValue))
-				.map(DependencyDepthSorter::keyToString)
-				.map((String id) -> '"' + id + '"')
-				.collect(Collectors.joining(" "))
-			);
-			if (!dependencyString.isEmpty()) {
-				out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
-			}
-		});
+			.cache
+			.keySet()
+			.stream()
+			.sorted(Comparator.comparing(UnregisteredObjectException::getID))
+			.forEachOrdered((Holder<? extends DependencyView> entry) -> {
+				String dependencyString = (
+					skipNonColumnEntries(entry.value().streamDirectDependencies(entry, this.traits), this.traits)
+						.map(UnregisteredObjectException::getKey)
+						.sorted(Comparator.comparing(ResourceKey::location))
+						.map(DependencyDepthSorter::keyToString)
+						.map((String id) -> '"' + id + '"')
+						.collect(Collectors.joining(" "))
+				);
+				if (!dependencyString.isEmpty()) {
+					out.println("\t\"" + keyToString(UnregisteredObjectException.getKey(entry)) + "\" -> { " + dependencyString + " }");
+				}
+			});
 		out.println('}');
 		return writer.toString();
 	}
 
-	public static String keyToString(RegistryKey<?> key) {
-		return key.getRegistry() + ":" + key.getValue();
+	public static String keyToString(ResourceKey<?> key) {
+		return key.registry() + ":" + key.location();
 	}
 
 	public static class SubGraph extends HashMap<String, SubGraph> {
@@ -187,12 +194,12 @@ public class DependencyDepthSorter {
 					stream.println(indentation + "\tlabel = \"" + name + '"');
 				}
 				this
-				.entrySet()
-				.stream()
-				.sorted(Map.Entry.comparingByKey())
-				.forEachOrdered((Map.Entry<String, SubGraph> entry) ->{
-					entry.getValue().printAll(stream, entry.getKey(), depth + 1);
-				});
+					.entrySet()
+					.stream()
+					.sorted(Map.Entry.comparingByKey())
+					.forEachOrdered((Map.Entry<String, SubGraph> entry) -> {
+						entry.getValue().printAll(stream, entry.getKey(), depth + 1);
+					});
 				if (name != null) stream.println(indentation + '}');
 			}
 		}
@@ -208,7 +215,7 @@ public class DependencyDepthSorter {
 			VERTICAL_SPACING = 32,
 			RECTANGLE_CURVE = 16;
 
-		public Map<RegistryEntry<? extends DependencyView>, Cell> cellLookup;
+		public Map<Holder<? extends DependencyView>, Cell> cellLookup;
 		public List<Column> columns;
 		public Font font;
 		public FontRenderContext fontRenderContext;
@@ -228,7 +235,7 @@ public class DependencyDepthSorter {
 				Column column = new Column(this, columnIndex, columnPosition);
 				this.columns.add(column);
 				int columnWidth = 0;
-				for (RegistryEntry<? extends DependencyView> entry : sorter.results.get(columnIndex)) {
+				for (Holder<? extends DependencyView> entry : sorter.results.get(columnIndex)) {
 					Cell cell = new Cell(column, UnregisteredObjectException.getID(entry).toString(), columnIndex);
 					this.cellLookup.put(entry, cell);
 					this.addCell(cell);
@@ -255,13 +262,13 @@ public class DependencyDepthSorter {
 		}
 
 		public void link(WorldTraits traits) {
-			for (Map.Entry<RegistryEntry<? extends DependencyView>, Cell> dependant : this.cellLookup.entrySet()) {
+			for (Map.Entry<Holder<? extends DependencyView>, Cell> dependant : this.cellLookup.entrySet()) {
 				skipNonColumnEntries(dependant.getKey().value().streamDirectDependencies(dependant.getKey(), traits), traits)
-				.forEach((RegistryEntry<? extends DependencyView> dependency) -> {
-					Cell left = this.cellLookup.get(dependency);
-					dependant.getValue().leftCells.add(left);
-					left.rightCells.add(dependant.getValue());
-				});
+					.forEach((Holder<? extends DependencyView> dependency) -> {
+						Cell left = this.cellLookup.get(dependency);
+						dependant.getValue().leftCells.add(left);
+						left.rightCells.add(dependant.getValue());
+					});
 			}
 		}
 
@@ -279,7 +286,7 @@ public class DependencyDepthSorter {
 			while (swappedAny) {
 				swappedAny = false;
 				for (Column column : this.columns) {
-					for (int index1 = 0, limit = column.rows.size() - 1; index1 < limit;) {
+					for (int index1 = 0, limit = column.rows.size() - 1; index1 < limit; ) {
 						int index2 = index1 + 1;
 						Cell cell1 = column.rows.get(index1);
 						Cell cell2 = column.rows.get(index2);
@@ -305,9 +312,9 @@ public class DependencyDepthSorter {
 
 		public void createImage() {
 			Column lastColumn = this.columns.get(this.columns.size() - 1);
-			int width     = lastColumn.posX + lastColumn.width + MARGIN;
-			int height    = this.largestColumn * (RECTANGLE_HEIGHT + VERTICAL_SPACING) - VERTICAL_SPACING + (MARGIN << 1);
-			this.image    = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			int width = lastColumn.posX + lastColumn.width + MARGIN;
+			int height = this.largestColumn * (RECTANGLE_HEIGHT + VERTICAL_SPACING) - VERTICAL_SPACING + (MARGIN << 1);
+			this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			this.graphics = this.image.createGraphics();
 			this.fillImage();
 			this.drawLines();
@@ -350,8 +357,8 @@ public class DependencyDepthSorter {
 				int stepY = Integer.signum(currY - prevY);
 				int color = (
 					(((int)(Interpolator.mixLinear((c0 >>> 16) & 255, (c1 >>> 16) & 255, fraction))) << 16) |
-					(((int)(Interpolator.mixLinear((c0 >>>  8) & 255, (c1 >>>  8) & 255, fraction))) <<  8) |
-					(((int)(Interpolator.mixLinear( c0         & 255,  c1         & 255, fraction)))      ) |
+					(((int)(Interpolator.mixLinear((c0 >>> 8) & 255, (c1 >>> 8) & 255, fraction))) << 8) |
+					(((int)(Interpolator.mixLinear(c0 & 255, c1 & 255, fraction)))) |
 					0xFF000000
 				);
 				pixel[0] = color;
@@ -407,8 +414,8 @@ public class DependencyDepthSorter {
 		public Column(Graph graph, int slotX, int posX) {
 			this.graph = graph;
 			this.slotX = slotX;
-			this.posX  = posX;
-			this.rows  = new ArrayList<>(16);
+			this.posX = posX;
+			this.rows = new ArrayList<>(16);
 		}
 
 		public void addCell(Cell cell) {

@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.rendering.lods;
 
-import java.lang.ref.SoftReference;
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,34 +10,32 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.color.world.BiomeColors;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.BlockModelRenderer;
-import net.minecraft.client.render.block.BlockRenderManager;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockRenderView;
-import net.minecraft.world.EmptyBlockView;
-import net.minecraft.world.LightType;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.ColorResolver;
-import net.minecraft.world.chunk.light.LightingProvider;
-
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
@@ -56,32 +52,32 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.rendering.lods.LightweightChunk.ColumnIndexRange;
-import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.rendering.lods.LodRenderer.MeshUploader;
-import builderb0y.bigglobe.util.TimestampedComputingCache.ValueHolder;
+import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.DirectionVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 @Environment(EnvType.CLIENT)
 public class LodGenerator implements SafeCloseable {
 
 	public static final int
-		INNER_WIDTH           = 1 << LodQuadTree.MIN_LEVEL,
-		INNER_AREA            = INNER_WIDTH * INNER_WIDTH,
+		INNER_WIDTH = 1 << LodQuadTree.MIN_LEVEL,
+		INNER_AREA = INNER_WIDTH * INNER_WIDTH,
 
-		SINGLE_RENDER_PADDING = 2,
+	SINGLE_RENDER_PADDING = 2,
 		DOUBLE_RENDER_PADDING = SINGLE_RENDER_PADDING << 1,
-		RENDER_WIDTH          = INNER_WIDTH + DOUBLE_RENDER_PADDING,
-		RENDER_AREA           = RENDER_WIDTH * RENDER_WIDTH,
+		RENDER_WIDTH = INNER_WIDTH + DOUBLE_RENDER_PADDING,
+		RENDER_AREA = RENDER_WIDTH * RENDER_WIDTH,
 
-		EDGE_THICKNESS        = 4,
-		SHORT_EDGE_LENGTH     = INNER_WIDTH << 1,
-		SHORT_EDGE_AREA       = SHORT_EDGE_LENGTH * EDGE_THICKNESS,
-		LONG_EDGE_LENGTH      = SHORT_EDGE_LENGTH + EDGE_THICKNESS * 2,
-		LONG_EDGE_AREA        = LONG_EDGE_LENGTH * EDGE_THICKNESS,
-		EDGE_COLUMN_COUNT     = SHORT_EDGE_AREA * 2 + LONG_EDGE_AREA * 2,
-		TOTAL_COLUMN_COUNT    = INNER_AREA + EDGE_COLUMN_COUNT;
+	EDGE_THICKNESS = 4,
+		SHORT_EDGE_LENGTH = INNER_WIDTH << 1,
+		SHORT_EDGE_AREA = SHORT_EDGE_LENGTH * EDGE_THICKNESS,
+		LONG_EDGE_LENGTH = SHORT_EDGE_LENGTH + EDGE_THICKNESS * 2,
+		LONG_EDGE_AREA = LONG_EDGE_LENGTH * EDGE_THICKNESS,
+		EDGE_COLUMN_COUNT = SHORT_EDGE_AREA * 2 + LONG_EDGE_AREA * 2,
+		TOTAL_COLUMN_COUNT = INNER_AREA + EDGE_COLUMN_COUNT;
 
 	public static final ThreadLocal<Boolean>
 		RENDERING_LODS = ThreadLocal.withInitial(() -> Boolean.FALSE);
@@ -100,15 +96,15 @@ public class LodGenerator implements SafeCloseable {
 
 	public String f3Message() {
 		int
-			loadOnly  = 0,
+			loadOnly = 0,
 			loadOrGen = 0,
-			genOnly   = 0,
-			total     = 0;
+			genOnly = 0,
+			total = 0;
 		for (LodRequest request : this.requests) {
 			switch (request.loadMode()) {
-				case LOAD_ONLY        -> loadOnly++;
+				case LOAD_ONLY -> loadOnly++;
 				case LOAD_OR_GENERATE -> loadOrGen++;
-				case GENERATE_ONLY    -> genOnly++;
+				case GENERATE_ONLY -> genOnly++;
 			}
 			total++;
 		}
@@ -119,8 +115,8 @@ public class LodGenerator implements SafeCloseable {
 		if (this.chunkCache == null) return "null";
 		TimestampedComputingCache<ChunkPos, LightweightChunk> chunks = this.chunkCache.chunks;
 		int present = chunks.presentCount.get();
-		int total   = chunks.size();
-		int empty   = total - present;
+		int total = chunks.size();
+		int empty = total - present;
 		return present + "/" + empty + "/" + total;
 	}
 
@@ -156,16 +152,16 @@ public class LodGenerator implements SafeCloseable {
 
 		LodChunkCache chunkCache = null;
 		if (system.overrides.can_chunkload()) {
-			IntegratedServer server = MinecraftClient.getInstance().getServer();
+			IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
 			if (server != null) {
-				ServerWorld serverWorld = server.getWorld(this.system.world.getRegistryKey());
+				ServerLevel serverWorld = server.getLevel(this.system.world.dimension());
 				if (serverWorld != null) {
 					chunkCache = new LodChunkCache(this, serverWorld);
 				}
 			}
 		}
 		this.chunkCache = chunkCache;
-		this.topSkyLight = system.world.getDimension().hasSkyLight() ? ((byte)(15)) : ((byte)(0));
+		this.topSkyLight = system.world.dimensionType().hasSkyLight() ? ((byte)(15)) : ((byte)(0));
 	}
 
 	public void start() {
@@ -186,7 +182,7 @@ public class LodGenerator implements SafeCloseable {
 			BigGlobeMod.LOGGER.warn("Who's trying to interrupt the shutdown process?", exception);
 		}
 		long nextLog = System.currentTimeMillis() + 5000L;
-		for (int meshers; (meshers = this.activeMeshers.get()) > 0;) {
+		for (int meshers; (meshers = this.activeMeshers.get()) > 0; ) {
 			Thread.onSpinWait();
 			if (System.currentTimeMillis() >= nextLog) {
 				BigGlobeMod.LOGGER.info("Waiting for " + meshers + " task(s) to complete...");
@@ -224,7 +220,8 @@ public class LodGenerator implements SafeCloseable {
 			try {
 				request = this.requests.take();
 			}
-			catch (InterruptedException ignored) {}
+			catch (InterruptedException ignored) {
+			}
 
 			if (request != null) {
 				if (request.owner.isQueued()) { //not thread-safe!
@@ -246,13 +243,15 @@ public class LodGenerator implements SafeCloseable {
 		ScriptedColumn[] recyclableColumns,
 		ScriptedColumn[] worldColumns,
 		BlockSegmentList[] lists
-	) {}
+	) {
+
+	}
 
 	public void buildRegion(LodRequest request) {
 		ColumnResults results = (
 			request.owner.level == LodQuadTree.MIN_LEVEL
-			? this.generateLod0Columns(request)
-			: this.generateLodNColumns(request)
+				? this.generateLod0Columns(request)
+				: this.generateLodNColumns(request)
 		);
 		if (results == null) {
 			this.currentSupply.add(new LodSupply(request, false));
@@ -382,8 +381,8 @@ public class LodGenerator implements SafeCloseable {
 			this.generatorParams.compiledWorldTraits
 		);
 		if (request.loadMode.canLoad() && this.chunkCache != null && this.maxLoadLevel > 0) {
-			int chunkMinX =   paddedMinX      >> 4;
-			int chunkMinZ =   paddedMinZ      >> 4;
+			int chunkMinX = paddedMinX >> 4;
+			int chunkMinZ = paddedMinZ >> 4;
 			int chunkMaxX = ((paddedMaxX - 1) >> 4) + 1;
 			int chunkMaxZ = ((paddedMaxZ - 1) >> 4) + 1;
 			LightweightChunk[] chunks = this.chunkCache.getChunks(
@@ -433,7 +432,7 @@ public class LodGenerator implements SafeCloseable {
 	}
 
 	public @Nullable ColumnResults generateLodNColumns(LodRequest request) {
-		int lod  = request.owner.level;
+		int lod = request.owner.level;
 		int blockLod = lod - LodQuadTree.MIN_LEVEL;
 		int innerStep = 1 << blockLod;
 		int innerQuadSize = innerStep << 1;
@@ -545,8 +544,8 @@ public class LodGenerator implements SafeCloseable {
 			}
 			BaseHelper helper;
 			if (request.loadMode.canLoad() && this.chunkCache != null && this.maxLoadLevel > blockLod) {
-				int chunkMinX =   paddedMinX      >> 4;
-				int chunkMinZ =   paddedMinZ      >> 4;
+				int chunkMinX = paddedMinX >> 4;
+				int chunkMinZ = paddedMinZ >> 4;
 				int chunkMaxX = ((paddedMaxX - 1) >> 4) + 1;
 				int chunkMaxZ = ((paddedMaxZ - 1) >> 4) + 1;
 				LightweightChunk[] chunks = this.chunkCache.getChunks(
@@ -571,9 +570,9 @@ public class LodGenerator implements SafeCloseable {
 
 					public @Nullable QuadList getExistingLists(int quadX, int quadZ, boolean edge) {
 						int step = edge ? outerStep : innerStep;
-						BlockSegmentList list00 = this.obtainList(quadX,        quadZ,        edge);
+						BlockSegmentList list00 = this.obtainList(quadX, quadZ, edge);
 						if (list00 == null) return null;
-						BlockSegmentList list01 = this.obtainList(quadX + step, quadZ,        edge);
+						BlockSegmentList list01 = this.obtainList(quadX + step, quadZ, edge);
 						if (list01 == null) return null;
 						BlockSegmentList list10 = this.obtainList(quadX, quadZ + step, edge);
 						if (list10 == null) return null;
@@ -655,9 +654,9 @@ public class LodGenerator implements SafeCloseable {
 	}
 
 	public static boolean quickCheckRender(BlockState self, BlockState other) {
-		if (BlockStateVersions.isOpaqueFullCube(other, EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) return false;
+		if (BlockStateVersions.isOpaqueFullCube(other, EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) return false;
 		FluidState fluid = self.getFluidState();
-		return fluid.getBlockState() != self /* false for waterlogged blocks */ || other.getFluidState() != fluid;
+		return fluid.createLegacyBlock() != self /* false for waterlogged blocks */ || other.getFluidState() != fluid;
 	}
 
 	public void buildGeometry(
@@ -665,9 +664,9 @@ public class LodGenerator implements SafeCloseable {
 		ColumnResults results,
 		VersionedVertexConsumerProvider provider
 	) {
-		boolean cullTop = this.system.world.getDimension().hasCeiling();
-		BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
-		BlockModelRenderer renderer = blockRenderManager.getModelRenderer();
+		boolean cullTop = this.system.world.dimensionType().hasCeiling();
+		BlockRenderDispatcher blockRenderManager = Minecraft.getInstance().getBlockRenderer();
+		ModelBlockRenderer renderer = blockRenderManager.getModelRenderer();
 		BlockSegmentList[] lists = results.lists;
 		ColumnBlockView columnBlockView = new ColumnBlockView(
 			this.system.world,
@@ -679,8 +678,8 @@ public class LodGenerator implements SafeCloseable {
 			this.generatorParams
 		);
 		BlockSegmentList[] adjacents = new BlockSegmentList[4];
-		BlockPos.Mutable pos = new BlockPos.Mutable();
-		MatrixStack matrixStack = new MatrixStack();
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		PoseStack matrixStack = new PoseStack();
 		for (pos.setZ(0); pos.getZ() < INNER_WIDTH; pos.setZ(pos.getZ() + 1)) {
 			for (pos.setX(0); pos.getX() < INNER_WIDTH; pos.setX(pos.getX() + 1)) {
 				int baseColumnIndex = (pos.getZ() + SINGLE_RENDER_PADDING) * RENDER_WIDTH + (pos.getX() + SINGLE_RENDER_PADDING);
@@ -695,7 +694,7 @@ public class LodGenerator implements SafeCloseable {
 					}
 					LitSegment centerSegment = center.get(centerIndex);
 					if (!centerSegment.value.isAir()) {
-						for (pos.setY(centerSegment.minY); pos.getY() <= centerSegment.maxY;) {
+						for (pos.setY(centerSegment.minY); pos.getY() <= centerSegment.maxY; ) {
 							int y = pos.getY();
 							int nextY;
 							boolean shouldRender;
@@ -704,11 +703,11 @@ public class LodGenerator implements SafeCloseable {
 								nextY = y + 1;
 							}
 							else if (
-								y == centerSegment.maxY && (
-									cullTop
-									? (centerIndex + 1 <  centerSize && quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value))
-									: (centerIndex + 1 >= centerSize || quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value))
-								)
+									y == centerSegment.maxY && (
+										cullTop
+											? (centerIndex + 1 < centerSize && quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value))
+											: (centerIndex + 1 >= centerSize || quickCheckRender(centerSegment.value, center.get(centerIndex + 1).value))
+									)
 							) {
 								shouldRender = true;
 								nextY = y + 1;
@@ -731,37 +730,25 @@ public class LodGenerator implements SafeCloseable {
 								nextY = Math.max(skipTo, y + 1);
 							}
 							if (shouldRender) {
-								matrixStack.push();
+								matrixStack.pushPose();
 								matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
-								#if MC_VERSION >= MC_1_21_5
-									renderer.render(
-										columnBlockView,
-										blockRenderManager.getModel(centerSegment.value),
-										centerSegment.value,
-										pos,
-										matrixStack,
-										provider,
-										true,
-										centerSegment.value.getRenderingSeed(pos),
-										OverlayTexture.DEFAULT_UV
-									);
-								#else
-									renderer.render(
-										columnBlockView,
-										blockRenderManager.getModel(centerSegment.value),
-										centerSegment.value,
-										pos,
-										matrixStack,
-										provider.getBuffer(RenderLayers.getBlockLayer(centerSegment.value)),
-										true,
-										Random.create(),
-										centerSegment.value.getRenderingSeed(pos),
-										OverlayTexture.DEFAULT_UV
-									);
-								#endif
+
+								renderer.tesselateBlock(
+									columnBlockView,
+									blockRenderManager.getBlockModel(centerSegment.value),
+									centerSegment.value,
+									pos,
+									matrixStack,
+									provider.getBuffer(ItemBlockRenderTypes.getChunkRenderType(centerSegment.value)),
+									true,
+									this.system.world.getRandom(),
+									centerSegment.value.getSeed(pos),
+									OverlayTexture.NO_OVERLAY
+								);
+
 								FluidState fluidState = centerSegment.value.getFluidState();
 								if (!fluidState.isEmpty()) {
-									FluidRenderHandler fabricHandler = FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid());
+									FluidRenderHandler fabricHandler = FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getType());
 									if (fabricHandler != null) {
 										fabricHandler.renderFluid(
 											pos,
@@ -772,7 +759,7 @@ public class LodGenerator implements SafeCloseable {
 										);
 									}
 									else {
-										blockRenderManager.renderFluid(
+										blockRenderManager.renderLiquid(
 											pos,
 											columnBlockView,
 											provider.getBuffer(layerOf(fluidState)),
@@ -781,7 +768,7 @@ public class LodGenerator implements SafeCloseable {
 										);
 									}
 								}
-								matrixStack.pop();
+								matrixStack.popPose();
 							}
 							pos.setY(nextY);
 						}
@@ -791,25 +778,9 @@ public class LodGenerator implements SafeCloseable {
 		}
 	}
 
-	#if MC_VERSION >= MC_1_21_11
-
-		public static BlockRenderLayer layerOf(FluidState state) {
-			return BlockRenderLayers.getFluidLayer(state);
-		}
-
-	#elif MC_VERSION >= MC_1_21_8
-
-		public static BlockRenderLayer layerOf(FluidState state) {
-			return RenderLayers.getFluidLayer(state);
-		}
-
-	#else
-
-		public static RenderLayer layerOf(FluidState state) {
-			return RenderLayers.getFluidLayer(state);
-		}
-
-	#endif
+	public static RenderType layerOf(FluidState state) {
+		return ItemBlockRenderTypes.getRenderLayer(state);
+	}
 
 	public static enum LoadMode {
 		GENERATE_ONLY,
@@ -831,7 +802,7 @@ public class LodGenerator implements SafeCloseable {
 		LoadMode loadMode,
 		VersionedVertexConsumerProvider provider
 	)
-	implements SafeCloseable {
+		implements SafeCloseable {
 
 		@Override
 		public void close() {
@@ -843,7 +814,7 @@ public class LodGenerator implements SafeCloseable {
 		LodRequest request,
 		boolean success
 	)
-	implements SafeCloseable {
+		implements SafeCloseable {
 
 		public void apply(MeshUploader uploader, int maxLoadLevel) {
 			LodQuadTree owner = this.request.owner;
@@ -880,19 +851,19 @@ public class LodGenerator implements SafeCloseable {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class ColumnBlockView implements BlockRenderView {
+	public static class ColumnBlockView implements BlockAndTintGetter {
 
 		public final ClientGeneratorParams generator;
-		public final ClientWorld delegate;
+		public final ClientLevel delegate;
 		public final BlockSegmentList[] lists;
 		public final int minX, minZ, lod;
 		public final ScriptedColumn[] columns;
-		public final BlockPos.Mutable colorGetter;
-		public RegistryEntry<Biome> plainsBiome;
-		public LightingProvider lightingProvider;
+		public final BlockPos.MutableBlockPos colorGetter;
+		public Holder<Biome> plainsBiome;
+		public LevelLightEngine lightingProvider;
 
 		public ColumnBlockView(
-			ClientWorld delegate,
+			ClientLevel delegate,
 			BlockSegmentList[] lists,
 			int minX,
 			int minZ,
@@ -907,7 +878,7 @@ public class LodGenerator implements SafeCloseable {
 			this.minZ = minZ;
 			this.lod = lod;
 			this.columns = columns;
-			this.colorGetter = new BlockPos.Mutable();
+			this.colorGetter = new BlockPos.MutableBlockPos();
 		}
 
 		public ScriptedColumn getColumn(BlockPos pos) {
@@ -917,40 +888,40 @@ public class LodGenerator implements SafeCloseable {
 		}
 
 		@Override
-		public float getBrightness(Direction direction, boolean shaded) {
-			return this.delegate.getBrightness(direction, shaded);
+		public float getShade(Direction direction, boolean shaded) {
+			return this.delegate.getShade(direction, shaded);
 		}
 
 		@Override
-		public LightingProvider getLightingProvider() {
-			LightingProvider provider = this.lightingProvider;
+		public LevelLightEngine getLightEngine() {
+			LevelLightEngine provider = this.lightingProvider;
 			if (provider == null) {
-				provider = this.lightingProvider = new LightingProvider(this.delegate.getChunkManager(), false, false);
+				provider = this.lightingProvider = new LevelLightEngine(this.delegate.getChunkSource(), false, false);
 			}
 			return provider;
 		}
 
 		@Override
-		public int getColor(BlockPos pos, ColorResolver colorResolver) {
+		public int getBlockTint(BlockPos pos, ColorResolver colorResolver) {
 			int y = pos.getY() << (this.lod - LodQuadTree.MIN_LEVEL);
 			ScriptedColumn column = this.getColumn(pos);
-			if (colorResolver == BiomeColors.GRASS_COLOR) {
+			if (colorResolver == BiomeColors.GRASS_COLOR_RESOLVER) {
 				if (this.generator.grassColor != null) {
 					return this.generator.grassColor.getColor(column, y);
 				}
 			}
-			else if (colorResolver == BiomeColors.FOLIAGE_COLOR) {
+			else if (colorResolver == BiomeColors.FOLIAGE_COLOR_RESOLVER) {
 				if (this.generator.foliageColor != null) {
 					return this.generator.foliageColor.getColor(column, y);
 				}
 			}
-			else if (colorResolver == BiomeColors.WATER_COLOR) {
+			else if (colorResolver == BiomeColors.WATER_COLOR_RESOLVER) {
 				if (this.generator.waterColor != null) {
 					return this.generator.waterColor.getColor(column, y);
 				}
 			}
 			if (this.plainsBiome == null) {
-				this.plainsBiome = RegistryVersions.getEntry(this.delegate.getRegistryManager(), BiomeKeys.PLAINS);
+				this.plainsBiome = RegistryVersions.getEntry(this.delegate.registryAccess(), Biomes.PLAINS);
 			}
 			return colorResolver.getColor(this.plainsBiome.value(), column.x(), column.z());
 		}
@@ -967,7 +938,7 @@ public class LodGenerator implements SafeCloseable {
 			int z = pos.getZ() + SINGLE_RENDER_PADDING;
 			if (z < 0 || z >= RENDER_WIDTH) return BlockStates.AIR;
 			BlockState state = this.lists[z * RENDER_WIDTH + x].getBlockState(pos.getY());
-			return state != null ? state : Blocks.AIR.getDefaultState();
+			return state != null ? state : Blocks.AIR.defaultBlockState();
 		}
 
 		@Override
@@ -981,28 +952,16 @@ public class LodGenerator implements SafeCloseable {
 		}
 
 		@Override
-		public int getBottomY() {
+		public int getMinBuildHeight() {
 			return this.lists[0].minY();
 		}
 
-		#if MC_VERSION >= MC_1_21_2
-
-			@Override
-			public int getTopYInclusive() {
-				return this.lists[0].maxY;
-			}
-
-		#else
-
-			@Override
-			public int getTopY() {
-				return this.lists[0].maxY();
-			}
-
-		#endif
+		public int getMaxBuildHeight() {
+			return this.lists[0].maxY;
+		}
 
 		@Override
-		public int getLightLevel(LightType type, BlockPos pos) {
+		public int getBrightness(LightLayer type, BlockPos pos) {
 			int x = pos.getX() + SINGLE_RENDER_PADDING;
 			if (x < 0 || x >= RENDER_WIDTH) return 15;
 			int z = pos.getZ() + SINGLE_RENDER_PADDING;

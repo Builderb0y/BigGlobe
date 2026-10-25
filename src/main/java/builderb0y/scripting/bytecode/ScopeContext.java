@@ -111,7 +111,7 @@ public class ScopeContext {
 
 	public Scope findLoopForContinue(String loopName) {
 		List<Scope> stack = this.stack;
-		for (int index = stack.size(); --index >= 0;) {
+		for (int index = stack.size(); --index >= 0; ) {
 			Scope scope = stack.get(index);
 			if (scope.type == Scope.Type.LOOP && (loopName == null || loopName.equals(scope.loopName.name))) {
 				return scope;
@@ -122,7 +122,7 @@ public class ScopeContext {
 
 	public Scope findLoopForBreak(String loopName) {
 		List<Scope> stack = this.stack;
-		for (int index = stack.size(); --index >= 0;) {
+		for (int index = stack.size(); --index >= 0; ) {
 			Scope scope = stack.get(index);
 			if (scope.type == Scope.Type.LOOP && (loopName == null || loopName.equals(scope.loopName.name))) {
 				while (--index >= 0) {

@@ -145,13 +145,13 @@ public class Interpolator {
 	cubic interpolation based on terms rather than values.
 	useful if the values themselves don't change between invocations, but f does.
 	example usage:
-		double term1 = cubicTerm1(a, b, c, d);
-		double term2 = cubicTerm2(a, b, c, d);
-		double term3 = cubicTerm3(a, b, c, d);
-		double term4 = cubicTerm4(a, b, c, d);
-		for (double f = a bunch of doubles between 0.0 and 1.0) {
-			double interpolated = combineCubicTerms(term1, term2, term3, term4, f);
-		}
+	double term1 = cubicTerm1(a, b, c, d);
+	double term2 = cubicTerm2(a, b, c, d);
+	double term3 = cubicTerm3(a, b, c, d);
+	double term4 = cubicTerm4(a, b, c, d);
+	for (double f = a bunch of doubles between 0.0 and 1.0) {
+	double interpolated = combineCubicTerms(term1, term2, term3, term4, f);
+	}
 	*/
 	public static double combineCubicTerms(double term1, double term2, double term3, double term4, double f) {
 		return ((term4 * f + term3) * f + term2) * f + term1;

@@ -5,22 +5,19 @@ import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-
+import net.minecraft.client.Minecraft;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.LodOverrides;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.Interpolator;
-import builderb0y.bigglobe.rendering.*;
+import builderb0y.bigglobe.rendering.GLException;
+import builderb0y.bigglobe.rendering.GlState;
+import builderb0y.bigglobe.rendering.MatrixStorageWorkaround;
+import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.rendering.lods.ScratchDepthBuffer.FakeScratchDepthBuffer;
-import builderb0y.bigglobe.rendering.lods.ScratchDepthBuffer.RealScratchDepthBuffer;
-import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RenderVersions;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 
 import static org.lwjgl.opengl.GL32C.*;
 
@@ -35,7 +32,10 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 
 	@Override
 	public void close() {
-		if (this.vao != 0) { glDeleteVertexArrays(this.vao); this.vao = 0; }
+		if (this.vao != 0) {
+			glDeleteVertexArrays(this.vao);
+			this.vao = 0;
+		}
 		ResourceTracker.closeAll(this.heap, this.elementBuffer, this.depthBuffer, this.matrixStorage);
 	}
 
@@ -48,11 +48,9 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 			this.heap = new VertexHeap(LodVertexFormat.FORMAT, quadCount);
 			this.elementBuffer = new ElementBuffer();
 			this.vao = glGenVertexArrays();
-			#if MC_VERSION >= MC_1_21_5
-				this.depthBuffer = new FakeScratchDepthBuffer();
-			#else
-				this.depthBuffer = new RealScratchDepthBuffer();
-			#endif
+
+			this.depthBuffer = new FakeScratchDepthBuffer();
+
 			this.matrixStorage = new MatrixStorageWorkaround();
 
 			this.setupVao();
@@ -83,11 +81,11 @@ public abstract class AbstractLodRenderer implements LodRenderer {
 	}
 
 	public void setupOpaqueState(LodGlState state) {
-		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
+		RenderTarget framebuffer = Minecraft.getInstance().getMainRenderTarget();
 		int framebufferID = RenderVersions.glID(framebuffer);
 		state.setFramebuffer(framebufferID);
-		this.depthBuffer.copyFrom(framebufferID, framebuffer.textureWidth, framebuffer.textureHeight);
-		state.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
+		this.depthBuffer.copyFrom(framebufferID, framebuffer.width, framebuffer.height);
+		state.setViewport(0, 0, framebuffer.width, framebuffer.height);
 		state.setCullFace(true);
 		state.setCullFaceMode(GL_BACK);
 		state.setDepthRead(true);

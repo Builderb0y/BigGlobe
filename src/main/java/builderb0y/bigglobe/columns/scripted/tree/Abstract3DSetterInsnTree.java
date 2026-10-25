@@ -38,8 +38,8 @@ public abstract class Abstract3DSetterInsnTree extends AbstractUpdaterInsnTree {
 				this.emitGet(method); //column y oldValue
 				method.node.visitInsn(
 					this.getter.returnType.isDoubleWidth()
-					? DUP2_X2
-					: DUP_X2
+						? DUP2_X2
+						: DUP_X2
 				); //oldValue column y oldValue
 				this.updater.emitBytecode(method); //oldValue column y newValue
 				this.emitSet(method); //oldValue
@@ -50,8 +50,8 @@ public abstract class Abstract3DSetterInsnTree extends AbstractUpdaterInsnTree {
 				this.updater.emitBytecode(method); //column y newValue
 				method.node.visitInsn(
 					this.getter.returnType.isDoubleWidth()
-					? DUP2_X2
-					: DUP_X2
+						? DUP2_X2
+						: DUP_X2
 				); //newValue column y newValue
 				this.emitSet(method); //newValue
 			}
@@ -80,8 +80,8 @@ public abstract class Abstract3DSetterInsnTree extends AbstractUpdaterInsnTree {
 				this.updater.emitBytecode(method); //column y newValue
 				method.node.visitInsn(
 					this.getter.returnType.isDoubleWidth()
-					? DUP2_X2
-					: DUP_X2
+						? DUP2_X2
+						: DUP_X2
 				); //newValue column y newValue
 				this.emitSet(method); //newValue
 			}

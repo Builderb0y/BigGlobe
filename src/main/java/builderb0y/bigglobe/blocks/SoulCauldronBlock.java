@@ -1,74 +1,56 @@
 package builderb0y.bigglobe.blocks;
 
-import java.util.Map;
-
 import com.google.common.base.Predicates;
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.AbstractCauldronBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.cauldron.CauldronBehavior;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteraction.InteractionMap;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 
-#if MC_VERSION >= MC_1_20_3
-	import net.minecraft.block.cauldron.CauldronBehavior.CauldronBehaviorMap;
-#endif
-
 public class SoulCauldronBlock extends AbstractCauldronBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final CauldronBehaviorMap BEHAVIOR_MAP = CauldronBehavior.createMap(BigGlobeMod.MODID + ":soul_cauldron");
-	#else
-		public static final Map<Item, CauldronBehavior> BEHAVIOR_MAP = CauldronBehavior.createMap();
-	#endif
-	public static final CauldronBehavior
+	public static final InteractionMap BEHAVIOR_MAP = CauldronInteraction.newInteractionMap(BigGlobeMod.MODID + ":soul_cauldron");
+
+	public static final CauldronInteraction
 		FILL_WITH_SOUL_LAVA = (state, world, pos, player, hand, stack) -> {
-			return CauldronBehavior.fillCauldron(world, pos, player, hand, stack, BigGlobeBlocks.SOUL_CAULDRON.getDefaultState(), SoundEvents.ITEM_BUCKET_EMPTY_LAVA);
-		},
+		return CauldronInteraction.emptyBucket(world, pos, player, hand, stack, BigGlobeBlocks.SOUL_CAULDRON.defaultBlockState(), SoundEvents.BUCKET_EMPTY_LAVA);
+	},
 		EMPTY_SOUL_LAVA_CAULDRON = (state, world, pos, player, hand, stack) -> {
-			return CauldronBehavior.emptyCauldron(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.ITEM_BUCKET_FILL_LAVA);
+			return CauldronInteraction.fillBucket(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.BUCKET_FILL_LAVA);
 		};
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<SoulCauldronBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulCauldronBlock.class);
+	public static final MapCodec<SoulCauldronBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulCauldronBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public SoulCauldronBlock(Settings settings) {
+	public SoulCauldronBlock(Properties settings) {
 		super(settings, BEHAVIOR_MAP);
 	}
 
 	public static void init() {
-		#if MC_VERSION >= MC_1_20_3
-			CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map().put(BigGlobeItems.SOUL_LAVA_BUCKET, FILL_WITH_SOUL_LAVA);
-			BEHAVIOR_MAP.map().put(Items.BUCKET, EMPTY_SOUL_LAVA_CAULDRON);
-		#else
-			CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.put(BigGlobeItems.SOUL_LAVA_BUCKET, FILL_WITH_SOUL_LAVA);
-			BEHAVIOR_MAP.put(Items.BUCKET, EMPTY_SOUL_LAVA_CAULDRON);
-		#endif
+
+		CauldronInteraction.EMPTY.map().put(BigGlobeItems.SOUL_LAVA_BUCKET, FILL_WITH_SOUL_LAVA);
+		BEHAVIOR_MAP.map().put(Items.BUCKET, EMPTY_SOUL_LAVA_CAULDRON);
 	}
 
 	@Override
-	public double getFluidHeight(BlockState state) {
+	public double getContentHeight(BlockState state) {
 		return 0.9375D;
 	}
-
 
 	@Override
 	public boolean isFull(BlockState state) {
@@ -77,34 +59,14 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(
-		BlockState state,
-		World world,
-		BlockPos pos,
-		Entity entity
-		#if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif
-		#if MC_VERSION >= MC_1_21_9 , boolean movingFastOrBlockPosIsInsideDestinationBox #endif
-	) {
-		super.onEntityCollision(
-			state,
-			world,
-			pos,
-			entity
-			#if MC_VERSION >= MC_1_21_5 , handler #endif
-			#if MC_VERSION >= MC_1_21_9 , movingFastOrBlockPosIsInsideDestinationBox #endif
-		);
-		#if MC_VERSION >= MC_1_21_6
-			entity.setOnFireFromLava();
-		#else
-			if (this.isEntityTouchingFluid(state, pos, entity)) {
-				entity.setOnFireFromLava();
-			}
-		#endif
+	public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) { super.entityInside(state, world, pos, entity);
+
+		entity.lavaHurt();
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public int getComparatorOutput(BlockState state, World world, BlockPos pos #if MC_VERSION >= MC_1_21_9 , Direction direction #endif) {
+	public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
 		return 3;
 	}
 }

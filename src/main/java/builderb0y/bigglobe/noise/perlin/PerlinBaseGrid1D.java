@@ -12,7 +12,8 @@ public abstract class PerlinBaseGrid1D implements Grid1D {
 		SLOPE_X_SALT = Permuter.permute(0L, 'x');
 
 	public final Seed salt;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @Alias("scale") int scaleX;
+	public final @VerifyIntRange(min = 0, minInclusive = false)
+	@Alias("scale") int scaleX;
 	public final transient double rcpX;
 	public final double max_slope, max_offset;
 

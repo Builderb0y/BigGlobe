@@ -1,11 +1,9 @@
 package builderb0y.bigglobe.scripting.wrappers.entries;
 
 import java.lang.invoke.MethodHandles;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.gen.structure.StructureType;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 import builderb0y.bigglobe.scripting.wrappers.tags.StructureTypeTag;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -15,7 +13,7 @@ public class StructureTypeEntry extends EntryWrapper<StructureType<?>, Structure
 	public static final TypeInfo TYPE = TypeInfo.of(StructureTypeEntry.class);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
-	public StructureTypeEntry(RegistryEntry<StructureType<?>> entry) {
+	public StructureTypeEntry(Holder<StructureType<?>> entry) {
 		super(entry);
 	}
 
@@ -24,7 +22,7 @@ public class StructureTypeEntry extends EntryWrapper<StructureType<?>, Structure
 	}
 
 	public static StructureTypeEntry of(String id, int flags) {
-		RegistryEntry<StructureType<?>> entry = ConstantFactory.getEntry(RegistryKeys.STRUCTURE_TYPE, id, flags);
+		Holder<StructureType<?>> entry = ConstantFactory.getEntry(Registries.STRUCTURE_TYPE, id, flags);
 		return entry != null ? new StructureTypeEntry(entry) : null;
 	}
 

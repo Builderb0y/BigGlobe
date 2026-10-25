@@ -4,12 +4,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Map;
-
+import net.minecraft.resources.ResourceLocation;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import org.objectweb.asm.Type;
-
-import net.minecraft.util.Identifier;
-
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted2.entries.ColumnEntry;
 import builderb0y.scripting.bytecode.*;
@@ -56,7 +53,7 @@ public class ColumnCompileContext {
 				),
 				ScriptedColumn.CONSTRUCTOR_INFO.loaders
 			)
-			.emitBytecode(this.constructor);
+				.emitBytecode(this.constructor);
 		}
 		{
 			MethodCompileContext lookup = this.clazz.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
@@ -70,14 +67,14 @@ public class ColumnCompileContext {
 				newInstance(
 					this.constructor.info,
 					Arrays
-					.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
-					.map(Parameter::getName)
-					.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
-					.map((FieldInfo field) -> getField(loadSelf, field))
-					.toArray(InsnTree[]::new)
+						.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
+						.map(Parameter::getName)
+						.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
+						.map((FieldInfo field) -> getField(loadSelf, field))
+						.toArray(InsnTree[]::new)
 				)
 			)
-			.emitBytecode(blankCopy);
+				.emitBytecode(blankCopy);
 			blankCopy.endCode();
 		}
 	}
@@ -104,12 +101,12 @@ public class ColumnCompileContext {
 		loader.recursiveAddClasses(this.clazz, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null);
 	}
 
-	public static String internalName(Identifier selfID, int uniquifier) {
+	public static String internalName(ResourceLocation selfID, int uniquifier) {
 		StringBuilder builder = (
 			new StringBuilder(selfID.getNamespace().length() + selfID.getPath().length() + 16)
-			.append(selfID.getNamespace())
-			.append('_')
-			.append(selfID.getPath())
+				.append(selfID.getNamespace())
+				.append('_')
+				.append(selfID.getPath())
 		);
 		for (int index = 0, length = builder.length(); index < length; index++) {
 			char old = builder.charAt(index);

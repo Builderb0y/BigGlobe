@@ -10,13 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
-
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -24,11 +21,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBased
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
-import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
+import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.scripting.bytecode.*;
@@ -113,11 +106,13 @@ public interface ColumnScript extends Script {
 
 	@Target(ElementType.PARAMETER)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface NotY {}
+	public static @interface NotY {
+
+	}
 
 	public static abstract class BaseHolder<S extends ColumnScript> extends ScriptHolder<S> implements SetBasedMutableDependencyView {
 
-		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>(64);
+		public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>(64);
 
 		public BaseHolder(ScriptUsage usage) {
 			super(usage);
@@ -125,7 +120,7 @@ public interface ColumnScript extends Script {
 		}
 
 		@Override
-		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+		public Set<Holder<? extends DependencyView>> getDependencies() {
 			return this.dependencies;
 		}
 
@@ -138,16 +133,16 @@ public interface ColumnScript extends Script {
 
 		public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
 			environment
-			.addAll(MathScriptEnvironment.INSTANCE)
-			.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-			.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
-			.configure(
-				parameters.random != null
-				? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
-				: MinecraftScriptEnvironment.create()
-			)
-			.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)))
-			.addAll(ColorScriptEnvironment.ENVIRONMENT);
+				.addAll(MathScriptEnvironment.INSTANCE)
+				.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+				.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(load(parameters.actualColumn))))
+				.configure(
+					parameters.random != null
+						? MinecraftScriptEnvironment.createWithRandom(load(parameters.random))
+						: MinecraftScriptEnvironment.create()
+				)
+				.configure(ScriptedColumn.baseEnvironment(load(parameters.actualColumn)))
+				.addAll(ColorScriptEnvironment.ENVIRONMENT);
 			if (parameters.y != null) environment.addVariableLoad(parameters.y);
 			if (parameters.random != null) environment.configure(RandomScriptEnvironment.create(load(parameters.random)));
 		}
@@ -175,21 +170,21 @@ public interface ColumnScript extends Script {
 					load("this", clazz.info),
 					actualMethod.info,
 					IntStream
-					.range(0, parameters.paramCount)
-					.mapToObj((int index) -> {
-						LazyVarInfo
-							from = parameters.bridgeParams[index],
-							to   = parameters.actualParams[index];
-						InsnTree loader = load(from);
-						if (!from.equals(to)) {
-							loader = new DirectCastInsnTree(loader, to.type, false);
-						}
-						return loader;
-					})
-					.toArray(InsnTree.ARRAY_FACTORY)
+						.range(0, parameters.paramCount)
+						.mapToObj((int index) -> {
+							LazyVarInfo
+								from = parameters.bridgeParams[index],
+								to = parameters.actualParams[index];
+							InsnTree loader = load(from);
+							if (!from.equals(to)) {
+								loader = new DirectCastInsnTree(loader, to.type, false);
+							}
+							return loader;
+						})
+						.toArray(InsnTree.ARRAY_FACTORY)
 				)
 			)
-			.emitBytecode(bridgeMethod);
+				.emitBytecode(bridgeMethod);
 			bridgeMethod.endCode();
 
 			ScriptColumnEntryParser parser = new ScriptColumnEntryParser(usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
@@ -197,10 +192,10 @@ public interface ColumnScript extends Script {
 				registry.setupExternalEnvironment(
 					environment,
 					new ExternalEnvironmentParams()
-					.withColumn(load(parameters.actualColumn))
-					.withY(parameters.y != null ? load(parameters.y) : null)
-					.mutable(this.isColumnMutable())
-					.trackDependencies(this)
+						.withColumn(load(parameters.actualColumn))
+						.withY(parameters.y != null ? load(parameters.y) : null)
+						.mutable(this.isColumnMutable())
+						.trackDependencies(this)
 				);
 			});
 			parser.parseEntireInput().emitBytecode(actualMethod);

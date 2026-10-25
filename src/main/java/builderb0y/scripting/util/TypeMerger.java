@@ -57,29 +57,32 @@ public class TypeMerger {
 		return tryObjects(types);
 	}
 
-	//////////////////////////////// internal logic ////////////////////////////////
+	/// ///////////////////////////// internal logic ////////////////////////////////
 
 	public static final Object2IntMap<TypeInfo> PRIMITIVE_WIDENING = new Object2IntOpenHashMap<>(8);
+
 	static {
 		PRIMITIVE_WIDENING.put(TypeInfos.BOOLEAN, 0);
-		PRIMITIVE_WIDENING.put(TypeInfos.BYTE,    1);
-		PRIMITIVE_WIDENING.put(TypeInfos.CHAR,    2);
-		PRIMITIVE_WIDENING.put(TypeInfos.SHORT,   3);
-		PRIMITIVE_WIDENING.put(TypeInfos.INT,     4);
-		PRIMITIVE_WIDENING.put(TypeInfos.LONG,    5);
-		PRIMITIVE_WIDENING.put(TypeInfos.FLOAT,   6);
-		PRIMITIVE_WIDENING.put(TypeInfos.DOUBLE,  7);
+		PRIMITIVE_WIDENING.put(TypeInfos.BYTE, 1);
+		PRIMITIVE_WIDENING.put(TypeInfos.CHAR, 2);
+		PRIMITIVE_WIDENING.put(TypeInfos.SHORT, 3);
+		PRIMITIVE_WIDENING.put(TypeInfos.INT, 4);
+		PRIMITIVE_WIDENING.put(TypeInfos.LONG, 5);
+		PRIMITIVE_WIDENING.put(TypeInfos.FLOAT, 6);
+		PRIMITIVE_WIDENING.put(TypeInfos.DOUBLE, 7);
 	}
+
 	public static final Object2ObjectMap<TypeInfo, TypeInfo> PRIMITIVE_WRAPPING = new Object2ObjectOpenHashMap<>(8);
+
 	static {
 		PRIMITIVE_WRAPPING.put(TypeInfos.BOOLEAN, TypeInfos.BOOLEAN_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.BYTE,    TypeInfos.   BYTE_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.CHAR,    TypeInfos.   CHAR_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.SHORT,   TypeInfos.  SHORT_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.INT,     TypeInfos.    INT_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.LONG,    TypeInfos.   LONG_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.FLOAT,   TypeInfos.  FLOAT_WRAPPER);
-		PRIMITIVE_WRAPPING.put(TypeInfos.DOUBLE,  TypeInfos. DOUBLE_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.BYTE, TypeInfos.BYTE_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.CHAR, TypeInfos.CHAR_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.SHORT, TypeInfos.SHORT_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.INT, TypeInfos.INT_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.LONG, TypeInfos.LONG_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.FLOAT, TypeInfos.FLOAT_WRAPPER);
+		PRIMITIVE_WRAPPING.put(TypeInfos.DOUBLE, TypeInfos.DOUBLE_WRAPPER);
 	}
 
 	public static boolean tryAllSame(TypeInfo... types) {
@@ -157,14 +160,14 @@ public class TypeMerger {
 		Set<TypeInfo> set = tryObjects(types);
 		return (
 			set.size() == 1
-			? set.iterator().next()
-			: set.stream().max(
+				? set.iterator().next()
+				: set.stream().max(
 				Comparator.comparingInt(
 					(TypeInfo placeholder) -> placeholder.type.isInterface ? 0 : 1
 				)
 				.thenComparing(TypeInfo::getInternalName)
 			)
-			.orElseThrow()
+				.orElseThrow()
 		);
 	}
 }

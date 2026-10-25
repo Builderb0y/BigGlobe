@@ -3,94 +3,92 @@ package builderb0y.bigglobe.blocks;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.Chunk;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SupportType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.ActionResultVersions;
 
 import static builderb0y.bigglobe.blocks.BigGlobeBlocks.SPELUNKING_ROPE;
 
-public class RopeAnchorBlock extends HorizontalFacingBlock {
+public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 
-	public static final BooleanProperty HAS_ROPE = BooleanProperty.of("has_rope");
-	public static final VoxelShape EMPTY_SHAPE = VoxelShapes.union(
-		VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.375D, 0.625D, 0.375D, 0.625D),
-		VoxelShapes.cuboidUnchecked(0.25D, 0.375D, 0.25D, 0.75D, 0.5D, 0.75D)
+	public static final BooleanProperty HAS_ROPE = BooleanProperty.create("has_rope");
+	public static final VoxelShape EMPTY_SHAPE = Shapes.or(
+		Shapes.create(0.375D, 0.0D, 0.375D, 0.625D, 0.375D, 0.625D),
+		Shapes.create(0.25D, 0.375D, 0.25D, 0.75D, 0.5D, 0.75D)
 	);
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<RopeAnchorBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RopeAnchorBlock.class);
+	public static final MapCodec<RopeAnchorBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RopeAnchorBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public RopeAnchorBlock(Settings settings) {
+	public RopeAnchorBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.getDefaultState().with(HAS_ROPE, Boolean.FALSE));
+		this.registerDefaultState(this.defaultBlockState().setValue(HAS_ROPE, Boolean.FALSE));
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onStateReplaced(
+	public void onRemove(
 		BlockState state,
-		#if MC_VERSION >= MC_1_21_5 ServerWorld #else World #endif world,
+		Level world,
 		BlockPos pos,
-		#if MC_VERSION < MC_1_21_5 BlockState newState, #endif
+		BlockState newState,
 		boolean moved
 	) {
-		if (state.get(HAS_ROPE)) {
-			Direction direction = state.get(FACING);
-			world.scheduleBlockTick(
+		if (state.getValue(HAS_ROPE) && world instanceof ServerLevel serverWorld) {
+			Direction direction = state.getValue(FACING);
+			serverWorld.scheduleTick(
 				new BlockPos(
-					pos.getX() + direction.getOffsetX(),
+					pos.getX() + direction.getStepX(),
 					pos.getY() - 1,
-					pos.getZ() + direction.getOffsetZ()
+					pos.getZ() + direction.getStepZ()
 				),
 				SPELUNKING_ROPE,
-				SPELUNKING_ROPE.getFallDelay()
+				SPELUNKING_ROPE.getDelayAfterPlace()
 			);
 		}
-		super.onStateReplaced(state, world, pos, #if MC_VERSION < MC_1_21_5 newState, #endif moved);
+		super.onRemove(state, world, pos, newState, moved);
 	}
 
 	@Override
-	#if MC_VERSION >= MC_1_21_2
-		public net.minecraft.util.ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-	#elif MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
-		public net.minecraft.util.ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-	#else
-		public net.minecraft.util.ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		ItemStack stack = player.getStackInHand(hand);
-	#endif
-		if (stack.isEmpty() && player.isSneaking()) {
+
+	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+
+		if (stack.isEmpty() && player.isShiftKeyDown()) {
 			if (this.retractRopeAuto(world, pos, state, player)) {
-				if (!world.isClient() && !player.isCreative()) {
-					player.getInventory().insertStack(new ItemStack(BigGlobeItems.SPELUNKING_ROPE));
+				if (!world.isClientSide() && !player.isCreative()) {
+					player.getInventory().add(new ItemStack(BigGlobeItems.SPELUNKING_ROPE));
 				}
 				return ActionResultVersions.ITEM_SUCCESS;
 			}
@@ -110,26 +108,26 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 		return ActionResultVersions.ITEM_PASS;
 	}
 
-	public boolean placeRopes(World world, BlockPos anchorPos, BlockState anchorState, PlayerEntity player, ItemStack heldItem) {
-		Direction direction = anchorState.get(FACING);
-		BlockState toPlace = SPELUNKING_ROPE.getDefaultState().with(FACING, direction.getOpposite());
+	public boolean placeRopes(Level world, BlockPos anchorPos, BlockState anchorState, Player player, ItemStack heldItem) {
+		Direction direction = anchorState.getValue(FACING);
+		BlockState toPlace = SPELUNKING_ROPE.defaultBlockState().setValue(FACING, direction.getOpposite());
 		boolean placed = false;
-		if (!anchorState.get(HAS_ROPE)) {
-			if (world.isClient()) {
+		if (!anchorState.getValue(HAS_ROPE)) {
+			if (world.isClientSide()) {
 				return true;
 			}
 			else {
-				world.setBlockState(anchorPos, anchorState.with(HAS_ROPE, Boolean.TRUE));
+				world.setBlockAndUpdate(anchorPos, anchorState.setValue(HAS_ROPE, Boolean.TRUE));
 				placed = true;
 				if (!player.isCreative()) {
-					heldItem.decrement(1);
+					heldItem.shrink(1);
 					if (heldItem.isEmpty()) {
 						return true;
 					}
 				}
 			}
 		}
-		BlockPos.Mutable mutablePos = anchorPos.mutableCopy().move(direction);
+		BlockPos.MutableBlockPos mutablePos = anchorPos.mutable().move(direction);
 		if (SPELUNKING_ROPE.isExtrusionClear(world, mutablePos, direction.getOpposite())) {
 			mutablePos.setY(mutablePos.getY() - 1);
 			if (SPELUNKING_ROPE.placeRopesAuto(world, mutablePos, toPlace, player, heldItem)) {
@@ -139,8 +137,8 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 		return placed;
 	}
 
-	public boolean retractRopeAuto(World world, BlockPos anchorPos, BlockState anchorState, PlayerEntity player) {
-		if (world.isClient()) {
+	public boolean retractRopeAuto(Level world, BlockPos anchorPos, BlockState anchorState, Player player) {
+		if (world.isClientSide()) {
 			return this.retractRopeSimulate(anchorState);
 		}
 		else if (player.isCreative()) {
@@ -151,98 +149,80 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 		}
 	}
 
-	public boolean retractRopeSurvival(World world, BlockPos anchorPos, BlockState anchorState, PlayerEntity player) {
-		if (!anchorState.get(HAS_ROPE)) return false;
-		Direction direction = anchorState.get(FACING);
-		BlockState toRemove = SPELUNKING_ROPE.getDefaultState().with(FACING, direction.getOpposite());
-		BlockPos.Mutable mutablePos = anchorPos.mutableCopy().move(direction.getOffsetX(), -1, direction.getOffsetZ());
-		Chunk chunk = world.getChunk(mutablePos);
+	public boolean retractRopeSurvival(Level world, BlockPos anchorPos, BlockState anchorState, Player player) {
+		if (!anchorState.getValue(HAS_ROPE)) return false;
+		Direction direction = anchorState.getValue(FACING);
+		BlockState toRemove = SPELUNKING_ROPE.defaultBlockState().setValue(FACING, direction.getOpposite());
+		BlockPos.MutableBlockPos mutablePos = anchorPos.mutable().move(direction.getStepX(), -1, direction.getStepZ());
+		ChunkAccess chunk = world.getChunk(mutablePos);
 		if (chunk.getBlockState(mutablePos) != toRemove) {
-			world.setBlockState(anchorPos, anchorState.with(HAS_ROPE, Boolean.FALSE));
+			world.setBlockAndUpdate(anchorPos, anchorState.setValue(HAS_ROPE, Boolean.FALSE));
 			return true;
 		}
 		do mutablePos.setY(mutablePos.getY() - 1);
 		while (chunk.getBlockState(mutablePos) == toRemove);
 		mutablePos.setY(mutablePos.getY() + 1);
-		world.setBlockState(mutablePos, Blocks.AIR.getDefaultState());
+		world.setBlockAndUpdate(mutablePos, Blocks.AIR.defaultBlockState());
 		return true;
 	}
 
-	public boolean retractRopeCreative(World world, BlockPos anchorPos, BlockState anchorState, PlayerEntity player) {
-		if (!anchorState.get(HAS_ROPE)) return false;
-		world.setBlockState(anchorPos, anchorState.with(HAS_ROPE, Boolean.FALSE));
-		Direction direction = anchorState.get(FACING);
-		BlockState toRemove = SPELUNKING_ROPE.getDefaultState().with(FACING, direction.getOpposite());
-		BlockPos.Mutable mutablePos = anchorPos.mutableCopy().move(direction.getOffsetX(), -1, direction.getOffsetZ());
-		Chunk chunk = world.getChunk(mutablePos);
+	public boolean retractRopeCreative(Level world, BlockPos anchorPos, BlockState anchorState, Player player) {
+		if (!anchorState.getValue(HAS_ROPE)) return false;
+		world.setBlockAndUpdate(anchorPos, anchorState.setValue(HAS_ROPE, Boolean.FALSE));
+		Direction direction = anchorState.getValue(FACING);
+		BlockState toRemove = SPELUNKING_ROPE.defaultBlockState().setValue(FACING, direction.getOpposite());
+		BlockPos.MutableBlockPos mutablePos = anchorPos.mutable().move(direction.getStepX(), -1, direction.getStepZ());
+		ChunkAccess chunk = world.getChunk(mutablePos);
 		while (chunk.getBlockState(mutablePos) == toRemove) {
-			world.setBlockState(mutablePos, Blocks.AIR.getDefaultState());
+			world.setBlockAndUpdate(mutablePos, Blocks.AIR.defaultBlockState());
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 		return true;
 	}
 
 	public boolean retractRopeSimulate(BlockState anchorState) {
-		return anchorState.get(HAS_ROPE);
+		return anchorState.getValue(HAS_ROPE);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState getStateForNeighborUpdate(
-		#if MC_VERSION >= MC_1_21_2
-			BlockState state,
-			WorldView world,
-			net.minecraft.world.tick.ScheduledTickView tickView,
-			BlockPos pos,
-			Direction direction,
-			BlockPos neighborPos,
-			BlockState neighborState,
-			Random random
-		#else
-			BlockState state,
-			Direction direction,
-			BlockState neighborState,
-			WorldAccess world,
-			BlockPos pos,
-			BlockPos neighborPos
-		#endif
-	) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
 		return (
 			direction == Direction.DOWN
 			&& !this.canPlaceOn(world, neighborPos, neighborState)
-			? Blocks.AIR.getDefaultState()
-			: state
+				? Blocks.AIR.defaultBlockState()
+				: state
 		);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		BlockPos downPos = pos.down();
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		BlockPos downPos = pos.below();
 		return this.canPlaceOn(world, downPos, world.getBlockState(downPos));
 	}
 
-	public boolean canPlaceOn(WorldView world, BlockPos downPos, BlockState downState) {
-		return downState.isSideSolid(world, downPos, Direction.UP, SideShapeType.CENTER);
+	public boolean canPlaceOn(LevelReader world, BlockPos downPos, BlockState downState) {
+		return downState.isFaceSturdy(world, downPos, Direction.UP, SupportType.CENTER);
 	}
 
 	@Override
 	@Nullable
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(FACING, context.getHorizontalPlayerFacing());
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return EMPTY_SHAPE;
 	}
 
 	@Override
-	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, HAS_ROPE);
 	}
 }

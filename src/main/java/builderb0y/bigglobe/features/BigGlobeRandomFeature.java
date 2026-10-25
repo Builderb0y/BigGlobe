@@ -1,13 +1,11 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -25,29 +23,31 @@ public class BigGlobeRandomFeature extends Feature<BigGlobeRandomFeature.Config>
 	}
 
 	@Override
-	public boolean generate(FeatureContext<Config> context) {
+	public boolean place(FeaturePlaceContext<Config> context) {
 		return (
 			context
-			.getConfig()
-			.choices
-			.getRandomElement(Permuter.from(context.getRandom()))
-			.value()
-			.generate(
-				context.getWorld(),
-				context.getGenerator(),
-				context.getRandom(),
-				context.getOrigin()
-			)
+				.config()
+				.choices
+				.getRandomElement(Permuter.from(context.random()))
+				.value()
+				.place(
+					context.level(),
+					context.chunkGenerator(),
+					context.random(),
+					context.origin()
+				)
 		);
 	}
 
 	public static record Config(
 		@VerifyNotEmpty RandomList<
-			@UseName("feature") RegistryEntry<
-				ConfiguredFeature<?, ?>
-			>
-		>
+									@UseName("feature") Holder<
+																		ConfiguredFeature<?, ?>
+																		>
+									>
 		choices
 	)
-	implements FeatureConfig {}
+		implements FeatureConfiguration {
+
+	}
 }

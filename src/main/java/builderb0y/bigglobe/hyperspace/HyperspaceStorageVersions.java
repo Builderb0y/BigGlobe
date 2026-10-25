@@ -2,7 +2,8 @@ package builderb0y.bigglobe.hyperspace;
 
 import org.jetbrains.annotations.NotNull;
 
-import builderb0y.autocodec.data.*;
+import builderb0y.autocodec.data.ListData;
+import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.fixers.DataFixContext;
 import builderb0y.autocodec.fixers.DataFixException;
 import builderb0y.autocodec.fixers.VersionedFixer;
@@ -15,59 +16,59 @@ public class HyperspaceStorageVersions extends VersionedFixer<ServerWaypointMana
 
 		/**
 		compound {
-			list waypoints: [
-				compound {
-					String world,
-					list pos: [
-						double x,
-						double y,
-						double z
-					]
-					UUID uuid,
-					nullable UUID owner
-				}
-				...
-			]
+		list waypoints: [
+		compound {
+		String world,
+		list pos: [
+		double x,
+		double y,
+		double z
+		]
+		UUID uuid,
+		nullable UUID owner
+		}
+		...
+		]
 		}
 		*/
 		V0_UUIDS = 0,
 
-		/**
-		compound {
-			list waypoints: [
-				compound {
-					String world,
-					list pos: [
-						double x,
-						double y,
-						double z
-					]
-					int id,
-					nullable UUID owner
-				}
-				...
-			]
-		}
-		*/
-		V1_VARINT_IDS = 1,
+	/**
+	compound {
+	list waypoints: [
+	compound {
+	String world,
+	list pos: [
+	double x,
+	double y,
+	double z
+	]
+	int id,
+	nullable UUID owner
+	}
+	...
+	]
+	}
+	*/
+	V1_VARINT_IDS = 1,
 
-		/**
-		compound {
-			list waypoints: [
-				compound {
-					String world,
-					double x,
-					double y,
-					double z,
-					int id,
-					nullable UUID owner
-				}
-			]
-		}
-		*/
-		V2_INLINE_POS = 2,
+	/**
+	compound {
+	list waypoints: [
+	compound {
+	String world,
+	double x,
+	double y,
+	double z,
+	int id,
+	nullable UUID owner
+	}
+	]
+	}
+	*/
+	V2_INLINE_POS = 2,
 
-		CURRENT_VERSION = V2_INLINE_POS;
+	CURRENT_VERSION = V2_INLINE_POS;
 
 	public HyperspaceStorageVersions() {
 		super("HyperspaceStorageVersions", CURRENT_VERSION);
@@ -76,9 +77,12 @@ public class HyperspaceStorageVersions extends VersionedFixer<ServerWaypointMana
 	@Override
 	public @NotNull <T_Encoded> DataFixContext<T_Encoded> fixData(@NotNull DataFixContext<T_Encoded> context, int version) throws DataFixException {
 		switch (version) {
-			default: throw new DataFixException(() -> "Unknown hyperspace storage version: " + version);
-			case V0_UUIDS: this.convertUUIDsToIDs(context);
-			case V1_VARINT_IDS: this.inlinePositions(context);
+			default:
+				throw new DataFixException(() -> "Unknown hyperspace storage version: " + version);
+			case V0_UUIDS:
+				this.convertUUIDsToIDs(context);
+			case V1_VARINT_IDS:
+				this.inlinePositions(context);
 			case V2_INLINE_POS:
 		}
 		return context;

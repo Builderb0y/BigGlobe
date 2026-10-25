@@ -12,4 +12,6 @@ import builderb0y.autocodec.annotations.VerifyFloatRange;
 @Mirror(VerifyFloatRange.class)
 @Target(ElementType.TYPE_USE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Chance {}
+public @interface Chance {
+
+}

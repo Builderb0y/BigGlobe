@@ -7,7 +7,8 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 public class TileGrid1D implements Grid1D {
 
 	public final Grid1D source;
-	public final @VerifyIntRange(min = 0L) @Alias("scale") int scaleX;
+	public final @VerifyIntRange(min = 0L)
+	@Alias("scale") int scaleX;
 
 	public TileGrid1D(Grid1D source, int scaleX) {
 		this.source = source;

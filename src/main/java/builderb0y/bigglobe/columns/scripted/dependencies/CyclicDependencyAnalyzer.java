@@ -4,20 +4,17 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenCustomHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 
-public class CyclicDependencyAnalyzer implements Consumer<RegistryEntry<? extends DependencyView>> {
+public class CyclicDependencyAnalyzer implements Consumer<Holder<? extends DependencyView>> {
 
 	public final WorldTraits traits;
-	public final Set<RegistryEntry<? extends DependencyView>>
-		seen  = new ObjectOpenCustomHashSet<>(256, DependencyDepthSorter.REGISTRY_ENTRY_STRATEGY),
+	public final Set<Holder<? extends DependencyView>>
+		seen = new ObjectOpenCustomHashSet<>(256, DependencyDepthSorter.REGISTRY_ENTRY_STRATEGY),
 		stack = new ObjectLinkedOpenCustomHashSet<>(16, DependencyDepthSorter.REGISTRY_ENTRY_STRATEGY);
 
 	public CyclicDependencyAnalyzer(WorldTraits traits) {
@@ -25,20 +22,20 @@ public class CyclicDependencyAnalyzer implements Consumer<RegistryEntry<? extend
 	}
 
 	@Override
-	public void accept(RegistryEntry<? extends DependencyView> entry) {
+	public void accept(Holder<? extends DependencyView> entry) {
 		if (!this.stack.add(entry)) {
 			throw new CyclicDependencyException(
 				Stream
-				.concat(
-					this
-					.stack
-					.stream()
-					.dropWhile((RegistryEntry<? extends DependencyView> compare) -> compare != entry),
-					Stream.of(entry)
-				)
-				.map(UnregisteredObjectException::getKey)
-				.map(DependencyDepthSorter::keyToString)
-				.collect(Collectors.joining(" -> "))
+					.concat(
+						this
+							.stack
+							.stream()
+							.dropWhile((Holder<? extends DependencyView> compare) -> compare != entry),
+						Stream.of(entry)
+					)
+					.map(UnregisteredObjectException::getKey)
+					.map(DependencyDepthSorter::keyToString)
+					.collect(Collectors.joining(" -> "))
 			);
 		}
 		try {

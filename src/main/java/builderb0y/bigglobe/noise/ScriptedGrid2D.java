@@ -20,7 +20,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 
-	public static final GridTypeInfo GRID_2D_TYPE_INFO = new GridTypeInfo(Grid2D.class, Parser.class, 2);
+	public static final GridTypeInfo GRID_2D_TYPE_INFO = new GridTypeInfo(Grid2D.class, builderb0y.bigglobe.noise.ScriptedGrid2D.Parser.class, 2);
 
 	public transient Grid2D delegate;
 
@@ -31,11 +31,11 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_2D_TYPE_INFO);
-		Parser parser = new Parser(this.script, processedInputs, registry.parserFlags());
+		builderb0y.bigglobe.noise.ScriptedGrid2D.Parser parser = new builderb0y.bigglobe.noise.ScriptedGrid2D.Parser(this.script, processedInputs, registry.parserFlags());
 		parser
-		.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
-		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
+			.addEnvironment(new Environment(processedInputs, GRID_2D_TYPE_INFO))
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
 		this.delegate = parser.parse();
 	}
 
@@ -123,7 +123,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				),
 				return_(noop)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			//fill samples with firstInput.
 			invokeInstance(
 				getField(
@@ -136,7 +136,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				load(y),
 				load(samples)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			getBulk.node.visitLabel(label());
 			//replace samples with evaluation results.
 			getBulk.scopes.pushScope();
@@ -167,7 +167,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					)
 				)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
@@ -202,14 +202,14 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 				le(this, load(sampleCount), ldc(0)),
 				return_(noop)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			//allocate scratch arrays.
 			for (Input input : this.gridInputs.values()) {
 				store(
 					scratches[input.index],
 					newNumberArray(load(sampleCount))
 				)
-				.emitBytecode(getBulk);
+					.emitBytecode(getBulk);
 				getBulk.node.visitLabel(label());
 			}
 			//fill scratch arrays.
@@ -225,7 +225,7 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 					load(y),
 					load(scratches[input.index])
 				)
-				.emitBytecode(getBulk);
+					.emitBytecode(getBulk);
 				getBulk.node.visitLabel(label());
 			}
 			//fill samples.
@@ -248,19 +248,19 @@ public class ScriptedGrid2D extends ScriptedGrid<Grid2D> implements Grid2D {
 							types('I', 'I', 'D', this.gridInputs.size())
 						),
 						Stream.concat(
-							Stream.of(
-								maybeAdd(this, x, index, 0, methodDimension),
-								maybeAdd(this, y, index, 1, methodDimension)
-							),
-							this.gridInputs.values().stream().map((Input input) -> (
-								numberArrayLoad(load(scratches[input.index]), load(index))
-							))
-						)
-						.toArray(InsnTree[]::new)
+								Stream.of(
+									maybeAdd(this, x, index, 0, methodDimension),
+									maybeAdd(this, y, index, 1, methodDimension)
+								),
+								this.gridInputs.values().stream().map((Input input) -> (
+									numberArrayLoad(load(scratches[input.index]), load(index))
+								))
+							)
+							.toArray(InsnTree[]::new)
 					)
 				)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);

@@ -1,8 +1,7 @@
 package builderb0y.bigglobe.mixinInterfaces;
 
 import com.mojang.serialization.DynamicOps;
-
-import net.minecraft.registry.RegistryOps;
+import net.minecraft.resources.RegistryOps;
 
 public interface AdjustableRegistryOps {
 

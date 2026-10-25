@@ -12,16 +12,16 @@ public class LodVertexFormat {
 	public static final CompactVertexFormatElement.Named
 		POSITION = new CompactVertexFormatElement.Named("LodVertexFormat.POSITION") {
 
-			@Override
-			public void put3f(long pointer, float x, float y, float z) {
-				int ix = BigGlobeMath.floorI(x * (128.0F / (1 << LodQuadTree.MIN_LEVEL)) + 64.5F);
-				int iy = BigGlobeMath.floorI(y * (32768.0F / 4096.0F) + 0.5F);
-				int iz = BigGlobeMath.floorI(z * (128.0F / (1 << LodQuadTree.MIN_LEVEL)) + 64.5F);
-				MemoryUtil.memPutByte(pointer + 0L, (byte)(ix));
-				MemoryUtil.memPutByte(pointer + 1L, (byte)(iz));
-				MemoryUtil.memPutShort(pointer + 2L, (short)(iy));
-			}
-		},
+		@Override
+		public void put3f(long pointer, float x, float y, float z) {
+			int ix = BigGlobeMath.floorI(x * (128.0F / (1 << LodQuadTree.MIN_LEVEL)) + 64.5F);
+			int iy = BigGlobeMath.floorI(y * (32768.0F / 4096.0F) + 0.5F);
+			int iz = BigGlobeMath.floorI(z * (128.0F / (1 << LodQuadTree.MIN_LEVEL)) + 64.5F);
+			MemoryUtil.memPutByte(pointer + 0L, (byte)(ix));
+			MemoryUtil.memPutByte(pointer + 1L, (byte)(iz));
+			MemoryUtil.memPutShort(pointer + 2L, (short)(iy));
+		}
+	},
 		TEXCOORD = new CompactVertexFormatElement.Named("LodVertexFormat.TEXCOORD") {
 
 			@Override
@@ -50,8 +50,8 @@ public class LodVertexFormat {
 				v2 = (v2 >>> 2) & 63;
 				v3 = (v3 >>> 2) & 63;
 				int packed = (v3 << 18) | (v2 << 12) | (v1 << 6) | v0;
-				MemoryUtil.memPutByte(pointer +  8L, (byte)(packed));
-				MemoryUtil.memPutByte(pointer +  9L, (byte)(packed >>>  8));
+				MemoryUtil.memPutByte(pointer + 8L, (byte)(packed));
+				MemoryUtil.memPutByte(pointer + 9L, (byte)(packed >>> 8));
 				MemoryUtil.memPutByte(pointer + 10L, (byte)(packed >>> 16));
 			}
 		},
@@ -73,12 +73,12 @@ public class LodVertexFormat {
 
 	public static final CompactVertexFormat FORMAT = (
 		CompactVertexFormat
-		.builder()
-		.position(POSITION)
-		.color(COLOR)
-		.texture(TEXCOORD)
-		.lightmap(LMCOORD)
-		.byteStride(12)
-		.build()
+			.builder()
+			.position(POSITION)
+			.color(COLOR)
+			.texture(TEXCOORD)
+			.lightmap(LMCOORD)
+			.byteStride(12)
+			.build()
 	);
 }

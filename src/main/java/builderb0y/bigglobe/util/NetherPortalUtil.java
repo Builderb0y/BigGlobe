@@ -1,18 +1,17 @@
 package builderb0y.bigglobe.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.BlockView;
-
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class NetherPortalUtil {
 
-	public static BlockPos findBestPortalPosition(BlockView world, BlockPos startPos, Vec3i size) {
-		BlockPos.Mutable mutable = startPos.mutableCopy();
+	public static BlockPos findBestPortalPosition(BlockGetter world, BlockPos startPos, Vec3i size) {
+		BlockPos.MutableBlockPos mutable = startPos.mutable();
 		int startX = startPos.getX();
 		int startZ = startPos.getZ();
 		int minY = HeightLimitViewVersions.getMinY(world);
@@ -43,13 +42,13 @@ public class NetherPortalUtil {
 		return null;
 	}
 
-	public static boolean canPortalSpawnHere(BlockView world, BlockPos.Mutable pos, Vec3i size) {
+	public static boolean canPortalSpawnHere(BlockGetter world, BlockPos.MutableBlockPos pos, Vec3i size) {
 		int minX = pos.getX() - (size.getX() >> 1);
 		int minY = pos.getY();
 		int minZ = pos.getZ() - (size.getZ() >> 1);
 		for (int offsetZ = 0; offsetZ < size.getZ(); offsetZ++) {
 			for (int offsetX = 0; offsetX < size.getX(); offsetX++) {
-				if (!world.getBlockState(pos.set(minX + offsetX, minY, minZ + offsetZ)).isSolidBlock(world, pos)) {
+				if (!world.getBlockState(pos.set(minX + offsetX, minY, minZ + offsetZ)).isRedstoneConductor(world, pos)) {
 					return false;
 				}
 				for (int offsetY = 1; offsetY < size.getY(); offsetY++) {
@@ -63,13 +62,13 @@ public class NetherPortalUtil {
 		return true;
 	}
 
-	public static BlockBox toBoundingBox(BlockPos pos, Vec3i size) {
+	public static BoundingBox toBoundingBox(BlockPos pos, Vec3i size) {
 		int minX = pos.getX() - (size.getX() >> 1);
 		int minY = pos.getY();
 		int minZ = pos.getZ() - (size.getZ() >> 1);
 		int maxX = minX + size.getX() - 1;
 		int maxY = minY + size.getY() - 1;
 		int maxZ = minZ + size.getZ() - 1;
-		return new BlockBox(minX, minY, minZ, maxX, maxY, maxZ);
+		return new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 }

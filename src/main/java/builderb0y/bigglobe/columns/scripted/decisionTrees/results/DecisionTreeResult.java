@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees.results;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -15,6 +12,7 @@ import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
+import net.minecraft.core.Holder;
 
 @UseCoder(name = "REGISTRY", in = DecisionTreeResult.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public interface DecisionTreeResult extends CoderRegistryTyped<DecisionTreeResult>, SimpleDependencyView {
@@ -25,5 +23,5 @@ public interface DecisionTreeResult extends CoderRegistryTyped<DecisionTreeResul
 		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"), ScriptedDecitionTreeResult.class);
 	}};
 
-	public abstract InsnTree createResult(RegistryEntry<DecisionTreeSettings> selfEntry, DataCompileContext context, AccessSchema accessSchema, @Nullable InsnTree loadY) throws ScriptParsingException;
+	public abstract InsnTree createResult(Holder<DecisionTreeSettings> selfEntry, DataCompileContext context, AccessSchema accessSchema, @Nullable InsnTree loadY) throws ScriptParsingException;
 }

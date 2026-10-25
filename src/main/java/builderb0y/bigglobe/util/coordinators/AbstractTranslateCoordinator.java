@@ -1,11 +1,10 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import net.minecraft.util.math.Vec3i;
-
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorBiConsumer;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorConsumer;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorRunnable;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinatorTriConsumer;
+import net.minecraft.core.Vec3i;
 
 public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator {
 
@@ -53,9 +52,20 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 			this.offsetZ = offsetZ;
 		}
 
-		@Override public int offsetX() { return this.offsetX; }
-		@Override public int offsetY() { return this.offsetY; }
-		@Override public int offsetZ() { return this.offsetZ; }
+		@Override
+		public int offsetX() {
+			return this.offsetX;
+		}
+
+		@Override
+		public int offsetY() {
+			return this.offsetY;
+		}
+
+		@Override
+		public int offsetZ() {
+			return this.offsetZ;
+		}
 
 		@Override
 		public Coordinator translate(int offsetX, int offsetY, int offsetZ) {
@@ -98,9 +108,20 @@ public abstract class AbstractTranslateCoordinator extends ScratchPosCoordinator
 			this.offset = offset;
 		}
 
-		@Override public int offsetX() { return this.offset.getX(); }
-		@Override public int offsetY() { return this.offset.getY(); }
-		@Override public int offsetZ() { return this.offset.getZ(); }
+		@Override
+		public int offsetX() {
+			return this.offset.getX();
+		}
+
+		@Override
+		public int offsetY() {
+			return this.offset.getY();
+		}
+
+		@Override
+		public int offsetZ() {
+			return this.offset.getZ();
+		}
 
 		@Override
 		public int hashCode() {

@@ -10,9 +10,9 @@ under normal circumstances, all variables will be assigned to at the beginning o
 however, in rare cases, the optimizer system itself can
 remove this store instruction if it can never be reached.
 for example, the following code can trigger this behavior: {@code
-	if (false:
-		int x = 0
-	)
+if (false:
+int x = 0
+)
 }
 even this isn't normally a problem. the real problem is even more subtle than this:
 if this code (or something similar to it) appears near the end of the method,
@@ -22,18 +22,18 @@ then the scope of the local variable starts after the last instruction in the me
 and this will throw a ClassFormatError. here are two ways to trigger this bug:
 
 option 1: {@code
-	if (false:
-		(
-			int x = 0
-		)
-	)
+if (false:
+(
+int x = 0
+)
+)
 }
 option 2: {@code
-	if (true: return())
+if (true: return())
 
-	(
-		int x = 0
-	)
+(
+int x = 0
+)
 }
 
 it would be tempting to nuke any local variable whose scope starts after the last instruction,

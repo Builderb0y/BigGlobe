@@ -2,32 +2,30 @@ package builderb0y.bigglobe.structures;
 
 import java.util.Optional;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import org.joml.Vector3d;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.state.property.Properties;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.structure.StructureType;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.Height;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -50,11 +48,7 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(GeodeStructure.class);
-	#else
-		public static final Codec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(GeodeStructure.class).codec();
-	#endif
+	public static final MapCodec<GeodeStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(GeodeStructure.class);
 
 	public final Grid3D noise;
 	public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 112.0D) RandomSource radius;
@@ -63,7 +57,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	public final GrowthConfig @VerifyNullable @SingletonArray [] growth;
 
 	public GeodeStructure(
-		Config config,
+		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		Grid3D noise,
@@ -73,7 +67,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		GrowthConfig @VerifyNullable [] growth
 	) {
 		super(config, min_y, surface_y);
-		this.noise  = noise;
+		this.noise = noise;
 		this.radius = radius;
 		this.blocks = blocks;
 		this.spikes = spikes;
@@ -88,7 +82,9 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	public static record GrowthConfig(
 		DelayedEntryList<Block> place,
 		DelayedEntryList<Block> against
-	) {}
+	) {
+
+	}
 
 	public static record BlocksConfig(
 		@VerifyFloatRange(min = 0.0D, minInclusive = false) double threshold,
@@ -120,15 +116,17 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		RandomSource length,
 		RandomSource commonness,
 		RandomSource crookedness
-	) {}
+	) {
+
+	}
 
 	@Override
-	public Optional<StructurePosition> getStructurePosition(Context context) {
+	public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
 		BlockPos centerPos = this.randomBlockInChunk(context, this.radius.maxValue(), BigGlobeMath.ceilI(this.radius.maxValue()));
 		if (centerPos == null) return Optional.empty();
 		ScriptedColumn column;
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			column = generator.newColumn(context.world(), centerPos.getX(), centerPos.getZ(), ColumnUsage.GENERIC.maybeDhHints());
+			column = generator.newColumn(context.heightAccessor(), centerPos.getX(), centerPos.getZ(), ColumnUsage.GENERIC.maybeDhHints());
 		}
 		else {
 			return Optional.empty();
@@ -137,9 +135,9 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		double radius = this.radius.get(column, centerPos.getY(), permuter);
 		long worldSeed = generator.columnSeed;
 		return Optional.of(
-			new StructurePosition(
+			new GenerationStub(
 				centerPos,
-				(StructurePiecesCollector collector) -> {
+				(StructurePiecesBuilder collector) -> {
 					double centerX = centerPos.getX() + permuter.nextDouble();
 					double centerY = centerPos.getY() + permuter.nextDouble();
 					double centerZ = centerPos.getZ() + permuter.nextDouble();
@@ -158,7 +156,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					BlocksConfig lastConfig = this.blocks[this.blocks.length - 1];
 					double secondLastThreshold = this.blocks.length > 1 ? this.blocks[this.blocks.length - 2].threshold : 0.0D;
 					Vector3d
-						unit   = new Vector3d(),
+						unit = new Vector3d(),
 						point1 = new Vector3d(),
 						point2 = new Vector3d();
 					int spikeCount = (int)(radius * radius * this.spikes.commonness.get(column, centerPos.getY(), permuter));
@@ -166,7 +164,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 					for (int spikeIndex = 0; spikeIndex < spikeCount; spikeIndex++) {
 						iterator.next();
 						unit.set(iterator.x(), iterator.y(), iterator.z());
-						binarySearch: {
+						binarySearch:
+						{
 							double minRadius = 0.0D, maxRadius = radius;
 							for (int refine = 0; refine < 8; refine++) {
 								double midRadius = (minRadius + maxRadius) * 0.5D;
@@ -190,10 +189,10 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							continue spikeLoop;
 						}
 						point2
-						.set(unit)
-						.mul(-this.spikes.length.get(column, centerPos.getY(), permuter))
-						.add(point1)
-						.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(column, centerPos.getY(), permuter)));
+							.set(unit)
+							.mul(-this.spikes.length.get(column, centerPos.getY(), permuter))
+							.add(point1)
+							.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(column, centerPos.getY(), permuter)));
 						collector.addPiece(
 							new SpikePiece(
 								BigGlobeStructures.GEODE_SPIKE_PIECE_TYPE,
@@ -215,7 +214,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	}
 
 	@Override
-	public StructureType<?> getType() {
+	public StructureType<?> type() {
 		return BigGlobeStructures.GEODE_TYPE;
 	}
 
@@ -227,7 +226,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 
 			public double x, y, z;
 			/**
-			spikes may have already been positioned when {@link #translate(int, int, int)}
+			spikes may have already been positioned when {@link #move(int, int, int)}
 			is called. since noise uses absolute coordinates, this is a way of un-translating
 			the noise only, so that the spikes line up with the noise again.
 			*/
@@ -249,16 +248,16 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				BlocksConfig[] blocks,
 				GrowthConfig @VerifyNullable [] growth
 			) {
-				this.x       = x;
-				this.y       = y;
-				this.z       = z;
+				this.x = x;
+				this.y = y;
+				this.z = z;
 				this.offsetX = offsetX;
 				this.offsetY = offsetY;
 				this.offsetZ = offsetZ;
-				this.noise   = noise;
-				this.radius  = radius;
-				this.blocks  = blocks;
-				this.growth  = growth;
+				this.noise = noise;
+				this.radius = radius;
+				this.blocks = blocks;
+				this.growth = growth;
 			}
 		}
 
@@ -275,10 +274,10 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			super(
 				type,
 				0,
-				new BlockBox(
-					BigGlobeMath. ceilI(x - radius),
-					BigGlobeMath. ceilI(y - radius),
-					BigGlobeMath. ceilI(z - radius),
+				new BoundingBox(
+					BigGlobeMath.ceilI(x - radius),
+					BigGlobeMath.ceilI(y - radius),
+					BigGlobeMath.ceilI(z - radius),
 					BigGlobeMath.floorI(x + radius),
 					BigGlobeMath.floorI(y + radius),
 					BigGlobeMath.floorI(z + radius)
@@ -287,7 +286,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			);
 		}
 
-		public MainPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public MainPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -319,16 +318,16 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		@Override
 		public void generateRaw(RawGenerationStructurePiece.Context context) {
 			ChunkPos chunkPos = context.chunk.getPos();
-			int minX = chunkPos.getStartX();
-			int minY = Math.max(this.boundingBox.getMinY(), HeightLimitViewVersions.getMinY(context.chunk));
-			int minZ = chunkPos.getStartZ();
-			int maxX = chunkPos.getEndX();
-			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
-			int maxZ = chunkPos.getEndZ();
+			int minX = chunkPos.getMinBlockX();
+			int minY = Math.max(this.boundingBox.minY(), HeightLimitViewVersions.getMinY(context.chunk));
+			int minZ = chunkPos.getMinBlockZ();
+			int maxX = chunkPos.getMaxBlockX();
+			int maxY = Math.min(this.boundingBox.maxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
+			int maxZ = chunkPos.getMaxBlockZ();
 			try (NumberArray samples = NumberArray.allocateDoublesDirect(maxY - minY + 1)) {
 				double rcpRadius = 1.0D / this.data.radius;
 				double noiseMax = this.data.noise.maxValue();
-				BlockPos.Mutable pos = new BlockPos.Mutable();
+				BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 				for (int z = minZ; z <= maxZ; z++) {
 					pos.setZ(z);
 					double rz = BigGlobeMath.squareD((z - this.data.z) * rcpRadius);
@@ -358,12 +357,12 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 												Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches SpikePiece */, x, y, z
 												)
 											),
-											Block.NOTIFY_LISTENERS
+											Block.UPDATE_CLIENTS
 										);
 										break placed;
 									}
 								}
-								ChunkVersions.setBlockState(context.chunk, pos, BlockStates.AIR, Block.NOTIFY_LISTENERS);
+								ChunkVersions.setBlockState(context.chunk, pos, BlockStates.AIR, Block.UPDATE_CLIENTS);
 							}
 						}
 					}
@@ -372,24 +371,24 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			GrowthConfig[] growth = this.data.growth;
 			if (growth == null || growth.length == 0) return;
-			int minX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
-			int minY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
-			int minZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
-			int maxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX());
-			int maxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
-			int maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
-			BlockPos.Mutable pos = new BlockPos.Mutable();
+			int minX = Math.max(this.boundingBox.minX(), chunkBox.minX());
+			int minY = Math.max(this.boundingBox.minY(), chunkBox.minY());
+			int minZ = Math.max(this.boundingBox.minZ(), chunkBox.minZ());
+			int maxX = Math.min(this.boundingBox.maxX(), chunkBox.maxX());
+			int maxY = Math.min(this.boundingBox.maxY(), chunkBox.maxY());
+			int maxZ = Math.min(this.boundingBox.maxZ(), chunkBox.maxZ());
+			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 			Permuter permuter = new Permuter(0L);
 			long seed = world.getSeed() ^ 0x13AFC86BC0528060L;
 			for (int y = minY; y <= maxY; y++) {
@@ -397,18 +396,18 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 				for (int z = minZ; z <= maxZ; z++) {
 					long seedZ = Permuter.permute(seedY, z);
 					for (int x = minX; x <= maxX; x++) {
-						if (world.isAir(pos.set(x, y, z))) {
+						if (world.isEmptyBlock(pos.set(x, y, z))) {
 							long seedX = Permuter.permute(seedZ, x);
 							permuter.setSeed(seedX);
 							Direction direction = Permuter.choose(permuter, Directions.ALL);
 							Block against = world.getBlockState(pos.move(direction)).getBlock();
 							for (GrowthConfig growthConfig : growth) {
 								if (growthConfig.against.contains(against) && !growthConfig.place.isEmpty()) {
-									BlockState toPlace = growthConfig.place.randomObject(permuter).getDefaultState();
-									if (toPlace.contains(Properties.FACING)) {
-										toPlace = toPlace.with(Properties.FACING, direction.getOpposite());
+									BlockState toPlace = growthConfig.place.randomObject(permuter).defaultBlockState();
+									if (toPlace.hasProperty(BlockStateProperties.FACING)) {
+										toPlace = toPlace.setValue(BlockStateProperties.FACING, direction.getOpposite());
 									}
-									world.setBlockState(pos.set(x, y, z), toPlace, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+									world.setBlock(pos.set(x, y, z), toPlace, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 									break;
 								} //if growth matches
 							} //for growth
@@ -419,8 +418,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		} //method
 
 		@Override
-		public void translate(int x, int y, int z) {
-			super.translate(x, y, z);
+		public void move(int x, int y, int z) {
+			super.move(x, y, z);
 			this.data.x += x;
 			this.data.y += y;
 			this.data.z += z;
@@ -478,10 +477,10 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			super(
 				type,
 				0,
-				new BlockBox(
-					BigGlobeMath. ceilI(Math.min(x1 - r1, x2 - r2)),
-					BigGlobeMath. ceilI(Math.min(y1 - r1, y2 - r2)),
-					BigGlobeMath. ceilI(Math.min(z1 - r1, z2 - r2)),
+				new BoundingBox(
+					BigGlobeMath.ceilI(Math.min(x1 - r1, x2 - r2)),
+					BigGlobeMath.ceilI(Math.min(y1 - r1, y2 - r2)),
+					BigGlobeMath.ceilI(Math.min(z1 - r1, z2 - r2)),
 					BigGlobeMath.floorI(Math.max(x1 + r1, x2 + r2)),
 					BigGlobeMath.floorI(Math.max(y1 + r1, y2 + r2)),
 					BigGlobeMath.floorI(Math.max(z1 + r1, z2 + r2))
@@ -490,7 +489,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			);
 		}
 
-		public SpikePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public SpikePiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -503,24 +502,24 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		public void generateRaw(RawGenerationStructurePiece.Context context) {
 			Data data = this.data;
 			ChunkPos chunkPos = context.chunk.getPos();
-			int minX = chunkPos.getStartX();
-			int minY = Math.max(this.boundingBox.getMinY(), HeightLimitViewVersions.getMinY(context.chunk));
-			int minZ = chunkPos.getStartZ();
-			int maxX = chunkPos.getEndX();
-			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
-			int maxZ = chunkPos.getEndZ();
+			int minX = chunkPos.getMinBlockX();
+			int minY = Math.max(this.boundingBox.minY(), HeightLimitViewVersions.getMinY(context.chunk));
+			int minZ = chunkPos.getMinBlockZ();
+			int maxX = chunkPos.getMaxBlockX();
+			int maxY = Math.min(this.boundingBox.maxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
+			int maxZ = chunkPos.getMaxBlockZ();
 
 			Vector3d spikeOffset = new Vector3d(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);
 			Vector3d relativePos = new Vector3d();
-			Vector3d nearest     = new Vector3d();
-			BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+			Vector3d nearest = new Vector3d();
+			BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 			for (int x = minX; x <= maxX; x++) {
 				for (int z = minZ; z <= maxZ; z++) {
 					for (int y = minY; y <= maxY; y++) {
 						relativePos.set(x - data.x1, y - data.y1, z - data.z1);
 						double dot = spikeOffset.dot(relativePos);
 						double fraction = dot / spikeOffset.lengthSquared();
-						fraction = MathHelper.clamp(fraction, 0.0D, 1.0D);
+						fraction = Mth.clamp(fraction, 0.0D, 1.0D);
 						nearest.set(spikeOffset).mul(fraction);
 						double distanceSquared = relativePos.distanceSquared(nearest);
 						double thresholdSquared = BigGlobeMath.squareD(Interpolator.mixLinear(data.r1, data.r2, fraction));
@@ -531,7 +530,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 								data.states.getRandomElement(
 									Permuter.permute(context.columnSeed ^ 0x84DA20CB58CD2DFBL /* make sure this matches MainPiece */, x, y, z)
 								),
-								Block.NOTIFY_LISTENERS
+								Block.UPDATE_CLIENTS
 							);
 						}
 					}
@@ -540,19 +539,20 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
-		) {}
+		) {
+		}
 
 		@Override
-		public void translate(int x, int y, int z) {
-			super.translate(x, y, z);
+		public void move(int x, int y, int z) {
+			super.move(x, y, z);
 			this.data.x1 += x;
 			this.data.y1 += y;
 			this.data.z1 += z;

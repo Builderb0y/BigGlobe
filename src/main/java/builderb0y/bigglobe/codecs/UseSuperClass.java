@@ -56,13 +56,13 @@ public @interface UseSuperClass {
 			else {
 				throw new DecodeException(() -> (
 					context
-					.pathToStringBuilder()
-					.append(" was decoded into an instance of ")
-					.append(object.getClass().getName())
-					.append(", but an instance of ")
-					.append(this.subclass.getName())
-					.append(" was expected.")
-					.toString()
+						.pathToStringBuilder()
+						.append(" was decoded into an instance of ")
+						.append(object.getClass().getName())
+						.append(", but an instance of ")
+						.append(this.subclass.getName())
+						.append(" was expected.")
+						.toString()
 				));
 			}
 		}
@@ -89,14 +89,14 @@ public @interface UseSuperClass {
 						return new Coder(
 							context.type,
 							context.type(
-								ancestor.addAnnotations(
-									context
-									.type
-									.getAnnotations()
-									.getAll((Annotation a) -> !a.equals(annotation))
+									ancestor.addAnnotations(
+										context
+											.type
+											.getAnnotations()
+											.getAll((Annotation a) -> !a.equals(annotation))
+									)
 								)
-							)
-							.forceCreateCoder()
+								.forceCreateCoder()
 						);
 					}
 					else {

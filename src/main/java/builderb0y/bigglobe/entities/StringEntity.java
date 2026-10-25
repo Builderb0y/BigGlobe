@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.entities;
 
 import java.util.*;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.LongStream;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.PrimitiveCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -15,45 +12,38 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.loot.context.LootContextTypes;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockCollisionSpliterator;
-import net.minecraft.world.World;
-
-import builderb0y.autocodec.annotations.VerifyIntRange;
-import builderb0y.autocodec.coders.AutoCoder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockCollisions;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.EmptyData;
@@ -62,30 +52,26 @@ import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
-import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.DataHelper;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class StringEntity extends Entity {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final RegistryKey<LootTable> LOOT_TABLE_KEY = RegistryKey.of(RegistryKeys.LOOT_TABLE, BigGlobeMod.modID("entities/string"));
-	#else
-		public static final Identifier LOOT_TABLE_ID = BigGlobeMod.modID("entities/string");
-	#endif
-	public static final TrackedData<Integer>
-		PREVIOUS_ID = DataTracker.registerData(StringEntity.class, TrackedDataHandlerRegistry.INTEGER),
-		NEXT_ID     = DataTracker.registerData(StringEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final ResourceKey<LootTable> LOOT_TABLE_KEY = ResourceKey.create(Registries.LOOT_TABLE, BigGlobeMod.modID("entities/string"));
+
+	public static final EntityDataAccessor<Integer>
+		PREVIOUS_ID = SynchedEntityData.defineId(StringEntity.class, EntityDataSerializers.INT),
+		NEXT_ID = SynchedEntityData.defineId(StringEntity.class, EntityDataSerializers.INT);
 
 	//need to tick string entities in a very specific order.
 	//minecraft doesn't guarantee that order, so I'm guaranteeing it manually.
-	public static final WeakHashMap<World, ArrayList<StringEntity>> TO_TICK = new WeakHashMap<>();
+	public static final WeakHashMap<Level, ArrayList<StringEntity>> TO_TICK = new WeakHashMap<>();
+
 	static {
 		ServerTickEvents.END_WORLD_TICK.register(StringEntity::onWorldTickEnd);
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -102,15 +88,15 @@ public class StringEntity extends Entity {
 		ClientTickEvents.END_CLIENT_TICK.register(new EndTick() {
 
 			@Override
-			public void onEndTick(MinecraftClient client) {
-				if (client.world != null) {
-					onWorldTickEnd(client.world);
+			public void onEndTick(Minecraft client) {
+				if (client.level != null) {
+					onWorldTickEnd(client.level);
 				}
 			}
 		});
 	}
 
-	public static void onWorldTickEnd(World world) {
+	public static void onWorldTickEnd(Level world) {
 		ArrayList<StringEntity> entities = TO_TICK.get(world);
 		if (entities != null && !entities.isEmpty()) {
 			entities.forEach(StringEntity::tickAll);
@@ -122,38 +108,26 @@ public class StringEntity extends Entity {
 		prevEntity = this.new CachedEntity(PREVIOUS_ID),
 		nextEntity = this.new CachedEntity(NEXT_ID);
 
-	public StringEntity(EntityType<?> type, World world) {
+	public StringEntity(EntityType<?> type, Level world) {
 		super(type, world);
 		this.setSilent(true);
 	}
 
-	public StringEntity(EntityType<?> type, World world, double x, double y, double z) {
+	public StringEntity(EntityType<?> type, Level world, double x, double y, double z) {
 		super(type, world);
-		this.setPosition(x, y, z);
+		this.setPos(x, y, z);
 		this.setSilent(true);
 	}
 
-	#if MC_VERSION >= MC_1_20_5
+	@Override
+	public void defineSynchedData(SynchedEntityData.Builder builder) {
+		builder.define(PREVIOUS_ID, 0).define(NEXT_ID, 0);
+	}
 
-		@Override
-		public void initDataTracker(DataTracker.Builder builder) {
-			builder.add(PREVIOUS_ID, 0).add(NEXT_ID, 0);
-		}
-
-	#else
-
-		@Override
-		public void initDataTracker() {
-			this.dataTracker.startTracking(PREVIOUS_ID, 0);
-			this.dataTracker.startTracking(NEXT_ID, 0);
-		}
-
-	#endif
-
-	public Box getVisibilityBoundingBox() {
+	public AABB getVisibilityBoundingBox() {
 		Entity next = this.getNextEntity();
 		if (next != null) {
-			return this.getBoundingBox().union(next.getBoundingBox());
+			return this.getBoundingBox().minmax(next.getBoundingBox());
 		}
 		else {
 			return this.getBoundingBox();
@@ -161,77 +135,53 @@ public class StringEntity extends Entity {
 	}
 
 	@Override
-	public boolean canHit() {
+	public boolean isPickable() {
 		return true;
 	}
 
-	#if MC_VERSION >= MC_1_21_2
-
-		@Override
-		public boolean damage(ServerWorld world, DamageSource source, float amount) {
-			if (this.isAlwaysInvulnerableTo(source)) {
-				return false;
-			}
-			this.dropString(world, source);
-			this.remove(RemovalReason.KILLED);
-			return true;
+	@Override
+	public boolean hurt(DamageSource source, float amount) {
+		if (this.isInvulnerableTo(source)) {
+			return false;
 		}
-
-	#else
-
-		@Override
-		public boolean damage(DamageSource source, float amount) {
-			if (this.isInvulnerableTo(source)) {
-				return false;
-			}
-			if (EntityVersions.getWorld(this) instanceof ServerWorld serverWorld) {
-				this.dropString(serverWorld, source);
-				this.remove(RemovalReason.KILLED);
-			}
-			return true;
+		if (this.level() instanceof ServerLevel serverWorld) {
+			this.dropString(serverWorld, source);
 		}
+		this.remove(RemovalReason.KILLED);
+		return true;
+	}
 
-	#endif
-
-	public void dropString(ServerWorld world, DamageSource damageSource) {
+	public void dropString(ServerLevel world, DamageSource damageSource) {
 		world
-		.getServer()
-		#if MC_VERSION >= MC_1_20_5
-			.getReloadableRegistries()
+			.getServer()
+
+			.reloadableRegistries()
 			.getLootTable(LOOT_TABLE_KEY)
-		#else
-			.getLootManager()
-			.getLootTable(LOOT_TABLE_ID)
-		#endif
-		.generateLoot(
-			#if MC_VERSION >= MC_1_21_2
-				new net.minecraft.loot.context.LootWorldContext.Builder(world)
-			#else
-				new net.minecraft.loot.context.LootContextParameterSet.Builder(world)
-			#endif
-			.add(LootContextParameters.THIS_ENTITY, this)
-			.add(LootContextParameters.ORIGIN, EntityVersions.getPos(this))
-			.add(LootContextParameters.DAMAGE_SOURCE, damageSource)
-			#if MC_VERSION >= MC_1_21_0
-				.addOptional(LootContextParameters.ATTACKING_ENTITY, damageSource.getAttacker())
-				.addOptional(LootContextParameters.DIRECT_ATTACKING_ENTITY, damageSource.getSource())
-			#else
-				.addOptional(LootContextParameters.KILLER_ENTITY, damageSource.getAttacker())
-				.addOptional(LootContextParameters.DIRECT_KILLER_ENTITY, damageSource.getSource())
-			#endif
-			.build(LootContextTypes.ENTITY),
-			(ItemStack stack) -> this.dropStack(#if MC_VERSION >= MC_1_21_2 world, #endif stack)
-		);
+
+			.getRandomItems(
+
+				new LootParams.Builder(world)
+
+					.withParameter(LootContextParams.THIS_ENTITY, this)
+					.withParameter(LootContextParams.ORIGIN, EntityVersions.getPos(this))
+					.withParameter(LootContextParams.DAMAGE_SOURCE, damageSource)
+
+					.withOptionalParameter(LootContextParams.ATTACKING_ENTITY, damageSource.getEntity())
+					.withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, damageSource.getDirectEntity())
+
+					.create(LootContextParamSets.ENTITY),
+				(ItemStack stack) -> this.spawnAtLocation(stack)
+			);
 	}
 
 	@Override
-	public ActionResult interact(PlayerEntity player, Hand hand) {
-		if (player.getStackInHand(hand).getItem() == BigGlobeItems.BALL_OF_STRING && this.getNextEntity() == null) {
+	public InteractionResult interact(Player player, InteractionHand hand) {
+		if (player.getItemInHand(hand).getItem() == BigGlobeItems.BALL_OF_STRING && this.getNextEntity() == null) {
 			this.setNextEntity(player);
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 		else {
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		}
 	}
 
@@ -280,7 +230,7 @@ public class StringEntity extends Entity {
 			while (iter.next());
 		}
 
-		if (!EntityVersions.getWorld(this).isClient()) {
+		if (!EntityVersions.getWorld(this).isClientSide()) {
 			this.maybeSplit();
 		}
 	}
@@ -294,35 +244,35 @@ public class StringEntity extends Entity {
 	}
 
 	public void applyGravitationalVelocity() {
-		this.addVelocity(0.0D, -0.015625D, 0.0D);
-		this.move(MovementType.SELF, this.getVelocity());
+		this.push(0.0D, -0.015625D, 0.0D);
+		this.move(MoverType.SELF, this.getDeltaMovement());
 		if (EntityVersions.isOnGround(this)) {
-			this.setVelocity(Vec3d.ZERO);
+			this.setDeltaMovement(Vec3.ZERO);
 		}
 	}
 
 	public void moveTowards(Entity other, boolean slow) {
 		if (other == null) return;
-		Vec3d projection = project(EntityVersions.getPos(this), EntityVersions.getPos(other), slow);
+		Vec3 projection = project(EntityVersions.getPos(this), EntityVersions.getPos(other), slow);
 		if (projection != null) {
 			if (other instanceof StringEntity string) {
 				//make 2 adjacent strings "pull" on each other.
-				Vec3d shared = new Vec3d(0.0D, (this.getVelocity().y + string.getVelocity().y) * 0.5D, 0.0D);
-				this.setVelocity(shared);
-				string.setVelocity(shared);
+				Vec3 shared = new Vec3(0.0D, (this.getDeltaMovement().y + string.getDeltaMovement().y) * 0.5D, 0.0D);
+				this.setDeltaMovement(shared);
+				string.setDeltaMovement(shared);
 			}
 			else {
-				this.setVelocity(Vec3d.ZERO);
+				this.setDeltaMovement(Vec3.ZERO);
 			}
 			this.moveLeniently(projection);
 		}
 	}
 
-	public static @Nullable Vec3d project(Vec3d from, Vec3d onto, boolean slow) {
+	public static @Nullable Vec3 project(Vec3 from, Vec3 onto, boolean slow) {
 		double
-			dx = onto.getX() - from.getX(),
-			dy = onto.getY() - from.getY(),
-			dz = onto.getZ() - from.getZ(),
+			dx = onto.x() - from.x(),
+			dy = onto.y() - from.y(),
+			dz = onto.z() - from.z(),
 			scalar = dx * dx + dy * dy + dz * dz;
 		if (scalar > 1.0D) {
 			scalar = Math.sqrt(scalar);
@@ -332,17 +282,17 @@ public class StringEntity extends Entity {
 			dx *= scalar;
 			dy *= scalar;
 			dz *= scalar;
-			return new Vec3d(dx + from.x, dy + from.y, dz + from.z);
+			return new Vec3(dx + from.x, dy + from.y, dz + from.z);
 		}
 		else {
 			return null;
 		}
 	}
 
-	public void moveLeniently(Vec3d to) {
-		double scalar = EntityVersions.getPos(this).squaredDistanceTo(to);
+	public void moveLeniently(Vec3 to) {
+		double scalar = EntityVersions.getPos(this).distanceToSqr(to);
 		if (!(scalar > 1.0E-7D)) return;
-		this.setPosition(to);
+		this.setPos(to);
 		this.moveOutOfBlocks();
 	}
 
@@ -350,13 +300,13 @@ public class StringEntity extends Entity {
 		record PositionedVoxelShape(BlockPos pos, VoxelShape shape) {
 
 			public PositionedVoxelShape {
-				pos = pos.toImmutable();
+				pos = pos.immutable();
 			}
 		}
 
 		for (
-			BlockCollisionSpliterator<PositionedVoxelShape> iterator = (
-				new BlockCollisionSpliterator<>(
+			BlockCollisions<PositionedVoxelShape> iterator = (
+				new BlockCollisions<>(
 					EntityVersions.getWorld(this),
 					this,
 					this.getBoundingBox(),
@@ -369,7 +319,7 @@ public class StringEntity extends Entity {
 			PositionedVoxelShape next = iterator.next();
 			BlockPos pos = next.pos();
 			VoxelShape collision = next.shape();
-			collision.forEachBox(
+			collision.forAllBoxes(
 				(
 					double collisionMinX,
 					double collisionMinY,
@@ -378,8 +328,8 @@ public class StringEntity extends Entity {
 					double collisionMaxY,
 					double collisionMaxZ
 				)
-				-> {
-					Box bounds = this.getBoundingBox();
+					-> {
+					AABB bounds = this.getBoundingBox();
 					if (!bounds.intersects(collisionMinX, collisionMinY, collisionMinZ, collisionMaxX, collisionMaxY, collisionMaxZ)) return;
 
 					double[] overlaps = new double[6];
@@ -394,23 +344,23 @@ public class StringEntity extends Entity {
 					//sort by distance we need to move to escape the block in this direction.
 					Arrays.sort(directions, Comparator.comparing((Direction direction) -> overlaps[direction.ordinal()]));
 
-					Vec3d oldPos = EntityVersions.getPos(this);
+					Vec3 oldPos = EntityVersions.getPos(this);
 					//try to escape the block by moving the least distance first.
 					for (Direction direction : directions) {
 						double amount = overlaps[direction.ordinal()];
-						Vec3d newPos = oldPos.add(direction.getOffsetX() * amount, direction.getOffsetY() * amount, direction.getOffsetZ() * amount);
-						this.setPosition(newPos);
-						Box newBounds = this.getBoundingBox();
-						BlockPos offsetPos = pos.offset(direction);
+						Vec3 newPos = oldPos.add(direction.getStepX() * amount, direction.getStepY() * amount, direction.getStepZ() * amount);
+						this.setPos(newPos);
+						AABB newBounds = this.getBoundingBox();
+						BlockPos offsetPos = pos.relative(direction);
 						//check if moving on this axis would put us inside another block or not.
 						if (
-							VoxelShapes.matchesAnywhere(
+							Shapes.joinIsNotEmpty(
 								EntityVersions
-								.getWorld(this)
-								.getBlockState(offsetPos)
-								.getCollisionShape(EntityVersions.getWorld(this), offsetPos, ShapeContext.of(this)),
+									.getWorld(this)
+									.getBlockState(offsetPos)
+									.getCollisionShape(EntityVersions.getWorld(this), offsetPos, CollisionContext.of(this)),
 
-								VoxelShapes.cuboidUnchecked(
+								Shapes.create(
 									newBounds.minX - offsetPos.getX(),
 									newBounds.minY - offsetPos.getY(),
 									newBounds.minZ - offsetPos.getZ(),
@@ -419,12 +369,12 @@ public class StringEntity extends Entity {
 									newBounds.maxZ - offsetPos.getZ()
 								),
 
-								BooleanBiFunction.AND
+								BooleanOp.AND
 							)
 						) {
 							//inside another block. revert to previous position
 							//and try a different axis if one is available.
-							this.setPosition(oldPos);
+							this.setPos(oldPos);
 						}
 						else {
 							//successfully found a place where we can exist without colliding.
@@ -440,10 +390,10 @@ public class StringEntity extends Entity {
 	public void maybeSplit() {
 		Entity prevEntity = this.getPrevEntity();
 		Entity nextEntity = this.getNextEntity();
-		if (nextEntity instanceof PlayerEntity player) {
-			double distanceSquared = EntityVersions.getPos(this).squaredDistanceTo(
+		if (nextEntity instanceof Player player) {
+			double distanceSquared = EntityVersions.getPos(this).distanceToSqr(
 				player.getX(),
-				MathHelper.clamp(
+				Mth.clamp(
 					this.getY(),
 					player.getBoundingBox().minY - 1.0D,
 					player.getBoundingBox().maxY
@@ -452,7 +402,7 @@ public class StringEntity extends Entity {
 			);
 			if (distanceSquared > 4.0D) {
 				if (tryTakeString(player, false)) {
-					Vec3d target = project(
+					Vec3 target = project(
 						player.getBoundingBox().getCenter(),
 						EntityVersions.getPos(this),
 						false
@@ -472,7 +422,7 @@ public class StringEntity extends Entity {
 						this.setNextEntity(newEntity);
 						newEntity.setPrevEntity(this);
 						newEntity.setNextEntity(player);
-						EntityVersions.getWorld(this).spawnEntity(newEntity);
+						EntityVersions.getWorld(this).addFreshEntity(newEntity);
 					}
 				}
 				else {
@@ -492,18 +442,18 @@ public class StringEntity extends Entity {
 		}
 	}
 
-	public static boolean tryTakeString(PlayerEntity player, boolean add) {
-		PlayerInventory inventory = player.getInventory();
-		for (int slot = 0, size = inventory.size(); slot < size; slot++) {
-			ItemStack stack = inventory.getStack(slot);
+	public static boolean tryTakeString(Player player, boolean add) {
+		Inventory inventory = player.getInventory();
+		for (int slot = 0, size = inventory.getContainerSize(); slot < size; slot++) {
+			ItemStack stack = inventory.getItem(slot);
 			if (stack.getItem() == BigGlobeItems.BALL_OF_STRING) {
 				if (add) {
 					BallOfStringItem.addString(stack, 1);
 					return true;
 				}
 				else {
-					if (stack.getDamage() < stack.getMaxDamage()) {
-						stack.setDamage(stack.getDamage() + 1);
+					if (stack.getDamageValue() < stack.getMaxDamage()) {
+						stack.setDamageValue(stack.getDamageValue() + 1);
 						return true;
 					}
 				}
@@ -536,35 +486,19 @@ public class StringEntity extends Entity {
 
 	public static final DataHelper<StringEntity> DATA_HELPER = (
 		new DataHelper<>(StringEntity.class)
-		.begin("prev").codec(UUID).pathAccessor("prevEntity.uuid", false).add()
-		.begin("next").codec(UUID).pathAccessor("nextEntity.uuid", false).add()
+			.begin("prev").codec(UUID).pathAccessor("prevEntity.uuid", false).add()
+			.begin("next").codec(UUID).pathAccessor("nextEntity.uuid", false).add()
 	);
 
-	#if MC_VERSION >= MC_1_21_6
+	@Override
+	public void readAdditionalSaveData(CompoundTag data) {
+		DATA_HELPER.read(this, data);
+	}
 
-		@Override
-		public void readCustomData(net.minecraft.storage.ReadView data) {
-			DATA_HELPER.read(this, data);
-		}
-
-		@Override
-		public void writeCustomData(net.minecraft.storage.WriteView data) {
-			DATA_HELPER.write(this, data);
-		}
-
-	#else
-
-		@Override
-		public void readCustomDataFromNbt(NbtCompound data) {
-			DATA_HELPER.read(this, data);
-		}
-
-		@Override
-		public void writeCustomDataToNbt(NbtCompound data) {
-			DATA_HELPER.write(this, data);
-		}
-
-	#endif
+	@Override
+	public void addAdditionalSaveData(CompoundTag data) {
+		DATA_HELPER.write(this, data);
+	}
 
 	public @Nullable Entity getPrevEntity() {
 		return this.prevEntity.entity;
@@ -584,27 +518,27 @@ public class StringEntity extends Entity {
 
 	public class CachedEntity {
 
-		public final TrackedData<Integer> trackedID;
+		public final EntityDataAccessor<Integer> trackedID;
 		public @Nullable Entity entity;
 		public UUID uuid;
 
-		public CachedEntity(TrackedData<Integer> trackedID) {
+		public CachedEntity(EntityDataAccessor<Integer> trackedID) {
 			this.trackedID = trackedID;
 		}
 
 		public Entity update() {
-			World world = EntityVersions.getWorld(StringEntity.this);
+			Level world = EntityVersions.getWorld(StringEntity.this);
 			Entity entity;
-			if (world.isClient()) {
-				Integer id = StringEntity.this.dataTracker.get(this.trackedID);
-				entity = id == 0 ? null : world.getEntityById(id);
+			if (world.isClientSide()) {
+				Integer id = StringEntity.this.entityData.get(this.trackedID);
+				entity = id == 0 ? null : world.getEntity(id);
 			}
 			else {
 				UUID uuid = this.uuid;
-				entity = uuid == null ? null : ((ServerWorld)(world)).getEntity(uuid);
+				entity = uuid == null ? null : ((ServerLevel)(world)).getEntity(uuid);
 			}
 			if (entity != null) {
-				if (entity.squaredDistanceTo(StringEntity.this) > 256.0D) {
+				if (entity.distanceToSqr(StringEntity.this) > 256.0D) {
 					this.uuid = null;
 					entity = null;
 				}
@@ -612,21 +546,21 @@ public class StringEntity extends Entity {
 					entity = null;
 				}
 			}
-			if (!world.isClient()) {
-				StringEntity.this.dataTracker.set(this.trackedID, entity != null ? entity.getId() : 0);
+			if (!world.isClientSide()) {
+				StringEntity.this.entityData.set(this.trackedID, entity != null ? entity.getId() : 0);
 			}
 			return this.entity = entity;
 		}
 
 		public void setEntity(Entity entity) {
-			if (!EntityVersions.getWorld(StringEntity.this).isClient()) {
+			if (!EntityVersions.getWorld(StringEntity.this).isClientSide()) {
 				if (entity != null) {
-					this.uuid = entity.getUuid();
-					StringEntity.this.dataTracker.set(this.trackedID, entity.getId());
+					this.uuid = entity.getUUID();
+					StringEntity.this.entityData.set(this.trackedID, entity.getId());
 				}
 				else {
 					this.uuid = null;
-					StringEntity.this.dataTracker.set(this.trackedID, 0);
+					StringEntity.this.entityData.set(this.trackedID, 0);
 				}
 			}
 		}

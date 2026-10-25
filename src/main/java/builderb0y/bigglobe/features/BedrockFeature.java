@@ -1,12 +1,10 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.PalettedContainer;
-
+import net.minecraft.util.BitStorage;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.perSection.SectionUtil;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -33,7 +31,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 	public void replaceRocks(
 		BigGlobeScriptedChunkGenerator generator,
 		WorldWrapper worldWrapper,
-		Chunk chunk,
+		ChunkAccess chunk,
 		int minSection,
 		int maxSection,
 		Config config
@@ -47,23 +45,25 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getMaxY(chunk) - 1);
 		int sectionMinY = clampedMinY >> 4;
 		int sectionMaxY = clampedMaxY >> 4;
-		Async.loop(BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {
-			int startY = yCoord << 4;
-			long sectionSeed = Permuter.permute(chunkSeed, yCoord);
-			PalettedContainer<BlockState> container = chunk.getSection(chunk.sectionCoordToIndex(yCoord)).getBlockStateContainer();
-			int toID = SectionUtil.id(container, config.state);
-			PaletteStorage storage = SectionUtil.storage(container);
-			int minYRelative = Math.max(clampedMinY - startY,  0);
-			int maxYRelative = Math.min(clampedMaxY - startY, 15);
-			for (int index = minYRelative; index >>> 8 <= maxYRelative; index++) {
-				int y = startY | (index >>> 8);
-				long blockSeed = Permuter.permute(sectionSeed, index);
-				double chance = BigGlobeMath.squareD(Interpolator.unmixLinear((double)(config.empty_y), (double)(config.full_y), (double)(y)));
-				if (Permuter.nextChancedBoolean(blockSeed, chance)) {
-					storage.set(index, toID);
+		Async.loop(
+			BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {
+				int startY = yCoord << 4;
+				long sectionSeed = Permuter.permute(chunkSeed, yCoord);
+				PalettedContainer<BlockState> container = chunk.getSection(chunk.getSectionIndexFromSectionY(yCoord)).getStates();
+				int toID = SectionUtil.id(container, config.state);
+				BitStorage storage = SectionUtil.storage(container);
+				int minYRelative = Math.max(clampedMinY - startY, 0);
+				int maxYRelative = Math.min(clampedMaxY - startY, 15);
+				for (int index = minYRelative; index >>> 8 <= maxYRelative; index++) {
+					int y = startY | (index >>> 8);
+					long blockSeed = Permuter.permute(sectionSeed, index);
+					double chance = BigGlobeMath.squareD(Interpolator.unmixLinear((double)(config.empty_y), (double)(config.full_y), (double)(y)));
+					if (Permuter.nextChancedBoolean(blockSeed, chance)) {
+						storage.set(index, toID);
+					}
 				}
 			}
-		});
+		);
 	}
 
 	public static class Config extends DummyConfig {

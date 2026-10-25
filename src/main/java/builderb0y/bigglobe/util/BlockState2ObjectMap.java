@@ -3,11 +3,9 @@ package builderb0y.bigglobe.util;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.RegistryKeys;
-
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.autocodec.annotations.UseImplementation;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -35,18 +33,18 @@ public class BlockState2ObjectMap<V> implements DelayedCompileable {
 
 	@Override
 	public void compile(ColumnEntryRegistry registry) {
-		BetterRegistry<Block> blockRegistry = registry.registries.getRegistry(RegistryKeys.BLOCK);
+		BetterRegistry<Block> blockRegistry = registry.registries.getRegistry(Registries.BLOCK);
 		for (Map.Entry<String, V> serializedEntry : this.serializedStates.entrySet()) {
 			BlockOrTagProperties properties = (
 				BlockStateCoder
-				.decodeBlockOrTag(blockRegistry, serializedEntry.getKey())
-				.unwrapNullableEager(BigGlobeMod.LOGGER::warn)
+					.decodeBlockOrTag(blockRegistry, serializedEntry.getKey())
+					.unwrapNullableEager(BigGlobeMod.LOGGER::warn)
 			);
 			if (properties != null) {
 				properties
-				.getMatchingStates()
-				.sequential()
-				.forEach((BlockState state) -> this.runtimeStates.put(state, serializedEntry.getValue()));
+					.getMatchingStates()
+					.sequential()
+					.forEach((BlockState state) -> this.runtimeStates.put(state, serializedEntry.getValue()));
 			}
 		}
 	}

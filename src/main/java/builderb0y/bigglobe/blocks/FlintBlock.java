@@ -1,38 +1,35 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FlintBlock extends SurfaceMaterialDecorationBlock {
 
-	public static final VoxelShape SHAPE = VoxelShapes.cuboidUnchecked(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D);
+	public static final VoxelShape SHAPE = Shapes.create(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D);
 
-	#if MC_VERSION >= MC_1_20_3
-		//don't load BigGlobeAutoCodec too early.
-		public static final MapCodec<FlintBlock> CODEC = AbstractBlock.createCodec(FlintBlock::new);
+	//don't load BigGlobeAutoCodec too early.
+	public static final MapCodec<FlintBlock> CODEC = BlockBehaviour.simpleCodec(FlintBlock::new);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public FlintBlock(Settings settings) {
+	public FlintBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}
 }

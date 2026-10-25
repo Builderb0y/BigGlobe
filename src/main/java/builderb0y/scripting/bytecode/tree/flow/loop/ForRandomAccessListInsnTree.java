@@ -20,7 +20,7 @@ public class ForRandomAccessListInsnTree extends AbstractForIteratorInsnTree {
 
 	public static final MethodInfo
 		SIZE = MethodInfo.getMethod(List.class, "size"),
-		GET  = MethodInfo.getMethod(List.class, "get");
+		GET = MethodInfo.getMethod(List.class, "get");
 
 	public VariableDeclarationInsnTree variable;
 	public VariableDeclareAssignInsnTree list;

@@ -2,12 +2,9 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.Map;
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.classes.OverrideTracker.TrackedField;
@@ -33,7 +30,7 @@ public class EnumClassSpec extends BaseClassSpec {
 	public EnumClassSpec(
 		@IdentifierName String name,
 		boolean isAbstract,
-		@Nullable RegistryEntry<ElementSpec> parent,
+		@Nullable Holder<ElementSpec> parent,
 		DelayedEntryList<ElementSpec> members,
 		@Nullable DelayedEntryList<ElementSpec> values
 	) {
@@ -129,7 +126,7 @@ public class EnumClassSpec extends BaseClassSpec {
 	@Override
 	public void createMembers(ClassHierarchy hierarchy) {
 		if (this.values != null) {
-			for (RegistryEntry<ElementSpec> spec : this.values.entryList()) {
+			for (Holder<ElementSpec> spec : this.values.entryList()) {
 				asMember(spec).create(hierarchy, this);
 			}
 		}
@@ -144,8 +141,8 @@ public class EnumClassSpec extends BaseClassSpec {
 				new MethodInfo(
 					ACC_PUBLIC,
 					this.parent != null
-					? asType(this.parent).getTypeInfo()
-					: EnumBase.$CONSTRUCTOR_INFO.typeInfo,
+						? asType(this.parent).getTypeInfo()
+						: EnumBase.$CONSTRUCTOR_INFO.typeInfo,
 					"<init>",
 					TypeInfos.VOID,
 					EnumBase.$CONSTRUCTOR_INFO.parameterTypeInfos
@@ -153,9 +150,9 @@ public class EnumClassSpec extends BaseClassSpec {
 				EnumBase.$CONSTRUCTOR_INFO.loaders
 			)
 		)
-		.emitBytecode(this.primaryConstructor);
+			.emitBytecode(this.primaryConstructor);
 		if (this.values != null) {
-			for (RegistryEntry<ElementSpec> spec : this.values.entryList()) {
+			for (Holder<ElementSpec> spec : this.values.entryList()) {
 				asMember(spec).compile(hierarchy, this);
 			}
 		}
@@ -167,15 +164,15 @@ public class EnumClassSpec extends BaseClassSpec {
 			InsnTree getFromSupplier = invokeInstance(
 				load("constants", EnumConstantSupplier.INFO.type),
 				switch (fieldType.getSort()) {
-					case VOID          -> throw new IllegalStateException("Void-typed field");
-					case BOOLEAN       -> EnumConstantSupplier.INFO.getZ;
-					case BYTE          -> EnumConstantSupplier.INFO.getB;
-					case CHAR          -> EnumConstantSupplier.INFO.getC;
-					case SHORT         -> EnumConstantSupplier.INFO.getS;
-					case INT           -> EnumConstantSupplier.INFO.getI;
-					case LONG          -> EnumConstantSupplier.INFO.getL;
-					case FLOAT         -> EnumConstantSupplier.INFO.getF;
-					case DOUBLE        -> EnumConstantSupplier.INFO.getD;
+					case VOID -> throw new IllegalStateException("Void-typed field");
+					case BOOLEAN -> EnumConstantSupplier.INFO.getZ;
+					case BYTE -> EnumConstantSupplier.INFO.getB;
+					case CHAR -> EnumConstantSupplier.INFO.getC;
+					case SHORT -> EnumConstantSupplier.INFO.getS;
+					case INT -> EnumConstantSupplier.INFO.getI;
+					case LONG -> EnumConstantSupplier.INFO.getL;
+					case FLOAT -> EnumConstantSupplier.INFO.getF;
+					case DOUBLE -> EnumConstantSupplier.INFO.getD;
 					case OBJECT, ARRAY -> EnumConstantSupplier.INFO.getA;
 				},
 				ldc(this.name)
@@ -188,22 +185,22 @@ public class EnumClassSpec extends BaseClassSpec {
 				context.info,
 				getFromSupplier
 			)
-			.emitBytecode(this.primaryConstructor);
+				.emitBytecode(this.primaryConstructor);
 		}
 		if (this.values != null) {
 			new NewArrayWithContentsInsnTree(
 				this.getTypeInfo(),
 				this
-				.values
-				.objectList()
-				.stream()
-				.map(EnumValueSpec.class::cast)
-				.map(this::getCompileContext)
-				.map(FieldCompileContext.class::cast)
-				.map((FieldCompileContext context) -> getStatic(context.info))
-				.toArray(InsnTree.ARRAY_FACTORY)
+					.values
+					.objectList()
+					.stream()
+					.map(EnumValueSpec.class::cast)
+					.map(this::getCompileContext)
+					.map(FieldCompileContext.class::cast)
+					.map((FieldCompileContext context) -> getStatic(context.info))
+					.toArray(InsnTree.ARRAY_FACTORY)
 			)
-			.emitBytecode(this.staticInitializer);
+				.emitBytecode(this.staticInitializer);
 			//array on stack.
 			this.staticInitializer.node.visitInsn(DUP);
 			EnumBase.$INFO.$createSet.emitBytecode(this.staticInitializer);
@@ -222,7 +219,7 @@ public class EnumClassSpec extends BaseClassSpec {
 					false
 				)
 			)
-			.emitBytecode(this.valueOf);
+				.emitBytecode(this.valueOf);
 		}
 	}
 

@@ -1,20 +1,15 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
-import java.util.Set;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.state.property.Property;
-
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.StringData;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
-import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.state.BlockState;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -33,15 +28,15 @@ public class BlockStateColumnValueType extends AbstractColumnValueType {
 		if (stringData == null) throw new ClassCastException("Not a String: " + data);
 		return ldc(
 			BlockStateCoder
-			.decodeStateWithMissingErrors(
-				context.registry.registries.getRegistry(RegistryKeys.BLOCK),
-				stringData.value
-			)
-			.unwrapEager(
-				BigGlobeMod.LOGGER::warn,
-				IllegalArgumentException::new
-			)
-			.state(),
+				.decodeStateWithMissingErrors(
+					context.registry.registries.getRegistry(Registries.BLOCK),
+					stringData.value
+				)
+				.unwrapEager(
+					BigGlobeMod.LOGGER::warn,
+					IllegalArgumentException::new
+				)
+				.state(),
 			type(BlockState.class)
 		);
 	}

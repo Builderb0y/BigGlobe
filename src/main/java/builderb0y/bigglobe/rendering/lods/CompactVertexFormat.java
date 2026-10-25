@@ -9,11 +9,11 @@ public class CompactVertexFormat {
 
 	public static final int
 		FLAG_POSITION = 1 << 0,
-		FLAG_COLOR    = 1 << 1,
-		FLAG_TEXTURE  = 1 << 2,
-		FLAG_OVERLAY  = 1 << 3,
+		FLAG_COLOR = 1 << 1,
+		FLAG_TEXTURE = 1 << 2,
+		FLAG_OVERLAY = 1 << 3,
 		FLAG_LIGHTMAP = 1 << 4,
-		FLAG_NORMAL   = 1 << 5;
+		FLAG_NORMAL = 1 << 5;
 
 	public final @Nullable CompactVertexFormatElement
 		position,
@@ -28,22 +28,22 @@ public class CompactVertexFormat {
 		flags;
 
 	public CompactVertexFormat(Builder builder) {
-		this.position   = builder.position;
-		this.color      = builder.color;
-		this.texture    = builder.texture;
-		this.overlay    = builder.overlay;
-		this.lightmap   = builder.lightmap;
-		this.normal     = builder.normal;
+		this.position = builder.position;
+		this.color = builder.color;
+		this.texture = builder.texture;
+		this.overlay = builder.overlay;
+		this.lightmap = builder.lightmap;
+		this.normal = builder.normal;
 		this.byteStride = builder.byteStride;
 		if (this.byteStride < 0) throw new IllegalStateException("Missing stride");
 
 		int flags = 0;
 		if (this.position != null) flags |= FLAG_POSITION;
-		if (this.color    != null) flags |= FLAG_COLOR;
-		if (this.texture  != null) flags |= FLAG_TEXTURE;
-		if (this.overlay  != null) flags |= FLAG_OVERLAY;
+		if (this.color != null) flags |= FLAG_COLOR;
+		if (this.texture != null) flags |= FLAG_TEXTURE;
+		if (this.overlay != null) flags |= FLAG_OVERLAY;
 		if (this.lightmap != null) flags |= FLAG_LIGHTMAP;
-		if (this.normal   != null) flags |= FLAG_NORMAL;
+		if (this.normal != null) flags |= FLAG_NORMAL;
 		this.flags = flags;
 	}
 

@@ -3,11 +3,8 @@ package builderb0y.bigglobe.chunkgen.scripted;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import org.objectweb.asm.Type;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
@@ -18,10 +15,10 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.scripting.ScriptHolder;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.GridScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.DirectCastInsnTree;
@@ -42,7 +39,7 @@ public class ScriptedLayer extends Layer {
 
 	public ScriptedLayer(
 		@VerifyNullable Valid valid,
-		RegistryEntry<Layer> @DefaultEmpty [] children,
+		Holder<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children,
 		Impl.Holder script
@@ -52,7 +49,7 @@ public class ScriptedLayer extends Layer {
 	}
 
 	@Override
-	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+	public void buildDependencyStream(Stream.Builder<Holder<? extends DependencyView>> builder) {
 		this.script.streamDirectDependencies().forEach(builder);
 	}
 
@@ -72,7 +69,7 @@ public class ScriptedLayer extends Layer {
 		@Wrapper
 		public static class Holder extends ScriptHolder<ScriptedLayer.Impl> implements ScriptedLayer.Impl, SetBasedMutableDependencyView {
 
-			public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+			public final Set<net.minecraft.core.Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 			public Holder(ScriptUsage usage) {
 				super(usage);
@@ -80,7 +77,7 @@ public class ScriptedLayer extends Layer {
 			}
 
 			@Override
-			public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+			public Set<net.minecraft.core.Holder<? extends DependencyView>> getDependencies() {
 				return this.dependencies;
 			}
 
@@ -112,26 +109,26 @@ public class ScriptedLayer extends Layer {
 						load("blocks", type(BlockSegmentList.class))
 					)
 				)
-				.emitBytecode(bridgeMethod);
+					.emitBytecode(bridgeMethod);
 				bridgeMethod.endCode();
 
 				LoadInsnTree loadColumn = load("column", registry.columnContext.columnType());
 				ScriptColumnEntryParser parser = new ScriptColumnEntryParser(this.usage, clazz, actualMethod, registry.parserFlags()).configureEnvironment((MutableScriptEnvironment environment) -> {
 					environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.configure(MinecraftScriptEnvironment.create())
-					.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
-					.configure(ScriptedColumn.baseEnvironment(loadColumn))
-					.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
-					.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
-					.addAll(ColorScriptEnvironment.ENVIRONMENT)
+						.addAll(MathScriptEnvironment.INSTANCE)
+						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+						.configure(MinecraftScriptEnvironment.create())
+						.configure(GridScriptEnvironment.createWithSeed(ScriptedColumn.INFO.baseSeed(loadColumn)))
+						.configure(ScriptedColumn.baseEnvironment(loadColumn))
+						.addFunctionInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "getBlockState", "setBlockState", "setBlockStates", "getTopOfSegment", "getBottomOfSegment")
+						.addVariableInvokes(load("blocks", type(BlockSegmentList.class)), BlockSegmentList.class, "minY", "maxY")
+						.addAll(ColorScriptEnvironment.ENVIRONMENT)
 					;
 					registry.setupExternalEnvironment(
 						environment,
 						new ExternalEnvironmentParams()
-						.withColumn(loadColumn)
-						.trackDependencies(this)
+							.withColumn(loadColumn)
+							.trackDependencies(this)
 					);
 				});
 				parser.parseEntireInput().emitBytecode(actualMethod);

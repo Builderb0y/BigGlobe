@@ -39,7 +39,6 @@ public class DoubleBetweenInsnTree extends BetweenInsnTree {
 		);
 	}
 
-
 	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		Label outOfBounds1 = label(), outOfBounds0 = label(), end = label();

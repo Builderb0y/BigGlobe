@@ -9,9 +9,13 @@ public class BranchesConfig {
 	0 represents the bottom of the tree, and 1 represents the top.
 	*/
 	public final double startFracY;
-	/** number of branches which will spawn. */
+	/**
+	number of branches which will spawn.
+	*/
 	public final int branchCount;
-	/** angle (in radians) of the first (lowest) branch. */
+	/**
+	angle (in radians) of the first (lowest) branch.
+	*/
 	public final double startAngle;
 	/**
 	if true, the branch radius will be used.
@@ -35,26 +39,26 @@ public class BranchesConfig {
 	public BranchConfig currentBranch;
 
 	public BranchesConfig(
-		double                     startFracY,
-		int                        branchCount,
-		double                     startAngle,
-		boolean                    thickBranches,
+		double startFracY,
+		int branchCount,
+		double startAngle,
+		boolean thickBranches,
 		ScriptedBranchShape.Holder lengthGetter,
 		ScriptedBranchShape.Holder heightGetter
 	) {
-		this.startFracY    = startFracY;
-		this.branchCount   = branchCount;
-		this.startAngle    = startAngle;
+		this.startFracY = startFracY;
+		this.branchCount = branchCount;
+		this.startAngle = startAngle;
 		this.thickBranches = thickBranches;
-		this.lengthGetter  = lengthGetter;
-		this.heightGetter  = heightGetter;
+		this.lengthGetter = lengthGetter;
+		this.heightGetter = heightGetter;
 	}
 
 	public static BranchesConfig create(
-		double                     startFracY,
-		int                        branchCount,
-		double                     startAngle,
-		double                     trunkStartRadius,
+		double startFracY,
+		int branchCount,
+		double startAngle,
+		double trunkStartRadius,
 		ScriptedBranchShape.Holder lengthGetter,
 		ScriptedBranchShape.Holder heightGetter
 	) {
@@ -71,7 +75,7 @@ public class BranchesConfig {
 	public void updateBranch(TreeGenerator generator, int index) {
 		double angle = this.startAngle;
 		double angleIncrement = Math.PI;
-		for (int bits = index; true;) {
+		for (int bits = index; true; ) {
 			if ((bits & 0b1) != 0) angle += angleIncrement;
 			if ((bits >>>= 1) == 0) break;
 			angleIncrement *= 0.5D;
@@ -87,8 +91,8 @@ public class BranchesConfig {
 		long seed = generator.random.nextLong();
 		this.currentBranch = (
 			this.thickBranches
-			? new ThickBranchConfig(angle, length, seed)
-			: new      BranchConfig(angle, length, seed)
+				? new ThickBranchConfig(angle, length, seed)
+				: new BranchConfig(angle, length, seed)
 		);
 	}
 }

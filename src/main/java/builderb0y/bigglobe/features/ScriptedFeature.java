@@ -1,20 +1,17 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Locale;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import com.mojang.serialization.Codec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.DefaultString;
 import builderb0y.autocodec.annotations.UseName;
@@ -29,7 +26,6 @@ import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.*;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -40,7 +36,10 @@ import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -57,13 +56,13 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	}
 
 	@Override
-	public boolean generate(FeatureContext<Config> context) {
-		if (context.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			BlockPos origin = context.getOrigin();
-			Permuter permuter = Permuter.from(context.getRandom());
+	public boolean place(FeaturePlaceContext<Config> context) {
+		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+			BlockPos origin = context.origin();
+			Permuter permuter = Permuter.from(context.random());
 			Symmetry symmetry;
-			if (context.getConfig().rotate_randomly) {
-				if (context.getConfig().flip_randomly) {
+			if (context.config().rotate_randomly) {
+				if (context.config().flip_randomly) {
 					symmetry = Symmetry.VALUES[permuter.nextInt(8)];
 				}
 				else {
@@ -71,7 +70,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				}
 			}
 			else {
-				if (context.getConfig().flip_randomly) {
+				if (context.config().flip_randomly) {
 					symmetry = Symmetry.VALUES[permuter.nextInt(4, 8)];
 				}
 				else {
@@ -80,9 +79,9 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			}
 			int chunkX = origin.getX() >> 4;
 			int chunkZ = origin.getZ() >> 4;
-			BlockBox box;
-			if (context.getConfig().queueType == QueueType.DELAYED) {
-				box = new BlockBox(
+			BoundingBox box;
+			if (context.config().queueType == QueueType.DELAYED) {
+				box = new BoundingBox(
 					origin.getX() - 128,
 					origin.getY() - 128,
 					origin.getZ() - 128,
@@ -91,23 +90,23 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					origin.getZ() + 127
 				);
 			}
-			else if (context.getWorld() instanceof World) {
-				box = new BlockBox(
+			else if (context.level() instanceof Level) {
+				box = new BoundingBox(
 					origin.getX() - 128,
-					HeightLimitViewVersions.getMinY(context.getWorld()),
+					HeightLimitViewVersions.getMinY(context.level()),
 					origin.getZ() - 128,
 					origin.getX() + 127,
-					HeightLimitViewVersions.getMaxY(context.getWorld()),
+					HeightLimitViewVersions.getMaxY(context.level()),
 					origin.getZ() + 127
 				);
 			}
 			else {
-				box = new BlockBox(
+				box = new BoundingBox(
 					(chunkX - 1) << 4,
-					HeightLimitViewVersions.getMinY(context.getWorld()),
+					HeightLimitViewVersions.getMinY(context.level()),
 					(chunkZ - 1) << 4,
 					((chunkX + 1) << 4) | 15,
-					HeightLimitViewVersions.getMaxY(context.getWorld()),
+					HeightLimitViewVersions.getMaxY(context.level()),
 					((chunkZ + 1) << 4) | 15
 				);
 			}
@@ -116,20 +115,20 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				box,
 				box
 			);
-			StructureWorldAccess world = switch (context.getConfig().queueType) {
-				case NONE -> context.getWorld();
+			WorldGenLevel world = switch (context.config().queueType) {
+				case NONE -> context.level();
 				case BASIC -> new BlockQueueStructureWorldAccess(
-					context.getWorld(),
-					new BlockQueue(Block.NOTIFY_LISTENERS | Block.FORCE_STATE)
+					context.level(),
+					new BlockQueue(Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)
 				);
 				case DELAYED -> (
 					new BlockQueueStructureWorldAccess(
-						context.getWorld(),
+						context.level(),
 						new SerializableBlockQueue(
 							origin.getX(),
 							origin.getY(),
 							origin.getZ(),
-							Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+							Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
 						)
 					) {
 
@@ -155,15 +154,15 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			);
 			wrapper.featureSalt = permuter.nextLong();
 			if (
-				context.getConfig().script.generate(
+				context.config().script.generate(
 					wrapper,
 					origin.getX(),
 					origin.getY(),
 					origin.getZ()
 				)
 			) {
-				if (context.getConfig().queueType != QueueType.NONE) {
-					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.getWorld());
+				if (context.config().queueType != QueueType.NONE) {
+					((BlockQueueStructureWorldAccess)(world)).queue.placeQueuedBlocks(context.level());
 				}
 				return true;
 			}
@@ -189,7 +188,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			int originY,
 			int originZ
 		)
-		throws EarlyFeatureExitException;
+			throws EarlyFeatureExitException;
 
 		@Wrapper
 		public static class Holder extends ScriptHolder<ScriptedFeatureImplementation> implements ScriptedFeatureImplementation {
@@ -204,38 +203,38 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(ScriptedFeatureImplementation.class, this.usage, registry.parserFlags())
-					.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
-					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
-					.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
-					.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment(NbtScriptEnvironment.createMutable())
-					.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
-					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
-					.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						registry.setupExternalEnvironment(
-							environment
-							.addVariableLoad("originX", TypeInfos.INT)
-							.addVariableLoad("originY", TypeInfos.INT)
-							.addVariableLoad("originZ", TypeInfos.INT)
-							.addVariable("hints", WORLD.hints)
-							.configure(ScriptedColumn.hintsEnvironment())
-							.addVariable("distantHorizons", WORLD.distantHorizons)
-							.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
-							.addFunctionNoArgs("abort",  throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT" )))),
-							new ExternalEnvironmentParams()
-							.withLookup(WORLD.loadSelf)
-							.withXZ(
-								load("originX", TypeInfos.INT),
-								load("originZ", TypeInfos.INT)
-							)
-							.withY(load("originY", TypeInfos.INT))
-						);
-					})
-					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
-					.parse(new ScriptClassLoader(registry.loader))
+						.configureEnvironment(JavaUtilScriptEnvironment.withRandom(WORLD.random))
+						.addEnvironment(MathScriptEnvironment.INSTANCE)
+						.configureEnvironment(MinecraftScriptEnvironment.createWithWorld(WORLD.loadSelf))
+						.configureEnvironment(WoodPaletteScriptEnvironment.create(WORLD.random))
+						.configureEnvironment(CoordinatorScriptEnvironment.create(WORLD.loadSelf))
+						.configureEnvironment(NbtScriptEnvironment.createMutable())
+						.configureEnvironment(RandomScriptEnvironment.create(WORLD.random))
+						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+						.configureEnvironment(StructureTemplateScriptEnvironment.create(WORLD.loadSelf))
+						.configureEnvironment(GridScriptEnvironment.createWithSeed(WORLD.seed))
+						.configureEnvironment((MutableScriptEnvironment environment) -> {
+							registry.setupExternalEnvironment(
+								environment
+									.addVariableLoad("originX", TypeInfos.INT)
+									.addVariableLoad("originY", TypeInfos.INT)
+									.addVariableLoad("originZ", TypeInfos.INT)
+									.addVariable("hints", WORLD.hints)
+									.configure(ScriptedColumn.hintsEnvironment())
+									.addVariable("distantHorizons", WORLD.distantHorizons)
+									.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
+									.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT")))),
+								new ExternalEnvironmentParams()
+									.withLookup(WORLD.loadSelf)
+									.withXZ(
+										load("originX", TypeInfos.INT),
+										load("originZ", TypeInfos.INT)
+									)
+									.withY(load("originY", TypeInfos.INT))
+							);
+						})
+						.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
+						.parse(new ScriptClassLoader(registry.loader))
 				);
 			}
 
@@ -260,12 +259,13 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		}
 	}
 
-	public static class Config implements FeatureConfig {
+	public static class Config implements FeatureConfiguration {
 
 		public final ScriptedFeatureImplementation.Holder script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean flip_randomly;
-		public final @DefaultString("none") @UseName("queue") QueueType queueType;
+		public final @DefaultString("none")
+		@UseName("queue") QueueType queueType;
 
 		public Config(
 			ScriptedFeatureImplementation.Holder script,
@@ -280,7 +280,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		}
 	}
 
-	public static enum QueueType implements StringIdentifiable {
+	public static enum QueueType implements StringRepresentable {
 		NONE,
 		BASIC,
 		DELAYED;
@@ -288,7 +288,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return this.lowerCaseName;
 		}
 	}
@@ -297,7 +297,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 
 		public static final EarlyFeatureExitException
 			FINISH = new EarlyFeatureExitException(true),
-			ABORT  = new EarlyFeatureExitException(false);
+			ABORT = new EarlyFeatureExitException(false);
 
 		public final boolean placeBlocks;
 

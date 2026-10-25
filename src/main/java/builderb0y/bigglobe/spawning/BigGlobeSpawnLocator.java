@@ -1,19 +1,16 @@
 package builderb0y.bigglobe.spawning;
 
 import java.util.UUID;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.storage.LevelData;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureStart;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.WorldProperties;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -33,31 +30,33 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeSpawnLocator {
 
-	/** called by {@link MinecraftServer_InitializeSpawnPoint} */
-	public static boolean initWorldSpawn(ServerWorld world) {
-		if (world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+	/**
+	called by {@link MinecraftServer_InitializeSpawnPoint}
+	*/
+	public static boolean initWorldSpawn(ServerLevel world) {
+		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			SpawnPoint spawnPoint = findSpawn(world, generator, world.getSeed());
 			if (spawnPoint != null) {
-				#if MC_VERSION >= MC_1_21_9
-					world.setSpawnPoint(new WorldProperties.SpawnPoint(new GlobalPos(world.getRegistryKey(), spawnPoint.toBlockPos()), spawnPoint.yaw(), 0.0F));
-				#else
-					world.setSpawnPos(spawnPoint.toBlockPos(), spawnPoint.yaw);
-				#endif
+
+				world.setDefaultSpawnPos(spawnPoint.toBlockPos(), spawnPoint.yaw());
+
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static long perPlayerSeed(ServerWorld serverWorld, UUID playerUUID) {
+	public static long perPlayerSeed(ServerLevel serverWorld, UUID playerUUID) {
 		return Permuter.permute(serverWorld.getSeed() ^ 0x4BB5FF80362770B0L, playerUUID);
 	}
 
-	/** called by {@link PlayerManager_InitializeSpawnPoint} */
-	public static void initPlayerSpawn(ServerPlayerEntity player) {
+	/**
+	called by {@link PlayerManager_InitializeSpawnPoint}
+	*/
+	public static void initPlayerSpawn(ServerPlayer player) {
 		if (
 			BigGlobeConfig.INSTANCE.get().playerSpawning.perPlayerSpawnPoints &&
-			EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator
+			EntityVersions.getServerWorld(player).getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator
 		) {
 			SpawnPoint spawnPoint = findSpawn(
 				EntityVersions.getServerWorld(player),
@@ -65,47 +64,22 @@ public class BigGlobeSpawnLocator {
 				perPlayerSeed(EntityVersions.getServerWorld(player), GameProfileVersions.getUUID(player.getGameProfile()))
 			);
 			if (spawnPoint != null) {
-				#if MC_VERSION >= MC_1_21_9
-					player.setSpawnPoint(
-						new ServerPlayerEntity.Respawn(
-							new WorldProperties.SpawnPoint(
-								new GlobalPos(
-									EntityVersions.getWorld(player).getRegistryKey(),
-									spawnPoint.toBlockPos()
-								),
-								spawnPoint.yaw(),
-								0.0F
-							),
-							true
-						),
-						false
-					);
-				#elif MC_VERSION >= MC_1_21_5
-					player.setSpawnPoint(
-						new ServerPlayerEntity.Respawn(
-							EntityVersions.getWorld(player).getRegistryKey(),
-							spawnPoint.toBlockPos(),
-							spawnPoint.yaw,
-							true
-						),
-						false
-					);
-				#else
-					player.setSpawnPoint(
-						EntityVersions.getWorld(player).getRegistryKey(),
-						spawnPoint.toBlockPos(),
-						spawnPoint.yaw,
-						true,
-						false
-					);
-				#endif
-				player.refreshPositionAndAngles(spawnPoint.toBlockPos(), spawnPoint.yaw, 0.0F);
+
+				player.setRespawnPosition(
+					EntityVersions.getWorld(player).dimension(),
+					spawnPoint.toBlockPos(),
+					spawnPoint.yaw(),
+					true,
+					false
+				);
+
+				player.moveTo(spawnPoint.x(), spawnPoint.y(), spawnPoint.z(), spawnPoint.yaw(), 0.0F);
 			}
 		}
 	}
 
 	public static @Nullable SpawnPoint findSpawn(
-		ServerWorld world,
+		ServerLevel world,
 		BigGlobeScriptedChunkGenerator generator,
 		long seed
 	) {
@@ -127,10 +101,10 @@ public class BigGlobeSpawnLocator {
 			permuter.setSeed(Permuter.permute(seed ^ 0x5E7658F173C1CF0AL, attempt));
 			column.setParamsUnchecked(column.params.at(halton.floorX(), halton.floorY()));
 			if (generator.spawn_point.get(column, permuter)) {
-				int ground = generator.getHeightOnGround(
+				int ground = generator.getFirstFreeHeight(
 					halton.floorX(),
 					halton.floorY(),
-					Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+					Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
 					world,
 					null
 				);
@@ -155,7 +129,7 @@ public class BigGlobeSpawnLocator {
 		return null;
 	}
 
-	public static boolean checkStructures(ServerWorld world, BigGlobeScriptedChunkGenerator generator, int blockX, int blockY, int blockZ) {
+	public static boolean checkStructures(ServerLevel world, BigGlobeScriptedChunkGenerator generator, int blockX, int blockY, int blockZ) {
 		Hints hints = ColumnUsage.GENERIC.normalHints();
 		FinalStructures structures = generator.structureManager.getIntersectingStructures(
 			new StructureGenerationParams(
@@ -166,8 +140,8 @@ public class BigGlobeSpawnLocator {
 			)
 		);
 		for (StructureStart start : structures) {
-			if (start.getBoundingBox().contains(blockX, blockY, blockZ)) {
-				BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + RegistryVersions.getRegistry(world.getRegistryManager(), RegistryKeys.STRUCTURE).getId(start.getStructure()));
+			if (start.getBoundingBox().isInside(blockX, blockY, blockZ)) {
+				BigGlobeMod.LOGGER.debug("Prevented player from spawning in structure " + RegistryVersions.getRegistry(world.registryAccess(), Registries.STRUCTURE).getKey(start.getStructure()));
 				return false;
 			}
 		}
@@ -177,7 +151,7 @@ public class BigGlobeSpawnLocator {
 	public static record SpawnPoint(double x, double y, double z, float yaw) {
 
 		public BlockPos toBlockPos() {
-			return BlockPos.ofFloored(this.x, this.y, this.z);
+			return BlockPos.containing(this.x, this.y, this.z);
 		}
 	}
 }

@@ -1,35 +1,38 @@
 package builderb0y.bigglobe.blocks;
 
-import java.util.List;
-
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.*;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.*;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.Chunk;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;
@@ -38,94 +41,64 @@ import builderb0y.bigglobe.versions.ActionResultVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.GameruleVersions;
 
-#if MC_VERSION >= MC_1_21_0
-	import net.minecraft.item.tooltip.TooltipType;
-	import net.minecraft.item.Item.TooltipContext;
-#elif MC_VERSION >= MC_1_20_5
-	import net.minecraft.client.item.TooltipType;
-	import net.minecraft.item.Item.TooltipContext;
-#else
-	import net.minecraft.client.item.TooltipContext;
-#endif
-
 public class SpelunkingRopeBlock extends FallingBlock {
 
 	public static final VoxelShape
-		NORTH_SHAPE     = VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.0D,   0.625D, 1.0D,  0.25D ),
-		EAST_SHAPE      = VoxelShapes.cuboidUnchecked(0.75D,  0.0D, 0.375D, 1.0D,   1.0D,  0.625D),
-		SOUTH_SHAPE     = VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.75D,  0.625D, 1.0D,  1.0D  ),
-		WEST_SHAPE      = VoxelShapes.cuboidUnchecked(0.0D,   0.0D, 0.375D, 0.25D,  1.0D,  0.625D),
-		NORTH_EXTRUSION = VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.0D,   0.625D, 0.25D, 0.25D ),
-		EAST_EXTRUSION  = VoxelShapes.cuboidUnchecked(0.75D,  0.0D, 0.375D, 1.0D,   0.25D, 0.625D),
-		SOUTH_EXTRUSION = VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.75D,  0.625D, 0.25D, 1.0D  ),
-		WEST_EXTRUSION  = VoxelShapes.cuboidUnchecked(0.0D,   0.0D, 0.375D, 0.25D,  0.25D, 0.625D);
+		NORTH_SHAPE = Shapes.create(0.375D, 0.0D, 0.0D, 0.625D, 1.0D, 0.25D),
+		EAST_SHAPE = Shapes.create(0.75D, 0.0D, 0.375D, 1.0D, 1.0D, 0.625D),
+		SOUTH_SHAPE = Shapes.create(0.375D, 0.0D, 0.75D, 0.625D, 1.0D, 1.0D),
+		WEST_SHAPE = Shapes.create(0.0D, 0.0D, 0.375D, 0.25D, 1.0D, 0.625D),
+		NORTH_EXTRUSION = Shapes.create(0.375D, 0.0D, 0.0D, 0.625D, 0.25D, 0.25D),
+		EAST_EXTRUSION = Shapes.create(0.75D, 0.0D, 0.375D, 1.0D, 0.25D, 0.625D),
+		SOUTH_EXTRUSION = Shapes.create(0.375D, 0.0D, 0.75D, 0.625D, 0.25D, 1.0D),
+		WEST_EXTRUSION = Shapes.create(0.0D, 0.0D, 0.375D, 0.25D, 0.25D, 0.625D);
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<SpelunkingRopeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SpelunkingRopeBlock.class);
+	public static final MapCodec<SpelunkingRopeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SpelunkingRopeBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public SpelunkingRopeBlock(Settings settings) {
+	public SpelunkingRopeBlock(Properties settings) {
 		super(settings);
 	}
 
-	#if MC_VERSION >= MC_1_21_5
-
-		@Override
-		public int getColor(BlockState state, BlockView world, BlockPos pos) {
-			return 0; //doesn't create particles anyway.
-		}
-
-	#elif MC_VERSION >= MC_1_20_5
-
-		@Override
-		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType options) {
-			super.appendTooltip(stack, context, tooltip, options);
-			tooltip.add(Text.translatable("item.bigglobe.spelunking_rope.tooltip"));
-		}
-	#else
-
-		@Override
-		public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
-			super.appendTooltip(stack, world, tooltip, options);
-			tooltip.add(Text.translatable("item.bigglobe.spelunking_rope.tooltip"));
-		}
-	#endif
+	@Override
+	public int getDustColor(BlockState state, BlockGetter world, BlockPos pos) {
+		return 0; //doesn't create particles anyway.
+	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		BlockPos upPos = pos.up();
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+		BlockPos upPos = pos.above();
 		BlockState upState = world.getBlockState(upPos);
 		if (upState == state) return;
-		if (this.isExtrusionClear(world, upPos, upState, state.get(Properties.HORIZONTAL_FACING))) {
-			Direction ropeDirection = state.get(Properties.HORIZONTAL_FACING);
-			BlockPos anchorPos = upPos.offset(ropeDirection);
+		if (this.isExtrusionClear(world, upPos, upState, state.getValue(BlockStateProperties.HORIZONTAL_FACING))) {
+			Direction ropeDirection = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+			BlockPos anchorPos = upPos.relative(ropeDirection);
 			BlockState anchorState = world.getBlockState(anchorPos);
 			if (
 				anchorState.getBlock() == BigGlobeBlocks.ROPE_ANCHOR &&
-				anchorState.get(RopeAnchorBlock.HAS_ROPE) &&
-				anchorState.get(Properties.HORIZONTAL_FACING) == ropeDirection.getOpposite()
+				anchorState.getValue(RopeAnchorBlock.HAS_ROPE) &&
+				anchorState.getValue(BlockStateProperties.HORIZONTAL_FACING) == ropeDirection.getOpposite()
 			) {
 				return;
 			}
 		}
-		this.configureFallingBlockEntity(FallingBlockEntity.spawnFromBlock(world, pos, state));
+		this.falling(FallingBlockEntity.fall(world, pos, state));
 	}
 
 	@Override
-	public void configureFallingBlockEntity(FallingBlockEntity entity) {
+	public void falling(FallingBlockEntity entity) {
 		((FallingBlockEntity_DestroyOnLandingAccess)(entity)).setDestroyOnLanding(true);
 	}
 
 	@Override
-	public void onDestroyedOnLanding(World world, BlockPos pos, FallingBlockEntity fallingBlockEntity) {
-		if (world instanceof ServerWorld serverWorld && GameruleVersions.tileDrops(serverWorld)) {
-			world.spawnEntity(
+	public void onBrokenAfterFall(Level world, BlockPos pos, FallingBlockEntity fallingBlockEntity) {
+		if (world instanceof ServerLevel serverWorld && GameruleVersions.tileDrops(serverWorld)) {
+			world.addFreshEntity(
 				new ItemEntity(
 					world,
 					fallingBlockEntity.getX(),
@@ -138,41 +111,41 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	}
 
 	@Override
-	public int getFallDelay() {
+	public int getDelayAfterPlace() {
 		return 1;
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (context instanceof EntityShapeContext entityContext && entityContext.getEntity() instanceof FallingBlockEntity) {
-			return VoxelShapes.empty();
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		if (context instanceof EntityCollisionContext entityContext && entityContext.getEntity() instanceof FallingBlockEntity) {
+			return Shapes.empty();
 		}
 		return super.getCollisionShape(state, world, pos, context);
 	}
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+	public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
 		//no-op.
 	}
 
 	@Override
 	@Nullable
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		BlockPos upPos = context.getBlockPos().up();
-		BlockState upState = context.getWorld().getBlockState(upPos);
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockPos upPos = context.getClickedPos().above();
+		BlockState upState = context.getLevel().getBlockState(upPos);
 		if (upState.getBlock() == this) return upState;
-		VoxelShape upShape = upState.getCollisionShape(context.getWorld(), upPos);
+		VoxelShape upShape = upState.getCollisionShape(context.getLevel(), upPos);
 		for (Direction direction : Directions.HORIZONTAL) {
-			BlockPos sidePos = upPos.offset(direction);
-			BlockState sideState = context.getWorld().getBlockState(sidePos);
+			BlockPos sidePos = upPos.relative(direction);
+			BlockState sideState = context.getLevel().getBlockState(sidePos);
 			if (
 				sideState.getBlock() == BigGlobeBlocks.ROPE_ANCHOR &&
-				sideState.get(Properties.HORIZONTAL_FACING) == direction.getOpposite() &&
+				sideState.getValue(BlockStateProperties.HORIZONTAL_FACING) == direction.getOpposite() &&
 				this.isExtrusionClear(upShape, direction)
 			) {
-				return this.getDefaultState().with(Properties.HORIZONTAL_FACING, direction);
+				return this.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
 			}
 		}
 		return null;
@@ -181,53 +154,48 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return switch (state.get(Properties.HORIZONTAL_FACING)) {
-			case NORTH    -> NORTH_SHAPE;
-			case EAST     ->  EAST_SHAPE;
-			case SOUTH    -> SOUTH_SHAPE;
-			case WEST     ->  WEST_SHAPE;
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
+			case NORTH -> NORTH_SHAPE;
+			case EAST -> EAST_SHAPE;
+			case SOUTH -> SOUTH_SHAPE;
+			case WEST -> WEST_SHAPE;
 			case UP, DOWN -> throw new IllegalStateException();
 		};
 	}
 
-	public boolean isExtrusionClear(WorldView world, BlockPos pos, Direction direction) {
+	public boolean isExtrusionClear(LevelReader world, BlockPos pos, Direction direction) {
 		return this.isExtrusionClear(world, pos, world.getBlockState(pos), direction);
 	}
 
-	public boolean isExtrusionClear(WorldView world, BlockPos pos, BlockState state, Direction direction) {
+	public boolean isExtrusionClear(LevelReader world, BlockPos pos, BlockState state, Direction direction) {
 		return this.isExtrusionClear(state.getCollisionShape(world, pos), direction);
 	}
 
 	public boolean isExtrusionClear(VoxelShape shape, Direction direction) {
-		return !VoxelShapes.matchesAnywhere(
+		return !Shapes.joinIsNotEmpty(
 			shape,
 			this.getExtrusionShape(direction),
-			BooleanBiFunction.AND
+			BooleanOp.AND
 		);
 	}
 
 	public VoxelShape getExtrusionShape(Direction direction) {
 		return switch (direction) {
-			case NORTH    -> NORTH_EXTRUSION;
-			case EAST     ->  EAST_EXTRUSION;
-			case SOUTH    -> SOUTH_EXTRUSION;
-			case WEST     ->  WEST_EXTRUSION;
+			case NORTH -> NORTH_EXTRUSION;
+			case EAST -> EAST_EXTRUSION;
+			case SOUTH -> SOUTH_EXTRUSION;
+			case WEST -> WEST_EXTRUSION;
 			case UP, DOWN -> throw new IllegalStateException();
 		};
 	}
 
 	@Override
-	#if MC_VERSION >= MC_1_21_2
-		public net.minecraft.util.ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-	#elif MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
-		public net.minecraft.util.ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-	#else
-		public net.minecraft.util.ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		ItemStack stack = player.getStackInHand(hand);
-	#endif
+
+	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+
 		if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
-			BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
+			BlockPos.MutableBlockPos mutablePos = pos.mutable().move(0, -1, 0);
 			if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
 				this.playPlacementSound(player, world, pos);
 				return ActionResultVersions.ITEM_SUCCESS;
@@ -239,8 +207,8 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		return ActionResultVersions.ITEM_PASS;
 	}
 
-	public boolean placeRopesAuto(World world, BlockPos.Mutable mutablePos, BlockState toPlace, PlayerEntity player, ItemStack stack) {
-		if (world.isClient()) {
+	public boolean placeRopesAuto(Level world, BlockPos.MutableBlockPos mutablePos, BlockState toPlace, Player player, ItemStack stack) {
+		if (world.isClientSide()) {
 			return this.placeRopesSimulate(world, mutablePos, toPlace);
 		}
 		else if (player.isCreative()) {
@@ -251,19 +219,19 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		}
 	}
 
-	public boolean placeRopesSurvival(World world, BlockPos.Mutable mutablePos, BlockState toPlace, ItemStack stack) {
+	public boolean placeRopesSurvival(Level world, BlockPos.MutableBlockPos mutablePos, BlockState toPlace, ItemStack stack) {
 		boolean placedAny = false;
 		if (!stack.isEmpty()) {
-			Chunk chunk = world.getChunk(mutablePos);
+			ChunkAccess chunk = world.getChunk(mutablePos);
 			while (chunk.getBlockState(mutablePos) == toPlace) {
 				mutablePos.setY(mutablePos.getY() - 1);
 			}
 			do {
-				if (world.isOutOfHeightLimit(mutablePos)) break;
+				if (world.isOutsideBuildHeight(mutablePos)) break;
 				BlockState toReplace = chunk.getBlockState(mutablePos);
 				if (!(BlockStateVersions.isReplaceable(toReplace) && toReplace.getFluidState().isEmpty())) break;
-				world.setBlockState(mutablePos, toPlace, Block.NOTIFY_ALL);
-				stack.decrement(1);
+				world.setBlock(mutablePos, toPlace, Block.UPDATE_ALL);
+				stack.shrink(1);
 				placedAny = true;
 				mutablePos.setY(mutablePos.getY() - 1);
 			}
@@ -272,63 +240,63 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		return placedAny;
 	}
 
-	public boolean placeRopesCreative(World world, BlockPos.Mutable mutablePos, BlockState toPlace) {
+	public boolean placeRopesCreative(Level world, BlockPos.MutableBlockPos mutablePos, BlockState toPlace) {
 		boolean placedAny = false;
-		Chunk chunk = world.getChunk(mutablePos);
+		ChunkAccess chunk = world.getChunk(mutablePos);
 		while (chunk.getBlockState(mutablePos) == toPlace) {
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 		while (true) {
-			if (world.isOutOfHeightLimit(mutablePos)) break;
+			if (world.isOutsideBuildHeight(mutablePos)) break;
 			BlockState toReplace = chunk.getBlockState(mutablePos);
 			if (!(BlockStateVersions.isReplaceable(toReplace) && toReplace.getFluidState().isEmpty())) break;
-			world.setBlockState(mutablePos, toPlace, Block.NOTIFY_ALL);
+			world.setBlock(mutablePos, toPlace, Block.UPDATE_ALL);
 			placedAny = true;
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 		return placedAny;
 	}
 
-	public boolean placeRopesSimulate(World world, BlockPos.Mutable mutablePos, BlockState toPlace) {
-		Chunk chunk = world.getChunk(mutablePos);
+	public boolean placeRopesSimulate(Level world, BlockPos.MutableBlockPos mutablePos, BlockState toPlace) {
+		ChunkAccess chunk = world.getChunk(mutablePos);
 		BlockState prevState;
 		while ((prevState = chunk.getBlockState(mutablePos)) == toPlace) {
 			mutablePos.setY(mutablePos.getY() - 1);
 		}
 		return (
-			!world.isOutOfHeightLimit(mutablePos) &&
+			!world.isOutsideBuildHeight(mutablePos) &&
 			BlockStateVersions.isReplaceable(prevState) &&
 			prevState.getFluidState().isEmpty()
 		);
 	}
 
-	public void playPlacementSound(PlayerEntity player, World world, BlockPos pos) {
+	public void playPlacementSound(Player player, Level world, BlockPos pos) {
 		world.playSound(
 			player,
 			pos,
-			this.soundGroup.getPlaceSound(),
-			SoundCategory.BLOCKS,
-			this.soundGroup.volume,
-			this.soundGroup.pitch
+			this.soundType.getPlaceSound(),
+			SoundSource.BLOCKS,
+			this.soundType.volume,
+			this.soundType.pitch
 		);
 	}
 
 	@Override
-	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.HORIZONTAL_FACING);
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(BlockStateProperties.HORIZONTAL_FACING);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState rotate(BlockState state, BlockRotation rotation) {
-		return state.with(Properties.HORIZONTAL_FACING, rotation.rotate(state.get(Properties.HORIZONTAL_FACING)));
+	public BlockState rotate(BlockState state, Rotation rotation) {
+		return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotation.rotate(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState mirror(BlockState state, BlockMirror mirror) {
-		return state.with(Properties.HORIZONTAL_FACING, mirror.apply(state.get(Properties.HORIZONTAL_FACING)));
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.setValue(BlockStateProperties.HORIZONTAL_FACING, mirror.mirror(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
 	}
 }

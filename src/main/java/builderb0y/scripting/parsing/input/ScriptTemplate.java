@@ -1,15 +1,11 @@
 package builderb0y.scripting.parsing.input;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.verifiers.VerifyContext;
@@ -26,6 +22,7 @@ import builderb0y.scripting.parsing.input.ScriptFileResolver.ResolvedIncludes;
 public abstract class ScriptTemplate implements SimpleDependencyView {
 
 	public static final TypelessCoderRegistry<ScriptTemplate> CODER = new TypelessCoderRegistry<>(ReifiedType.from(ScriptTemplate.class), BigGlobeAutoCodec.AUTO_CODEC);
+
 	static {
 		CODER.register(SourceScriptTemplate.class);
 		CODER.register(FileScriptTemplate.class);
@@ -64,10 +61,12 @@ public abstract class ScriptTemplate implements SimpleDependencyView {
 		@IdentifierName String name,
 		String type,
 		@UseName("default") @MultiLine @VerifyNullable String fallback
-	) {}
+	) {
+
+	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return this.includes != null ? this.includes.streamDirectDependencies() : Stream.empty();
 	}
 }

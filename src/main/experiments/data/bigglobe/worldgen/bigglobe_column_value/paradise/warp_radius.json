@@ -1,8 +1,0 @@
-{
-	"type": "bigglobe:script",
-	"params": {
-		"type": "double",
-		"is_3d": false
-	},
-	"script": "sqrt(warp_x ^ 2 + warp_z ^ 2)"
-}

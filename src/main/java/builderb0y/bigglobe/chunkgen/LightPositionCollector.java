@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.*;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.ProtoChunk;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.chunk.ProtoChunk;
 
 /**
 efficient temporary storage for 0-4096 BlockPos's inside the same ChunkSection volume.

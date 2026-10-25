@@ -1,17 +1,16 @@
 package builderb0y.bigglobe.scripting.wrappers.entries;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-
 import builderb0y.bigglobe.scripting.wrappers.tags.TagWrapper;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 
 public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
 
-	public final RegistryEntry<T_Raw> entry;
+	public final Holder<T_Raw> entry;
 
-	public EntryWrapper(RegistryEntry<T_Raw> entry) {
+	public EntryWrapper(Holder<T_Raw> entry) {
 		this.entry = entry;
 	}
 
@@ -20,14 +19,14 @@ public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
 	}
 
 	public String id() {
-		return this.identifier().toString();
+		return this.location().toString();
 	}
 
-	public Identifier identifier() {
-		return this.key().getValue();
+	public ResourceLocation location() {
+		return this.key().location();
 	}
 
-	public RegistryKey<T_Raw> key() {
+	public ResourceKey<T_Raw> key() {
 		return UnregisteredObjectException.getKey(this.entry);
 	}
 

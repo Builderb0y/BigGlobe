@@ -44,43 +44,46 @@ instances of NumberArray are NOT thread-safe.
 any thread may allocate NumberArray's, but each NumberArray
 should ONLY be closed from the thread that allocated it.
 */
-@SuppressWarnings({
-	"ImplicitNumericConversion",
-	"NumericCastThatLosesPrecision",
-	"OverloadedMethodsWithSameNumberOfParameters",
-	"RedundantCast",
-	"SameParameterValue",
-	"unused"
-})
+@SuppressWarnings(
+	{
+		"ImplicitNumericConversion",
+		"NumericCastThatLosesPrecision",
+		"OverloadedMethodsWithSameNumberOfParameters",
+		"RedundantCast",
+		"SameParameterValue",
+		"unused"
+	}
+)
 public class NumberArray implements AutoCloseable {
 
 	public static final boolean
 		TRACE_ALLOCATIONS = Boolean.getBoolean("bigglobe.traceNumberArrayAllocations"),
 		CHECK_TYPE = Boolean.getBoolean("bigglobe.checkNumberArrayType");
 	public static final byte
-		BYTE_TYPE     = 0,
-		SHORT_TYPE    = 1,
-		INT_TYPE      = 2,
-		LONG_TYPE     = 3,
-		FLOAT_TYPE    = 4,
-		DOUBLE_TYPE   = 5,
-		BOOLEAN_TYPE  = 6;
+		BYTE_TYPE = 0,
+		SHORT_TYPE = 1,
+		INT_TYPE = 2,
+		LONG_TYPE = 3,
+		FLOAT_TYPE = 4,
+		DOUBLE_TYPE = 5,
+		BOOLEAN_TYPE = 6;
 	public static final int
-		BYTE_SHIFT    = 0,
-		SHORT_SHIFT   = 1,
-		INT_SHIFT     = 2,
-		LONG_SHIFT    = 3,
-		FLOAT_SHIFT   = 2,
-		DOUBLE_SHIFT  = 3;
+		BYTE_SHIFT = 0,
+		SHORT_SHIFT = 1,
+		INT_SHIFT = 2,
+		LONG_SHIFT = 3,
+		FLOAT_SHIFT = 2,
+		DOUBLE_SHIFT = 3;
 	public static final VarHandle
-		BYTE_ACCESS   = MethodHandles.arrayElementVarHandle (byte  [].class).withInvokeExactBehavior(),
-		SHORT_ACCESS  = MethodHandles.byteArrayViewVarHandle(short [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
-		INT_ACCESS    = MethodHandles.byteArrayViewVarHandle(int   [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
-		LONG_ACCESS   = MethodHandles.byteArrayViewVarHandle(long  [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
-		FLOAT_ACCESS  = MethodHandles.byteArrayViewVarHandle(float [].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+		BYTE_ACCESS = MethodHandles.arrayElementVarHandle(byte[].class).withInvokeExactBehavior(),
+		SHORT_ACCESS = MethodHandles.byteArrayViewVarHandle(short[].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+		INT_ACCESS = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+		LONG_ACCESS = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
+		FLOAT_ACCESS = MethodHandles.byteArrayViewVarHandle(float[].class, ByteOrder.nativeOrder()).withInvokeExactBehavior(),
 		DOUBLE_ACCESS = MethodHandles.byteArrayViewVarHandle(double[].class, ByteOrder.nativeOrder()).withInvokeExactBehavior();
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public FieldInfo
@@ -101,7 +104,7 @@ public class NumberArray implements AutoCloseable {
 			allocateDoublesHeap,
 			allocateBooleansHeap,
 
-			allocateBytesDirectZero,
+		allocateBytesDirectZero,
 			allocateShortsDirectZero,
 			allocateIntsDirectZero,
 			allocateLongsDirectZero,
@@ -109,7 +112,7 @@ public class NumberArray implements AutoCloseable {
 			allocateDoublesDirectZero,
 			allocateBooleansDirectZero,
 
-			getB,
+		getB,
 			getS,
 			getI,
 			getL,
@@ -117,7 +120,7 @@ public class NumberArray implements AutoCloseable {
 			getD,
 			getZ,
 
-			implGetB,
+		implGetB,
 			implGetS,
 			implGetI,
 			implGetL,
@@ -125,7 +128,7 @@ public class NumberArray implements AutoCloseable {
 			implGetD,
 			implGetZ,
 
-			setB,
+		setB,
 			setS,
 			setI,
 			setL,
@@ -133,7 +136,7 @@ public class NumberArray implements AutoCloseable {
 			setD,
 			setZ,
 
-			implSetB,
+		implSetB,
 			implSetS,
 			implSetI,
 			implSetL,
@@ -141,7 +144,7 @@ public class NumberArray implements AutoCloseable {
 			implSetD,
 			implSetZ,
 
-			fillB,
+		fillB,
 			fillS,
 			fillI,
 			fillL,
@@ -149,7 +152,7 @@ public class NumberArray implements AutoCloseable {
 			fillD,
 			fillZ,
 
-			fillFromToB,
+		fillFromToB,
 			fillFromToS,
 			fillFromToI,
 			fillFromToL,
@@ -157,19 +160,19 @@ public class NumberArray implements AutoCloseable {
 			fillFromToD,
 			fillFromToZ,
 
-			length,
+		length,
 			prefix,
 			sliceFromTo,
 			sliceOffsetLength;
 	}
 
 	public static final NumberArray
-		EMPTY_BYTE    = new NumberArray(   BYTE_TYPE),
-		EMPTY_SHORT   = new NumberArray(  SHORT_TYPE),
-		EMPTY_INT     = new NumberArray(    INT_TYPE),
-		EMPTY_LONG    = new NumberArray(   LONG_TYPE),
-		EMPTY_FLOAT   = new NumberArray(  FLOAT_TYPE),
-		EMPTY_DOUBLE  = new NumberArray( DOUBLE_TYPE),
+		EMPTY_BYTE = new NumberArray(BYTE_TYPE),
+		EMPTY_SHORT = new NumberArray(SHORT_TYPE),
+		EMPTY_INT = new NumberArray(INT_TYPE),
+		EMPTY_LONG = new NumberArray(LONG_TYPE),
+		EMPTY_FLOAT = new NumberArray(FLOAT_TYPE),
+		EMPTY_DOUBLE = new NumberArray(DOUBLE_TYPE),
 		EMPTY_BOOLEAN = new NumberArray(BOOLEAN_TYPE);
 
 	@MagicConstant(
@@ -190,7 +193,9 @@ public class NumberArray implements AutoCloseable {
 	public final Throwable allocator;
 	public Throwable closing;
 
-	/** creates a zero-sized, already-closed NumberArray. */
+	/**
+	creates a zero-sized, already-closed NumberArray.
+	*/
 	public NumberArray(
 		@MagicConstant(
 			intValues = {
@@ -257,33 +262,107 @@ public class NumberArray implements AutoCloseable {
 		if (freeable) manager.used += byteLength;
 	}
 
-	//////////////////////////////// allocation ////////////////////////////////
+	/// ///////////////////////////// allocation ////////////////////////////////
 
-	public static NumberArray allocateBytesHeap         (int bytes   ) { return new Manager(bytes    <<   BYTE_SHIFT).allocateBytesHeap   (        ); }
-	public static NumberArray allocateShortsHeap        (int shorts  ) { return new Manager(shorts   <<  SHORT_SHIFT).allocateShortsHeap  (        ); }
-	public static NumberArray allocateIntsHeap          (int ints    ) { return new Manager(ints     <<    INT_SHIFT).allocateIntsHeap    (        ); }
-	public static NumberArray allocateLongsHeap         (int longs   ) { return new Manager(longs    <<   LONG_SHIFT).allocateLongsHeap   (        ); }
-	public static NumberArray allocateFloatsHeap        (int floats  ) { return new Manager(floats   <<  FLOAT_SHIFT).allocateFloatsHeap  (        ); }
-	public static NumberArray allocateDoublesHeap       (int doubles ) { return new Manager(doubles  << DOUBLE_SHIFT).allocateDoublesHeap (        ); }
-	public static NumberArray allocateBooleansHeap      (int booleans) { return new Manager(((booleans - 1) >> 3) + 1).allocateBooleansHeap(booleans); }
+	public static NumberArray allocateBytesHeap(int bytes) {
+		return new Manager(bytes << BYTE_SHIFT).allocateBytesHeap();
+	}
 
-	public static NumberArray allocateBytesDirect       (int bytes   ) { return Manager.INSTANCES.get().allocateBytesDirect   (bytes   ); }
-	public static NumberArray allocateShortsDirect      (int shorts  ) { return Manager.INSTANCES.get().allocateShortsDirect  (shorts  ); }
-	public static NumberArray allocateIntsDirect        (int ints    ) { return Manager.INSTANCES.get().allocateIntsDirect    (ints    ); }
-	public static NumberArray allocateLongsDirect       (int longs   ) { return Manager.INSTANCES.get().allocateLongsDirect   (longs   ); }
-	public static NumberArray allocateFloatsDirect      (int floats  ) { return Manager.INSTANCES.get().allocateFloatsDirect  (floats  ); }
-	public static NumberArray allocateDoublesDirect     (int doubles ) { return Manager.INSTANCES.get().allocateDoublesDirect (doubles ); }
-	public static NumberArray allocateBooleansDirect    (int booleans) { return Manager.INSTANCES.get().allocateBooleansDirect(booleans); }
+	public static NumberArray allocateShortsHeap(int shorts) {
+		return new Manager(shorts << SHORT_SHIFT).allocateShortsHeap();
+	}
 
-	public static NumberArray allocateBytesDirectZero   (int bytes   ) { NumberArray array = allocateBytesDirect   (bytes   ); array.implFillFromTo(0, bytes   , (byte )(0)  ); return array; }
-	public static NumberArray allocateShortsDirectZero  (int shorts  ) { NumberArray array = allocateShortsDirect  (shorts  ); array.implFillFromTo(0, shorts  , (short)(0)  ); return array; }
-	public static NumberArray allocateIntsDirectZero    (int ints    ) { NumberArray array = allocateIntsDirect    (ints    ); array.implFillFromTo(0, ints    ,         0   ); return array; }
-	public static NumberArray allocateLongsDirectZero   (int longs   ) { NumberArray array = allocateLongsDirect   (longs   ); array.implFillFromTo(0, longs   ,         0L  ); return array; }
-	public static NumberArray allocateFloatsDirectZero  (int floats  ) { NumberArray array = allocateFloatsDirect  (floats  ); array.implFillFromTo(0, floats  ,         0.0F); return array; }
-	public static NumberArray allocateDoublesDirectZero (int doubles ) { NumberArray array = allocateDoublesDirect (doubles ); array.implFillFromTo(0, doubles ,         0.0D); return array; }
-	public static NumberArray allocateBooleansDirectZero(int booleans) { NumberArray array = allocateBooleansDirect(booleans); array.implFillFromTo(0, booleans, false       ); return array; }
+	public static NumberArray allocateIntsHeap(int ints) {
+		return new Manager(ints << INT_SHIFT).allocateIntsHeap();
+	}
 
-	//////////////////////////////// util ////////////////////////////////
+	public static NumberArray allocateLongsHeap(int longs) {
+		return new Manager(longs << LONG_SHIFT).allocateLongsHeap();
+	}
+
+	public static NumberArray allocateFloatsHeap(int floats) {
+		return new Manager(floats << FLOAT_SHIFT).allocateFloatsHeap();
+	}
+
+	public static NumberArray allocateDoublesHeap(int doubles) {
+		return new Manager(doubles << DOUBLE_SHIFT).allocateDoublesHeap();
+	}
+
+	public static NumberArray allocateBooleansHeap(int booleans) {
+		return new Manager(((booleans - 1) >> 3) + 1).allocateBooleansHeap(booleans);
+	}
+
+	public static NumberArray allocateBytesDirect(int bytes) {
+		return Manager.INSTANCES.get().allocateBytesDirect(bytes);
+	}
+
+	public static NumberArray allocateShortsDirect(int shorts) {
+		return Manager.INSTANCES.get().allocateShortsDirect(shorts);
+	}
+
+	public static NumberArray allocateIntsDirect(int ints) {
+		return Manager.INSTANCES.get().allocateIntsDirect(ints);
+	}
+
+	public static NumberArray allocateLongsDirect(int longs) {
+		return Manager.INSTANCES.get().allocateLongsDirect(longs);
+	}
+
+	public static NumberArray allocateFloatsDirect(int floats) {
+		return Manager.INSTANCES.get().allocateFloatsDirect(floats);
+	}
+
+	public static NumberArray allocateDoublesDirect(int doubles) {
+		return Manager.INSTANCES.get().allocateDoublesDirect(doubles);
+	}
+
+	public static NumberArray allocateBooleansDirect(int booleans) {
+		return Manager.INSTANCES.get().allocateBooleansDirect(booleans);
+	}
+
+	public static NumberArray allocateBytesDirectZero(int bytes) {
+		NumberArray array = allocateBytesDirect(bytes);
+		array.implFillFromTo(0, bytes, (byte)(0));
+		return array;
+	}
+
+	public static NumberArray allocateShortsDirectZero(int shorts) {
+		NumberArray array = allocateShortsDirect(shorts);
+		array.implFillFromTo(0, shorts, (short)(0));
+		return array;
+	}
+
+	public static NumberArray allocateIntsDirectZero(int ints) {
+		NumberArray array = allocateIntsDirect(ints);
+		array.implFillFromTo(0, ints, 0);
+		return array;
+	}
+
+	public static NumberArray allocateLongsDirectZero(int longs) {
+		NumberArray array = allocateLongsDirect(longs);
+		array.implFillFromTo(0, longs, 0L);
+		return array;
+	}
+
+	public static NumberArray allocateFloatsDirectZero(int floats) {
+		NumberArray array = allocateFloatsDirect(floats);
+		array.implFillFromTo(0, floats, 0.0F);
+		return array;
+	}
+
+	public static NumberArray allocateDoublesDirectZero(int doubles) {
+		NumberArray array = allocateDoublesDirect(doubles);
+		array.implFillFromTo(0, doubles, 0.0D);
+		return array;
+	}
+
+	public static NumberArray allocateBooleansDirectZero(int booleans) {
+		NumberArray array = allocateBooleansDirect(booleans);
+		array.implFillFromTo(0, booleans, false);
+		return array;
+	}
+
+	/// ///////////////////////////// util ////////////////////////////////
 
 	public byte[] getBase() {
 		try {
@@ -294,19 +373,53 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public int   byteIndexUnchecked(int index) { return ((index + this.elementOffset) <<   BYTE_SHIFT) + this.byteOffset; }
-	public int  shortIndexUnchecked(int index) { return ((index + this.elementOffset) <<  SHORT_SHIFT) + this.byteOffset; }
-	public int    intIndexUnchecked(int index) { return ((index + this.elementOffset) <<    INT_SHIFT) + this.byteOffset; }
-	public int   longIndexUnchecked(int index) { return ((index + this.elementOffset) <<   LONG_SHIFT) + this.byteOffset; }
-	public int  floatIndexUnchecked(int index) { return ((index + this.elementOffset) <<  FLOAT_SHIFT) + this.byteOffset; }
-	public int doubleIndexUnchecked(int index) { return ((index + this.elementOffset) << DOUBLE_SHIFT) + this.byteOffset; }
+	public int byteIndexUnchecked(int index) {
+		return ((index + this.elementOffset) << BYTE_SHIFT) + this.byteOffset;
+	}
 
-	public int   byteIndex         (int index) { return this.  byteIndexUnchecked(this.checkTypeIndex(  BYTE_TYPE, index)); }
-	public int  shortIndex         (int index) { return this. shortIndexUnchecked(this.checkTypeIndex( SHORT_TYPE, index)); }
-	public int    intIndex         (int index) { return this.   intIndexUnchecked(this.checkTypeIndex(   INT_TYPE, index)); }
-	public int   longIndex         (int index) { return this.  longIndexUnchecked(this.checkTypeIndex(  LONG_TYPE, index)); }
-	public int  floatIndex         (int index) { return this. floatIndexUnchecked(this.checkTypeIndex( FLOAT_TYPE, index)); }
-	public int doubleIndex         (int index) { return this.doubleIndexUnchecked(this.checkTypeIndex(DOUBLE_TYPE, index)); }
+	public int shortIndexUnchecked(int index) {
+		return ((index + this.elementOffset) << SHORT_SHIFT) + this.byteOffset;
+	}
+
+	public int intIndexUnchecked(int index) {
+		return ((index + this.elementOffset) << INT_SHIFT) + this.byteOffset;
+	}
+
+	public int longIndexUnchecked(int index) {
+		return ((index + this.elementOffset) << LONG_SHIFT) + this.byteOffset;
+	}
+
+	public int floatIndexUnchecked(int index) {
+		return ((index + this.elementOffset) << FLOAT_SHIFT) + this.byteOffset;
+	}
+
+	public int doubleIndexUnchecked(int index) {
+		return ((index + this.elementOffset) << DOUBLE_SHIFT) + this.byteOffset;
+	}
+
+	public int byteIndex(int index) {
+		return this.byteIndexUnchecked(this.checkTypeIndex(BYTE_TYPE, index));
+	}
+
+	public int shortIndex(int index) {
+		return this.shortIndexUnchecked(this.checkTypeIndex(SHORT_TYPE, index));
+	}
+
+	public int intIndex(int index) {
+		return this.intIndexUnchecked(this.checkTypeIndex(INT_TYPE, index));
+	}
+
+	public int longIndex(int index) {
+		return this.longIndexUnchecked(this.checkTypeIndex(LONG_TYPE, index));
+	}
+
+	public int floatIndex(int index) {
+		return this.floatIndexUnchecked(this.checkTypeIndex(FLOAT_TYPE, index));
+	}
+
+	public int doubleIndex(int index) {
+		return this.doubleIndexUnchecked(this.checkTypeIndex(DOUBLE_TYPE, index));
+	}
 
 	public int checkIndex(int index) {
 		return Objects.checkIndex(index, this.elementCount);
@@ -377,25 +490,43 @@ public class NumberArray implements AutoCloseable {
 
 	public static String typeName(int type) {
 		return switch (type) {
-			case    BYTE_TYPE -> "byte";
-			case   SHORT_TYPE -> "short";
-			case     INT_TYPE -> "int";
-			case    LONG_TYPE -> "long";
-			case   FLOAT_TYPE -> "float";
-			case  DOUBLE_TYPE -> "double";
+			case BYTE_TYPE -> "byte";
+			case SHORT_TYPE -> "short";
+			case INT_TYPE -> "int";
+			case LONG_TYPE -> "long";
+			case FLOAT_TYPE -> "float";
+			case DOUBLE_TYPE -> "double";
 			case BOOLEAN_TYPE -> "boolean";
 			default -> "unknown (" + type + ')';
 		};
 	}
 
-	//////////////////////////////// get ////////////////////////////////
+	/// ///////////////////////////// get ////////////////////////////////
 
-	public byte    implGetB(int index) { return (byte  )(  BYTE_ACCESS.get(this.getBase(), this.  byteIndex(index))); }
-	public short   implGetS(int index) { return (short )( SHORT_ACCESS.get(this.getBase(), this. shortIndex(index))); }
-	public int     implGetI(int index) { return (int   )(   INT_ACCESS.get(this.getBase(), this.   intIndex(index))); }
-	public long    implGetL(int index) { return (long  )(  LONG_ACCESS.get(this.getBase(), this.  longIndex(index))); }
-	public float   implGetF(int index) { return (float )( FLOAT_ACCESS.get(this.getBase(), this. floatIndex(index))); }
-	public double  implGetD(int index) { return (double)(DOUBLE_ACCESS.get(this.getBase(), this.doubleIndex(index))); }
+	public byte implGetB(int index) {
+		return (byte)(BYTE_ACCESS.get(this.getBase(), this.byteIndex(index)));
+	}
+
+	public short implGetS(int index) {
+		return (short)(SHORT_ACCESS.get(this.getBase(), this.shortIndex(index)));
+	}
+
+	public int implGetI(int index) {
+		return (int)(INT_ACCESS.get(this.getBase(), this.intIndex(index)));
+	}
+
+	public long implGetL(int index) {
+		return (long)(LONG_ACCESS.get(this.getBase(), this.longIndex(index)));
+	}
+
+	public float implGetF(int index) {
+		return (float)(FLOAT_ACCESS.get(this.getBase(), this.floatIndex(index)));
+	}
+
+	public double implGetD(int index) {
+		return (double)(DOUBLE_ACCESS.get(this.getBase(), this.doubleIndex(index)));
+	}
+
 	public boolean implGetZ(int index) {
 		index = this.checkTypeIndex(BOOLEAN_TYPE, index) + this.elementOffset;
 		return ((this.getBase()[(index >>> 3) + this.byteOffset] >>> (index & 7)) & 1) != 0;
@@ -403,109 +534,126 @@ public class NumberArray implements AutoCloseable {
 
 	public byte getB(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> (byte)(this.implGetB(index));
-			case   SHORT_TYPE -> (byte)(this.implGetS(index));
-			case     INT_TYPE -> (byte)(this.implGetI(index));
-			case    LONG_TYPE -> (byte)(this.implGetL(index));
-			case   FLOAT_TYPE -> (byte)(this.implGetF(index));
-			case  DOUBLE_TYPE -> (byte)(this.implGetD(index));
-			case BOOLEAN_TYPE ->        this.implGetZ(index) ? (byte)(1) : (byte)(0);
+			case BYTE_TYPE -> (byte)(this.implGetB(index));
+			case SHORT_TYPE -> (byte)(this.implGetS(index));
+			case INT_TYPE -> (byte)(this.implGetI(index));
+			case LONG_TYPE -> (byte)(this.implGetL(index));
+			case FLOAT_TYPE -> (byte)(this.implGetF(index));
+			case DOUBLE_TYPE -> (byte)(this.implGetD(index));
+			case BOOLEAN_TYPE -> this.implGetZ(index) ? (byte)(1) : (byte)(0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
 	public short getS(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> (short)(this.implGetB(index));
-			case   SHORT_TYPE -> (short)(this.implGetS(index));
-			case     INT_TYPE -> (short)(this.implGetI(index));
-			case    LONG_TYPE -> (short)(this.implGetL(index));
-			case   FLOAT_TYPE -> (short)(this.implGetF(index));
-			case  DOUBLE_TYPE -> (short)(this.implGetD(index));
-			case BOOLEAN_TYPE ->         this.implGetZ(index) ? (short)(1) : (short)(0);
+			case BYTE_TYPE -> (short)(this.implGetB(index));
+			case SHORT_TYPE -> (short)(this.implGetS(index));
+			case INT_TYPE -> (short)(this.implGetI(index));
+			case LONG_TYPE -> (short)(this.implGetL(index));
+			case FLOAT_TYPE -> (short)(this.implGetF(index));
+			case DOUBLE_TYPE -> (short)(this.implGetD(index));
+			case BOOLEAN_TYPE -> this.implGetZ(index) ? (short)(1) : (short)(0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
 	public int getI(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> (int)(this.implGetB(index));
-			case   SHORT_TYPE -> (int)(this.implGetS(index));
-			case     INT_TYPE -> (int)(this.implGetI(index));
-			case    LONG_TYPE -> (int)(this.implGetL(index));
-			case   FLOAT_TYPE -> (int)(this.implGetF(index));
-			case  DOUBLE_TYPE -> (int)(this.implGetD(index));
-			case BOOLEAN_TYPE ->       this.implGetZ(index) ? 1 : 0;
+			case BYTE_TYPE -> (int)(this.implGetB(index));
+			case SHORT_TYPE -> (int)(this.implGetS(index));
+			case INT_TYPE -> (int)(this.implGetI(index));
+			case LONG_TYPE -> (int)(this.implGetL(index));
+			case FLOAT_TYPE -> (int)(this.implGetF(index));
+			case DOUBLE_TYPE -> (int)(this.implGetD(index));
+			case BOOLEAN_TYPE -> this.implGetZ(index) ? 1 : 0;
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
 	public long getL(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> (long)(this.implGetB(index));
-			case   SHORT_TYPE -> (long)(this.implGetS(index));
-			case     INT_TYPE -> (long)(this.implGetI(index));
-			case    LONG_TYPE -> (long)(this.implGetL(index));
-			case   FLOAT_TYPE -> (long)(this.implGetF(index));
-			case  DOUBLE_TYPE -> (long)(this.implGetD(index));
-			case BOOLEAN_TYPE ->        this.implGetZ(index) ? 1L : 0L;
+			case BYTE_TYPE -> (long)(this.implGetB(index));
+			case SHORT_TYPE -> (long)(this.implGetS(index));
+			case INT_TYPE -> (long)(this.implGetI(index));
+			case LONG_TYPE -> (long)(this.implGetL(index));
+			case FLOAT_TYPE -> (long)(this.implGetF(index));
+			case DOUBLE_TYPE -> (long)(this.implGetD(index));
+			case BOOLEAN_TYPE -> this.implGetZ(index) ? 1L : 0L;
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
 	public float getF(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> (float)(this.implGetB(index));
-			case   SHORT_TYPE -> (float)(this.implGetS(index));
-			case     INT_TYPE -> (float)(this.implGetI(index));
-			case    LONG_TYPE -> (float)(this.implGetL(index));
-			case   FLOAT_TYPE -> (float)(this.implGetF(index));
-			case  DOUBLE_TYPE -> (float)(this.implGetD(index));
-			case BOOLEAN_TYPE ->         this.implGetZ(index) ? 1.0F : 0.0F;
+			case BYTE_TYPE -> (float)(this.implGetB(index));
+			case SHORT_TYPE -> (float)(this.implGetS(index));
+			case INT_TYPE -> (float)(this.implGetI(index));
+			case LONG_TYPE -> (float)(this.implGetL(index));
+			case FLOAT_TYPE -> (float)(this.implGetF(index));
+			case DOUBLE_TYPE -> (float)(this.implGetD(index));
+			case BOOLEAN_TYPE -> this.implGetZ(index) ? 1.0F : 0.0F;
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
 	public double getD(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> (double)(this.implGetB(index));
-			case   SHORT_TYPE -> (double)(this.implGetS(index));
-			case     INT_TYPE -> (double)(this.implGetI(index));
-			case    LONG_TYPE -> (double)(this.implGetL(index));
-			case   FLOAT_TYPE -> (double)(this.implGetF(index));
-			case  DOUBLE_TYPE -> (double)(this.implGetD(index));
-			case BOOLEAN_TYPE ->          this.implGetZ(index) ? 1.0D : 0.0D;
+			case BYTE_TYPE -> (double)(this.implGetB(index));
+			case SHORT_TYPE -> (double)(this.implGetS(index));
+			case INT_TYPE -> (double)(this.implGetI(index));
+			case LONG_TYPE -> (double)(this.implGetL(index));
+			case FLOAT_TYPE -> (double)(this.implGetF(index));
+			case DOUBLE_TYPE -> (double)(this.implGetD(index));
+			case BOOLEAN_TYPE -> this.implGetZ(index) ? 1.0D : 0.0D;
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
 	public boolean getZ(int index) {
 		return switch (this.type) {
-			case    BYTE_TYPE -> this.implGetB(index) != 0;
-			case   SHORT_TYPE -> this.implGetS(index) != 0;
-			case     INT_TYPE -> this.implGetI(index) != 0;
-			case    LONG_TYPE -> this.implGetL(index) != 0L;
-			case   FLOAT_TYPE -> this.implGetF(index) != 0.0F;
-			case  DOUBLE_TYPE -> this.implGetD(index) != 0.0D;
+			case BYTE_TYPE -> this.implGetB(index) != 0;
+			case SHORT_TYPE -> this.implGetS(index) != 0;
+			case INT_TYPE -> this.implGetI(index) != 0;
+			case LONG_TYPE -> this.implGetL(index) != 0L;
+			case FLOAT_TYPE -> this.implGetF(index) != 0.0F;
+			case DOUBLE_TYPE -> this.implGetD(index) != 0.0D;
 			case BOOLEAN_TYPE -> this.implGetZ(index);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		};
 	}
 
-	//////////////////////////////// set ////////////////////////////////
+	/// ///////////////////////////// set ////////////////////////////////
 
-	public void implSetB(int index, byte    value) {   BYTE_ACCESS.set(this.getBase(), this.  byteIndex(index), value); }
-	public void implSetS(int index, short   value) {  SHORT_ACCESS.set(this.getBase(), this. shortIndex(index), value); }
-	public void implSetI(int index, int     value) {    INT_ACCESS.set(this.getBase(), this.   intIndex(index), value); }
-	public void implSetL(int index, long    value) {   LONG_ACCESS.set(this.getBase(), this.  longIndex(index), value); }
-	public void implSetF(int index, float   value) {  FLOAT_ACCESS.set(this.getBase(), this. floatIndex(index), value); }
-	public void implSetD(int index, double  value) { DOUBLE_ACCESS.set(this.getBase(), this.doubleIndex(index), value); }
+	public void implSetB(int index, byte value) {
+		BYTE_ACCESS.set(this.getBase(), this.byteIndex(index), value);
+	}
+
+	public void implSetS(int index, short value) {
+		SHORT_ACCESS.set(this.getBase(), this.shortIndex(index), value);
+	}
+
+	public void implSetI(int index, int value) {
+		INT_ACCESS.set(this.getBase(), this.intIndex(index), value);
+	}
+
+	public void implSetL(int index, long value) {
+		LONG_ACCESS.set(this.getBase(), this.longIndex(index), value);
+	}
+
+	public void implSetF(int index, float value) {
+		FLOAT_ACCESS.set(this.getBase(), this.floatIndex(index), value);
+	}
+
+	public void implSetD(int index, double value) {
+		DOUBLE_ACCESS.set(this.getBase(), this.doubleIndex(index), value);
+	}
 
 	@SuppressWarnings("lossy-conversions")
 	public void implSetZ(int index, boolean value) {
 		index = this.checkTypeIndex(BOOLEAN_TYPE, index) + this.elementOffset;
 		if (value) {
-			this.getBase()[(index >>> 3) + this.byteOffset] |=  (1 << (index & 7));
+			this.getBase()[(index >>> 3) + this.byteOffset] |= (1 << (index & 7));
 		}
 		else {
 			this.getBase()[(index >>> 3) + this.byteOffset] &= ~(1 << (index & 7));
@@ -514,12 +662,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void setB(int index, byte value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implSetS(index, (short )(value));
-			case     INT_TYPE -> this.implSetI(index, (int   )(value));
-			case    LONG_TYPE -> this.implSetL(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implSetF(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implSetD(index, (double)(value));
+			case BYTE_TYPE -> this.implSetB(index, (byte)(value));
+			case SHORT_TYPE -> this.implSetS(index, (short)(value));
+			case INT_TYPE -> this.implSetI(index, (int)(value));
+			case LONG_TYPE -> this.implSetL(index, (long)(value));
+			case FLOAT_TYPE -> this.implSetF(index, (float)(value));
+			case DOUBLE_TYPE -> this.implSetD(index, (double)(value));
 			case BOOLEAN_TYPE -> this.implSetZ(index, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -527,12 +675,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void setS(int index, short value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implSetS(index, (short )(value));
-			case     INT_TYPE -> this.implSetI(index, (int   )(value));
-			case    LONG_TYPE -> this.implSetL(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implSetF(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implSetD(index, (double)(value));
+			case BYTE_TYPE -> this.implSetB(index, (byte)(value));
+			case SHORT_TYPE -> this.implSetS(index, (short)(value));
+			case INT_TYPE -> this.implSetI(index, (int)(value));
+			case LONG_TYPE -> this.implSetL(index, (long)(value));
+			case FLOAT_TYPE -> this.implSetF(index, (float)(value));
+			case DOUBLE_TYPE -> this.implSetD(index, (double)(value));
 			case BOOLEAN_TYPE -> this.implSetZ(index, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -540,12 +688,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void setI(int index, int value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implSetS(index, (short )(value));
-			case     INT_TYPE -> this.implSetI(index, (int   )(value));
-			case    LONG_TYPE -> this.implSetL(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implSetF(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implSetD(index, (double)(value));
+			case BYTE_TYPE -> this.implSetB(index, (byte)(value));
+			case SHORT_TYPE -> this.implSetS(index, (short)(value));
+			case INT_TYPE -> this.implSetI(index, (int)(value));
+			case LONG_TYPE -> this.implSetL(index, (long)(value));
+			case FLOAT_TYPE -> this.implSetF(index, (float)(value));
+			case DOUBLE_TYPE -> this.implSetD(index, (double)(value));
 			case BOOLEAN_TYPE -> this.implSetZ(index, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -553,12 +701,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void setL(int index, long value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implSetS(index, (short )(value));
-			case     INT_TYPE -> this.implSetI(index, (int   )(value));
-			case    LONG_TYPE -> this.implSetL(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implSetF(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implSetD(index, (double)(value));
+			case BYTE_TYPE -> this.implSetB(index, (byte)(value));
+			case SHORT_TYPE -> this.implSetS(index, (short)(value));
+			case INT_TYPE -> this.implSetI(index, (int)(value));
+			case LONG_TYPE -> this.implSetL(index, (long)(value));
+			case FLOAT_TYPE -> this.implSetF(index, (float)(value));
+			case DOUBLE_TYPE -> this.implSetD(index, (double)(value));
 			case BOOLEAN_TYPE -> this.implSetZ(index, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -566,12 +714,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void setF(int index, float value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implSetS(index, (short )(value));
-			case     INT_TYPE -> this.implSetI(index, (int   )(value));
-			case    LONG_TYPE -> this.implSetL(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implSetF(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implSetD(index, (double)(value));
+			case BYTE_TYPE -> this.implSetB(index, (byte)(value));
+			case SHORT_TYPE -> this.implSetS(index, (short)(value));
+			case INT_TYPE -> this.implSetI(index, (int)(value));
+			case LONG_TYPE -> this.implSetL(index, (long)(value));
+			case FLOAT_TYPE -> this.implSetF(index, (float)(value));
+			case DOUBLE_TYPE -> this.implSetD(index, (double)(value));
 			case BOOLEAN_TYPE -> this.implSetZ(index, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -579,12 +727,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void setD(int index, double value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implSetS(index, (short )(value));
-			case     INT_TYPE -> this.implSetI(index, (int   )(value));
-			case    LONG_TYPE -> this.implSetL(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implSetF(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implSetD(index, (double)(value));
+			case BYTE_TYPE -> this.implSetB(index, (byte)(value));
+			case SHORT_TYPE -> this.implSetS(index, (short)(value));
+			case INT_TYPE -> this.implSetI(index, (int)(value));
+			case LONG_TYPE -> this.implSetL(index, (long)(value));
+			case FLOAT_TYPE -> this.implSetF(index, (float)(value));
+			case DOUBLE_TYPE -> this.implSetD(index, (double)(value));
 			case BOOLEAN_TYPE -> this.implSetZ(index, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -592,18 +740,18 @@ public class NumberArray implements AutoCloseable {
 
 	public void setZ(int index, boolean value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implSetB(index, value ? (byte )(1)   : (byte )(0)  );
-			case   SHORT_TYPE -> this.implSetS(index, value ? (short)(1)   : (short)(0)  );
-			case     INT_TYPE -> this.implSetI(index, value ?         1    :         0   );
-			case    LONG_TYPE -> this.implSetL(index, value ?         1L   :         0L  );
-			case   FLOAT_TYPE -> this.implSetF(index, value ?         1.0F :         0.0F);
-			case  DOUBLE_TYPE -> this.implSetD(index, value ?         1.0D :         0.0D);
-			case BOOLEAN_TYPE -> this.implSetZ(index, value                              );
+			case BYTE_TYPE -> this.implSetB(index, value ? (byte)(1) : (byte)(0));
+			case SHORT_TYPE -> this.implSetS(index, value ? (short)(1) : (short)(0));
+			case INT_TYPE -> this.implSetI(index, value ? 1 : 0);
+			case LONG_TYPE -> this.implSetL(index, value ? 1L : 0L);
+			case FLOAT_TYPE -> this.implSetF(index, value ? 1.0F : 0.0F);
+			case DOUBLE_TYPE -> this.implSetD(index, value ? 1.0D : 0.0D);
+			case BOOLEAN_TYPE -> this.implSetZ(index, value);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
 	}
 
-	//////////////////////////////// fill ////////////////////////////////
+	/// ///////////////////////////// fill ////////////////////////////////
 
 	public void implFillFromTo(int from, int to, byte value) {
 		byte[] base = this.getBase();
@@ -676,18 +824,18 @@ public class NumberArray implements AutoCloseable {
 		this.checkTypeRange(BOOLEAN_TYPE, from, to);
 		if (from == to) return;
 		from += this.elementOffset;
-		to   += this.elementOffset;
-		int firstByteIndex = ( (from)      >>> 3) + this.byteOffset;
-		int  lastByteIndex = (((to  ) - 1) >>> 3) + this.byteOffset;
+		to += this.elementOffset;
+		int firstByteIndex = ((from) >>> 3) + this.byteOffset;
+		int lastByteIndex = (((to) - 1) >>> 3) + this.byteOffset;
 		byte firstByteMask = (byte)(255 << (from & 7));
-		byte  lastByteMask = (byte)(255 >>> ((-to) & 7));
+		byte lastByteMask = (byte)(255 >>> ((-to) & 7));
 		if (value) {
 			if (firstByteIndex == lastByteIndex) {
 				base[firstByteIndex] |= (byte)(firstByteMask & lastByteMask);
 			}
 			else {
 				base[firstByteIndex] |= firstByteMask;
-				for (int index = firstByteIndex; ++index < lastByteIndex;) {
+				for (int index = firstByteIndex; ++index < lastByteIndex; ) {
 					base[index] = (byte)(-1);
 				}
 				base[lastByteIndex] |= lastByteMask;
@@ -699,7 +847,7 @@ public class NumberArray implements AutoCloseable {
 			}
 			else {
 				base[firstByteIndex] &= (byte)(~firstByteMask);
-				for (int index = firstByteIndex; ++index < lastByteIndex;) {
+				for (int index = firstByteIndex; ++index < lastByteIndex; ) {
 					base[index] = (byte)(0);
 				}
 				base[lastByteIndex] &= (byte)(~lastByteMask);
@@ -707,22 +855,42 @@ public class NumberArray implements AutoCloseable {
 		}
 	}
 
-	public void fillB(byte    value) { this.fillFromToB(0, this.elementCount, value); }
-	public void fillS(short   value) { this.fillFromToS(0, this.elementCount, value); }
-	public void fillI(int     value) { this.fillFromToI(0, this.elementCount, value); }
-	public void fillL(long    value) { this.fillFromToL(0, this.elementCount, value); }
-	public void fillF(float   value) { this.fillFromToF(0, this.elementCount, value); }
-	public void fillD(double  value) { this.fillFromToD(0, this.elementCount, value); }
-	public void fillZ(boolean value) { this.fillFromToZ(0, this.elementCount, value); }
+	public void fillB(byte value) {
+		this.fillFromToB(0, this.elementCount, value);
+	}
+
+	public void fillS(short value) {
+		this.fillFromToS(0, this.elementCount, value);
+	}
+
+	public void fillI(int value) {
+		this.fillFromToI(0, this.elementCount, value);
+	}
+
+	public void fillL(long value) {
+		this.fillFromToL(0, this.elementCount, value);
+	}
+
+	public void fillF(float value) {
+		this.fillFromToF(0, this.elementCount, value);
+	}
+
+	public void fillD(double value) {
+		this.fillFromToD(0, this.elementCount, value);
+	}
+
+	public void fillZ(boolean value) {
+		this.fillFromToZ(0, this.elementCount, value);
+	}
 
 	public void fillFromToB(int from, int to, byte value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
-			case     INT_TYPE -> this.implFillFromTo(from, to, (int   )(value));
-			case    LONG_TYPE -> this.implFillFromTo(from, to, (long  )(value));
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, (float )(value));
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
+			case BYTE_TYPE -> this.implFillFromTo(from, to, (byte)(value));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, (short)(value));
+			case INT_TYPE -> this.implFillFromTo(from, to, (int)(value));
+			case LONG_TYPE -> this.implFillFromTo(from, to, (long)(value));
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, (float)(value));
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
 			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -730,12 +898,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void fillFromToS(int from, int to, short value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
-			case     INT_TYPE -> this.implFillFromTo(from, to, (int   )(value));
-			case    LONG_TYPE -> this.implFillFromTo(from, to, (long  )(value));
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, (float )(value));
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
+			case BYTE_TYPE -> this.implFillFromTo(from, to, (byte)(value));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, (short)(value));
+			case INT_TYPE -> this.implFillFromTo(from, to, (int)(value));
+			case LONG_TYPE -> this.implFillFromTo(from, to, (long)(value));
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, (float)(value));
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
 			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -743,12 +911,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void fillFromToI(int from, int to, int value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
-			case     INT_TYPE -> this.implFillFromTo(from, to, (int   )(value));
-			case    LONG_TYPE -> this.implFillFromTo(from, to, (long  )(value));
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, (float )(value));
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
+			case BYTE_TYPE -> this.implFillFromTo(from, to, (byte)(value));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, (short)(value));
+			case INT_TYPE -> this.implFillFromTo(from, to, (int)(value));
+			case LONG_TYPE -> this.implFillFromTo(from, to, (long)(value));
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, (float)(value));
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
 			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -756,12 +924,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void fillFromToL(int from, int to, long value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
-			case     INT_TYPE -> this.implFillFromTo(from, to, (int   )(value));
-			case    LONG_TYPE -> this.implFillFromTo(from, to, (long  )(value));
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, (float )(value));
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
+			case BYTE_TYPE -> this.implFillFromTo(from, to, (byte)(value));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, (short)(value));
+			case INT_TYPE -> this.implFillFromTo(from, to, (int)(value));
+			case LONG_TYPE -> this.implFillFromTo(from, to, (long)(value));
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, (float)(value));
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
 			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -769,12 +937,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void fillFromToF(int from, int to, float value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
-			case     INT_TYPE -> this.implFillFromTo(from, to, (int   )(value));
-			case    LONG_TYPE -> this.implFillFromTo(from, to, (long  )(value));
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, (float )(value));
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
+			case BYTE_TYPE -> this.implFillFromTo(from, to, (byte)(value));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, (short)(value));
+			case INT_TYPE -> this.implFillFromTo(from, to, (int)(value));
+			case LONG_TYPE -> this.implFillFromTo(from, to, (long)(value));
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, (float)(value));
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
 			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -782,12 +950,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void fillFromToD(int from, int to, double value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, (byte  )(value));
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, (short )(value));
-			case     INT_TYPE -> this.implFillFromTo(from, to, (int   )(value));
-			case    LONG_TYPE -> this.implFillFromTo(from, to, (long  )(value));
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, (float )(value));
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
+			case BYTE_TYPE -> this.implFillFromTo(from, to, (byte)(value));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, (short)(value));
+			case INT_TYPE -> this.implFillFromTo(from, to, (int)(value));
+			case LONG_TYPE -> this.implFillFromTo(from, to, (long)(value));
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, (float)(value));
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, (double)(value));
 			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value != 0);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -795,18 +963,18 @@ public class NumberArray implements AutoCloseable {
 
 	public void fillFromToZ(int from, int to, boolean value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implFillFromTo(from, to, value ? (byte )(1)   : (byte )(0)  );
-			case   SHORT_TYPE -> this.implFillFromTo(from, to, value ? (short)(1)   : (short)(0)  );
-			case     INT_TYPE -> this.implFillFromTo(from, to, value ?         1    :         0   );
-			case    LONG_TYPE -> this.implFillFromTo(from, to, value ?         1L   :         0L  );
-			case   FLOAT_TYPE -> this.implFillFromTo(from, to, value ?         1.0F :         0.0F);
-			case  DOUBLE_TYPE -> this.implFillFromTo(from, to, value ?         1.0D :         0.0D);
-			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value                              );
+			case BYTE_TYPE -> this.implFillFromTo(from, to, value ? (byte)(1) : (byte)(0));
+			case SHORT_TYPE -> this.implFillFromTo(from, to, value ? (short)(1) : (short)(0));
+			case INT_TYPE -> this.implFillFromTo(from, to, value ? 1 : 0);
+			case LONG_TYPE -> this.implFillFromTo(from, to, value ? 1L : 0L);
+			case FLOAT_TYPE -> this.implFillFromTo(from, to, value ? 1.0F : 0.0F);
+			case DOUBLE_TYPE -> this.implFillFromTo(from, to, value ? 1.0D : 0.0D);
+			case BOOLEAN_TYPE -> this.implFillFromTo(from, to, value);
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
 	}
 
-	//////////////////////////////// add ////////////////////////////////
+	/// ///////////////////////////// add ////////////////////////////////
 
 	public void implAdd(int index, byte value) {
 		byte[] base = this.getBase();
@@ -846,12 +1014,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void add(int index, byte value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implAdd(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implAdd(index, (short )(value));
-			case     INT_TYPE -> this.implAdd(index, (int   )(value));
-			case    LONG_TYPE -> this.implAdd(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implAdd(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implAdd(index, (double)(value));
+			case BYTE_TYPE -> this.implAdd(index, (byte)(value));
+			case SHORT_TYPE -> this.implAdd(index, (short)(value));
+			case INT_TYPE -> this.implAdd(index, (int)(value));
+			case LONG_TYPE -> this.implAdd(index, (long)(value));
+			case FLOAT_TYPE -> this.implAdd(index, (float)(value));
+			case DOUBLE_TYPE -> this.implAdd(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't add booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -859,12 +1027,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void add(int index, short value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implAdd(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implAdd(index, (short )(value));
-			case     INT_TYPE -> this.implAdd(index, (int   )(value));
-			case    LONG_TYPE -> this.implAdd(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implAdd(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implAdd(index, (double)(value));
+			case BYTE_TYPE -> this.implAdd(index, (byte)(value));
+			case SHORT_TYPE -> this.implAdd(index, (short)(value));
+			case INT_TYPE -> this.implAdd(index, (int)(value));
+			case LONG_TYPE -> this.implAdd(index, (long)(value));
+			case FLOAT_TYPE -> this.implAdd(index, (float)(value));
+			case DOUBLE_TYPE -> this.implAdd(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't add booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -872,12 +1040,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void add(int index, int value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implAdd(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implAdd(index, (short )(value));
-			case     INT_TYPE -> this.implAdd(index, (int   )(value));
-			case    LONG_TYPE -> this.implAdd(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implAdd(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implAdd(index, (double)(value));
+			case BYTE_TYPE -> this.implAdd(index, (byte)(value));
+			case SHORT_TYPE -> this.implAdd(index, (short)(value));
+			case INT_TYPE -> this.implAdd(index, (int)(value));
+			case LONG_TYPE -> this.implAdd(index, (long)(value));
+			case FLOAT_TYPE -> this.implAdd(index, (float)(value));
+			case DOUBLE_TYPE -> this.implAdd(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't add booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -885,12 +1053,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void add(int index, long value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implAdd(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implAdd(index, (short )(value));
-			case     INT_TYPE -> this.implAdd(index, (int   )(value));
-			case    LONG_TYPE -> this.implAdd(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implAdd(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implAdd(index, (double)(value));
+			case BYTE_TYPE -> this.implAdd(index, (byte)(value));
+			case SHORT_TYPE -> this.implAdd(index, (short)(value));
+			case INT_TYPE -> this.implAdd(index, (int)(value));
+			case LONG_TYPE -> this.implAdd(index, (long)(value));
+			case FLOAT_TYPE -> this.implAdd(index, (float)(value));
+			case DOUBLE_TYPE -> this.implAdd(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't add booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -898,12 +1066,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void add(int index, float value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implAdd(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implAdd(index, (short )(value));
-			case     INT_TYPE -> this.implAdd(index, (int   )(value));
-			case    LONG_TYPE -> this.implAdd(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implAdd(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implAdd(index, (double)(value));
+			case BYTE_TYPE -> this.implAdd(index, (byte)(value));
+			case SHORT_TYPE -> this.implAdd(index, (short)(value));
+			case INT_TYPE -> this.implAdd(index, (int)(value));
+			case LONG_TYPE -> this.implAdd(index, (long)(value));
+			case FLOAT_TYPE -> this.implAdd(index, (float)(value));
+			case DOUBLE_TYPE -> this.implAdd(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't add booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -911,18 +1079,18 @@ public class NumberArray implements AutoCloseable {
 
 	public void add(int index, double value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implAdd(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implAdd(index, (short )(value));
-			case     INT_TYPE -> this.implAdd(index, (int   )(value));
-			case    LONG_TYPE -> this.implAdd(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implAdd(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implAdd(index, (double)(value));
+			case BYTE_TYPE -> this.implAdd(index, (byte)(value));
+			case SHORT_TYPE -> this.implAdd(index, (short)(value));
+			case INT_TYPE -> this.implAdd(index, (int)(value));
+			case LONG_TYPE -> this.implAdd(index, (long)(value));
+			case FLOAT_TYPE -> this.implAdd(index, (float)(value));
+			case DOUBLE_TYPE -> this.implAdd(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't add booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
 	}
 
-	//////////////////////////////// mul ////////////////////////////////
+	/// ///////////////////////////// mul ////////////////////////////////
 
 	public void implMul(int index, byte value) {
 		byte[] base = this.getBase();
@@ -962,12 +1130,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void mul(int index, byte value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMul(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMul(index, (short )(value));
-			case     INT_TYPE -> this.implMul(index, (int   )(value));
-			case    LONG_TYPE -> this.implMul(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMul(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMul(index, (double)(value));
+			case BYTE_TYPE -> this.implMul(index, (byte)(value));
+			case SHORT_TYPE -> this.implMul(index, (short)(value));
+			case INT_TYPE -> this.implMul(index, (int)(value));
+			case LONG_TYPE -> this.implMul(index, (long)(value));
+			case FLOAT_TYPE -> this.implMul(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -975,12 +1143,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void mul(int index, short value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMul(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMul(index, (short )(value));
-			case     INT_TYPE -> this.implMul(index, (int   )(value));
-			case    LONG_TYPE -> this.implMul(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMul(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMul(index, (double)(value));
+			case BYTE_TYPE -> this.implMul(index, (byte)(value));
+			case SHORT_TYPE -> this.implMul(index, (short)(value));
+			case INT_TYPE -> this.implMul(index, (int)(value));
+			case LONG_TYPE -> this.implMul(index, (long)(value));
+			case FLOAT_TYPE -> this.implMul(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -988,12 +1156,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void mul(int index, int value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMul(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMul(index, (short )(value));
-			case     INT_TYPE -> this.implMul(index, (int   )(value));
-			case    LONG_TYPE -> this.implMul(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMul(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMul(index, (double)(value));
+			case BYTE_TYPE -> this.implMul(index, (byte)(value));
+			case SHORT_TYPE -> this.implMul(index, (short)(value));
+			case INT_TYPE -> this.implMul(index, (int)(value));
+			case LONG_TYPE -> this.implMul(index, (long)(value));
+			case FLOAT_TYPE -> this.implMul(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1001,12 +1169,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void mul(int index, long value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMul(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMul(index, (short )(value));
-			case     INT_TYPE -> this.implMul(index, (int   )(value));
-			case    LONG_TYPE -> this.implMul(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMul(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMul(index, (double)(value));
+			case BYTE_TYPE -> this.implMul(index, (byte)(value));
+			case SHORT_TYPE -> this.implMul(index, (short)(value));
+			case INT_TYPE -> this.implMul(index, (int)(value));
+			case LONG_TYPE -> this.implMul(index, (long)(value));
+			case FLOAT_TYPE -> this.implMul(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1014,12 +1182,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void mul(int index, float value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMul(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMul(index, (short )(value));
-			case     INT_TYPE -> this.implMul(index, (int   )(value));
-			case    LONG_TYPE -> this.implMul(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMul(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMul(index, (double)(value));
+			case BYTE_TYPE -> this.implMul(index, (byte)(value));
+			case SHORT_TYPE -> this.implMul(index, (short)(value));
+			case INT_TYPE -> this.implMul(index, (int)(value));
+			case LONG_TYPE -> this.implMul(index, (long)(value));
+			case FLOAT_TYPE -> this.implMul(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1027,18 +1195,18 @@ public class NumberArray implements AutoCloseable {
 
 	public void mul(int index, double value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMul(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMul(index, (short )(value));
-			case     INT_TYPE -> this.implMul(index, (int   )(value));
-			case    LONG_TYPE -> this.implMul(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMul(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMul(index, (double)(value));
+			case BYTE_TYPE -> this.implMul(index, (byte)(value));
+			case SHORT_TYPE -> this.implMul(index, (short)(value));
+			case INT_TYPE -> this.implMul(index, (int)(value));
+			case LONG_TYPE -> this.implMul(index, (long)(value));
+			case FLOAT_TYPE -> this.implMul(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMul(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't mul booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
 	}
 
-	//////////////////////////////// min (used by worley noise) ////////////////////////////////
+	/// ///////////////////////////// min (used by worley noise) ////////////////////////////////
 
 	public void implMin(int index, byte value) {
 		byte[] base = this.getBase();
@@ -1078,12 +1246,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void min(int index, byte value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMin(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMin(index, (short )(value));
-			case     INT_TYPE -> this.implMin(index, (int   )(value));
-			case    LONG_TYPE -> this.implMin(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMin(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMin(index, (double)(value));
+			case BYTE_TYPE -> this.implMin(index, (byte)(value));
+			case SHORT_TYPE -> this.implMin(index, (short)(value));
+			case INT_TYPE -> this.implMin(index, (int)(value));
+			case LONG_TYPE -> this.implMin(index, (long)(value));
+			case FLOAT_TYPE -> this.implMin(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMin(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't min booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1091,12 +1259,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void min(int index, short value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMin(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMin(index, (short )(value));
-			case     INT_TYPE -> this.implMin(index, (int   )(value));
-			case    LONG_TYPE -> this.implMin(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMin(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMin(index, (double)(value));
+			case BYTE_TYPE -> this.implMin(index, (byte)(value));
+			case SHORT_TYPE -> this.implMin(index, (short)(value));
+			case INT_TYPE -> this.implMin(index, (int)(value));
+			case LONG_TYPE -> this.implMin(index, (long)(value));
+			case FLOAT_TYPE -> this.implMin(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMin(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't min booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1104,12 +1272,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void min(int index, int value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMin(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMin(index, (short )(value));
-			case     INT_TYPE -> this.implMin(index, (int   )(value));
-			case    LONG_TYPE -> this.implMin(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMin(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMin(index, (double)(value));
+			case BYTE_TYPE -> this.implMin(index, (byte)(value));
+			case SHORT_TYPE -> this.implMin(index, (short)(value));
+			case INT_TYPE -> this.implMin(index, (int)(value));
+			case LONG_TYPE -> this.implMin(index, (long)(value));
+			case FLOAT_TYPE -> this.implMin(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMin(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't min booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1117,12 +1285,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void min(int index, long value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMin(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMin(index, (short )(value));
-			case     INT_TYPE -> this.implMin(index, (int   )(value));
-			case    LONG_TYPE -> this.implMin(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMin(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMin(index, (double)(value));
+			case BYTE_TYPE -> this.implMin(index, (byte)(value));
+			case SHORT_TYPE -> this.implMin(index, (short)(value));
+			case INT_TYPE -> this.implMin(index, (int)(value));
+			case LONG_TYPE -> this.implMin(index, (long)(value));
+			case FLOAT_TYPE -> this.implMin(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMin(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't min booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1130,12 +1298,12 @@ public class NumberArray implements AutoCloseable {
 
 	public void min(int index, float value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMin(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMin(index, (short )(value));
-			case     INT_TYPE -> this.implMin(index, (int   )(value));
-			case    LONG_TYPE -> this.implMin(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMin(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMin(index, (double)(value));
+			case BYTE_TYPE -> this.implMin(index, (byte)(value));
+			case SHORT_TYPE -> this.implMin(index, (short)(value));
+			case INT_TYPE -> this.implMin(index, (int)(value));
+			case LONG_TYPE -> this.implMin(index, (long)(value));
+			case FLOAT_TYPE -> this.implMin(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMin(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't min booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
@@ -1143,18 +1311,18 @@ public class NumberArray implements AutoCloseable {
 
 	public void min(int index, double value) {
 		switch (this.type) {
-			case    BYTE_TYPE -> this.implMin(index, (byte  )(value));
-			case   SHORT_TYPE -> this.implMin(index, (short )(value));
-			case     INT_TYPE -> this.implMin(index, (int   )(value));
-			case    LONG_TYPE -> this.implMin(index, (long  )(value));
-			case   FLOAT_TYPE -> this.implMin(index, (float )(value));
-			case  DOUBLE_TYPE -> this.implMin(index, (double)(value));
+			case BYTE_TYPE -> this.implMin(index, (byte)(value));
+			case SHORT_TYPE -> this.implMin(index, (short)(value));
+			case INT_TYPE -> this.implMin(index, (int)(value));
+			case LONG_TYPE -> this.implMin(index, (long)(value));
+			case FLOAT_TYPE -> this.implMin(index, (float)(value));
+			case DOUBLE_TYPE -> this.implMin(index, (double)(value));
 			case BOOLEAN_TYPE -> throw new IllegalStateException("Can't min booleans");
 			default -> throw new IllegalStateException("Invalid type: " + this.type);
 		}
 	}
 
-	//////////////////////////////// misc ////////////////////////////////
+	/// ///////////////////////////// misc ////////////////////////////////
 
 	public int length() {
 		return this.elementCount;
@@ -1304,18 +1472,22 @@ public class NumberArray implements AutoCloseable {
 			if (MIN_SIZE <= 0L) throw new IllegalStateException("-D" + MIN_PROP + " must be positive.");
 			if (MAX_SIZE < MIN_SIZE) throw new IllegalStateException("-D" + MAX_PROP + " must be greater than or equal to -D" + MIN_PROP);
 		}
+
 		public static final int FIRST_ALIGNED_INDEX;
+
 		static {
 			ByteBuffer buffer = ByteBuffer.wrap(new byte[0]);
 			int firstAlignedIndex;
-			got: {
+			got:
+			{
 				for (int alignment : new int[] { 8, 4, 2, 1 }) {
 					try {
 						firstAlignedIndex = -buffer.alignmentOffset(0, alignment) & (alignment - 1);
 						Testing.log("Got first aligned index " + firstAlignedIndex + " for alignment " + alignment);
 						break got;
 					}
-					catch (Exception ignored) {}
+					catch (Exception ignored) {
+					}
 				}
 				firstAlignedIndex = 0;
 				Testing.log("Failed to get alignment index. Assuming 0.");
@@ -1325,9 +1497,13 @@ public class NumberArray implements AutoCloseable {
 
 		public static final ThreadLocal<Manager> INSTANCES = ThreadLocal.withInitial(Manager::new);
 
-		/** the beginning of the region of memory this Manager keeps track of. */
+		/**
+		the beginning of the region of memory this Manager keeps track of.
+		*/
 		public byte[] base;
-		/** the number of bytes used in our region of memory. */
+		/**
+		the number of bytes used in our region of memory.
+		*/
 		public int used;
 
 		public Manager() {
@@ -1458,8 +1634,8 @@ public class NumberArray implements AutoCloseable {
 				"0x"
 				+ this.hex(28) + this.hex(24)
 				+ this.hex(20) + this.hex(16)
-				+ this.hex(12) + this.hex( 8)
-				+ this.hex( 4) + this.hex( 0)
+				+ this.hex(12) + this.hex(8)
+				+ this.hex(4) + this.hex(0)
 			);
 		}
 

@@ -24,18 +24,18 @@ public class AddInsnTree extends BinaryInsnTree {
 
 	public static InsnTree create(ExpressionParser parser, InsnTree left, InsnTree right) {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
-		ConstantValue leftConstant  = left .getConstantValue();
+		ConstantValue leftConstant = left.getConstantValue();
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT    -> ldc(Math.addExact(leftConstant. asInt(), rightConstant. asInt()));
-				case LONG   -> ldc(Math.addExact(leftConstant.asLong(), rightConstant.asLong()));
-				case FLOAT  -> ldc(leftConstant. asFloat() + rightConstant. asFloat());
+				case INT -> ldc(Math.addExact(leftConstant.asInt(), rightConstant.asInt()));
+				case LONG -> ldc(Math.addExact(leftConstant.asLong(), rightConstant.asLong()));
+				case FLOAT -> ldc(leftConstant.asFloat() + rightConstant.asFloat());
 				case DOUBLE -> ldc(leftConstant.asDouble() + rightConstant.asDouble());
-				default     -> throw new AssertionError(type);
+				default -> throw new AssertionError(type);
 			};
 		}
-		left  = left .cast(parser, type, CastMode.IMPLICIT_THROW, false);
+		left = left.cast(parser, type, CastMode.IMPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.IMPLICIT_THROW, false);
 		return new AddInsnTree(left, right, type.getOpcode(IADD));
 	}

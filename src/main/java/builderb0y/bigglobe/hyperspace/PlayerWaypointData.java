@@ -17,7 +17,7 @@ public record PlayerWaypointData(
 	ServerWaypointData destination,
 	PackedWorldPos displayPosition
 )
-implements WaypointData {
+	implements WaypointData {
 
 	@Override
 	public int id() {

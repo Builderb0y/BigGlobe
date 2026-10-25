@@ -35,9 +35,9 @@ public class CompareConditionTree {
 	public static ConditionTree equal(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->    IntCompareConditionTree.equal(operands.left, operands.right);
-			case LONG   ->   LongCompareConditionTree.equal(operands.left, operands.right);
-			case FLOAT  ->  FloatCompareConditionTree.equal(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.equal(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.equal(operands.left, operands.right);
+			case FLOAT -> FloatCompareConditionTree.equal(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.equal(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.equal(parser, left, right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
@@ -47,9 +47,9 @@ public class CompareConditionTree {
 	public static ConditionTree notEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->    IntCompareConditionTree.notEqual(operands.left, operands.right);
-			case LONG   ->   LongCompareConditionTree.notEqual(operands.left, operands.right);
-			case FLOAT  ->  FloatCompareConditionTree.notEqual(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.notEqual(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.notEqual(operands.left, operands.right);
+			case FLOAT -> FloatCompareConditionTree.notEqual(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.notEqual(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.notEqual(parser, left, right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
@@ -68,11 +68,11 @@ public class CompareConditionTree {
 	public static ConditionTree identityEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = identityOperands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->            IntCompareConditionTree.equal(operands.left, operands.right);
-			case LONG   ->           LongCompareConditionTree.equal(operands.left, operands.right);
-			case FLOAT  ->  BitwiseFloatEqualityConditionTree.equal(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.equal(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.equal(operands.left, operands.right);
+			case FLOAT -> BitwiseFloatEqualityConditionTree.equal(operands.left, operands.right);
 			case DOUBLE -> BitwiseDoubleEqualityConditionTree.equal(operands.left, operands.right);
-			case OBJECT ->      IdentityEqualityConditionTree.equal(parser, left, right);
+			case OBJECT -> IdentityEqualityConditionTree.equal(parser, left, right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
@@ -80,11 +80,11 @@ public class CompareConditionTree {
 	public static ConditionTree identityNotEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = identityOperands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->            IntCompareConditionTree.notEqual(operands.left, operands.right);
-			case LONG   ->           LongCompareConditionTree.notEqual(operands.left, operands.right);
-			case FLOAT  ->  BitwiseFloatEqualityConditionTree.notEqual(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.notEqual(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.notEqual(operands.left, operands.right);
+			case FLOAT -> BitwiseFloatEqualityConditionTree.notEqual(operands.left, operands.right);
 			case DOUBLE -> BitwiseDoubleEqualityConditionTree.notEqual(operands.left, operands.right);
-			case OBJECT ->      IdentityEqualityConditionTree.notEqual(parser, left, right);
+			case OBJECT -> IdentityEqualityConditionTree.notEqual(parser, left, right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
 		};
 	}
@@ -92,9 +92,9 @@ public class CompareConditionTree {
 	public static ConditionTree lessThan(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->    IntCompareConditionTree.lessThan(operands.left, operands.right);
-			case LONG   ->   LongCompareConditionTree.lessThan(operands.left, operands.right);
-			case FLOAT  ->  FloatCompareConditionTree.lessThan(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.lessThan(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.lessThan(operands.left, operands.right);
+			case FLOAT -> FloatCompareConditionTree.lessThan(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.lessThan(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.lessThan(parser, operands.left, operands.right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
@@ -104,9 +104,9 @@ public class CompareConditionTree {
 	public static ConditionTree greaterThan(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->    IntCompareConditionTree.greaterThan(operands.left, operands.right);
-			case LONG   ->   LongCompareConditionTree.greaterThan(operands.left, operands.right);
-			case FLOAT  ->  FloatCompareConditionTree.greaterThan(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.greaterThan(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.greaterThan(operands.left, operands.right);
+			case FLOAT -> FloatCompareConditionTree.greaterThan(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.greaterThan(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.greaterThan(parser, operands.left, operands.right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
@@ -116,9 +116,9 @@ public class CompareConditionTree {
 	public static ConditionTree lessThanOrEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->    IntCompareConditionTree.lessThanOrEqual(operands.left, operands.right);
-			case LONG   ->   LongCompareConditionTree.lessThanOrEqual(operands.left, operands.right);
-			case FLOAT  ->  FloatCompareConditionTree.lessThanOrEqual(left, operands.right);
+			case INT -> IntCompareConditionTree.lessThanOrEqual(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.lessThanOrEqual(operands.left, operands.right);
+			case FLOAT -> FloatCompareConditionTree.lessThanOrEqual(left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.lessThanOrEqual(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.lessThanOrEqual(parser, operands.left, operands.right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());
@@ -128,9 +128,9 @@ public class CompareConditionTree {
 	public static ConditionTree greaterThanOrEqual(ExpressionParser parser, InsnTree left, InsnTree right) {
 		Operands operands = operands(parser, left, right);
 		return switch (operands.type.getSort()) {
-			case INT    ->    IntCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
-			case LONG   ->   LongCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
-			case FLOAT  ->  FloatCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
+			case INT -> IntCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
+			case LONG -> LongCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
+			case FLOAT -> FloatCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
 			case DOUBLE -> DoubleCompareConditionTree.greaterThanOrEqual(operands.left, operands.right);
 			case OBJECT -> ObjectCompareConditionTree.greaterThanOrEqual(parser, operands.left, operands.right);
 			default -> throw new InvalidOperandException("Can't compare " + left.getTypeInfo() + " and " + right.getTypeInfo());

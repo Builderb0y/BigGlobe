@@ -1,48 +1,44 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import builderb0y.bigglobe.blockEntities.BigGlobeBlockEntityTypes;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
-public class DelayedGenerationBlock extends Block implements BlockEntityProvider {
+public class DelayedGenerationBlock extends Block implements EntityBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<DelayedGenerationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelayedGenerationBlock.class);
+	public static final MapCodec<DelayedGenerationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelayedGenerationBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public DelayedGenerationBlock(Settings settings) {
+	public DelayedGenerationBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Nullable
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new DelayedGenerationBlockEntity(BigGlobeBlockEntityTypes.DELAYED_GENERATION, pos, state);
 	}
 
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-		if (!world.isClient() && type == BigGlobeBlockEntityTypes.DELAYED_GENERATION) {
-			return (World world1, BlockPos pos, BlockState state1, T blockEntity) -> ((DelayedGenerationBlockEntity)(blockEntity)).tick();
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+		if (!world.isClientSide() && type == BigGlobeBlockEntityTypes.DELAYED_GENERATION) {
+			return (Level world1, BlockPos pos, BlockState state1, T blockEntity) -> ((DelayedGenerationBlockEntity)(blockEntity)).tick();
 		}
 		return null;
 	}

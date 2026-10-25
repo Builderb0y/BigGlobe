@@ -1,41 +1,29 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BlockStateVersions {
 
 	public static boolean isReplaceable(BlockState state) {
-		return state.isReplaceable();
+		return state.canBeReplaced();
 	}
 
 	public static boolean canSpawnInside(BlockState state) {
-		return state.getBlock().canMobSpawnInside(state);
+		return state.getBlock().isPossibleToRespawnInThis(state);
 	}
 
-	public static boolean isOpaqueFullCube(BlockState state, BlockView world, BlockPos pos) {
-		#if MC_VERSION >= MC_1_21_2
-			return state.isOpaqueFullCube();
-		#else
-			return state.isOpaqueFullCube(world, pos);
-		#endif
+	public static boolean isOpaqueFullCube(BlockState state, BlockGetter world, BlockPos pos) {
+		return state.isSolidRender(world, pos);
 	}
 
-	public static int getOpacity(BlockState state, BlockView world, BlockPos pos) {
-		#if MC_VERSION >= MC_1_21_2
-			return state.getOpacity();
-		#else
-			return state.getOpacity(world, pos);
-		#endif
+	public static int getOpacity(BlockState state, BlockGetter world, BlockPos pos) {
+		return state.getLightBlock(world, pos);
 	}
 
-	public static VoxelShape getCullingShape(BlockState state, BlockView world, BlockPos pos) {
-		#if MC_VERSION >= MC_1_21_2
-			return state.getCullingShape();
-		#else
-			return state.getCullingShape(world, pos);
-		#endif
+	public static VoxelShape getCullingShape(BlockState state, BlockGetter world, BlockPos pos) {
+		return state.getOcclusionShape(world, pos);
 	}
 }

@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -15,6 +12,7 @@ import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
+import net.minecraft.core.Holder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -28,7 +26,7 @@ public class ScriptDecisionTreeCondition extends DecisionTreeCondition.Impl {
 	}
 
 	@Override
-	public ConditionTree createCondition(RegistryEntry<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
+	public ConditionTree createCondition(Holder<DecisionTreeSettings> selfEntry, long selfSeed, DataCompileContext context, @Nullable InsnTree loadY) throws ScriptParsingException {
 		MethodCompileContext decisionTreeMethod = context.mainClass.newMethod(
 			ACC_PUBLIC,
 			"decision_tree_condition_" + DataCompileContext.internalName(UnregisteredObjectException.getID(selfEntry), context.mainClass.memberUniquifier++),

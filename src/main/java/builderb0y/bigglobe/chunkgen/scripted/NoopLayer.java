@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
@@ -12,14 +10,14 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 public class NoopLayer extends Layer {
 
 	@SuppressWarnings("unchecked")
-	public static final RegistryEntry<Layer>[] EMPTY_CHILDREN = new RegistryEntry[0];
+	public static final Holder<Layer>[] EMPTY_CHILDREN = new Holder[0];
 
 	public NoopLayer() {
 		super(null, EMPTY_CHILDREN, null, null);
 	}
 
 	@Override
-	public void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder) {
+	public void buildDependencyStream(Stream.Builder<Holder<? extends DependencyView>> builder) {
 		//no-op.
 	}
 

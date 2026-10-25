@@ -25,18 +25,18 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 	public double getValue(long seed, int x, int y) {
 		seed = this.salt.xor(seed);
 		int
-			modX     = BigGlobeMath.modulus_BP(x, this.scaleX),
-			modY     = BigGlobeMath.modulus_BP(y, this.scaleY),
-			gridX0   = x - modX,
-			gridY0   = y - modY,
-			gridX1   = gridX0 + this.scaleX,
-			gridY1   = gridY0 + this.scaleY;
+			modX = BigGlobeMath.modulus_BP(x, this.scaleX),
+			modY = BigGlobeMath.modulus_BP(y, this.scaleY),
+			gridX0 = x - modX,
+			gridY0 = y - modY,
+			gridX1 = gridX0 + this.scaleX,
+			gridY1 = gridY0 + this.scaleY;
 		double
-			fracX0   = modX * this.rcpX,
-			fracY0   = modY * this.rcpY,
-			fracX1   = fracX0 - 1.0D,
-			fracY1   = fracY0 - 1.0D,
-			smoothX  = Interpolator.smooth(fracX0),
+			fracX0 = modX * this.rcpX,
+			fracY0 = modY * this.rcpY,
+			fracX1 = fracX0 - 1.0D,
+			fracY1 = fracY0 - 1.0D,
+			smoothX = Interpolator.smooth(fracX0),
 			slopeX00 = this.slopeX(seed, gridX0, gridY0),
 			slopeX01 = this.slopeX(seed, gridX0, gridY1),
 			slopeX10 = this.slopeX(seed, gridX1, gridY0),
@@ -80,18 +80,18 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 		if (sampleCount <= 0) return;
 		seed = this.salt.xor(seed);
 		int
-			scaleX   = this.scaleX,
-			modX     = BigGlobeMath.modulus_BP(startX, scaleX),
-			modY     = BigGlobeMath.modulus_BP(y, this.scaleY),
-			gridX    = startX - modX,
-			gridY0   = y - modY,
-			gridY1   = gridY0 + this.scaleY;
+			scaleX = this.scaleX,
+			modX = BigGlobeMath.modulus_BP(startX, scaleX),
+			modY = BigGlobeMath.modulus_BP(y, this.scaleY),
+			gridX = startX - modX,
+			gridY0 = y - modY,
+			gridY1 = gridY0 + this.scaleY;
 		double
-			rcpX     = this.rcpX,
-			rcpY     = this.rcpY,
-			fracY0   = modY * rcpY,
-			fracY1   = fracY0 - 1.0D,
-			smoothY  = Interpolator.smooth(fracY0),
+			rcpX = this.rcpX,
+			rcpY = this.rcpY,
+			fracY0 = modY * rcpY,
+			fracY1 = fracY0 - 1.0D,
+			smoothY = Interpolator.smooth(fracY0),
 			dSmoothY = Interpolator.smoothDerivative(fracY0),
 			slopeX00 = this.slopeX(seed, gridX, gridY0),
 			slopeX01 = this.slopeX(seed, gridX, gridY1),
@@ -105,7 +105,7 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 			slopeY11 = this.slopeY(seed, gridX, gridY1),
 			offset10 = this.offset(seed, gridX, gridY0),
 			offset11 = this.offset(seed, gridX, gridY1);
-		for (int index = 0; true /* break in the middle of the loop. */;) {
+		for (int index = 0; true /* break in the middle of the loop. */; ) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			double smoothX = Interpolator.smooth(fracX0);
@@ -137,15 +137,15 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 				) * rcpY
 			);
 			if (++index >= sampleCount) break;
-			if (++modX  >= scaleX) {
-				modX     = 0;
+			if (++modX >= scaleX) {
+				modX = 0;
 				slopeX00 = slopeX10;
 				slopeX01 = slopeX11;
 				slopeY00 = slopeY10;
 				slopeY01 = slopeY11;
 				offset00 = offset10;
 				offset01 = offset11;
-				gridX   += scaleX;
+				gridX += scaleX;
 				slopeX10 = this.slopeX(seed, gridX, gridY0);
 				slopeX11 = this.slopeX(seed, gridX, gridY1);
 				slopeY10 = this.slopeY(seed, gridX, gridY0);
@@ -163,13 +163,13 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 		seed = this.salt.xor(seed);
 		int
 			scaleY = this.scaleY,
-			modX   = BigGlobeMath.modulus_BP(x, this.scaleX),
-			modY   = BigGlobeMath.modulus_BP(startY, scaleY),
+			modX = BigGlobeMath.modulus_BP(x, this.scaleX),
+			modY = BigGlobeMath.modulus_BP(startY, scaleY),
 			gridX0 = x - modX,
 			gridX1 = gridX0 + this.scaleX,
-			gridY  = startY - modY;
+			gridY = startY - modY;
 		double
-			rcpY   = this.rcpY,
+			rcpY = this.rcpY,
 			fracX0 = this.rcpX * modX,
 			fracX1 = fracX0 - 1.0D,
 			smoothX = Interpolator.smooth(fracX0),
@@ -183,7 +183,7 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 			offset11 = this.slopeX(seed, gridX1, gridY) * fracX1 + this.offset(seed, gridX1, gridY),
 			partial0 = Interpolator.mixLinear(slopeY00, slopeY10, smoothX),
 			partial1 = Interpolator.mixLinear(slopeY01, slopeY11, smoothX);
-		for (int index = 0; true /* break in the middle of the loop. */;) {
+		for (int index = 0; true /* break in the middle of the loop. */; ) {
 			double fracY0 = modY * rcpY;
 			double fracY1 = fracY0 - 1.0D;
 			samples.setD(
@@ -205,13 +205,13 @@ public class PerlinDerivativeYGrid2D extends PerlinBaseGrid2D {
 				) * rcpY
 			);
 			if (++index >= sampleCount) break;
-			if (++modY  >= scaleY) {
-				modY     = 0;
+			if (++modY >= scaleY) {
+				modY = 0;
 				slopeY00 = slopeY01;
 				slopeY10 = slopeY11;
 				offset00 = offset01;
 				offset10 = offset11;
-				gridY   += scaleY;
+				gridY += scaleY;
 				slopeY01 = this.slopeY(seed, gridX0, gridY);
 				slopeY11 = this.slopeY(seed, gridX1, gridY);
 				offset01 = this.slopeX(seed, gridX0, gridY) * fracX0 + this.offset(seed, gridX0, gridY);

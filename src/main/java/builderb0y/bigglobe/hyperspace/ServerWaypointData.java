@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.hyperspace;
 
 import java.util.UUID;
-
-import net.minecraft.text.Text;
-
+import net.minecraft.network.chat.Component;
 import builderb0y.autocodec.annotations.DefaultObject;
 import builderb0y.autocodec.annotations.DefaultObject.DefaultObjectMode;
 import builderb0y.autocodec.annotations.EncodeInline;
@@ -23,16 +21,16 @@ public record ServerWaypointData(
 	@Hidden int entityId,
 	@VerifyNullable UUID owner,
 	@EncodeInline PackedWorldPos pos,
-	@VerifyNullable Text name,
+	@VerifyNullable Component name,
 	@DefaultObject(name = "BLANK", in = CloudColor.class, mode = DefaultObjectMode.FIELD) CloudColor color
 )
-implements WaypointData {
+	implements WaypointData {
 
 	public ServerWaypointData(
 		int id,
 		@VerifyNullable UUID owner,
 		PackedWorldPos pos,
-		@VerifyNullable Text name,
+		@VerifyNullable Component name,
 		CloudColor color
 	) {
 		this(id, Entity_CurrentIdGetter.bigglobe_getCurrentID().incrementAndGet(), owner, pos, name, color);
@@ -48,7 +46,7 @@ implements WaypointData {
 		return this.pos;
 	}
 
-	public ServerWaypointData withName(Text name) {
+	public ServerWaypointData withName(Component name) {
 		return new ServerWaypointData(this.id, this.entityId, this.owner, this.pos, name, this.color);
 	}
 

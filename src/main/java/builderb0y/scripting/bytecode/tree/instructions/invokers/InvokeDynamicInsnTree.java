@@ -2,9 +2,9 @@ package builderb0y.scripting.bytecode.tree.instructions.invokers;
 
 import java.util.Arrays;
 
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 
@@ -21,9 +21,9 @@ public class InvokeDynamicInsnTree implements InsnTree {
 		InsnTree[] runtimeArgs
 	) {
 		this.bootstrapMethod = bootstrapMethod;
-		this.runtimeMethod   = runtimeMethod;
-		this.bootstrapArgs   = bootstrapArgs;
-		this.runtimeArgs     = runtimeArgs;
+		this.runtimeMethod = runtimeMethod;
+		this.bootstrapArgs = bootstrapArgs;
+		this.runtimeArgs = runtimeArgs;
 	}
 
 	public static InvokeDynamicInsnTree create(

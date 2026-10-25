@@ -10,11 +10,9 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
-import net.minecraft.server.command.ServerCommandSource;
-
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands.CommandSelection;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
@@ -22,6 +20,7 @@ public class BigGlobeCommands {
 
 	public static final String NOT_APPLICABLE = "N/A";
 	public static final DecimalFormat DECIMAL_FORMAT;
+
 	static {
 		DECIMAL_FORMAT = new DecimalFormat();
 		DECIMAL_FORMAT.setDecimalSeparatorAlwaysShown(true);
@@ -45,17 +44,17 @@ public class BigGlobeCommands {
 	}
 
 	public static void registerCommands(
-		CommandDispatcher<ServerCommandSource> dispatcher,
-		CommandRegistryAccess registryAccess,
-		RegistrationEnvironment environment
+		CommandDispatcher<CommandSourceStack> dispatcher,
+		CommandBuildContext registryAccess,
+		CommandSelection environment
 	) {
 		BigGlobeMod.LOGGER.debug("Registering commands to dispatcher...");
 		BigGlobeLocateCommand.register(dispatcher);
-		RespawnCommand       .register(dispatcher);
-		EvaluateCommand      .register(dispatcher);
+		RespawnCommand.register(dispatcher);
+		EvaluateCommand.register(dispatcher);
 		DumpRegistriesCommand.register(dispatcher);
-		DevDebugCommand      .register(dispatcher);
-		TracyCommand         .register(dispatcher);
+		DevDebugCommand.register(dispatcher);
+		TracyCommand.register(dispatcher);
 		BigGlobeMod.LOGGER.debug("Done registering commands to dispatcher.");
 	}
 
@@ -69,7 +68,7 @@ public class BigGlobeCommands {
 	@Environment(EnvType.CLIENT)
 	public static void registerClientCommands(
 		CommandDispatcher<FabricClientCommandSource> dispatcher,
-		CommandRegistryAccess registryAccess
+		CommandBuildContext registryAccess
 	) {
 		BigGlobeMod.LOGGER.debug("Registering client commands to dispatcher...");
 		DisplayColumnsClientCommand.register(dispatcher);
@@ -77,11 +76,11 @@ public class BigGlobeCommands {
 		BigGlobeMod.LOGGER.debug("Done registering client commands to dispatcher.");
 	}
 
-	public static BigGlobeScriptedChunkGenerator generator(CommandContext<ServerCommandSource> context) {
+	public static BigGlobeScriptedChunkGenerator generator(CommandContext<CommandSourceStack> context) {
 		return generator(context.getSource());
 	}
 
-	public static BigGlobeScriptedChunkGenerator generator(ServerCommandSource source) {
-		return source.getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
+	public static BigGlobeScriptedChunkGenerator generator(CommandSourceStack source) {
+		return source.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
 	}
 }

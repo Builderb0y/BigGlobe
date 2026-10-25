@@ -1,19 +1,11 @@
 package builderb0y.bigglobe.trees;
 
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.world.StructureWorldAccess;
-
 import builderb0y.bigglobe.blocks.BigGlobeBlockTags;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.BlockQueue;
 import builderb0y.bigglobe.features.BlockQueueStructureWorldAccess;
-import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -25,6 +17,11 @@ import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.state.BlockState;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -42,7 +39,7 @@ public class TreeGenerator {
 
 	public TreeGenerator(
 		ScriptedColumnLookup columns,
-		StructureWorldAccess world,
+		WorldGenLevel world,
 		BlockQueue queue,
 		Permuter random,
 		WoodPalette palette,
@@ -52,15 +49,15 @@ public class TreeGenerator {
 		DecoratorConfig decorators,
 		@Nullable RandomSource stumpThreshold
 	) {
-		this.columns            = columns;
-		this.worldQueue         = queue.createWorld(world);
-		this.random             = random;
-		this.palette            = palette;
+		this.columns = columns;
+		this.worldQueue = queue.createWorld(world);
+		this.random = random;
+		this.palette = palette;
 		this.groundReplacements = groundReplacements;
-		this.trunk              = trunk;
-		this.branches           = branches;
-		this.decorators         = decorators;
-		this.stumpThreshold     = stumpThreshold;
+		this.trunk = trunk;
+		this.branches = branches;
+		this.decorators = decorators;
+		this.stumpThreshold = stumpThreshold;
 	}
 
 	public boolean generate() {
@@ -111,16 +108,16 @@ public class TreeGenerator {
 	public boolean generateTrunkLayer(int y) throws NotEnoughSpaceException {
 		BlockState2ObjectMap<BlockState> groundReplacements = this.groundReplacements;
 		double
-			radius  = this.trunk.currentRadius,
+			radius = this.trunk.currentRadius,
 			radius2 = squareD(radius),
 			centerX = this.trunk.currentX,
 			centerZ = this.trunk.currentZ;
 		int
-			minX =  ceilI(centerX - radius),
-			minZ =  ceilI(centerZ - radius),
+			minX = ceilI(centerX - radius),
+			minZ = ceilI(centerZ - radius),
 			maxX = floorI(centerX + radius),
 			maxZ = floorI(centerZ + radius);
-		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 		mutablePos.setY(y);
 		boolean placedAny = false;
 		for (int blockX = minX; blockX <= maxX; blockX++) {
@@ -197,7 +194,7 @@ public class TreeGenerator {
 		double absDZ = Math.abs(branch.nz);
 		BlockState logState = this.palette.woodState(this.random, absDZ > absDX ? Axis.Z : Axis.X);
 
-		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 		for (double offset = this.random.nextDouble(); offset <= branch.length; offset += 1.0D) {
 			branch.setLength(this, offset);
 			this.generateBranchBlock(mutablePos.set(branch.currentX, branch.currentY, branch.currentZ), logState);
@@ -219,9 +216,9 @@ public class TreeGenerator {
 		double x2 = branch.currentX, z2 = branch.currentZ, r2 = branch.currentRadius;
 		int minX = floorI(Math.min(x1 - r1, x2 - r2)) + 1;
 		int minZ = floorI(Math.min(z1 - r1, z2 - r2)) + 1;
-		int maxX =  ceilI(Math.max(x1 + r1, x2 + r2)) - 1;
-		int maxZ =  ceilI(Math.max(z1 + r1, z2 + r2)) - 1;
-		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+		int maxX = ceilI(Math.max(x1 + r1, x2 + r2)) - 1;
+		int maxZ = ceilI(Math.max(z1 + r1, z2 + r2)) - 1;
+		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 		for (int x = minX; x <= maxX; x++) {
 			mutablePos.setX(x);
 			for (int z = minZ; z <= maxZ; z++) {
@@ -260,12 +257,12 @@ public class TreeGenerator {
 	}
 
 	public boolean canTrunkReplace(BlockState existingState) {
-		if (existingState.getFluidState().isStill()) return this.trunk.canGenerateInLiquid;
-		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_TRUNK_REPLACEABLES);
+		if (existingState.getFluidState().isSource()) return this.trunk.canGenerateInLiquid;
+		return BlockStateVersions.isReplaceable(existingState) || existingState.is(BigGlobeBlockTags.TREE_TRUNK_REPLACEABLES);
 	}
 
-	public boolean canTrunkReplaceBush(BlockPos.Mutable mutablePos, BlockState existingState) {
-		if (existingState.isIn(BlockTags.LOGS)) {
+	public boolean canTrunkReplaceBush(BlockPos.MutableBlockPos mutablePos, BlockState existingState) {
+		if (existingState.is(BlockTags.LOGS)) {
 			//hacky workaround for bushes.
 			int oldY = mutablePos.getY();
 			mutablePos.setY(oldY - 1);
@@ -279,17 +276,17 @@ public class TreeGenerator {
 	}
 
 	public boolean canBranchReplace(BlockState existingState) {
-		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_BRANCH_REPLACEABLES);
+		return BlockStateVersions.isReplaceable(existingState) || existingState.is(BigGlobeBlockTags.TREE_BRANCH_REPLACEABLES);
 	}
 
 	public boolean canLeavesReplace(BlockState existingState) {
-		if (existingState.getFluidState().isStill()) return false;
-		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_LEAF_REPLACEABLES);
+		if (existingState.getFluidState().isSource()) return false;
+		return BlockStateVersions.isReplaceable(existingState) || existingState.is(BigGlobeBlockTags.TREE_LEAF_REPLACEABLES);
 	}
 
 	public boolean canShelfReplace(BlockState existingState) {
-		if (existingState.getFluidState().isStill()) return false;
-		return BlockStateVersions.isReplaceable(existingState) || existingState.isIn(BigGlobeBlockTags.TREE_SHELF_REPLACEABLES);
+		if (existingState.getFluidState().isSource()) return false;
+		return BlockStateVersions.isReplaceable(existingState) || existingState.is(BigGlobeBlockTags.TREE_SHELF_REPLACEABLES);
 	}
 
 	public static class NotEnoughSpaceException extends Exception {

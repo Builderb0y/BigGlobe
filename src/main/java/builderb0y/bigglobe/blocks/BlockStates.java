@@ -1,43 +1,44 @@
 package builderb0y.bigglobe.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registries;
-import net.minecraft.state.property.Property;
-
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
 import builderb0y.bigglobe.codecs.BlockStateCoder.Result;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
-/** frequently used BlockState's. */
+/**
+frequently used BlockState's.
+*/
 public class BlockStates {
 
 	public static final BlockState
-		AIR                    = Blocks.AIR.getDefaultState(),
-		VOID_AIR               = Blocks.VOID_AIR.getDefaultState(),
-		STONE                  = Blocks.STONE.getDefaultState(),
-		SAND                   = Blocks.SAND.getDefaultState(),
-		SANDSTONE              = Blocks.SANDSTONE.getDefaultState(),
-		CUT_SANDSTONE          = Blocks.CUT_SANDSTONE.getDefaultState(),
-		CHISELED_SANDSTONE     = Blocks.CHISELED_SANDSTONE.getDefaultState(),
-		SNOW                   = Blocks.SNOW.getDefaultState(),
-		WATER                  = Blocks.WATER.getDefaultState(),
-		LAVA                   = Blocks.LAVA.getDefaultState(),
+		AIR = Blocks.AIR.defaultBlockState(),
+		VOID_AIR = Blocks.VOID_AIR.defaultBlockState(),
+		STONE = Blocks.STONE.defaultBlockState(),
+		SAND = Blocks.SAND.defaultBlockState(),
+		SANDSTONE = Blocks.SANDSTONE.defaultBlockState(),
+		CUT_SANDSTONE = Blocks.CUT_SANDSTONE.defaultBlockState(),
+		CHISELED_SANDSTONE = Blocks.CHISELED_SANDSTONE.defaultBlockState(),
+		SNOW = Blocks.SNOW.defaultBlockState(),
+		WATER = Blocks.WATER.defaultBlockState(),
+		LAVA = Blocks.LAVA.defaultBlockState(),
 
-		NETHERRACK             = Blocks.NETHERRACK.getDefaultState(),
-		NETHER_BRICKS          = Blocks.NETHER_BRICKS.getDefaultState(),
-		CRACKED_NETHER_BRICKS  = Blocks.CRACKED_NETHER_BRICKS.getDefaultState(),
-		CHISELED_NETHER_BRICKS = Blocks.CHISELED_NETHER_BRICKS.getDefaultState(),
-		RED_NETHER_BRICKS      = Blocks.RED_NETHER_BRICKS.getDefaultState(),
-		OBSIDIAN               = Blocks.OBSIDIAN.getDefaultState(),
-		CRYING_OBSIDIAN        = Blocks.CRYING_OBSIDIAN.getDefaultState(),
-		SOUL_SAND              = Blocks.SOUL_SAND.getDefaultState(),
+	NETHERRACK = Blocks.NETHERRACK.defaultBlockState(),
+		NETHER_BRICKS = Blocks.NETHER_BRICKS.defaultBlockState(),
+		CRACKED_NETHER_BRICKS = Blocks.CRACKED_NETHER_BRICKS.defaultBlockState(),
+		CHISELED_NETHER_BRICKS = Blocks.CHISELED_NETHER_BRICKS.defaultBlockState(),
+		RED_NETHER_BRICKS = Blocks.RED_NETHER_BRICKS.defaultBlockState(),
+		OBSIDIAN = Blocks.OBSIDIAN.defaultBlockState(),
+		CRYING_OBSIDIAN = Blocks.CRYING_OBSIDIAN.defaultBlockState(),
+		SOUL_SAND = Blocks.SOUL_SAND.defaultBlockState(),
 
-		DELAYED_GENERATION     = BigGlobeBlocks.DELAYED_GENERATION.getDefaultState();
+	DELAYED_GENERATION = BigGlobeBlocks.DELAYED_GENERATION.defaultBlockState();
 
 	/**
-	the syntax for {@link BlockState#with(Property, Comparable)}
+	the syntax for {@link BlockState#setValue(Property, Comparable)}
 	is excessively verbose for what it does.
 	so, have this method here to use command syntax instead.
 	this method is slow to parse states, so it is
@@ -47,7 +48,7 @@ public class BlockStates {
 	other methods besides static class initializers.
 	*/
 	public static BlockState of(String name) {
-		Result<BlockProperties> result = BlockStateCoder.decodeStateWithMissingErrors(new BetterHardCodedRegistry<>(Registries.BLOCK), name);
+		Result<BlockProperties> result = BlockStateCoder.decodeStateWithMissingErrors(new BetterHardCodedRegistry<>(BuiltInRegistries.BLOCK), name);
 		if (result.errors() != null) throw new IllegalArgumentException(result.collectErrorsEager());
 		return result.value().state();
 	}

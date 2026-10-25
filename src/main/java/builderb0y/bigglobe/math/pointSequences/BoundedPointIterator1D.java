@@ -3,6 +3,7 @@ package builderb0y.bigglobe.math.pointSequences;
 public interface BoundedPointIterator1D extends PointIterator1D, BoundedPointIterator {
 
 	public abstract double minX();
+
 	public abstract double maxX();
 
 	public default boolean contains(double x) {

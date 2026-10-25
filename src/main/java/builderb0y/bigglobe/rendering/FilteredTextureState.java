@@ -39,10 +39,9 @@ public class FilteredTextureState extends TextureState {
 		GLException.check();
 		this.wrapY = glGetTexParameteri(this.binder, GL_TEXTURE_WRAP_T);
 		GLException.check();
-		#if MC_VERSION >= MC_1_21_11
-			this.sampler = glGetInteger(GL33C.GL_SAMPLER_BINDING);
-			GLException.check();
-		#endif
+
+		this.sampler = glGetInteger(GL33C.GL_SAMPLER_BINDING);
+		GLException.check();
 	}
 
 	@Override
@@ -56,9 +55,8 @@ public class FilteredTextureState extends TextureState {
 		GLException.check();
 		glTexParameteri(this.binder, GL_TEXTURE_WRAP_T, this.wrapY);
 		GLException.check();
-		#if MC_VERSION >= MC_1_21_11
-			GL33C.glBindSampler(this.index - GL_TEXTURE0, this.sampler);
-			GLException.check();
-		#endif
+
+		GL33C.glBindSampler(this.index - GL_TEXTURE0, this.sampler);
+		GLException.check();
 	}
 }

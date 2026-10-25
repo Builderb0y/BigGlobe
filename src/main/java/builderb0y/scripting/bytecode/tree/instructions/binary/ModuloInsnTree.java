@@ -56,11 +56,12 @@ public class ModuloInsnTree extends BinaryInsnTree {
 							return new BitwiseAndInsnTree(left, ldc(mask), LAND);
 						}
 					}
-					default -> {}
+					default -> {
+					}
 				}
 			}
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		left = left.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new ModuloInsnTree(left, right, type.getOpcode(IREM));
 	}
@@ -99,7 +100,7 @@ public class ModuloInsnTree extends BinaryInsnTree {
 				case LREM -> "(JJ)J";
 				case FREM -> "(FF)F";
 				case DREM -> "(DD)D";
-				default   -> throw new AssertionError(this.opcode);
+				default -> throw new AssertionError(this.opcode);
 			},
 			false
 		);

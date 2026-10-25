@@ -14,7 +14,9 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-/** AST-like structure which can be converted directly into bytecode. */
+/**
+AST-like structure which can be converted directly into bytecode.
+*/
 public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 
 	public static final ObjectArrayFactory<InsnTree> ARRAY_FACTORY = new ObjectArrayFactory<>(InsnTree.class);
@@ -124,22 +126,22 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 	}
 
 	public static enum UpdateOp {
-		ASSIGN              ((ExpressionParser parser, InsnTree oldValue, InsnTree newValue) -> seq(oldValue.asStatement() /* pop old value */, newValue)),
-		ADD                 (InsnTrees::add ),
-		SUBTRACT            (InsnTrees::sub ),
-		MULTIPLY            (InsnTrees::mul ),
-		DIVIDE              (InsnTrees::div ),
-		MODULO              (InsnTrees::mod ),
-		POWER               (InsnTrees::pow ),
-		BITWISE_AND         (InsnTrees::band),
-		BITWISE_OR          (InsnTrees::bor ),
-		BITWISE_XOR         (InsnTrees::bxor),
-		AND                 (InsnTrees::and ),
-		OR                  (InsnTrees::or  ),
-		XOR                 (InsnTrees::xor ),
-		SIGNED_LEFT_SHIFT   (InsnTrees::shl ),
-		SIGNED_RIGHT_SHIFT  (InsnTrees::shr ),
-		UNSIGNED_LEFT_SHIFT (InsnTrees::ushl),
+		ASSIGN((ExpressionParser parser, InsnTree oldValue, InsnTree newValue) -> seq(oldValue.asStatement() /* pop old value */, newValue)),
+		ADD(InsnTrees::add),
+		SUBTRACT(InsnTrees::sub),
+		MULTIPLY(InsnTrees::mul),
+		DIVIDE(InsnTrees::div),
+		MODULO(InsnTrees::mod),
+		POWER(InsnTrees::pow),
+		BITWISE_AND(InsnTrees::band),
+		BITWISE_OR(InsnTrees::bor),
+		BITWISE_XOR(InsnTrees::bxor),
+		AND(InsnTrees::and),
+		OR(InsnTrees::or),
+		XOR(InsnTrees::xor),
+		SIGNED_LEFT_SHIFT(InsnTrees::shl),
+		SIGNED_RIGHT_SHIFT(InsnTrees::shr),
+		UNSIGNED_LEFT_SHIFT(InsnTrees::ushl),
 		UNSIGNED_RIGHT_SHIFT(InsnTrees::ushr);
 
 		public final UpdateConstructor constructor;
@@ -173,9 +175,9 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 		String className = this.getClass().getName();
 		StringBuilder builder = (
 			new StringBuilder(64)
-			.append(className, className.lastIndexOf('.') + 1, className.length())
-			.append(" of type ")
-			.append(this.getTypeInfo().getClassName())
+				.append(className, className.lastIndexOf('.') + 1, className.length())
+				.append(" of type ")
+				.append(this.getTypeInfo().getClassName())
 		);
 		ConstantValue constant = this.getConstantValue();
 		if (constant.isConstantOrDynamic()) {

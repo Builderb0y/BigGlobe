@@ -2,9 +2,7 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
@@ -33,12 +31,12 @@ public class WoodPaletteTag extends TagWrapper<WoodPalette, WoodPaletteEntry> {
 	}
 
 	@Override
-	public WoodPaletteEntry wrap(RegistryEntry<WoodPalette> entry) {
+	public WoodPaletteEntry wrap(Holder<WoodPalette> entry) {
 		return new WoodPaletteEntry(entry);
 	}
 
 	@Override
-	public RegistryEntry<WoodPalette> unwrap(WoodPaletteEntry entry) {
+	public Holder<WoodPalette> unwrap(WoodPaletteEntry entry) {
 		return entry.entry;
 	}
 

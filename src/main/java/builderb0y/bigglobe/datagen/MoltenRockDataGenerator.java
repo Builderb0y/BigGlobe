@@ -26,12 +26,12 @@ public class MoltenRockDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"parent": "minecraft:block/cube_all",
-					"textures": {
-						"all": "bigglobe:block/%NAME"
-					}
-				}""".replace("%NAME", fileName)
+					{
+						"parent": "minecraft:block/cube_all",
+						"textures": {
+							"all": "bigglobe:block/%NAME"
+						}
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}
@@ -42,9 +42,9 @@ public class MoltenRockDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"parent": "bigglobe:block/%NAME"
-				}""".replace("%NAME", fileName)
+					{
+						"parent": "bigglobe:block/%NAME"
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}
@@ -55,11 +55,11 @@ public class MoltenRockDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"variants": {
-						"": { "model": "bigglobe:block/%NAME" }
-					}
-				}""".replace("%NAME", fileName)
+					{
+						"variants": {
+							"": { "model": "bigglobe:block/%NAME" }
+						}
+					}""".replace("%NAME", fileName)
 			);
 		}
 	}
@@ -70,9 +70,9 @@ public class MoltenRockDataGenerator {
 		try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(
 				"""
-				{
-					"type": "minecraft:block"
-				}"""
+					{
+						"type": "minecraft:block"
+					}"""
 			);
 		}
 	}

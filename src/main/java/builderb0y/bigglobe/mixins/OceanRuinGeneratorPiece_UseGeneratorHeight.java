@@ -3,40 +3,43 @@ package builderb0y.bigglobe.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.*;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.TemplateStructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.structures.OceanRuinPieces;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
-@Mixin(OceanRuinGenerator.Piece.class)
-public abstract class OceanRuinGeneratorPiece_UseGeneratorHeight extends SimpleStructurePiece {
+@Mixin(OceanRuinPieces.OceanRuinPiece.class)
+public abstract class OceanRuinGeneratorPiece_UseGeneratorHeight extends TemplateStructurePiece {
 
 	public OceanRuinGeneratorPiece_UseGeneratorHeight(
 		StructurePieceType type,
 		int length,
 		StructureTemplateManager structureTemplateManager,
-		Identifier id,
+		ResourceLocation id,
 		String template,
-		StructurePlacementData placementData,
+		StructurePlaceSettings placementData,
 		BlockPos pos
 	) {
 		super(type, length, structureTemplateManager, id, template, placementData, pos);
 	}
 
-	/** prevents ocean ruins from spawning on top of skylands. */
-	@Redirect(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/StructureWorldAccess;getTopY(Lnet/minecraft/world/Heightmap$Type;II)I"))
-	private int bigglobe_useGeneratorHeight(StructureWorldAccess receiver, Heightmap.Type type, int x, int z, StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator generator) {
+	/**
+	prevents ocean ruins from spawning on top of skylands.
+	*/
+	@Redirect(method = "postProcess", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/WorldGenLevel;getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I"))
+	private int bigglobe_useGeneratorHeight(WorldGenLevel receiver, Heightmap.Types type, int x, int z, WorldGenLevel world, StructureManager structureAccessor, ChunkGenerator generator) {
 		if (generator instanceof BigGlobeScriptedChunkGenerator) {
-			return generator.getHeight(x, z, type, world, ((ServerChunkManager)(world.getChunkManager())).getNoiseConfig());
+			return generator.getBaseHeight(x, z, type, world, ((ServerChunkCache)(world.getChunkSource())).randomState());
 		}
-		return receiver.getTopY(type, x, z);
+		return receiver.getHeight(type, x, z);
 	}
 }

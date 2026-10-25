@@ -1,11 +1,8 @@
 package builderb0y.scripting.parsing.input;
 
 import java.util.*;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.autocodec.annotations.UseVerifier;
@@ -18,12 +15,12 @@ import builderb0y.scripting.parsing.input.ScriptTemplate.RequiredInput;
 @UseVerifier(name = "verify", in = TemplateScriptUsage.class, usage = MemberUsage.METHOD_IS_HANDLER)
 public class TemplateScriptUsage extends ScriptUsage {
 
-	public final RegistryEntry<ScriptTemplate> template;
+	public final Holder<ScriptTemplate> template;
 	public final @VerifyNullable Map<@IdentifierName String, @MultiLine String> inputs;
 
 	public TemplateScriptUsage(
 		@VerifyNullable String debug_name,
-		RegistryEntry<ScriptTemplate> template,
+		Holder<ScriptTemplate> template,
 		@VerifyNullable Map<@IdentifierName String, @MultiLine String> inputs
 	) {
 		super(debug_name, null);
@@ -86,7 +83,7 @@ public class TemplateScriptUsage extends ScriptUsage {
 	}
 
 	@Override
-	public @Nullable RegistryEntry<ScriptTemplate> getTemplate() {
+	public @Nullable Holder<ScriptTemplate> getTemplate() {
 		return this.template;
 	}
 

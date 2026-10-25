@@ -4,12 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
@@ -19,20 +16,16 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SetBased
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.MinecraftScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FieldHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
-import builderb0y.scripting.environments.MutableScriptEnvironment.MethodHandler;
 import builderb0y.scripting.environments.MutableScriptEnvironment.VariableHandler;
-import builderb0y.scripting.environments.ScriptEnvironment.GetFieldMode;
-import builderb0y.scripting.environments.ScriptEnvironment.GetMethodMode;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
 import builderb0y.scripting.util.TypeInfos;
@@ -43,7 +36,7 @@ public class TraitManager {
 
 	public final ColumnEntryRegistry columnEntryRegistry;
 	public final BetterRegistry<WorldTrait> traitRegistry;
-	public final Map<RegistryEntry<WorldTrait>, TraitInfo> infos;
+	public final Map<Holder<WorldTrait>, TraitInfo> infos;
 	public final ClassCompileContext baseTraitsClass;
 	public WorldTraits baseTraits;
 
@@ -59,7 +52,7 @@ public class TraitManager {
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
 		this.baseTraitsClass.addNoArgConstructor(ACC_PUBLIC);
-		this.traitRegistry.streamEntries().sequential().forEach((RegistryEntry<WorldTrait> entry) -> {
+		this.traitRegistry.streamEntries().sequential().forEach((Holder<WorldTrait> entry) -> {
 			TypeInfo traitType = this.columnEntryRegistry.columnContext.getTypeContext(entry.value().schema().type()).type();
 			MethodCompileContext getter = this.baseTraitsClass.newMethod(
 				ACC_PUBLIC,
@@ -69,8 +62,8 @@ public class TraitManager {
 				),
 				traitType,
 				entry.value().schema().is_3d()
-				? new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()), new LazyVarInfo("y", TypeInfos.INT) }
-				: new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()) }
+					? new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()), new LazyVarInfo("y", TypeInfos.INT) }
+					: new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()) }
 			);
 			MethodCompileContext setter = this.baseTraitsClass.newMethod(
 				ACC_PUBLIC,
@@ -80,15 +73,15 @@ public class TraitManager {
 				),
 				TypeInfos.VOID,
 				entry.value().schema().is_3d()
-				? new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()), new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", traitType) }
-				: new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()), new LazyVarInfo("value", traitType) }
+					? new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()), new LazyVarInfo("y", TypeInfos.INT), new LazyVarInfo("value", traitType) }
+					: new LazyVarInfo[] { new LazyVarInfo("column", this.columnEntryRegistry.columnContext.selfType()), new LazyVarInfo("value", traitType) }
 			);
 			this.infos.put(entry, new TraitInfo(getter, setter));
 		});
 	}
 
 	public void compile() {
-		this.traitRegistry.streamEntries().forEach((RegistryEntry<WorldTrait> entry) -> {
+		this.traitRegistry.streamEntries().forEach((Holder<WorldTrait> entry) -> {
 			TraitInfo info = this.infos.get(entry);
 			if (entry.value().fallback() != null) {
 				info.getter.setCode(
@@ -96,18 +89,18 @@ public class TraitManager {
 					entry.value().fallback().getSource(),
 					(MutableScriptEnvironment environment) -> {
 						environment
-						.addAll(MathScriptEnvironment.INSTANCE)
-						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-						.configure(MinecraftScriptEnvironment.create())
-						.configure(ScriptedColumn.baseEnvironment(load("column", this.columnEntryRegistry.columnContext.selfType())))
-						.addAll(ColorScriptEnvironment.ENVIRONMENT);
+							.addAll(MathScriptEnvironment.INSTANCE)
+							.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+							.configure(MinecraftScriptEnvironment.create())
+							.configure(ScriptedColumn.baseEnvironment(load("column", this.columnEntryRegistry.columnContext.selfType())))
+							.addAll(ColorScriptEnvironment.ENVIRONMENT);
 						if (entry.value().schema().is_3d()) environment.addVariableLoad("y", TypeInfos.INT);
 						this.columnEntryRegistry.setupExternalEnvironment(
 							environment,
 							new ExternalEnvironmentParams()
-							.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
-							.withY(entry.value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-							.trackDependencies(info)
+								.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
+								.withY(entry.value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
+								.trackDependencies(info)
 						);
 					}
 				);
@@ -119,7 +112,7 @@ public class TraitManager {
 						ldc(UnregisteredObjectException.getID(entry).toString())
 					)
 				)
-				.emitBytecode(info.getter);
+					.emitBytecode(info.getter);
 				info.getter.endCode();
 			}
 			throw_(
@@ -128,18 +121,18 @@ public class TraitManager {
 					ldc(UnregisteredObjectException.getID(entry).toString())
 				)
 			)
-			.emitBytecode(info.setter);
+				.emitBytecode(info.setter);
 			info.setter.endCode();
 		});
 		try {
 			this.baseTraits = (
 				this
-				.columnEntryRegistry
-				.loader
-				.defineClass(this.baseTraitsClass, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
-				.asSubclass(WorldTraits.class)
-				.getDeclaredConstructor((Class<?>[])(null))
-				.newInstance((Object[])(null))
+					.columnEntryRegistry
+					.loader
+					.defineClass(this.baseTraitsClass, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
+					.asSubclass(WorldTraits.class)
+					.getDeclaredConstructor((Class<?>[])(null))
+					.newInstance((Object[])(null))
 			);
 			this.baseTraits.dependenciesPerTrait = this.infos;
 		}
@@ -148,7 +141,7 @@ public class TraitManager {
 		}
 	}
 
-	public WorldTraits createTraits(Map<RegistryEntry<WorldTrait>, WorldTraitProvider> implementations) {
+	public WorldTraits createTraits(Map<Holder<WorldTrait>, WorldTraitProvider> implementations) {
 		if (implementations == null || implementations.isEmpty()) {
 			return this.baseTraits;
 		}
@@ -160,8 +153,8 @@ public class TraitManager {
 			TypeInfo.ARRAY_FACTORY.empty()
 		);
 		context.addNoArgConstructor(ACC_PUBLIC);
-		Map<RegistryEntry<WorldTrait>, SetBasedMutableDependencyView> dependencyMap = new HashMap<>(this.infos);
-		for (Map.Entry<RegistryEntry<WorldTrait>, WorldTraitProvider> entry : implementations.entrySet()) {
+		Map<Holder<WorldTrait>, SetBasedMutableDependencyView> dependencyMap = new HashMap<>(this.infos);
+		for (Map.Entry<Holder<WorldTrait>, WorldTraitProvider> entry : implementations.entrySet()) {
 			OverriddenDependencyView dependencies = new OverriddenDependencyView();
 			dependencyMap.put(entry.getKey(), dependencies);
 			TraitInfo info = this.infos.get(entry.getKey());
@@ -172,26 +165,26 @@ public class TraitManager {
 				info.getter.info.name,
 				info.getter.info.returnType,
 				y != null
-				? new LazyVarInfo[] { column, y }
-				: new LazyVarInfo[] { column }
+					? new LazyVarInfo[] { column, y }
+					: new LazyVarInfo[] { column }
 			);
 			implGetter.setCode(
 				this.columnEntryRegistry.parserFlags(),
 				entry.getValue().get().getSource(),
 				(MutableScriptEnvironment environment) -> {
 					environment
-					.addAll(MathScriptEnvironment.INSTANCE)
-					.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-					.configure(MinecraftScriptEnvironment.create())
-					.configure(ScriptedColumn.baseEnvironment(load(column)))
-					.addAll(ColorScriptEnvironment.ENVIRONMENT);
+						.addAll(MathScriptEnvironment.INSTANCE)
+						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+						.configure(MinecraftScriptEnvironment.create())
+						.configure(ScriptedColumn.baseEnvironment(load(column)))
+						.addAll(ColorScriptEnvironment.ENVIRONMENT);
 					if (y != null) environment.addVariableLoad(y);
 					this.columnEntryRegistry.setupExternalEnvironment(
 						environment,
 						new ExternalEnvironmentParams()
-						.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
-						.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-						.trackDependencies(dependencies)
+							.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
+							.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
+							.trackDependencies(dependencies)
 					);
 				}
 			);
@@ -202,28 +195,28 @@ public class TraitManager {
 					info.setter.info.name,
 					TypeInfos.VOID,
 					y != null
-					? new LazyVarInfo[] { column, y, value }
-					: new LazyVarInfo[] { column, value }
+						? new LazyVarInfo[] { column, y, value }
+						: new LazyVarInfo[] { column, value }
 				);
 				implSetter.setCode(
 					this.columnEntryRegistry.parserFlags(),
 					entry.getValue().set().getSource(),
 					(MutableScriptEnvironment environment) -> {
 						environment
-						.addAll(MathScriptEnvironment.INSTANCE)
-						.addAll(StatelessRandomScriptEnvironment.INSTANCE)
-						.configure(MinecraftScriptEnvironment.create())
-						.configure(ScriptedColumn.baseEnvironment(load(column)))
-						.addAll(ColorScriptEnvironment.ENVIRONMENT)
-						.addVariableLoad(value);
+							.addAll(MathScriptEnvironment.INSTANCE)
+							.addAll(StatelessRandomScriptEnvironment.INSTANCE)
+							.configure(MinecraftScriptEnvironment.create())
+							.configure(ScriptedColumn.baseEnvironment(load(column)))
+							.addAll(ColorScriptEnvironment.ENVIRONMENT)
+							.addVariableLoad(value);
 						if (y != null) environment.addVariableLoad(y);
 						this.columnEntryRegistry.setupExternalEnvironment(
 							environment,
 							new ExternalEnvironmentParams()
-							.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
-							.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
-							.mutable()
-							.trackDependencies(dependencies)
+								.withColumn(load("column", this.columnEntryRegistry.columnContext.selfType()))
+								.withY(entry.getKey().value().schema().is_3d() ? load("y", TypeInfos.INT) : null)
+								.mutable()
+								.trackDependencies(dependencies)
 						);
 					}
 				);
@@ -232,12 +225,12 @@ public class TraitManager {
 		try {
 			WorldTraits traits = (
 				this
-				.columnEntryRegistry
-				.loader
-				.defineClass(context, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
-				.asSubclass(WorldTraits.class)
-				.getDeclaredConstructor((Class<?>[])(null))
-				.newInstance((Object[])(null))
+					.columnEntryRegistry
+					.loader
+					.defineClass(context, ColumnEntryRegistry.CLASS_DUMP_DIRECTORY, null)
+					.asSubclass(WorldTraits.class)
+					.getDeclaredConstructor((Class<?>[])(null))
+					.newInstance((Object[])(null))
 			);
 			traits.dependenciesPerTrait = dependencyMap;
 			return traits;
@@ -251,17 +244,17 @@ public class TraitManager {
 		this.setupExternalEnvironment(
 			environment,
 			new ExternalEnvironmentParams()
-			.withColumn(loadColumn)
-			.withY(loadY)
-			.trackDependencies(dependencies)
+				.withColumn(loadColumn)
+				.withY(loadY)
+				.trackDependencies(dependencies)
 		);
 	}
 
 	public void setupExternalEnvironment(MutableScriptEnvironment environment, ExternalEnvironmentParams params) {
 		environment
-		.addVariableConstant("world_traits", this.baseTraitsClass.info)
-		.addFieldInvoke(ScriptedColumn.INFO.worldTraits);
-		this.traitRegistry.streamEntries().forEach((RegistryEntry<? extends WorldTrait> entry) -> {
+			.addVariableConstant("world_traits", this.baseTraitsClass.info)
+			.addFieldInvoke(ScriptedColumn.INFO.worldTraits);
+		this.traitRegistry.streamEntries().forEach((Holder<? extends WorldTrait> entry) -> {
 			String name = UnregisteredObjectException.getID(entry).toString();
 			TraitInfo info = this.infos.get(entry);
 			MethodInfo getter = info.getter.info;
@@ -297,7 +290,7 @@ public class TraitManager {
 	public static class TraitInfo implements SetBasedMutableDependencyView {
 
 		public final MethodCompileContext getter, setter;
-		public final Set<RegistryEntry<? extends DependencyView>> dependencies;
+		public final Set<Holder<? extends DependencyView>> dependencies;
 
 		public TraitInfo(MethodCompileContext getter, MethodCompileContext setter) {
 			this.getter = getter;
@@ -306,17 +299,17 @@ public class TraitManager {
 		}
 
 		@Override
-		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+		public Set<Holder<? extends DependencyView>> getDependencies() {
 			return this.dependencies;
 		}
 	}
 
 	public static class OverriddenDependencyView implements SetBasedMutableDependencyView {
 
-		public final Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+		public final Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 		@Override
-		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+		public Set<Holder<? extends DependencyView>> getDependencies() {
 			return this.dependencies;
 		}
 	}

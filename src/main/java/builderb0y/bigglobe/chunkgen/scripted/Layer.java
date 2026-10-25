@@ -1,10 +1,7 @@
 package builderb0y.bigglobe.chunkgen.scripted;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.annotations.DefaultEmpty;
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
@@ -22,22 +19,23 @@ import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDe
 public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependencyView {
 
 	public static final CoderRegistry<Layer> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("scripted_chunk_generator_layer"));
+
 	static {
-		REGISTRY.registerAuto(BigGlobeMod.modID("root"),                   RootLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"),          Simple2DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"),          Simple3DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("root"), RootLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_2d"), Simple2DLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("simple_3d"), Simple3DLayer.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("multi_state_3d"), MultiState3DLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),           ScriptedLayer.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("noop"),                   NoopLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"), ScriptedLayer.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("noop"), NoopLayer.class);
 	}
 
 	public final @VerifyNullable Valid valid;
-	public final RegistryEntry<Layer> @DefaultEmpty [] children;
+	public final Holder<Layer> @DefaultEmpty [] children;
 	public final SurfaceScript.@VerifyNullable Holder before_children, after_children;
 
 	public Layer(
 		@VerifyNullable Valid valid,
-		RegistryEntry<Layer> @DefaultEmpty [] children,
+		Holder<Layer> @DefaultEmpty [] children,
 		SurfaceScript.@VerifyNullable Holder before_children,
 		SurfaceScript.@VerifyNullable Holder after_children
 	) {
@@ -47,13 +45,13 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 		this.after_children = after_children;
 	}
 
-	public abstract void buildDependencyStream(Stream.Builder<RegistryEntry<? extends DependencyView>> builder);
+	public abstract void buildDependencyStream(Stream.Builder<Holder<? extends DependencyView>> builder);
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
-		Stream.Builder<RegistryEntry<? extends DependencyView>> builder = Stream.builder();
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
+		Stream.Builder<Holder<? extends DependencyView>> builder = Stream.builder();
 
-		for (RegistryEntry<Layer> child : this.children) {
+		for (Holder<Layer> child : this.children) {
 			builder.accept(child);
 		}
 		if (this.valid != null) {
@@ -62,7 +60,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 			if (this.valid.max_y != null) this.valid.max_y.streamDirectDependencies().forEach(builder);
 		}
 		if (this.before_children != null) this.before_children.streamDirectDependencies().forEach(builder);
-		if (this. after_children != null) this. after_children.streamDirectDependencies().forEach(builder);
+		if (this.after_children != null) this.after_children.streamDirectDependencies().forEach(builder);
 
 		this.buildDependencyStream(builder);
 
@@ -82,7 +80,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 				BlockSegmentList split = selfSegments.splitAtPlacedRange();
 				if (split != null) {
 					BlockSegmentList split2 = split.split();
-					for (RegistryEntry<Layer> child : this.children) {
+					for (Holder<Layer> child : this.children) {
 						child.value().emitSegments(column, altX, altZ, altXZ, split2);
 						split.mergeAndKeepWhereThereArentBlocks(split2);
 						split2.reset();
@@ -105,7 +103,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 				BlockSegmentList split = selfSegments.splitAtPlacedRange();
 				if (split != null) {
 					BlockSegmentList split2 = split.split();
-					for (RegistryEntry<Layer> child : this.children) {
+					for (Holder<Layer> child : this.children) {
 						child.value().emitSegments(column, split2);
 						split.mergeAndKeepWhereThereArentBlocks(split2);
 						split2.reset();
@@ -133,5 +131,7 @@ public abstract class Layer implements CoderRegistryTyped<Layer>, SimpleDependen
 		ColumnToBooleanScript.@VerifyNullable Holder where,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder max_y
-	) {}
+	) {
+
+	}
 }

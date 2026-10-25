@@ -14,15 +14,15 @@ public class ScreenTriangleShader extends Shader {
 				this.vertexStage,
 				//language=glsl
 				"""
-				#version 150
-				
-				out vec2 texcoord;
-				
-				void main() {
-					texcoord = vec2((gl_VertexID & 1) << 1, gl_VertexID & 2);
-					gl_Position = vec4(texcoord * 2.0 - 1.0, 0.0, 1.0);
-				}
-				"""
+					#version 150
+					
+					out vec2 texcoord;
+					
+					void main() {
+						texcoord = vec2((gl_VertexID & 1) << 1, gl_VertexID & 2);
+						gl_Position = vec4(texcoord * 2.0 - 1.0, 0.0, 1.0);
+					}
+					"""
 			);
 		}
 		catch (Throwable throwable) {

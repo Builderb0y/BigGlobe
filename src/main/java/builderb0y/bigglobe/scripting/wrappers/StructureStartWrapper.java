@@ -1,14 +1,12 @@
 package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.List;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructureStart;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.world.gen.structure.Structure;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
@@ -20,13 +18,13 @@ import builderb0y.scripting.bytecode.TypeInfo;
 public record StructureStartWrapper(
 	StructureEntry entry,
 	StructureStart start,
-	BlockBox box
+	BoundingBox box
 ) {
 
 	public static final ObjectArrayFactory<StructureStartWrapper> ARRAY_FACTORY = new ObjectArrayFactory<>(StructureStartWrapper.class);
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
 
-	public static StructureStartWrapper of(RegistryEntry<Structure> original, StructureStart start) {
+	public static StructureStartWrapper of(Holder<Structure> original, StructureStart start) {
 		//the bounding box of the start might be expanded,
 		//but we don't want to expose that expansion to scripts.
 		//so, re-calculate the size.
@@ -37,16 +35,16 @@ public record StructureStartWrapper(
 			maxX = Integer.MIN_VALUE,
 			maxY = Integer.MIN_VALUE,
 			maxZ = Integer.MIN_VALUE;
-		for (StructurePiece child : start.getChildren()) {
-			BlockBox box = child.getBoundingBox();
-			minX = Math.min(minX, box.getMinX());
-			minY = Math.min(minY, box.getMinY());
-			minZ = Math.min(minZ, box.getMinZ());
-			maxX = Math.max(maxX, box.getMaxX());
-			maxY = Math.max(maxY, box.getMaxY());
-			maxZ = Math.max(maxZ, box.getMaxZ());
+		for (StructurePiece child : start.getPieces()) {
+			BoundingBox box = child.getBoundingBox();
+			minX = Math.min(minX, box.minX());
+			minY = Math.min(minY, box.minY());
+			minZ = Math.min(minZ, box.minZ());
+			maxX = Math.max(maxX, box.maxX());
+			maxY = Math.max(maxY, box.maxY());
+			maxZ = Math.max(maxZ, box.maxZ());
 		}
-		RegistryEntry<Structure> entry = original;
+		Holder<Structure> entry = original;
 		while (entry.value() instanceof DelegatingStructure delegating) {
 			entry = delegating.delegate();
 		}
@@ -55,37 +53,72 @@ public record StructureStartWrapper(
 				entry,
 				new BiomeTag(
 					new DelayedEntryList<>(
-						BigGlobeMod.getRegistry(RegistryKeys.BIOME),
-						original.value().getValidBiomes()
+						BigGlobeMod.getRegistry(Registries.BIOME),
+						original.value().biomes()
 					)
 				),
-				original.value().getFeatureGenerationStep(),
-				original.value().getTerrainAdaptation()
+				original.value().step(),
+				original.value().terrainAdaptation()
 			),
 			start,
-			new BlockBox(minX, minY, minZ, maxX, maxY, maxZ)
+			new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ)
 		);
 	}
 
-	public int minX() { return this.box.getMinX(); }
-	public int minY() { return this.box.getMinY(); }
-	public int minZ() { return this.box.getMinZ(); }
-	public int maxX() { return this.box.getMaxX(); }
-	public int maxY() { return this.box.getMaxY(); }
-	public int maxZ() { return this.box.getMaxZ(); }
-	public int midX() { return (this.box.getMinX() + this.box.getMaxX() + 1) >> 1; }
-	public int midY() { return (this.box.getMinY() + this.box.getMaxY() + 1) >> 1; }
-	public int midZ() { return (this.box.getMinZ() + this.box.getMaxZ() + 1) >> 1; }
-	public int sizeX() { return this.box.getMaxX() - this.box.getMinX(); }
-	public int sizeY() { return this.box.getMaxY() - this.box.getMinY(); }
-	public int sizeZ() { return this.box.getMaxZ() - this.box.getMinZ(); }
+	public int minX() {
+		return this.box.minX();
+	}
+
+	public int minY() {
+		return this.box.minY();
+	}
+
+	public int minZ() {
+		return this.box.minZ();
+	}
+
+	public int maxX() {
+		return this.box.maxX();
+	}
+
+	public int maxY() {
+		return this.box.maxY();
+	}
+
+	public int maxZ() {
+		return this.box.maxZ();
+	}
+
+	public int midX() {
+		return (this.box.minX() + this.box.maxX() + 1) >> 1;
+	}
+
+	public int midY() {
+		return (this.box.minY() + this.box.maxY() + 1) >> 1;
+	}
+
+	public int midZ() {
+		return (this.box.minZ() + this.box.maxZ() + 1) >> 1;
+	}
+
+	public int sizeX() {
+		return this.box.maxX() - this.box.minX();
+	}
+
+	public int sizeY() {
+		return this.box.maxY() - this.box.minY();
+	}
+
+	public int sizeZ() {
+		return this.box.maxZ() - this.box.minZ();
+	}
 
 	public StructureEntry structure() {
 		return this.entry;
 	}
 
 	public List<StructurePiece> pieces() {
-		return this.start.getChildren();
+		return this.start.getPieces();
 	}
 
 	@Override

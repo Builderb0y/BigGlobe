@@ -22,7 +22,9 @@ public class SequenceInsnTree implements InsnTree {
 		assert isArrayValid(this.statements) : "Invalid statement array after flattening.";
 	}
 
-	/** I expect this method to be a bit of a hot spot, so optimize the hell out of it! */
+	/**
+	I expect this method to be a bit of a hot spot, so optimize the hell out of it!
+	*/
 	public static InsnTree[] flatten(InsnTree[] statements) {
 		//count elements so we only need to allocate an array once.
 		int flattenedLength = 0;
@@ -64,7 +66,9 @@ public class SequenceInsnTree implements InsnTree {
 		return result;
 	}
 
-	/** separate method to we can avoid calling it when asserts are disabled. */
+	/**
+	separate method to we can avoid calling it when asserts are disabled.
+	*/
 	public static boolean isArrayValid(InsnTree[] array) {
 		int limit = array.length - 1;
 		if (limit <= 0) {

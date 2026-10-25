@@ -1,10 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
 import builderb0y.bigglobe.chunkgen.perSection.PaletteIdReplacer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -19,16 +16,16 @@ import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class OreFeature extends AbstractOreFeature<OreFeature.Config> {
 
-	public OreFeature(Codec<Config> codec) {
+	public OreFeature(Codec<builderb0y.bigglobe.features.OreFeature.Config> codec) {
 		super(codec);
 	}
 
 	public OreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(builderb0y.bigglobe.features.OreFeature.Config.class));
 	}
 
 	@Override
-	public OreBlockReplacer getReplacer(SectionGenerationContext context, Config config) {
+	public OreBlockReplacer getReplacer(SectionGenerationContext context, builderb0y.bigglobe.features.OreFeature.Config config) {
 		PaletteIdReplacer idReplacer = PaletteIdReplacer.of(context, config.blocks);
 		return idReplacer != null ? new SingleOreBlockReplacer(idReplacer) : null;
 	}

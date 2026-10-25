@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.items;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface DynamicMaxDamageItem {
 

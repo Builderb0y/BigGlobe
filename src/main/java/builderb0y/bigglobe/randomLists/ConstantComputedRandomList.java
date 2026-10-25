@@ -12,7 +12,8 @@ public abstract class ConstantComputedRandomList<E> extends ComputedRandomList<E
 
 	public double totalWeight;
 
-	public ConstantComputedRandomList() {}
+	public ConstantComputedRandomList() {
+	}
 
 	public ConstantComputedRandomList(int initialCapacity) {
 		super(initialCapacity);

@@ -1,17 +1,17 @@
 package builderb0y.bigglobe.structures;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePieceType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 @FunctionalInterface
 public interface BigGlobeStructurePieceType extends StructurePieceType {
 
-	public abstract StructurePiece load(StructurePieceType type, StructureContext context, NbtCompound nbt);
+	public abstract StructurePiece load(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt);
 
 	@Override
-	public default StructurePiece load(StructureContext context, NbtCompound nbt) {
+	public default StructurePiece load(StructurePieceSerializationContext context, CompoundTag nbt) {
 		return this.load(this, context, nbt);
 	}
 }

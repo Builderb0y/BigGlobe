@@ -2,19 +2,16 @@ package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
-import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.SimpleDependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
@@ -25,29 +22,29 @@ public interface DecisionTreeCondition extends CoderRegistryTyped<DecisionTreeCo
 
 	public static final CoderRegistry<DecisionTreeCondition> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("decision_tree_condition"));
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"    ),          ThresholdDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"), ThresholdDecisionTreeCondition.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("world_trait_threshold"), WorldTraitDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"       ),             ScriptDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("script_chance"),       ScriptChanceDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("and"          ),                AndDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("or"           ),                 OrDecisionTreeCondition.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("not"          ),                NotDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("script_chance"), ScriptChanceDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("and"), AndDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("or"), OrDecisionTreeCondition.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("not"), NotDecisionTreeCondition.class);
 	}};
 
 	public abstract ConditionTree createCondition(
-		RegistryEntry<DecisionTreeSettings> selfEntry,
+		Holder<DecisionTreeSettings> selfEntry,
 		long selfSeed,
 		DataCompileContext context,
 		@Nullable InsnTree loadY
 	)
-	throws ScriptParsingException;
+		throws ScriptParsingException;
 
 	public static abstract class Impl implements DecisionTreeCondition, SetBasedMutableDependencyView {
 
-		public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+		public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 		@Override
-		public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+		public Set<Holder<? extends DependencyView>> getDependencies() {
 			return this.dependencies;
 		}
 	}

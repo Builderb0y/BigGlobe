@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.mojang.datafixers.util.Unit;
 import org.jetbrains.annotations.NotNull;
 
 import builderb0y.autocodec.data.Data;
@@ -50,22 +49,22 @@ public class ClassColumnValueType implements ColumnValueType {
 		MapData mapData = data.tryAsMap();
 		if (mapData == null) throw new ClassCastException("Not a map: " + data);
 		Map<String, InsnTree> constants = mapData.value.entrySet().stream().map(
-			(Map.Entry<@NotNull Data, @NotNull Data> entry) -> {
-				StringData stringKey = entry.getKey().tryAsString();
-				if (stringKey != null) return Map.entry(stringKey.value, entry.getValue());
-				else throw new ClassCastException("Key is non-string: " + entry.getKey());
-			}
-		)
-		.collect(
-			Collectors.toMap(
-				Map.Entry<String, Data>::getKey,
-				(Map.Entry<String, Data> entry) -> {
-					ColumnValueType type = this.lookup.get(entry.getKey());
-					if (type != null) return type.createConstant(entry.getValue(), context);
-					throw new IllegalArgumentException("Undeclared field specified: " + entry.getKey());
+				(Map.Entry<@NotNull Data, @NotNull Data> entry) -> {
+					StringData stringKey = entry.getKey().tryAsString();
+					if (stringKey != null) return Map.entry(stringKey.value, entry.getValue());
+					else throw new ClassCastException("Key is non-string: " + entry.getKey());
 				}
 			)
-		);
+											.collect(
+												Collectors.toMap(
+													Map.Entry<String, Data>::getKey,
+													(Map.Entry<String, Data> entry) -> {
+														ColumnValueType type = this.lookup.get(entry.getKey());
+														if (type != null) return type.createConstant(entry.getValue(), context);
+														throw new IllegalArgumentException("Undeclared field specified: " + entry.getKey());
+													}
+												)
+											);
 		int length = this.fields.length;
 		InsnTree[] args = new InsnTree[length];
 		for (int index = 0; index < length; index++) {
@@ -97,11 +96,11 @@ public class ClassColumnValueType implements ColumnValueType {
 			"<init>",
 			TypeInfos.VOID,
 			Arrays
-			.stream(this.fields)
-			.map(ClassColumnValueField::type)
-			.map(context.root()::getTypeContext)
-			.map(TypeContext::type)
-			.toArray(TypeInfo.ARRAY_FACTORY)
+				.stream(this.fields)
+				.map(ClassColumnValueField::type)
+				.map(context.root()::getTypeContext)
+				.map(TypeContext::type)
+				.toArray(TypeInfo.ARRAY_FACTORY)
 		);
 		environment.addQualifiedConstructor(constructor);
 	}
@@ -130,5 +129,7 @@ public class ClassColumnValueType implements ColumnValueType {
 		return "{ type: class, name: " + this.name + ", fields: " + Arrays.toString(this.fields) + " }";
 	}
 
-	public static record ClassColumnValueField(@IdentifierName String name, ColumnValueType type) {}
+	public static record ClassColumnValueField(@IdentifierName String name, ColumnValueType type) {
+
+	}
 }

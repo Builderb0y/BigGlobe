@@ -16,7 +16,7 @@ public record StringSimilarity(double value) implements Comparable<StringSimilar
 		int queryLength = query.length();
 		int baseLength = base.length();
 		double similarity = 0.0D;
-		for (int offset = -queryLength; ++offset < baseLength;) {
+		for (int offset = -queryLength; ++offset < baseLength; ) {
 			int minQuery = Math.max(0, -offset);
 			int maxQuery = Math.min(queryLength, baseLength - offset);
 			int run = 0;

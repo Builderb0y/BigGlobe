@@ -1,26 +1,23 @@
 package builderb0y.bigglobe.util;
 
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.material.FluidState;
 import builderb0y.bigglobe.features.RawFeature;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -34,7 +31,7 @@ in order for {@link ScriptedStructure} to support raw generation,
 that's where this interface comes into play: it extracts out the common logic
 between worlds and chunks, and allows {@link WorldWrapper} to operate on both.
 */
-public interface WorldOrChunk extends BlockView {
+public interface WorldOrChunk extends BlockGetter {
 
 	public abstract void setBlockState(BlockPos pos, BlockState state);
 
@@ -48,25 +45,25 @@ public interface WorldOrChunk extends BlockView {
 
 	public abstract long getSeed();
 
-	public abstract boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random);
+	public abstract boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random);
 
-	public abstract void spawnEntity(Function<ServerWorld, Entity> entitySupplier);
+	public abstract void spawnEntity(Function<ServerLevel, Entity> entitySupplier);
 
 	public abstract Coordinator coordinator();
 
-	public abstract void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random);
+	public abstract void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlaceSettings data, RandomGenerator random);
 
 	public static class WorldDelegator implements WorldOrChunk {
 
-		public final StructureWorldAccess world;
+		public final WorldGenLevel world;
 
-		public WorldDelegator(StructureWorldAccess world) {
+		public WorldDelegator(WorldGenLevel world) {
 			this.world = world;
 		}
 
 		@Override
-		public int getBottomY() {
-			return this.world.getBottomY();
+		public int getMinBuildHeight() {
+			return this.world.getMinBuildHeight();
 		}
 
 		@Override
@@ -87,14 +84,14 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public void setBlockState(BlockPos pos, BlockState state) {
 			if (state != null) {
-				WorldUtil.setBlockState(this.world, pos, state, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+				WorldUtil.setBlockState(this.world, pos, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 			}
 		}
 
 		@Override
 		public void updateBlockState(BlockPos pos) {
 			BlockState oldState = this.getBlockState(pos);
-			BlockState newState = Block.postProcessState(oldState, this.world, pos);
+			BlockState newState = Block.updateFromNeighbourShapes(oldState, this.world, pos);
 			if (oldState != newState) this.setBlockState(pos, newState);
 		}
 
@@ -105,12 +102,12 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		public boolean canPlace(BlockPos pos, BlockState state) {
-			return state.canPlaceAt(this.world, pos);
+			return state.canSurvive(this.world, pos);
 		}
 
 		@Override
 		public void scheduleFluidTick(BlockPos pos, FluidState state) {
-			this.world.scheduleFluidTick(pos, state.getFluid(), state.getFluid().getTickRate(this.world));
+			this.world.scheduleTick(pos, state.getType(), state.getType().getTickDelay(this.world));
 		}
 
 		@Override
@@ -119,24 +116,24 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, Random random) {
-			return feature.generate(
+		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random) {
+			return feature.place(
 				this.world,
-				((ServerChunkManager)(this.world.getChunkManager())).getChunkGenerator(),
+				((ServerChunkCache)(this.world.getChunkSource())).getGenerator(),
 				random,
 				pos
 			);
 		}
 
 		@Override
-		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
-			template.place(
+		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlaceSettings data, RandomGenerator random) {
+			template.placeInWorld(
 				this.world,
 				new BlockPos(x, y, z),
-				data.getPosition(),
+				data.getRotationPivot(),
 				data,
 				MojangPermuter.from(random),
-				Block.NOTIFY_LISTENERS | Block.FORCE_STATE
+				Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE
 			);
 		}
 
@@ -146,31 +143,31 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void spawnEntity(Function<ServerWorld, Entity> entitySupplier) {
-			Entity entity = entitySupplier.apply(this.world.toServerWorld());
-			if (entity != null) this.world.spawnEntityAndPassengers(entity);
+		public void spawnEntity(Function<ServerLevel, Entity> entitySupplier) {
+			Entity entity = entitySupplier.apply(this.world.getLevel());
+			if (entity != null) this.world.addFreshEntityWithPassengers(entity);
 		}
 
 		@Override
 		public Coordinator coordinator() {
-			return Coordinator.forWorld(this.world, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			return Coordinator.forWorld(this.world, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 		}
 	}
 
 	public static class ChunkDelegator implements WorldOrChunk {
 
-		public final Chunk chunk;
+		public final ChunkAccess chunk;
 		public final long seed;
 		public WorldWrapper worldWrapper;
 
-		public ChunkDelegator(Chunk chunk, long seed) {
+		public ChunkDelegator(ChunkAccess chunk, long seed) {
 			this.chunk = chunk;
 			this.seed = seed;
 		}
 
 		@Override
-		public int getBottomY() {
-			return this.chunk.getBottomY();
+		public int getMinBuildHeight() {
+			return this.chunk.getMinBuildHeight();
 		}
 
 		@Override
@@ -191,9 +188,9 @@ public interface WorldOrChunk extends BlockView {
 		@Override
 		public void setBlockState(BlockPos pos, BlockState state) {
 			if (state != null) {
-				this.chunk.setBlockState(pos, state, #if MC_VERSION >= MC_1_21_5 Block.NOTIFY_LISTENERS | Block.FORCE_STATE #else false #endif);
+				this.chunk.setBlockState(pos, state, false);
 				if (state.hasBlockEntity()) {
-					BlockEntity blockEntity = ((BlockEntityProvider)(state.getBlock())).createBlockEntity(pos, state);
+					BlockEntity blockEntity = ((EntityBlock)(state.getBlock())).newBlockEntity(pos, state);
 					if (blockEntity != null) this.chunk.setBlockEntity(blockEntity);
 				}
 			}
@@ -201,7 +198,7 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		public void updateBlockState(BlockPos pos) {
-			this.chunk.markBlockForPostProcessing(pos);
+			this.chunk.markPosForPostprocessing(pos);
 		}
 
 		@Override
@@ -226,7 +223,7 @@ public interface WorldOrChunk extends BlockView {
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> configuredFeature, Random random) {
+		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> configuredFeature, RandomSource random) {
 			if (configuredFeature.feature() instanceof RawFeature rawFeature) {
 				return rawFeature.generate(this.worldWrapper, configuredFeature.config(), pos);
 			}
@@ -236,7 +233,7 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlacementData data, RandomGenerator random) {
+		public void placeStructureTemplate(int x, int y, int z, StructureTemplate template, StructurePlaceSettings data, RandomGenerator random) {
 			throw new UnsupportedOperationException("Can't place structure templates during raw generation.");
 		}
 
@@ -246,7 +243,7 @@ public interface WorldOrChunk extends BlockView {
 		}
 
 		@Override
-		public void spawnEntity(Function<ServerWorld, Entity> entitySupplier) {
+		public void spawnEntity(Function<ServerLevel, Entity> entitySupplier) {
 			throw new UnsupportedOperationException("Can't spawn entities during raw generation.");
 		}
 

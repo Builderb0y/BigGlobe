@@ -2,11 +2,8 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -18,13 +15,13 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class AbstractMethodSpec extends BaseMethodSpec {
 
 	public final @IdentifierName String name;
-	public final RegistryEntry<ElementSpec> return_type;
+	public final Holder<ElementSpec> return_type;
 	public final ParameterSpec[] parameters;
-	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public AbstractMethodSpec(
 		@IdentifierName String name,
-		RegistryEntry<ElementSpec> return_type,
+		Holder<ElementSpec> return_type,
 		ParameterSpec[] parameters
 	) {
 		this.name = name;
@@ -33,7 +30,7 @@ public class AbstractMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return this.dependencies;
 	}
 
@@ -52,7 +49,7 @@ public class AbstractMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public RegistryEntry<ElementSpec> getReturnType() {
+	public Holder<ElementSpec> getReturnType() {
 		return this.return_type;
 	}
 

@@ -1,18 +1,17 @@
 package builderb0y.bigglobe.util;
 
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.util.Identifier;
-
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+import net.minecraft.resources.ResourceLocation;
 
 @Wrapper
 public class DelayedEntry {
 
-	public final @NotNull @VerifyNotEmpty String encoding;
-	public final @NotNull Identifier id;
+	public final @NotNull
+	@VerifyNotEmpty String encoding;
+	public final @NotNull ResourceLocation id;
 
 	public DelayedEntry(@NotNull String encoding) {
 		this.encoding = encoding.intern();
@@ -24,14 +23,14 @@ public class DelayedEntry {
 		}
 	}
 
-	public DelayedEntry(@NotNull Identifier id, boolean isTag) {
+	public DelayedEntry(@NotNull ResourceLocation id, boolean isTag) {
 		this.id = id;
 		this.encoding = (
 			isTag
-			? '#' + id.toString()
-			: id.toString()
+				? '#' + id.toString()
+				: id.toString()
 		)
-		.intern();
+							.intern();
 	}
 
 	public String encoding() {

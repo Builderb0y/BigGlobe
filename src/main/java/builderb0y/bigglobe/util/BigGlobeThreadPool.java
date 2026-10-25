@@ -1,6 +1,9 @@
 package builderb0y.bigglobe.util;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -12,9 +15,11 @@ public class BigGlobeThreadPool {
 	public static final AtomicBoolean BUSY = new AtomicBoolean(false);
 	public static final LinkedBlockingDeque<Runnable> TASKS = new LinkedBlockingDeque<>();
 	public static final ThreadPoolExecutor POOL;
+
 	static {
 		int threads = Math.max(Runtime.getRuntime().availableProcessors() - 2, 1); //reserve space for client and server thread.
-		POOL = new ThreadPoolExecutor(threads, threads, 1, TimeUnit.SECONDS, TASKS, (Runnable task) -> {
+		POOL = new ThreadPoolExecutor(
+			threads, threads, 1, TimeUnit.SECONDS, TASKS, (Runnable task) -> {
 			Thread thread = new Thread(task, "Big Globe Worker Thread");
 			thread.setDaemon(true);
 			thread.setUncaughtExceptionHandler((Thread thread_, Throwable exception) -> {
@@ -22,12 +27,14 @@ public class BigGlobeThreadPool {
 				BigGlobeThreadPool.POOL.prestartAllCoreThreads();
 			});
 			return thread;
-		});
+		}
+		);
 		POOL.prestartAllCoreThreads();
 	}
+
 	public static final Executor
 		MAIN_EXECUTOR = TASKS::addFirst,
-		LOD_EXECUTOR  = TASKS::addLast;
+		LOD_EXECUTOR = TASKS::addLast;
 
 	public static void checkThreads() {
 		int threads = BigGlobeConfig.INSTANCE.get().threads();

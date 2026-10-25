@@ -1,18 +1,16 @@
 package builderb0y.bigglobe.columns.scripted2.entries;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.bigglobe.columns.scripted.classes.ConstantFormatException;
+import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.columns.scripted2.AccessSchema;
 import builderb0y.bigglobe.columns.scripted2.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted2.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted2.ColumnValueException;
-import builderb0y.bigglobe.columns.scripted.classes.ElementSpec;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -58,7 +56,7 @@ public class ConstantColumnEntry extends ColumnEntry {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies(RegistryEntry<? extends DependencyView> self, WorldTraits traits) {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies(Holder<? extends DependencyView> self, WorldTraits traits) {
 		return Stream.empty();
 	}
 }

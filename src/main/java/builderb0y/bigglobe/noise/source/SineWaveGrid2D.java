@@ -19,9 +19,9 @@ public class SineWaveGrid2D implements Grid2D {
 	public transient PhaseData phaseData;
 
 	public SineWaveGrid2D(Seed seed, double scale, double amplitude, int iterations) {
-		this.seed       = seed;
-		this.scale      = scale;
-		this.amplitude  = amplitude;
+		this.seed = seed;
+		this.scale = scale;
+		this.amplitude = amplitude;
 		this.iterations = iterations;
 		this.rcpStandardDeviation = amplitude / Math.sqrt(iterations);
 	}
@@ -29,10 +29,10 @@ public class SineWaveGrid2D implements Grid2D {
 	public PhaseData getPhaseData(long seed) {
 		PhaseData data = this.phaseData;
 		if (data == null || data.seed != seed) {
-			double[] angles    = this.generateBlueNoise(seed ^ 0x7FDD3387380B99C5L);
+			double[] angles = this.generateBlueNoise(seed ^ 0x7FDD3387380B99C5L);
 			double[] cosAngles = new double[this.iterations];
 			double[] sinAngles = new double[this.iterations];
-			for (int index = this.iterations; --index >= 0;) {
+			for (int index = this.iterations; --index >= 0; ) {
 				cosAngles[index] = Math.cos(angles[index]);
 				sinAngles[index] = Math.sin(angles[index]);
 			}
@@ -87,5 +87,7 @@ public class SineWaveGrid2D implements Grid2D {
 		return sum * this.rcpStandardDeviation;
 	}
 
-	public static record PhaseData(long seed, double[] cosAngles, double[] sinAngles, double[] offsets) {}
+	public static record PhaseData(long seed, double[] cosAngles, double[] sinAngles, double[] offsets) {
+
+	}
 }

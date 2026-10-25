@@ -20,9 +20,9 @@ public class NegateInsnTree extends UnaryInsnTree {
 		ConstantValue constant = value.getConstantValue();
 		if (constant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT    -> ldc(-constant.   asInt());
-				case LONG   -> ldc(-constant.  asLong());
-				case FLOAT  -> ldc(-constant. asFloat());
+				case INT -> ldc(-constant.asInt());
+				case LONG -> ldc(-constant.asLong());
+				case FLOAT -> ldc(-constant.asFloat());
 				case DOUBLE -> ldc(-constant.asDouble());
 				default -> throw new InvalidOperandException("Can't negate non-number.");
 			};

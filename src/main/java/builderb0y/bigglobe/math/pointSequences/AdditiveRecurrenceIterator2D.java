@@ -36,11 +36,38 @@ public class AdditiveRecurrenceIterator2D implements BoundedPointIterator2D, Add
 		this.y = Interpolator.mixLinear(this.minY, this.maxY, (this.index * ADD2 + this.offsetY) % 1.0D);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double minY() { return this.minY; }
-	@Override public double maxY() { return this.maxY; }
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
-	@Override public int index() { return this.index; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double minY() {
+		return this.minY;
+	}
+
+	@Override
+	public double maxY() {
+		return this.maxY;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
 }

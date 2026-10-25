@@ -1,16 +1,15 @@
 package builderb0y.bigglobe.mixins;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PlantBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-
-@Mixin(PlantBlock.class)
+@Mixin(BushBlock.class)
 public interface PlantBlock_CanPlantOnTopAccess {
 
-	@Invoker("canPlantOnTop")
-	public abstract boolean bigglobe_canPlantOnTop(BlockState floor, BlockView world, BlockPos pos);
+	@Invoker("mayPlaceOn")
+	public abstract boolean bigglobe_canPlantOnTop(BlockState floor, BlockGetter world, BlockPos pos);
 }

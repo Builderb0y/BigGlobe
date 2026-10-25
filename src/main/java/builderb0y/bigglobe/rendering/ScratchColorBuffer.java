@@ -51,8 +51,14 @@ public class ScratchColorBuffer implements SafeCloseable {
 
 	@Override
 	public void close() {
-		if (this.fbo != 0) { glDeleteFramebuffers(this.fbo); this.fbo = 0; }
-		if (this.colorTex >= 0) { glDeleteTextures(this.colorTex); this.colorTex = -1; }
+		if (this.fbo != 0) {
+			glDeleteFramebuffers(this.fbo);
+			this.fbo = 0;
+		}
+		if (this.colorTex >= 0) {
+			glDeleteTextures(this.colorTex);
+			this.colorTex = -1;
+		}
 		this.width = this.height = 0;
 	}
 

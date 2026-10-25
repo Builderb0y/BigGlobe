@@ -4,32 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructureSet;
-import net.minecraft.structure.StructureStart;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-import net.minecraft.world.gen.noise.NoiseConfig;
-import net.minecraft.world.gen.structure.Structure;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
@@ -45,11 +40,11 @@ public abstract class StructureManager {
 	public static record StructureGenerationParams(
 		BigGlobeScriptedChunkGenerator generator,
 		ScriptedColumnLookup columns,
-		StructurePlacementCalculator structurePlacementCalculator,
-		DynamicRegistryManager dynamicRegistries,
-		NoiseConfig noiseConfig,
+		ChunkGeneratorStructureState structurePlacementCalculator,
+		RegistryAccess dynamicRegistries,
+		RandomState noiseConfig,
 		StructureTemplateManager structureTemplateManager,
-		HeightLimitView heightLimitView,
+		LevelHeightAccessor heightLimitView,
 		ChunkPos chunkPos,
 		boolean distantHorizons
 	) {
@@ -57,16 +52,16 @@ public abstract class StructureManager {
 		public StructureGenerationParams(
 			BigGlobeScriptedChunkGenerator generator,
 			ScriptedColumnLookup columns,
-			ServerWorld world,
+			ServerLevel world,
 			ChunkPos chunkPos
 		) {
 			this(
 				generator,
 				columns,
-				world.getChunkManager().getStructurePlacementCalculator(),
-				world.getRegistryManager(),
-				world.getChunkManager().getNoiseConfig(),
-				world.getStructureTemplateManager(),
+				world.getChunkSource().getGeneratorState(),
+				world.registryAccess(),
+				world.getChunkSource().randomState(),
+				world.getStructureManager(),
 				world,
 				chunkPos,
 				columns.getHints().isLod()
@@ -81,8 +76,8 @@ public abstract class StructureManager {
 			return this.generator.columnSeed;
 		}
 
-		public Structure.Context toStructureContext(Predicate<RegistryEntry<Biome>> predicate) {
-			return new Structure.Context(
+		public Structure.GenerationContext toStructureContext(Predicate<Holder<Biome>> predicate) {
+			return new Structure.GenerationContext(
 				this.dynamicRegistries,
 				this.generator,
 				this.generator.biome_source(),
@@ -114,12 +109,12 @@ public abstract class StructureManager {
 		}
 	}
 
-	public static RegistryKey<Structure> structureKey(Structure structure) {
-		return RegistryVersions.getRegistry(BigGlobeMod.getCurrentServer().getRegistryManager(), RegistryKeys.STRUCTURE).getKey(structure).orElseThrow();
+	public static ResourceKey<Structure> structureKey(Structure structure) {
+		return RegistryVersions.getRegistry(BigGlobeMod.getCurrentServer().registryAccess(), Registries.STRUCTURE).getResourceKey(structure).orElseThrow();
 	}
 
-	public static Identifier structureID(Structure structure) {
-		return structureKey(structure).getValue();
+	public static ResourceLocation structureID(Structure structure) {
+		return structureKey(structure).location();
 	}
 
 	public static String structureName(Structure structure) {
@@ -134,19 +129,19 @@ public abstract class StructureManager {
 		return false;
 	}
 
-	public static RegistryKey<Structure> structureKey(RegistryEntry<Structure> structure) {
+	public static ResourceKey<Structure> structureKey(Holder<Structure> structure) {
 		return UnregisteredObjectException.getKey(structure);
 	}
 
-	public static Identifier structureID(RegistryEntry<Structure> structure) {
-		return structureKey(structure).getValue();
+	public static ResourceLocation structureID(Holder<Structure> structure) {
+		return structureKey(structure).location();
 	}
 
-	public static String structureName(RegistryEntry<Structure> structure) {
+	public static String structureName(Holder<Structure> structure) {
 		return structureID(structure).toString();
 	}
 
-	public static boolean canLog(RegistryEntry<Structure> structure) {
+	public static boolean canLog(Holder<Structure> structure) {
 		if (BigGlobeConfig.INSTANCE.get().dataPackDebugging.logStructureSpawning) {
 			Pattern pattern = DataPackDebugging.structureLogFilterPattern;
 			return pattern == null || pattern.matcher(structureName(structure)).find();
@@ -162,7 +157,7 @@ public abstract class StructureManager {
 
 	public abstract StructureManager copy();
 
-	public static record StructureKey(int chunkX, int chunkZ, RegistryEntry<StructureSet> set) {
+	public static record StructureKey(int chunkX, int chunkZ, Holder<StructureSet> set) {
 
 		public ChunkPos chunkPos() {
 			return new ChunkPos(this.chunkX, this.chunkZ);
@@ -171,41 +166,41 @@ public abstract class StructureManager {
 
 	public static class SectionSortedStructurePieces extends Long2ObjectOpenHashMap<List<StructurePiece>> {
 
-		public final RegistryEntry<StructureSet> set;
+		public final Holder<StructureSet> set;
 		public final StructureStartWrapper startWrapper;
 		public final int volume, scale;
 
-		public SectionSortedStructurePieces(RegistryEntry<StructureSet> set) {
+		public SectionSortedStructurePieces(Holder<StructureSet> set) {
 			this.set = set;
 			this.startWrapper = null;
 			this.volume = 0;
 			this.scale = 0;
 		}
 
-		public SectionSortedStructurePieces(RegistryEntry<StructureSet> set, StructureStartWrapper startWrapper) {
-			super(startWrapper.start().getChildren().size());
+		public SectionSortedStructurePieces(Holder<StructureSet> set, StructureStartWrapper startWrapper) {
+			super(startWrapper.start().getPieces().size());
 			this.set = set;
 			this.startWrapper = startWrapper;
 			this.volume = volumeOf(startWrapper.start());
-			List<StructurePiece> children = startWrapper.start().getChildren();
+			List<StructurePiece> children = startWrapper.start().getPieces();
 			this.scale = Math.getExponent(Math.cbrt(((double)(this.volume)) / ((double)(children.size()))));
 			for (StructurePiece piece : children) {
-				BlockBox box = piece.getBoundingBox();
-				int minX = box.getMinX() >> this.scale;
-				int minY = box.getMinY() >> this.scale;
-				int minZ = box.getMinZ() >> this.scale;
-				int maxX = box.getMaxX() >> this.scale;
-				int maxY = box.getMaxY() >> this.scale;
-				int maxZ = box.getMaxZ() >> this.scale;
+				BoundingBox box = piece.getBoundingBox();
+				int minX = box.minX() >> this.scale;
+				int minY = box.minY() >> this.scale;
+				int minZ = box.minZ() >> this.scale;
+				int maxX = box.maxX() >> this.scale;
+				int maxY = box.maxY() >> this.scale;
+				int maxZ = box.maxZ() >> this.scale;
 				for (int z = minZ; z <= maxZ; z++) {
 					for (int x = minX; x <= maxX; x++) {
 						for (int y = minY; y <= maxY; y++) {
 							this
-							.computeIfAbsent(
-								BlockPos.asLong(x, y, z),
-								(long pos) -> new ArrayList<>(4)
-							)
-							.add(piece);
+								.computeIfAbsent(
+									BlockPos.asLong(x, y, z),
+									(long pos) -> new ArrayList<>(4)
+								)
+								.add(piece);
 						}
 					}
 				}
@@ -213,7 +208,7 @@ public abstract class StructureManager {
 		}
 
 		public boolean intersects(StructureStart start) {
-			for (StructurePiece child : start.getChildren()) {
+			for (StructurePiece child : start.getPieces()) {
 				if (this.intersects(child)) return true;
 			}
 			return false;
@@ -222,29 +217,29 @@ public abstract class StructureManager {
 		public static boolean intersects(SectionSortedStructurePieces pieces1, SectionSortedStructurePieces pieces2) {
 			StructureStart start1 = pieces1.startWrapper.start();
 			StructureStart start2 = pieces2.startWrapper.start();
-			return start1.getBoundingBox().intersects(start2.getBoundingBox()) && (start1.getChildren().size() < start2.getChildren().size() ? pieces2.intersects(start1) : pieces1.intersects(start2));
+			return start1.getBoundingBox().intersects(start2.getBoundingBox()) && (start1.getPieces().size() < start2.getPieces().size() ? pieces2.intersects(start1) : pieces1.intersects(start2));
 		}
 
 		public static int volumeOf(StructureStart start) {
-			if (!start.hasChildren()) return 0;
-			BlockBox box = start.getBoundingBox();
-			int minX = box.getMinX();
-			int minY = box.getMinY();
-			int minZ = box.getMinZ();
-			int maxX = box.getMaxX();
-			int maxY = box.getMaxY();
-			int maxZ = box.getMaxZ();
+			if (!start.isValid()) return 0;
+			BoundingBox box = start.getBoundingBox();
+			int minX = box.minX();
+			int minY = box.minY();
+			int minZ = box.minZ();
+			int maxX = box.maxX();
+			int maxY = box.maxY();
+			int maxZ = box.maxZ();
 			return (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1);
 		}
 
 		public boolean intersects(StructurePiece piece) {
-			BlockBox box = piece.getBoundingBox();
-			int minX = box.getMinX() >> this.scale;
-			int minY = box.getMinY() >> this.scale;
-			int minZ = box.getMinZ() >> this.scale;
-			int maxX = box.getMaxX() >> this.scale;
-			int maxY = box.getMaxY() >> this.scale;
-			int maxZ = box.getMaxZ() >> this.scale;
+			BoundingBox box = piece.getBoundingBox();
+			int minX = box.minX() >> this.scale;
+			int minY = box.minY() >> this.scale;
+			int minZ = box.minZ() >> this.scale;
+			int maxX = box.maxX() >> this.scale;
+			int maxY = box.maxY() >> this.scale;
+			int maxZ = box.maxZ() >> this.scale;
 			for (int z = minZ; z <= maxZ; z++) {
 				for (int x = minX; x <= maxX; x++) {
 					for (int y = minY; y <= maxY; y++) {
@@ -268,7 +263,8 @@ public abstract class StructureManager {
 
 	public static class FinalStructures extends ObjectArrayList<StructureStart> {
 
-		public FinalStructures() {}
+		public FinalStructures() {
+		}
 
 		public FinalStructures(int capacity) {
 			super(capacity);

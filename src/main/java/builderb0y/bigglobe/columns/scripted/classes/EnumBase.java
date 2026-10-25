@@ -10,17 +10,18 @@ import builderb0y.scripting.util.InfoHolder;
 
 /**
 differences from {@link Enum}:
-* values are unordered.
-	* these "enums" don't have an ordinal.
-	* values do not, by default, implement Comparable.
-	* values() does not exist. instead, there are valueSet and valueMap fields.
-* the restriction that only one "layer" of subclassing is allowed does not apply here.
-	* you can have A extends B extends C extends D extends EnumBase if you want to.
+values are unordered.
+these "enums" don't have an ordinal.
+values do not, by default, implement Comparable.
+values() does not exist. instead, there are valueSet and valueMap fields.
+the restriction that only one "layer" of subclassing is allowed does not apply here.
+you can have A extends B extends C extends D extends EnumBase if you want to.
 */
 @SuppressWarnings("FinalMethod")
 public class EnumBase {
 
 	public static final Info $INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public MethodInfo
@@ -30,6 +31,7 @@ public class EnumBase {
 		public FieldInfo
 			name;
 	}
+
 	public static final ConstructorInfo $CONSTRUCTOR_INFO = new ConstructorInfo(EnumBase.class);
 
 	public final String name;

@@ -1,41 +1,27 @@
 package builderb0y.bigglobe.chunkgen;
 
-import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.mojang.serialization.Codec;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.Climate.Sampler;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.entry.RegistryEntryList.Named;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.biome.source.util.MultiNoiseUtil.MultiNoiseSampler;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToBiomeScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedColumnBiomeSource.class);
-	#else
-		public static final Codec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedColumnBiomeSource.class).codec();
-	#endif
+	public static final MapCodec<ScriptedColumnBiomeSource> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedColumnBiomeSource.class);
 
 	public final ColumnYToBiomeScript.Holder script;
 	public final DelayedEntryList<Biome> all_possible_biomes;
@@ -72,29 +58,29 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	}
 
 	@Override
-	public #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif <? extends BiomeSource> getCodec() {
+	public MapCodec<? extends BiomeSource> codec() {
 		return CODEC;
 	}
 
 	@Override
-	public Set<RegistryEntry<Biome>> getBiomes() {
+	public Set<Holder<Biome>> possibleBiomes() {
 		return this.all_possible_biomes.entrySet();
 	}
 
 	@Override
-	protected Stream<RegistryEntry<Biome>> biomeStream() {
+	protected Stream<Holder<Biome>> collectPossibleBiomes() {
 		return this.all_possible_biomes.entryStream();
 	}
 
 	@Override
-	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseSampler noise) {
+	public Holder<Biome> getNoiseBiome(int x, int y, int z, Sampler noise) {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {
 			column.setParams(column.params.at(x << 2, z << 2).hints(ColumnUsage.GENERIC.maybeDhHints()));
 			return this.script.get(column, y << 2).entry;
 		}
 		else {
-			return BigGlobeMod.getRegistry(RegistryKeys.BIOME).requireEntry(BiomeKeys.PLAINS);
+			return BigGlobeMod.getRegistry(Registries.BIOME).requireEntry(Biomes.PLAINS);
 		}
 	}
 

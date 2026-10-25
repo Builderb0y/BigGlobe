@@ -29,9 +29,9 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 	@Override
 	public double getValue(long seed, int x, int y) {
 		seed ^= this.salt.value;
-		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(y - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
 		double value = Double.POSITIVE_INFINITY;
 		for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
@@ -49,16 +49,16 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
 		samples.fillD(Double.POSITIVE_INFINITY);
-		int minCellX = Math.floorDiv( ceilI(startX - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(startX - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(startX + sampleCount + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(y - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(y - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(y + this.radius), this.scale);
 		double radius2 = squareD(this.radius);
 		for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
 			for (int cellY = minCellY; cellY <= maxCellY; cellY++) {
 				double centerX = this.getCenterX(seed, cellX, cellY);
 				double centerY = this.getCenterY(seed, cellX, cellY);
-				double y2      = squareD(centerY - y);
+				double y2 = squareD(centerY - y);
 				int limit = startX + sampleCount - 1;
 				for (int x = Math.min(floorI(centerX), limit); x >= startX; x--) {
 					double distance = squareD(centerX - x) + y2;
@@ -82,16 +82,16 @@ public class WorleyGrid2D extends WorleyGrid implements Grid2D {
 		int sampleCount = samples.length();
 		seed ^= this.salt.value;
 		samples.fillD(Double.POSITIVE_INFINITY);
-		int minCellX = Math.floorDiv( ceilI(x - this.radius), this.scale);
+		int minCellX = Math.floorDiv(ceilI(x - this.radius), this.scale);
 		int maxCellX = Math.floorDiv(floorI(x + this.radius), this.scale);
-		int minCellY = Math.floorDiv( ceilI(startY - this.radius), this.scale);
+		int minCellY = Math.floorDiv(ceilI(startY - this.radius), this.scale);
 		int maxCellY = Math.floorDiv(floorI(startY + sampleCount + this.radius), this.scale);
 		double radius2 = squareD(this.radius);
 		for (int cellY = minCellY; cellY <= maxCellY; cellY++) {
 			for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
 				double centerX = this.getCenterX(seed, cellX, cellY);
 				double centerY = this.getCenterY(seed, cellX, cellY);
-				double x2      = squareD(centerX - x);
+				double x2 = squareD(centerX - x);
 				int limit = startY + sampleCount - 1;
 				for (int y = Math.min(floorI(centerY), limit); y >= startY; y--) {
 					double distance = squareD(centerY - y) + x2;

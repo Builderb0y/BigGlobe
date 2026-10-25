@@ -1,13 +1,12 @@
 package builderb0y.bigglobe.columns.restrictions;
 
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.autocodec.util.TypeFormatter;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.math.Interpolator;
+import net.minecraft.core.Holder;
 
 public class RangeColumnRestriction extends PropertyColumnRestriction {
 
@@ -17,7 +16,7 @@ public class RangeColumnRestriction extends PropertyColumnRestriction {
 	public final @DefaultBoolean(true) boolean smooth;
 
 	public RangeColumnRestriction(
-		RegistryEntry<ColumnEntry> property,
+		Holder<ColumnEntry> property,
 		double min,
 		double mid,
 		double max,
@@ -42,8 +41,8 @@ public class RangeColumnRestriction extends PropertyColumnRestriction {
 		}
 		return (
 			this.smooth
-			? bandSmooth(this.min, this.mid, this.max, value)
-			: bandLinear(this.min, this.mid, this.max, value)
+				? bandSmooth(this.min, this.mid, this.max, value)
+				: bandLinear(this.min, this.mid, this.max, value)
 		);
 	}
 

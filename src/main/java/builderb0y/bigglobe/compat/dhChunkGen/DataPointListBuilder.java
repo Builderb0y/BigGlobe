@@ -1,15 +1,12 @@
 package builderb0y.bigglobe.compat.dhChunkGen;
 
 import java.util.ArrayList;
-
+import net.minecraft.world.level.block.state.BlockState;
 import com.seibel.distanthorizons.api.DhApi;
 import com.seibel.distanthorizons.api.interfaces.block.IDhApiBiomeWrapper;
 import com.seibel.distanthorizons.api.interfaces.block.IDhApiBlockStateWrapper;
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.api.objects.data.DhApiTerrainDataPoint;
-
-import net.minecraft.block.BlockState;
-
 import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
 
 public class DataPointListBuilder extends ArrayList<DhApiTerrainDataPoint> {
@@ -34,7 +31,7 @@ public class DataPointListBuilder extends ArrayList<DhApiTerrainDataPoint> {
 		assert maxY > minY;
 		minY -= this.yOffset;
 		maxY -= this.yOffset;
-		this.add(DHCode.newDataPoint(this.detailLevel, mcState.getLuminance(), this.skyLightLevel, minY, maxY, dhState, this.biome));
+		this.add(DHCode.newDataPoint(this.detailLevel, mcState.getLightEmission(), this.skyLightLevel, minY, maxY, dhState, this.biome));
 	}
 
 	public void add(BlockState state, int minY, int maxY) {

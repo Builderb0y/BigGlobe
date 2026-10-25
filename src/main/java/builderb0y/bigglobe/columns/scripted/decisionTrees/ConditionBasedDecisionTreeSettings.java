@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.decisionTrees;
 
 import java.util.stream.Stream;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.conditions.DecisionTreeCondition;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.noise.Permuter;
@@ -16,20 +14,20 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 public class ConditionBasedDecisionTreeSettings extends DecisionTreeSettings {
 
 	public final DecisionTreeCondition condition;
-	public final RegistryEntry<DecisionTreeSettings> if_true, if_false;
+	public final Holder<DecisionTreeSettings> if_true, if_false;
 
 	public ConditionBasedDecisionTreeSettings(
 		DecisionTreeCondition condition,
-		RegistryEntry<DecisionTreeSettings> if_true,
-		RegistryEntry<DecisionTreeSettings> if_false
+		Holder<DecisionTreeSettings> if_true,
+		Holder<DecisionTreeSettings> if_false
 	) {
 		this.condition = condition;
-		this.if_true   = if_true;
-		this.if_false  = if_false;
+		this.if_true = if_true;
+		this.if_false = if_false;
 	}
 
 	@Override
-	public InsnTree doCreateResult(RegistryEntry<DecisionTreeSettings> selfEntry, Context context) throws ScriptParsingException {
+	public InsnTree doCreateResult(Holder<DecisionTreeSettings> selfEntry, Context context) throws ScriptParsingException {
 		ConditionTree condition = this.condition.createCondition(selfEntry, Permuter.permute(0L, UnregisteredObjectException.getID(selfEntry)), context.dataContext, context.loadY);
 		InsnTree ifTrue = context.createInsnTree(this.if_true);
 		InsnTree ifFalse = context.createInsnTree(this.if_false);
@@ -40,7 +38,7 @@ public class ConditionBasedDecisionTreeSettings extends DecisionTreeSettings {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return Stream.concat(Stream.of(this.if_true, this.if_false), this.condition.streamDirectDependencies());
 	}
 }

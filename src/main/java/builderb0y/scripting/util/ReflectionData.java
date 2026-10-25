@@ -26,22 +26,22 @@ public class ReflectionData {
 	public final Map<String, List<Method>> declaredMethodsByName, derivedMethodsByName;
 
 	public ReflectionData(Class<?> clazz) {
-		this.clazz                 = clazz;
-		this.declaredFields        = Arrays.asList(clazz.getDeclaredFields());
-		this.declaredMethods       = Arrays.asList(clazz.getDeclaredMethods());
-		this.constructors          = Arrays.asList(clazz.getDeclaredConstructors());
-		this.declaredFieldsByName  = collectMembers(this.declaredFields);
+		this.clazz = clazz;
+		this.declaredFields = Arrays.asList(clazz.getDeclaredFields());
+		this.declaredMethods = Arrays.asList(clazz.getDeclaredMethods());
+		this.constructors = Arrays.asList(clazz.getDeclaredConstructors());
+		this.declaredFieldsByName = collectMembers(this.declaredFields);
 		this.declaredMethodsByName = collectMembers(this.declaredMethods);
-		this.derivedFields         = new ArrayList<>(16);
-		this.derivedMethods        = new ArrayList<>(64);
-		this.derivedFieldsByName   = new HashMap<>(16);
-		this.derivedMethodsByName  = new HashMap<>(64);
+		this.derivedFields = new ArrayList<>(16);
+		this.derivedMethods = new ArrayList<>(64);
+		this.derivedFieldsByName = new HashMap<>(16);
+		this.derivedMethodsByName = new HashMap<>(64);
 		this.recursiveAddDerived(this, new HashSet<>(16));
 	}
 
 	/**
 	equivalent to: {@code
-		list.stream().collect(Collectors.groupingBy(M::getName))
+	list.stream().collect(Collectors.groupingBy(M::getName))
 	},
 	but I can't use the above code because that generates unordered lists.
 	in other words, the members are added to the map in a different order

@@ -1,39 +1,30 @@
 package builderb0y.bigglobe.particles;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import org.jetbrains.annotations.Nullable;
-
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFactory;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.particle.WaterSuspendParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.SuspendedParticle;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.versions.RegistryVersions;
-
-#if MC_VERSION >= MC_1_20_5
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.util.math.random.Random;
-#endif
 
 public class SporeParticles {
 
 	public static void init() {
-		Registry.register(Registries.PARTICLE_TYPE, BigGlobeMod.modID("spore"), Type.INSTANCE);
+		Registry.register(BuiltInRegistries.PARTICLE_TYPE, BigGlobeMod.modID("spore"), Type.INSTANCE);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -41,13 +32,9 @@ public class SporeParticles {
 		ParticleFactoryRegistry.getInstance().register(Type.INSTANCE, ClientFactory::new);
 	}
 
-	public static class Effect implements ParticleEffect {
+	public static class Effect implements ParticleOptions {
 
-		#if MC_VERSION >= MC_1_20_5
 		public static final MapCodec<Effect> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(Effect.class);
-		#else
-		public static final Codec<Effect> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(Effect.class).codec();
-		#endif
 
 		public final int red, green, blue;
 
@@ -62,18 +49,18 @@ public class SporeParticles {
 			return Type.INSTANCE;
 		}
 
-		public void write(PacketByteBuf buffer) {
+		public void write(FriendlyByteBuf buffer) {
 			buffer.writeByte(this.red);
 			buffer.writeByte(this.green);
 			buffer.writeByte(this.blue);
 		}
 
-		public static Effect read(PacketByteBuf buffer) {
+		public static Effect read(FriendlyByteBuf buffer) {
 			return new Effect(buffer.readUnsignedByte(), buffer.readUnsignedByte(), buffer.readUnsignedByte());
 		}
 
 		@Override
-		public String #if MC_VERSION >= MC_1_20_5 toString #else asString #endif() {
+		public String toString() {
 			return "SporeParticles$Effect: { red: " + this.red + ", green: " + this.green + ", blue: " + this.blue + " }";
 		}
 	}
@@ -83,83 +70,44 @@ public class SporeParticles {
 		public static final Type INSTANCE = new Type();
 
 		public Type() {
-			super(false #if MC_VERSION < MC_1_20_5 , ServerFactory.INSTANCE #endif);
+			super(false);
 		}
 
-		#if MC_VERSION >= MC_1_20_5
+		@Override
+		public MapCodec<Effect> codec() {
+			return Effect.CODEC;
+		}
 
-			@Override
-			public MapCodec<Effect> getCodec() {
-				return Effect.CODEC;
-			}
-
-			@Override
-			public PacketCodec<? super RegistryByteBuf, Effect> getPacketCodec() {
-				return PacketCodec.of(Effect::write, Effect::read);
-			}
-		#else
-
-			@Override
-			public Codec<Effect> getCodec() {
-				return Effect.CODEC;
-			}
-		#endif
+		@Override
+		public StreamCodec<? super RegistryFriendlyByteBuf, Effect> streamCodec() {
+			return StreamCodec.ofMember(Effect::write, Effect::read);
+		}
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class ClientFactory implements ParticleFactory<Effect> {
+	public static class SporeParticle extends SuspendedParticle {
+		public SporeParticle(ClientLevel level, SpriteSet sprites, double x, double y, double z, double vx, double vy, double vz) {
+			super(level, sprites, x, y, z);
+			this.xd = vx;
+			this.yd = vy;
+			this.zd = vz;
+		}
+	}
 
-		public SpriteProvider spriteProvider;
+	@Environment(EnvType.CLIENT)
+	public static class ClientFactory implements ParticleProvider<Effect> {
 
-		public ClientFactory(SpriteProvider spriteProvider) {
+		public SpriteSet spriteProvider;
+
+		public ClientFactory(SpriteSet spriteProvider) {
 			this.spriteProvider = spriteProvider;
 		}
 
-		#if MC_VERSION >= MC_1_21_9
-
-			@Override
-			public @Nullable Particle createParticle(Effect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
-				WaterSuspendParticle particle = new WaterSuspendParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider.getSprite(random));
-				particle.setColor(parameters.red / 255.0F, parameters.green / 255.0F, parameters.blue / 255.0F);
-				return particle;
-			}
-
-		#else
-
-			@Override
-			public @Nullable Particle createParticle(Effect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
-				WaterSuspendParticle particle = new WaterSuspendParticle(world, this.spriteProvider, x, y, z, velocityX, velocityY, velocityZ);
-				particle.setColor(parameters.red / 255.0F, parameters.green / 255.0F, parameters.blue / 255.0F);
-				return particle;
-			}
-
-		#endif
-	}
-
-	#if MC_VERSION < MC_1_20_5
-
-		@SuppressWarnings("deprecation")
-		public static class ServerFactory implements ParticleEffect.Factory<Effect> {
-
-			public static final ServerFactory INSTANCE = new ServerFactory();
-
-			@Override
-			public Effect read(ParticleType<Effect> type, StringReader reader) throws CommandSyntaxException {
-				return new Effect(nextComponent(reader), nextComponent(reader), nextComponent(reader));
-			}
-
-			public static int nextComponent(StringReader reader) throws CommandSyntaxException {
-				reader.expect(' ');
-				int value = reader.readInt();
-				if (value < 0) throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.integerTooLow().createWithContext(reader, value, 0);
-				if (value > 255) throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.integerTooHigh().createWithContext(reader, value, 255);
-				return value;
-			}
-
-			@Override
-			public Effect read(ParticleType<Effect> type, PacketByteBuf buffer) {
-				return new Effect(buffer.readUnsignedByte(), buffer.readUnsignedByte(), buffer.readUnsignedByte());
-			}
+		@Override
+		public @Nullable Particle createParticle(Effect parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+			SporeParticle particle = new SporeParticle(world, this.spriteProvider, x, y, z, velocityX, velocityY, velocityZ);
+			particle.setColor(parameters.red / 255.0F, parameters.green / 255.0F, parameters.blue / 255.0F);
+			return particle;
 		}
-	#endif
+	}
 }

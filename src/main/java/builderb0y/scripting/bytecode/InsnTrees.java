@@ -16,7 +16,10 @@ import builderb0y.scripting.bytecode.tree.ConstantValue;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.*;
-import builderb0y.scripting.bytecode.tree.flow.*;
+import builderb0y.scripting.bytecode.tree.flow.IfElseInsnTree;
+import builderb0y.scripting.bytecode.tree.flow.IfInsnTree;
+import builderb0y.scripting.bytecode.tree.flow.SequenceInsnTree;
+import builderb0y.scripting.bytecode.tree.flow.SwitchInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.loop.DoWhileInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.loop.ForInsnTree;
 import builderb0y.scripting.bytecode.tree.flow.loop.WhileInsnTree;
@@ -24,14 +27,14 @@ import builderb0y.scripting.bytecode.tree.instructions.*;
 import builderb0y.scripting.bytecode.tree.instructions.binary.*;
 import builderb0y.scripting.bytecode.tree.instructions.casting.IdentityCastInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.casting.WrappedCastInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.fields.NormalInstanceGetFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.GetStaticInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.fields.NormalInstanceGetFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutFieldInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.fields.PutStaticInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.InvokeDynamicInsnTree;
+import builderb0y.scripting.bytecode.tree.instructions.invokers.NewInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.NormalInvokeInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.StaticInvokeInsnTree;
-import builderb0y.scripting.bytecode.tree.instructions.invokers.NewInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.InstanceOfInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.NegateInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.unary.SquareInsnTree;
@@ -40,7 +43,9 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.CollectionTransformer;
 import builderb0y.scripting.util.TypeInfos;
 
-/** a collection of convenience methods for constructing various objects related to bytecode. */
+/**
+a collection of convenience methods for constructing various objects related to bytecode.
+*/
 public class InsnTrees implements ExtendedOpcodes {
 
 	public static final NoopInsnTree noop = NoopInsnTree.INSTANCE;
@@ -100,46 +105,120 @@ public class InsnTrees implements ExtendedOpcodes {
 		return TypeInfo.parseObjects(objects);
 	}
 
-	public static ConstantValue constant(boolean  value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(byte     value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(char     value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(short    value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(int      value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(long     value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(float    value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(double   value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(String   value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(TypeInfo value) { return ConstantValue.of(value); }
-	public static ConstantValue constant(Object   value, TypeInfo type) { return ConstantValue.of(value, type); }
-	public static ConstantValue constant(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) { return ConstantValue.dynamic(bootstrapMethod, bootstrapArgs); }
+	public static ConstantValue constant(boolean value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(byte value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(char value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(short value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(int value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(long value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(float value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(double value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(String value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(TypeInfo value) {
+		return ConstantValue.of(value);
+	}
+
+	public static ConstantValue constant(Object value, TypeInfo type) {
+		return ConstantValue.of(value, type);
+	}
+
+	public static ConstantValue constant(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
+		return ConstantValue.dynamic(bootstrapMethod, bootstrapArgs);
+	}
+
 	public static ConstantValue constantAbsent(TypeInfo type) {
 		return switch (type.getSort()) {
-			case BYTE          -> constant((byte)(0));
-			case CHAR          -> constant((char)(0));
-			case SHORT         -> constant((short)(0));
-			case INT           -> constant((int)(0));
-			case LONG          -> constant((long)(0));
-			case FLOAT         -> constant(Float.NaN);
-			case DOUBLE        -> constant(Double.NaN);
-			case BOOLEAN       -> constant(false);
+			case BYTE -> constant((byte)(0));
+			case CHAR -> constant((char)(0));
+			case SHORT -> constant((short)(0));
+			case INT -> constant((int)(0));
+			case LONG -> constant((long)(0));
+			case FLOAT -> constant(Float.NaN);
+			case DOUBLE -> constant(Double.NaN);
+			case BOOLEAN -> constant(false);
 			case OBJECT, ARRAY -> constant(null, type);
-			case VOID          -> throw new IllegalArgumentException("Void-typed field");
+			case VOID -> throw new IllegalArgumentException("Void-typed field");
 		};
 	}
 
-	public static InsnTree ldc(boolean  value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(byte     value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(char     value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(short    value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(int      value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(long     value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(float    value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(double   value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(String   value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(TypeInfo value) { return new ConstantInsnTree(constant(value)); }
-	public static InsnTree ldc(Object   value, TypeInfo type) { return new ConstantInsnTree(constant(value, type)); }
-	public static InsnTree ldc(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) { return new ConstantInsnTree(constant(bootstrapMethod, bootstrapArgs)); }
-	public static InsnTree ldc(ConstantValue value) { return new ConstantInsnTree(value); }
+	public static InsnTree ldc(boolean value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(byte value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(char value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(short value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(int value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(long value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(float value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(double value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(String value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(TypeInfo value) {
+		return new ConstantInsnTree(constant(value));
+	}
+
+	public static InsnTree ldc(Object value, TypeInfo type) {
+		return new ConstantInsnTree(constant(value, type));
+	}
+
+	public static InsnTree ldc(MethodInfo bootstrapMethod, ConstantValue... bootstrapArgs) {
+		return new ConstantInsnTree(constant(bootstrapMethod, bootstrapArgs));
+	}
+
+	public static InsnTree ldc(ConstantValue value) {
+		return new ConstantInsnTree(value);
+	}
 
 	public static InsnTree ldcAbsent(TypeInfo type) {
 		return ldc(constantAbsent(type));
@@ -350,7 +429,7 @@ public class InsnTrees implements ExtendedOpcodes {
 	}
 
 	public static InsnTree xor(ExpressionParser parser, InsnTree left, InsnTree right) {
-		left  = left .cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
+		left = left.cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 		right = right.cast(parser, TypeInfos.BOOLEAN, CastMode.IMPLICIT_THROW, false);
 		return bxor(parser, left, right);
 	}
@@ -492,9 +571,9 @@ public class InsnTrees implements ExtendedOpcodes {
 				"concat",
 				TypeInfos.STRING,
 				Arrays
-				.stream(arguments)
-				.map(InsnTree::getTypeInfo)
-				.toArray(TypeInfo.ARRAY_FACTORY)
+					.stream(arguments)
+					.map(InsnTree::getTypeInfo)
+					.toArray(TypeInfo.ARRAY_FACTORY)
 			),
 			new ConstantValue[] {
 				constant(template)

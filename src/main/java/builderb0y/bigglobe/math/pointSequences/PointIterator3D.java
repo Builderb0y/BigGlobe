@@ -5,7 +5,9 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 public interface PointIterator3D extends PointIterator {
 
 	public abstract double x();
+
 	public abstract double y();
+
 	public abstract double z();
 
 	public default int floorX() {

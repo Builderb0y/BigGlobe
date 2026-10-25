@@ -6,38 +6,55 @@ import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.enums.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootTables;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.EmptyBlockView;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.VerticalBlockSample;
-import net.minecraft.world.gen.structure.StructureType;
-
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.CrossCollisionBlock;
+import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.WallBannerBlock;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -59,16 +76,12 @@ import builderb0y.bigglobe.versions.*;
 
 public class PortalTempleStructure extends BigGlobeStructure {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(PortalTempleStructure.class);
-	#else
-		public static final Codec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(PortalTempleStructure.class).codec();
-	#endif
+	public static final MapCodec<PortalTempleStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(PortalTempleStructure.class);
 
 	public final @VerifyRandomRange(min = 0.0D, max = 1.0D) RandomSource cracked_chance;
 
 	public PortalTempleStructure(
-		Config config,
+		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		RandomSource cracked_chance
@@ -83,39 +96,39 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	}
 
 	@Override
-	public Optional<StructurePosition> getStructurePosition(Context context) {
+	public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
 		if (this.cracked_chance.requiresColumn() && !(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator)) return Optional.empty();
 		Permuter permuter = Permuter.from(context.random());
-		int x = context.chunkPos().getStartX() | (permuter.nextInt() & 15);
-		int z = context.chunkPos().getStartZ() | (permuter.nextInt() & 15);
-		VerticalBlockSample sample = context.chunkGenerator().getColumnSample(x, z, context.world(), context.noiseConfig());
-		int minY = HeightLimitViewVersions.getMinY(context.world());
-		int maxY = HeightLimitViewVersions.getMaxY(context.world());
+		int x = context.chunkPos().getMinBlockX() | (permuter.nextInt() & 15);
+		int z = context.chunkPos().getMinBlockZ() | (permuter.nextInt() & 15);
+		NoiseColumn sample = context.chunkGenerator().getBaseColumn(x, z, context.heightAccessor(), context.randomState());
+		int minY = HeightLimitViewVersions.getMinY(context.heightAccessor());
+		int maxY = HeightLimitViewVersions.getMaxY(context.heightAccessor());
 		for (int startAttempt = 0; startAttempt < 16; startAttempt++) {
 			int y = permuter.nextInt(minY, maxY);
-			if (sample.getState(y).isAir()) {
+			if (sample.getBlock(y).isAir()) {
 				do y--;
-				while (y >= minY && sample.getState(y).isAir());
-				if (BlockStateVersions.isOpaqueFullCube(sample.getState(y), EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+				while (y >= minY && sample.getBlock(y).isAir());
+				if (BlockStateVersions.isOpaqueFullCube(sample.getBlock(y), EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
 					int y_ = y;
 					ScriptedColumn column = (
 						this.cracked_chance.requiresColumn()
-						? ((BigGlobeScriptedChunkGenerator)(context.chunkGenerator())).newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints())
-						: null
+							? ((BigGlobeScriptedChunkGenerator)(context.chunkGenerator())).newColumn(context.heightAccessor(), x, z, ColumnUsage.GENERIC.maybeDhHints())
+							: null
 					);
 					double crackedChance = this.cracked_chance.get(column, y_, permuter);
 					return Optional.of(
-						new StructurePosition(
+						new GenerationStub(
 							new BlockPos(x, y, z),
-							(StructurePiecesCollector collector) -> {
+							(StructurePiecesBuilder collector) -> {
 								List<StructurePiece> pieces = new ArrayList<>(8);
-								pieces.add(new MainBuildingPiece(BigGlobeStructures.PORTAL_TEMPLE_MAIN_BUILDING, x, y_,      z, crackedChance, permuter));
-								pieces.add(new       PortalPiece(BigGlobeStructures.PORTAL_TEMPLE_PORTAL,        x, y_ + 10, z,                permuter));
-								for (int failure = 0; failure < 4;) {
+								pieces.add(new MainBuildingPiece(BigGlobeStructures.PORTAL_TEMPLE_MAIN_BUILDING, x, y_, z, crackedChance, permuter));
+								pieces.add(new PortalPiece(BigGlobeStructures.PORTAL_TEMPLE_PORTAL, x, y_ + 10, z, permuter));
+								for (int failure = 0; failure < 4; ) {
 									DecorationPiece piece = switch (permuter.nextInt() & 3) {
-										case 0 -> new    WellPiece(BigGlobeStructures.PORTAL_TEMPLE_WELL,    x, y_, z, permuter);
-										case 1 -> new    FarmPiece(BigGlobeStructures.PORTAL_TEMPLE_FARM,    x, y_, z, permuter);
-										case 2 -> new   TablePiece(BigGlobeStructures.PORTAL_TEMPLE_TABLE,   x, y_, z, permuter);
+										case 0 -> new WellPiece(BigGlobeStructures.PORTAL_TEMPLE_WELL, x, y_, z, permuter);
+										case 1 -> new FarmPiece(BigGlobeStructures.PORTAL_TEMPLE_FARM, x, y_, z, permuter);
+										case 2 -> new TablePiece(BigGlobeStructures.PORTAL_TEMPLE_TABLE, x, y_, z, permuter);
 										case 3 -> new FurnacePiece(BigGlobeStructures.PORTAL_TEMPLE_FURNACE, x, y_, z, permuter);
 										default -> throw new AssertionError();
 									};
@@ -134,7 +147,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	}
 
 	public static boolean addDecoration(List<StructurePiece> pieces, DecorationPiece piece) {
-		BlockBox box = piece.getBoundingBox().expand(1);
+		BoundingBox box = piece.getBoundingBox().inflatedBy(1);
 		for (int index = 2, size = pieces.size(); index < size; index++) {
 			if (box.intersects(pieces.get(index).getBoundingBox())) {
 				return false;
@@ -144,8 +157,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		return true;
 	}
 
-		@Override
-	public StructureType<?> getType() {
+	@Override
+	public StructureType<?> type() {
 		return BigGlobeStructures.PORTAL_TEMPLE;
 	}
 
@@ -154,7 +167,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	}
 
 	public static CoordinateSupplier<BlockState> randomState(Block block) {
-		ImmutableList<BlockState> states = block.getStateManager().getStates();
+		ImmutableList<BlockState> states = block.getStateDefinition().getPossibleStates();
 		return pos -> states.get(Permuter.nextBoundedInt(Permuter.permute(0x1254A5D35E112FBCL, pos), states.size()));
 	}
 
@@ -167,17 +180,30 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	}
 
 	public static BlockState STAIRS(Block block, char type) {
-		BlockState state = block.getDefaultState();
+		BlockState state = block.defaultBlockState();
 		switch (type) {
-			case 'N': state = state.with(StairsBlock.HALF, BlockHalf.TOP);
-			case 'n': state = state.with(StairsBlock.FACING, Direction.NORTH); break;
-			case 'S': state = state.with(StairsBlock.HALF, BlockHalf.TOP);
-			case 's': state = state.with(StairsBlock.FACING, Direction.SOUTH); break;
-			case 'E': state = state.with(StairsBlock.HALF, BlockHalf.TOP);
-			case 'e': state = state.with(StairsBlock.FACING, Direction.EAST); break;
-			case 'W': state = state.with(StairsBlock.HALF, BlockHalf.TOP);
-			case 'w': state = state.with(StairsBlock.FACING, Direction.WEST); break;
-			default: throw new IllegalArgumentException("not nsew: " + type);
+			case 'N':
+				state = state.setValue(StairBlock.HALF, Half.TOP);
+			case 'n':
+				state = state.setValue(StairBlock.FACING, Direction.NORTH);
+				break;
+			case 'S':
+				state = state.setValue(StairBlock.HALF, Half.TOP);
+			case 's':
+				state = state.setValue(StairBlock.FACING, Direction.SOUTH);
+				break;
+			case 'E':
+				state = state.setValue(StairBlock.HALF, Half.TOP);
+			case 'e':
+				state = state.setValue(StairBlock.FACING, Direction.EAST);
+				break;
+			case 'W':
+				state = state.setValue(StairBlock.HALF, Half.TOP);
+			case 'w':
+				state = state.setValue(StairBlock.FACING, Direction.WEST);
+				break;
+			default:
+				throw new IllegalArgumentException("not nsew: " + type);
 		}
 		return state;
 	}
@@ -195,13 +221,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	}
 
 	public static BlockState FENCE(Block block, String connections) {
-		BlockState state = block.getDefaultState();
+		BlockState state = block.defaultBlockState();
 		for (int index = 0, length = connections.length(); index < length; index++) {
 			state = switch (connections.charAt(index)) {
-				case 'n' -> state.with(HorizontalConnectingBlock.NORTH, Boolean.TRUE);
-				case 'e' -> state.with(HorizontalConnectingBlock.EAST, Boolean.TRUE);
-				case 's' -> state.with(HorizontalConnectingBlock.SOUTH, Boolean.TRUE);
-				case 'w' -> state.with(HorizontalConnectingBlock.WEST, Boolean.TRUE);
+				case 'n' -> state.setValue(CrossCollisionBlock.NORTH, Boolean.TRUE);
+				case 'e' -> state.setValue(CrossCollisionBlock.EAST, Boolean.TRUE);
+				case 's' -> state.setValue(CrossCollisionBlock.SOUTH, Boolean.TRUE);
+				case 'w' -> state.setValue(CrossCollisionBlock.WEST, Boolean.TRUE);
 				default -> throw new IllegalArgumentException(String.valueOf(connections.charAt(index)));
 			};
 		}
@@ -213,18 +239,18 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	}
 
 	public static BlockState WALL(Block block, String connections) {
-		BlockState state = block.getDefaultState();
+		BlockState state = block.defaultBlockState();
 		for (int index = 0, length = connections.length(); index < length; index++) {
 			state = switch (connections.charAt(index)) {
-				case 'n' -> state.with(WallBlockVersions.NORTH_SHAPE, WallShape.LOW);
-				case 'e' -> state.with(WallBlockVersions. EAST_SHAPE, WallShape.LOW);
-				case 's' -> state.with(WallBlockVersions.SOUTH_SHAPE, WallShape.LOW);
-				case 'w' -> state.with(WallBlockVersions. WEST_SHAPE, WallShape.LOW);
-				case 'N' -> state.with(WallBlockVersions.NORTH_SHAPE, WallShape.TALL);
-				case 'E' -> state.with(WallBlockVersions. EAST_SHAPE, WallShape.TALL);
-				case 'S' -> state.with(WallBlockVersions.SOUTH_SHAPE, WallShape.TALL);
-				case 'W' -> state.with(WallBlockVersions. WEST_SHAPE, WallShape.TALL);
-				case 'u', 'U' -> state.with(WallBlock.UP, Boolean.TRUE);
+				case 'n' -> state.setValue(WallBlockVersions.NORTH_SHAPE, WallSide.LOW);
+				case 'e' -> state.setValue(WallBlockVersions.EAST_SHAPE, WallSide.LOW);
+				case 's' -> state.setValue(WallBlockVersions.SOUTH_SHAPE, WallSide.LOW);
+				case 'w' -> state.setValue(WallBlockVersions.WEST_SHAPE, WallSide.LOW);
+				case 'N' -> state.setValue(WallBlockVersions.NORTH_SHAPE, WallSide.TALL);
+				case 'E' -> state.setValue(WallBlockVersions.EAST_SHAPE, WallSide.TALL);
+				case 'S' -> state.setValue(WallBlockVersions.SOUTH_SHAPE, WallSide.TALL);
+				case 'W' -> state.setValue(WallBlockVersions.WEST_SHAPE, WallSide.TALL);
+				case 'u', 'U' -> state.setValue(WallBlock.UP, Boolean.TRUE);
 				default -> throw new IllegalArgumentException(String.valueOf(connections.charAt(index)));
 			};
 		}
@@ -235,20 +261,20 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		return WALL(Blocks.NETHER_BRICK_WALL, connections);
 	}
 
-	public static NbtList makeEntityPos(double x, double y, double z) {
-		NbtList pos = new NbtList();
-		pos.add(NbtDouble.of(x));
-		pos.add(NbtDouble.of(y));
-		pos.add(NbtDouble.of(z));
+	public static ListTag makeEntityPos(double x, double y, double z) {
+		ListTag pos = new ListTag();
+		pos.add(DoubleTag.valueOf(x));
+		pos.add(DoubleTag.valueOf(y));
+		pos.add(DoubleTag.valueOf(z));
 		return pos;
 	}
 
-	public static <T> List<T> readListFromNBT(NbtList listNBT, Function<? super NbtCompound, ? extends T> reader) {
+	public static <T> List<T> readListFromNBT(ListTag listNBT, Function<? super CompoundTag, ? extends T> reader) {
 		int size = listNBT.size();
 		if (size == 0) return Collections.emptyList();
 		List<T> list = new ArrayList<>(size);
-		for (NbtElement element : listNBT) {
-			if (element instanceof NbtCompound compound) {
+		for (Tag element : listNBT) {
+			if (element instanceof CompoundTag compound) {
 				T toAdd = reader.apply(compound);
 				if (toAdd != null) list.add(toAdd);
 			}
@@ -259,23 +285,23 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		return list;
 	}
 
-	public static <T> List<T> readListFromNBTCompound(NbtCompound compound, String key, Function<? super NbtCompound, ? extends T> reader) {
-		NbtElement nbt = compound.get(key);
-		if (nbt instanceof NbtList list && !list.isEmpty()) {
+	public static <T> List<T> readListFromNBTCompound(CompoundTag compound, String key, Function<? super CompoundTag, ? extends T> reader) {
+		Tag nbt = compound.get(key);
+		if (nbt instanceof ListTag list && !list.isEmpty()) {
 			return readListFromNBT(list, reader);
 		}
 		return Collections.emptyList();
 	}
 
-	public static <T> NbtList writeListToNBT(List<T> list, Function<? super T, ? extends NbtCompound> writer) {
-		NbtList listNBT = new NbtList();
+	public static <T> ListTag writeListToNBT(List<T> list, Function<? super T, ? extends CompoundTag> writer) {
+		ListTag listNBT = new ListTag();
 		for (int index = 0, size = list.size(); index < size; index++) {
 			listNBT.add(writer.apply(list.get(index)));
 		}
 		return listNBT;
 	}
 
-	public static <T> void writeListToNBTAndStoreInCompound(NbtCompound compound, String key, List<T> list, Function<? super T, ? extends NbtCompound> writer) {
+	public static <T> void writeListToNBTAndStoreInCompound(CompoundTag compound, String key, List<T> list, Function<? super T, ? extends CompoundTag> writer) {
 		if (!list.isEmpty()) compound.put(key, writeListToNBT(list, writer));
 	}
 
@@ -323,9 +349,9 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	public static class PositionState extends BlockPos {
 
 		public final BlockState state;
-		public final NbtCompound blockEntityData;
+		public final CompoundTag blockEntityData;
 
-		public PositionState(Vec3i vector, BlockState state, NbtCompound blockEntityData) {
+		public PositionState(Vec3i vector, BlockState state, CompoundTag blockEntityData) {
 			super(vector);
 			this.state = state;
 			this.blockEntityData = blockEntityData;
@@ -335,62 +361,60 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			this(vector, state, null);
 		}
 
-		public PositionState(int x, int y, int z, BlockState state, NbtCompound blockEntityData) {
+		public PositionState(int x, int y, int z, BlockState state, CompoundTag blockEntityData) {
 			super(x, y, z);
 			this.state = state;
 			this.blockEntityData = blockEntityData;
 		}
 
-		public static PositionState decode(NbtCompound nbt) {
+		public static PositionState decode(CompoundTag nbt) {
 			if (
-				nbt.get("x") instanceof AbstractNbtNumber x &&
-				nbt.get("y") instanceof AbstractNbtNumber y &&
-				nbt.get("z") instanceof AbstractNbtNumber z
+				nbt.get("x") instanceof NumericTag x &&
+				nbt.get("y") instanceof NumericTag y &&
+				nbt.get("z") instanceof NumericTag z
 			) {
 				BlockState state = (
-					#if MC_VERSION >= MC_1_21_2
-						NbtHelper.toBlockState(Registries.BLOCK, nbt)
-					#else
-						NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt)
-					#endif
+
+					NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), nbt)
+
 				);
-				NbtCompound blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
-				return new PositionState(x.intValue(), y.intValue(), z.intValue(), state, blockEntityData);
+				CompoundTag blockEntityData = nbt.get("BlockEntityTag") instanceof CompoundTag compound ? compound : null;
+				return new PositionState(x.getAsInt(), y.getAsInt(), z.getAsInt(), state, blockEntityData);
 			}
 			else {
 				return null;
 			}
 		}
 
-		public NbtCompound writeToNBT() {
-			NbtCompound nbt = new NbtCompound();
+		public CompoundTag writeToNBT() {
+			CompoundTag nbt = new CompoundTag();
 			this.writeToNBT(nbt);
 			return nbt;
 		}
 
-		public void writeToNBT(NbtCompound nbt) {
+		public void writeToNBT(CompoundTag nbt) {
 			nbt.putInt("x", this.getX());
 			nbt.putInt("y", this.getY());
 			nbt.putInt("z", this.getZ());
-			nbt.copyFrom(NbtHelper.fromBlockState(this.state));
+			nbt.merge(NbtUtils.writeBlockState(this.state));
 			if (this.blockEntityData != null) nbt.put("BlockEntityTag", this.blockEntityData);
 		}
 
-		public boolean place(StructureWorldAccess world, BlockPos origin, BlockBox box) {
-			BlockPos pos = this.add(origin);
-			if (!box.contains(pos)) return false;
-			if (!world.setBlockState(pos, this.state, Block.NOTIFY_ALL)) return false;
+		public boolean place(WorldGenLevel world, BlockPos origin, BoundingBox box) {
+			BlockPos pos = this.offset(origin);
+			if (!box.isInside(pos)) return false;
+			if (!world.setBlock(pos, this.state, Block.UPDATE_ALL)) return false;
 			if (this.blockEntityData != null) {
 				BlockEntity blockEntity = WorldUtil.getBlockEntity(world, pos, BlockEntity.class);
 				if (blockEntity != null) {
-					NbtCompound oldNBT = BlockEntityVersions.writeToNbt(blockEntity);
-					NbtCompound newNBT = oldNBT.copy().copyFrom(this.blockEntityData);
+					CompoundTag oldNBT = BlockEntityVersions.writeToNbt(blockEntity);
+					CompoundTag newNBT = oldNBT.copy().merge(this.blockEntityData);
 					newNBT.putInt("x", pos.getX());
 					newNBT.putInt("y", pos.getY());
 					newNBT.putInt("z", pos.getZ());
 					if (!oldNBT.equals(newNBT)) {
 						BlockEntityVersions.readFromNbt(blockEntity, newNBT);
-						blockEntity.markDirty();
+						blockEntity.setChanged();
 					}
 				}
 			}
@@ -403,120 +427,120 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		public BlockPos centerPos;
 		public byte variant;
 
-		public Piece(StructurePieceType type, int x, int y, int z, BlockBox boundingBox, RandomGenerator random, int variantCount) {
+		public Piece(StructurePieceType type, int x, int y, int z, BoundingBox boundingBox, RandomGenerator random, int variantCount) {
 			super(type, 0, boundingBox);
 			this.centerPos = new BlockPos(x, y, z);
 			if (variantCount > 0) this.variant = (byte)(random.nextInt(variantCount));
 		}
 
-		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Piece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, nbt);
-			this.variant = nbt.get("var") instanceof AbstractNbtNumber number ? number.byteValue() : ((byte)(0));
+			this.variant = nbt.get("var") instanceof NumericTag number ? number.getAsByte() : ((byte)(0));
 		}
 
 		@Override
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
 			nbt.putByte("var", this.variant);
 		}
 
-		public Coordinator coordinator(StructureWorldAccess world, BlockBox box) {
-			return Coordinator.forWorld(world, Block.NOTIFY_ALL).inBox(box, false).translate(this.centerPos, false);
+		public Coordinator coordinator(WorldGenLevel world, BoundingBox box) {
+			return Coordinator.forWorld(world, Block.UPDATE_ALL).inBox(box, false).translate(this.centerPos, false);
 		}
 
 		@Override
-		public void translate(int x, int y, int z) {
-			super.translate(x, y, z);
-			this.centerPos = this.centerPos.add(x, y, z);
+		public void move(int x, int y, int z) {
+			super.move(x, y, z);
+			this.centerPos = this.centerPos.offset(x, y, z);
 		}
 	}
 
 	public static class MainBuildingPiece extends Piece {
 
 		public static final PositionDirections[] CHEST_POSITIONS = {
-			new PositionDirections(- 2, 1, -10, Direction.SOUTH),
-			new PositionDirections(- 5, 1, -10, Direction.SOUTH, Direction.EAST),
-			new PositionDirections(- 5, 1, - 6, Direction.EAST),
-			new PositionDirections(- 6, 1, - 5, Direction.SOUTH),
-			new PositionDirections(-10, 1, - 5, Direction.SOUTH, Direction.EAST),
-			new PositionDirections(-10, 1, - 2, Direction.EAST),
-			new PositionDirections(- 2, 1,  10, Direction.NORTH),
-			new PositionDirections(- 5, 1,  10, Direction.NORTH, Direction.EAST),
-			new PositionDirections(- 5, 1,   6, Direction.EAST),
-			new PositionDirections(- 6, 1,   5, Direction.NORTH),
-			new PositionDirections(-10, 1,   5, Direction.NORTH, Direction.EAST),
-			new PositionDirections(-10, 1,   2, Direction.EAST),
-			new PositionDirections(  2, 1, -10, Direction.SOUTH),
-			new PositionDirections(  5, 1, -10, Direction.SOUTH, Direction.WEST),
-			new PositionDirections(  5, 1, - 6, Direction.WEST),
-			new PositionDirections(  6, 1, - 5, Direction.SOUTH),
-			new PositionDirections( 10, 1, - 5, Direction.SOUTH, Direction.WEST),
-			new PositionDirections( 10, 1, - 2, Direction.WEST),
-			new PositionDirections(  2, 1,  10, Direction.NORTH),
-			new PositionDirections(  5, 1,  10, Direction.NORTH, Direction.WEST),
-			new PositionDirections(  5, 1,   6, Direction.WEST),
-			new PositionDirections(  6, 1,   5, Direction.NORTH),
-			new PositionDirections( 10, 1,   5, Direction.NORTH, Direction.WEST),
-			new PositionDirections( 10, 1,   2, Direction.WEST),
-		};
+			new PositionDirections(-2, 1, -10, Direction.SOUTH),
+			new PositionDirections(-5, 1, -10, Direction.SOUTH, Direction.EAST),
+			new PositionDirections(-5, 1, -6, Direction.EAST),
+			new PositionDirections(-6, 1, -5, Direction.SOUTH),
+			new PositionDirections(-10, 1, -5, Direction.SOUTH, Direction.EAST),
+			new PositionDirections(-10, 1, -2, Direction.EAST),
+			new PositionDirections(-2, 1, 10, Direction.NORTH),
+			new PositionDirections(-5, 1, 10, Direction.NORTH, Direction.EAST),
+			new PositionDirections(-5, 1, 6, Direction.EAST),
+			new PositionDirections(-6, 1, 5, Direction.NORTH),
+			new PositionDirections(-10, 1, 5, Direction.NORTH, Direction.EAST),
+			new PositionDirections(-10, 1, 2, Direction.EAST),
+			new PositionDirections(2, 1, -10, Direction.SOUTH),
+			new PositionDirections(5, 1, -10, Direction.SOUTH, Direction.WEST),
+			new PositionDirections(5, 1, -6, Direction.WEST),
+			new PositionDirections(6, 1, -5, Direction.SOUTH),
+			new PositionDirections(10, 1, -5, Direction.SOUTH, Direction.WEST),
+			new PositionDirections(10, 1, -2, Direction.WEST),
+			new PositionDirections(2, 1, 10, Direction.NORTH),
+			new PositionDirections(5, 1, 10, Direction.NORTH, Direction.WEST),
+			new PositionDirections(5, 1, 6, Direction.WEST),
+			new PositionDirections(6, 1, 5, Direction.NORTH),
+			new PositionDirections(10, 1, 5, Direction.NORTH, Direction.WEST),
+			new PositionDirections(10, 1, 2, Direction.WEST),
+			};
 
 		public static final PositionDirections[] ARCH_POSITIONS = {
 			new PositionDirections(-6, 1, -8, Direction.EAST),
 			new PositionDirections(-8, 1, -6, Direction.SOUTH),
-			new PositionDirections(-6, 1,  8, Direction.EAST),
-			new PositionDirections(-8, 1,  6, Direction.NORTH),
-			new PositionDirections( 6, 1, -8, Direction.WEST),
-			new PositionDirections( 8, 1, -6, Direction.SOUTH),
-			new PositionDirections( 6, 1,  8, Direction.WEST),
-			new PositionDirections( 8, 1,  6, Direction.NORTH),
-		};
+			new PositionDirections(-6, 1, 8, Direction.EAST),
+			new PositionDirections(-8, 1, 6, Direction.NORTH),
+			new PositionDirections(6, 1, -8, Direction.WEST),
+			new PositionDirections(8, 1, -6, Direction.SOUTH),
+			new PositionDirections(6, 1, 8, Direction.WEST),
+			new PositionDirections(8, 1, 6, Direction.NORTH),
+			};
 
 		public static final Vec3i[] SPAWN_POSITIONS = {
-			new Vec3i(  0,  1, -13),
-			new Vec3i(  0,  1, - 8),
-			new Vec3i(- 4,  1, - 8),
-			new Vec3i(- 4,  1, - 4),
-			new Vec3i(- 8,  1, - 4),
-			new Vec3i(- 8,  1,   0),
-			new Vec3i(-13,  1,   0),
-			new Vec3i(  0,  6, -13),
-			new Vec3i(  0, 10, - 5),
-			new Vec3i(- 5, 10, - 5),
-			new Vec3i(- 5, 10,   0),
-			new Vec3i(-13,  6,   0),
-			new Vec3i(  0,  1,  13),
-			new Vec3i(  0,  1,   8),
-			new Vec3i(- 4,  1,   8),
-			new Vec3i(- 4,  1,   4),
-			new Vec3i(- 8,  1,   4),
-			new Vec3i(  0,  6,  13),
-			new Vec3i(  0, 10,   5),
-			new Vec3i(- 5, 10,   5),
-			new Vec3i(  4,  1, - 8),
-			new Vec3i(  4,  1, - 4),
-			new Vec3i(  8,  1, - 4),
-			new Vec3i(  8,  1,   0),
-			new Vec3i( 13,  1,   0),
-			new Vec3i(  5, 10, - 5),
-			new Vec3i(  5, 10,   0),
-			new Vec3i( 13,  6,   0),
-			new Vec3i(  4,  1,   8),
-			new Vec3i(  4,  1,   4),
-			new Vec3i(  8,  1,   4),
-			new Vec3i(  5, 10,   5),
-		};
+			new Vec3i(0, 1, -13),
+			new Vec3i(0, 1, -8),
+			new Vec3i(-4, 1, -8),
+			new Vec3i(-4, 1, -4),
+			new Vec3i(-8, 1, -4),
+			new Vec3i(-8, 1, 0),
+			new Vec3i(-13, 1, 0),
+			new Vec3i(0, 6, -13),
+			new Vec3i(0, 10, -5),
+			new Vec3i(-5, 10, -5),
+			new Vec3i(-5, 10, 0),
+			new Vec3i(-13, 6, 0),
+			new Vec3i(0, 1, 13),
+			new Vec3i(0, 1, 8),
+			new Vec3i(-4, 1, 8),
+			new Vec3i(-4, 1, 4),
+			new Vec3i(-8, 1, 4),
+			new Vec3i(0, 6, 13),
+			new Vec3i(0, 10, 5),
+			new Vec3i(-5, 10, 5),
+			new Vec3i(4, 1, -8),
+			new Vec3i(4, 1, -4),
+			new Vec3i(8, 1, -4),
+			new Vec3i(8, 1, 0),
+			new Vec3i(13, 1, 0),
+			new Vec3i(5, 10, -5),
+			new Vec3i(5, 10, 0),
+			new Vec3i(13, 6, 0),
+			new Vec3i(4, 1, 8),
+			new Vec3i(4, 1, 4),
+			new Vec3i(8, 1, 4),
+			new Vec3i(5, 10, 5),
+			};
 
 		public static final RandomList<String> CHEST_LOOT_TABLES = (
 			new RandomList<String>(2)
-			.addSelf(LootTables.NETHER_BRIDGE_CHEST #if MC_VERSION >= MC_1_20_5 .getValue() #endif .toString().intern(), 100.0F)
-			.addSelf(LootTables.RUINED_PORTAL_CHEST #if MC_VERSION >= MC_1_20_5 .getValue() #endif .toString().intern(),  50.0F)
+				.addSelf(BuiltInLootTables.NETHER_BRIDGE.location().toString().intern(), 100.0F)
+				.addSelf(BuiltInLootTables.RUINED_PORTAL.location().toString().intern(), 50.0F)
 		);
 
 		public final double crackedChance;
 		public final List<PositionState> decorations;
-		public final List<NbtCompound> entities;
+		public final List<CompoundTag> entities;
 
 		public MainBuildingPiece(StructurePieceType type, int x, int y, int z, double crackedChance, RandomGenerator random) {
-			super(type, x, y, z, new BlockBox(x - 16, y, z - 16, x + 16, y + 12, z + 16), random, 2);
+			super(type, x, y, z, new BoundingBox(x - 16, y, z - 16, x + 16, y + 12, z + 16), random, 2);
 			this.crackedChance = crackedChance;
 			int chestCount = Integer.bitCount(random.nextInt(1 << 4));
 			int bannerCount = Integer.bitCount(random.nextInt(1 << 6));
@@ -524,124 +548,131 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			int entityCount = Integer.bitCount(random.nextInt());
 			this.decorations = new ArrayList<>(chestCount + bannerCount);
 			this.entities = new ArrayList<>(armorStandCount + entityCount);
-			doForSomeElements(random, CHEST_POSITIONS, chestCount, chestPos -> {
-				NbtCompound chestNBT = new NbtCompound();
-				chestNBT.putString("LootTable", CHEST_LOOT_TABLES.getRandomElement(random));
-				chestNBT.putLong("LootTableSeed", random.nextLong());
-				this.decorations.add(new PositionState(
-					chestPos,
-					random.nextBoolean()
-						? Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, chestPos.getRandomDirection(random))
-						: Blocks.BARREL.getDefaultState().with(BarrelBlock.FACING, chestPos.getRandomDirection(random)),
-					chestNBT
-				));
-			});
-			doForSomeElements(random, ARCH_POSITIONS, bannerCount + armorStandCount, new Consumer<PositionDirections>() {
+			doForSomeElements(
+				random, CHEST_POSITIONS, chestCount, chestPos -> {
+					CompoundTag chestNBT = new CompoundTag();
+					chestNBT.putString("LootTable", CHEST_LOOT_TABLES.getRandomElement(random));
+					chestNBT.putLong("LootTableSeed", random.nextLong());
+					this.decorations.add(new PositionState(
+						chestPos,
+						random.nextBoolean()
+							? Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, chestPos.getRandomDirection(random))
+							: Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING, chestPos.getRandomDirection(random)),
+						chestNBT
+					));
+				}
+			);
+			doForSomeElements(
+				random, ARCH_POSITIONS, bannerCount + armorStandCount, new Consumer<PositionDirections>() {
 
-				public int index;
+					public int index;
 
-				@Override
-				public void accept(PositionDirections archPosition) {
-					if (this.index++ < armorStandCount) {
-						NbtCompound entityNBT = new NbtCompound();
-						entityNBT.putString("id", "armor_stand");
-						entityNBT.put("Pos", makeEntityPos(archPosition.getX() + 0.5D, archPosition.getY(), archPosition.getZ() + 0.5D));
-						NbtList rotation = new NbtList();
-						rotation.add(NbtFloat.of(DirectionVersions.horizontalAngle(archPosition.getRandomDirection(random))));
-						rotation.add(NbtFloat.ZERO);
-						entityNBT.put("Rotation", rotation);
-						NbtList armorItemsNBT = new NbtList();
-						int numberOfArmorItems = random.nextInt(5);
-						for (int armorIndex = 0; armorIndex < 4; armorIndex++) {
-							NbtCompound itemNBT = new NbtCompound();
-							if (armorIndex >= numberOfArmorItems) {
-								Item item;
-								switch (armorIndex) {
-									case 0: item = Items.GOLDEN_BOOTS;      break;
-									case 1: item = Items.GOLDEN_LEGGINGS;   break;
-									case 2: item = Items.GOLDEN_CHESTPLATE; break;
-									case 3: item = Items.GOLDEN_HELMET;     break;
-									default: throw new AssertionError(armorIndex);
+					@Override
+					public void accept(PositionDirections archPosition) {
+						if (this.index++ < armorStandCount) {
+							CompoundTag entityNBT = new CompoundTag();
+							entityNBT.putString("id", "armor_stand");
+							entityNBT.put("Pos", makeEntityPos(archPosition.getX() + 0.5D, archPosition.getY(), archPosition.getZ() + 0.5D));
+							ListTag rotation = new ListTag();
+							rotation.add(FloatTag.valueOf(DirectionVersions.horizontalAngle(archPosition.getRandomDirection(random))));
+							rotation.add(FloatTag.ZERO);
+							entityNBT.put("Rotation", rotation);
+							ListTag armorItemsNBT = new ListTag();
+							int numberOfArmorItems = random.nextInt(5);
+							for (int armorIndex = 0; armorIndex < 4; armorIndex++) {
+								CompoundTag itemNBT = new CompoundTag();
+								if (armorIndex >= numberOfArmorItems) {
+									Item item;
+									switch (armorIndex) {
+										case 0:
+											item = Items.GOLDEN_BOOTS;
+											break;
+										case 1:
+											item = Items.GOLDEN_LEGGINGS;
+											break;
+										case 2:
+											item = Items.GOLDEN_CHESTPLATE;
+											break;
+										case 3:
+											item = Items.GOLDEN_HELMET;
+											break;
+										default:
+											throw new AssertionError(armorIndex);
+									}
+									ItemStack stack = new ItemStack(item, 1);
+									stack.setDamageValue(random.nextInt(stack.getMaxDamage()));
+									ItemStackVersions.toNbt(stack, itemNBT);
 								}
-								ItemStack stack = new ItemStack(item, 1);
-								stack.setDamage(random.nextInt(stack.getMaxDamage()));
-								ItemStackVersions.toNbt(stack, itemNBT);
+								armorItemsNBT.add(itemNBT);
 							}
-							armorItemsNBT.add(itemNBT);
+							entityNBT.put("ArmorItems", armorItemsNBT);
+							MainBuildingPiece.this.entities.add(entityNBT);
 						}
-						entityNBT.put("ArmorItems", armorItemsNBT);
-						MainBuildingPiece.this.entities.add(entityNBT);
+						else { //placing banner instead of armor stand.
+							boolean invertColors = random.nextBoolean();
+							CompoundTag bannerNBT = new CompoundTag();
+							ListTag patterns = new ListTag();
+							patterns.add(this.pattern("minecraft:curly_border", true, invertColors));
+							patterns.add(this.pattern("minecraft:triangle_bottom", true, invertColors));
+							patterns.add(this.pattern("minecraft:triangle_top", true, invertColors));
+							patterns.add(this.pattern("minecraft:triangles_bottom", false, invertColors));
+							patterns.add(this.pattern("minecraft:triangles_top", false, invertColors));
+							patterns.add(this.pattern("minecraft:rhombus", false, invertColors));
+							patterns.add(this.pattern("minecraft:circle", true, invertColors));
+							patterns.add(this.pattern("minecraft:border", 15));
+							bannerNBT.put("patterns", patterns);
+							MainBuildingPiece.this.decorations.add(new PositionState(
+								archPosition.above(2),
+								(invertColors ? Blocks.MAGENTA_WALL_BANNER : Blocks.PURPLE_WALL_BANNER)
+									.defaultBlockState()
+									.setValue(WallBannerBlock.FACING, archPosition.getRandomDirection(random)),
+								bannerNBT
+							));
+						}
 					}
-					else { //placing banner instead of armor stand.
-						boolean invertColors = random.nextBoolean();
-						NbtCompound bannerNBT = new NbtCompound();
-						NbtList patterns = new NbtList();
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:curly_border"     #else "cbo" #endif, true, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangle_bottom"  #else "bt"  #endif, true, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangle_top"     #else "tt"  #endif, true, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangles_bottom" #else "bts" #endif, false, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:triangles_top"    #else "tts" #endif, false, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:rhombus"          #else "mr"  #endif, false, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:circle"           #else "mc"  #endif, true, invertColors));
-						patterns.add(this.pattern(#if MC_VERSION >= MC_1_20_5 "minecraft:border"           #else "bo"  #endif, 15));
-						bannerNBT.put(#if MC_VERSION >= MC_1_20_5 "patterns" #else "Patterns" #endif, patterns);
-						MainBuildingPiece.this.decorations.add(new PositionState(
-							archPosition.up(2),
-							(invertColors ? Blocks.MAGENTA_WALL_BANNER : Blocks.PURPLE_WALL_BANNER)
-							.getDefaultState()
-							.with(WallBannerBlock.FACING, archPosition.getRandomDirection(random)),
-							bannerNBT
-						));
+
+					public CompoundTag pattern(String patternName, boolean magenta, boolean invert) {
+						return this.pattern(patternName, magenta == invert ? 10 : 2);
+					}
+
+					public CompoundTag pattern(String patternName, int color) {
+						CompoundTag nbt = new CompoundTag();
+
+						nbt.putString("pattern", patternName);
+						nbt.putString("color", DyeColor.byId(color).getSerializedName());
+
+						return nbt;
 					}
 				}
-
-				public NbtCompound pattern(String patternName, boolean magenta, boolean invert) {
-					return this.pattern(patternName, magenta == invert ? 10 : 2);
-				}
-
-				public NbtCompound pattern(String patternName, int color) {
-					NbtCompound nbt = new NbtCompound();
-					#if MC_VERSION >= MC_1_21_5
-						nbt.putString("pattern", patternName);
-						nbt.putString("color", DyeColor.byIndex(color).asString());
-					#elif MC_VERSION >= MC_1_20_5
-						nbt.putString("pattern", patternName);
-						nbt.putString("color", DyeColor.byId(color).asString());
-					#else
-						nbt.putString("Pattern", patternName);
-						nbt.putByte("Color", (byte)(color));
-					#endif
-					return nbt;
-				}
-			});
+			);
 		}
 
-		public MainBuildingPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public MainBuildingPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 			this.centerPos = new BlockPos(
-				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
-				this.boundingBox.getMinY(),
-				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1
+				(this.boundingBox.minX() + this.boundingBox.maxX() + 1) >> 1,
+				this.boundingBox.minY(),
+				(this.boundingBox.minZ() + this.boundingBox.maxZ() + 1) >> 1
 			);
-			this.crackedChance = nbt.get("cracked_chance") instanceof AbstractNbtNumber number ? number.doubleValue() : 0.0D;
+			this.crackedChance = nbt.get("cracked_chance") instanceof NumericTag number ? number.getAsDouble() : 0.0D;
 			this.decorations = readListFromNBTCompound(nbt, "decorations", PositionState::decode);
 			this.entities = readListFromNBTCompound(nbt, "entities", Function.identity());
 		}
 
 		@Override
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			super.writeNbt(context, nbt);
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			super.addAdditionalSaveData(context, nbt);
 			nbt.putDouble("cracked_chance", this.crackedChance);
 			writeListToNBTAndStoreInCompound(nbt, "decorations", this.decorations, PositionState::writeToNBT);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -680,7 +711,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			//pyramid decorations
 			rotate8.setBlockStateLine(-2, 7, -11, 0, 1, 1, 4, NETHER_BRICK_STAIRS('s'));
 			rotate4.setBlockStateLine(-11, 6, -11, 1, 1, 1, 5, BlockStates.CHISELED_NETHER_BRICKS);
-			rotate4.setBlockStateLine(-11, 7, -11, 1, 1, 1, 4, Blocks.NETHER_BRICK_FENCE.getDefaultState());
+			rotate4.setBlockStateLine(-11, 7, -11, 1, 1, 1, 4, Blocks.NETHER_BRICK_FENCE.defaultBlockState());
 			rotate4.setBlockState(-7, 11, -7, NETHER_BRICK_FENCE("es"));
 			rotate8.setBlockStateLine(-6, 11, -7, 1, 0, 0, 4, NETHER_BRICK_FENCE("ew"));
 			rotate8.setBlockState(-2, 11, -7, NETHER_BRICK_FENCE("w"));
@@ -694,11 +725,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate4.stack(1, 0, 0, 3).setBlockStateLine(-1, 6, -11, 0, 1, 1, 4, RED_NETHER_BRICK_STAIRS('s'));
 			//outer wall
 			rotate8.setBlockState(-6, 2, -15, BlockStates.CHISELED_NETHER_BRICKS);
-			rotate8.genericLine(-6, 2, -15, 1, 0, 0, 5, (coordinator, x, y, z, index) -> {
-				if (index != 0 && index != 2) { //micro-optimization: these blocks will be overridden.
-					coordinator.setBlockStateLine(x, y, z, 0, 1, 0, index + 1, netherBricks);
+			rotate8.genericLine(
+				-6, 2, -15, 1, 0, 0, 5, (coordinator, x, y, z, index) -> {
+					if (index != 0 && index != 2) { //micro-optimization: these blocks will be overridden.
+						coordinator.setBlockStateLine(x, y, z, 0, 1, 0, index + 1, netherBricks);
+					}
 				}
-			});
+			);
 			rotate4.setBlockStateLine(-1, 6, -15, 1, 0, 0, 3, netherBricks);
 			rotate4.setBlockStateLine(-1, 1, -15, 1, 0, 0, 3, NETHER_BRICK_STAIRS('n'));
 			rotate4.setBlockStateLine(-1, 5, -15, 1, 0, 0, 3, NETHER_BRICK_STAIRS('S'));
@@ -707,27 +740,32 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate8.setBlockState(-2, 7, -15, NETHER_BRICK_FENCE("e"));
 			rotate4.setBlockStateLine(-1, 7, -15, 1, 0, 0, 3, NETHER_BRICK_FENCE("ew"));
 			//fences to make the lava visible
-			rotate8.setBlockStateLine(-4, 2, -15, 0, 1, 0,
+			rotate8.setBlockStateLine(
+				-4, 2, -15, 0, 1, 0,
 				NETHER_BRICK_FENCE("ew"),
 				NETHER_BRICK_FENCE("ew"),
 				NETHER_BRICK_STAIRS('S')
 			);
-			rotate8.setBlockStateLine(-2, 1, -13, 0, 1, 0,
+			rotate8.setBlockStateLine(
+				-2, 1, -13, 0, 1, 0,
 				NETHER_BRICK_STAIRS('w'),
 				NETHER_BRICK_FENCE("ns"),
 				NETHER_BRICK_FENCE("ns"),
 				NETHER_BRICK_STAIRS('W')
 			);
-			rotate8.setBlockStateLine(-4, 1, -11, 0, 1, 0,
+			rotate8.setBlockStateLine(
+				-4, 1, -11, 0, 1, 0,
 				NETHER_BRICK_STAIRS('n'),
 				NETHER_BRICK_FENCE("ew"),
 				NETHER_BRICK_FENCE("ew"),
 				NETHER_BRICK_STAIRS('N')
 			);
 			//lava under stairs
-			rotate8.stack(0, 0, 1, 3).genericLine(-5, 2, -14, 1, 0, 0, 3, (coordinator, x, y, z, index) -> {
-				coordinator.setBlockStateLine(x, y, z, 0, 1, 0, index + 1, BlockStates.LAVA);
-			});
+			rotate8.stack(0, 0, 1, 3).genericLine(
+				-5, 2, -14, 1, 0, 0, 3, (coordinator, x, y, z, index) -> {
+					coordinator.setBlockStateLine(x, y, z, 0, 1, 0, index + 1, BlockStates.LAVA);
+				}
+			);
 			//interior sloped ceiling
 			rotate8.stack(1, 0, 0, 3).setBlockStateLine(-5, 6, -10, 0, 1, 1, 3, RED_NETHER_BRICK_STAIRS('N'));
 			rotate8.setBlockStateLine(-2, 6, -10, 0, 1, 1, 3, netherBricks);
@@ -735,7 +773,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate4.stack(1, 0, 0, 3).setBlockStateLine(-1, 5, -11, 0, 1, 1, 4, RED_NETHER_BRICK_STAIRS('N'));
 			//ceiling slab decorations
 			rotate8.setBlockState(-5, 8, -6, NETHER_BRICK_STAIRS('W'));
-			rotate4.setBlockStateLine(-4, 8, -6, 1, 0, 0, 9, Blocks.NETHER_BRICK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP));
+			rotate4.setBlockStateLine(-4, 8, -6, 1, 0, 0, 9, Blocks.NETHER_BRICK_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP));
 			//interior arches
 			rotate8.setBlockState(-6, 1, -10, BlockStates.CHISELED_NETHER_BRICKS);
 			rotate4.setBlockState(-6, 1, -6, BlockStates.CHISELED_NETHER_BRICKS);
@@ -765,41 +803,37 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				this.decorations.removeIf(positionState -> positionState.place(world, this.centerPos, chunkBox));
 			}
 			//entities
-			for (Iterator<NbtCompound> iterator = this.entities.iterator(); iterator.hasNext();) {
-				NbtCompound nbt = iterator.next();
+			for (Iterator<CompoundTag> iterator = this.entities.iterator(); iterator.hasNext(); ) {
+				CompoundTag nbt = iterator.next();
 				if (!(
-					nbt.get("Pos") instanceof NbtList posNBT &&
+					nbt.get("Pos") instanceof ListTag posNBT &&
 					posNBT.size() == 3 &&
-					posNBT.get(0) instanceof AbstractNbtNumber x &&
-					posNBT.get(1) instanceof AbstractNbtNumber y &&
-					posNBT.get(2) instanceof AbstractNbtNumber z
+					posNBT.get(0) instanceof NumericTag x &&
+					posNBT.get(1) instanceof NumericTag y &&
+					posNBT.get(2) instanceof NumericTag z
 				)) {
 					BigGlobeMod.LOGGER.warn("Portal temple main building entity lacks position: " + nbt);
 					iterator.remove();
 					continue;
 				}
-				BlockPos pos = BlockPos.ofFloored(x.doubleValue(), y.doubleValue(), z.doubleValue());
-				if (chunkBox.contains(pos)) {
-					nbt.put("Pos", makeEntityPos(x.doubleValue(), y.doubleValue(), z.doubleValue()));
-					#if MC_VERSION >= MC_1_21_6
-						EntityType.getEntityFromData(BlockEntityVersions.readView(nbt), world.toServerWorld(), SpawnReason.STRUCTURE)
-					#elif MC_VERSION >= MC_1_21_2
-						EntityType.getEntityFromNbt(nbt, world.toServerWorld(), SpawnReason.STRUCTURE)
-					#else
-						EntityType.getEntityFromNbt(nbt, world.toServerWorld())
-					#endif
-					.ifPresent((Entity entity) -> {
-						if (entity instanceof MobEntity mob) {
-							mob.initialize(
-								world,
-								world.getLocalDifficulty(pos),
-								SpawnReason.STRUCTURE,
-								null
-								#if MC_VERSION < MC_1_20_5 , nbt #endif
-							);
-						}
-						world.spawnEntityAndPassengers(entity);
-					});
+				BlockPos pos = BlockPos.containing(x.getAsDouble(), y.getAsDouble(), z.getAsDouble());
+				if (chunkBox.isInside(pos)) {
+					nbt.put("Pos", makeEntityPos(x.getAsDouble(), y.getAsDouble(), z.getAsDouble()));
+
+					EntityType.create(nbt, world.getLevel())
+
+						.ifPresent((Entity entity) -> {
+							if (entity instanceof Mob mob) {
+								mob.finalizeSpawn(
+									world,
+									world.getCurrentDifficultyAt(pos),
+									MobSpawnType.STRUCTURE,
+									null
+
+								);
+							}
+							world.addFreshEntityWithPassengers(entity);
+						});
 					iterator.remove();
 				}
 			}
@@ -809,29 +843,29 @@ public class PortalTempleStructure extends BigGlobeStructure {
 	public static class PortalPiece extends Piece {
 
 		public static final BlockState
-			NETHER_PORTAL_X = Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, Axis.X),
-			NETHER_PORTAL_Z = Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, Axis.Z);
+			NETHER_PORTAL_X = Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, Axis.X),
+			NETHER_PORTAL_Z = Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, Axis.Z);
 
 		public PortalPiece(StructurePieceType type, int x, int y, int z, RandomGenerator random) {
-			super(type, x, y, z, new BlockBox(x - 4, y, z - 4, x + 4, y + 17, z + 4), random, 16);
+			super(type, x, y, z, new BoundingBox(x - 4, y, z - 4, x + 4, y + 17, z + 4), random, 16);
 		}
 
-		public PortalPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public PortalPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 			this.centerPos = new BlockPos(
-				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
-				this.boundingBox.getMinY(),
-				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1
+				(this.boundingBox.minX() + this.boundingBox.maxX() + 1) >> 1,
+				this.boundingBox.minY(),
+				(this.boundingBox.minZ() + this.boundingBox.maxZ() + 1) >> 1
 			);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -855,7 +889,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			if ((this.variant & 8) != 0) root.setBlockStateCuboid(-2, 1, -1, -2, 10, 1, NETHER_PORTAL_Z);
 			//decorations
 			rotate4.setBlockStateLine(-1, 0, -3, 1, 0, 0, 3, NETHER_BRICK_STAIRS('s'));
-			rotate8.setBlockStateLine(-2, 0, -3, 0, 1, 0,
+			rotate8.setBlockStateLine(
+				-2, 0, -3, 0, 1, 0,
 				BlockStates.CHISELED_NETHER_BRICKS,
 				NETHER_BRICK_STAIRS('s'),
 				NETHER_BRICK_WALL("SU"),
@@ -871,18 +906,21 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			);
 			rotate4.setBlockState(-3, 0, -3, NETHER_BRICK_FENCE("es"));
 			rotate4.setBlockStateLine(-3, 6, -3, 0, 1, 0, 4, BlockStates.NETHER_BRICKS);
-			rotate4.setBlockStateLine(-3, 10, -3, 0, 1, 0,
+			rotate4.setBlockStateLine(
+				-3, 10, -3, 0, 1, 0,
 				NETHER_BRICK_WALL("ESU"),
 				NETHER_BRICK_FENCE("es")
 			);
-			rotate8.setBlockStateLine(-1, 6, -3, 0, 1, 0,
+			rotate8.setBlockStateLine(
+				-1, 6, -3, 0, 1, 0,
 				NETHER_BRICK_STAIRS('W'),
 				NETHER_BRICK_STAIRS('e'),
 				null,
 				null,
 				NETHER_BRICK_STAIRS('W')
 			);
-			rotate4.setBlockStateLine(0, 7, -3, 0, 1, 0,
+			rotate4.setBlockStateLine(
+				0, 7, -3, 0, 1, 0,
 				BlockStates.CHISELED_NETHER_BRICKS,
 				BlockStates.NETHER_BRICKS,
 				NETHER_BRICK_WALL(""),
@@ -891,7 +929,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 			rotate4.setBlockStateLine(-1, 11, -3, 1, 0, 0, 3, NETHER_BRICK_STAIRS('s'));
 			rotate4.setBlockStateLine(-2, 12, -2, 0, 1, 0, 3, BlockStates.NETHER_BRICKS);
-			rotate4.translate(-2, 12, -2).rotate4x90().setBlockStateLine(0, 0, -1, 0, 1, 0,
+			rotate4.translate(-2, 12, -2).rotate4x90().setBlockStateLine(
+				0, 0, -1, 0, 1, 0,
 				NETHER_BRICK_WALL("SU"),
 				NETHER_BRICK_FENCE("s")
 			);
@@ -906,12 +945,12 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			this.initBoundingBox(x, y, z, random);
 		}
 
-		public DecorationPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public DecorationPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 			this.centerPos = new BlockPos(
-				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
-				this.isCeiling() ? this.boundingBox.getMaxY() : this.boundingBox.getMinY(),
-				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1
+				(this.boundingBox.minX() + this.boundingBox.maxX() + 1) >> 1,
+				this.isCeiling() ? this.boundingBox.maxY() : this.boundingBox.minY(),
+				(this.boundingBox.minZ() + this.boundingBox.maxZ() + 1) >> 1
 			);
 		}
 
@@ -944,12 +983,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			minZ = z - radius;
 			maxX = x + radius;
 			maxZ = z + radius;
-			this.boundingBox = new BlockBox(minX, minY, minZ, maxX, maxY, maxZ);
+			this.boundingBox = new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
 			this.centerPos = new BlockPos(x, y, z);
 		}
 
-
-		/** returns a random int in the range [-range, range]. */
+		/**
+		returns a random int in the range [-range, range].
+		*/
 		public static int nextUniformIntInclusive(RandomGenerator random, int range) {
 			return random.nextInt((range << 1) | 1) - range;
 		}
@@ -969,7 +1009,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 2);
 		}
 
-		public WellPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public WellPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -984,12 +1024,12 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -1007,7 +1047,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 2);
 		}
 
-		public FarmPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public FarmPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -1022,12 +1062,12 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -1040,16 +1080,16 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			//fences
 			rotate4.setBlockStateLine(-2, 1, -2, 0, 1, 0, 2, NETHER_BRICK_FENCE(""));
 			//top stairs
-			rotate4.setBlockState(-2, 3, -2, NETHER_BRICK_STAIRS('s').with(StairsBlock.SHAPE, StairShape.OUTER_LEFT));
+			rotate4.setBlockState(-2, 3, -2, NETHER_BRICK_STAIRS('s').setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT));
 			rotate4.setBlockStateLine(-1, 3, -2, 1, 0, 0, 3, NETHER_BRICK_STAIRS('s'));
 			//slab roof
-			root.setBlockStateCuboid(-1, 4, -1, 1, 4, 1, Blocks.NETHER_BRICK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.BOTTOM));
+			root.setBlockStateCuboid(-1, 4, -1, 1, 4, 1, Blocks.NETHER_BRICK_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM));
 			//soul sand
 			root.setBlockStateCuboid(-1, 0, -1, 1, 0, 1, BlockStates.SOUL_SAND);
 			//nether wart
 			root.setBlockStateCuboid(-1, 1, -1, 1, 1, 1, netherWart());
 			//lighting
-			root.setBlockStateCuboid(-1, 3, -1, 1, 3, 1, ((this.variant & 1) != 0 ? Blocks.SHROOMLIGHT : Blocks.GLOWSTONE).getDefaultState());
+			root.setBlockStateCuboid(-1, 3, -1, 1, 3, 1, ((this.variant & 1) != 0 ? Blocks.SHROOMLIGHT : Blocks.GLOWSTONE).defaultBlockState());
 		}
 	}
 
@@ -1057,32 +1097,32 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public static final PositionDirections[] SMALL_POSITIONS = {
 			new PositionDirections(-1, 1, -1, Direction.WEST, Direction.NORTH),
-			new PositionDirections(-1, 1,  0, Direction.WEST),
-			new PositionDirections(-1, 1,  1, Direction.WEST, Direction.SOUTH),
-			new PositionDirections( 0, 1, -1, Direction.NORTH),
-			new PositionDirections( 0, 1,  1, Direction.SOUTH),
-			new PositionDirections( 1, 1, -1, Direction.EAST, Direction.NORTH),
-			new PositionDirections( 1, 1,  0, Direction.EAST),
-			new PositionDirections( 1, 1,  1, Direction.EAST, Direction.SOUTH),
-		};
+			new PositionDirections(-1, 1, 0, Direction.WEST),
+			new PositionDirections(-1, 1, 1, Direction.WEST, Direction.SOUTH),
+			new PositionDirections(0, 1, -1, Direction.NORTH),
+			new PositionDirections(0, 1, 1, Direction.SOUTH),
+			new PositionDirections(1, 1, -1, Direction.EAST, Direction.NORTH),
+			new PositionDirections(1, 1, 0, Direction.EAST),
+			new PositionDirections(1, 1, 1, Direction.EAST, Direction.SOUTH),
+			};
 		public static final PositionDirections[] BIG_POSITIONS = {
 			new PositionDirections(-2, 1, -2, Direction.WEST, Direction.NORTH),
 			new PositionDirections(-2, 1, -1, Direction.WEST),
-			new PositionDirections(-2, 1,  0, Direction.WEST),
-			new PositionDirections(-2, 1,  1, Direction.WEST),
-			new PositionDirections(-2, 1,  2, Direction.WEST, Direction.SOUTH),
+			new PositionDirections(-2, 1, 0, Direction.WEST),
+			new PositionDirections(-2, 1, 1, Direction.WEST),
+			new PositionDirections(-2, 1, 2, Direction.WEST, Direction.SOUTH),
 			new PositionDirections(-1, 1, -2, Direction.NORTH),
-			new PositionDirections(-1, 1,  2, Direction.SOUTH),
-			new PositionDirections( 0, 1, -2, Direction.NORTH),
-			new PositionDirections( 0, 1,  2, Direction.SOUTH),
-			new PositionDirections( 1, 1, -2, Direction.NORTH),
-			new PositionDirections( 1, 1,  2, Direction.SOUTH),
-			new PositionDirections( 2, 1, -2, Direction.EAST, Direction.NORTH),
-			new PositionDirections( 2, 1, -1, Direction.EAST),
-			new PositionDirections( 2, 1,  0, Direction.EAST),
-			new PositionDirections( 2, 1,  1, Direction.EAST),
-			new PositionDirections( 2, 1,  2, Direction.EAST, Direction.SOUTH),
-		};
+			new PositionDirections(-1, 1, 2, Direction.SOUTH),
+			new PositionDirections(0, 1, -2, Direction.NORTH),
+			new PositionDirections(0, 1, 2, Direction.SOUTH),
+			new PositionDirections(1, 1, -2, Direction.NORTH),
+			new PositionDirections(1, 1, 2, Direction.SOUTH),
+			new PositionDirections(2, 1, -2, Direction.EAST, Direction.NORTH),
+			new PositionDirections(2, 1, -1, Direction.EAST),
+			new PositionDirections(2, 1, 0, Direction.EAST),
+			new PositionDirections(2, 1, 1, Direction.EAST),
+			new PositionDirections(2, 1, 2, Direction.EAST, Direction.SOUTH),
+			};
 
 		public final List<PositionState> decorationBlocks;
 
@@ -1099,64 +1139,64 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				availablePositions = SMALL_POSITIONS;
 			}
 			this.decorationBlocks = new ArrayList<>(count);
-			doForSomeElements(random, availablePositions, count, chosenPosition -> {
-				BlockState state;
-				switch (random.nextInt(1 + 2 + 3 + 4)) {
-					case 0 -> { //anvil or grindstone
-						if (random.nextBoolean()) {
-							Block block = switch (random.nextInt(3)) {
-								case 0 -> Blocks.ANVIL;
-								case 1 -> Blocks.CHIPPED_ANVIL;
-								case 2 -> Blocks.DAMAGED_ANVIL;
+			doForSomeElements(
+				random, availablePositions, count, chosenPosition -> {
+					BlockState state;
+					switch (random.nextInt(1 + 2 + 3 + 4)) {
+						case 0 -> { //anvil or grindstone
+							if (random.nextBoolean()) {
+								Block block = switch (random.nextInt(3)) {
+									case 0 -> Blocks.ANVIL;
+									case 1 -> Blocks.CHIPPED_ANVIL;
+									case 2 -> Blocks.DAMAGED_ANVIL;
+									default -> throw new AssertionError();
+								};
+								state = block.defaultBlockState();
+							}
+							else {
+								state = Blocks.GRINDSTONE.defaultBlockState().setValue(
+									FaceAttachedHorizontalDirectionalBlock.FACE,
+
+									AttachFace.FLOOR
+
+								);
+							}
+							state = state.setValue(HorizontalDirectionalBlock.FACING, Permuter.choose(random, Directions.HORIZONTAL));
+						}
+						case 1, 2 -> { //smithing table or stonecutter
+							if (random.nextBoolean()) {
+								state = Blocks.STONECUTTER.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, Permuter.choose(random, Directions.HORIZONTAL));
+							}
+							else {
+								state = Blocks.SMITHING_TABLE.defaultBlockState();
+							}
+						}
+						case 3, 4, 5 -> { //furnace
+							Block block = switch (random.nextInt(4)) {
+								case 0, 1 -> Blocks.FURNACE;
+								case 2 -> Blocks.SMOKER;
+								case 3 -> Blocks.BLAST_FURNACE;
 								default -> throw new AssertionError();
 							};
-							state = block.getDefaultState();
+							state = block.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, chosenPosition.getRandomDirection(random));
 						}
-						else {
-							state = Blocks.GRINDSTONE.getDefaultState().with(
-								WallMountedBlock.FACE,
-								#if MC_VERSION >= MC_1_20_2
-									BlockFace.FLOOR
-								#else
-									WallMountLocation.FLOOR
-								#endif
-							);
-						}
-						state = state.with(HorizontalFacingBlock.FACING, Permuter.choose(random, Directions.HORIZONTAL));
-					}
-					case 1, 2 -> { //smithing table or stonecutter
-						if (random.nextBoolean()) {
-							state = Blocks.STONECUTTER.getDefaultState().with(HorizontalFacingBlock.FACING, Permuter.choose(random, Directions.HORIZONTAL));
-						}
-						else {
-							state = Blocks.SMITHING_TABLE.getDefaultState();
+						default -> { //crafting table
+							state = Blocks.CRAFTING_TABLE.defaultBlockState();
 						}
 					}
-					case 3, 4, 5 -> { //furnace
-						Block block = switch (random.nextInt(4)) {
-							case 0, 1 -> Blocks.FURNACE;
-							case 2 -> Blocks.SMOKER;
-							case 3 -> Blocks.BLAST_FURNACE;
-							default -> throw new AssertionError();
-						};
-						state = block.getDefaultState().with(HorizontalFacingBlock.FACING, chosenPosition.getRandomDirection(random));
-					}
-					default -> { //crafting table
-						state = Blocks.CRAFTING_TABLE.getDefaultState();
-					}
+					this.decorationBlocks.add(new PositionState(chosenPosition, state));
 				}
-				this.decorationBlocks.add(new PositionState(chosenPosition, state));
-			});
+			);
 		}
 
-		public TablePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public TablePiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 			this.decorationBlocks = readListFromNBTCompound(nbt, "decorations", PositionState::decode);
 		}
 
 		@Override
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			super.writeNbt(context, nbt);
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			super.addAdditionalSaveData(context, nbt);
 			writeListToNBTAndStoreInCompound(nbt, "decorations", this.decorationBlocks, PositionState::writeToNBT);
 		}
 
@@ -1171,27 +1211,27 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			Coordinator root = this.coordinator(world, chunkBox);
 			Coordinator rotate4 = root.rotate4x90();
 			if ((this.variant & 1) != 0) {
-				rotate4.setBlockState(-2, 0, -2, POLISHED_BLACKSTONE_STAIRS('S').with(StairsBlock.SHAPE, StairShape.OUTER_LEFT));
+				rotate4.setBlockState(-2, 0, -2, POLISHED_BLACKSTONE_STAIRS('S').setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT));
 				rotate4.setBlockStateLine(-1, 0, -2, 1, 0, 0, 3, POLISHED_BLACKSTONE_STAIRS('S'));
-				rotate4.setBlockStateLine(-1, 0, -1, 1, 0, 0, 2, Blocks.POLISHED_BLACKSTONE.getDefaultState());
+				rotate4.setBlockStateLine(-1, 0, -1, 1, 0, 0, 2, Blocks.POLISHED_BLACKSTONE.defaultBlockState());
 			}
 			else {
-				rotate4.setBlockState(-1, 0, -1, POLISHED_BLACKSTONE_STAIRS('S').with(StairsBlock.SHAPE, StairShape.OUTER_LEFT));
+				rotate4.setBlockState(-1, 0, -1, POLISHED_BLACKSTONE_STAIRS('S').setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT));
 				rotate4.setBlockState(0, 0, -1, POLISHED_BLACKSTONE_STAIRS('S'));
 			}
-			root.setBlockState(0, 0, 0, ((this.variant & 2) != 0 ? Blocks.CHISELED_POLISHED_BLACKSTONE : Blocks.POLISHED_BLACKSTONE).getDefaultState());
+			root.setBlockState(0, 0, 0, ((this.variant & 2) != 0 ? Blocks.CHISELED_POLISHED_BLACKSTONE : Blocks.POLISHED_BLACKSTONE).defaultBlockState());
 			if (!this.decorationBlocks.isEmpty()) {
 				this.decorationBlocks.removeIf(state -> state.place(world, this.centerPos, chunkBox));
 			}
@@ -1204,7 +1244,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 4);
 		}
 
-		public FurnacePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public FurnacePiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -1221,7 +1261,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				x += side;
 			}
 			y += 1;
-			this.boundingBox = new BlockBox(x - 1, y, z - 1, x + 1, y + 7, z + 1);
+			this.boundingBox = new BoundingBox(x - 1, y, z - 1, x + 1, y + 7, z + 1);
 			this.centerPos = new BlockPos(x, y, z);
 		}
 
@@ -1236,12 +1276,12 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -1251,15 +1291,15 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate4.setBlockState(0, 0, -1, NETHER_BRICK_STAIRS('s'));
 			if ((this.variant & 1) != 0) {
 				root.setBlockState(0, 0, 0, BlockStates.SOUL_SAND);
-				root.setBlockState(0, 1, 0, Blocks.SOUL_FIRE.getDefaultState());
+				root.setBlockState(0, 1, 0, Blocks.SOUL_FIRE.defaultBlockState());
 			}
 			else {
 				root.setBlockState(0, 0, 0, BlockStates.NETHERRACK);
-				root.setBlockState(0, 1, 0, Blocks.FIRE.getDefaultState());
+				root.setBlockState(0, 1, 0, Blocks.FIRE.defaultBlockState());
 			}
 			rotate4.setBlockState(-1, 1, -1, BlockStates.NETHER_BRICKS);
 			rotate4.setBlockState(0, 2, -1, BlockStates.NETHER_BRICKS);
-			rotate4.setBlockState(-1, 2, -1, NETHER_BRICK_STAIRS('s').with(StairsBlock.SHAPE, StairShape.INNER_LEFT));
+			rotate4.setBlockState(-1, 2, -1, NETHER_BRICK_STAIRS('s').setValue(StairBlock.SHAPE, StairsShape.INNER_LEFT));
 			if ((this.variant & 2) != 0) {
 				rotate4.setBlockStateLine(0, 3, -1, 0, 1, 0, 5, BlockStates.NETHER_BRICKS);
 			}
@@ -1275,7 +1315,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			super(type, x, y, z, random, 1);
 		}
 
-		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public SpawnerPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -1295,12 +1335,12 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			net.minecraft.util.RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -1315,10 +1355,12 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			rotate4.setBlockState(-1, -1, -1, BlockStates.CHISELED_NETHER_BRICKS);
 			rotate4.setBlockState(0, -1, -1, NETHER_BRICK_STAIRS('s'));
 			root.setBlockState(0, -1, 0, BlockStates.NETHER_BRICKS);
-			root.setBlockState(0, 0, 0, Blocks.SPAWNER.getDefaultState());
-			root.getBlockEntity(0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
-				spawner.setEntityType(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
-			});
+			root.setBlockState(0, 0, 0, Blocks.SPAWNER.defaultBlockState());
+			root.getBlockEntity(
+				0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
+					spawner.setEntityId(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
+				}
+			);
 		}
 	}
 }

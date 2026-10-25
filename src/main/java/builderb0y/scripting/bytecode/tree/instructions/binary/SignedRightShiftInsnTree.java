@@ -37,22 +37,24 @@ public class SignedRightShiftInsnTree extends BinaryInsnTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT    -> ldc(     shift(leftConstant.   asInt(),        rightConstant.asInt() ));
-				case LONG   -> ldc(     shift(leftConstant.  asLong(),        rightConstant.asInt() ));
-				case FLOAT  -> ldc(Math.scalb(leftConstant. asFloat(), negate(rightConstant.asInt())));
+				case INT -> ldc(shift(leftConstant.asInt(), rightConstant.asInt()));
+				case LONG -> ldc(shift(leftConstant.asLong(), rightConstant.asInt()));
+				case FLOAT -> ldc(Math.scalb(leftConstant.asFloat(), negate(rightConstant.asInt())));
 				case DOUBLE -> ldc(Math.scalb(leftConstant.asDouble(), negate(rightConstant.asInt())));
-				default     -> throw new AssertionError(type);
+				default -> throw new AssertionError(type);
 			};
 		}
 		left = left.cast(parser, type, CastMode.IMPLICIT_THROW, false);
 		right = right.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false);
-		return new SignedRightShiftInsnTree(left, right, switch (type.getSort()) {
+		return new SignedRightShiftInsnTree(
+			left, right, switch (type.getSort()) {
 			case INT -> ISHR;
 			case LONG -> LSHR;
 			case FLOAT -> FSHR;
 			case DOUBLE -> DSHR;
 			default -> throw new AssertionError(type);
-		});
+		}
+		);
 	}
 
 	@Override
@@ -93,7 +95,7 @@ public class SignedRightShiftInsnTree extends BinaryInsnTree {
 					this.left,
 					this.right
 				)
-				.emitBytecode(method);
+					.emitBytecode(method);
 			}
 		}
 		else {
@@ -122,7 +124,7 @@ public class SignedRightShiftInsnTree extends BinaryInsnTree {
 				this.left,
 				invokeStatic(NEGATE, this.right)
 			)
-			.emitBytecode(method);
+				.emitBytecode(method);
 		}
 	}
 

@@ -1,7 +1,7 @@
 package builderb0y.scripting.bytecode.tree.instructions;
 
-import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InvalidOperandException;
 import builderb0y.scripting.util.TypeInfos;

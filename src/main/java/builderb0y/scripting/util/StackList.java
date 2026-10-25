@@ -11,7 +11,8 @@ public class StackList<E> extends ObjectArrayList<E> {
 		super(capacity);
 	}
 
-	public StackList() {}
+	public StackList() {
+	}
 
 	public StackList(StackList<E> that) {
 		super(that);

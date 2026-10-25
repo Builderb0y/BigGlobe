@@ -43,15 +43,15 @@ public interface RandomSource extends CoderRegistryTyped<RandomSource> {
 		}
 	};
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),              ConstantRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("uniform"),                UniformRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("linear_low"),           LinearLowRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("linear_high"),         LinearHighRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("uniform"), UniformRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("linear_low"), LinearLowRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("linear_high"), LinearHighRandomSource.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("linear_centered"), LinearCenteredRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"),              GaussianRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("exponential"),        ExponentialRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("average"),               AveragedRandomSource.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),              ScriptedRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"), GaussianRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("exponential"), ExponentialRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("average"), AveragedRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"), ScriptedRandomSource.class);
 	}};
 
 	public abstract double get(ScriptedColumn column, int y, long seed);

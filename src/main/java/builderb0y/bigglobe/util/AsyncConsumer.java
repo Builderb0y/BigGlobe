@@ -13,14 +13,14 @@ which is supplied in the constructor.
 upon finishing, the terminator will be invoked on
 all tasks' results in the order they were submitted.
 example usage: {@code
-	try (AsyncConsumer<String> async = new AsyncConsumer<>(System.out::println)) {
-		async.submit(() -> expensiveOperation(1));
-		async.submit(() -> expensiveOperation(2));
-		async.submit(() -> expensiveOperation(3));
-		//all 3 tasks are worked on in parallel.
-	}
-	//closing waits for all 3 tasks to finish running,
-	//and in this case prints their results to System.out in order.
+try (AsyncConsumer<String> async = new AsyncConsumer<>(System.out::println)) {
+async.submit(() -> expensiveOperation(1));
+async.submit(() -> expensiveOperation(2));
+async.submit(() -> expensiveOperation(3));
+//all 3 tasks are worked on in parallel.
+}
+//closing waits for all 3 tasks to finish running,
+//and in this case prints their results to System.out in order.
 }
 note: while this class assists with parallel computation,
 it is not itself thread safe. do not submit new tasks concurrently!

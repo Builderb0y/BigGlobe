@@ -4,26 +4,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
@@ -32,13 +29,10 @@ import builderb0y.autocodec.coders.RecordCoder;
 import builderb0y.autocodec.common.FactoryContext;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.EmptyData;
-import builderb0y.autocodec.decoders.ConstructImprintDecoder;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.encoders.CollectionEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
-import builderb0y.autocodec.encoders.MultiFieldEncoder;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -53,11 +47,11 @@ import builderb0y.bigglobe.versions.ChunkVersions;
 public class SingleBlockFeature extends Feature<Config> implements RawFeature<Config> {
 
 	public static final Predicate<BlockState>
-		IS_REPLACEABLE  = BlockStateVersions::isReplaceable,
+		IS_REPLACEABLE = BlockStateVersions::isReplaceable,
 		NOT_REPLACEABLE = state -> !BlockStateVersions.isReplaceable(state),
-		IS_AIR          = BlockState::isAir,
+		IS_AIR = BlockState::isAir,
 		IS_SOURCE_WATER = state -> state == BlockStates.WATER,
-		HAS_WATER       = state -> state.getFluidState().getFluid() == Fluids.WATER;
+		HAS_WATER = state -> state.getFluidState().getType() == Fluids.WATER;
 
 	public SingleBlockFeature(Codec<Config> configCodec) {
 		super(configCodec);
@@ -68,14 +62,14 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 	}
 
 	public static Predicate<BlockState> matchWaterlogged(BlockState state) {
-		return state.getFluidState().getFluid() == Fluids.WATER ? IS_SOURCE_WATER : IS_AIR;
+		return state.getFluidState().getType() == Fluids.WATER ? IS_SOURCE_WATER : IS_AIR;
 	}
 
 	public static BlockState[] getStates(BlockState state) {
-		if (state.contains(Properties.DOUBLE_BLOCK_HALF)) {
+		if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
 			return new BlockState[] {
-				state.with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER),
-				state.with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER)
+				state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER),
+				state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER)
 			};
 		}
 		else {
@@ -88,31 +82,35 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		REPLACE_BELOW = 2,
 		REPLACE_ABOVE = 4;
 
-	public static int checkFluids(BlockView world, BlockPos origin, BlockState[] states, Predicate<BlockState> replace) {
+	public static int checkFluids(BlockGetter world, BlockPos origin, BlockState[] states, Predicate<BlockState> replace) {
 		int result = CAN_PLACE;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
-			BlockState oldState = world.getBlockState(origin.up(offsetY));
+			BlockState oldState = world.getBlockState(origin.above(offsetY));
 			if (!replace.test(oldState)) return 0;
-			DoubleBlockHalf half = oldState.getOrEmpty(Properties.DOUBLE_BLOCK_HALF).orElse(null);
+			DoubleBlockHalf half = oldState.getOptionalValue(BlockStateProperties.DOUBLE_BLOCK_HALF).orElse(null);
 			if (half != null) switch (half) {
-				case LOWER -> { if (offsetY + 1 >= length && oldState.getBlock() == world.getBlockState(origin.up(offsetY + 1)).getBlock()) result |= REPLACE_ABOVE; }
-				case UPPER -> { if (offsetY - 1 <  0      && oldState.getBlock() == world.getBlockState(origin.up(offsetY - 1)).getBlock()) result |= REPLACE_BELOW; }
+				case LOWER -> {
+					if (offsetY + 1 >= length && oldState.getBlock() == world.getBlockState(origin.above(offsetY + 1)).getBlock()) result |= REPLACE_ABOVE;
+				}
+				case UPPER -> {
+					if (offsetY - 1 < 0 && oldState.getBlock() == world.getBlockState(origin.above(offsetY - 1)).getBlock()) result |= REPLACE_BELOW;
+				}
 			}
 			BlockState newState = states[offsetY];
 			FluidState fluidState = oldState.getFluidState();
 			if (fluidState.isEmpty()) {
-				if (newState.contains(Properties.WATERLOGGED)) {
-					newState = newState.with(Properties.WATERLOGGED, Boolean.FALSE);
+				if (newState.hasProperty(BlockStateProperties.WATERLOGGED)) {
+					newState = newState.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
 				}
 				else if (!states[offsetY].getFluidState().isEmpty()) {
 					return 0;
 				}
 			}
-			else if (fluidState.getFluid() == Fluids.WATER) {
-				if (newState.contains(Properties.WATERLOGGED)) {
-					newState = newState.with(Properties.WATERLOGGED, Boolean.TRUE);
+			else if (fluidState.getType() == Fluids.WATER) {
+				if (newState.hasProperty(BlockStateProperties.WATERLOGGED)) {
+					newState = newState.setValue(BlockStateProperties.WATERLOGGED, Boolean.TRUE);
 				}
-				else if (states[offsetY].getFluidState().getFluid() != Fluids.WATER) {
+				else if (states[offsetY].getFluidState().getType() != Fluids.WATER) {
 					return 0;
 				}
 			}
@@ -125,39 +123,39 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 	}
 
 	public static boolean place(
-		WorldAccess world,
+		LevelAccessor world,
 		BlockPos pos,
 		BlockState place,
 		Predicate<BlockState> replace
 	) {
 		if (place.getBlock() instanceof PlantBlock_CanPlantOnTopAccess plantBlock) {
 			//skip light level check that some plants normally perform.
-			BlockPos downPos = pos.down();
+			BlockPos downPos = pos.below();
 			BlockState downState = world.getBlockState(downPos);
 			if (!plantBlock.bigglobe_canPlantOnTop(downState, world, downPos)) return false;
 		}
 		else {
-			if (!place.canPlaceAt(world, pos)) return false;
+			if (!place.canSurvive(world, pos)) return false;
 		}
 		BlockState[] states = getStates(place);
 		int flags = checkFluids(world, pos, states, replace);
 		if ((flags & CAN_PLACE) == 0) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
-			world.setBlockState(pos.up(offsetY), states[offsetY], Block.NOTIFY_ALL | Block.FORCE_STATE);
+			world.setBlock(pos.above(offsetY), states[offsetY], Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
 		}
 		if ((flags & REPLACE_BELOW) != 0) {
-			BlockPos down = pos.down();
-			world.setBlockState(down, world.getFluidState(down).getBlockState(), Block.NOTIFY_ALL | Block.FORCE_STATE);
+			BlockPos down = pos.below();
+			world.setBlock(down, world.getFluidState(down).createLegacyBlock(), Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
 		}
 		if ((flags & REPLACE_ABOVE) != 0) {
-			BlockPos up = pos.up(states.length);
-			world.setBlockState(up, world.getFluidState(up).getBlockState(), Block.NOTIFY_ALL | Block.FORCE_STATE);
+			BlockPos up = pos.above(states.length);
+			world.setBlock(up, world.getFluidState(up).createLegacyBlock(), Block.UPDATE_ALL | Block.UPDATE_KNOWN_SHAPE);
 		}
 		return true;
 	}
 
 	public static boolean placeEarly(
-		Chunk chunk,
+		ChunkAccess chunk,
 		BlockPos pos,
 		BlockState place,
 		Predicate<BlockState> replace
@@ -166,20 +164,20 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		int flags = checkFluids(chunk, pos, states, replace);
 		if ((flags & CAN_PLACE) == 0) return false;
 		for (int offsetY = 0, length = states.length; offsetY < length; offsetY++) {
-			ChunkVersions.setBlockState(chunk, pos.up(offsetY), states[offsetY], Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			ChunkVersions.setBlockState(chunk, pos.above(offsetY), states[offsetY], Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 		}
 		if ((flags & REPLACE_BELOW) != 0) {
-			BlockPos down = pos.down();
-			ChunkVersions.setBlockState(chunk, down, chunk.getFluidState(down).getBlockState(), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			BlockPos down = pos.below();
+			ChunkVersions.setBlockState(chunk, down, chunk.getFluidState(down).createLegacyBlock(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 		}
 		if ((flags & REPLACE_ABOVE) != 0) {
-			BlockPos up = pos.up(states.length);
-			ChunkVersions.setBlockState(chunk, up, chunk.getFluidState(up).getBlockState(), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			BlockPos up = pos.above(states.length);
+			ChunkVersions.setBlockState(chunk, up, chunk.getFluidState(up).createLegacyBlock(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 		}
 		return true;
 	}
 
-	public static boolean place(WorldAccess world, BlockPos pos, RandomGenerator random, Config config) {
+	public static boolean place(LevelAccessor world, BlockPos pos, RandomGenerator random, Config config) {
 		return place(
 			world,
 			pos,
@@ -188,7 +186,7 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		);
 	}
 
-	public static boolean place(WorldAccess world, BlockPos pos, long seed, Config config) {
+	public static boolean place(LevelAccessor world, BlockPos pos, long seed, Config config) {
 		return place(
 			world,
 			pos,
@@ -198,12 +196,12 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 	}
 
 	@Override
-	public boolean generate(FeatureContext<Config> context) {
-		Config config = context.getConfig();
+	public boolean place(FeaturePlaceContext<Config> context) {
+		Config config = context.config();
 		return place(
-			context.getWorld(),
-			context.getOrigin(),
-			config.getState(context.getRandom()),
+			context.level(),
+			context.origin(),
+			config.getState(context.random()),
 			config
 		);
 	}
@@ -218,13 +216,13 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		@VerifyNotEmpty @SingletonArray List<BlockState> place,
 		@VerifyNotEmpty @SingletonArray @VerifyNullable Set<BlockState> replace
 	)
-	implements FeatureConfig, Predicate<BlockState> {
+		implements FeatureConfiguration, Predicate<BlockState> {
 
 		public BlockState getState(RandomGenerator random) {
 			return Permuter.choose(random, this.place);
 		}
 
-		public BlockState getState(Random random) {
+		public BlockState getState(RandomSource random) {
 			return this.place.get(random.nextInt(this.place.size()));
 		}
 
@@ -236,15 +234,17 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		public boolean test(BlockState state) {
 			return (
 				this.replace != null
-				? this.replace.contains(state)
-				: BlockStateVersions.isReplaceable(state)
+					? this.replace.contains(state)
+					: BlockStateVersions.isReplaceable(state)
 			);
 		}
 	}
 
 	public static class ConfigCoder extends NamedCoder<Config> {
 
-		public static final ReifiedType<List<BlockState>> BLOCKSTATE_LIST_REIFIED_TYPE = new ReifiedType<@SingletonArray List<BlockState>>() {};
+		public static final ReifiedType<List<BlockState>> BLOCKSTATE_LIST_REIFIED_TYPE = new ReifiedType<@SingletonArray List<BlockState>>() {
+
+		};
 
 		public final AutoCoder<Config> withReplace;
 		public final AutoCoder<List<BlockState>> placeOnly;

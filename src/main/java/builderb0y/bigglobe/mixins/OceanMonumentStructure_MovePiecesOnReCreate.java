@@ -1,17 +1,16 @@
 package builderb0y.bigglobe.mixins;
 
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
+import net.minecraft.world.level.levelgen.structure.structures.OceanMonumentStructure;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePiecesList;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.gen.structure.OceanMonumentStructure;
-
 /**
-{@link OceanMonumentStructure#modifyPiecesOnRead(ChunkPos, long, StructurePiecesList)}
+{@link OceanMonumentStructure#regeneratePiecesAfterLoad(ChunkPos, long, PiecesContainer)}
 re-creates the structure start from scratch, at its original position,
 which is a problem if a script structure overrider changed its position.
 in this case, where the structure is loaded, unloaded, and reloaded again
@@ -31,13 +30,13 @@ so... yeah. the new plan is to move the pieces to the old Y level.
 @Mixin(OceanMonumentStructure.class)
 public class OceanMonumentStructure_MovePiecesOnReCreate {
 
-	@Inject(method = "modifyPiecesOnRead", at = @At("RETURN"))
-	private static void bigglobe_movePiecesOnReCreate(ChunkPos pos, long worldSeed, StructurePiecesList pieces, CallbackInfoReturnable<StructurePiecesList> callback) {
+	@Inject(method = "regeneratePiecesAfterLoad", at = @At("RETURN"))
+	private static void bigglobe_movePiecesOnReCreate(ChunkPos pos, long worldSeed, PiecesContainer pieces, CallbackInfoReturnable<PiecesContainer> callback) {
 		//should never be empty, but it never hurts to double check this.
 		if (!pieces.pieces().isEmpty() && !callback.getReturnValue().pieces().isEmpty()) {
 			StructurePiece oldPiece = pieces.pieces().get(0);
 			StructurePiece newPiece = callback.getReturnValue().pieces().get(0);
-			newPiece.translate(0, oldPiece.getBoundingBox().getMinY() - newPiece.getBoundingBox().getMinY(), 0);
+			newPiece.move(0, oldPiece.getBoundingBox().minY() - newPiece.getBoundingBox().minY(), 0);
 		}
 	}
 }

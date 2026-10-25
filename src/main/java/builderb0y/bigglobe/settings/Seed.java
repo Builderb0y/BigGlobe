@@ -33,7 +33,7 @@ import builderb0y.bigglobe.settings.Seed.SeedCoder;
 public class Seed {
 
 	public static final int
-		AUTO   = 1 << 0,
+		AUTO = 1 << 0,
 		NUMBER = 1 << 1,
 		STRING = 1 << 2;
 

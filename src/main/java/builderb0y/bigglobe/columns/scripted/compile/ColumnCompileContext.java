@@ -10,10 +10,10 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
-import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.AccessSchema;
 import builderb0y.bigglobe.columns.scripted.AccessSchema.AccessContext;
+import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ColumnEntryMemory;
 import builderb0y.bigglobe.columns.scripted.types.ColumnValueType;
@@ -63,7 +63,7 @@ public class ColumnCompileContext extends DataCompileContext {
 				),
 				ScriptedColumn.CONSTRUCTOR_INFO.loaders
 			)
-			.emitBytecode(this.constructor);
+				.emitBytecode(this.constructor);
 		}
 		{
 			MethodCompileContext lookup = this.mainClass.newMethod(ACC_PUBLIC | ACC_STATIC, "lookup", type(MethodHandles.Lookup.class));
@@ -77,14 +77,14 @@ public class ColumnCompileContext extends DataCompileContext {
 				newInstance(
 					this.constructor.info,
 					Arrays
-					.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
-					.map(Parameter::getName)
-					.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
-					.map((FieldInfo field) -> getField(loadSelf, field))
-					.toArray(InsnTree[]::new)
+						.stream(ScriptedColumn.CONSTRUCTOR_INFO.parameters)
+						.map(Parameter::getName)
+						.map((String name) -> FieldInfo.getField(ScriptedColumn.class, name))
+						.map((FieldInfo field) -> getField(loadSelf, field))
+						.toArray(InsnTree[]::new)
 				)
 			)
-			.emitBytecode(blankCopy);
+				.emitBytecode(blankCopy);
 			blankCopy.endCode();
 		}
 	}
@@ -127,8 +127,8 @@ public class ColumnCompileContext extends DataCompileContext {
 	public InsnTree loadSeed(@Nullable InsnTree salt) {
 		return (
 			salt != null
-			? ScriptedColumn.INFO.saltedSeed(this.loadColumn(), salt)
-			: ScriptedColumn.INFO.baseSeed(this.loadColumn())
+				? ScriptedColumn.INFO.saltedSeed(this.loadColumn(), salt)
+				: ScriptedColumn.INFO.baseSeed(this.loadColumn())
 		);
 	}
 

@@ -42,21 +42,29 @@ public interface IRandomList<E> extends List<E> {
 
 	public abstract double getWeight(int index);
 
-	/** returns the old weight at this index, to be compliant with List.set(int, E). */
+	/**
+	returns the old weight at this index, to be compliant with List.set(int, E).
+	*/
 	public abstract double setWeight(int index, double weight);
 
-	/** returns true, to be compliant with List.add(E). */
+	/**
+	returns true, to be compliant with List.add(E).
+	*/
 	public abstract boolean add(E element, double weight);
 
-	/** returns void, to be compliant with List.add(int, E). */
+	/**
+	returns void, to be compliant with List.add(int, E).
+	*/
 	public abstract void add(int index, E element, double weight);
 
-	/** returns the old element at this index, to be compliant with List.set(int, E). */
+	/**
+	returns the old element at this index, to be compliant with List.set(int, E).
+	*/
 	public abstract E set(int index, E element, double weight);
 
 	public default void replaceAllWeights(ToDoubleFunction<? super E> operator) {
 		Objects.requireNonNull(operator, "operator");
-		for (WeightedListIterator<E> iterator = this.listIterator(); iterator.hasNext();) {
+		for (WeightedListIterator<E> iterator = this.listIterator(); iterator.hasNext(); ) {
 			iterator.setWeight(operator.applyAsDouble(iterator.next()));
 		}
 	}
@@ -205,7 +213,7 @@ public interface IRandomList<E> extends List<E> {
 
 	public default int defaultHashCode() {
 		int hash = 1;
-		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext();) {
+		for (WeightedIterator<E> iterator = this.iterator(); iterator.hasNext(); ) {
 			hash = hash * 31 + Objects.hashCode(iterator.next());
 			hash = hash * 31 + Double.hashCode(iterator.getWeight());
 		}
@@ -320,7 +328,9 @@ public interface IRandomList<E> extends List<E> {
 
 	public static interface KnownTotalWeightRandomList<E> extends IRandomList<E> {
 
-		/** returns the sum of the weights of all elements in this list. */
+		/**
+		returns the sum of the weights of all elements in this list.
+		*/
 		public abstract double getTotalWeight();
 
 		public default boolean isWeightless() {
@@ -427,11 +437,7 @@ public interface IRandomList<E> extends List<E> {
 		}
 	}
 
-
-
-	//////////////////////////////// coding ////////////////////////////////
-
-
+	/// ///////////////////////////// coding ////////////////////////////////
 
 	public static class IRandomListCoder<T> extends NamedCoder<IRandomList<T>> {
 
@@ -456,7 +462,9 @@ public interface IRandomList<E> extends List<E> {
 			ReifiedType<T> elementType = context.type.resolveParameter(IRandomList.class).uncheckedCast();
 			this.elementCoder = context.type(elementType).forceCreateCoder();
 			this.elementName = elementName(elementType);
-			this.weightCoder = context.type(new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {}).forceCreateCoder();
+			this.weightCoder = context.type(new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Float.POSITIVE_INFINITY, maxInclusive = false) Double>() {
+
+			}).forceCreateCoder();
 		}
 
 		public static @Nullable String elementName(ReifiedType<?> elementType) {
@@ -510,7 +518,7 @@ public interface IRandomList<E> extends List<E> {
 			return ListData.collect(
 				IntStream.range(0, list.size()).mapToObj((int index) -> {
 					Data encodedElement = context.object(list.get(index)).encodeWith(this.elementCoder);
-					Data encodedWeight  = context.object(list.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
+					Data encodedWeight = context.object(list.getWeight(index)).encodeWith(PrimitiveCoders.DOUBLE);
 					if (this.elementName != null) {
 						MapData map = new MapData(4);
 						map.put(this.elementName, encodedElement);

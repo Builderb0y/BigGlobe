@@ -5,7 +5,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeException;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -46,8 +45,8 @@ public abstract class AbstractThresholdDecisionTreeCondition extends DecisionTre
 				invokeStatic(
 					MethodInfo.inCaller(
 						this.smooth_min
-						? (this.smooth_max ? "smoothBothF" : "smoothMinF")
-						: (this.smooth_max ? "smoothMaxF" : "smoothNoneF")
+							? (this.smooth_max ? "smoothBothF" : "smoothMinF")
+							: (this.smooth_max ? "smoothMaxF" : "smoothNoneF")
 					),
 					new MultiplyInsnTree(
 						new SubtractInsnTree(
@@ -70,8 +69,8 @@ public abstract class AbstractThresholdDecisionTreeCondition extends DecisionTre
 				invokeStatic(
 					MethodInfo.inCaller(
 						this.smooth_min
-						? (this.smooth_max ? "smoothBothD" : "smoothMinD")
-						: (this.smooth_max ? "smoothMaxD" : "smoothNoneD")
+							? (this.smooth_max ? "smoothBothD" : "smoothMinD")
+							: (this.smooth_max ? "smoothMaxD" : "smoothNoneD")
 					),
 					new MultiplyInsnTree(
 						new SubtractInsnTree(

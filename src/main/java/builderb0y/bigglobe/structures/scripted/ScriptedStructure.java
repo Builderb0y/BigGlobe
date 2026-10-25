@@ -5,33 +5,29 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.structure.StructureType;
-
+import net.minecraft.nbt.Tag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import builderb0y.autocodec.annotations.DefaultInt;
 import builderb0y.autocodec.annotations.ForceOrdinal;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.chunkgen.scripted.ScriptedLayer;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
@@ -41,28 +37,27 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
+import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
-import builderb0y.bigglobe.util.*;
+import builderb0y.bigglobe.util.CheckedList;
+import builderb0y.bigglobe.util.SymmetricOffset;
+import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
+import builderb0y.bigglobe.util.WorldUtil;
 
 public class ScriptedStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructure.class);
-	#else
-		public static final Codec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructure.class).codec();
-	#endif
+	public static final MapCodec<ScriptedStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructure.class);
 
 	public final StructureLayoutScript.Holder layout;
 	public final @DefaultInt(8) int max_radius_in_chunks;
 
-	public ScriptedStructure(Config config, StructureLayoutScript.Holder layout, int max_radius_in_chunks) {
+	public ScriptedStructure(StructureSettings config, StructureLayoutScript.Holder layout, int max_radius_in_chunks) {
 		super(config, null, null);
 		this.layout = layout;
 		this.max_radius_in_chunks = max_radius_in_chunks;
@@ -74,11 +69,11 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	}
 
 	@Override
-	public Optional<StructurePosition> getStructurePosition(Context context) {
+	public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		Permuter permuter = Permuter.from(context.random());
-		int x = context.chunkPos().getStartX() | permuter.nextInt(16);
-		int z = context.chunkPos().getStartZ() | permuter.nextInt(16);
+		int x = context.chunkPos().getMinBlockX() | permuter.nextInt(16);
+		int z = context.chunkPos().getMinBlockZ() | permuter.nextInt(16);
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		Hints hints = ColumnUsage.GENERIC.maybeDhHints(distantHorizons);
 		ScriptedColumnLookup lookup = new ScriptedColumnLookup.Impl(
@@ -87,23 +82,23 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				generator.columnSeed,
 				0,
 				0,
-				context.world(),
+				context.heightAccessor(),
 				hints,
 				generator.compiledWorldTraits
 			)
 		);
 		CheckedList<StructurePiece> pieces = new CheckedList<>(StructurePiece.class);
 		this.layout.layout(lookup, x, z, generator.columnSeed, permuter, pieces);
-		StructurePiecesCollector collector = new StructurePiecesCollector();
+		StructurePiecesBuilder collector = new StructurePiecesBuilder();
 		int minY = Integer.MAX_VALUE;
 		int maxY = Integer.MIN_VALUE;
 		for (StructurePiece piece : pieces) {
 			collector.addPiece(piece);
-			minY = Math.min(minY, piece.getBoundingBox().getMinY());
-			maxY = Math.max(maxY, piece.getBoundingBox().getMaxY());
+			minY = Math.min(minY, piece.getBoundingBox().minY());
+			maxY = Math.max(maxY, piece.getBoundingBox().maxY());
 		}
 		return Optional.of(
-			new StructurePosition(
+			new GenerationStub(
 				new BlockPos(x, (maxY + minY + 1) >> 1, z),
 				Either.right(collector)
 			)
@@ -111,28 +106,30 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 	}
 
 	@Override
-	public StructureType<?> getType() {
+	public StructureType<?> type() {
 		return BigGlobeStructures.SCRIPTED;
 	}
 
 	public static record CombinedStructureScripts(
 		StructurePlacementScript.Holder placement,
 		StructurePlacementScript.@VerifyNullable Holder raw_placement
-	) {}
+	) {
+
+	}
 
 	public static class Piece extends StructurePiece implements RawGenerationStructurePiece {
 
-		public final BlockBox originalBoundingBox;
+		public final BoundingBox originalBoundingBox;
 		public SymmetricOffset transformation;
 		public final StructurePlacementScriptEntry placement;
-		public final NbtCompound data;
+		public final CompoundTag data;
 
 		@Override
 		public String toString() {
 			return "ScriptedStructurePiece: { original bounding box: " + this.originalBoundingBox + ", current bounding box: " + this.boundingBox + ", transformation: " + this.transformation + ", placement: " + this.placement.id() + ", data: " + this.data + " }";
 		}
 
-		public Piece(StructurePieceType type, BlockBox boundingBox, StructurePlacementScriptEntry placement, NbtCompound data) {
+		public Piece(StructurePieceType type, BoundingBox boundingBox, StructurePlacementScriptEntry placement, CompoundTag data) {
 			super(type, 0, boundingBox);
 			this.originalBoundingBox = boundingBox;
 			this.placement = placement;
@@ -140,12 +137,14 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this.transformation = SymmetricOffset.IDENTITY;
 		}
 
-		/** this is the constructor that the layout script uses. */
-		public Piece(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, StructurePlacementScriptEntry placement, NbtCompound data) {
-			this(BigGlobeStructures.SCRIPTED_PIECE, new BlockBox(minX, minY, minZ, maxX, maxY, maxZ), placement, data);
+		/**
+		this is the constructor that the layout script uses.
+		*/
+		public Piece(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, StructurePlacementScriptEntry placement, CompoundTag data) {
+			this(BigGlobeStructures.SCRIPTED_PIECE, new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ), placement, data);
 		}
 
-		public Piece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Piece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, nbt);
 			SerialData data;
 			try {
@@ -157,13 +156,13 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 			this.originalBoundingBox = data.OBB;
 			this.transformation = (
 				data.transform != null
-				? data.transform
-				: SymmetricOffset.IDENTITY
+					? data.transform
+					: SymmetricOffset.IDENTITY
 			);
-			if (data.rot != null && data.rot != BlockRotation.NONE) {
+			if (data.rot != null && data.rot != Rotation.NONE) {
 				this.transformation = this.transformation.rotateAround(
-					(this.originalBoundingBox.getMinX() + this.originalBoundingBox.getMaxX() + 1) >> 1,
-					(this.originalBoundingBox.getMinZ() + this.originalBoundingBox.getMaxZ() + 1) >> 1,
+					(this.originalBoundingBox.minX() + this.originalBoundingBox.maxX() + 1) >> 1,
+					(this.originalBoundingBox.minZ() + this.originalBoundingBox.maxZ() + 1) >> 1,
 					Symmetry.of(data.rot)
 				);
 			}
@@ -173,8 +172,8 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		}
 
 		@Override
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			for (Map.Entry<String, NbtElement> entry : ((NbtCompoundExtensions)(Object)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).bigglobe_getEntrySet()) {
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			for (Map.Entry<String, Tag> entry : ((NbtCompoundExtensions)(Object)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).bigglobe_getEntrySet()) {
 				nbt.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -192,9 +191,9 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		public static record SerialData(
 			String script,
 			@VerifyNullable SymmetricOffset transform,
-			@VerifyNullable @ForceOrdinal(true) BlockRotation rot,
-			BlockBox OBB,
-			@UseSuperClass(NbtElement.class) NbtCompound data
+			@VerifyNullable @ForceOrdinal(true) Rotation rot,
+			BoundingBox OBB,
+			@UseSuperClass(Tag.class) CompoundTag data
 		) {
 
 			public static final AutoCoder<SerialData> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(SerialData.class);
@@ -202,8 +201,8 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		public Piece symmetrify(Symmetry symmetry) {
 			return this.symmetrifyAround(
-				(this.boundingBox.getMinX() + this.boundingBox.getMaxX() + 1) >> 1,
-				(this.boundingBox.getMinZ() + this.boundingBox.getMaxZ() + 1) >> 1,
+				(this.boundingBox.minX() + this.boundingBox.maxX() + 1) >> 1,
+				(this.boundingBox.minZ() + this.boundingBox.maxZ() + 1) >> 1,
 				symmetry
 			);
 		}
@@ -238,12 +237,12 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		}
 
 		public Piece offset(int x, int y, int z) {
-			this.translate(x, y, z);
+			this.move(x, y, z);
 			return this;
 		}
 
 		@Override
-		public void translate(int x, int y, int z) {
+		public void move(int x, int y, int z) {
 			this.setTransformation(this.transformation.offset(x, y, z));
 		}
 
@@ -273,19 +272,19 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		}
 
 		public void updateBoundingBox() {
-			BlockPos.Mutable pos1 = Coordination.rotate(
-				new BlockPos.Mutable(
-					this.originalBoundingBox.getMinX(),
-					this.originalBoundingBox.getMinY(),
-					this.originalBoundingBox.getMinZ()
+			BlockPos.MutableBlockPos pos1 = Coordination.rotate(
+				new BlockPos.MutableBlockPos(
+					this.originalBoundingBox.minX(),
+					this.originalBoundingBox.minY(),
+					this.originalBoundingBox.minZ()
 				),
 				this.transformation
 			);
-			BlockPos.Mutable pos2 = Coordination.rotate(
-				new BlockPos.Mutable(
-					this.originalBoundingBox.getMaxX(),
-					this.originalBoundingBox.getMaxY(),
-					this.originalBoundingBox.getMaxZ()
+			BlockPos.MutableBlockPos pos2 = Coordination.rotate(
+				new BlockPos.MutableBlockPos(
+					this.originalBoundingBox.maxX(),
+					this.originalBoundingBox.maxY(),
+					this.originalBoundingBox.maxZ()
 				),
 				this.transformation
 			);
@@ -296,22 +295,22 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 		public void generateRaw(Context context) {
 			StructurePlacementScript.Holder rawPlacement = this.placement.entry.value().raw_placement;
 			if (rawPlacement == null) return;
-			int minX = this.originalBoundingBox.getMinX();
-			int minY = this.originalBoundingBox.getMinY();
-			int minZ = this.originalBoundingBox.getMinZ();
-			int maxX = this.originalBoundingBox.getMaxX();
-			int maxY = this.originalBoundingBox.getMaxY();
-			int maxZ = this.originalBoundingBox.getMaxZ();
+			int minX = this.originalBoundingBox.minX();
+			int minY = this.originalBoundingBox.minY();
+			int minZ = this.originalBoundingBox.minZ();
+			int maxX = this.originalBoundingBox.maxX();
+			int maxY = this.originalBoundingBox.maxY();
+			int maxZ = this.originalBoundingBox.maxZ();
 			int midX = (minX + maxX + 1) >> 1;
 			int midY = (minY + maxY + 1) >> 1;
 			int midZ = (minZ + maxZ + 1) >> 1;
-			BlockBox chunkBox = WorldUtil.chunkBox(context.chunk);
-			int effectiveMinX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
-			int effectiveMinY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
-			int effectiveMinZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
-			int effectiveMaxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX());
-			int effectiveMaxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
-			int effectiveMaxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
+			BoundingBox chunkBox = WorldUtil.chunkBox(context.chunk);
+			int effectiveMinX = Math.max(this.boundingBox.minX(), chunkBox.minX());
+			int effectiveMinY = Math.max(this.boundingBox.minY(), chunkBox.minY());
+			int effectiveMinZ = Math.max(this.boundingBox.minZ(), chunkBox.minZ());
+			int effectiveMaxX = Math.min(this.boundingBox.maxX(), chunkBox.maxX());
+			int effectiveMaxY = Math.min(this.boundingBox.maxY(), chunkBox.maxY());
+			int effectiveMaxZ = Math.min(this.boundingBox.maxZ(), chunkBox.maxZ());
 			rawPlacement.place(
 				new WorldWrapper(
 					new ChunkDelegator(
@@ -322,7 +321,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 					new Permuter(context.pieceSeed),
 					new Coordination(
 						this.transformation,
-						new BlockBox(
+						new BoundingBox(
 							effectiveMinX,
 							effectiveMinY,
 							effectiveMinZ,
@@ -337,42 +336,42 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
-				chunkBox.getMinX(),
-				chunkBox.getMinY(),
-				chunkBox.getMinZ(),
-				chunkBox.getMaxX(),
-				chunkBox.getMaxY(),
-				chunkBox.getMaxZ(),
+				chunkBox.minX(),
+				chunkBox.minY(),
+				chunkBox.minZ(),
+				chunkBox.maxX(),
+				chunkBox.maxY(),
+				chunkBox.maxZ(),
 				this
 			);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			if (!(chunkGenerator instanceof BigGlobeScriptedChunkGenerator generator)) return;
-			int minX = this.originalBoundingBox.getMinX();
-			int minY = this.originalBoundingBox.getMinY();
-			int minZ = this.originalBoundingBox.getMinZ();
-			int maxX = this.originalBoundingBox.getMaxX();
-			int maxY = this.originalBoundingBox.getMaxY();
-			int maxZ = this.originalBoundingBox.getMaxZ();
+			int minX = this.originalBoundingBox.minX();
+			int minY = this.originalBoundingBox.minY();
+			int minZ = this.originalBoundingBox.minZ();
+			int maxX = this.originalBoundingBox.maxX();
+			int maxY = this.originalBoundingBox.maxY();
+			int maxZ = this.originalBoundingBox.maxZ();
 			int midX = (minX + maxX + 1) >> 1;
 			int midY = (minY + maxY + 1) >> 1;
 			int midZ = (minZ + maxZ + 1) >> 1;
-			int effectiveMinX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX());
-			int effectiveMinY = Math.max(this.boundingBox.getMinY(), chunkBox.getMinY());
-			int effectiveMinZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ());
-			int effectiveMaxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX());
-			int effectiveMaxY = Math.min(this.boundingBox.getMaxY(), chunkBox.getMaxY());
-			int effectiveMaxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
+			int effectiveMinX = Math.max(this.boundingBox.minX(), chunkBox.minX());
+			int effectiveMinY = Math.max(this.boundingBox.minY(), chunkBox.minY());
+			int effectiveMinZ = Math.max(this.boundingBox.minZ(), chunkBox.minZ());
+			int effectiveMaxX = Math.min(this.boundingBox.maxX(), chunkBox.maxX());
+			int effectiveMaxY = Math.min(this.boundingBox.maxY(), chunkBox.maxY());
+			int effectiveMaxZ = Math.min(this.boundingBox.maxZ(), chunkBox.maxZ());
 
 			Permuter permuter = Permuter.from(random);
 
@@ -383,7 +382,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 					permuter,
 					new Coordination(
 						this.transformation,
-						new BlockBox(
+						new BoundingBox(
 							effectiveMinX,
 							effectiveMinY,
 							effectiveMinZ,
@@ -398,12 +397,12 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 				minX, minY, minZ,
 				maxX, maxY, maxZ,
 				midX, midY, midZ,
-				chunkBox.getMinX(),
-				chunkBox.getMinY(),
-				chunkBox.getMinZ(),
-				chunkBox.getMaxX(),
-				chunkBox.getMaxY(),
-				chunkBox.getMaxZ(),
+				chunkBox.minX(),
+				chunkBox.minY(),
+				chunkBox.minZ(),
+				chunkBox.maxX(),
+				chunkBox.maxY(),
+				chunkBox.maxZ(),
 				this
 			);
 		}

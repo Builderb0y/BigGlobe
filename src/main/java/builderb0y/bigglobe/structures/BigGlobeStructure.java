@@ -1,15 +1,12 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.Optional;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.gen.structure.Structure;
-
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.autocodec.annotations.EncodeInline;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -30,43 +27,43 @@ public abstract class BigGlobeStructure extends Structure implements SizedStruct
 
 	public final ColumnToIntScript.@VerifyNullable Holder min_y, surface_y;
 
-	public BigGlobeStructure(Config config, ColumnToIntScript.@VerifyNullable Holder minY, ColumnToIntScript.@VerifyNullable Holder surface_y) {
+	public BigGlobeStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Holder minY, ColumnToIntScript.@VerifyNullable Holder surface_y) {
 		super(config);
 		this.surface_y = surface_y;
 		this.min_y = minY;
 	}
 
-	public static RegistryEntry<Structure> getActualEntry(Structure structure) {
+	public static Holder<Structure> getActualEntry(Structure structure) {
 		return RegistryVersions.getEntry(
 			RegistryVersions.getRegistry(
-				BigGlobeMod.getCurrentServer().getRegistryManager(),
-				RegistryKeys.STRUCTURE
+				BigGlobeMod.getCurrentServer().registryAccess(),
+				Registries.STRUCTURE
 			),
 			structure
 		);
 	}
 
-	public @EncodeInline Config getConfig() {
-		return this.config;
+	public @EncodeInline StructureSettings getConfig() {
+		return this.settings;
 	}
 
-	public static long chunkSeed(Context context, long salt) {
+	public static long chunkSeed(GenerationContext context, long salt) {
 		return Permuter.permute((context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator.columnSeed : context.seed()) ^ salt, context.chunkPos());
 	}
 
 	@Override
-	public abstract Optional<StructurePosition> getStructurePosition(Context context);
+	public abstract Optional<GenerationStub> findGenerationPoint(GenerationContext context);
 
-	public @Nullable BlockPos randomBlockInSurface(Context context, int offset) {
+	public @Nullable BlockPos randomBlockInSurface(GenerationContext context, int offset) {
 		int bits = context.random().nextInt();
-		int x = context.chunkPos().getStartX() | (bits & 15);
-		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
+		int x = context.chunkPos().getMinBlockX() | (bits & 15);
+		int z = context.chunkPos().getMinBlockZ() | ((bits >>> 4) & 15);
 		int y = (
 			this.surface_y != null && context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator scripted
-			? this.surface_y.get(scripted.newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints()))
-			: context.chunkGenerator().getHeightInGround(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())
+				? this.surface_y.get(scripted.newColumn(context.heightAccessor(), x, z, ColumnUsage.GENERIC.maybeDhHints()))
+				: context.chunkGenerator().getFirstOccupiedHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState())
 		);
-		if (y >= HeightLimitViewVersions.getMinY(context.world())) {
+		if (y >= HeightLimitViewVersions.getMinY(context.heightAccessor())) {
 			return new BlockPos(x, y + offset, z);
 		}
 		else {
@@ -74,17 +71,17 @@ public abstract class BigGlobeStructure extends Structure implements SizedStruct
 		}
 	}
 
-	public @Nullable BlockPos randomBlockInChunk(Context context, double horizontalRadius, int verticalRadius) {
+	public @Nullable BlockPos randomBlockInChunk(GenerationContext context, double horizontalRadius, int verticalRadius) {
 		int bits = context.random().nextInt();
-		int x = context.chunkPos().getStartX() | (bits & 15);
-		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
-		int minY = context.chunkGenerator().getMinimumY() + verticalRadius;
-		int maxY = context.chunkGenerator().getHeight(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig());
+		int x = context.chunkPos().getMinBlockX() | (bits & 15);
+		int z = context.chunkPos().getMinBlockZ() | ((bits >>> 4) & 15);
+		int minY = context.chunkGenerator().getMinY() + verticalRadius;
+		int maxY = context.chunkGenerator().getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState());
 		ScriptedColumn column = (
 			(this.surface_y != null || this.min_y != null)
 			&& context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator scripted
-			? scripted.newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints())
-			: null
+				? scripted.newColumn(context.heightAccessor(), x, z, ColumnUsage.GENERIC.maybeDhHints())
+				: null
 		);
 		for (int angleIndex = 0; angleIndex < 8; angleIndex++) {
 			double angle = angleIndex * (BigGlobeMath.TAU / 8.0D);
@@ -96,12 +93,12 @@ public abstract class BigGlobeStructure extends Structure implements SizedStruct
 				if (this.surface_y != null) maxY = Math.min(maxY, this.surface_y.get(column));
 			}
 			else {
-				maxY = Math.min(maxY, context.chunkGenerator().getHeight(x2, z2, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig()));
+				maxY = Math.min(maxY, context.chunkGenerator().getBaseHeight(x2, z2, Heightmap.Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState()));
 			}
 		}
 		maxY -= verticalRadius;
 		if (maxY >= minY) {
-			int y = context.random().nextBetween(minY, maxY);
+			int y = context.random().nextIntBetweenInclusive(minY, maxY);
 			return new BlockPos(x, y, z);
 		}
 		else {

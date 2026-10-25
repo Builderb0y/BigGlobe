@@ -2,10 +2,8 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.math.MathHelper;
-
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 
@@ -14,7 +12,7 @@ public class LodQuadTree implements SafeCloseable {
 
 	public static final int
 		MIN_LEVEL = 6,
-		MAX_LEVEL = Integer.numberOfTrailingZeros(MathHelper.smallestEncompassingPowerOfTwo(60_000_000));
+		MAX_LEVEL = Integer.numberOfTrailingZeros(Mth.smallestEncompassingPowerOfTwo(60_000_000));
 
 	public static final int
 		CLOSED = 1 << 0,

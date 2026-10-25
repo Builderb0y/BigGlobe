@@ -6,17 +6,15 @@ import java.util.Comparator;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.loader.api.FabricLoader;
-
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.phys.Vec3;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
@@ -29,105 +27,105 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DevDebugCommand {
 
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		if (!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
 		dispatcher.register(
-			CommandManager
-			.literal(BigGlobeMod.MODID + ":debug")
-			.then(
-				CommandManager
-				.literal("ore_spawn_chance")
+			Commands
+				.literal(BigGlobeMod.MODID + ":debug")
 				.then(
-					CommandManager
-					.argument("ore", IdentifierArgumentType.identifier())
-					.executes((CommandContext<ServerCommandSource> context) -> {
-						if (context.getSource().getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-							ConfiguredFeature<?, ?> ore = (
-								RegistryVersions.getRegistry(
-									context
-									.getSource()
-									.getServer()
-									.getRegistryManager(),
-									RegistryKeys.CONFIGURED_FEATURE
-								)
-								.get(context.getArgument("ore", Identifier.class))
-							);
-							if (ore != null && ore.config() instanceof OreFeature.Config config) {
-								Vec3d pos = context.getSource().getPosition();
+					Commands
+						.literal("ore_spawn_chance")
+						.then(
+							Commands
+								.argument("ore", ResourceLocationArgument.id())
+								.executes((CommandContext<CommandSourceStack> context) -> {
+									if (context.getSource().getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+										ConfiguredFeature<?, ?> ore = (
+											RegistryVersions.getRegistry(
+													context
+														.getSource()
+														.getServer()
+														.registryAccess(),
+													Registries.CONFIGURED_FEATURE
+												)
+												.get(context.getArgument("ore", ResourceLocation.class))
+										);
+										if (ore != null && ore.config() instanceof OreFeature.Config config) {
+											Vec3 pos = context.getSource().getPosition();
+											ScriptedColumn column = generator.newColumn(
+												context.getSource().getLevel(),
+												BigGlobeMath.floorI(pos.x),
+												BigGlobeMath.floorI(pos.z),
+												ColumnUsage.GENERIC.normalHints()
+											);
+											context.getSource().sendSuccess(
+												() -> Component.literal(
+													Double.toString(
+														config.chance.get(
+															column,
+															BigGlobeMath.floorI(pos.y)
+														)
+													)
+												),
+												false
+											);
+											return 1;
+										}
+										else {
+											context.getSource().sendFailure(Component.literal("Not an ore: " + ore));
+										}
+									}
+									else {
+										context.getSource().sendFailure(Component.literal("Not a big globe world"));
+									}
+									return 0;
+								})
+						)
+						.executes((CommandContext<CommandSourceStack> context) -> {
+							if (context.getSource().getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+								Vec3 pos = context.getSource().getPosition();
+								context.getSource().sendSuccess(
+									() -> Component.literal(
+										BigGlobeMath.floorI(pos.x) + ", " +
+										BigGlobeMath.floorI(pos.y) + ", " +
+										BigGlobeMath.floorI(pos.z)
+									),
+									false
+								);
 								ScriptedColumn column = generator.newColumn(
-									context.getSource().getWorld(),
+									context.getSource().getLevel(),
 									BigGlobeMath.floorI(pos.x),
 									BigGlobeMath.floorI(pos.z),
 									ColumnUsage.GENERIC.normalHints()
 								);
-								context.getSource().sendFeedback(
-									() -> Text.literal(
-										Double.toString(
-											config.chance.get(
-												column,
-												BigGlobeMath.floorI(pos.y)
-											)
-										)
-									),
-									false
-								);
+								Arrays
+									.stream(generator.feature_dispatcher.rock_replacers)
+									.flatMap(DelayedEntryList::entryStream)
+									.filter((Holder<ConfiguredFeature<?, ?>> entry) -> (
+										entry.value().config() instanceof OreFeature.Config
+									))
+									.sorted(Comparator.comparing(UnregisteredObjectException::getID))
+									.forEachOrdered((Holder<ConfiguredFeature<?, ?>> entry) -> {
+										context.getSource().sendSuccess(
+											() -> Component.literal(
+												UnregisteredObjectException.getID(entry) + ": " + (
+													((OreFeature.Config)(entry.value().config())).chance.get(
+														column,
+														BigGlobeMath.floorI(pos.y)
+													)
+												)
+											),
+											false
+										);
+									});
 								return 1;
 							}
 							else {
-								context.getSource().sendError(Text.literal("Not an ore: " + ore));
+								context.getSource().sendFailure(Component.literal("Not a big globe world"));
+								return 0;
 							}
-						}
-						else {
-							context.getSource().sendError(Text.literal("Not a big globe world"));
-						}
-						return 0;
-					})
+						})
 				)
-				.executes((CommandContext<ServerCommandSource> context) -> {
-					if (context.getSource().getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-						Vec3d pos = context.getSource().getPosition();
-						context.getSource().sendFeedback(
-							() -> Text.literal(
-								BigGlobeMath.floorI(pos.x) + ", " +
-								BigGlobeMath.floorI(pos.y) + ", " +
-								BigGlobeMath.floorI(pos.z)
-							),
-							false
-						);
-						ScriptedColumn column = generator.newColumn(
-							context.getSource().getWorld(),
-							BigGlobeMath.floorI(pos.x),
-							BigGlobeMath.floorI(pos.z),
-							ColumnUsage.GENERIC.normalHints()
-						);
-						Arrays
-						.stream(generator.feature_dispatcher.rock_replacers)
-						.flatMap(DelayedEntryList::entryStream)
-						.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> (
-							entry.value().config() instanceof OreFeature.Config
-						))
-						.sorted(Comparator.comparing(UnregisteredObjectException::getID))
-						.forEachOrdered((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
-							context.getSource().sendFeedback(
-								() -> Text.literal(
-									UnregisteredObjectException.getID(entry) + ": " + (
-										((OreFeature.Config)(entry.value().config())).chance.get(
-											column,
-											BigGlobeMath.floorI(pos.y)
-										)
-									)
-								),
-								false
-							);
-						});
-						return 1;
-					}
-					else {
-						context.getSource().sendError(Text.literal("Not a big globe world"));
-						return 0;
-					}
-				})
-			)
 		);
 	}
 }

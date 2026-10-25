@@ -1,11 +1,9 @@
 package builderb0y.bigglobe.hyperspace;
 
 import org.joml.Vector3dc;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.Vec3d;
-
 import builderb0y.bigglobe.math.BigGlobeMath;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 
 /**
 a position used to sync waypoints to the client.
@@ -20,7 +18,7 @@ public record PackedPos(double x, double y, double z) {
 		this(unpack(x), unpack(y), unpack(z));
 	}
 
-	public PackedPos(Vec3d vector) {
+	public PackedPos(Vec3 vector) {
 		this(vector.x, vector.y, vector.z);
 	}
 
@@ -48,11 +46,11 @@ public record PackedPos(double x, double y, double z) {
 		return BigGlobeMath.floorI(coordinate * 64.0D);
 	}
 
-	public void write(PacketByteBuf buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(this.packedX()).writeInt(this.packedY()).writeInt(this.packedZ());
 	}
 
-	public static PackedPos read(PacketByteBuf buffer) {
+	public static PackedPos read(FriendlyByteBuf buffer) {
 		return new PackedPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 	}
 }

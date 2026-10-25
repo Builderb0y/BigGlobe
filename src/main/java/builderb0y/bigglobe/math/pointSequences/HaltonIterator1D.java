@@ -20,9 +20,28 @@ public class HaltonIterator1D implements BoundedPointIterator1D, HaltonIterator 
 		this.x = this.computePosition(3, 2, this.minX, this.maxX);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double x() { return this.x; }
-	@Override public int index() { return this.index; }
-	@Override public int offset() { return this.offset; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
+
+	@Override
+	public int offset() {
+		return this.offset;
+	}
 }

@@ -47,13 +47,13 @@ public class SpinningIconDataGenerator {
 		image = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
 	public static final Vector3d[]
 		gayColors = {
-			new Vector3d(1.0D, 0.0D, 0.0D),
-			new Vector3d(1.0D, 0.375D, 0.0D),
-			new Vector3d(1.0D, 1.0D, 0.0D),
-			new Vector3d(0.0D, 0.75D, 0.1875D),
-			new Vector3d(0.0D, 0.375D, 1.0D),
-			new Vector3d(0.5D, 0.0D, 0.5D)
-		},
+		new Vector3d(1.0D, 0.0D, 0.0D),
+		new Vector3d(1.0D, 0.375D, 0.0D),
+		new Vector3d(1.0D, 1.0D, 0.0D),
+		new Vector3d(0.0D, 0.75D, 0.1875D),
+		new Vector3d(0.0D, 0.375D, 1.0D),
+		new Vector3d(0.5D, 0.0D, 0.5D)
+	},
 		transColors = {
 			new Vector3d(0.375D, 0.75D, 1.0D),
 			new Vector3d(0.9375D, 0.9375D, 0.9375D),
@@ -75,8 +75,8 @@ public class SpinningIconDataGenerator {
 					pixel[0] = (
 						0xFF000000 |
 						(Interpolator.clamp(0, 255, (int)(color.x * 256.0D)) << 16) |
-						(Interpolator.clamp(0, 255, (int)(color.y * 256.0D)) <<  8) |
-						(Interpolator.clamp(0, 255, (int)(color.z * 256.0D))      )
+						(Interpolator.clamp(0, 255, (int)(color.y * 256.0D)) << 8) |
+						(Interpolator.clamp(0, 255, (int)(color.z * 256.0D)))
 					);
 					image.getRaster().setDataElements(x, y, pixel);
 				}
@@ -98,20 +98,30 @@ public class SpinningIconDataGenerator {
 			unit.z = rotated2D.y;
 
 			double noise = 0.0D;
-			unit.mul( 2.0D, mountainNoisePos); noise += mountain(Permuter.permute(heightSeed, 0)) * 0.5D;
-			unit.mul( 4.0D, mountainNoisePos); noise -= mountain(Permuter.permute(heightSeed, 1)) * 0.25D;
-			unit.mul( 8.0D, mountainNoisePos); noise += mountain(Permuter.permute(heightSeed, 2)) * 0.125D;
-			unit.mul(16.0D, mountainNoisePos); noise -= mountain(Permuter.permute(heightSeed, 3)) * 0.0625D;
-			unit.mul(32.0D, mountainNoisePos); noise += mountain(Permuter.permute(heightSeed, 4)) * 0.03125D;
+			unit.mul(2.0D, mountainNoisePos);
+			noise += mountain(Permuter.permute(heightSeed, 0)) * 0.5D;
+			unit.mul(4.0D, mountainNoisePos);
+			noise -= mountain(Permuter.permute(heightSeed, 1)) * 0.25D;
+			unit.mul(8.0D, mountainNoisePos);
+			noise += mountain(Permuter.permute(heightSeed, 2)) * 0.125D;
+			unit.mul(16.0D, mountainNoisePos);
+			noise -= mountain(Permuter.permute(heightSeed, 3)) * 0.0625D;
+			unit.mul(32.0D, mountainNoisePos);
+			noise += mountain(Permuter.permute(heightSeed, 4)) * 0.03125D;
 			noise /= 1.0D - 0.03125D;
 			noise *= 1024.0D;
 
 			double temperature = 0.0D;
-			unit.mul( 4.0D, noisePos); temperature += noise(Permuter.permute(temperatureSeed, 0)) * 0.5D;
-			unit.mul( 8.0D, noisePos); temperature += noise(Permuter.permute(temperatureSeed, 1)) * 0.25D;
-			unit.mul(16.0D, noisePos); temperature += noise(Permuter.permute(temperatureSeed, 2)) * 0.125D;
-			unit.mul(32.0D, noisePos); temperature += noise(Permuter.permute(temperatureSeed, 3)) * 0.0625D;
-			unit.mul(64.0D, noisePos); temperature += noise(Permuter.permute(temperatureSeed, 4)) * 0.03125D;
+			unit.mul(4.0D, noisePos);
+			temperature += noise(Permuter.permute(temperatureSeed, 0)) * 0.5D;
+			unit.mul(8.0D, noisePos);
+			temperature += noise(Permuter.permute(temperatureSeed, 1)) * 0.25D;
+			unit.mul(16.0D, noisePos);
+			temperature += noise(Permuter.permute(temperatureSeed, 2)) * 0.125D;
+			unit.mul(32.0D, noisePos);
+			temperature += noise(Permuter.permute(temperatureSeed, 3)) * 0.0625D;
+			unit.mul(64.0D, noisePos);
+			temperature += noise(Permuter.permute(temperatureSeed, 4)) * 0.03125D;
 			temperature /= 1.0D - 0.03125D;
 			temperature -= 0.5D + noise / 2048.0D;
 
@@ -173,11 +183,16 @@ public class SpinningIconDataGenerator {
 
 	public static double mountain(long seed) {
 		double noise = 0.0D;
-		noisePos.set(mountainNoisePos);        noise += noise(Permuter.permute(seed, 0)) * 0.5D;
-		mountainNoisePos.mul( 2.0D, noisePos); noise += noise(Permuter.permute(seed, 1)) * 0.25D;
-		mountainNoisePos.mul( 4.0D, noisePos); noise += noise(Permuter.permute(seed, 2)) * 0.125D;
-		mountainNoisePos.mul( 8.0D, noisePos); noise += noise(Permuter.permute(seed, 3)) * 0.0625D;
-		mountainNoisePos.mul(16.0D, noisePos); noise += noise(Permuter.permute(seed, 4)) * 0.03125D;
+		noisePos.set(mountainNoisePos);
+		noise += noise(Permuter.permute(seed, 0)) * 0.5D;
+		mountainNoisePos.mul(2.0D, noisePos);
+		noise += noise(Permuter.permute(seed, 1)) * 0.25D;
+		mountainNoisePos.mul(4.0D, noisePos);
+		noise += noise(Permuter.permute(seed, 2)) * 0.125D;
+		mountainNoisePos.mul(8.0D, noisePos);
+		noise += noise(Permuter.permute(seed, 3)) * 0.0625D;
+		mountainNoisePos.mul(16.0D, noisePos);
+		noise += noise(Permuter.permute(seed, 4)) * 0.03125D;
 		noise /= 1.0D - 0.03125D;
 		noise = Math.abs(noise * 2.0D - 1.0D);
 		noise *= 2.0D - noise;
@@ -199,25 +214,25 @@ public class SpinningIconDataGenerator {
 			Interpolator.mixLinear(
 				Interpolator.mixLinear(
 					hash(seed, floorX, floorY, floorZ),
-					hash(seed, floorX, floorY,  ceilZ),
+					hash(seed, floorX, floorY, ceilZ),
 					smoothZ
 				),
 				Interpolator.mixLinear(
 					hash(seed, floorX, ceilY, floorZ),
-					hash(seed, floorX, ceilY,  ceilZ),
+					hash(seed, floorX, ceilY, ceilZ),
 					smoothZ
 				),
 				smoothY
 			),
 			Interpolator.mixLinear(
 				Interpolator.mixLinear(
-					hash(seed,  ceilX, floorY, floorZ),
-					hash(seed,  ceilX, floorY,  ceilZ),
+					hash(seed, ceilX, floorY, floorZ),
+					hash(seed, ceilX, floorY, ceilZ),
 					smoothZ
 				),
 				Interpolator.mixLinear(
-					hash(seed,  ceilX, ceilY, floorZ),
-					hash(seed,  ceilX, ceilY,  ceilZ),
+					hash(seed, ceilX, ceilY, floorZ),
+					hash(seed, ceilX, ceilY, ceilZ),
 					smoothZ
 				),
 				smoothY

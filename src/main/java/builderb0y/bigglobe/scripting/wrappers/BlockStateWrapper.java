@@ -2,21 +2,16 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
-
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EmptyBlockView;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
@@ -53,8 +48,8 @@ public class BlockStateWrapper {
 		try {
 			block = (
 				BlockStateCoder
-				.decodeStateWithMissingErrors(BlockStateCoder.findBlockRegistry(), id)
-				.unwrapEager(BigGlobeMod.LOGGER::warn, RuntimeException::new)
+					.decodeStateWithMissingErrors(BlockStateCoder.findBlockRegistry(), id)
+					.unwrapEager(BigGlobeMod.LOGGER::warn, RuntimeException::new)
 			);
 			if (!block.enabled()) {
 				throw new RuntimeException("Disabled block: " + id);
@@ -77,8 +72,8 @@ public class BlockStateWrapper {
 		try {
 			BlockProperties block = (
 				BlockStateCoder
-				.decodeState(BlockStateCoder.findBlockRegistry(), id)
-				.unwrapEager(BigGlobeMod.LOGGER::warn, RuntimeException::new)
+					.decodeState(BlockStateCoder.findBlockRegistry(), id)
+					.unwrapEager(BigGlobeMod.LOGGER::warn, RuntimeException::new)
 			);
 			if (!block.enabled()) {
 				throw new RuntimeException("Disabled block: " + id);
@@ -98,9 +93,9 @@ public class BlockStateWrapper {
 	public static BlockState getDefaultState(String id, int flags) {
 		if (id == null) return null;
 		try {
-			Identifier identifier = IdentifierVersions.create(id);
-			if (Registries.BLOCK.containsId(identifier)) {
-				return Registries.BLOCK.get(identifier).getDefaultState();
+			ResourceLocation ResourceLocation = IdentifierVersions.create(id);
+			if (BuiltInRegistries.BLOCK.containsKey(ResourceLocation)) {
+				return BuiltInRegistries.BLOCK.get(ResourceLocation).defaultBlockState();
 			}
 			else {
 				throw new RuntimeException("Unknown block: " + id);
@@ -113,7 +108,7 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean isIn(BlockState state, BlockTag tag) {
-		return tag.list.contains(state.getRegistryEntry());
+		return tag.list.contains(state.getBlockHolder());
 	}
 
 	public static Block getBlock(BlockState state) {
@@ -129,19 +124,19 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean blocksLight(BlockState state) {
-		return state.isOpaque();
+		return state.canOcclude();
 	}
 
 	public static boolean hasCollision(BlockState state) {
-		return !state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN).isEmpty();
+		return !state.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).isEmpty();
 	}
 
 	public static boolean hasFullCubeCollision(BlockState state) {
-		return Block.isShapeFullCube(state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN));
+		return Block.isShapeFullBlock(state.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
 	}
 
 	public static boolean hasFullCubeOutline(BlockState state) {
-		return Block.isShapeFullCube(state.getOutlineShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN));
+		return Block.isShapeFullBlock(state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
 	}
 
 	public static BlockState rotate(BlockState state, int rotation) {
@@ -154,11 +149,11 @@ public class BlockStateWrapper {
 
 	@SuppressWarnings("unchecked")
 	public static <C extends Comparable<C>> @Nullable C getProperty(BlockState state, String name) {
-		Property<?> property = state.getBlock().getStateManager().getProperty(name);
+		Property<?> property = state.getBlock().getStateDefinition().getProperty(name);
 		if (property == null) return null;
-		Comparable<?> value = state.get(property);
-		if (value instanceof StringIdentifiable e) {
-			value = e.asString();
+		Comparable<?> value = state.getValue(property);
+		if (value instanceof StringRepresentable e) {
+			value = e.getSerializedName();
 		}
 		return (C)(value);
 	}
@@ -169,14 +164,14 @@ public class BlockStateWrapper {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static BlockState with(BlockState state, String name, Comparable<?> value) {
-		Property<?> property = state.getBlock().getStateManager().getProperty(name);
+		Property<?> property = state.getBlock().getStateDefinition().getProperty(name);
 		if (property == null) return state;
 		if (value instanceof String string) {
-			value = property.parse(string).orElse(null);
+			value = property.getValue(string).orElse(null);
 			if (value == null) return state;
 		}
-		if (!property.getType().isInstance(value)) return state;
-		return state.with((Property)(property), (Comparable)(value));
+		if (!property.getValueClass().isInstance(value)) return state;
+		return state.setValue((Property)(property), (Comparable)(value));
 	}
 
 	public static boolean canPlaceAt(WorldWrapper world, BlockState state, int x, int y, int z) {
@@ -190,15 +185,15 @@ public class BlockStateWrapper {
 	}
 
 	public static boolean hasWater(BlockState state) {
-		return state.getFluidState().isIn(FluidTags.WATER);
+		return state.getFluidState().is(FluidTags.WATER);
 	}
 
 	public static boolean hasLava(BlockState state) {
-		return state.getFluidState().isIn(FluidTags.LAVA);
+		return state.getFluidState().is(FluidTags.LAVA);
 	}
 
 	public static boolean hasSoulLava(BlockState state) {
-		return state.getFluidState().isIn(BigGlobeFluidTags.SOUL_LAVA);
+		return state.getFluidState().is(BigGlobeFluidTags.SOUL_LAVA);
 	}
 
 	public static boolean hasFluid(BlockState state) {

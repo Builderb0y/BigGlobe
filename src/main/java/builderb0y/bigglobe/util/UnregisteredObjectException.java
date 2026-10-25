@@ -1,21 +1,21 @@
 package builderb0y.bigglobe.util;
 
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
-
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 
 /**
-sometimes thrown when the {@link Identifier} or {@link RegistryKey} is
+sometimes thrown when the {@link ResourceLocation} or {@link ResourceKey} is
 queried for an object which has not been registered to a {@link Registry}.
 */
 public class UnregisteredObjectException extends RuntimeException {
 
-	public UnregisteredObjectException() {}
+	public UnregisteredObjectException() {
+	}
 
 	public UnregisteredObjectException(String message) {
 		super(message);
@@ -29,23 +29,23 @@ public class UnregisteredObjectException extends RuntimeException {
 		super(cause);
 	}
 
-	public static <T> RegistryKey<T> getKey(Registry<T> registry, T object) {
-		RegistryKey<T> key = registry.getKey(object).orElse(null);
+	public static <T> ResourceKey<T> getKey(Registry<T> registry, T object) {
+		ResourceKey<T> key = registry.getResourceKey(object).orElse(null);
 		if (key != null) return key;
 		else throw new UnregisteredObjectException("Unregistered object " + object + " in " + registry);
 	}
 
-	public static <T> RegistryKey<T> getKey(RegistryEntry<T> entry) {
-		RegistryKey<T> key = entry.getKey().orElse(null);
+	public static <T> ResourceKey<T> getKey(Holder<T> entry) {
+		ResourceKey<T> key = entry.unwrapKey().orElse(null);
 		if (key != null) return key;
 		else throw new UnregisteredObjectException("Unregistered object: " + entry);
 	}
 
-	public static <T> Identifier getID(RegistryEntry<T> entry) {
-		return getKey(entry).getValue();
+	public static <T> ResourceLocation getID(Holder<T> entry) {
+		return getKey(entry).location();
 	}
 
-	public static <T> TagKey<T> getTagKey(RegistryEntryList<T> list) {
+	public static <T> TagKey<T> getTagKey(HolderSet<T> list) {
 		TagKey<T> key = RegistryEntryListVersions.getKeyNullable(list);
 		if (key != null) return key;
 		else throw new UnregisteredObjectException("Unregistered tag key: " + list);

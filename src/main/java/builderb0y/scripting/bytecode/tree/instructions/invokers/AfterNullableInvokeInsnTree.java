@@ -12,7 +12,6 @@ import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisGetInsnTree.ElvisEmitters;
 import builderb0y.scripting.bytecode.tree.instructions.elvis.ElvisInsnTree;
 import builderb0y.scripting.parsing.ExpressionParser;
-import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeMerger;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -60,8 +59,8 @@ public class AfterNullableInvokeInsnTree extends BaseInvokeInsnTree {
 	public InsnTree elvis(ExpressionParser parser, InsnTree alternative) {
 		TypeInfo commonType = (
 			alternative.jumpsUnconditionally()
-			? this.getTypeInfo()
-			: TypeMerger.computeMostSpecificType(
+				? this.getTypeInfo()
+				: TypeMerger.computeMostSpecificType(
 				this.getTypeInfo(),
 				alternative.getTypeInfo()
 			)

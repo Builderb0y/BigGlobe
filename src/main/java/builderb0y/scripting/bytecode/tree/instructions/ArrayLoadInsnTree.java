@@ -17,7 +17,7 @@ public class ArrayLoadInsnTree implements InsnTree {
 	public ArrayLoadInsnTree(InsnTree array, InsnTree index) {
 		this.array = array;
 		this.index = index;
-		this.type  = array.getTypeInfo().componentType;
+		this.type = array.getTypeInfo().componentType;
 		if (this.type == null) throw new IllegalArgumentException("Not an array: " + array.getTypeInfo());
 	}
 

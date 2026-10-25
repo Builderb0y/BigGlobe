@@ -18,7 +18,9 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-/** implementation of ExpressionParser which compiles into functional interfaces. */
+/**
+implementation of ExpressionParser which compiles into functional interfaces.
+*/
 public class ScriptParser<I> extends ExpressionParser {
 
 	public Class<I> implementingClass;
@@ -35,9 +37,9 @@ public class ScriptParser<I> extends ExpressionParser {
 		int flags
 	) {
 		super(input, clazz, method, flags);
-		this.implementingClass  = implementingClass;
+		this.implementingClass = implementingClass;
 		this.implementingMethod = implementingMethod;
-		this.debugName          = debugName;
+		this.debugName = debugName;
 
 		clazz.addNoArgConstructor(ACC_PUBLIC);
 
@@ -73,13 +75,13 @@ public class ScriptParser<I> extends ExpressionParser {
 				implementingMethod.getName(),
 				type(implementingMethod.getReturnType()),
 				Arrays.stream(implementingMethod.getParameters())
-				.peek((Parameter parameter) -> {
-					if (!parameter.isNamePresent()) {
-						throw new IllegalArgumentException("Attempt to create script from interface with unnamed parameters: " + implementingClass);
-					}
-				})
-				.map((Parameter parameter) -> new LazyVarInfo(parameter.getName(), type(parameter.getType())))
-				.toArray(LazyVarInfo.ARRAY_FACTORY)
+					.peek((Parameter parameter) -> {
+						if (!parameter.isNamePresent()) {
+							throw new IllegalArgumentException("Attempt to create script from interface with unnamed parameters: " + implementingClass);
+						}
+					})
+					.map((Parameter parameter) -> new LazyVarInfo(parameter.getName(), type(parameter.getType())))
+					.toArray(LazyVarInfo.ARRAY_FACTORY)
 			),
 			flags
 		);
@@ -103,8 +105,8 @@ public class ScriptParser<I> extends ExpressionParser {
 				Type.getInternalName(ScriptParser.class) + '$' + (debugName != null ? debugName : "Generated") + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 				TypeInfos.OBJECT,
 				Script.class.isAssignableFrom(implementingClass)
-				? new TypeInfo[] { type(implementingClass) }
-				: new TypeInfo[] { type(implementingClass), type(Script.class) }
+					? new TypeInfo[] { type(implementingClass) }
+					: new TypeInfo[] { type(implementingClass), type(Script.class) }
 			),
 			flags
 		);
@@ -162,10 +164,10 @@ public class ScriptParser<I> extends ExpressionParser {
 		try {
 			return (
 				this
-				.compile(loader)
-				.asSubclass(this.implementingClass)
-				.getDeclaredConstructor((Class<?>[])(null))
-				.newInstance((Object[])(null))
+					.compile(loader)
+					.asSubclass(this.implementingClass)
+					.getDeclaredConstructor((Class<?>[])(null))
+					.newInstance((Object[])(null))
 			);
 		}
 		catch (Throwable throwable) {
@@ -177,8 +179,8 @@ public class ScriptParser<I> extends ExpressionParser {
 	public StringBuilder fatalError() {
 		return (
 			super.fatalError()
-			.append("Implementation interface: ").append(this.implementingClass.getName()).append('\n')
-			.append("Implementation method: ").append(this.implementingMethod).append('\n')
+				.append("Implementation interface: ").append(this.implementingClass.getName()).append('\n')
+				.append("Implementation method: ").append(this.implementingMethod).append('\n')
 		);
 	}
 }

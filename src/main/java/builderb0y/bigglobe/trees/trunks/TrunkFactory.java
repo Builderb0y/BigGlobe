@@ -18,8 +18,8 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 	public static final CoderRegistry<TrunkFactory> REGISTRY = new CoderRegistry<>(BigGlobeMod.modID("tree_trunk_type"));
 	public static final Object INITIALIZER = new Object() {{
 		REGISTRY.registerAuto(BigGlobeMod.modID("straight"), StraightTrunkFactory.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("slanted"),   SlantedTrunkFactory.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("twisted"),   TwistedTrunkFactory.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("slanted"), SlantedTrunkFactory.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("twisted"), TwistedTrunkFactory.class);
 	}};
 
 	public abstract TrunkConfig create(

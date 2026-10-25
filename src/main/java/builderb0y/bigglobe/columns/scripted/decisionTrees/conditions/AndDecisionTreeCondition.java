@@ -2,11 +2,8 @@ package builderb0y.bigglobe.columns.scripted.decisionTrees.conditions;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.VerifySizeRange;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
 import builderb0y.bigglobe.columns.scripted.decisionTrees.DecisionTreeSettings;
@@ -27,18 +24,18 @@ public class AndDecisionTreeCondition implements DecisionTreeCondition {
 	}
 
 	@Override
-	public Stream<? extends RegistryEntry<? extends DependencyView>> streamDirectDependencies() {
+	public Stream<? extends Holder<? extends DependencyView>> streamDirectDependencies() {
 		return Arrays.stream(this.conditions).flatMap(DecisionTreeCondition::streamDirectDependencies);
 	}
 
 	@Override
 	public ConditionTree createCondition(
-		RegistryEntry<DecisionTreeSettings> selfEntry,
+		Holder<DecisionTreeSettings> selfEntry,
 		long selfSeed,
 		DataCompileContext context,
 		@Nullable InsnTree loadY
 	)
-	throws ScriptParsingException {
+		throws ScriptParsingException {
 		DecisionTreeCondition[] conditions = this.conditions;
 		int length = conditions.length;
 		ConditionTree result = conditions[0].createCondition(selfEntry, Permuter.permute(selfSeed, 0), context, loadY);

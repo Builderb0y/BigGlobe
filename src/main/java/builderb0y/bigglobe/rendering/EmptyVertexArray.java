@@ -14,6 +14,9 @@ public class EmptyVertexArray implements SafeCloseable {
 
 	@Override
 	public void close() {
-		if (this.vao != 0) { glDeleteVertexArrays(this.vao); this.vao = 0; }
+		if (this.vao != 0) {
+			glDeleteVertexArrays(this.vao);
+			this.vao = 0;
+		}
 	}
 }

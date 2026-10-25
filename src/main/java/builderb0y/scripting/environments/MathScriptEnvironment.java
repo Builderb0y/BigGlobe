@@ -27,43 +27,47 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 
 	public MathScriptEnvironment() {
 		this
-		.addVariableConstant("pi", Math.PI)
-		.addVariableConstant("tau", Math.PI * 2.0D)
-		.addVariableConstant("e", Math.E)
-		.addVariableConstant("goldenRatio", BigGlobeMath.GOLDEN_RATIO)
-		.addVariableConstant("goldenAngle", BigGlobeMath.GOLDEN_ANGLE)
-		.addVariableConstant("nan", Float.NaN)
-		.addVariableConstant("inf", Float.POSITIVE_INFINITY)
-		.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow")
-		.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh", "atan2")
-		.addFunctionRenamedInvokeStatic("ln", Math.class, "log")
-		.addFunctionInvokeStatics(FastMath.Trig.class, "fastSin", "fastCos", "fastTan", "fastAsin", "fastAcos", "fastAtan", "fastAtan2", "fastSinh", "fastCosh", "fastTanh", "fastAsinh", "fastAcosh", "fastAtanh")
-		.addFunctionInvokeStatics(FastMath.Exp.class, "fastExp", "fastExp2")
-		.addFunctionInvokeStatics(FastMath.Log.class, "fastLog", "fastLog2")
-		.addFunctionRenamedInvokeStatic("fastLn", FastMath.Log.class, "fastLog")
-		.addFunctionMultiInvokeStatics(Math.class, "abs", "copySign")
-		.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
-		.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
-		.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
-		.addFunction("mod", new FunctionHandler.Named("mod(a, b)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
-			if (arguments.length != 2) return null;
-			return new CastResult(mod(parser, arguments[0], arguments[1]), false);
-		}))
-		.addFunction("isNaN", createNaN(true))
-		.addFunction("isNotNaN", createNaN(false))
-		.addFunctionInvokeStatics(Float.class, "isInfinite", "isFinite")
-		.addFunctionInvokeStatics(Double.class, "isInfinite", "isFinite")
-		.addFunction("min", createReducer())
-		.addFunction("max", createReducer())
-		.addFunctionMultiInvokeStatics(Interpolator.class, "mixLinear", "mixClamp", "mixSmooth", "mixSmoother", "unmixLinear", "unmixClamp", "unmixSmooth", "unmixSmoother", "clamp")
-		.addFunctionRenamedMultiInvokeStatic("smooth", Interpolator.class, "smoothClamp")
-		.addFunctionRenamedMultiInvokeStatic("smoother", Interpolator.class, "smootherClamp")
-		.addFunctionInvokeStatics(Float.class, "intBitsToFloat", "floatToIntBits")
-		.addFunctionInvokeStatics(Double.class, "longBitsToDouble", "doubleToLongBits")
-		.addFunctionInvokeStatics(Integer.class, "bitCount", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "rotateLeft", "rotateRight", "reverseBytes")
-		.addFunctionInvokeStatics(Long.class, "bitCount", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "rotateLeft", "rotateRight", "reverseBytes")
-		.addFunctionRenamedInvokeStatic("reverseBits", Integer.class, "reverse")
-		.addFunctionRenamedInvokeStatic("reverseBits", Long.class, "reverse")
+			.addVariableConstant("pi", Math.PI)
+			.addVariableConstant("tau", Math.PI * 2.0D)
+			.addVariableConstant("e", Math.E)
+			.addVariableConstant("goldenRatio", BigGlobeMath.GOLDEN_RATIO)
+			.addVariableConstant("goldenAngle", BigGlobeMath.GOLDEN_ANGLE)
+			.addVariableConstant("nan", Float.NaN)
+			.addVariableConstant("inf", Float.POSITIVE_INFINITY)
+			.addFunctionInvokeStatics(Math.class, "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "toRadians", "toDegrees", "exp", "log", "sqrt", "cbrt", "floor", "ceil", "pow")
+			.addFunctionInvokeStatics(MathScriptEnvironment.class, "exp2", "log2", "asinh", "acosh", "atanh", "atan2")
+			.addFunctionRenamedInvokeStatic("ln", Math.class, "log")
+			.addFunctionInvokeStatics(FastMath.Trig.class, "fastSin", "fastCos", "fastTan", "fastAsin", "fastAcos", "fastAtan", "fastAtan2", "fastSinh", "fastCosh", "fastTanh", "fastAsinh", "fastAcosh", "fastAtanh")
+			.addFunctionInvokeStatics(FastMath.Exp.class, "fastExp", "fastExp2")
+			.addFunctionInvokeStatics(FastMath.Log.class, "fastLog", "fastLog2")
+			.addFunctionRenamedInvokeStatic("fastLn", FastMath.Log.class, "fastLog")
+			.addFunctionMultiInvokeStatics(Math.class, "abs", "copySign")
+			.addFunctionRenamedInvokeStatic("sign", Integer.class, "signum")
+			.addFunctionRenamedInvokeStatic("sign", Long.class, "signum")
+			.addFunctionRenamedMultiInvokeStatic("sign", Math.class, "signum")
+			.addFunction(
+				"mod", new FunctionHandler.Named(
+					"mod(a, b)", (ExpressionParser parser, String name, InsnTree... arguments) -> {
+					if (arguments.length != 2) return null;
+					return new CastResult(mod(parser, arguments[0], arguments[1]), false);
+				}
+				)
+			)
+			.addFunction("isNaN", createNaN(true))
+			.addFunction("isNotNaN", createNaN(false))
+			.addFunctionInvokeStatics(Float.class, "isInfinite", "isFinite")
+			.addFunctionInvokeStatics(Double.class, "isInfinite", "isFinite")
+			.addFunction("min", createReducer())
+			.addFunction("max", createReducer())
+			.addFunctionMultiInvokeStatics(Interpolator.class, "mixLinear", "mixClamp", "mixSmooth", "mixSmoother", "unmixLinear", "unmixClamp", "unmixSmooth", "unmixSmoother", "clamp")
+			.addFunctionRenamedMultiInvokeStatic("smooth", Interpolator.class, "smoothClamp")
+			.addFunctionRenamedMultiInvokeStatic("smoother", Interpolator.class, "smootherClamp")
+			.addFunctionInvokeStatics(Float.class, "intBitsToFloat", "floatToIntBits")
+			.addFunctionInvokeStatics(Double.class, "longBitsToDouble", "doubleToLongBits")
+			.addFunctionInvokeStatics(Integer.class, "bitCount", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "rotateLeft", "rotateRight", "reverseBytes")
+			.addFunctionInvokeStatics(Long.class, "bitCount", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "rotateLeft", "rotateRight", "reverseBytes")
+			.addFunctionRenamedInvokeStatic("reverseBits", Integer.class, "reverse")
+			.addFunctionRenamedInvokeStatic("reverseBits", Long.class, "reverse")
 		;
 	}
 
@@ -73,7 +77,8 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 	}
 
 	public static FunctionHandler.Named createNaN(boolean nan) {
-		return new FunctionHandler.Named(nan ? "isNaN(value)" : "isNotNan(value)", (parser, name, arguments) -> {
+		return new FunctionHandler.Named(
+			nan ? "isNaN(value)" : "isNotNan(value)", (parser, name, arguments) -> {
 			if (arguments.length != 1) return null;
 			if (arguments[0].getTypeInfo().isFloat()) {
 				return new CastResult(bool(new NaNConditionTree(arguments[0], nan)), false);
@@ -81,11 +86,13 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 			else {
 				return null;
 			}
-		});
+		}
+		);
 	}
 
 	public static FunctionHandler.Named createReducer() {
-		return new FunctionHandler.Named("min/max(value1, value2, ...)", (parser, name, arguments) -> {
+		return new FunctionHandler.Named(
+			"min/max(value1, value2, ...)", (parser, name, arguments) -> {
 			if (arguments.length < 2) throw new ScriptParsingException(name + "() requires at least 2 arguments", parser.input);
 			TypeInfo type = TypeInfos.widenUntilSameInt(Arrays.stream(arguments).map(InsnTree::getTypeInfo));
 			return new CastResult(
@@ -95,7 +102,8 @@ public class MathScriptEnvironment extends MutableScriptEnvironment {
 				),
 				false
 			);
-		});
+		}
+		);
 	}
 
 	public static final double LN2 = Math.log(2.0D);

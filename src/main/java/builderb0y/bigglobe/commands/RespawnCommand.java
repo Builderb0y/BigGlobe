@@ -1,31 +1,29 @@
 package builderb0y.bigglobe.commands;
 
+import net.minecraft.world.level.portal.DimensionTransition;
+
 import java.util.Collection;
 import java.util.Locale;
-import java.util.function.Supplier;
-
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.StringRepresentableArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.command.argument.EntityAnchorArgumentType.EntityAnchor;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.EnumArgumentType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldProperties;
-
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -40,103 +38,97 @@ public class RespawnCommand {
 
 	public static final String PREFIX = "commands." + BigGlobeMod.MODID + ".respawn.";
 
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
-			CommandManager
-			.literal(BigGlobeMod.MODID + ":respawn")
-			.requires(CommandVersions.levelPredicate(2))
-			.executes((CommandContext<ServerCommandSource> context) -> {
-				Text failReason = RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrThrow(), false);
-				if (failReason == null) return 1;
-				context.getSource().sendError(failReason);
-				return 0;
-			})
-			.then(
-				CommandManager
-				.argument("mode", new RespawnModeArgumentType())
-				.executes((CommandContext<ServerCommandSource> context) -> {
-					Text failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrThrow(), false);
+			Commands
+				.literal(BigGlobeMod.MODID + ":respawn")
+				.requires(CommandVersions.levelPredicate(2))
+				.executes((CommandContext<CommandSourceStack> context) -> {
+					Component failReason = RespawnMode.AUTO.respawnPlayer(context.getSource().getPlayerOrException(), false);
 					if (failReason == null) return 1;
-					context.getSource().sendError(failReason);
+					context.getSource().sendFailure(failReason);
 					return 0;
 				})
 				.then(
-					CommandManager.argument("force", BoolArgumentType.bool())
-					.executes((CommandContext<ServerCommandSource> context) -> {
-						Text failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrThrow(), context.getArgument("force", Boolean.class));
-						if (failReason == null) return 1;
-						context.getSource().sendError(failReason);
-						return 0;
-					})
-					.then(
-						CommandManager
-						.argument("players", EntityArgumentType.players())
-						.executes((CommandContext<ServerCommandSource> context) -> {
-							RespawnMode point = context.getArgument("mode", RespawnMode.class);
-							Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
-							int successCount = 0;
-							for (ServerPlayerEntity player : players) {
-								if (point.respawnPlayer(player, false) == null) successCount++;
-							}
-							if (successCount != players.size()) {
-								context.getSource().sendError(Text.translatable(PREFIX + "multi.fail"));
-							}
-							return successCount;
+					Commands
+						.argument("mode", new RespawnModeArgumentType())
+						.executes((CommandContext<CommandSourceStack> context) -> {
+							Component failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrException(), false);
+							if (failReason == null) return 1;
+							context.getSource().sendFailure(failReason);
+							return 0;
 						})
-					)
+						.then(
+							Commands.argument("force", BoolArgumentType.bool())
+								.executes((CommandContext<CommandSourceStack> context) -> {
+									Component failReason = context.getArgument("mode", RespawnMode.class).respawnPlayer(context.getSource().getPlayerOrException(), context.getArgument("force", Boolean.class));
+									if (failReason == null) return 1;
+									context.getSource().sendFailure(failReason);
+									return 0;
+								})
+								.then(
+									Commands
+										.argument("players", EntityArgument.players())
+										.executes((CommandContext<CommandSourceStack> context) -> {
+											RespawnMode point = context.getArgument("mode", RespawnMode.class);
+											Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
+											int successCount = 0;
+											for (ServerPlayer player : players) {
+												if (point.respawnPlayer(player, false) == null) successCount++;
+											}
+											if (successCount != players.size()) {
+												context.getSource().sendFailure(Component.translatable(PREFIX + "multi.fail"));
+											}
+											return successCount;
+										})
+								)
+						)
 				)
-			)
 		);
 	}
 
-	public static enum RespawnMode implements StringIdentifiable {
+	public static enum RespawnMode implements StringRepresentable {
 
 		AUTO {
-
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+			public @Nullable Component respawnPlayer(ServerPlayer player, boolean force) {
 				if (tryRespawnBed(player, force) == null) return null;
 				if (tryRespawnCommand(player, force) == null) return null;
-				return doRespawnWorld(player, EntityVersions.getServer(player).getOverworld(), force);
+				return doRespawnWorld(player, EntityVersions.getServer(player).overworld(), force);
 			}
 		},
 
 		BED {
-
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+			public @Nullable Component respawnPlayer(ServerPlayer player, boolean force) {
 				return tryRespawnBed(player, force);
 			}
 		},
 
 		COMMAND {
-
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+			public @Nullable Component respawnPlayer(ServerPlayer player, boolean force) {
 				return tryRespawnCommand(player, force);
 			}
 		},
 
 		WORLD {
-
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+			public @Nullable Component respawnPlayer(ServerPlayer player, boolean force) {
 				return doRespawnWorld(player, EntityVersions.getServerWorld(player), force);
 			}
 		},
 
 		OVERWORLD {
-
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
-				return doRespawnWorld(player, EntityVersions.getServer(player).getOverworld(), force);
+			public @Nullable Component respawnPlayer(ServerPlayer player, boolean force) {
+				return doRespawnWorld(player, EntityVersions.getServer(player).overworld(), force);
 			}
 		},
 
 		NEW {
-
 			@Override
-			public @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force) {
+			public @Nullable Component respawnPlayer(ServerPlayer player, boolean force) {
 				return tryRespawnNew(player);
 			}
 		},
@@ -144,19 +136,19 @@ public class RespawnCommand {
 		;
 
 		//why is there a class named Codec in StringIdentifiable?
-		public static final com.mojang.serialization.Codec<RespawnMode> CODEC = BigGlobeAutoCodec.SILENT_CODEC.createDFUCodec(RespawnMode.class);
+		public static final Codec<RespawnMode> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(RespawnMode.class);
 
 		public final String lowerCaseName = this.name().toLowerCase(Locale.ROOT).intern();
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return this.lowerCaseName;
 		}
 
-		public abstract @Nullable Text respawnPlayer(ServerPlayerEntity player, boolean force);
+		public abstract @Nullable Component respawnPlayer(ServerPlayer player, boolean force);
 
-		public static @Nullable Text doRespawnWorld(ServerPlayerEntity player, ServerWorld world, boolean force) {
-			WorldProperties properties = world.getLevelProperties();
+		public static @Nullable Component doRespawnWorld(ServerPlayer player, ServerLevel world, boolean force) {
+			LevelData properties = world.getLevelData();
 			if (
 				force || (
 					BlockStateVersions.canSpawnInside(
@@ -167,7 +159,7 @@ public class RespawnCommand {
 					&&
 					BlockStateVersions.canSpawnInside(
 						world.getBlockState(
-							WorldPropertiesVersions.getSpawnPos(properties).up()
+							WorldPropertiesVersions.getSpawnPos(properties).above()
 						)
 					)
 				)
@@ -175,164 +167,113 @@ public class RespawnCommand {
 				EntityVersions.teleport(
 					player,
 					world,
-					new Vec3d(
+					new Vec3(
 						WorldPropertiesVersions.getSpawnX(properties) + 0.5D,
 						WorldPropertiesVersions.getSpawnY(properties),
 						WorldPropertiesVersions.getSpawnZ(properties) + 0.5D
 					),
-					Vec3d.ZERO,
+					Vec3.ZERO,
 					WorldPropertiesVersions.getSpawnYaw(properties),
 					0.0F
 				);
 				return null;
 			}
 			else {
-				return Text.translatable(PREFIX + "area_obstructed");
+				return Component.translatable(PREFIX + "area_obstructed");
 			}
 		}
 
-		public static @Nullable Text tryRespawnBed(ServerPlayerEntity player, boolean force) {
-			if (EntityVersions.isRespawnForced(player)) return Text.translatable(PREFIX + "bed.spawn_not_set_by_bed");
+		public static @Nullable Component tryRespawnBed(ServerPlayer player, boolean force) {
+			if (EntityVersions.isRespawnForced(player)) return Component.translatable(PREFIX + "bed.spawn_not_set_by_bed");
 
 			BlockPos position = EntityVersions.getRespawnPosition(player);
-			if (position == null) return Text.translatable(PREFIX + "position_not_set");
+			if (position == null) return Component.translatable(PREFIX + "position_not_set");
 
-			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
-			if (dimension == null) return Text.translatable(PREFIX + "dimension_not_set");
+			ResourceKey<Level> dimension = EntityVersions.getRespawnDimension(player);
+			if (dimension == null) return Component.translatable(PREFIX + "dimension_not_set");
 
-			ServerWorld world = EntityVersions.getServer(player).getWorld(dimension);
-			if (world == null) return Text.translatable(PREFIX + "dimension_doesnt_exist");
+			ServerLevel world = EntityVersions.getServer(player).getLevel(dimension);
+			if (world == null) return Component.translatable(PREFIX + "dimension_doesnt_exist");
 
 			float yaw = EntityVersions.getRespawnAngle(player);
-			Vec3d actualPosition = (
-				#if MC_VERSION >= MC_1_21_9
-					ServerPlayerEntity.findRespawnPosition(
-						world,
-						new ServerPlayerEntity.Respawn(
-							new WorldProperties.SpawnPoint(
-								new GlobalPos(
-									dimension,
-									position
-								),
-								yaw,
-								0.0F
-							),
-							false
-						),
-						false
-					)
-					.map(ServerPlayerEntity.RespawnPos::pos)
-					.orElse(null)
-				#elif MC_VERSION >= MC_1_21_5
-					ServerPlayerEntity.findRespawnPosition(
-						world,
-						new ServerPlayerEntity.Respawn(
-							dimension,
-							position,
-							yaw,
-							false
-						),
-						false
-					)
-					.map(ServerPlayerEntity.RespawnPos::pos)
-					.orElse(null)
-				#elif MC_VERSION >= MC_1_21_0
-					ServerPlayerEntity.findRespawnPosition(
-						world,
-						position,
-						yaw,
-						false,
-						true
-					)
-					.map(ServerPlayerEntity.RespawnPos::pos)
-					.orElse(null)
-				#else
-					PlayerEntity.findRespawnPosition(
-						world,
-						position,
-						yaw,
-						false,
-						true
-					)
-					.orElse(null)
-				#endif
-			);
+			DimensionTransition transition = player.findRespawnPositionAndUseSpawnBlock(false, DimensionTransition.DO_NOTHING);
+			Vec3 actualPosition = transition.pos();
 			if (actualPosition == null) {
 				if (force) {
-					actualPosition = Vec3d.ofBottomCenter(position);
+					actualPosition = Vec3.atBottomCenterOf(position);
 				}
 				else {
-					return Text.translatable(PREFIX + "bed.destroyed");
+					return Component.translatable(PREFIX + "bed.destroyed");
 				}
 			}
-			EntityVersions.teleport(player, world, actualPosition, Vec3d.ZERO, 0.0F, 0.0F);
-			player.lookAt(EntityAnchor.EYES, new Vec3d(position.getX() + 0.5D, position.getY() + 0.5D, position.getZ() + 0.5D));
+			EntityVersions.teleport(player, world, actualPosition, Vec3.ZERO, 0.0F, 0.0F);
+			player.lookAt(Anchor.EYES, new Vec3(position.getX() + 0.5D, position.getY() + 0.5D, position.getZ() + 0.5D));
 			return null;
 		}
 
-		public static @Nullable Text tryRespawnCommand(ServerPlayerEntity player, boolean force) {
-			if (!EntityVersions.isRespawnForced(player)) return Text.translatable(PREFIX + "command.spawn_not_set_by_command");
+		public static @Nullable Component tryRespawnCommand(ServerPlayer player, boolean force) {
+			if (!EntityVersions.isRespawnForced(player)) return Component.translatable(PREFIX + "command.spawn_not_set_by_command");
 
 			BlockPos position = EntityVersions.getRespawnPosition(player);
-			if (position == null) return Text.translatable(PREFIX + "command.position_not_set");
+			if (position == null) return Component.translatable(PREFIX + "command.position_not_set");
 
-			RegistryKey<World> dimension = EntityVersions.getRespawnDimension(player);
-			if (dimension == null) return Text.translatable(PREFIX + "command.dimension_not_set");
+			ResourceKey<Level> dimension = EntityVersions.getRespawnDimension(player);
+			if (dimension == null) return Component.translatable(PREFIX + "command.dimension_not_set");
 
-			ServerWorld world = EntityVersions.getServer(player).getWorld(dimension);
-			if (world == null) return Text.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.getValue().toString());
+			ServerLevel world = EntityVersions.getServer(player).getLevel(dimension);
+			if (world == null) return Component.translatable(PREFIX + "command.dimension_doesnt_exist", dimension.location().toString());
 
 			if (
 				force
 				|| (
 					BlockStateVersions.canSpawnInside(world.getBlockState(position)) &&
-					BlockStateVersions.canSpawnInside(world.getBlockState(position.up()))
+					BlockStateVersions.canSpawnInside(world.getBlockState(position.above()))
 				)
 			) {
 				float yaw = EntityVersions.getRespawnAngle(player);
 				EntityVersions.teleport(
 					player,
 					world,
-					new Vec3d(
+					new Vec3(
 						position.getX() + 0.5D,
 						position.getY(),
 						position.getZ() + 0.5D
 					),
-					Vec3d.ZERO,
+					Vec3.ZERO,
 					yaw,
 					0.0F
 				);
 				return null;
 			}
 
-			return Text.translatable(PREFIX + "area_obstructed");
+			return Component.translatable(PREFIX + "area_obstructed");
 		}
 
-		public static @Nullable Text tryRespawnNew(ServerPlayerEntity player) {
-			if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
+		public static @Nullable Component tryRespawnNew(ServerPlayer player) {
+			if (EntityVersions.getServerWorld(player).getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(EntityVersions.getServerWorld(player), generator, EntityVersions.getServerWorld(player).random.nextLong());
 				if (spawnPoint != null) {
 					EntityVersions.teleport(
 						player,
 						EntityVersions.getServerWorld(player),
-						new Vec3d(spawnPoint.x(), spawnPoint.y(), spawnPoint.z()),
-						Vec3d.ZERO,
+						new Vec3(spawnPoint.x(), spawnPoint.y(), spawnPoint.z()),
+						Vec3.ZERO,
 						spawnPoint.yaw(),
 						0.0F
 					);
 					return null;
 				}
 				else {
-					return Text.translatable(PREFIX + "new.no_good_location");
+					return Component.translatable(PREFIX + "new.no_good_location");
 				}
 			}
 			else {
-				return Text.translatable(PREFIX + "new.not_supported_dimension");
+				return Component.translatable(PREFIX + "new.not_supported_dimension");
 			}
 		}
 	}
 
-	public static class RespawnModeArgumentType extends EnumArgumentType<RespawnMode> {
+	public static class RespawnModeArgumentType extends StringRepresentableArgument<RespawnMode> {
 
 		public RespawnModeArgumentType() {
 			super(RespawnMode.CODEC, RespawnMode::values);

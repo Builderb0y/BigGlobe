@@ -8,36 +8,41 @@ import java.util.random.RandomGenerator;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.*;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.MobSpawnerBlockEntity;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.block.enums.StairShape;
-import net.minecraft.block.enums.WallShape;
-import net.minecraft.entity.EntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.*;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.state.property.Property;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.structure.Structure;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CrossCollisionBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import builderb0y.autocodec.annotations.DefaultDouble;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
@@ -53,11 +58,12 @@ import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.randomLists.*;
 import builderb0y.bigglobe.randomLists.ConstantWeightRandomList.RandomAccessConstantWeightRandomList;
+import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.randomLists.IRestrictedListElement;
+import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
 import builderb0y.bigglobe.structures.LabyrinthLayout.DecorationPiece;
@@ -76,15 +82,15 @@ import builderb0y.bigglobe.versions.*;
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
 	public final @VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators;
-	public final @VerifyNotEmpty IRandomList<@UseName("entity") RegistryEntry<EntityType<?>>> spawner_entries;
+	public final @VerifyNotEmpty IRandomList<@UseName("entity") Holder<EntityType<?>>> spawner_entries;
 	public final @VerifyNotEmpty List<Palette> palettes;
 
 	public AbstractDungeonStructure(
-		Config config,
+		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
-		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
+		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config, min_y, surface_y);
@@ -101,23 +107,23 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public abstract DungeonLayout layout(ScriptedColumn column, int y, RandomGenerator random);
 
 	@Override
-	public Optional<StructurePosition> getStructurePosition(Context context) {
+	public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
 		BlockPos startPos = this.randomBlockInChunk(context, 64, 64);
 		if (startPos == null) return Optional.empty();
 
 		long seed = chunkSeed(context, 0x9DFB0A6E61391175L);
 		ScriptedColumn column = generator.newColumn(
-			context.world(),
+			context.heightAccessor(),
 			startPos.getX(),
 			startPos.getZ(),
 			ColumnUsage.GENERIC.maybeDhHints()
 		);
 		int y = startPos.getY();
 		return Optional.of(
-			new StructurePosition(
+			new GenerationStub(
 				startPos,
-				(StructurePiecesCollector pieces) -> {
+				(StructurePiecesBuilder pieces) -> {
 					DungeonLayout layout = this.layout(column, y, new Permuter(seed));
 					layout.generate();
 					layout.addTo(pieces);
@@ -129,10 +135,10 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public static abstract class DungeonLayout extends LabyrinthLayout {
 
 		public int centerX, centerZ;
-		public RegistryEntry<Structure> owningStructure;
+		public Holder<Structure> owningStructure;
 		public int paletteIndex;
 		public @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators;
-		public IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries;
+		public IRandomList<Holder<EntityType<?>>> spawnerEntries;
 
 		public DungeonLayout(
 			ScriptedColumn column,
@@ -140,8 +146,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			RandomGenerator random,
 			int maxRooms,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
-			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
-			RegistryEntry<Structure> owningStructure
+			IRandomList<Holder<EntityType<?>>> spawnerEntries,
+			Holder<Structure> owningStructure
 		) {
 			super(random, maxRooms);
 			this.owningStructure = owningStructure;
@@ -149,8 +155,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.centerZ = column.z();
 			this.paletteIndex = (
 				owningStructure.value() instanceof AbstractDungeonStructure dungeon
-				? new RestrictedList<>(dungeon.palettes, column, y).getRandomIndex(random)
-				: -1
+					? new RestrictedList<>(dungeon.palettes, column, y).getRandomIndex(random)
+					: -1
 			);
 			this.roomDecorators = roomDecorators;
 			this.spawnerEntries = spawnerEntries;
@@ -166,7 +172,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		@Override
 		public abstract HallDungeonPiece newHall(RoomPiece room1, RoomPiece room2, Direction direction);
 
-		public void addTo(StructurePiecesCollector collector) {
+		public void addTo(StructurePiecesBuilder collector) {
 			for (Object room : this.rooms) {
 				collector.addPiece((StructurePiece)(room));
 			}
@@ -181,18 +187,20 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class DungeonPiece extends StructurePiece implements LabyrinthPiece {
 
-		public static final AutoCoder<RegistryEntry<Structure>> STRUCTURE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
+		public static final AutoCoder<Holder<Structure>> STRUCTURE_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {
+
+		});
 
 		public byte variant;
-		public @Nullable RegistryEntry<Structure> owningStructure;
+		public @Nullable Holder<Structure> owningStructure;
 		public int paletteIndex;
 		public Palette cachedPalette;
 
 		public DungeonPiece(
 			StructurePieceType type,
 			int length,
-			BlockBox boundingBox,
-			@Nullable RegistryEntry<Structure> owningStructure,
+			BoundingBox boundingBox,
+			@Nullable Holder<Structure> owningStructure,
 			int paletteIndex
 		) {
 			super(type, length, boundingBox);
@@ -203,31 +211,31 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 				owningStructure.value() instanceof AbstractDungeonStructure dungeon
 				&& paletteIndex >= 0
 				&& paletteIndex < dungeon.palettes.size()
-				? dungeon.palettes.get(paletteIndex)
-				: Palette.COBBLE
+					? dungeon.palettes.get(paletteIndex)
+					: Palette.COBBLE
 			);
 		}
 
-		public DungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public DungeonPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, nbt);
-			if (nbt.get("var") instanceof AbstractNbtNumber number) {
-				this.variant = number.byteValue();
+			if (nbt.get("var") instanceof NumericTag number) {
+				this.variant = number.getAsByte();
 			}
-			NbtElement owningStructure = nbt.get("struct");
+			Tag owningStructure = nbt.get("struct");
 			if (owningStructure != null) try {
 				this.owningStructure = BigGlobeAutoCodec.AUTO_CODEC.decode(
 					STRUCTURE_CODER,
 					owningStructure,
-					RegistryOps.of(
+					RegistryOps.create(
 						NbtOps.INSTANCE,
-						context.registryManager()
+						context.registryAccess()
 					)
 				);
 			}
 			catch (DecodeException exception) {
 				throw new RuntimeException(exception);
 			}
-			this.paletteIndex = nbt.get("paletteIndex") instanceof AbstractNbtNumber number ? number.intValue() : -1;
+			this.paletteIndex = nbt.get("paletteIndex") instanceof NumericTag number ? number.getAsInt() : -1;
 			if (
 				this.owningStructure != null &&
 				this.owningStructure.value() instanceof AbstractDungeonStructure dungeon &&
@@ -243,19 +251,19 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		@Override
 		@MustBeInvokedByOverriders
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
 			nbt.putByte("var", this.variant);
-			if (this.owningStructure != null) nbt.put("struct", BigGlobeAutoCodec.AUTO_CODEC.encode(STRUCTURE_CODER, this.owningStructure, RegistryOps.of(NbtOps.INSTANCE, context.registryManager())));
+			if (this.owningStructure != null) nbt.put("struct", BigGlobeAutoCodec.AUTO_CODEC.encode(STRUCTURE_CODER, this.owningStructure, RegistryOps.create(NbtOps.INSTANCE, context.registryAccess())));
 			nbt.putInt("paletteIndex", this.paletteIndex);
 		}
 
 		@Override
-		public BlockBox boundingBox() {
+		public BoundingBox boundingBox() {
 			return this.boundingBox;
 		}
 
-		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
-			return Coordinator.forWorld(world, Block.NOTIFY_LISTENERS).inBox(limit, false).translate(this.x(), this.y(), this.z());
+		public Coordinator coordinator(WorldGenLevel world, BoundingBox limit) {
+			return Coordinator.forWorld(world, Block.UPDATE_CLIENTS).inBox(limit, false).translate(this.x(), this.y(), this.z());
 		}
 
 		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
@@ -269,7 +277,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class RoomDungeonPiece extends DungeonPiece implements RoomPiece, RawGenerationStructurePiece {
 
-		public static final AutoCoder<DelayedEntryList<ConfiguredFeature<?, ?>>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
+		public static final AutoCoder<DelayedEntryList<ConfiguredFeature<?, ?>>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {
+
+		});
 		public static final int PIT_BIT = 1 << 1;
 
 		public final RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
@@ -279,8 +289,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public RoomDungeonPiece(
 			StructurePieceType type,
 			int chainLength,
-			BlockBox boundingBox,
-			RegistryEntry<Structure> owningStructure,
+			BoundingBox boundingBox,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
 		) {
@@ -290,37 +300,37 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public RoomDungeonPiece(
 			StructurePieceType type,
-			StructureContext context,
-			NbtCompound nbt
+			StructurePieceSerializationContext context,
+			CompoundTag nbt
 		) {
 			super(type, context, nbt);
-			NbtElement nbtDecorators = nbt.get("decorators_v2");
+			Tag nbtDecorators = nbt.get("decorators_v2");
 			if (nbtDecorators != null) try {
 				this.decorators = BigGlobeAutoCodec.AUTO_CODEC.decode(
 					DECORATORS_CODER,
 					nbtDecorators,
-					RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager())
+					RegistryOps.create(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().registryAccess())
 				);
 			}
 			catch (DecodeException exception) {
 				BigGlobeMod.LOGGER.error("Exception reading dungeon room decorator from NBT: ", exception);
 			}
-			if (nbt.get("support") instanceof AbstractNbtNumber number) {
-				this.support = number.byteValue() != 0;
+			if (nbt.get("support") instanceof NumericTag number) {
+				this.support = number.getAsByte() != 0;
 			}
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			super.writeNbt(context, nbt);
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			super.addAdditionalSaveData(context, nbt);
 			if (this.decorators != null) {
 				nbt.put(
 					"decorators_v2",
 					BigGlobeAutoCodec.AUTO_CODEC.encode(
 						DECORATORS_CODER,
 						this.decorators,
-						RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager())
+						RegistryOps.create(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().registryAccess())
 					)
 				);
 			}
@@ -347,26 +357,26 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		@Override
 		public void generateRaw(Context context) {
-			BlockBox chunkBox = WorldUtil.chunkBox(context.chunk);
-			BlockBox intersection = WorldUtil.intersection(this.boundingBox, chunkBox);
+			BoundingBox chunkBox = WorldUtil.chunkBox(context.chunk);
+			BoundingBox intersection = WorldUtil.intersection(this.boundingBox, chunkBox);
 			if (intersection == null) return;
-			BlockPos.Mutable pos = new BlockPos.Mutable();
+			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 			CoordinateSupplier<BlockState> mainBlock = this.palette().mainSupplier();
-			for (pos.setY(this.y()); pos.getY() <= intersection.getMaxY(); pos.setY(pos.getY() + 1)) {
-				for (pos.setZ(intersection.getMinZ()); pos.getZ() <= intersection.getMaxZ(); pos.setZ(pos.getZ() + 1)) {
-					for (pos.setX(intersection.getMinX()); pos.getX() <= intersection.getMaxX(); pos.setX(pos.getX() + 1)) {
+			for (pos.setY(this.y()); pos.getY() <= intersection.maxY(); pos.setY(pos.getY() + 1)) {
+				for (pos.setZ(intersection.minZ()); pos.getZ() <= intersection.maxZ(); pos.setZ(pos.getZ() + 1)) {
+					for (pos.setX(intersection.minX()); pos.getX() <= intersection.maxX(); pos.setX(pos.getX() + 1)) {
 						ChunkVersions.setBlockState(
 							context.chunk,
 							pos,
-							pos.getX() == this.boundingBox.getMinX() ||
-							pos.getX() == this.boundingBox.getMaxX() ||
+							pos.getX() == this.boundingBox.minX() ||
+							pos.getX() == this.boundingBox.maxX() ||
 							pos.getY() == this.y() ||
-							pos.getY() == this.boundingBox.getMaxY() ||
-							pos.getZ() == this.boundingBox.getMinZ() ||
-							pos.getZ() == this.boundingBox.getMaxZ()
-							? mainBlock.get(pos)
-							: BlockStates.AIR,
-							Block.NOTIFY_LISTENERS
+							pos.getY() == this.boundingBox.maxY() ||
+							pos.getZ() == this.boundingBox.minZ() ||
+							pos.getZ() == this.boundingBox.maxZ()
+								? mainBlock.get(pos)
+								: BlockStates.AIR,
+							Block.UPDATE_CLIENTS
 						);
 					}
 				}
@@ -374,12 +384,12 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -389,7 +399,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			if (this.decorators != null && contains(chunkBox, x, y, z)) {
 				ConfiguredFeature<?, ?> feature = this.decorators.randomObject(random.nextLong());
 				if (feature != null) {
-					feature.generate(world, chunkGenerator, new MojangPermuter(Permuter.permute(world.getSeed() ^ 0x265B4B7BF1BC7786L, x, y, z)), new BlockPos(x, y, z));
+					feature.place(world, chunkGenerator, new MojangPermuter(Permuter.permute(world.getSeed() ^ 0x265B4B7BF1BC7786L, x, y, z)), new BlockPos(x, y, z));
 				}
 			}
 		}
@@ -398,8 +408,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		BlockBox.contains(int, int, int) was added in 1.19.4.
 		in 1.19.2, only BlockBox.contains(Vec3i) existed.
 		*/
-		public static boolean contains(BlockBox box, int x, int y, int z) {
-			return x >= box.getMinX() && x <= box.getMaxX() && y >= box.getMinY() && y <= box.getMaxY() && z >= box.getMinZ() && z <= box.getMaxZ();
+		public static boolean contains(BoundingBox box, int x, int y, int z) {
+			return x >= box.minX() && x <= box.maxX() && y >= box.minY() && y <= box.maxY() && z >= box.minZ() && z <= box.maxZ();
 		}
 
 		@Override
@@ -428,28 +438,27 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public static class PitDungeonPiece extends DecorationDungeonPiece {
 
 		public static final int
-			LAVA_BIT     = 1 << 1,
-			WATER_BIT    = 1 << 2,
+			LAVA_BIT = 1 << 1,
+			WATER_BIT = 1 << 2,
 			RADIUS_SHIFT = 3,
-			RADIUS_MASK  = 0b11000;
-
+			RADIUS_MASK = 0b11000;
 
 		public PitDungeonPiece(
 			StructurePieceType type,
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			int innerRadius,
 			RandomGenerator random
 		) {
-			super(type, 0, new BlockBox(x - innerRadius - 1, y - 2, z - innerRadius - 1, x + innerRadius + 1, y, z + innerRadius + 1), owningStructure, paletteIndex);
+			super(type, 0, new BoundingBox(x - innerRadius - 1, y - 2, z - innerRadius - 1, x + innerRadius + 1, y, z + innerRadius + 1), owningStructure, paletteIndex);
 			this.setToRandomType(random);
 			this.setInnerRadius(innerRadius);
 		}
 
-		public PitDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public PitDungeonPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -466,12 +475,12 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -496,7 +505,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		@Override
 		public int y() {
-			return this.boundingBox().getMaxY();
+			return this.boundingBox().maxY();
 		}
 	}
 
@@ -507,8 +516,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public ChestDungeonPiece(
 			StructurePieceType type,
 			int length,
-			BlockBox boundingBox,
-			RegistryEntry<Structure> owningStructure,
+			BoundingBox boundingBox,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction facing,
 			long seed
@@ -518,74 +527,72 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			this.seed = seed;
 		}
 
-		public ChestDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public ChestDungeonPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
-			if (nbt.get("seed") instanceof AbstractNbtNumber number) {
-				this.seed = number.longValue();
+			if (nbt.get("seed") instanceof NumericTag number) {
+				this.seed = number.getAsLong();
 			}
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			super.writeNbt(context, nbt);
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			super.addAdditionalSaveData(context, nbt);
 			nbt.putLong("seed", this.seed);
 		}
 
 		public void initChest(BlockPos pos, ChestBlockEntity chest) {
-			Identifier identifier = BigGlobeMod.modID("chests/advanced_dungeon");
+			ResourceLocation ResourceLocation = BigGlobeMod.modID("chests/advanced_dungeon");
 			chest.setLootTable(
-				#if MC_VERSION >= MC_1_20_5
-					RegistryKey.of(RegistryKeys.LOOT_TABLE, identifier),
-				#else
-					identifier,
-				#endif
+
+				ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation),
+
 				this.seed
 			);
 		}
 
 		@Override
-		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
-			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Direction.NORTH, this.getFacing()));
+		public Coordinator coordinator(WorldGenLevel world, BoundingBox limit) {
+			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Direction.NORTH, this.getOrientation()));
 		}
 
 		@Override
 		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
-			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
+			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getOrientation()));
 		}
 	}
 
 	public static abstract class SpawnerDungeonPiece extends DecorationDungeonPiece {
 
-		public final RegistryEntry<EntityType<?>> spawnerType;
+		public final Holder<EntityType<?>> spawnerType;
 
 		public SpawnerDungeonPiece(
 			StructurePieceType type,
 			int length,
-			BlockBox boundingBox,
-			RegistryEntry<Structure> owningStructure,
+			BoundingBox boundingBox,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
-			RegistryEntry<EntityType<?>> spawnerType
+			Holder<EntityType<?>> spawnerType
 		) {
 			super(type, length, boundingBox, owningStructure, paletteIndex);
 			this.spawnerType = spawnerType;
 		}
 
-		public SpawnerDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public SpawnerDungeonPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
-			String id = nbt.get("entityType") instanceof NbtString string ? NbtVersions.stringValue(string) : "minecraft:zombie";
-			this.spawnerType = RegistryVersions.getEntry(Registries.ENTITY_TYPE, RegistryKey.of(RegistryKeys.ENTITY_TYPE, IdentifierVersions.create(id)));
+			String id = nbt.get("entityType") instanceof StringTag string ? NbtVersions.stringValue(string) : "minecraft:zombie";
+			this.spawnerType = RegistryVersions.getEntry(BuiltInRegistries.ENTITY_TYPE, ResourceKey.create(Registries.ENTITY_TYPE, IdentifierVersions.create(id)));
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			super.writeNbt(context, nbt);
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			super.addAdditionalSaveData(context, nbt);
 			nbt.putString("entityType", UnregisteredObjectException.getID(this.spawnerType).toString());
 		}
 
-		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
-			spawner.setEntityType(this.spawnerType.value(), new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
+		public void initSpawner(BlockPos pos, SpawnerBlockEntity spawner) {
+			spawner.setEntityId(this.spawnerType.value(), new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
 		}
 	}
 
@@ -598,24 +605,24 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public HallDungeonPiece(
 			StructurePieceType type,
 			int chainLength,
-			BlockBox boundingBox,
-			RegistryEntry<Structure> owningStructure,
+			BoundingBox boundingBox,
+			Holder<Structure> owningStructure,
 			int paletteIndex
 		) {
 			super(type, chainLength, boundingBox, owningStructure, paletteIndex);
 		}
 
-		public HallDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public HallDungeonPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
-			if (nbt.get("side") instanceof AbstractNbtNumber number) {
-				this.sidewaysness = number.byteValue();
+			if (nbt.get("side") instanceof NumericTag number) {
+				this.sidewaysness = number.getAsByte();
 			}
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
-		public void writeNbt(StructureContext context, NbtCompound nbt) {
-			super.writeNbt(context, nbt);
+		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
+			super.addAdditionalSaveData(context, nbt);
 			nbt.putByte("side", this.sidewaysness);
 		}
 
@@ -644,25 +651,26 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		}
 
 		@Override
-		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
-			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
+		public Coordinator coordinator(WorldGenLevel world, BoundingBox limit) {
+			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getOrientation()));
 		}
 
 		@Override
 		public Coordinator coordinator(Context context) {
-			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
+			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getOrientation()));
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
-		) {}
+		) {
+		}
 	}
 
 	public static abstract class DecorationDungeonPiece extends DungeonPiece implements DecorationPiece {
@@ -670,14 +678,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public DecorationDungeonPiece(
 			StructurePieceType type,
 			int length,
-			BlockBox boundingBox,
-			RegistryEntry<Structure> owningStructure,
+			BoundingBox boundingBox,
+			Holder<Structure> owningStructure,
 			int paletteIndex
 		) {
 			super(type, length, boundingBox, owningStructure, paletteIndex);
 		}
 
-		public DecorationDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public DecorationDungeonPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 	}
@@ -685,25 +693,25 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public static record Palette(
 		@DefaultDouble(IRandomList.DEFAULT_WEIGHT) double weight,
 		ColumnRestriction restrictions,
-		IRandomList<@UseName("block") RegistryEntry<Block>> main,
-		IRandomList<@UseName("block") RegistryEntry<Block>> slab,
-		IRandomList<@UseName("block") RegistryEntry<Block>> stairs,
-		IRandomList<@UseName("block") RegistryEntry<Block>> wall
+		IRandomList<@UseName("block") Holder<Block>> main,
+		IRandomList<@UseName("block") Holder<Block>> slab,
+		IRandomList<@UseName("block") Holder<Block>> stairs,
+		IRandomList<@UseName("block") Holder<Block>> wall
 	)
-	implements IRestrictedListElement {
+		implements IRestrictedListElement {
 
 		public static final AutoCoder<Palette> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Palette.class);
 
 		@SuppressWarnings("deprecation")
 		public static Palette
 			COBBLE = new Palette(
-				IRandomList.DEFAULT_WEIGHT,
-				ColumnRestriction.EMPTY,
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE.getRegistryEntry()), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE_SLAB.getRegistryEntry()), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE_STAIRS.getRegistryEntry()), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE_WALL.getRegistryEntry()), 1.0D)
-			);
+			IRandomList.DEFAULT_WEIGHT,
+			ColumnRestriction.EMPTY,
+			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE.builtInRegistryHolder()), 1.0D),
+			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_SLAB.builtInRegistryHolder()), 1.0D),
+			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_STAIRS.builtInRegistryHolder()), 1.0D),
+			new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL.builtInRegistryHolder(), Blocks.MOSSY_COBBLESTONE_WALL.builtInRegistryHolder()), 1.0D)
+		);
 
 		@Override
 		public double getWeight() {
@@ -722,36 +730,36 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public CoordinateSupplier<BlockState> slabSupplier(SlabType slabType) {
 			return (
 				BlockStateSupplier.forBlocks(this.slab)
-				.with(SlabBlock.TYPE, slabType)
+					.with(SlabBlock.TYPE, slabType)
 			);
 		}
 
-		public CoordinateSupplier<BlockState> stairsSupplier(BlockHalf half, Direction facing, StairShape shape) {
+		public CoordinateSupplier<BlockState> stairsSupplier(Half half, Direction facing, StairsShape shape) {
 			return (
 				BlockStateSupplier.forBlocks(this.stairs)
-				.with(StairsBlock.HALF,   half  )
-				.with(StairsBlock.FACING, facing)
-				.with(StairsBlock.SHAPE,  shape )
+					.with(StairBlock.HALF, half)
+					.with(StairBlock.FACING, facing)
+					.with(StairBlock.SHAPE, shape)
 			);
 		}
 
-		public CoordinateSupplier<BlockState> wallSupplier(WallShape north, WallShape east, WallShape south, WallShape west, boolean up) {
+		public CoordinateSupplier<BlockState> wallSupplier(WallSide north, WallSide east, WallSide south, WallSide west, boolean up) {
 			return (
 				BlockStateSupplier.forBlocks(this.wall)
-				.with(WallBlockVersions.NORTH_SHAPE, north)
-				.with(WallBlockVersions.EAST_SHAPE,  east )
-				.with(WallBlockVersions.SOUTH_SHAPE, south)
-				.with(WallBlockVersions.WEST_SHAPE,  west )
+					.with(WallBlockVersions.NORTH_SHAPE, north)
+					.with(WallBlockVersions.EAST_SHAPE, east)
+					.with(WallBlockVersions.SOUTH_SHAPE, south)
+					.with(WallBlockVersions.WEST_SHAPE, west)
 			);
 		}
 
 		public CoordinateSupplier<BlockState> barsSupplier(boolean north, boolean east, boolean south, boolean west) {
 			return (
-				new SingleStateSupplier(Blocks.IRON_BARS.getDefaultState())
-				.with(HorizontalConnectingBlock.NORTH, north)
-				.with(HorizontalConnectingBlock.EAST,  east )
-				.with(HorizontalConnectingBlock.SOUTH, south)
-				.with(HorizontalConnectingBlock.WEST,  west )
+				new SingleStateSupplier(Blocks.IRON_BARS.defaultBlockState())
+					.with(CrossCollisionBlock.NORTH, north)
+					.with(CrossCollisionBlock.EAST, east)
+					.with(CrossCollisionBlock.SOUTH, south)
+					.with(CrossCollisionBlock.WEST, west)
 			);
 		}
 
@@ -762,11 +770,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static interface BlockStateSupplier extends CoordinateSupplier<BlockState> {
 
-		public static BlockStateSupplier forBlocks(IRandomList<RegistryEntry<Block>> blocks) {
+		public static BlockStateSupplier forBlocks(IRandomList<Holder<Block>> blocks) {
 			return (
 				blocks.size() == 1
-				? new SingleStateSupplier(blocks.get(0).value().getDefaultState())
-				: new RandomListBlockStateSupplier(blocks)
+					? new SingleStateSupplier(blocks.get(0).value().defaultBlockState())
+					: new RandomListBlockStateSupplier(blocks)
 			);
 		}
 
@@ -775,10 +783,10 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static class RandomListBlockStateSupplier implements BlockStateSupplier {
 
-		public IRandomList<RegistryEntry<Block>> blocks;
+		public IRandomList<Holder<Block>> blocks;
 		public List<Object> properties;
 
-		public RandomListBlockStateSupplier(IRandomList<RegistryEntry<Block>> blocks) {
+		public RandomListBlockStateSupplier(IRandomList<Holder<Block>> blocks) {
 			this.blocks = blocks;
 			this.properties = new ArrayList<>(4);
 		}
@@ -792,14 +800,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public BlockState get(BlockPos.Mutable pos) {
-			BlockState state = this.blocks.getRandomElement(Permuter.permute(0xFE1FCB62BC2A3608L, pos)).value().getDefaultState();
+		public BlockState get(BlockPos.MutableBlockPos pos) {
+			BlockState state = this.blocks.getRandomElement(Permuter.permute(0xFE1FCB62BC2A3608L, pos)).value().defaultBlockState();
 			List<Object> properties = this.properties;
 			for (int index = 0, size = properties.size(); index < size; index += 2) {
 				Property property = (Property<?>)(properties.get(index));
-				if (state.contains(property)) {
+				if (state.hasProperty(property)) {
 					Comparable value = (Comparable<?>)(properties.get(index + 1));
-					state = state.with(property, value);
+					state = state.setValue(property, value);
 				}
 			}
 			return state;
@@ -816,14 +824,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		@Override
 		public <C extends Comparable<C>> BlockStateSupplier with(Property<C> property, C value) {
-			if (this.state.contains(property)) {
-				this.state = this.state.with(property, value);
+			if (this.state.hasProperty(property)) {
+				this.state = this.state.setValue(property, value);
 			}
 			return this;
 		}
 
 		@Override
-		public BlockState get(BlockPos.Mutable pos) {
+		public BlockState get(BlockPos.MutableBlockPos pos) {
 			return this.state;
 		}
 	}

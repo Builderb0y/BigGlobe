@@ -1,26 +1,6 @@
 package builderb0y.bigglobe.structures.megaTree;
 
 import org.joml.Vector3d;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.structure.Structure;
-
 import builderb0y.autocodec.annotations.Hidden;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -31,7 +11,6 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToDoubleScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.structures.DataStructurePiece;
@@ -40,6 +19,23 @@ import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -49,7 +45,7 @@ import static builderb0y.bigglobe.math.BigGlobeMath.*;
 public class MegaTreeBall extends DataStructurePiece<Data> {
 
 	public static record Data(
-		RegistryEntry<Structure> structure,
+		Holder<Structure> structure,
 		@Hidden MegaTreeStructure actualStructure,
 		double x,
 		double y,
@@ -57,7 +53,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		double radius,
 		int step,
 		int totalSteps,
-		RegistryEntry<WoodPalette> wood
+		Holder<WoodPalette> wood
 	) {
 
 		public static final AutoCoder<Data> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Data.class);
@@ -68,19 +64,19 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 			}
 		}
 
-		public Data(RegistryEntry<Structure> structure, double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
+		public Data(Holder<Structure> structure, double x, double y, double z, double radius, int step, int totalSteps, Holder<WoodPalette> wood) {
 			this(structure, (MegaTreeStructure)(structure.value()), x, y, z, radius, step, totalSteps, wood);
 		}
 
-		public Data(MegaTreeStructure actualStructure, double x, double y, double z, double radius, int step, int totalSteps, RegistryEntry<WoodPalette> wood) {
+		public Data(MegaTreeStructure actualStructure, double x, double y, double z, double radius, int step, int totalSteps, Holder<WoodPalette> wood) {
 			this(getActualEntry(actualStructure), actualStructure, x, y, z, radius, step, totalSteps, wood);
 		}
 
-		public static RegistryEntry<Structure> getActualEntry(MegaTreeStructure structure) {
+		public static Holder<Structure> getActualEntry(MegaTreeStructure structure) {
 			return RegistryVersions.getEntry(
 				RegistryVersions.getRegistry(
-					BigGlobeMod.getCurrentServer().getRegistryManager(),
-					RegistryKeys.STRUCTURE
+					BigGlobeMod.getCurrentServer().registryAccess(),
+					Registries.STRUCTURE
 				),
 				structure
 			);
@@ -98,7 +94,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	public MegaTreeBall(
 		StructurePieceType type,
 		MegaTreeStructure structure,
-		RegistryEntry<WoodPalette> palette,
+		Holder<WoodPalette> palette,
 		double x,
 		double y,
 		double z,
@@ -129,7 +125,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	public MegaTreeBall(
 		StructurePieceType type,
 		MegaTreeStructure structure,
-		RegistryEntry<WoodPalette> palette,
+		Holder<WoodPalette> palette,
 		MegaTreeBranch branch,
 		Vector3d position,
 		double radius
@@ -147,7 +143,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		);
 	}
 
-	public MegaTreeBall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+	public MegaTreeBall(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 		super(type, context, nbt);
 	}
 
@@ -157,16 +153,16 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	}
 
 	@Override
-	public void generate(
-		StructureWorldAccess world,
-		StructureAccessor structureAccessor,
+	public void postProcess(
+		WorldGenLevel world,
+		StructureManager structureAccessor,
 		ChunkGenerator chunkGenerator,
-		Random random,
-		BlockBox chunkBox,
+		RandomSource random,
+		BoundingBox chunkBox,
 		ChunkPos chunkPos,
 		BlockPos pivot
 	) {
-		BlockPos.Mutable pos = new BlockPos.Mutable();
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		ColumnToDoubleScript.Holder snowChance = this.data.actualStructure.data.snow_chance();
 		ScriptedColumn column = snowChance != null && chunkGenerator instanceof BigGlobeScriptedChunkGenerator scriptedGenerator ? scriptedGenerator.newColumn(world, 0, 0, ColumnUsage.GENERIC.maybeDhHints()) : null;
 
@@ -183,10 +179,10 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		);
 		Permuter permuter = new Permuter(seed);
 		int
-			minX = Math.max(this.boundingBox.getMinX(), chunkBox.getMinX()),
-			minZ = Math.max(this.boundingBox.getMinZ(), chunkBox.getMinZ()),
-			maxX = Math.min(this.boundingBox.getMaxX(), chunkBox.getMaxX()),
-			maxZ = Math.min(this.boundingBox.getMaxZ(), chunkBox.getMaxZ());
+			minX = Math.max(this.boundingBox.minX(), chunkBox.minX()),
+			minZ = Math.max(this.boundingBox.minZ(), chunkBox.minZ()),
+			maxX = Math.min(this.boundingBox.maxX(), chunkBox.maxX()),
+			maxZ = Math.min(this.boundingBox.maxZ(), chunkBox.maxZ());
 
 		WoodPalette palette = this.data.wood.value();
 		boolean placedAnyLogs = false;
@@ -196,11 +192,11 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 				double xzSquared = xSquared + squareD(pos.getZ() - centerZ);
 				if (xzSquared < radiusSquared) {
 					double chord = Math.sqrt(radiusSquared - xzSquared);
-					int minY = Math.max(ceilI(centerY - chord), chunkBox.getMinY());
-					int maxY = Math.min(floorI(centerY + chord), chunkBox.getMaxY());
+					int minY = Math.max(ceilI(centerY - chord), chunkBox.minY());
+					int maxY = Math.min(floorI(centerY + chord), chunkBox.maxY());
 					for (pos.setY(maxY); pos.getY() >= minY; pos.setY(pos.getY() - 1)) {
 						if (this.canLogReplace(world.getBlockState(pos))) {
-							world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+							world.setBlock(pos, palette.woodState(permuter, Axis.Y), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 							placedAnyLogs = true;
 						}
 						else {
@@ -209,7 +205,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 					}
 					for (pos.setY(minY); pos.getY() <= maxY; pos.setY(pos.getY() + 1)) {
 						if (this.canLogReplace(world.getBlockState(pos))) {
-							world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+							world.setBlock(pos, palette.woodState(permuter, Axis.Y), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 							placedAnyLogs = true;
 						}
 						else {
@@ -222,8 +218,8 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		}
 		if (!placedAnyLogs) {
 			setToRound(pos, centerX, centerY, centerZ);
-			if (chunkBox.contains(pos)) {
-				world.setBlockState(pos, palette.woodState(permuter, Axis.Y), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			if (chunkBox.isInside(pos)) {
+				world.setBlock(pos, palette.woodState(permuter, Axis.Y), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 			}
 		}
 
@@ -234,11 +230,11 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 			Vector3d unitGenerator = new Vector3d();
 			for (int i = 0; i < leafCount; i++) {
 				Vectors.setInSphere(
-					unitGenerator,
-					permuter,
-					permuter.nextDouble() * extraLeafRadius + this.data.radius
-				)
-				.add(centerX, centerY, centerZ);
+						unitGenerator,
+						permuter,
+						permuter.nextDouble() * extraLeafRadius + this.data.radius
+					)
+					.add(centerX, centerY, centerZ);
 				setToRound(pos, unitGenerator.x, unitGenerator.y, unitGenerator.z);
 				if (pos.getX() >= minX && pos.getX() <= maxX && pos.getZ() >= minZ && pos.getZ() <= maxZ) {
 					int topY = pos.getY();
@@ -247,7 +243,7 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 						(bits & 1) != 0 && this.canLeavesReplace(world.getBlockState(pos));
 						bits >>>= 1, pos.setY(pos.getY() - 1)
 					) {
-						world.setBlockState(pos, palette.leavesState(permuter, 7, true, false), Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+						world.setBlock(pos, palette.leavesState(permuter, 7, true, false), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 					}
 					this.placeSnow(world, pos.setY(topY + 1), column, snowChance, permuter);
 				}
@@ -257,23 +253,23 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 	}
 
 	public boolean canLogReplace(BlockState state) {
-		return BlockStateVersions.isReplaceable(state) || state.isIn(BigGlobeBlockTags.TREE_LOG_REPLACEABLES);
+		return BlockStateVersions.isReplaceable(state) || state.is(BigGlobeBlockTags.TREE_LOG_REPLACEABLES);
 	}
 
 	public boolean canLeavesReplace(BlockState state) {
-		return state.isAir() || state.getBlock() instanceof SnowBlock;
+		return state.isAir() || state.getBlock() instanceof SnowLayerBlock;
 	}
 
-	public void placeSnow(StructureWorldAccess world, BlockPos.Mutable pos, ScriptedColumn column, ColumnToDoubleScript.Holder snowChance, Permuter permuter) {
+	public void placeSnow(WorldGenLevel world, BlockPos.MutableBlockPos pos, ScriptedColumn column, ColumnToDoubleScript.Holder snowChance, Permuter permuter) {
 		if (column != null) {
 			column.setParamsUnchecked(column.params.at(pos.getX(), pos.getZ()));
-			if (world.isAir(pos) && Permuter.nextChancedBoolean(permuter, snowChance.get(column))) {
-				world.setBlockState(pos, BlockStates.SNOW, Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
+			if (world.isEmptyBlock(pos) && Permuter.nextChancedBoolean(permuter, snowChance.get(column))) {
+				world.setBlock(pos, BlockStates.SNOW, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 			}
 		}
 	}
 
-	public static BlockPos.Mutable setToRound(BlockPos.Mutable pos, double x, double y, double z) {
+	public static BlockPos.MutableBlockPos setToRound(BlockPos.MutableBlockPos pos, double x, double y, double z) {
 		return pos.set(roundI(x), roundI(y), roundI(z));
 	}
 

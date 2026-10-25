@@ -28,15 +28,58 @@ public class RandomIterator3D implements BoundedPointIterator3D, RandomIterator 
 		this.z = Permuter.toBoundedDouble(Permuter.permute(this.seed ^ 0xE813F5ECEB515DA0L, this.index), this.minZ, this.maxZ);
 	}
 
-	@Override public double minX() { return this.minX; }
-	@Override public double minY() { return this.minY; }
-	@Override public double minZ() { return this.minZ; }
-	@Override public double maxX() { return this.maxX; }
-	@Override public double maxY() { return this.maxY; }
-	@Override public double maxZ() { return this.maxZ; }
-	@Override public double x() { return this.x; }
-	@Override public double y() { return this.y; }
-	@Override public double z() { return this.z; }
-	@Override public int index() { return this.index; }
-	@Override public long seed() { return this.seed; }
+	@Override
+	public double minX() {
+		return this.minX;
+	}
+
+	@Override
+	public double minY() {
+		return this.minY;
+	}
+
+	@Override
+	public double minZ() {
+		return this.minZ;
+	}
+
+	@Override
+	public double maxX() {
+		return this.maxX;
+	}
+
+	@Override
+	public double maxY() {
+		return this.maxY;
+	}
+
+	@Override
+	public double maxZ() {
+		return this.maxZ;
+	}
+
+	@Override
+	public double x() {
+		return this.x;
+	}
+
+	@Override
+	public double y() {
+		return this.y;
+	}
+
+	@Override
+	public double z() {
+		return this.z;
+	}
+
+	@Override
+	public int index() {
+		return this.index;
+	}
+
+	@Override
+	public long seed() {
+		return this.seed;
+	}
 }

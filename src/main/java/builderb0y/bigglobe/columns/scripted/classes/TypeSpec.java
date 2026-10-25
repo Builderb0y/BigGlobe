@@ -3,11 +3,8 @@ package builderb0y.bigglobe.columns.scripted.classes;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.data.Data;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -51,17 +48,23 @@ public abstract class TypeSpec extends ElementSpec {
 
 	public abstract @Nullable OverrideTracker getOverrideTracker();
 
-	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<RegistryEntry<ElementSpec>> cyclicDetector) throws CustomClassFormatException {}
+	public void createTypeInfo(ClassHierarchy hierarchy, LinkedHashSet<Holder<ElementSpec>> cyclicDetector) throws CustomClassFormatException {
+	}
 
-	public void verify(ClassHierarchy hierarchy) throws CustomClassFormatException {}
+	public void verify(ClassHierarchy hierarchy) throws CustomClassFormatException {
+	}
 
-	public void createClass(ClassHierarchy hierarchy) {}
+	public void createClass(ClassHierarchy hierarchy) {
+	}
 
-	public void createMembers(ClassHierarchy hierarchy) {}
+	public void createMembers(ClassHierarchy hierarchy) {
+	}
 
-	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {}
+	public void compileMembers(ClassHierarchy hierarchy) throws ScriptParsingException {
+	}
 
-	public void link(ScriptClassLoader loader) {}
+	public void link(ScriptClassLoader loader) {
+	}
 
 	public void setupEnvironment(MutableScriptEnvironment environment, @Nullable InsnTree loadCustomClass) {
 		environment.addType(this.name(), this.getTypeInfo());

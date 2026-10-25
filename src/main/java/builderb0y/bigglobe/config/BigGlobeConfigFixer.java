@@ -23,9 +23,11 @@ public class BigGlobeConfigFixer extends VersionedFixer<BigGlobeConfig> {
 	@SuppressWarnings("fallthrough")
 	public @NotNull <T_Encoded> DataFixContext<T_Encoded> fixData(@NotNull DataFixContext<T_Encoded> context, int version) throws DataFixException {
 		switch (version) {
-			default: throw new DataFixException(() -> "Unknown config version: " + version);
+			default:
+				throw new DataFixException(() -> "Unknown config version: " + version);
 			case 0:
-			case 1: this.resetLodRendering(context);
+			case 1:
+				this.resetLodRendering(context);
 			case 2:
 		}
 		return context;

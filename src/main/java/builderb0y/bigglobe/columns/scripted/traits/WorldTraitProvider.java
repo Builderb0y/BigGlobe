@@ -1,12 +1,12 @@
 package builderb0y.bigglobe.columns.scripted.traits;
 
-import java.util.Map;
-
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.autocodec.annotations.*;
+import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.common.FactoryContext;

@@ -17,8 +17,8 @@ public record Valid(
 	public boolean isUseful(boolean _3D) {
 		return (
 			_3D
-			? (this.where != null || this.min_y != null || this.max_y != null)
-			: (this.where != null)
+				? (this.where != null || this.min_y != null || this.max_y != null)
+				: (this.where != null)
 		);
 	}
 

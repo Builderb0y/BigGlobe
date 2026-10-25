@@ -1,12 +1,11 @@
 package builderb0y.bigglobe.rendering.lods;
 
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
-
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering.ResourceTracker;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 
 public class SidedVertexConsumer extends VersionedVertexConsumer {
 
@@ -23,24 +22,25 @@ public class SidedVertexConsumer extends VersionedVertexConsumer {
 
 		public CompactVertexConsumer selectDelegateFromNormal(SidedVertexConsumer sided) {
 			return switch (BigGlobeMath.roundI(this.nx + this.nz * 2.0F)) {
-				case -2 -> MathHelper.approximatelyEquals(this.nz, -1.0F) ? sided.negZ : sided.all;
-				case -1 -> MathHelper.approximatelyEquals(this.nx, -1.0F) ? sided.negX : sided.all;
+				case -2 -> Mth.equal(this.nz, -1.0F) ? sided.negZ : sided.all;
+				case -1 -> Mth.equal(this.nx, -1.0F) ? sided.negX : sided.all;
 				default -> sided.all;
-				case +1 -> MathHelper.approximatelyEquals(this.nx, +1.0F) ? sided.posX : sided.all;
-				case +2 -> MathHelper.approximatelyEquals(this.nz, +1.0F) ? sided.posZ : sided.all;
+				case +1 -> Mth.equal(this.nx, +1.0F) ? sided.posX : sided.all;
+				case +2 -> Mth.equal(this.nz, +1.0F) ? sided.posZ : sided.all;
 			};
 		}
 	}
+
 	public Vertex[] quad;
 
 	public SidedVertexConsumer(long vertexCount, CompactVertexFormat format) {
 		super(format.flags | CompactVertexFormat.FLAG_NORMAL);
-		this.posX    = new CompactVertexConsumer(vertexCount, format);
-		this.posZ    = new CompactVertexConsumer(vertexCount, format);
-		this.negX    = new CompactVertexConsumer(vertexCount, format);
-		this.negZ    = new CompactVertexConsumer(vertexCount, format);
-		this.all     = new CompactVertexConsumer(vertexCount, format);
-		this.quad    = new Vertex[4];
+		this.posX = new CompactVertexConsumer(vertexCount, format);
+		this.posZ = new CompactVertexConsumer(vertexCount, format);
+		this.negX = new CompactVertexConsumer(vertexCount, format);
+		this.negZ = new CompactVertexConsumer(vertexCount, format);
+		this.all = new CompactVertexConsumer(vertexCount, format);
+		this.quad = new Vertex[4];
 		this.quad[0] = new Vertex();
 		this.quad[1] = new Vertex();
 		this.quad[2] = new Vertex();
@@ -62,12 +62,12 @@ public class SidedVertexConsumer extends VersionedVertexConsumer {
 			}
 			for (Vertex v : this.quad) {
 				delegate
-				.vertex(v.x, v.y, v.z)
-				.color(v.color)
-				.texture(v.u, v.v)
-				.overlay(v.overlay)
-				.light(v.light)
-				.normal(v.nx, v.ny, v.nz);
+					.addVertex(v.x, v.y, v.z)
+					.setColor(v.color)
+					.setUv(v.u, v.v)
+					.setOverlay(v.overlay)
+					.setLight(v.light)
+					.setNormal(v.nx, v.ny, v.nz);
 				//don't need to call next() on old versions because that
 				//method is a noop on VersionedVertexConsumer anyway.
 			}
@@ -90,11 +90,8 @@ public class SidedVertexConsumer extends VersionedVertexConsumer {
 
 	@Override
 	public void handleColor(int red, int green, int blue, int alpha) {
-		#if MC_VERSION >= MC_1_21_2
-			this.handleColor(ColorHelper.getArgb(alpha, red, green, blue));
-		#else
-			this.handleColor(ColorHelper.Argb.getArgb(alpha, red, green, blue));
-		#endif
+
+		this.handleColor(net.minecraft.util.FastColor.ARGB32.color(alpha, red, green, blue));
 	}
 
 	@Override
@@ -111,7 +108,7 @@ public class SidedVertexConsumer extends VersionedVertexConsumer {
 
 	@Override
 	public void handleOverlay(int u, int v) {
-		this.handleOverlay(OverlayTexture.packUv(u, v));
+		this.handleOverlay(OverlayTexture.pack(u, v));
 	}
 
 	@Override
@@ -121,7 +118,7 @@ public class SidedVertexConsumer extends VersionedVertexConsumer {
 
 	@Override
 	public void handleLight(int blocklight, int skylight) {
-		this.handleLight(LightmapTextureManager.pack(blocklight, skylight));
+		this.handleLight(LightTexture.pack(blocklight, skylight));
 	}
 
 	@Override

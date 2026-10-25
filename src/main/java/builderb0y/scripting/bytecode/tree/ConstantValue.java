@@ -24,18 +24,53 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		return NonConstantValue.INSTANCE;
 	}
 
-	public static ConstantValue of(byte     value) { return new    IntConstantValue(value); }
-	public static ConstantValue of(short    value) { return new    IntConstantValue(value); }
-	public static ConstantValue of(int      value) { return new    IntConstantValue(value); }
-	public static ConstantValue of(long     value) { return new   LongConstantValue(value); }
-	public static ConstantValue of(float    value) { return new  FloatConstantValue(value); }
-	public static ConstantValue of(double   value) { return new DoubleConstantValue(value); }
-	public static ConstantValue of(char     value) { return new    IntConstantValue(value); }
-	public static ConstantValue of(boolean  value) { return new    IntConstantValue(value); }
-	public static ConstantValue of(String   value) { return value == null ? new NullConstantValue(TypeInfos.STRING) : new StringConstantValue(value); }
-	public static ConstantValue of(TypeInfo value) { return new  ClassConstantValue(Objects.requireNonNull(value, "Attempt to LDC null.class")); }
-	public static ConstantValue ofNull(TypeInfo type) { return type.isPrimitive() ? constantAbsent(type) : new NullConstantValue(type); }
-	public static ConstantValue ofManual(Object object, TypeInfo type) { return object == null ? ofNull(type) : new ManualConstantValue(object, type); }
+	public static ConstantValue of(byte value) {
+		return new IntConstantValue(value);
+	}
+
+	public static ConstantValue of(short value) {
+		return new IntConstantValue(value);
+	}
+
+	public static ConstantValue of(int value) {
+		return new IntConstantValue(value);
+	}
+
+	public static ConstantValue of(long value) {
+		return new LongConstantValue(value);
+	}
+
+	public static ConstantValue of(float value) {
+		return new FloatConstantValue(value);
+	}
+
+	public static ConstantValue of(double value) {
+		return new DoubleConstantValue(value);
+	}
+
+	public static ConstantValue of(char value) {
+		return new IntConstantValue(value);
+	}
+
+	public static ConstantValue of(boolean value) {
+		return new IntConstantValue(value);
+	}
+
+	public static ConstantValue of(String value) {
+		return value == null ? new NullConstantValue(TypeInfos.STRING) : new StringConstantValue(value);
+	}
+
+	public static ConstantValue of(TypeInfo value) {
+		return new ClassConstantValue(Objects.requireNonNull(value, "Attempt to LDC null.class"));
+	}
+
+	public static ConstantValue ofNull(TypeInfo type) {
+		return type.isPrimitive() ? constantAbsent(type) : new NullConstantValue(type);
+	}
+
+	public static ConstantValue ofManual(Object object, TypeInfo type) {
+		return object == null ? ofNull(type) : new ManualConstantValue(object, type);
+	}
 
 	public static ConstantValue of(Object object, TypeInfo type) {
 		if (object == null) {
@@ -52,13 +87,13 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		}
 		if (object instanceof Number number && type.isNumber()) {
 			return switch (type.getSort()) {
-				case BYTE   -> of(number.byteValue());
-				case SHORT  -> of(number.shortValue());
-				case INT    -> of(number.intValue());
-				case LONG   -> of(number.longValue());
-				case FLOAT  -> of(number.floatValue());
+				case BYTE -> of(number.byteValue());
+				case SHORT -> of(number.shortValue());
+				case INT -> of(number.intValue());
+				case LONG -> of(number.longValue());
+				case FLOAT -> of(number.floatValue());
 				case DOUBLE -> of(number.doubleValue());
-				case CHAR   -> of((char)(number.intValue()));
+				case CHAR -> of((char)(number.intValue()));
 				case VOID, OBJECT, ARRAY, BOOLEAN -> throw new IllegalArgumentException(type.toString());
 			};
 		}
@@ -83,41 +118,49 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 		return new DynamicConstantValue(type, bootstrapMethod, bootstrapArgs);
 	}
 
-	public abstract byte    asByte   ();
-	public abstract short   asShort  ();
-	public abstract int     asInt    ();
-	public abstract long    asLong   ();
-	public abstract float   asFloat  ();
-	public abstract double  asDouble ();
-	public abstract char    asChar   ();
+	public abstract byte asByte();
+
+	public abstract short asShort();
+
+	public abstract int asInt();
+
+	public abstract long asLong();
+
+	public abstract float asFloat();
+
+	public abstract double asDouble();
+
+	public abstract char asChar();
+
 	public abstract boolean asBoolean();
+
 	@Override
 	public abstract TypeInfo getTypeInfo();
 
 	public default Number asNumber() {
 		return switch (this.getTypeInfo().getSort()) {
-			case BYTE    -> Byte   .valueOf(this.asByte   ());
-			case SHORT   -> Short  .valueOf(this.asShort  ());
-			case INT     -> Integer.valueOf(this.asInt    ());
-			case LONG    -> Long   .valueOf(this.asLong   ());
-			case FLOAT   -> Float  .valueOf(this.asFloat  ());
-			case DOUBLE  -> Double .valueOf(this.asDouble ());
-			case CHAR    -> Integer.valueOf(this.asChar   ());
-			case BOOLEAN -> Byte   .valueOf(this.asBoolean() ? ((byte)(1)) : ((byte)(0)));
+			case BYTE -> Byte.valueOf(this.asByte());
+			case SHORT -> Short.valueOf(this.asShort());
+			case INT -> Integer.valueOf(this.asInt());
+			case LONG -> Long.valueOf(this.asLong());
+			case FLOAT -> Float.valueOf(this.asFloat());
+			case DOUBLE -> Double.valueOf(this.asDouble());
+			case CHAR -> Integer.valueOf(this.asChar());
+			case BOOLEAN -> Byte.valueOf(this.asBoolean() ? ((byte)(1)) : ((byte)(0)));
 			case OBJECT, ARRAY, VOID -> throw new IllegalStateException(this.getTypeInfo().toString());
 		};
 	}
 
 	public default Object asJavaObject() {
 		return switch (this.getTypeInfo().getSort()) {
-			case BYTE    -> Byte     .valueOf(this.asByte   ());
-			case SHORT   -> Short    .valueOf(this.asShort  ());
-			case INT     -> Integer  .valueOf(this.asInt    ());
-			case LONG    -> Long     .valueOf(this.asLong   ());
-			case FLOAT   -> Float    .valueOf(this.asFloat  ());
-			case DOUBLE  -> Double   .valueOf(this.asDouble ());
-			case CHAR    -> Character.valueOf(this.asChar   ());
-			case BOOLEAN -> Boolean  .valueOf(this.asBoolean());
+			case BYTE -> Byte.valueOf(this.asByte());
+			case SHORT -> Short.valueOf(this.asShort());
+			case INT -> Integer.valueOf(this.asInt());
+			case LONG -> Long.valueOf(this.asLong());
+			case FLOAT -> Float.valueOf(this.asFloat());
+			case DOUBLE -> Double.valueOf(this.asDouble());
+			case CHAR -> Character.valueOf(this.asChar());
+			case BOOLEAN -> Boolean.valueOf(this.asBoolean());
 			case OBJECT, ARRAY, VOID -> throw new IllegalStateException(this.getTypeInfo().toString());
 		};
 	}
@@ -125,8 +168,8 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 	public default Object asAsmObject() {
 		return switch (this.getTypeInfo().getSort()) {
 			case BYTE, SHORT, INT, CHAR, BOOLEAN -> Integer.valueOf(this.asInt());
-			case LONG   -> Long  .valueOf(this.asLong  ());
-			case FLOAT  -> Float .valueOf(this.asFloat ());
+			case LONG -> Long.valueOf(this.asLong());
+			case FLOAT -> Float.valueOf(this.asFloat());
 			case DOUBLE -> Double.valueOf(this.asDouble());
 			case OBJECT, ARRAY, VOID -> throw new IllegalStateException(this.getTypeInfo().toString());
 		};
@@ -147,19 +190,70 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 
 		public static final NonConstantValue INSTANCE = new NonConstantValue();
 
-		@Override public byte asByte() { throw new UnsupportedOperationException(); }
-		@Override public short asShort() { throw new UnsupportedOperationException(); }
-		@Override public int asInt() { throw new UnsupportedOperationException(); }
-		@Override public long asLong() { throw new UnsupportedOperationException(); }
-		@Override public float asFloat() { throw new UnsupportedOperationException(); }
-		@Override public double asDouble() { throw new UnsupportedOperationException(); }
-		@Override public char asChar() { throw new UnsupportedOperationException(); }
-		@Override public boolean asBoolean() { throw new UnsupportedOperationException(); }
-		@Override public TypeInfo getTypeInfo() { throw new UnsupportedOperationException(); }
-		@Override public Number asNumber() { throw new UnsupportedOperationException(); }
-		@Override public Object asJavaObject() { throw new UnsupportedOperationException(); }
-		@Override public Object asAsmObject() { throw new UnsupportedOperationException(); }
-		@Override public void emitBytecode(MethodCompileContext method) { throw new UnsupportedOperationException(); }
+		@Override
+		public byte asByte() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public short asShort() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int asInt() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public long asLong() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public float asFloat() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public double asDouble() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public char asChar() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean asBoolean() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public TypeInfo getTypeInfo() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Number asNumber() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Object asJavaObject() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Object asAsmObject() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void emitBytecode(MethodCompileContext method) {
+			throw new UnsupportedOperationException();
+		}
 
 		@Override
 		public boolean isConstant() {
@@ -182,20 +276,65 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.type = type;
 		}
 
-		public IntConstantValue(boolean value) { this(value ? 1 : 0, TypeInfos.BOOLEAN); }
-		public IntConstantValue(byte value) { this(value, TypeInfos.BYTE); }
-		public IntConstantValue(char value) { this(value, TypeInfos.CHAR); }
-		public IntConstantValue(short value) { this(value, TypeInfos.SHORT); }
-		public IntConstantValue(int value) { this(value, TypeInfos.INT); }
+		public IntConstantValue(boolean value) {
+			this(value ? 1 : 0, TypeInfos.BOOLEAN);
+		}
 
-		@Override public byte asByte() { return toByte(this.value); }
-		@Override public short asShort() { return toShort(this.value); }
-		@Override public int asInt() { return this.value; }
-		@Override public long asLong() { return this.value; }
-		@Override public float asFloat() { return this.value; }
-		@Override public double asDouble() { return this.value; }
-		@Override public char asChar() { return toChar(this.value); }
-		@Override public boolean asBoolean() { return this.value != 0; }
+		public IntConstantValue(byte value) {
+			this(value, TypeInfos.BYTE);
+		}
+
+		public IntConstantValue(char value) {
+			this(value, TypeInfos.CHAR);
+		}
+
+		public IntConstantValue(short value) {
+			this(value, TypeInfos.SHORT);
+		}
+
+		public IntConstantValue(int value) {
+			this(value, TypeInfos.INT);
+		}
+
+		@Override
+		public byte asByte() {
+			return toByte(this.value);
+		}
+
+		@Override
+		public short asShort() {
+			return toShort(this.value);
+		}
+
+		@Override
+		public int asInt() {
+			return this.value;
+		}
+
+		@Override
+		public long asLong() {
+			return this.value;
+		}
+
+		@Override
+		public float asFloat() {
+			return this.value;
+		}
+
+		@Override
+		public double asDouble() {
+			return this.value;
+		}
+
+		@Override
+		public char asChar() {
+			return toChar(this.value);
+		}
+
+		@Override
+		public boolean asBoolean() {
+			return this.value != 0;
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -233,14 +372,45 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.value = value;
 		}
 
-		@Override public byte asByte() { return toByte(toInt(this.value)); }
-		@Override public short asShort() { return toShort(toInt(this.value)); }
-		@Override public int asInt() { return toInt(this.value); }
-		@Override public long asLong() { return this.value; }
-		@Override public float asFloat() { return this.value; }
-		@Override public double asDouble() { return this.value; }
-		@Override public char asChar() { return toChar(toInt(this.value)); }
-		@Override public boolean asBoolean() { return this.value != 0L; }
+		@Override
+		public byte asByte() {
+			return toByte(toInt(this.value));
+		}
+
+		@Override
+		public short asShort() {
+			return toShort(toInt(this.value));
+		}
+
+		@Override
+		public int asInt() {
+			return toInt(this.value);
+		}
+
+		@Override
+		public long asLong() {
+			return this.value;
+		}
+
+		@Override
+		public float asFloat() {
+			return this.value;
+		}
+
+		@Override
+		public double asDouble() {
+			return this.value;
+		}
+
+		@Override
+		public char asChar() {
+			return toChar(toInt(this.value));
+		}
+
+		@Override
+		public boolean asBoolean() {
+			return this.value != 0L;
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -275,14 +445,45 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.value = value;
 		}
 
-		@Override public byte asByte() { return toByte(toInt(this.value)); }
-		@Override public short asShort() { return toShort(toInt(this.value)); }
-		@Override public int asInt() { return toInt(this.value); }
-		@Override public long asLong() { return toLong(this.value); }
-		@Override public float asFloat() { return this.value; }
-		@Override public double asDouble() { return this.value; }
-		@Override public char asChar() { return toChar(toInt(this.value)); }
-		@Override public boolean asBoolean() { return CastingSupport.F2Z(this.value); }
+		@Override
+		public byte asByte() {
+			return toByte(toInt(this.value));
+		}
+
+		@Override
+		public short asShort() {
+			return toShort(toInt(this.value));
+		}
+
+		@Override
+		public int asInt() {
+			return toInt(this.value);
+		}
+
+		@Override
+		public long asLong() {
+			return toLong(this.value);
+		}
+
+		@Override
+		public float asFloat() {
+			return this.value;
+		}
+
+		@Override
+		public double asDouble() {
+			return this.value;
+		}
+
+		@Override
+		public char asChar() {
+			return toChar(toInt(this.value));
+		}
+
+		@Override
+		public boolean asBoolean() {
+			return CastingSupport.F2Z(this.value);
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -320,14 +521,45 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.value = value;
 		}
 
-		@Override public byte asByte() { return toByte(toInt(this.value)); }
-		@Override public short asShort() { return toShort(toInt(this.value)); }
-		@Override public int asInt() { return toInt(this.value); }
-		@Override public long asLong() { return toLong(this.value); }
-		@Override public float asFloat() { return (float)(this.value); }
-		@Override public double asDouble() { return this.value; }
-		@Override public char asChar() { return toChar(toInt(this.value)); }
-		@Override public boolean asBoolean() { return CastingSupport.D2Z(this.value); }
+		@Override
+		public byte asByte() {
+			return toByte(toInt(this.value));
+		}
+
+		@Override
+		public short asShort() {
+			return toShort(toInt(this.value));
+		}
+
+		@Override
+		public int asInt() {
+			return toInt(this.value);
+		}
+
+		@Override
+		public long asLong() {
+			return toLong(this.value);
+		}
+
+		@Override
+		public float asFloat() {
+			return (float)(this.value);
+		}
+
+		@Override
+		public double asDouble() {
+			return this.value;
+		}
+
+		@Override
+		public char asChar() {
+			return toChar(toInt(this.value));
+		}
+
+		@Override
+		public boolean asBoolean() {
+			return CastingSupport.D2Z(this.value);
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -362,14 +594,45 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.type = type;
 		}
 
-		@Override public byte asByte() { return 0; }
-		@Override public short asShort() { return 0; }
-		@Override public int asInt() { return 0; }
-		@Override public long asLong() { return 0; }
-		@Override public float asFloat() { return 0; }
-		@Override public double asDouble() { return 0; }
-		@Override public char asChar() { return 0; }
-		@Override public boolean asBoolean() { return false; }
+		@Override
+		public byte asByte() {
+			return 0;
+		}
+
+		@Override
+		public short asShort() {
+			return 0;
+		}
+
+		@Override
+		public int asInt() {
+			return 0;
+		}
+
+		@Override
+		public long asLong() {
+			return 0;
+		}
+
+		@Override
+		public float asFloat() {
+			return 0;
+		}
+
+		@Override
+		public double asDouble() {
+			return 0;
+		}
+
+		@Override
+		public char asChar() {
+			return 0;
+		}
+
+		@Override
+		public boolean asBoolean() {
+			return false;
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -410,15 +673,50 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.value = value;
 		}
 
-		@Override public byte asByte() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public short asShort() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public int asInt() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public long asLong() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public float asFloat() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public double asDouble() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public char asChar() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public boolean asBoolean() { throw new ClassCastException("Not a number (is a String)"); }
-		@Override public Number asNumber() { throw new ClassCastException("Not a number (is a String)"); }
+		@Override
+		public byte asByte() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public short asShort() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public int asInt() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public long asLong() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public float asFloat() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public double asDouble() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public char asChar() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public boolean asBoolean() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
+
+		@Override
+		public Number asNumber() {
+			throw new ClassCastException("Not a number (is a String)");
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -461,15 +759,50 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 			this.value = value;
 		}
 
-		@Override public byte asByte() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public short asShort() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public int asInt() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public long asLong() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public float asFloat() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public double asDouble() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public char asChar() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public boolean asBoolean() { throw new ClassCastException("Not a number (is a Class)"); }
-		@Override public Number asNumber() { throw new ClassCastException("Not a number (is a Class)"); }
+		@Override
+		public byte asByte() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public short asShort() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public int asInt() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public long asLong() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public float asFloat() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public double asDouble() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public char asChar() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public boolean asBoolean() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
+
+		@Override
+		public Number asNumber() {
+			throw new ClassCastException("Not a number (is a Class)");
+		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
@@ -524,9 +857,9 @@ public interface ConstantValue extends Typeable, BytecodeEmitter {
 					bootstrapMethod.isInterface()
 				),
 				Arrays
-				.stream(bootstrapArgs)
-				.map(ConstantValue::asAsmObject)
-				.toArray()
+					.stream(bootstrapArgs)
+					.map(ConstantValue::asAsmObject)
+					.toArray()
 			);
 		}
 

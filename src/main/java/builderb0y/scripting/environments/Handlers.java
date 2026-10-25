@@ -5,15 +5,16 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.ScriptLogger;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.ConstantFactory;
+import builderb0y.scripting.bytecode.MethodInfo;
+import builderb0y.scripting.bytecode.TypeInfo;
+import builderb0y.scripting.bytecode.Typeable;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.BaseInvokeInsnTree;
@@ -314,25 +315,27 @@ public class Handlers {
 
 		public Method resolveRaw() {
 			return this.cachedMethod != null ? this.cachedMethod : (
-				this.cachedMethod = ReflectionData.forClass(this.in).findDeclaredMethod(this.name, (Method method) -> {
-					if (this.returnClass != null && this.returnClass != method.getReturnType()) {
-						return false;
-					}
-					Class<?>[] actualTypes = method.getParameterTypes();
-					if (!Modifier.isStatic(method.getModifiers())) {
-						actualTypes = ObjectArrays.concat(method.getDeclaringClass(), actualTypes);
-					}
-					List<Argument> arguments = this.arguments;
-					if (actualTypes.length != arguments.size()) {
-						return false;
-					}
-					for (int index = 0, size = arguments.size(); index < size; index++) {
-						if (actualTypes[index] != arguments.get(index).getTypeInfo().toClass()) {
+				this.cachedMethod = ReflectionData.forClass(this.in).findDeclaredMethod(
+					this.name, (Method method) -> {
+						if (this.returnClass != null && this.returnClass != method.getReturnType()) {
 							return false;
 						}
+						Class<?>[] actualTypes = method.getParameterTypes();
+						if (!Modifier.isStatic(method.getModifiers())) {
+							actualTypes = ObjectArrays.concat(method.getDeclaringClass(), actualTypes);
+						}
+						List<Argument> arguments = this.arguments;
+						if (actualTypes.length != arguments.size()) {
+							return false;
+						}
+						for (int index = 0, size = arguments.size(); index < size; index++) {
+							if (actualTypes[index] != arguments.get(index).getTypeInfo().toClass()) {
+								return false;
+							}
+						}
+						return true;
 					}
-					return true;
-				})
+				)
 			);
 		}
 

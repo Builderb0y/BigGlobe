@@ -1,7 +1,0 @@
-{
-	"type": "simple_2d",
-	"state": "'minecraft:terracotta'",
-	"valid": {
-		"max_y": "int(`bigglobe:plateaus/plateau_y` + `bigglobe:plateaus/base_noise`)"
-	}
-}

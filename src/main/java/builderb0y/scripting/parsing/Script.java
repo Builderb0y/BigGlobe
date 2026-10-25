@@ -4,7 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 public interface Script {
 
-	/** returns the source code that this Script was compiled from. */
+	/**
+	returns the source code that this Script was compiled from.
+	*/
 	public abstract String getSource();
 
 	/**

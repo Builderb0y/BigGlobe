@@ -87,23 +87,23 @@ public class FastMath {
 	in other words, 0.9999995 <= (approx / exact) <= 1.0000005.
 
 	special cases:
-		if the input {@link Double#isNaN(double) is NaN}, then the result is {@link Double#NaN}.
-		if the result would be <a href="https://en.wikipedia.org/wiki/Denormal_number">subnormal</a>
-		(in other words, less than {@link Double#MIN_NORMAL} or {@link Float#MIN_NORMAL}),
-		then positive 0 is returned.
-		if the result would be too big to fit in a float or double,
-		then {@link Double#POSITIVE_INFINITY} is returned
-		to be consistent with {@link Math#exp(double)}.
+	if the input {@link Double#isNaN(double) is NaN}, then the result is {@link Double#NaN}.
+	if the result would be <a href="https://en.wikipedia.org/wiki/Denormal_number">subnormal</a>
+	(in other words, less than {@link Double#MIN_NORMAL} or {@link Float#MIN_NORMAL}),
+	then positive 0 is returned.
+	if the result would be too big to fit in a float or double,
+	then {@link Double#POSITIVE_INFINITY} is returned
+	to be consistent with {@link Math#exp(double)}.
 
 	algorithm:
-		for base 2, the result is computed as 2 ^ ((value mod 1) + floor(value))
-		= (2 ^ (value mod 1)) * (2 ^ floor(value))
-		the first part uses a quintic curve to get an
-		approximation for 2 ^ value in the domain [0, 1].
-		the 2nd part uses bitwise tricks to modify the exponent of the result.
-		adding N to the exponent is the same as multiplying the result by 2^N.
+	for base 2, the result is computed as 2 ^ ((value mod 1) + floor(value))
+	= (2 ^ (value mod 1)) * (2 ^ floor(value))
+	the first part uses a quintic curve to get an
+	approximation for 2 ^ value in the domain [0, 1].
+	the 2nd part uses bitwise tricks to modify the exponent of the result.
+	adding N to the exponent is the same as multiplying the result by 2^N.
 
-		for base e, the result is computed as 2 ^ (value * log_2(e)) using the above tactic.
+	for base e, the result is computed as 2 ^ (value * log_2(e)) using the above tactic.
 	*/
 	public static class Exp {
 
@@ -143,23 +143,23 @@ public class FastMath {
 	in other words, -0.00005D <= (approx - exact) <= 0.00005D
 
 	special cases:
-		if the input {@link Double#isNaN(double) is NaN}, then the result is {@link Double#NaN}.
-		if the input is less than 0, then the result is {@link Double#NaN}.
-		if the input is positive or negative 0, then the result is {@link Double#NEGATIVE_INFINITY}.
-		if the input is <a href="https://en.wikipedia.org/wiki/Denormal_number">subnormal</a>
-		(in other words, less than {@link Double#MIN_NORMAL} or {@link Float#MIN_NORMAL}),
-		then the result is {@link Double#NEGATIVE_INFINITY}.
-		if the input is {@link Double#POSITIVE_INFINITY},
-		then the result is {@link Double#POSITIVE_INFINITY}.
+	if the input {@link Double#isNaN(double) is NaN}, then the result is {@link Double#NaN}.
+	if the input is less than 0, then the result is {@link Double#NaN}.
+	if the input is positive or negative 0, then the result is {@link Double#NEGATIVE_INFINITY}.
+	if the input is <a href="https://en.wikipedia.org/wiki/Denormal_number">subnormal</a>
+	(in other words, less than {@link Double#MIN_NORMAL} or {@link Float#MIN_NORMAL}),
+	then the result is {@link Double#NEGATIVE_INFINITY}.
+	if the input is {@link Double#POSITIVE_INFINITY},
+	then the result is {@link Double#POSITIVE_INFINITY}.
 
 	algorithm:
-		for base 2, the result is computed as log2(mantissa * 2 ^ exponent)
-		= log2(mantissa) + log2(2 ^ exponent)
-		= log2(mantissa) + exponent.
-		the first part uses a quintic curve to get an
-		approximation for log2(value) in the domain [1, 2].
-		the 2nd part uses the bitwise representation
-		of floats to extract the exponent directly.
+	for base 2, the result is computed as log2(mantissa * 2 ^ exponent)
+	= log2(mantissa) + log2(2 ^ exponent)
+	= log2(mantissa) + exponent.
+	the first part uses a quintic curve to get an
+	approximation for log2(value) in the domain [1, 2].
+	the 2nd part uses the bitwise representation
+	of floats to extract the exponent directly.
 	*/
 	public static class Log {
 
@@ -167,11 +167,11 @@ public class FastMath {
 			LOGE2 = Math.log(2.0D), //ln(2)
 			LOG2E = 1.0D / LOGE2, //log2(e)
 			TERM0 = -2.816159410743029D,
-			TERM1 =  5.136019940826246D,
+			TERM1 = 5.136019940826246D,
 			TERM2 = -3.5965971344845508D,
-			TERM3 =  1.651994396722813D,
+			TERM3 = 1.651994396722813D,
 			TERM4 = -0.42017514047089418D,
-			TERM5 =  0.044917348149390499D;
+			TERM5 = 0.044917348149390499D;
 
 		public static double fastLog2(double value) {
 			if (!(value >= Double.MIN_NORMAL)) {

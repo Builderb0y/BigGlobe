@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -33,8 +32,8 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 		this.parent = parent;
 		this.mainClass = parent.mainClass.newInnerClass(
 			exportsAnything
-			? ACC_PUBLIC | ACC_SYNTHETIC | ACC_SUPER | ACC_ABSTRACT
-			: ACC_PUBLIC | ACC_SYNTHETIC | ACC_SUPER,
+				? ACC_PUBLIC | ACC_SYNTHETIC | ACC_SUPER | ACC_ABSTRACT
+				: ACC_PUBLIC | ACC_SYNTHETIC | ACC_SUPER,
 			Type.getInternalName(VoronoiDataBase.class) + "$Generated$Base_" + name + '_' + ScriptClassLoader.CLASS_UNIQUIFIER.getAndIncrement(),
 			type(VoronoiDataBase.class),
 			new TypeInfo[0]
@@ -62,7 +61,7 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 				),
 				load(cell)
 			)
-			.emitBytecode(this.constructor);
+				.emitBytecode(this.constructor);
 			putField(load(self), columnField.info, load(column)).emitBytecode(this.constructor);
 		}
 
@@ -75,7 +74,7 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 					columnField.info
 				)
 			)
-			.emitBytecode(column);
+				.emitBytecode(column);
 			column.endCode();
 		}
 
@@ -92,7 +91,7 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 					false
 				)
 			)
-			.emitBytecode(getCenterColumn);
+				.emitBytecode(getCenterColumn);
 			getCenterColumn.endCode();
 		}
 	}
@@ -119,8 +118,8 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 	public InsnTree loadSeed(@Nullable InsnTree salt) {
 		return (
 			salt != null
-			? VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt)
-			: VoronoiDataBase.INFO.unsalted_seed(this.loadSelf())
+				? VoronoiDataBase.INFO.salted_seed(this.loadSelf(), salt)
+				: VoronoiDataBase.INFO.unsalted_seed(this.loadSelf())
 		);
 	}
 
@@ -171,13 +170,13 @@ public class VoronoiBaseCompileContext extends AbstractVoronoiDataCompileContext
 					UnresolvedColumnValueInfo.RESOLVE,
 					getColumnValues.clazz.newConstant(
 						this.preprocessColumnValueInfos(Stream.empty())
-						.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
-						.toArray(UnresolvedColumnValueInfo[]::new),
+							.sorted(Comparator.comparing(UnresolvedColumnValueInfo::name))
+							.toArray(UnresolvedColumnValueInfo[]::new),
 						type(UnresolvedColumnValueInfo[].class)
 					)
 				)
 			)
-			.emitBytecode(getColumnValues);
+				.emitBytecode(getColumnValues);
 			getColumnValues.endCode();
 		}
 	}

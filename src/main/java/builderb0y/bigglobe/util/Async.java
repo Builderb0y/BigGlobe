@@ -29,7 +29,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 		this.executor = executor != null ? executor : ForkJoinPool.commonPool();
 	}
 
-	//////////////////////////////// utility methods ////////////////////////////////
+	/// ///////////////////////////// utility methods ////////////////////////////////
 
 	public static <T> void forEach(Executor executor, T[] array, Consumer<T> action) {
 		if (array.length == 0) return;
@@ -92,7 +92,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 		}
 	}
 
-	//////////////////////////////// shared logic ////////////////////////////////
+	/// ///////////////////////////// shared logic ////////////////////////////////
 
 	public void begin(CompletableFuture<T_Result> future) {
 		this.waitingOn.add(future);
@@ -101,7 +101,7 @@ public abstract class Async<T_Result> implements AutoCloseable {
 	@Override
 	public void close() {
 		CompletionException exception = null;
-		for (CompletableFuture<T_Result> future; (future = this.waitingOn.pollFirst()) != null;) {
+		for (CompletableFuture<T_Result> future; (future = this.waitingOn.pollFirst()) != null; ) {
 			try {
 				this.finish(future);
 			}

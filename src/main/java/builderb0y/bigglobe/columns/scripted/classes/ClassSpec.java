@@ -2,21 +2,17 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.MapData;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.parsing.ExpressionParser.IdentifierName;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
+import net.minecraft.core.Holder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
@@ -25,7 +21,7 @@ public class ClassSpec extends BaseClassSpec {
 	public ClassSpec(
 		@IdentifierName String name,
 		boolean isAbstract,
-		@Nullable RegistryEntry<ElementSpec> parent,
+		@Nullable Holder<ElementSpec> parent,
 		DelayedEntryList<ElementSpec> members
 	) {
 		super(name, isAbstract, parent, members);
@@ -44,13 +40,13 @@ public class ClassSpec extends BaseClassSpec {
 			new MethodInfo(
 				ACC_PUBLIC,
 				this.parent != null
-				? asType(this.parent).getTypeInfo()
-				: this.defaultSuperClass(),
+					? asType(this.parent).getTypeInfo()
+					: this.defaultSuperClass(),
 				"<init>",
 				TypeInfos.VOID
 			)
 		)
-		.emitBytecode(this.primaryConstructor);
+			.emitBytecode(this.primaryConstructor);
 	}
 
 	@Override

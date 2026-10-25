@@ -2,16 +2,13 @@ package builderb0y.bigglobe.hyperspace;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.Entity.RemovalReason;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.WaypointEntity;
 import builderb0y.bigglobe.versions.EntityVersions;
@@ -25,27 +22,28 @@ entities are also added when a chunk containing a waypoint is loaded on the clie
 @Environment(EnvType.CLIENT)
 public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 
-	public ClientPlayerWaypointManager(ClientPlayerEntity player) {
+	public ClientPlayerWaypointManager(LocalPlayer player) {
 		super(player);
 	}
 
-	public ClientPlayerEntity clientPlayer() {
-		return (ClientPlayerEntity)(this.player);
+	public LocalPlayer clientPlayer() {
+		return (LocalPlayer)(this.player);
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
-		if (this.collapseProgress == 0 && this.getAllWaypoints().isEmpty() && EntityVersions.getWorld(this.player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			EntityVersions.getClientWorld(this.clientPlayer()).playSoundFromEntity(MinecraftClient.getInstance().player, MinecraftClient.getInstance().player, SoundEvents.ENTITY_ENDER_DRAGON_DEATH, SoundCategory.AMBIENT, 1.0F, 0.5F);
+	public boolean tick() {
+		boolean result = super.tick();
+		if (this.collapseProgress == 0 && this.getAllWaypoints().isEmpty() && EntityVersions.getWorld(this.player).dimension() == HyperspaceConstants.WORLD_KEY) {
+			EntityVersions.getClientWorld(this.clientPlayer()).playSound(Minecraft.getInstance().player, Minecraft.getInstance().player, SoundEvents.ENDER_DRAGON_DEATH, SoundSource.AMBIENT, 1.0F, 0.5F);
 		}
+		return result;
 	}
 
 	@Override
 	public void clear() {
 		super.clear();
-		ClientWorld world = EntityVersions.getClientWorld(this.clientPlayer());
-		for (Entity entity : world.getEntities()) {
+		ClientLevel world = EntityVersions.getClientWorld(this.clientPlayer());
+		for (Entity entity : world.entitiesForRendering()) {
 			if (entity instanceof WaypointEntity waypoint && waypoint.isFake) {
 				entity.discard();
 			}
@@ -56,17 +54,17 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 	public boolean addWaypoint(PlayerWaypointData waypoint, boolean sync) {
 		if (super.addWaypoint(waypoint, sync)) {
 			if (sync) {
-				ClientWorld world = EntityVersions.getClientWorld(this.clientPlayer());
-				WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world #if MC_VERSION >= MC_1_21_2 , SpawnReason.SPAWN_ITEM_USE #endif);
+				ClientLevel world = EntityVersions.getClientWorld(this.clientPlayer());
+				WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
 				if (entity != null) {
-					entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
+					entity.setPos(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
 					entity.health = WaypointEntity.MAX_HEALTH;
 					entity.isFake = true;
 					entity.data = waypoint.destination();
 					entity.setId(waypoint.destination().entityId());
 					entity.setCustomName(waypoint.destination().name());
 					entity.setColor(waypoint.destination().color());
-					world.addEntity(#if MC_VERSION < MC_1_20_2 entity.getId(), #endif entity);
+					world.addEntity(entity);
 				}
 			}
 			return true;

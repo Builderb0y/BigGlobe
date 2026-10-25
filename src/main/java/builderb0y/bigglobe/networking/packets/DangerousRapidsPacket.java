@@ -3,12 +3,9 @@ package builderb0y.bigglobe.networking.packets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import builderb0y.bigglobe.ClientState;
-import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.versions.EntityVersions;
@@ -20,7 +17,7 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public Boolean decode(PacketByteBuf buffer) {
+	public Boolean decode(FriendlyByteBuf buffer) {
 		return buffer.readBoolean();
 	}
 
@@ -30,9 +27,9 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 		ClientState.forEach((ClientState state) -> state.dangerousRapids = data);
 	}
 
-	public void send(ServerPlayerEntity player) {
+	public void send(ServerPlayer player) {
 		boolean dangerousRapids = GameruleVersions.dangerousRapids(EntityVersions.getServerWorld(player));
-		PacketByteBuf buffer = this.buffer();
+		FriendlyByteBuf buffer = this.buffer();
 		buffer.writeBoolean(dangerousRapids);
 		BigGlobeNetwork.INSTANCE.sendToPlayer(player, buffer);
 	}

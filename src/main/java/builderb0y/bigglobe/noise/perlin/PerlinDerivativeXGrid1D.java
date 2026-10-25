@@ -25,12 +25,12 @@ public class PerlinDerivativeXGrid1D extends PerlinBaseGrid1D {
 	public double getValue(long seed, int x) {
 		seed = this.salt.xor(seed);
 		int
-			modX    = BigGlobeMath.modulus_BP(x, this.scaleX),
-			gridX0  = x - modX,
-			gridX1  = gridX0 + this.scaleX;
+			modX = BigGlobeMath.modulus_BP(x, this.scaleX),
+			gridX0 = x - modX,
+			gridX1 = gridX0 + this.scaleX;
 		double
-			fracX0  = modX * this.rcpX,
-			fracX1  = fracX0 - 1.0D,
+			fracX0 = modX * this.rcpX,
+			fracX1 = fracX0 - 1.0D,
 			slopeX0 = this.slopeX(seed, gridX0),
 			slopeX1 = this.slopeX(seed, gridX1),
 			offset0 = this.offset(seed, gridX0),
@@ -50,16 +50,16 @@ public class PerlinDerivativeXGrid1D extends PerlinBaseGrid1D {
 		if (sampleCount <= 0) return;
 		seed = this.salt.xor(seed);
 		int
-			scaleX  = this.scaleX,
-			modX    = BigGlobeMath.modulus_BP(startX, scaleX),
-			gridX   = startX - modX;
+			scaleX = this.scaleX,
+			modX = BigGlobeMath.modulus_BP(startX, scaleX),
+			gridX = startX - modX;
 		double
-			rcpX    = this.rcpX,
+			rcpX = this.rcpX,
 			slopeX0 = this.slopeX(seed, gridX),
 			offset0 = this.offset(seed, gridX),
 			slopeX1 = this.slopeX(seed, gridX += scaleX),
 			offset1 = this.offset(seed, gridX);
-		for (int index = 0; true /* break in the middle of the loop. */;) {
+		for (int index = 0; true /* break in the middle of the loop. */; ) {
 			double fracX0 = modX * rcpX;
 			double fracX1 = fracX0 - 1.0D;
 			samples.setD(
@@ -73,12 +73,12 @@ public class PerlinDerivativeXGrid1D extends PerlinBaseGrid1D {
 				) * rcpX
 			);
 			if (++index >= sampleCount) break;
-			if (++modX  >= scaleX) {
-				modX     = 0;
-				slopeX0  = slopeX1;
-				offset0  = offset1;
-				slopeX1  = this.slopeX(seed, gridX += scaleX);
-				offset1  = this.offset(seed, gridX);
+			if (++modX >= scaleX) {
+				modX = 0;
+				slopeX0 = slopeX1;
+				offset0 = offset1;
+				slopeX1 = this.slopeX(seed, gridX += scaleX);
+				offset1 = this.offset(seed, gridX);
 			}
 		}
 	}

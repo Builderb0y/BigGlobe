@@ -21,14 +21,15 @@ import builderb0y.scripting.util.InfoHolder;
 public class VoronoiSampler {
 
 	public static final int
-		FLAG_CENTER                = 1 << 0,
-		FLAG_CELL                  = 1 << 1,
+		FLAG_CENTER = 1 << 0,
+		FLAG_CELL = 1 << 1,
 		FLAG_SOFT_DISTANCE_SQUARED = 1 << 2,
-		FLAG_SOFT_DISTANCE         = 1 << 3,
-		FLAG_HARD_DISTANCE         = 1 << 4,
-		FLAG_EUCLIDEAN_DISTANCE    = 1 << 5;
+		FLAG_SOFT_DISTANCE = 1 << 3,
+		FLAG_HARD_DISTANCE = 1 << 4,
+		FLAG_EUCLIDEAN_DISTANCE = 1 << 5;
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public MethodInfo
@@ -52,29 +53,34 @@ public class VoronoiSampler {
 
 		public void addAllTo(MutableScriptEnvironment environment, TypeInfo columnType) {
 			environment
-			.addFieldInvoke("cellX",                    this.cellX                   )
-			.addFieldInvoke("cellZ",                    this.cellZ                   )
-			.addFieldInvoke("centerX",                  this.centerX                 )
-			.addFieldInvoke("centerZ",                  this.centerZ                 )
-			.addFieldInvoke("softDistanceSquared",      this.softDistanceSquared     )
-			.addFieldInvoke("dxSoftDistanceSquared",    this.dxSoftDistanceSquared   )
-			.addFieldInvoke("dzSoftDistanceSquared",    this.dzSoftDistanceSquared   )
-			.addFieldInvoke("softDistance",             this.softDistance            )
-			.addFieldInvoke("dxSoftDistance",           this.dxSoftDistance          )
-			.addFieldInvoke("dzSoftDistance",           this.dzSoftDistance          )
-			.addFieldInvoke("hardDistanceSquared",      this.hardDistanceSquared     )
-			.addFieldInvoke("hardDistance",             this.hardDistance            )
-			.addFieldInvoke("euclideanDistanceSquared", this.euclideanDistanceSquared)
-			.addFieldInvoke("euclideanDistance",        this.euclideanDistance       )
-			.addField(this.type, "centerColumn", new FieldHandler.Named("centerColumn", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
-				return switch (mode) {
-					case NORMAL, NULLABLE -> mode.makeInvoker(parser, receiver, this.centerColumn).cast(parser, columnType, CastMode.EXPLICIT_THROW, false);
-					case RECEIVER, NULLABLE_RECEIVER -> receiver;
-				};
-			}))
-			.addMethodInvoke("nextSeed", this.nextSeed);
+				.addFieldInvoke("cellX", this.cellX)
+				.addFieldInvoke("cellZ", this.cellZ)
+				.addFieldInvoke("centerX", this.centerX)
+				.addFieldInvoke("centerZ", this.centerZ)
+				.addFieldInvoke("softDistanceSquared", this.softDistanceSquared)
+				.addFieldInvoke("dxSoftDistanceSquared", this.dxSoftDistanceSquared)
+				.addFieldInvoke("dzSoftDistanceSquared", this.dzSoftDistanceSquared)
+				.addFieldInvoke("softDistance", this.softDistance)
+				.addFieldInvoke("dxSoftDistance", this.dxSoftDistance)
+				.addFieldInvoke("dzSoftDistance", this.dzSoftDistance)
+				.addFieldInvoke("hardDistanceSquared", this.hardDistanceSquared)
+				.addFieldInvoke("hardDistance", this.hardDistance)
+				.addFieldInvoke("euclideanDistanceSquared", this.euclideanDistanceSquared)
+				.addFieldInvoke("euclideanDistance", this.euclideanDistance)
+				.addField(
+					this.type, "centerColumn", new FieldHandler.Named(
+						"centerColumn", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
+						return switch (mode) {
+							case NORMAL, NULLABLE -> mode.makeInvoker(parser, receiver, this.centerColumn).cast(parser, columnType, CastMode.EXPLICIT_THROW, false);
+							case RECEIVER, NULLABLE_RECEIVER -> receiver;
+						};
+					}
+					)
+				)
+				.addMethodInvoke("nextSeed", this.nextSeed);
 		}
 	}
+
 	public static final ConstructorInfo CONSTRUCTOR = new ConstructorInfo(VoronoiSampler.class);
 
 	public final VoronoiDiagram2D diagram;
@@ -83,7 +89,7 @@ public class VoronoiSampler {
 	public int flags;
 	public final Derivative2D
 		softDistanceSquared = new Derivative2D(),
-		softDistance        = new Derivative2D();
+		softDistance = new Derivative2D();
 	public double hardDistance, euclideanDistance;
 	public SeedPoint center;
 	public Cell cell;

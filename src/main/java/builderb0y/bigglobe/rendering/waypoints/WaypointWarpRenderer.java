@@ -4,12 +4,9 @@ import java.util.TreeSet;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.entity.Entity;
-
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.entities.WaypointEntity;
@@ -18,51 +15,25 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.rendering.*;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 
 import static org.lwjgl.opengl.GL32C.*;
 
 public class WaypointWarpRenderer implements SafeCloseable {
 
 	public static WaypointWarpRenderer INSTANCE;
+
 	public static void init() {
 		try {
 			INSTANCE = new WaypointWarpRenderer();
-			#if MC_VERSION >= MC_1_21_9
-				net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_EXTRACTION.register(context -> {
-					WaypointWarpRenderer renderer = INSTANCE;
-					if (renderer != null) {
-						for (net.minecraft.client.render.entity.state.EntityRenderState entity : context.worldState().entityRenderStates) {
-							if (entity instanceof WaypointEntityRenderer.State waypoint) {
-								renderer.markWaypointVisible(waypoint.x, waypoint.y, waypoint.z, waypoint.age, waypoint.health);
-							}
-						}
-					}
-				});
-				net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.END_MAIN.register(context -> {
-					WaypointWarpRenderer renderer = INSTANCE;
-					if (renderer != null) {
-						renderer.draw();
-						renderer.endFrame();
-					}
-				});
-			#else
-				net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
-					WaypointWarpRenderer renderer = INSTANCE;
-					if (renderer != null) {
-						#if MC_VERSION >= MC_1_21_2
-							for (Entity entity : context.worldRenderer().renderedEntities) {
-								if (entity instanceof WaypointEntity waypoint) {
-									renderer.markWaypointVisible(waypoint.getX(), waypoint.getY(), waypoint.getZ(), waypoint.age, waypoint.health);
-								}
-							}
-						#endif
-						if (!renderer.visibleWaypoints.isEmpty()) {
-							renderer.draw();
-							renderer.endFrame();
-						}
-					}
-				});
-			#endif
+
+			WorldRenderEvents.START_MAIN.register(context -> {
+				WaypointWarpRenderer renderer = INSTANCE;
+				if (renderer != null && !renderer.visibleWaypoints.isEmpty()) {
+					renderer.draw();
+					renderer.endFrame();
+				}
+			});
 		}
 		catch (Exception exception) {
 			BigGlobeMod.LOGGER.error("Waypoint warp renderer unavailable:", exception);
@@ -131,10 +102,10 @@ public class WaypointWarpRenderer implements SafeCloseable {
 
 	public void doDraw() {
 		this.glState.capture();
-		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
-		this.framebuffer.ensureSize(framebuffer.textureWidth, framebuffer.textureHeight);
+		RenderTarget framebuffer = Minecraft.getInstance().getMainRenderTarget();
+		this.framebuffer.ensureSize(framebuffer.width, framebuffer.height);
 		this.glState.setFramebuffer(this.framebuffer.fbo);
-		this.glState.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
+		this.glState.setViewport(0, 0, framebuffer.width, framebuffer.height);
 		this.glState.setVao(this.vertices.vao);
 		this.glState.setCullFace(false);
 		this.glState.setDepthRead(false);

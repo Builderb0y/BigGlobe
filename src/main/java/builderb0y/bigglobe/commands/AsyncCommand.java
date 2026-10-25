@@ -1,30 +1,27 @@
 package builderb0y.bigglobe.commands;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 public abstract class AsyncCommand implements Runnable, Thread.UncaughtExceptionHandler {
 
-	public final ServerCommandSource source;
+	public final CommandSourceStack source;
 
-	public AsyncCommand(ServerCommandSource source) {
+	public AsyncCommand(CommandSourceStack source) {
 		this.source = source;
 	}
 
 	public ScriptedColumn newScriptedColumn() {
-		return BigGlobeCommands.generator(this.source).newColumn(this.source.getWorld(), 0, 0, ColumnUsage.GENERIC.normalHints());
+		return BigGlobeCommands.generator(this.source).newColumn(this.source.getLevel(), 0, 0, ColumnUsage.GENERIC.normalHints());
 	}
 
 	public void start(String input) {
-		Thread thread = new Thread(this, '[' + this.source.getName() + "]: " + input);
+		Thread thread = new Thread(this, '[' + this.source.getTextName() + "]: " + input);
 		thread.setDaemon(true);
 		thread.setUncaughtExceptionHandler(this);
 		thread.start();
@@ -47,10 +44,10 @@ public abstract class AsyncCommand implements Runnable, Thread.UncaughtException
 			return true; //server console is always valid.
 		}
 		//allow dead players to continue executing, as long as they haven't disconnected.
-		if (entity instanceof ServerPlayerEntity) {
+		if (entity instanceof ServerPlayer) {
 			//hasDisconnected() returns a field, and is never overridden.
 			//therefore, it is thread-safe.
-			return !((ServerPlayerEntity)(entity)).isDisconnected();
+			return !((ServerPlayer)(entity)).hasDisconnected();
 		}
 		else {
 			//isAlive() returns a field by default, but is overridden by LivingEntity.
@@ -67,13 +64,13 @@ public abstract class AsyncCommand implements Runnable, Thread.UncaughtException
 		BigGlobeMod.LOGGER.error("Error running command: " + thread.getName(), throwable);
 		this.source.getServer().execute(() -> {
 			if (this.isValid()) {
-				this.source.sendError(Text.literal(throwable.toString()));
+				this.source.sendFailure(Component.literal(throwable.toString()));
 			}
 		});
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " started by " + this.source.getName();
+		return this.getClass().getSimpleName() + " started by " + this.source.getTextName();
 	}
 }

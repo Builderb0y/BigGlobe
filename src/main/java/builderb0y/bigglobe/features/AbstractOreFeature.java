@@ -1,11 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.world.chunk.Chunk;
-
-import builderb0y.autocodec.annotations.DefaultBoolean;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.chunkgen.SectionGenerationContext;
@@ -31,30 +27,32 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 	public void replaceRocks(
 		BigGlobeScriptedChunkGenerator generator,
 		WorldWrapper worldWrapper,
-		Chunk chunk,
+		ChunkAccess chunk,
 		int minSection,
 		int maxSection,
 		T_Config config
 	) {
-		Async.loop(BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
-			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
-				chunk,
-				chunk.getSection(chunk.sectionCoordToIndex(sectionCoord)),
-				sectionCoord
-			);
-			OreBlockReplacer replacer = this.getReplacer(context, config);
-			if (replacer != null) {
-				ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
-				generateAllIntersecting(
-					context,
-					worldWrapper,
-					offsetColumn,
-					config,
-					replacer,
-					config.seed.xor(generator.columnSeed)
+		Async.loop(
+			BigGlobeThreadPool.autoExecutor(), minSection, maxSection, 1, (int sectionCoord) -> {
+				SectionGenerationContext context = SectionGenerationContext.forSectionCoord(
+					chunk,
+					chunk.getSection(chunk.getSectionIndexFromSectionY(sectionCoord)),
+					sectionCoord
 				);
+				OreBlockReplacer replacer = this.getReplacer(context, config);
+				if (replacer != null) {
+					ScriptedColumn offsetColumn = generator.columnEntryRegistry.columnFactory.create(worldWrapper.params);
+					generateAllIntersecting(
+						context,
+						worldWrapper,
+						offsetColumn,
+						config,
+						replacer,
+						config.seed.xor(generator.columnSeed)
+					);
+				}
 			}
-		});
+		);
 	}
 
 	public static void generateAllIntersecting(
@@ -113,11 +111,11 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		long oreSeedXZ
 	) {
 		for (int offsetY = -16; offsetY <= 16; offsetY += 16) {
-			long   seedXYZ         = Permuter.permute(oreSeedXZ, startYAbsolute + offsetY);
+			long seedXYZ = Permuter.permute(oreSeedXZ, startYAbsolute + offsetY);
 			double centerXRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x545D7EBDE4B67550L) * 16.0D;
 			double centerYRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x7EDC505CF32DE484L) * 16.0D + offsetY;
 			double centerZRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0xA8C2A92FDD33298DL) * 16.0D;
-			ScriptedColumn  column = columns.lookupColumn(
+			ScriptedColumn column = columns.lookupColumn(
 				startXAbsolute + BigGlobeMath.floorI(centerXRelative),
 				startZAbsolute + BigGlobeMath.floorI(centerZRelative)
 			);
@@ -148,7 +146,7 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		long oreSeedXZ
 	) {
 		for (int offsetY = -16; offsetY <= 16; offsetY += 16) {
-			long  seedXYZ = Permuter.permute(oreSeedXZ, startYAbsolute + offsetY);
+			long seedXYZ = Permuter.permute(oreSeedXZ, startYAbsolute + offsetY);
 			double centerXRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x545D7EBDE4B67550L) * 16.0D + offsetX;
 			double centerYRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0x7EDC505CF32DE484L) * 16.0D + offsetY;
 			double centerZRelative = Permuter.nextPositiveDouble(seedXYZ ^ 0xA8C2A92FDD33298DL) * 16.0D + offsetZ;
@@ -192,9 +190,9 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 		synchronized (column) {
 			radius = ore.radius.get(column, startYAbsolute, Permuter.stafford(veinSeed ^ 0x643CE1A830E16C28L));
 		}
-		int minX = Math.max(0,  BigGlobeMath. ceilI(centerXRelative - radius));
-		int minY = Math.max(0,  BigGlobeMath. ceilI(centerYRelative - radius));
-		int minZ = Math.max(0,  BigGlobeMath. ceilI(centerZRelative - radius));
+		int minX = Math.max(0, BigGlobeMath.ceilI(centerXRelative - radius));
+		int minY = Math.max(0, BigGlobeMath.ceilI(centerYRelative - radius));
+		int minZ = Math.max(0, BigGlobeMath.ceilI(centerZRelative - radius));
 		int maxX = Math.min(15, BigGlobeMath.floorI(centerXRelative + radius));
 		int maxY = Math.min(15, BigGlobeMath.floorI(centerYRelative + radius));
 		int maxZ = Math.min(15, BigGlobeMath.floorI(centerZRelative + radius));
@@ -269,10 +267,10 @@ public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Con
 			ColumnYToDoubleScript.Holder core_chance,
 			RandomSource radius
 		) {
-			this.seed        = seed;
-			this.chance      = chance;
+			this.seed = seed;
+			this.chance = chance;
 			this.core_chance = core_chance;
-			this.radius      = radius;
+			this.radius = radius;
 		}
 
 		public ColumnYToDoubleScript.Holder getCoreChance() {

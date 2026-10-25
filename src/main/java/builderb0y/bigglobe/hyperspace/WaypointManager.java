@@ -1,11 +1,11 @@
 package builderb0y.bigglobe.hyperspace;
 
-import java.util.*;
-
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.world.PersistentState;
-
 import builderb0y.bigglobe.BigGlobeMod;
 
 /**
@@ -14,7 +14,7 @@ and looked up by owner or by chunk.
 different subclasses of this class provide different views of all waypoints.
 see the documentation for each subclass for more details.
 */
-public abstract class WaypointManager<D extends WaypointData> extends PersistentState {
+public abstract class WaypointManager<D extends WaypointData> extends SavedData {
 
 	public transient WaypointLookup<D> allWaypoints = new WaypointLookup<>();
 	public transient Map<@Nullable UUID, WaypointLookup<D>> byOwner = new HashMap<>(16);
@@ -38,7 +38,7 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 			return false;
 		}
 		this.byOwner.computeIfAbsent(waypoint.owner(), (@Nullable UUID $) -> new WaypointLookup<>()).put(waypoint.id(), waypoint);
-		this.markDirty();
+		this.setDirty();
 		return true;
 	}
 
@@ -52,7 +52,7 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 		byOwner.remove(id);
 		if (byOwner.isEmpty()) this.byOwner.remove(removed.owner());
 
-		this.markDirty();
+		this.setDirty();
 
 		return removed;
 	}
@@ -61,6 +61,6 @@ public abstract class WaypointManager<D extends WaypointData> extends Persistent
 		this.allWaypoints.clear();
 		this.byOwner.clear();
 
-		this.markDirty();
+		this.setDirty();
 	}
 }

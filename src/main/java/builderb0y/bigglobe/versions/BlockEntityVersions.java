@@ -1,42 +1,30 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.math.BlockPos;
-
 import builderb0y.bigglobe.BigGlobeMod;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockEntityVersions {
 
-	#if MC_VERSION >= MC_1_21_6
-
-		public static net.minecraft.storage.ReadView readView(NbtCompound nbt) {
-			return net.minecraft.storage.NbtReadView.create(net.minecraft.util.ErrorReporter.EMPTY, BigGlobeMod.getCurrentServer().getRegistryManager(), nbt);
+	public static void readFromNbt(BlockEntity blockEntity, CompoundTag nbt) {
+		if (BigGlobeMod.currentServer != null) {
+			blockEntity.loadWithComponents(nbt, BigGlobeMod.currentServer.registryAccess());
 		}
-
-	#endif
-
-	public static void readFromNbt(BlockEntity blockEntity, NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_21_6
-			blockEntity.read(readView(nbt));
-		#elif MC_VERSION >= MC_1_20_5
-			blockEntity.read(nbt, BigGlobeMod.getCurrentServer().getRegistryManager());
-		#else
-			blockEntity.readNbt(nbt);
-		#endif
 	}
 
-	public static NbtCompound writeToNbt(BlockEntity blockEntity) {
-		#if MC_VERSION >= MC_1_20_5
-			return blockEntity.createNbtWithIdentifyingData(BigGlobeMod.getCurrentServer().getRegistryManager());
-		#else
-			return blockEntity.createNbtWithIdentifyingData();
-		#endif
+	public static CompoundTag writeToNbt(BlockEntity blockEntity) {
+		if (BigGlobeMod.currentServer != null) {
+			return blockEntity.saveWithFullMetadata(BigGlobeMod.currentServer.registryAccess());
+		}
+		return new CompoundTag();
 	}
 
-	public static BlockEntity createFromNbt(BlockPos pos, BlockState state, NbtCompound nbt) {
-		return BlockEntity.createFromNbt(pos, state, nbt #if MC_VERSION >= MC_1_20_5 , BigGlobeMod.getCurrentServer().getRegistryManager() #endif);
+	public static BlockEntity createFromNbt(BlockPos pos, BlockState state, CompoundTag nbt) {
+		if (BigGlobeMod.currentServer != null) {
+			return BlockEntity.loadStatic(pos, state, nbt, BigGlobeMod.currentServer.registryAccess());
+		}
+		return null;
 	}
 }

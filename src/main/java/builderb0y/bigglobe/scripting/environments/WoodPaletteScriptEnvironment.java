@@ -32,13 +32,13 @@ public class WoodPaletteScriptEnvironment {
 
 	public static final MutableScriptEnvironment BASE = (
 		new MutableScriptEnvironment()
-		.addType("WoodPalette", WoodPaletteEntry.class)
-		.addType("WoodPaletteTag", WoodPaletteTag.class)
-		.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, true)
-		.configure(WoodPaletteTag.PARSER)
-		.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
-		.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, long.class)
-		.addFieldInvoke(WoodPaletteEntry.class, "features")
+			.addType("WoodPalette", WoodPaletteEntry.class)
+			.addType("WoodPaletteTag", WoodPaletteTag.class)
+			.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, true)
+			.configure(WoodPaletteTag.PARSER)
+			.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
+			.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, long.class)
+			.addFieldInvoke(WoodPaletteEntry.class, "features")
 	);
 
 	static {
@@ -134,30 +134,32 @@ public class WoodPaletteScriptEnvironment {
 					new MemberKeywordHandler.Named(
 						"palette." + baseName + "State(optional Random random or long seed, property1: value1, property2: value2, ...)",
 						(ExpressionParser parser, InsnTree receiver, String name, MemberKeywordMode mode) -> {
-							return mode.apply(receiver, (InsnTree actualReceiver) -> {
-								PrefixedNamedValues namedValues = PrefixedNamedValues.parse(parser, null, TypeInfos.COMPARABLE, null);
-								InsnTree loadRandomOrSeed = namedValues.prefix();
-								if (loadRandomOrSeed == null) {
-									loadRandomOrSeed = loadRandom;
+							return mode.apply(
+								receiver, (InsnTree actualReceiver) -> {
+									PrefixedNamedValues namedValues = PrefixedNamedValues.parse(parser, null, TypeInfos.COMPARABLE, null);
+									InsnTree loadRandomOrSeed = namedValues.prefix();
 									if (loadRandomOrSeed == null) {
-										throw new ScriptParsingException("Implicit random is not available. Specify your own random or seed.", parser.input);
+										loadRandomOrSeed = loadRandom;
+										if (loadRandomOrSeed == null) {
+											throw new ScriptParsingException("Implicit random is not available. Specify your own random or seed.", parser.input);
+										}
 									}
+									InsnTree tree;
+									if (loadRandomOrSeed.getTypeInfo().equals(TypeInfos.LONG)) {
+										tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getSeededState, loadRandomOrSeed, loadType);
+									}
+									else if (loadRandomOrSeed.getTypeInfo().extendsOrImplements(type(RandomGenerator.class))) {
+										tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getRandomState, loadRandomOrSeed, loadType);
+									}
+									else {
+										throw new ScriptParsingException("Expected long or Random, got " + loadRandomOrSeed.getTypeInfo(), parser.input);
+									}
+									for (NamedValue value : namedValues.values()) {
+										tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(value.name()), value.value());
+									}
+									return namedValues.maybeWrap(tree);
 								}
-								InsnTree tree;
-								if (loadRandomOrSeed.getTypeInfo().equals(TypeInfos.LONG)) {
-									tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getSeededState, loadRandomOrSeed, loadType);
-								}
-								else if (loadRandomOrSeed.getTypeInfo().extendsOrImplements(type(RandomGenerator.class))) {
-									tree = invokeInstance(actualReceiver, WoodPaletteEntry.INFO.getRandomState, loadRandomOrSeed, loadType);
-								}
-								else {
-									throw new ScriptParsingException("Expected long or Random, got " + loadRandomOrSeed.getTypeInfo(), parser.input);
-								}
-								for (NamedValue value : namedValues.values()) {
-									tree = invokeStatic(BlockStateWrapper.WITH, tree, ldc(value.name()), value.value());
-								}
-								return namedValues.maybeWrap(tree);
-							});
+							);
 						}
 					)
 				);

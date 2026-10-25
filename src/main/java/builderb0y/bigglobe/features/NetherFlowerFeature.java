@@ -1,15 +1,13 @@
 package builderb0y.bigglobe.features;
 
 import com.mojang.serialization.Codec;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -37,23 +35,23 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 	}
 
 	@Override
-	public boolean generate(FeatureContext<Config> context) {
-		if (context.getConfig().requiresColumn && !(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator)) return false;
+	public boolean place(FeaturePlaceContext<Config> context) {
+		if (context.config().requiresColumn && !(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator)) return false;
 		ScriptedColumn column = (
-			context.getConfig().requiresColumn
-			? ((BigGlobeScriptedChunkGenerator)(context.getGenerator())).newColumn(
-				context.getWorld(),
-				context.getOrigin().getX(),
-				context.getOrigin().getZ(),
+			context.config().requiresColumn
+				? ((BigGlobeScriptedChunkGenerator)(context.chunkGenerator())).newColumn(
+				context.level(),
+				context.origin().getX(),
+				context.origin().getZ(),
 				ColumnUsage.FEATURES.maybeDhHints()
 			)
-			: null
+				: null
 		);
-		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-		Permuter permuter = Permuter.from(context.getRandom());
-		DelegatingContainedRandomList<Entry> entries = new DelegatingContainedRandomList<>(context.getConfig().entries.elements);
-		if (Permuter.nextChancedBoolean(permuter, context.getConfig().randomize_chance)) {
-			double radius = context.getConfig().randomize_radius.get(column, context.getOrigin().getY(), permuter);
+		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+		Permuter permuter = Permuter.from(context.random());
+		DelegatingContainedRandomList<Entry> entries = new DelegatingContainedRandomList<>(context.config().entries.elements);
+		if (Permuter.nextChancedBoolean(permuter, context.config().randomize_chance)) {
+			double radius = context.config().randomize_radius.get(column, context.origin().getY(), permuter);
 			int count = Permuter.roundRandomlyI(permuter, radius * radius * 0.25D);
 			for (int attempt = 0; attempt < count; attempt++) {
 				Entry entry = entries.getRandomElement(permuter);
@@ -62,7 +60,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		}
 		else {
 			Entry entry = entries.getRandomElement(permuter);
-			double radius = entry.radius.get(column, context.getOrigin().getY(), permuter);
+			double radius = entry.radius.get(column, context.origin().getY(), permuter);
 			int count = Permuter.roundRandomlyI(permuter, radius * radius * 0.25D);
 			for (int attempt = 0; attempt < count; attempt++) {
 				this.generate(context, permuter, entry, radius, mutablePos);
@@ -71,39 +69,39 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		return true;
 	}
 
-	public void generate(FeatureContext<Config> context, Permuter permuter, Entry entry, double radius, BlockPos.Mutable mutablePos) {
+	public void generate(FeaturePlaceContext<Config> context, Permuter permuter, Entry entry, double radius, BlockPos.MutableBlockPos mutablePos) {
 		double r = permuter.nextDouble(radius);
 		double theta = permuter.nextDouble(BigGlobeMath.TAU);
-		double x = Math.cos(theta) * r + context.getOrigin().getX() + 0.5D;
-		double z = Math.sin(theta) * r + context.getOrigin().getZ() + 0.5D;
+		double x = Math.cos(theta) * r + context.origin().getX() + 0.5D;
+		double z = Math.sin(theta) * r + context.origin().getZ() + 0.5D;
 
-		mutablePos.set(BigGlobeMath.floorI(x), context.getOrigin().getY(), BigGlobeMath.floorI(z));
-		Chunk chunk = context.getWorld().getChunk(mutablePos);
+		mutablePos.set(BigGlobeMath.floorI(x), context.origin().getY(), BigGlobeMath.floorI(z));
+		ChunkAccess chunk = context.level().getChunk(mutablePos);
 		while (BlockStateVersions.isReplaceable(chunk.getBlockState(mutablePos))) {
 			mutablePos.setY(mutablePos.getY() - 1);
-			if (r * r + BigGlobeMath.squareD(mutablePos.getY() - context.getOrigin().getY()) > radius * radius) return;
+			if (r * r + BigGlobeMath.squareD(mutablePos.getY() - context.origin().getY()) > radius * radius) return;
 		}
 		while (!BlockStateVersions.isReplaceable(chunk.getBlockState(mutablePos))) {
 			mutablePos.setY(mutablePos.getY() + 1);
-			if (r * r + BigGlobeMath.squareD(mutablePos.getY() - context.getOrigin().getY()) > radius * radius) return;
+			if (r * r + BigGlobeMath.squareD(mutablePos.getY() - context.origin().getY()) > radius * radius) return;
 		}
 		if (entry.under != null) {
 			mutablePos.setY(mutablePos.getY() - 1);
 			BlockState revert = chunk.getBlockState(mutablePos);
-			if (SingleBlockFeature.place(context.getWorld(), mutablePos, permuter, entry.under)) {
+			if (SingleBlockFeature.place(context.level(), mutablePos, permuter, entry.under)) {
 				mutablePos.setY(mutablePos.getY() + 1);
-				if (!SingleBlockFeature.place(context.getWorld(), mutablePos, permuter, entry.state)) {
+				if (!SingleBlockFeature.place(context.level(), mutablePos, permuter, entry.state)) {
 					mutablePos.setY(mutablePos.getY() - 1);
-					context.getWorld().setBlockState(mutablePos, revert, Block.NOTIFY_ALL);
+					context.level().setBlock(mutablePos, revert, Block.UPDATE_ALL);
 				}
 			}
 		}
 		else {
-			SingleBlockFeature.place(context.getWorld(), mutablePos, permuter, entry.state);
+			SingleBlockFeature.place(context.level(), mutablePos, permuter, entry.state);
 		}
 	}
 
-	public static class Config implements FeatureConfig {
+	public static class Config implements FeatureConfiguration {
 
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource randomize_radius;

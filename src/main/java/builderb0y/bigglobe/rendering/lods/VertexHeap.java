@@ -27,8 +27,10 @@ public class VertexHeap extends GpuMemory {
 	public TreeMapHelper<SliceKey, Slice>
 		/** contains only in-use slices. */
 		byPosition = new TreeMapHelper<>(SliceKey.POSITION_FIRST),
-		/** contains only unused slices. */
-		bySize     = new TreeMapHelper<>(SliceKey.LENGTH_FIRST);
+	/**
+	contains only unused slices.
+	*/
+	bySize = new TreeMapHelper<>(SliceKey.LENGTH_FIRST);
 
 	public VertexHeap(CompactVertexFormat format, long quadCount) {
 		super(quadCount * format.byteStride * 4L, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING);
@@ -99,7 +101,7 @@ public class VertexHeap extends GpuMemory {
 		}
 		assert allSlices[0].key.position() == 0L : "First slice does not start at byte 0";
 		for (int index = 0, limit = allSlices.length - 1; index < limit; index++) {
-			Slice lower  = allSlices[index];
+			Slice lower = allSlices[index];
 			Slice higher = allSlices[index + 1];
 			assert lower.key.end() == higher.key.position() : "Adjacent slices don't touch";
 		}
@@ -261,7 +263,6 @@ public class VertexHeap extends GpuMemory {
 				removed.inUse = false;
 				removed.key = removed.key.withLength(newLength);
 				removed.addToTree();
-
 			}
 			else {
 				//... used removed used ...
@@ -278,9 +279,9 @@ public class VertexHeap extends GpuMemory {
 		@SuppressWarnings("ComparatorCombinators")
 		public static final Comparator<SliceKey>
 			POSITION_FIRST = (SliceKey slice1, SliceKey slice2) -> {
-				int compare = Long.compare(slice1.position, slice2.position);
-				return compare != 0 ? compare : Long.compare(slice1.length, slice2.length);
-			},
+			int compare = Long.compare(slice1.position, slice2.position);
+			return compare != 0 ? compare : Long.compare(slice1.length, slice2.length);
+		},
 			LENGTH_FIRST = (SliceKey slice1, SliceKey slice2) -> {
 				int compare = Long.compare(slice1.length, slice2.length);
 				return compare != 0 ? compare : Long.compare(slice1.position, slice2.position);
@@ -311,12 +312,14 @@ public class VertexHeap extends GpuMemory {
 		}
 
 		public Slice(VertexHeap heap, SliceKey key, boolean inUse) {
-			this.heap  = heap;
-			this.key   = key;
+			this.heap = heap;
+			this.key = key;
 			this.inUse = inUse;
 		}
 
-		/** called during a cleanup. */
+		/**
+		called during a cleanup.
+		*/
 		public void move(long heapPointer, long newPosition) {
 			assert this.inUse : "Moving non-in-use slice!";
 			//assumptions:

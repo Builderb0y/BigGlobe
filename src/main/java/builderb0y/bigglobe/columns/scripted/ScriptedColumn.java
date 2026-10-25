@@ -2,9 +2,7 @@ package builderb0y.bigglobe.columns.scripted;
 
 import java.util.Locale;
 import java.util.function.Consumer;
-
-import net.minecraft.world.HeightLimitView;
-
+import net.minecraft.world.level.LevelHeightAccessor;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.columns.scripted2.ConstructorInfo;
@@ -12,17 +10,21 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.FieldConstantFactory;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-/** subclassed at runtime to add necessary fields. */
+/**
+subclassed at runtime to add necessary fields.
+*/
 public abstract class ScriptedColumn implements ColumnValueHolder {
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public MethodInfo
@@ -97,30 +99,30 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		return (MutableScriptEnvironment environment) -> {
 			environment
 
-			.addType("ScriptedColumn", loadColumn.getTypeInfo())
-			.addVariable("x", INFO.x(loadColumn))
-			.addVariable("z", INFO.z(loadColumn))
-			.addVariable("minCachedYLevel", INFO.minY(loadColumn))
-			.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
-			.addVariable("hints", INFO.hints(loadColumn))
-			.addVariable("purpose", INFO.purpose(loadColumn))
-			.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
-			.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
-			.addVariable("worldSeed", INFO.baseSeed(loadColumn))
-			.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
-			.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
-			.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
+				.addType("ScriptedColumn", loadColumn.getTypeInfo())
+				.addVariable("x", INFO.x(loadColumn))
+				.addVariable("z", INFO.z(loadColumn))
+				.addVariable("minCachedYLevel", INFO.minY(loadColumn))
+				.addVariable("maxCachedYLevel", INFO.maxY(loadColumn))
+				.addVariable("hints", INFO.hints(loadColumn))
+				.addVariable("purpose", INFO.purpose(loadColumn))
+				.addVariable("distantHorizons", INFO.distantHorizons(loadColumn))
+				.addVariable("surfaceOnly", INFO.surfaceOnly(loadColumn))
+				.addVariable("worldSeed", INFO.baseSeed(loadColumn))
+				.addFunctionInvoke("worldSeed", loadColumn, INFO.saltedBaseSeed)
+				.addVariable("columnSeed", INFO.positionedSeed(loadColumn))
+				.addFunctionInvoke("columnSeed", loadColumn, INFO.saltedPositionedSeed)
 
-			.addFieldInvoke("x", INFO.x)
-			.addFieldInvoke("z", INFO.z)
-			.addFieldInvoke("minCachedYLevel", INFO.minY)
-			.addFieldInvoke("maxCachedYLevel", INFO.maxY)
-			.addFieldInvoke("hints", INFO.hints)
-			.addFieldInvoke("purpose", INFO.purpose)
-			.addFieldInvoke("distantHorizons", INFO.distantHorizons)
-			.addFieldInvoke("surfaceOnly", INFO.surfaceOnly)
+				.addFieldInvoke("x", INFO.x)
+				.addFieldInvoke("z", INFO.z)
+				.addFieldInvoke("minCachedYLevel", INFO.minY)
+				.addFieldInvoke("maxCachedYLevel", INFO.maxY)
+				.addFieldInvoke("hints", INFO.hints)
+				.addFieldInvoke("purpose", INFO.purpose)
+				.addFieldInvoke("distantHorizons", INFO.distantHorizons)
+				.addFieldInvoke("surfaceOnly", INFO.surfaceOnly)
 
-			.configure(hintsEnvironment())
+				.configure(hintsEnvironment())
 			;
 		};
 	}
@@ -128,9 +130,9 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	public static Consumer<MutableScriptEnvironment> hintsEnvironment() {
 		return (MutableScriptEnvironment environment) -> {
 			environment
-			.addType("Hints", Hints.class)
-			.addFieldInvokes(Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate")
-			.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
+				.addType("Hints", Hints.class)
+				.addFieldInvokes(Hints.class, "fill", "carve", "isLod", "distanceBetweenColumns", "lod", "usage", "decorate")
+				.addCastConstant(ColumnUsage.CONSTANT_FACTORY, true)
 			;
 		};
 	}
@@ -147,7 +149,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		WorldTraits worldTraits
 	) {
 
-		public Params(long seed, int x, int z, HeightLimitView world, Hints hints, WorldTraits traits) {
+		public Params(long seed, int x, int z, LevelHeightAccessor world, Hints hints, WorldTraits traits) {
 			this(seed, x, z, HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world), hints, traits);
 		}
 
@@ -167,7 +169,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 			return this.minY == minY && this.maxY == maxY ? this : new Params(this.seed, this.x, this.z, minY, maxY, this.hints, this.worldTraits);
 		}
 
-		public Params heightRange(HeightLimitView world) {
+		public Params heightRange(LevelHeightAccessor world) {
 			return this.heightRange(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		}
 
@@ -249,10 +251,10 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 
 		public UndergroundMode defaultUndergroundMode() {
 			return switch (this) {
-				case GENERIC        -> UndergroundMode.DECORATE;
-				case HEIGHTMAP      -> UndergroundMode.FILL;
+				case GENERIC -> UndergroundMode.DECORATE;
+				case HEIGHTMAP -> UndergroundMode.FILL;
 				case RAW_GENERATION -> UndergroundMode.DECORATE;
-				case FEATURES       -> UndergroundMode.DECORATE;
+				case FEATURES -> UndergroundMode.DECORATE;
 			};
 		}
 
@@ -293,15 +295,44 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		public abstract ScriptedColumn create(Params params);
 	}
 
-	public int         x              () { return  this.params.x; }
-	public int         z              () { return  this.params.z; }
-	public int         minY           () { return  this.params.minY; }
-	public int         maxY           () { return  this.params.maxY; }
-	public Hints       hints          () { return  this.params.hints; }
-	public WorldTraits worldTraits    () { return  this.params.worldTraits; }
-	@Deprecated public String  purpose        () { return  this.params.hints.usage.lowerCaseName; }
-	@Deprecated public boolean distantHorizons() { return  this.params.hints.isLod(); }
-	@Deprecated public boolean surfaceOnly    () { return !this.params.hints.fill(); }
+	public int x() {
+		return this.params.x;
+	}
+
+	public int z() {
+		return this.params.z;
+	}
+
+	public int minY() {
+		return this.params.minY;
+	}
+
+	public int maxY() {
+		return this.params.maxY;
+	}
+
+	public Hints hints() {
+		return this.params.hints;
+	}
+
+	public WorldTraits worldTraits() {
+		return this.params.worldTraits;
+	}
+
+	@Deprecated
+	public String purpose() {
+		return this.params.hints.usage.lowerCaseName;
+	}
+
+	@Deprecated
+	public boolean distantHorizons() {
+		return this.params.hints.isLod();
+	}
+
+	@Deprecated
+	public boolean surfaceOnly() {
+		return !this.params.hints.fill();
+	}
 
 	public long baseSeed() {
 		return this.params.seed;

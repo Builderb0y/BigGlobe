@@ -26,7 +26,7 @@ public class ForIteratorInsnTree extends AbstractForIteratorInsnTree {
 		super(loopName);
 		this.variable = variable;
 		this.iterator = iterator;
-		this.body     = body;
+		this.body = body;
 	}
 
 	@Override

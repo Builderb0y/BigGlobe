@@ -4,7 +4,6 @@ import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
@@ -51,28 +50,28 @@ public interface CollisionOverrider extends ColumnScript {
 		public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 			this.script = (
 				new TemplateScriptParser<>(CollisionOverrider.class, this.usage, registry.parserFlags())
-				.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
-				.addEnvironment(MathScriptEnvironment.INSTANCE)
-				.addEnvironment(RandomScriptEnvironment.BASE)
-				.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-				.configureEnvironment(GridScriptEnvironment.create())
-				.configureEnvironment(MinecraftScriptEnvironment.create())
-				.addEnvironment(StructureScriptEnvironment.INSTANCE)
-				.configureEnvironment(NbtScriptEnvironment.createMutable())
-				.addEnvironment(WoodPaletteScriptEnvironment.BASE)
-				.configureEnvironment((MutableScriptEnvironment environment) -> {
-					LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
-					registry.setupExternalEnvironment(
-						environment
-						.addFieldGet(ScriptedStructure.Piece.class, "data")
-						.addVariableLoad("currentStart", StructureStartWrapper.TYPE)
-						.addVariableLoad("otherStart", StructureStartWrapper.TYPE)
-						.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
-						.configure(ScriptedColumn.hintsEnvironment()),
-						new ExternalEnvironmentParams().withLookup(loadLookup)
-					);
-				})
-				.parse(new ScriptClassLoader(registry.loader))
+					.configureEnvironment(JavaUtilScriptEnvironment.withoutRandom())
+					.addEnvironment(MathScriptEnvironment.INSTANCE)
+					.addEnvironment(RandomScriptEnvironment.BASE)
+					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+					.configureEnvironment(GridScriptEnvironment.create())
+					.configureEnvironment(MinecraftScriptEnvironment.create())
+					.addEnvironment(StructureScriptEnvironment.INSTANCE)
+					.configureEnvironment(NbtScriptEnvironment.createMutable())
+					.addEnvironment(WoodPaletteScriptEnvironment.BASE)
+					.configureEnvironment((MutableScriptEnvironment environment) -> {
+						LoadInsnTree loadLookup = load("columns", type(ScriptedColumnLookup.class));
+						registry.setupExternalEnvironment(
+							environment
+								.addFieldGet(ScriptedStructure.Piece.class, "data")
+								.addVariableLoad("currentStart", StructureStartWrapper.TYPE)
+								.addVariableLoad("otherStart", StructureStartWrapper.TYPE)
+								.addVariable("hints", Handlers.builder(ScriptedColumnLookup.HINTS).addImplicitArgument(loadLookup).buildVariable())
+								.configure(ScriptedColumn.hintsEnvironment()),
+							new ExternalEnvironmentParams().withLookup(loadLookup)
+						);
+					})
+					.parse(new ScriptClassLoader(registry.loader))
 			);
 		}
 

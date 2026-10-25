@@ -84,8 +84,8 @@ public class StaticInvokeInsnTree extends BaseInvokeInsnTree {
 		return MethodType.methodType(
 			method.returnType.toClass(),
 			Arrays.stream(method.paramTypes)
-			.map(TypeInfo::toClass)
-			.toArray(ArrayFactories.CLASS)
+				.map(TypeInfo::toClass)
+				.toArray(ArrayFactories.CLASS)
 		);
 	}
 }

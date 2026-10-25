@@ -2,41 +2,36 @@ package builderb0y.bigglobe.structures.dungeons;
 
 import java.util.List;
 import java.util.random.RandomGenerator;
-
-import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.DispenserBlockEntity;
-import net.minecraft.block.entity.MobSpawnerBlockEntity;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.block.enums.StairShape;
-import net.minecraft.block.enums.WallShape;
-import net.minecraft.entity.EntityType;
-import net.minecraft.loot.LootTables;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.state.property.Properties;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureType;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -57,18 +52,14 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class LargeDungeonStructure extends AbstractDungeonStructure {
 
-	#if MC_VERSION >= MC_1_20_5
-		public static final MapCodec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(LargeDungeonStructure.class);
-	#else
-		public static final Codec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(LargeDungeonStructure.class).codec();
-	#endif
+	public static final MapCodec<LargeDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(LargeDungeonStructure.class);
 
 	public LargeDungeonStructure(
-		Config config,
+		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Holder min_y,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
 		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
-		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
+		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config, min_y, surface_y, room_decorators, spawner_entries, palettes);
@@ -80,7 +71,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 	}
 
 	@Override
-	public StructureType<?> getType() {
+	public StructureType<?> type() {
 		return BigGlobeStructures.LARGE_DUNGEON_TYPE;
 	}
 
@@ -91,8 +82,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int y,
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
-			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
-			RegistryEntry<Structure> owningStructure
+			IRandomList<Holder<EntityType<?>>> spawnerEntries,
+			Holder<Structure> owningStructure
 		) {
 			super(column, y, random, (random.nextInt() & 127) + 64, roomDecorators, spawnerEntries, owningStructure);
 		}
@@ -133,7 +124,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 		public Room(
 			StructurePieceType type,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			RandomGenerator random,
 			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
@@ -143,26 +134,26 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			this.setPos(0, 0, 0);
 		}
 
-		public Room(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Room(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
 		public void setPos(int x, int y, int z) {
-			this.boundingBox = new BlockBox(x - 4, this.hasPit() ? y - 2 : y, z - 4, x + 4, y + 6, z + 4);
+			this.boundingBox = new BoundingBox(x - 4, this.hasPit() ? y - 2 : y, z - 4, x + 4, y + 6, z + 4);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
-			super.generate(
+			super.postProcess(
 				world,
 				structureAccessor,
 				chunkGenerator,
@@ -172,23 +163,23 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 				pivot
 			);
 			if (!this.hasPit() && this.support) {
-				BlockBox intersection = WorldUtil.intersection(this.boundingBox, chunkBox);
+				BoundingBox intersection = WorldUtil.intersection(this.boundingBox, chunkBox);
 				if (intersection == null) return;
-				BlockPos.Mutable pos = new BlockPos.Mutable();
+				BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 				CoordinateSupplier<BlockState> mainBlock = this.palette().mainSupplier();
 				int centerX = this.x();
 				int centerZ = this.z();
-				for (pos.setZ(intersection.getMinZ()); pos.getZ() <= intersection.getMaxZ(); pos.setZ(pos.getZ() + 1)) {
-					for (pos.setX(intersection.getMinX()); pos.getX() <= intersection.getMaxX(); pos.setX(pos.getX() + 1)) {
+				for (pos.setZ(intersection.minZ()); pos.getZ() <= intersection.maxZ(); pos.setZ(pos.getZ() + 1)) {
+					for (pos.setX(intersection.minX()); pos.getX() <= intersection.maxX(); pos.setX(pos.getX() + 1)) {
 						int gap = Math.min(Math.abs(pos.getX() - centerX), Math.abs(pos.getZ() - centerZ));
 						if (gap > 1) {
 							pos.setY(this.y() - 1);
 							if (BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
-								world.setBlockState(pos, mainBlock.get(pos), Block.NOTIFY_ALL);
+								world.setBlock(pos, mainBlock.get(pos), Block.UPDATE_ALL);
 								if (gap > 2) {
-									while (!world.isOutOfHeightLimit(pos.setY(pos.getY() - 1))) {
+									while (!world.isOutsideBuildHeight(pos.setY(pos.getY() - 1))) {
 										if (BlockStateVersions.isReplaceable(world.getBlockState(pos))) {
-											world.setBlockState(pos, mainBlock.get(pos), Block.NOTIFY_ALL);
+											world.setBlock(pos, mainBlock.get(pos), Block.UPDATE_ALL);
 										}
 										else {
 											break;
@@ -232,8 +223,8 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			RoomDungeonPiece
 				north = this.getConnectedRoom(Direction.NORTH),
 				south = this.getConnectedRoom(Direction.SOUTH),
-				east  = this.getConnectedRoom(Direction.EAST),
-				west  = this.getConnectedRoom(Direction.WEST);
+				east = this.getConnectedRoom(Direction.EAST),
+				west = this.getConnectedRoom(Direction.WEST);
 			if (north != null && south != null && east == null && west == null) {
 				return Direction.EAST;
 			}
@@ -253,36 +244,36 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction facing,
 			long seed
 		) {
-			super(type, 0, new BlockBox(x - 2, y, z - 2, x + 2, y + 1, z + 2), owningStructure, paletteIndex, facing, seed);
+			super(type, 0, new BoundingBox(x - 2, y, z - 2, x + 2, y + 1, z + 2), owningStructure, paletteIndex, facing, seed);
 		}
 
-		public ChestPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public ChestPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			Palette palette = this.palette();
 			Coordinator root = this.coordinator(world, chunkBox);
 			root.setBlockState(0, 0, 0, palette.mainSupplier());
-			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.CHEST.getDefaultState(), ChestBlockEntity.class, this::initChest);
+			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.CHEST.defaultBlockState(), ChestBlockEntity.class, this::initChest);
 			root.flip2X().setBlockStateLine(1, 0, 0, 0, 1, 0, palette.mainSupplier(), palette.slabSupplier(SlabType.BOTTOM));
-			root.flip2Z().setBlockState(0, 0, 1, palette.stairsSupplier(BlockHalf.BOTTOM, Direction.NORTH, StairShape.STRAIGHT));
-			root.flip4XZ().setBlockState(1, 0, 1, palette.stairsSupplier(BlockHalf.BOTTOM, Direction.WEST, StairShape.OUTER_RIGHT));
-			root.flip2X().setBlockState(2, 0, 0, palette.stairsSupplier(BlockHalf.BOTTOM, Direction.WEST, StairShape.STRAIGHT));
+			root.flip2Z().setBlockState(0, 0, 1, palette.stairsSupplier(Half.BOTTOM, Direction.NORTH, StairsShape.STRAIGHT));
+			root.flip4XZ().setBlockState(1, 0, 1, palette.stairsSupplier(Half.BOTTOM, Direction.WEST, StairsShape.OUTER_RIGHT));
+			root.flip2X().setBlockState(2, 0, 0, palette.stairsSupplier(Half.BOTTOM, Direction.WEST, StairsShape.STRAIGHT));
 		}
 	}
 
@@ -295,16 +286,16 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
-			RegistryEntry<EntityType<?>> spawnerType,
+			Holder<EntityType<?>> spawnerType,
 			RandomGenerator random
 		) {
-			super(type, 0, new BlockBox(x - 1, y, z - 1, x + 1, y + 3, z + 1), owningStructure, paletteIndex, spawnerType);
+			super(type, 0, new BoundingBox(x - 1, y, z - 1, x + 1, y + 3, z + 1), owningStructure, paletteIndex, spawnerType);
 			this.setBars(random.nextBoolean());
 		}
 
-		public SpawnerPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public SpawnerPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -318,51 +309,55 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 
 		@Override
 		@SuppressWarnings("unchecked") //generic varargs.
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
 			Coordinator root = this.coordinator(world, chunkBox);
 			Palette palette = this.palette();
 			root.setBlockState(0, 0, 0, palette.mainSupplier());
-			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.getDefaultState(), MobSpawnerBlockEntity.class, this::initSpawner);
+			root.setBlockStateAndBlockEntity(0, 1, 0, Blocks.SPAWNER.defaultBlockState(), SpawnerBlockEntity.class, this::initSpawner);
 			root.setBlockState(0, 2, 0, palette.mainSupplier());
 			root.setBlockState(0, 3, 0, palette.slabSupplier(SlabType.BOTTOM));
 			if (this.hasBars()) {
-				root.rotate4x90().setBlockStateLine(0, 0, 1, 0, 1, 0,
-					palette.stairsSupplier(BlockHalf.BOTTOM, Direction.NORTH, StairShape.STRAIGHT),
+				root.rotate4x90().setBlockStateLine(
+					0, 0, 1, 0, 1, 0,
+					palette.stairsSupplier(Half.BOTTOM, Direction.NORTH, StairsShape.STRAIGHT),
 					palette.barsSupplier(false, true, false, true),
-					palette.stairsSupplier(BlockHalf.TOP, Direction.NORTH, StairShape.STRAIGHT)
+					palette.stairsSupplier(Half.TOP, Direction.NORTH, StairsShape.STRAIGHT)
 				);
-				root.rotate4x90().setBlockStateLine(1, 0, 1, 0, 1, 0,
+				root.rotate4x90().setBlockStateLine(
+					1, 0, 1, 0, 1, 0,
 					palette.mainSupplier(),
-					palette.wallSupplier(WallShape.TALL, WallShape.NONE, WallShape.NONE, WallShape.TALL, true),
-					palette.stairsSupplier(BlockHalf.BOTTOM, Direction.NORTH, StairShape.OUTER_LEFT)
+					palette.wallSupplier(WallSide.TALL, WallSide.NONE, WallSide.NONE, WallSide.TALL, true),
+					palette.stairsSupplier(Half.BOTTOM, Direction.NORTH, StairsShape.OUTER_LEFT)
 				);
 			}
 			else {
-				root.rotate4x90().setBlockStateLine(0, 0, 1, 0, 1, 0,
-					palette.stairsSupplier(BlockHalf.BOTTOM, Direction.NORTH, StairShape.STRAIGHT),
+				root.rotate4x90().setBlockStateLine(
+					0, 0, 1, 0, 1, 0,
+					palette.stairsSupplier(Half.BOTTOM, Direction.NORTH, StairsShape.STRAIGHT),
 					null,
-					palette.stairsSupplier(BlockHalf.TOP, Direction.NORTH, StairShape.STRAIGHT)
+					palette.stairsSupplier(Half.TOP, Direction.NORTH, StairsShape.STRAIGHT)
 				);
-				root.rotate4x90().setBlockStateLine(1, 0, 1, 0, 1, 0,
+				root.rotate4x90().setBlockStateLine(
+					1, 0, 1, 0, 1, 0,
 					palette.mainSupplier(),
-					palette.wallSupplier(WallShape.NONE, WallShape.NONE, WallShape.NONE, WallShape.NONE, true),
-					palette.stairsSupplier(BlockHalf.BOTTOM, Direction.NORTH, StairShape.OUTER_LEFT)
+					palette.wallSupplier(WallSide.NONE, WallSide.NONE, WallSide.NONE, WallSide.NONE, true),
+					palette.stairsSupplier(Half.BOTTOM, Direction.NORTH, StairsShape.OUTER_LEFT)
 				);
 			}
 		}
 
 		@Override
-		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
+		public void initSpawner(BlockPos pos, SpawnerBlockEntity spawner) {
 			super.initSpawner(pos, spawner);
-			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getLogic());
+			MobSpawnerLogic_GettersAndSettersForEverything logic = (MobSpawnerLogic_GettersAndSettersForEverything)(spawner.getSpawner());
 			logic.bigglobe_setRequiredPlayerRange(32);
 			logic.bigglobe_setMaxNearbyEntities(6);
 			logic.bigglobe_setSpawnCount(4);
@@ -376,39 +371,39 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction orientation
 		) {
-			super(type, 0, new BlockBox(x - 4, y, z - 4, x + 4, y + 1, z + 4), owningStructure, paletteIndex);
+			super(type, 0, new BoundingBox(x - 4, y, z - 4, x + 4, y + 1, z + 4), owningStructure, paletteIndex);
 			this.setOrientation(orientation);
 		}
 
-		public TrapPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public TrapPiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
 		@Override
-		public Coordinator coordinator(StructureWorldAccess world, BlockBox limit) {
-			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Direction.NORTH, this.getFacing()));
+		public Coordinator coordinator(WorldGenLevel world, BoundingBox limit) {
+			return super.coordinator(world, limit).rotate1x(Directions.rotationOf(Direction.NORTH, this.getOrientation()));
 		}
 
 		@Override
 		public Coordinator coordinator(RawGenerationStructurePiece.Context context) {
-			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getFacing()));
+			return super.coordinator(context).rotate1x(Directions.rotationOf(Directions.POSITIVE_X, this.getOrientation()));
 		}
 
 		public static final BlockState
-			HOOK_STATE     = BlockStates.of("minecraft:tripwire_hook[attached=true,facing=north,powered=false]"),
+			HOOK_STATE = BlockStates.of("minecraft:tripwire_hook[attached=true,facing=north,powered=false]"),
 			TRIPWIRE_STATE = BlockStates.of("minecraft:tripwire[attached=true,disarmed=false,east=false,north=true,powered=false,south=true,west=false]");
 
 		@Override
-		public void generate(
-			StructureWorldAccess world,
-			StructureAccessor structureAccessor,
+		public void postProcess(
+			WorldGenLevel world,
+			StructureManager structureAccessor,
 			ChunkGenerator chunkGenerator,
-			Random random,
-			BlockBox chunkBox,
+			RandomSource random,
+			BoundingBox chunkBox,
 			ChunkPos chunkPos,
 			BlockPos pivot
 		) {
@@ -419,12 +414,12 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 				translated.flip2Z().setBlockState(0, 0, 3, HOOK_STATE);
 				translated.setBlockStateLine(0, 0, 2, 0, 0, -1, 5, TRIPWIRE_STATE);
 				(Permuter.toBoolean(Permuter.permute(seed, row)) ? translated.flip1Z() : translated)
-				.setBlockStateAndBlockEntity(0, 1, 4, Blocks.DISPENSER.getDefaultState().with(Properties.FACING, Direction.NORTH), DispenserBlockEntity.class, this::initDispenser);
+					.setBlockStateAndBlockEntity(0, 1, 4, Blocks.DISPENSER.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.NORTH), DispenserBlockEntity.class, this::initDispenser);
 			}
 		}
 
-		public void initDispenser(BlockPos.Mutable pos, DispenserBlockEntity dispenser) {
-			dispenser.setLootTable(LootTables.JUNGLE_TEMPLE_DISPENSER_CHEST, Permuter.permute(0x80E3F919EFE5D3AAL, pos));
+		public void initDispenser(BlockPos.MutableBlockPos pos, DispenserBlockEntity dispenser) {
+			dispenser.setLootTable(BuiltInLootTables.JUNGLE_TEMPLE_DISPENSER, Permuter.permute(0x80E3F919EFE5D3AAL, pos));
 		}
 	}
 
@@ -435,12 +430,12 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
 		) {
-			super(type, 0, new BlockBox(x - 4, y, z - 4, x + 4, y + 7, z + 4), owningStructure, paletteIndex);
+			super(type, 0, new BoundingBox(x - 4, y, z - 4, x + 4, y + 7, z + 4), owningStructure, paletteIndex);
 			this.setOrientation(direction);
 			this.setBars((random.nextInt() & 3) == 0);
 			int width = random.nextInt(7) + 1;
@@ -449,7 +444,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			this.setRight(position + width - 1);
 		}
 
-		public Hall(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -470,7 +465,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			int step,
@@ -480,10 +475,10 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 				case -3 -> new Hall3(BigGlobeStructures.LARGE_DUNGEON_HALL3_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
 				case -2 -> new Hall2(BigGlobeStructures.LARGE_DUNGEON_HALL2_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
 				case -1 -> new Hall1(BigGlobeStructures.LARGE_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction.getOpposite(), random);
-				case  0 -> new Hall0(BigGlobeStructures.LARGE_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
-				case  1 -> new Hall1(BigGlobeStructures.LARGE_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
-				case  2 -> new Hall2(BigGlobeStructures.LARGE_DUNGEON_HALL2_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
-				case  3 -> new Hall3(BigGlobeStructures.LARGE_DUNGEON_HALL3_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 0 -> new Hall0(BigGlobeStructures.LARGE_DUNGEON_HALL0_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 1 -> new Hall1(BigGlobeStructures.LARGE_DUNGEON_HALL1_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 2 -> new Hall2(BigGlobeStructures.LARGE_DUNGEON_HALL2_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
+				case 3 -> new Hall3(BigGlobeStructures.LARGE_DUNGEON_HALL3_TYPE, x, y, z, owningStructure, paletteIndex, direction, random);
 				default -> throw new IllegalArgumentException(Integer.toString(step));
 			};
 		}
@@ -507,7 +502,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -515,7 +510,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall0(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall0(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -537,7 +532,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -545,7 +540,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall1(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall1(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -570,7 +565,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -578,7 +573,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall2(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall2(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 
@@ -604,7 +599,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			int x,
 			int y,
 			int z,
-			RegistryEntry<Structure> owningStructure,
+			Holder<Structure> owningStructure,
 			int paletteIndex,
 			Direction direction,
 			RandomGenerator random
@@ -612,7 +607,7 @@ public class LargeDungeonStructure extends AbstractDungeonStructure {
 			super(type, x, y, z, owningStructure, paletteIndex, direction, random);
 		}
 
-		public Hall3(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public Hall3(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 			super(type, context, nbt);
 		}
 

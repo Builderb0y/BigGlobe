@@ -1,35 +1,35 @@
 package builderb0y.bigglobe.sounds;
 
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
 import builderb0y.bigglobe.BigGlobeMod;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 
 public class BigGlobeSoundEvents {
 
 	public static final SoundEvent ENTITY_ROCK_THROW = of("entity.rock.throw");
-	public static final RegistryEntry<SoundEvent> ITEM_ARMOR_EQUIP_VOIDMETAL = entryOf("item.armor.equip_voidmetal");
+	public static final Holder<SoundEvent> ITEM_ARMOR_EQUIP_VOIDMETAL = entryOf("item.armor.equip_voidmetal");
 
 	public static SoundEvent of(String name) {
-		Identifier id = BigGlobeMod.modID(name);
+		ResourceLocation id = BigGlobeMod.modID(name);
 		return Registry.register(
-			Registries.SOUND_EVENT,
+			BuiltInRegistries.SOUND_EVENT,
 			id,
-			SoundEvent.of(id)
+			SoundEvent.createVariableRangeEvent(id)
 		);
 	}
 
-	public static RegistryEntry<SoundEvent> entryOf(String name) {
-		Identifier id = BigGlobeMod.modID(name);
-		return Registry.registerReference(
-			Registries.SOUND_EVENT,
+	public static Holder<SoundEvent> entryOf(String name) {
+		ResourceLocation id = BigGlobeMod.modID(name);
+		return Registry.registerForHolder(
+			BuiltInRegistries.SOUND_EVENT,
 			id,
-			SoundEvent.of(id)
+			SoundEvent.createVariableRangeEvent(id)
 		);
 	}
 
-	public static void init() {}
+	public static void init() {
+	}
 }

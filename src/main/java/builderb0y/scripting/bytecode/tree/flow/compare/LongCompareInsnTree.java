@@ -34,9 +34,9 @@ public class LongCompareInsnTree extends IntLikeCompareInsnTree {
 
 		LabelNode
 			greaterThan = labelNode(),
-			lessThan    = labelNode(),
-			equalTo     = labelNode(),
-			end         = labelNode();
+			lessThan = labelNode(),
+			equalTo = labelNode(),
+			end = labelNode();
 		method.node.visitJumpInsn(IFGT, greaterThan.getLabel());
 		method.node.visitJumpInsn(IFLT, lessThan.getLabel());
 		method.node.visitJumpInsn(GOTO, equalTo.getLabel());

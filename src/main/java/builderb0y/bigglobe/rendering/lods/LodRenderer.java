@@ -5,9 +5,8 @@ import java.util.List;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.lwjgl.opengl.*;
-
-import net.minecraft.util.profiler.Profiler;
 
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
@@ -38,32 +37,23 @@ public interface LodRenderer extends SafeCloseable {
 		public LodFrustum
 			frustum;
 
-		#if MC_VERSION < MC_1_21_2
-			public Profiler profiler;
-		#endif
-
 		public LodRenderState(LodSystem system) {
 			this.frustum = new LodFrustum(system);
 		}
 
 		public void setup(
-			#if MC_VERSION >= MC_1_21_9
-				net.fabricmc.fabric.api.client.rendering.v1.world.WorldExtractionContext context
-			#else
-				net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext context
-			#endif
+
+			WorldRenderContext context
+
 		) {
 			this.lodSystemHolder = LodSystemHolder.of(context.worldRenderer());
 			this.partialTicks = RenderVersions.partialTicks(context);
-			this.rainStrength = context.world().getRainGradient(this.partialTicks);
-			this.thunderStrength = context.world().getThunderGradient(this.partialTicks);
+			this.rainStrength = context.world().getRainLevel(this.partialTicks);
+			this.thunderStrength = context.world().getThunderLevel(this.partialTicks);
 			this.worldMinY = HeightLimitViewVersions.getMinY(context.world());
 			this.worldMaxY = HeightLimitViewVersions.getMaxY(context.world());
-			this.clientState = ClientState.get(context.world().getRegistryKey());
+			this.clientState = ClientState.get(context.world().dimension());
 			this.frustum.setup(context);
-			#if MC_VERSION < MC_1_21_2
-				this.profiler = context.profiler();
-			#endif
 		}
 	}
 
@@ -137,7 +127,6 @@ public interface LodRenderer extends SafeCloseable {
 		/**
 		@param provider a VersionedVertexConsumerProvider which was
 		previously returned by {@link #beginMeshing()}.
-
 		@return a token that can be used to draw the mesh.
 		this token will be passed into
 		{@link #draw(SafeCloseable, float, float, float, float)}
@@ -156,7 +145,8 @@ public interface LodRenderer extends SafeCloseable {
 	implementors can use this to do any other cleanup
 	action after many meshes are closed in bulk.
 	*/
-	public default void oom() {}
+	public default void oom() {
+	}
 
 	/**
 	called when mesh has been finished
@@ -167,13 +157,15 @@ public interface LodRenderer extends SafeCloseable {
 	previously returned by {@link #beginMeshing()}.
 	the provider may or may not have been used
 	or appended to when this method is called.
-
+	<p>
 	this method will be called on the same
 	thread which called {@link #beginMeshing()}.
 	*/
 	public abstract void endMeshing(VersionedVertexConsumerProvider provider);
 
-	/** self-explanatory. default impl returns an empty list. */
+	/**
+	self-explanatory. default impl returns an empty list.
+	*/
 	public default List<String> getF3MenuText() {
 		return Collections.emptyList();
 	}
@@ -181,11 +173,11 @@ public interface LodRenderer extends SafeCloseable {
 	/**
 	called when the LOD system is shutting down.
 	this can happen for several reasons, including:
-	* the player teleported to a new dimension.
-	* the player quit to the main menu.
-	* the player pressed F3 + A.
-	* the player changed a config option which reloads LODs.
-
+	the player teleported to a new dimension.
+	the player quit to the main menu.
+	the player pressed F3 + A.
+	the player changed a config option which reloads LODs.
+	<p>
 	override this method to delete any GL
 	resources associated with the shader.
 	if the shader is managed externally and the
@@ -193,5 +185,6 @@ public interface LodRenderer extends SafeCloseable {
 	it is acceptable to do nothing in this method.
 	*/
 	@Override
-	public default void close() {}
+	public default void close() {
+	}
 }

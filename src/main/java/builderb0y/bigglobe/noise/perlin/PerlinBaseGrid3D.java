@@ -14,7 +14,8 @@ public abstract class PerlinBaseGrid3D implements Grid3D {
 		SLOPE_Z_SALT = Permuter.permute(0L, 'z');
 
 	public final Seed salt;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @Alias("scale") int scaleX, scaleY, scaleZ;
+	public final @VerifyIntRange(min = 0, minInclusive = false)
+	@Alias("scale") int scaleX, scaleY, scaleZ;
 	public final transient double rcpX, rcpY, rcpZ;
 	public final double max_slope, max_offset;
 

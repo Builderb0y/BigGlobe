@@ -1,26 +1,25 @@
 package builderb0y.bigglobe.trees.decoration;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-
 import builderb0y.bigglobe.trees.TreeGenerator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class FeatureDecorator implements BlockDecorator {
 
-	public final RegistryEntry<ConfiguredFeature<?, ?>> feature;
+	public final Holder<ConfiguredFeature<?, ?>> feature;
 
-	public FeatureDecorator(RegistryEntry<ConfiguredFeature<?, ?>> feature) {
+	public FeatureDecorator(Holder<ConfiguredFeature<?, ?>> feature) {
 		this.feature = feature;
 	}
 
 	@Override
 	public void decorate(TreeGenerator generator, BlockPos pos, BlockState state) {
-		this.feature.value().generate(
+		this.feature.value().place(
 			generator.worldQueue,
-			((ServerChunkManager)(generator.worldQueue.getChunkManager())).getChunkGenerator(),
+			((ServerChunkCache)(generator.worldQueue.getChunkSource())).getGenerator(),
 			generator.random.mojang(),
 			pos
 		);

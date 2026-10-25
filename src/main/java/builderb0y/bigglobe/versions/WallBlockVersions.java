@@ -1,13 +1,13 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.block.WallBlock;
-import net.minecraft.block.enums.WallShape;
-import net.minecraft.state.property.EnumProperty;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.WallSide;
 
 public class WallBlockVersions {
 
-	public static final EnumProperty<WallShape> NORTH_SHAPE = WallBlock.#if MC_VERSION >= MC_1_21_5 NORTH_WALL_SHAPE #else NORTH_SHAPE #endif;
-	public static final EnumProperty<WallShape>  EAST_SHAPE = WallBlock.#if MC_VERSION >= MC_1_21_5  EAST_WALL_SHAPE #else  EAST_SHAPE #endif;
-	public static final EnumProperty<WallShape> SOUTH_SHAPE = WallBlock.#if MC_VERSION >= MC_1_21_5 SOUTH_WALL_SHAPE #else SOUTH_SHAPE #endif;
-	public static final EnumProperty<WallShape>  WEST_SHAPE = WallBlock.#if MC_VERSION >= MC_1_21_5  WEST_WALL_SHAPE #else  WEST_SHAPE #endif;
+	public static final EnumProperty<WallSide> NORTH_SHAPE = WallBlock.NORTH_WALL;
+	public static final EnumProperty<WallSide> EAST_SHAPE = WallBlock.EAST_WALL;
+	public static final EnumProperty<WallSide> SOUTH_SHAPE = WallBlock.SOUTH_WALL;
+	public static final EnumProperty<WallSide> WEST_SHAPE = WallBlock.WEST_WALL;
 }

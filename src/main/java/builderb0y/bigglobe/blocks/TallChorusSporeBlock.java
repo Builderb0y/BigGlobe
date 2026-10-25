@@ -1,33 +1,29 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
-public class TallChorusSporeBlock extends TallPlantBlock {
+public class TallChorusSporeBlock extends DoublePlantBlock {
 
-	#if MC_VERSION >= MC_1_20_3
-		public static final MapCodec<TallChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(TallChorusSporeBlock.class);
+	public static final MapCodec<TallChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(TallChorusSporeBlock.class);
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
-	#endif
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-	public TallChorusSporeBlock(Settings settings) {
+	public TallChorusSporeBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+	public boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
 		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 }

@@ -3,13 +3,12 @@ package builderb0y.bigglobe.hyperspace;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.ChunkStatus;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.networking.packets.WaypointAddS2CPacket;
@@ -27,18 +26,18 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 
 	public int ejectX, ejectZ;
 
-	public ServerPlayerWaypointManager(ServerPlayerEntity player) {
+	public ServerPlayerWaypointManager(ServerPlayer player) {
 		super(player);
 	}
 
-	public ServerPlayerEntity serverPlayer() {
-		return (ServerPlayerEntity)(this.player);
+	public ServerPlayer serverPlayer() {
+		return (ServerPlayer)(this.player);
 	}
 
 	@Override
-	public void tick() {
+	public boolean tick() {
 		int oldCollapseProgress = this.collapseProgress;
-		super.tick();
+		boolean result = super.tick();
 		switch (this.collapseProgress) {
 			case 0 -> {
 				if (oldCollapseProgress < 0) {
@@ -46,13 +45,13 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 					this.ejectX = BigGlobeMath.floorI(Permuter.nextBoundedDouble(this.player.getRandom().nextLong(), -radius, radius));
 					this.ejectZ = BigGlobeMath.floorI(Permuter.nextBoundedDouble(this.player.getRandom().nextLong(), -radius, radius));
 					MinecraftServer server = EntityVersions.getServerWorld(this.serverPlayer()).getServer();
-					ServerWorld overworld = server.getOverworld();
+					ServerLevel overworld = server.overworld();
 					ChunkPos pos = new ChunkPos(this.ejectX >> 4, this.ejectZ >> 4);
-					overworld.getChunkManager().addTicket(
+					overworld.getChunkSource().addRegionTicket(
 						HyperspaceCollapseTicketType.TYPE,
 						pos,
-						server.getPlayerManager().getViewDistance()
-						#if MC_VERSION < MC_1_21_5 , pos #endif
+						server.getPlayerList().getViewDistance(),
+						pos
 					);
 				}
 			}
@@ -66,26 +65,24 @@ public class ServerPlayerWaypointManager extends PlayerWaypointManager {
 				this.reducePlayerHealthTo(1.0F);
 			}
 			case COLLAPSE_DURATION_TICKS -> {
-				ServerWorld overworld = EntityVersions.getServerWorld(this.serverPlayer()).getServer().getOverworld();
-				int y = overworld.getChunk(this.ejectX >> 4, this.ejectZ >> 4, ChunkStatus.FULL, true).sampleHeightmap(Heightmap.Type.OCEAN_FLOOR, this.ejectX, this.ejectZ) + 1;
-				EntityVersions.teleport(this.serverPlayer(), overworld, new Vec3d(this.ejectX + 0.5D, y, this.ejectZ + 0.5D), Vec3d.ZERO, this.player.getYaw(), this.player.getPitch());
+				ServerLevel overworld = EntityVersions.getServerWorld(this.serverPlayer()).getServer().overworld();
+				int y = overworld.getChunk(this.ejectX >> 4, this.ejectZ >> 4, ChunkStatus.FULL, true).getHeight(Heightmap.Types.OCEAN_FLOOR, this.ejectX, this.ejectZ) + 1;
+				EntityVersions.teleport(this.serverPlayer(), overworld, new Vec3(this.ejectX + 0.5D, y, this.ejectZ + 0.5D), Vec3.ZERO, this.player.getYRot(), this.player.getXRot());
 			}
 		}
+		return result;
 	}
 
 	public void reducePlayerHealthTo(float targetHealth) {
 		if (this.player.getHealth() > targetHealth) {
-			this.player.damage(
-				#if MC_VERSION >= MC_1_21_2
-					EntityVersions.getServerWorld(this.serverPlayer()),
-				#endif
-				this.player.getDamageSources().outOfWorld(),
+			this.player.hurt(
+				this.player.damageSources().fellOutOfWorld(),
 				this.player.getHealth() - targetHealth
 			);
 		}
 	}
 
-	public void updateOnWorldChange(ServerWorld world) {
+	public void updateOnWorldChange(ServerLevel world) {
 		ServerWaypointManager manager = ServerWaypointManager.get(world);
 		if (manager != null) {
 			this.clear();

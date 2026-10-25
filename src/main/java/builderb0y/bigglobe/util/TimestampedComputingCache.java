@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class TimestampedComputingCache<T_Key, T_Value> {
 
-	/** @see Units */
+	/**
+	@see Units
+	*/
 	public final double retainMillisecondsPerByte;
 	public final ReentrantLock globalLock;
 	public final BackingMap<T_Key, ValueHolder<T_Value>> values;
@@ -20,15 +22,15 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 
 	/**
 	@param retainTime one of
-		{@link Units#nanoseconds(double)},
-		{@link Units#microseconds(double)},
-		{@link Units#milliseconds(double)}, or
-		{@link Units#seconds(double)}.
+	{@link Units#nanoseconds(double)},
+	{@link Units#microseconds(double)},
+	{@link Units#milliseconds(double)}, or
+	{@link Units#seconds(double)}.
 	@param retainData one of
-		{@link Units#bytes(double)},
-		{@link Units#kilobytes(double)},
-		{@link Units#megabytes(double)}, or
-		{@link Units#gigabytes(double)}.
+	{@link Units#bytes(double)},
+	{@link Units#kilobytes(double)},
+	{@link Units#megabytes(double)}, or
+	{@link Units#gigabytes(double)}.
 	@see Units
 	*/
 	public TimestampedComputingCache(double retainTime, double retainData) {
@@ -219,7 +221,7 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 	public static class ValueHolder<V> {
 
 		public static final byte
-			ABSENT  = 0,
+			ABSENT = 0,
 			PRESENT = 1,
 			UNKNOWN = 2;
 
@@ -245,7 +247,8 @@ public class TimestampedComputingCache<T_Key, T_Value> {
 
 	public static class BackingMap<T_Key, T_Value> extends Object2ObjectLinkedOpenHashMap<T_Key, T_Value> {
 
-		public BackingMap() {}
+		public BackingMap() {
+		}
 
 		public BackingMap(int expected) {
 			super(expected);

@@ -2,14 +2,12 @@ package builderb0y.bigglobe.hyperspace;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import builderb0y.bigglobe.mixinInterfaces.WaypointTracker;
 import builderb0y.bigglobe.versions.EntityVersions;
 
@@ -21,7 +19,7 @@ for example, the player will be able to see all public waypoints,
 and all of their own private waypoints while in hyperspace,
 but in other dimensions their view of waypoints will be filtered to
 not include waypoints that are in a different dimension than them.
-
+<p>
 this class also keeps track of an "entrance" position.
 when the player is in hyperspace, this is the position
 of the waypoint they entered hyperspace from.
@@ -31,23 +29,23 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 
 	public static final int COLLAPSE_DURATION_TICKS = 20 * 20;
 
-	public final PlayerEntity player;
+	public final Player player;
 	public @Nullable PackedWorldPos entrance;
 	public int collapseProgress = -1;
 
-	public PlayerWaypointManager(PlayerEntity player) {
+	public PlayerWaypointManager(Player player) {
 		this.player = player;
 	}
 
-	public static @Nullable PlayerWaypointManager get(PlayerEntity player) {
+	public static @Nullable PlayerWaypointManager get(Player player) {
 		return ((WaypointTracker)(player)).bigglobe_getWaypointManager();
 	}
 
-	public static PlayerWaypointManager create(PlayerEntity player) {
-		if (player.getClass() == ServerPlayerEntity.class) { //exclude fake players.
-			return new ServerPlayerWaypointManager((ServerPlayerEntity)(player));
+	public static PlayerWaypointManager create(Player player) {
+		if (player.getClass() == ServerPlayer.class) { //exclude fake players.
+			return new ServerPlayerWaypointManager((ServerPlayer)(player));
 		}
-		else if (EntityVersions.getWorld(player).isClient()) {
+		else if (EntityVersions.getWorld(player).isClientSide()) {
 			return forPlayerClient(player);
 		}
 		else {
@@ -56,35 +54,29 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static PlayerWaypointManager forPlayerClient(PlayerEntity player) {
-		if (player.getClass() == ClientPlayerEntity.class) {
-			return new ClientPlayerWaypointManager((ClientPlayerEntity)(player));
-		}
-		else {
-			return null;
-		}
+	public static PlayerWaypointManager forPlayerClient(Player player) {
+		return new ClientPlayerWaypointManager((LocalPlayer)(player));
 	}
 
-	public void tick() {
-		if (EntityVersions.getWorld(this.player).getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
-			if (this.getAllWaypoints().isEmpty()) {
-				if (this.collapseProgress < COLLAPSE_DURATION_TICKS) this.collapseProgress++;
-			}
-			else {
-				if (this.collapseProgress >= 0) this.collapseProgress--;
-			}
-		}
-		else {
-			this.collapseProgress = -1;
-		}
+	public Player getPlayer() {
+		return this.player;
 	}
 
-	#if MC_VERSION < MC_1_21_5
+	public void clear() {
+		super.clear();
+		this.entrance = null;
+		this.collapseProgress = -1;
+	}
 
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbt #if MC_VERSION >= MC_1_20_5 , RegistryWrapper.WrapperLookup registryLookup #endif) {
-			throw new UnsupportedOperationException();
+	public boolean tick() {
+		if (this.collapseProgress == -1) {
+			return false;
 		}
+		return ++this.collapseProgress >= COLLAPSE_DURATION_TICKS;
+	}
 
-	#endif
+	@Override
+	public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+		throw new UnsupportedOperationException();
+	}
 }

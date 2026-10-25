@@ -1,106 +1,67 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowerBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION >= MC_1_20_5
-	import net.minecraft.particle.SimpleParticleType;
-#else
-	import net.minecraft.particle.DefaultParticleType;
-#endif
-
 public class BlazingBlossomBlock extends NetherFlowerBlock {
 
-	#if MC_VERSION >= MC_1_20_3
+	public static final MapCodec<BlazingBlossomBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BlazingBlossomBlock.class);
 
-		public static final MapCodec<BlazingBlossomBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BlazingBlossomBlock.class);
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MapCodec codec() {
+		return CODEC;
+	}
 
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public MapCodec getCodec() {
-			return CODEC;
-		}
+	public final Holder<ParticleType<?>> particle;
 
-	#endif
+	public BlazingBlossomBlock(Holder<MobEffect> suspicious_stew_effect, float effect_duration, Holder<ParticleType<?>> particle, Properties settings) {
+		super(suspicious_stew_effect, effect_duration, settings);
+		this.particle = particle;
+	}
 
-	public final RegistryEntry<ParticleType<?>> particle;
-
-	#if MC_VERSION >= MC_1_20_5
-
-		public BlazingBlossomBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, float effect_duration, RegistryEntry<ParticleType<?>> particle, Settings settings) {
-			super(suspicious_stew_effect, effect_duration, settings);
-			this.particle = particle;
-		}
-
-	#else
-
-		public BlazingBlossomBlock(RegistryEntry<StatusEffect> suspicious_stew_effect, int effect_duration, RegistryEntry<ParticleType<?>> particle, Settings settings) {
-			super(suspicious_stew_effect, effect_duration, settings);
-			this.particle = particle;
-		}
-
-	#endif
-
-	public static RegistryEntry<ParticleType<?>> particleEntry(#if MC_VERSION >= MC_1_20_5 SimpleParticleType #else DefaultParticleType #endif type) {
-		return RegistryVersions.getEntry(Registries.PARTICLE_TYPE, type);
+	public static Holder<ParticleType<?>> particleEntry(SimpleParticleType type) {
+		return RegistryVersions.getEntry(BuiltInRegistries.PARTICLE_TYPE, type);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public void onEntityCollision(
-		BlockState state,
-		World world,
-		BlockPos pos,
-		Entity entity
-		#if MC_VERSION >= MC_1_21_5 , net.minecraft.entity.EntityCollisionHandler handler #endif
-		#if MC_VERSION >= MC_1_21_9 , boolean movingFastOrBlockPosIsInsideDestinationBox #endif
-	) {
-		super.onEntityCollision(
-			state,
-			world,
-			pos,
-			entity
-			#if MC_VERSION >= MC_1_21_5 , handler #endif
-			#if MC_VERSION >= MC_1_21_9 , movingFastOrBlockPosIsInsideDestinationBox #endif
-		);
-		if (entity.getType().isFireImmune() || (entity instanceof PlayerEntity player && player.isCreative())) {
+	public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) { super.entityInside(state, world, pos, entity);
+		if (entity.getType().fireImmune() || (entity instanceof Player player && player.isCreative())) {
 			return;
 		}
 		switch (world.getDifficulty()) {
-			case PEACEFUL -> {}
-			case EASY     -> entity.setOnFireFor(2);
-			case NORMAL   -> entity.setOnFireFor(4);
-			case HARD     -> entity.setOnFireFor(6);
+			case PEACEFUL -> {
+			}
+			case EASY -> entity.igniteForSeconds(2);
+			case NORMAL -> entity.igniteForSeconds(4);
+			case HARD -> entity.igniteForSeconds(6);
 		}
 	}
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-		super.randomDisplayTick(state, world, pos, random);
-		if (this.particle.value() instanceof ParticleEffect particle) {
+	public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+		super.animateTick(state, world, pos, random);
+		if (this.particle.value() instanceof ParticleOptions particle) {
 			if (random.nextBoolean()) return;
-			Vec3d offset = state.getModelOffset(#if MC_VERSION < MC_1_21_2 world, #endif pos);
+			Vec3 offset = state.getOffset(world, pos);
 			double motionX, motionZ;
 			Permuter permuter = Permuter.from(random);
 			do {
@@ -108,7 +69,7 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 				motionZ = Permuter.nextUniformDouble(permuter);
 			}
 			while (BigGlobeMath.squareD(motionX, motionZ) > 1.0D);
-			world. #if MC_VERSION >= MC_1_21_5 addParticleClient #else addParticle #endif (
+			world.addParticle(
 				particle,
 				pos.getX() + 0.5D + offset.x,
 				pos.getY() + 0.75D + offset.y,

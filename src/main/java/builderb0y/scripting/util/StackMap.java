@@ -11,15 +11,15 @@ frames can be pushed and popped, and these two operations come in nested pairs.
 every call to {@link #pop()} will remove all entries from the
 map which were added after the last call to {@link #push()}.
 example usage: {@code
-	map.push();
-	map.put("a", 1)
-	map.push();
-	map.put("b", 2)
-	//map now contains { "a": 1, "b": 2 }
-	map.pop();
-	//map now contains { "a": 1 }
-	map.pop();
-	//map is now empty.
+map.push();
+map.put("a", 1)
+map.push();
+map.put("b", 2)
+//map now contains { "a": 1, "b": 2 }
+map.pop();
+//map now contains { "a": 1 }
+map.pop();
+//map is now empty.
 }
 */
 public class StackMap<K, V> extends Object2ObjectLinkedOpenHashMap<K, V> {
@@ -51,7 +51,9 @@ public class StackMap<K, V> extends Object2ObjectLinkedOpenHashMap<K, V> {
 		}
 	}
 
-	/** default implementation is bugged and does not fix pointers correctly. */
+	/**
+	default implementation is bugged and does not fix pointers correctly.
+	*/
 	@Override
 	public V removeLast() {
 		if (this.size == 0) throw new NoSuchElementException();

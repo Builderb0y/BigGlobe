@@ -18,12 +18,12 @@ public abstract class CompareInsnTree implements InsnTree {
 		InsnTree greaterThan,
 		TypeInfo type
 	) {
-		this.left        = left;
-		this.right       = right;
-		this.lessThan    = lessThan;
-		this.equalTo     = equalTo;
+		this.left = left;
+		this.right = right;
+		this.lessThan = lessThan;
+		this.equalTo = equalTo;
 		this.greaterThan = greaterThan;
-		this.type        = type;
+		this.type = type;
 	}
 
 	@Override

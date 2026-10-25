@@ -1,11 +1,8 @@
 package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -17,11 +14,11 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class OverrideMethodSpec extends BaseMethodSpec {
 
-	public final RegistryEntry<ElementSpec> override;
+	public final Holder<ElementSpec> override;
 	public final ScriptUsage code;
 
 	public OverrideMethodSpec(
-		RegistryEntry<ElementSpec> override,
+		Holder<ElementSpec> override,
 		ScriptUsage code
 	) {
 		this.override = override;
@@ -29,7 +26,7 @@ public class OverrideMethodSpec extends BaseMethodSpec {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return ((BaseMethodSpec)(this.override.value())).getDependencies();
 	}
 
@@ -52,15 +49,17 @@ public class OverrideMethodSpec extends BaseMethodSpec {
 
 	@Override
 	public void compile(ClassHierarchy hierarchy, BaseClassSpec clazz) throws ScriptParsingException {
-		this.compile(hierarchy, clazz, this.code, (MutableScriptEnvironment environment) -> {
-			for (ParameterSpec parameter : this.getParameters()) {
-				environment.addVariableLoad(parameter.name, parameter.typeInfo());
+		this.compile(
+			hierarchy, clazz, this.code, (MutableScriptEnvironment environment) -> {
+				for (ParameterSpec parameter : this.getParameters()) {
+					environment.addVariableLoad(parameter.name, parameter.typeInfo());
+				}
 			}
-		});
+		);
 	}
 
 	@Override
-	public RegistryEntry<ElementSpec> getReturnType() {
+	public Holder<ElementSpec> getReturnType() {
 		return ((BaseMethodSpec)(this.override.value())).getReturnType();
 	}
 

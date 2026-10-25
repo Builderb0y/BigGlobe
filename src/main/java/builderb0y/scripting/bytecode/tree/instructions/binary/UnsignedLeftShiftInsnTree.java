@@ -34,18 +34,20 @@ public class UnsignedLeftShiftInsnTree extends BinaryInsnTree {
 		ConstantValue rightConstant = right.getConstantValue();
 		if (leftConstant.isConstant() && rightConstant.isConstant()) {
 			return switch (type.getSort()) {
-				case INT  -> ldc(shift(leftConstant. asInt(), rightConstant.asInt()));
+				case INT -> ldc(shift(leftConstant.asInt(), rightConstant.asInt()));
 				case LONG -> ldc(shift(leftConstant.asLong(), rightConstant.asInt()));
-				default   -> throw new AssertionError(type);
+				default -> throw new AssertionError(type);
 			};
 		}
 		left = left.cast(parser, type, CastMode.IMPLICIT_THROW, false);
 		right = right.cast(parser, TypeInfos.INT, CastMode.IMPLICIT_THROW, false);
-		return new UnsignedLeftShiftInsnTree(left, right, switch (type.getSort()) {
+		return new UnsignedLeftShiftInsnTree(
+			left, right, switch (type.getSort()) {
 			case INT -> IUSHL;
 			case LONG -> LUSHL;
 			default -> throw new AssertionError(type);
-		});
+		}
+		);
 	}
 
 	@Override
@@ -84,7 +86,7 @@ public class UnsignedLeftShiftInsnTree extends BinaryInsnTree {
 				this.left,
 				this.right
 			)
-			.emitBytecode(method);
+				.emitBytecode(method);
 		}
 	}
 

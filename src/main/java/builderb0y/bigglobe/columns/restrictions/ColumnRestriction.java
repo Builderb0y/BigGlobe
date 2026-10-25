@@ -35,14 +35,14 @@ public interface ColumnRestriction extends CoderRegistryTyped<ColumnRestriction>
 		}
 	};
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("constant"),                   ConstantColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"),                 ThresholdColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("range"),                         RangeColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("and"),                             AndColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("or"),                               OrColumnRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("not"),                             NotColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("constant"), ConstantColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("threshold"), ThresholdColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("range"), RangeColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("and"), AndColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("or"), OrColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("not"), NotColumnRestriction.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("skip_distant_horizons"), SkipDistantHorizonsRestriction.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("script"),                       ScriptColumnRestriction.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("script"), ScriptColumnRestriction.class);
 	}};
 
 	public abstract double getRestriction(ScriptedColumn column, int y);

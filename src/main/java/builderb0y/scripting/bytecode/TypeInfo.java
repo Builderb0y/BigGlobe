@@ -29,7 +29,7 @@ public class TypeInfo {
 	public static final ObjectArrayFactory<TypeInfo> ARRAY_FACTORY = new ObjectArrayFactory<>(TypeInfo.class);
 	public static final TypeInfo[]
 		ANNOTATION_INTERFACES = allOf(Annotation.class),
-		ARRAY_INTERFACES      = allOf(Cloneable.class, Serializable.class);
+		ARRAY_INTERFACES = allOf(Cloneable.class, Serializable.class);
 
 	public final @NotNull ClassType type;
 	@Deprecated //may eventually replace with a different abstraction.
@@ -73,18 +73,20 @@ public class TypeInfo {
 		return CollectionTransformer.convertArray(types, ARRAY_FACTORY, TypeInfo::of);
 	}
 
-	public static record ParsedTypeInfo(TypeInfo type, int endIndex) {}
+	public static record ParsedTypeInfo(TypeInfo type, int endIndex) {
+
+	}
 
 	public static ParsedTypeInfo parseNext(CharSequence input, int start) {
 		char first = input.charAt(start);
 		return switch (first) {
-			case 'B' -> new ParsedTypeInfo(TypeInfos.BYTE,    start + 1);
-			case 'S' -> new ParsedTypeInfo(TypeInfos.SHORT,   start + 1);
-			case 'I' -> new ParsedTypeInfo(TypeInfos.INT,     start + 1);
-			case 'J' -> new ParsedTypeInfo(TypeInfos.LONG,    start + 1);
-			case 'F' -> new ParsedTypeInfo(TypeInfos.FLOAT,   start + 1);
-			case 'D' -> new ParsedTypeInfo(TypeInfos.DOUBLE,  start + 1);
-			case 'C' -> new ParsedTypeInfo(TypeInfos.CHAR,    start + 1);
+			case 'B' -> new ParsedTypeInfo(TypeInfos.BYTE, start + 1);
+			case 'S' -> new ParsedTypeInfo(TypeInfos.SHORT, start + 1);
+			case 'I' -> new ParsedTypeInfo(TypeInfos.INT, start + 1);
+			case 'J' -> new ParsedTypeInfo(TypeInfos.LONG, start + 1);
+			case 'F' -> new ParsedTypeInfo(TypeInfos.FLOAT, start + 1);
+			case 'D' -> new ParsedTypeInfo(TypeInfos.DOUBLE, start + 1);
+			case 'C' -> new ParsedTypeInfo(TypeInfos.CHAR, start + 1);
 			case 'Z' -> new ParsedTypeInfo(TypeInfos.BOOLEAN, start + 1);
 			case 'L' -> {
 				int end = ++start;
@@ -124,7 +126,7 @@ public class TypeInfo {
 			case 'D' -> TypeInfos.DOUBLE;
 			case 'C' -> TypeInfos.CHAR;
 			case 'Z' -> TypeInfos.BOOLEAN;
-			default  -> throw new IllegalArgumentException(String.valueOf(c));
+			default -> throw new IllegalArgumentException(String.valueOf(c));
 		};
 	}
 
@@ -134,7 +136,7 @@ public class TypeInfo {
 
 	public static TypeInfo[] parseAll(CharSequence input) {
 		ArrayBuilder<TypeInfo> array = new ArrayBuilder<>();
-		for (int index = 0; index < input.length();) {
+		for (int index = 0; index < input.length(); ) {
 			ParsedTypeInfo next = parseNext(input, index);
 			array.add(next.type);
 			index = next.endIndex;
@@ -222,32 +224,32 @@ public class TypeInfo {
 
 	public Sort getSort() {
 		return switch (this.name.getSort()) {
-			case Type.VOID    -> Sort.VOID;
+			case Type.VOID -> Sort.VOID;
 			case Type.BOOLEAN -> Sort.BOOLEAN;
-			case Type.BYTE    -> Sort.BYTE;
-			case Type.CHAR    -> Sort.CHAR;
-			case Type.SHORT   -> Sort.SHORT;
-			case Type.INT     -> Sort.INT;
-			case Type.LONG    -> Sort.LONG;
-			case Type.FLOAT   -> Sort.FLOAT;
-			case Type.DOUBLE  -> Sort.DOUBLE;
-			case Type.OBJECT  -> Sort.OBJECT;
-			case Type.ARRAY   -> Sort.ARRAY;
+			case Type.BYTE -> Sort.BYTE;
+			case Type.CHAR -> Sort.CHAR;
+			case Type.SHORT -> Sort.SHORT;
+			case Type.INT -> Sort.INT;
+			case Type.LONG -> Sort.LONG;
+			case Type.FLOAT -> Sort.FLOAT;
+			case Type.DOUBLE -> Sort.DOUBLE;
+			case Type.OBJECT -> Sort.OBJECT;
+			case Type.ARRAY -> Sort.ARRAY;
 			default -> throw new AssertionError(this.name);
 		};
 	}
 
 	public Class<?> toClass() {
 		return switch (this.getSort()) {
-			case BYTE          -> byte   .class;
-			case SHORT         -> short  .class;
-			case INT           -> int    .class;
-			case LONG          -> long   .class;
-			case FLOAT         -> float  .class;
-			case DOUBLE        -> double .class;
-			case CHAR          -> char   .class;
-			case BOOLEAN       -> boolean.class;
-			case VOID          -> void   .class;
+			case BYTE -> byte.class;
+			case SHORT -> short.class;
+			case INT -> int.class;
+			case LONG -> long.class;
+			case FLOAT -> float.class;
+			case DOUBLE -> double.class;
+			case CHAR -> char.class;
+			case BOOLEAN -> boolean.class;
+			case VOID -> void.class;
 			case OBJECT, ARRAY -> {
 				try {
 					yield Class.forName(this.getClassName());
@@ -261,15 +263,15 @@ public class TypeInfo {
 
 	public Class<?> toClass(ClassLoader classLoader) {
 		return switch (this.getSort()) {
-			case BYTE          -> byte   .class;
-			case SHORT         -> short  .class;
-			case INT           -> int    .class;
-			case LONG          -> long   .class;
-			case FLOAT         -> float  .class;
-			case DOUBLE        -> double .class;
-			case CHAR          -> char   .class;
-			case BOOLEAN       -> boolean.class;
-			case VOID          -> void   .class;
+			case BYTE -> byte.class;
+			case SHORT -> short.class;
+			case INT -> int.class;
+			case LONG -> long.class;
+			case FLOAT -> float.class;
+			case DOUBLE -> double.class;
+			case CHAR -> char.class;
+			case BOOLEAN -> boolean.class;
+			case VOID -> void.class;
 			case OBJECT, ARRAY -> {
 				try {
 					yield Class.forName(this.getClassName(), false, classLoader);
@@ -304,7 +306,7 @@ public class TypeInfo {
 		else {
 			String name = this.getInternalName();
 			int start = name.length();
-			for (char c; --start >= 0 && (c = name.charAt(start)) != '/' && c != '$';);
+			for (char c; --start >= 0 && (c = name.charAt(start)) != '/' && c != '$'; ) ;
 			return name.substring(start + 1);
 		}
 	}
@@ -389,22 +391,30 @@ public class TypeInfo {
 		}
 		if (this.componentType != null) {
 			this
-			.componentType
-			.getAllAssignableTypes()
-			.stream()
-			.map(TypeInfo::makeArray)
-			.forEach(set::add);
+				.componentType
+				.getAllAssignableTypes()
+				.stream()
+				.map(TypeInfo::makeArray)
+				.forEach(set::add);
 		}
 		if (autoCast) {
 			switch (this.getSort()) {
-				case BOOLEAN: set.add(TypeInfos.BYTE);
-				case BYTE:    set.add(TypeInfos.CHAR);
-				case CHAR:    set.add(TypeInfos.SHORT);
-				case SHORT:   set.add(TypeInfos.INT);
-				case INT:     set.add(TypeInfos.LONG);
-				case LONG:    set.add(TypeInfos.FLOAT);
-				case FLOAT:   set.add(TypeInfos.DOUBLE);
-				case DOUBLE:  this.box().recursiveAddTypes(set, true);
+				case BOOLEAN:
+					set.add(TypeInfos.BYTE);
+				case BYTE:
+					set.add(TypeInfos.CHAR);
+				case CHAR:
+					set.add(TypeInfos.SHORT);
+				case SHORT:
+					set.add(TypeInfos.INT);
+				case INT:
+					set.add(TypeInfos.LONG);
+				case LONG:
+					set.add(TypeInfos.FLOAT);
+				case FLOAT:
+					set.add(TypeInfos.DOUBLE);
+				case DOUBLE:
+					this.box().recursiveAddTypes(set, true);
 					break;
 				case OBJECT:
 					if (this.isWrapper()) {
@@ -526,17 +536,17 @@ public class TypeInfo {
 	}
 
 	public static enum Sort {
-		VOID   (TypeInfos.VOID),
+		VOID(TypeInfos.VOID),
 		BOOLEAN(TypeInfos.BOOLEAN),
-		BYTE   (TypeInfos.BYTE),
-		CHAR   (TypeInfos.CHAR),
-		SHORT  (TypeInfos.SHORT),
-		INT    (TypeInfos.INT),
-		LONG   (TypeInfos.LONG),
-		FLOAT  (TypeInfos.FLOAT),
-		DOUBLE (TypeInfos.DOUBLE),
-		OBJECT (null),
-		ARRAY  (null);
+		BYTE(TypeInfos.BYTE),
+		CHAR(TypeInfos.CHAR),
+		SHORT(TypeInfos.SHORT),
+		INT(TypeInfos.INT),
+		LONG(TypeInfos.LONG),
+		FLOAT(TypeInfos.FLOAT),
+		DOUBLE(TypeInfos.DOUBLE),
+		OBJECT(null),
+		ARRAY(null);
 
 		public static final Sort[] VALUES = values();
 

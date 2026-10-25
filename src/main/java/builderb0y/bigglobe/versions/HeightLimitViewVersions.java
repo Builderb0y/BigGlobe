@@ -1,30 +1,30 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.world.HeightLimitView;
+import net.minecraft.world.level.LevelHeightAccessor;
 
 public class HeightLimitViewVersions {
 
-	public static int getMinY(HeightLimitView view) {
-		return view.getBottomY();
+	public static int getMinY(LevelHeightAccessor view) {
+		return view.getMinBuildHeight();
 	}
 
-	public static int getMaxY(HeightLimitView view) {
-		return view.getBottomY() + view.getHeight();
+	public static int getMaxY(LevelHeightAccessor view) {
+		return view.getMaxBuildHeight();
 	}
 
-	public static int getHeight(HeightLimitView view) {
+	public static int getHeight(LevelHeightAccessor view) {
 		return view.getHeight();
 	}
 
-	public static int getSectionMinY(HeightLimitView view) {
+	public static int getSectionMinY(LevelHeightAccessor view) {
 		return getMinY(view) >> 4;
 	}
 
-	public static int getSectionMaxY(HeightLimitView view) {
+	public static int getSectionMaxY(LevelHeightAccessor view) {
 		return getMaxY(view) >> 4;
 	}
 
-	public static int getSectionHeight(HeightLimitView view) {
+	public static int getSectionHeight(LevelHeightAccessor view) {
 		return getHeight(view) >> 4;
 	}
 }

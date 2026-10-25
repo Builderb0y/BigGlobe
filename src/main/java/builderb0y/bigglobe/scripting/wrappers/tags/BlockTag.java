@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.block.Block;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Block;
 import builderb0y.bigglobe.scripting.wrappers.BlockWrapper;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
@@ -29,18 +27,18 @@ public class BlockTag extends TagWrapper<Block, Block> {
 	}
 
 	public static BlockTag of(int flags, String... ids) {
-		return new BlockTag(DelayedEntryList.create(RegistryKeys.BLOCK, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new BlockTag(DelayedEntryList.create(Registries.BLOCK, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override
-	public Block wrap(RegistryEntry<Block> entry) {
+	public Block wrap(Holder<Block> entry) {
 		return entry.value();
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public RegistryEntry<Block> unwrap(Block block) {
-		return block.getRegistryEntry();
+	public Holder<Block> unwrap(Block block) {
+		return block.builtInRegistryHolder();
 	}
 
 	@Override

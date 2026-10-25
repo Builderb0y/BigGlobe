@@ -5,11 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.DefaultString;
 import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
@@ -33,10 +30,11 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ConstructorSpec extends MemberSpec implements SetBasedMutableDependencyView {
 
-	public final @IdentifierName @DefaultString("new") String name;
+	public final @IdentifierName
+	@DefaultString("new") String name;
 	public final @VerifyNotEmpty List<String> values;
 	public final @VerifyNullable ScriptUsage code;
-	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public ConstructorSpec(String name, List<String> values, @VerifyNullable ScriptUsage code) {
 		this.name = name;
@@ -45,7 +43,7 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return this.dependencies;
 	}
 
@@ -55,29 +53,29 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 		owner.checkConstructor(hierarchy, this);
 		ConstructorContext context = new ConstructorContext();
 		context.resolvedParameters = this.values.stream().map((String name) -> {
-			TrackedField field = owner.overrideTracker.fields.get(name);
-			if (field != null) {
-				return new ValueSpec(name, field.declaration(), ((FieldSpec)(field.declaration().value())).field_type, false);
-			}
-			TrackedProperty property = owner.overrideTracker.properties.get(name);
-			if (property != null) {
-				if (((BasePropertySpec)(property.declaration().value())).isSettable()) {
-					return new ValueSpec(name, property.declaration(), ((BasePropertySpec)(property.declaration().value())).getPropertyType(), true);
+				TrackedField field = owner.overrideTracker.fields.get(name);
+				if (field != null) {
+					return new ValueSpec(name, field.declaration(), ((FieldSpec)(field.declaration().value())).field_type, false);
 				}
-				else {
-					throw AutoCodecUtil.rethrow(new CustomClassFormatException("Can't assign to property " + UnregisteredObjectException.getID(property.declaration()) + " in constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this))));
+				TrackedProperty property = owner.overrideTracker.properties.get(name);
+				if (property != null) {
+					if (((BasePropertySpec)(property.declaration().value())).isSettable()) {
+						return new ValueSpec(name, property.declaration(), ((BasePropertySpec)(property.declaration().value())).getPropertyType(), true);
+					}
+					else {
+						throw AutoCodecUtil.rethrow(new CustomClassFormatException("Can't assign to property " + UnregisteredObjectException.getID(property.declaration()) + " in constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this))));
+					}
 				}
-			}
-			throw AutoCodecUtil.rethrow(new CustomClassFormatException("Could not find field named " + name + " in class " + UnregisteredObjectException.getID(hierarchy.entryOf(owner)) + " for constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this))));
-		})
-		.toArray(ValueSpec[]::new);
+				throw AutoCodecUtil.rethrow(new CustomClassFormatException("Could not find field named " + name + " in class " + UnregisteredObjectException.getID(hierarchy.entryOf(owner)) + " for constructor " + UnregisteredObjectException.getID(hierarchy.entryOf(this))));
+			})
+										.toArray(ValueSpec[]::new);
 		context.descriptor = new MethodSpecDesc(
 			this.name,
 			Stream.concat(
-				Stream.of(ScriptedColumn.INFO.type),
-				Arrays.stream(context.resolvedParameters).map(ValueSpec::typeInfo)
-			)
-			.toList()
+					Stream.of(ScriptedColumn.INFO.type),
+					Arrays.stream(context.resolvedParameters).map(ValueSpec::typeInfo)
+				)
+				.toList()
 		);
 		owner.setCompileContext(this, context);
 	}
@@ -90,12 +88,12 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 			this.name,
 			owner.getTypeInfo(),
 			Stream.concat(
-				Stream.of(new LazyVarInfo("column", ScriptedColumn.INFO.type)),
-				Arrays
-				.stream(context.resolvedParameters)
-				.map((ValueSpec parameter) -> new LazyVarInfo(parameter.name, parameter.typeInfo()))
-			)
-			.toArray(LazyVarInfo.ARRAY_FACTORY)
+					Stream.of(new LazyVarInfo("column", ScriptedColumn.INFO.type)),
+					Arrays
+						.stream(context.resolvedParameters)
+						.map((ValueSpec parameter) -> new LazyVarInfo(parameter.name, parameter.typeInfo()))
+				)
+				.toArray(LazyVarInfo.ARRAY_FACTORY)
 		);
 	}
 
@@ -110,7 +108,7 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 				load("column", ScriptedColumn.INFO.type)
 			)
 		)
-		.emitBytecode(context.methodCompileContext);
+			.emitBytecode(context.methodCompileContext);
 		for (ValueSpec parameter : context.resolvedParameters) {
 			if (parameter.useSetter) {
 				invokeInstance(
@@ -124,7 +122,7 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 					),
 					load(parameter.name, parameter.typeInfo())
 				)
-				.emitBytecode(context.methodCompileContext);
+					.emitBytecode(context.methodCompileContext);
 			}
 			else {
 				putField(
@@ -137,20 +135,20 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 					),
 					load(parameter.name, parameter.typeInfo())
 				)
-				.emitBytecode(context.methodCompileContext);
+					.emitBytecode(context.methodCompileContext);
 			}
 		}
 		if (this.code != null) {
 			hierarchy.registry.parseCode(
-				context.methodCompileContext,
-				this.code,
-				load("column", ScriptedColumn.INFO.type),
-				null,
-				load(result),
-				this,
-				MemberSpec.NO_EXTRAS //other FieldSpec's can add themselves to the environment automatically.
-			)
-			.emitBytecode(context.methodCompileContext);
+					context.methodCompileContext,
+					this.code,
+					load("column", ScriptedColumn.INFO.type),
+					null,
+					load(result),
+					this,
+					MemberSpec.NO_EXTRAS //other FieldSpec's can add themselves to the environment automatically.
+				)
+				.emitBytecode(context.methodCompileContext);
 		}
 		return_(load(result)).emitBytecode(context.methodCompileContext);
 	}
@@ -186,10 +184,10 @@ public class ConstructorSpec extends MemberSpec implements SetBasedMutableDepend
 	public static class ValueSpec {
 
 		public final @IdentifierName String name;
-		public final RegistryEntry<ElementSpec> owner, type;
+		public final Holder<ElementSpec> owner, type;
 		public final boolean useSetter;
 
-		public ValueSpec(String name, RegistryEntry<ElementSpec> owner, RegistryEntry<ElementSpec> type, boolean useSetter) {
+		public ValueSpec(String name, Holder<ElementSpec> owner, Holder<ElementSpec> type, boolean useSetter) {
 			this.name = name;
 			this.owner = owner;
 			this.type = type;

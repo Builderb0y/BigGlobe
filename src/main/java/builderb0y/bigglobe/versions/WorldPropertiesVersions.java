@@ -1,55 +1,27 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldProperties;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.storage.LevelData;
 
 public class WorldPropertiesVersions {
 
-	public static int getSpawnX(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_21_9
-			return properties.getSpawnPoint().getPos().getX();
-		#elif MC_VERSION >= MC_1_20_5
-			return properties.getSpawnPos().getX();
-		#else
-			return properties.getSpawnX();
-		#endif
+	public static int getSpawnX(LevelData properties) {
+		return properties.getSpawnPos().getX();
 	}
 
-	public static int getSpawnY(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_21_9
-			return properties.getSpawnPoint().getPos().getY();
-		#elif MC_VERSION >= MC_1_20_5
-			return properties.getSpawnPos().getY();
-		#else
-			return properties.getSpawnY();
-		#endif
+	public static int getSpawnY(LevelData properties) {
+		return properties.getSpawnPos().getY();
 	}
 
-	public static int getSpawnZ(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_21_9
-			return properties.getSpawnPoint().getPos().getZ();
-		#elif MC_VERSION >= MC_1_20_5
-			return properties.getSpawnPos().getZ();
-		#else
-			return properties.getSpawnZ();
-		#endif
+	public static int getSpawnZ(LevelData properties) {
+		return properties.getSpawnPos().getZ();
 	}
 
-	public static BlockPos getSpawnPos(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_21_9
-			return properties.getSpawnPoint().getPos();
-		#elif MC_VERSION >= MC_1_20_5
-			return properties.getSpawnPos();
-		#else
-			return new BlockPos(properties.getSpawnX(), properties.getSpawnY(), properties.getSpawnZ());
-		#endif
+	public static BlockPos getSpawnPos(LevelData properties) {
+		return properties.getSpawnPos();
 	}
 
-	public static float getSpawnYaw(WorldProperties properties) {
-		#if MC_VERSION >= MC_1_21_9
-			return properties.getSpawnPoint().yaw();
-		#else
-			return properties.getSpawnAngle();
-		#endif
+	public static float getSpawnYaw(LevelData properties) {
+		return properties.getSpawnAngle();
 	}
 }

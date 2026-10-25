@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.scripting.wrappers.entries;
 
 import java.lang.invoke.MethodHandles;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.wrappers.tags.StructurePlacementScriptTag;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
@@ -16,7 +14,7 @@ public class StructurePlacementScriptEntry extends EntryWrapper<CombinedStructur
 	public static final CombinedStructureScripts CLIENT_SCRIPTS = new CombinedStructureScripts(null, null);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
-	public StructurePlacementScriptEntry(RegistryEntry<CombinedStructureScripts> entry) {
+	public StructurePlacementScriptEntry(Holder<CombinedStructureScripts> entry) {
 		super(entry);
 	}
 
@@ -25,7 +23,7 @@ public class StructurePlacementScriptEntry extends EntryWrapper<CombinedStructur
 	}
 
 	public static StructurePlacementScriptEntry of(String id, int flags) {
-		RegistryEntry<CombinedStructureScripts> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, id, flags, CLIENT_SCRIPTS);
+		Holder<CombinedStructureScripts> entry = ConstantFactory.getEntryServerOnly(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, id, flags, CLIENT_SCRIPTS);
 		return entry != null ? new StructurePlacementScriptEntry(entry) : null;
 	}
 

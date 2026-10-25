@@ -34,11 +34,11 @@ public class DoubleCompareInsnTree extends FloatLikeCompareInsnTree {
 
 		LabelNode
 			greaterEqual = labelNode(),
-			greaterThan  = labelNode(),
-			lessThan     = labelNode(),
-			equalTo      = labelNode(),
+			greaterThan = labelNode(),
+			lessThan = labelNode(),
+			equalTo = labelNode(),
 			incomparable = labelNode(),
-			end          = labelNode();
+			end = labelNode();
 
 		method.node.visitInsn(DCMPL);
 		method.node.visitJumpInsn(IFGE, greaterEqual.getLabel());

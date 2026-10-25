@@ -22,7 +22,7 @@ public class ThrowInsnTree implements InsnTree {
 		return new ThrowInsnTree(value);
 	}
 
-		@Override
+	@Override
 	public void emitBytecode(MethodCompileContext method) {
 		this.value.emitBytecode(method);
 		method.node.visitInsn(ATHROW);

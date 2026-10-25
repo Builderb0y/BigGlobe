@@ -8,7 +8,8 @@ import builderb0y.bigglobe.noise.polynomials.Polynomial.PolyForm;
 public abstract class ResampleGrid1D implements Grid1D {
 
 	public final Grid1D source;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @Alias("scale") int scaleX;
+	public final @VerifyIntRange(min = 0, minInclusive = false)
+	@Alias("scale") int scaleX;
 	public final transient double rcpX;
 	public final transient double minValue, maxValue;
 

@@ -2,22 +2,19 @@ package builderb0y.bigglobe.rendering.lods;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-
 import builderb0y.bigglobe.rendering.ResourceTracker;
-import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
-import builderb0y.bigglobe.versions.RenderVersions;
+import builderb0y.bigglobe.util.SafeCloseable;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 @Environment(EnvType.CLIENT)
 public record SidedLodPasses(
 	@Nullable Pass opaque,
 	@Nullable Pass translucent
 )
-implements SafeCloseable {
+	implements SafeCloseable {
 
 	public @Nullable Pass getPass(boolean translucent) {
 		return translucent ? this.translucent : this.opaque;
@@ -35,7 +32,7 @@ implements SafeCloseable {
 		@Nullable Geometry negZ,
 		@Nullable Geometry all
 	)
-	implements SafeCloseable {
+		implements SafeCloseable {
 
 		public static Pass from(SidedVertexConsumer consumer, VertexHeap heap) {
 			try (ResourceTracker tracker = new ResourceTracker()) {
@@ -43,7 +40,7 @@ implements SafeCloseable {
 				Geometry negX = tracker.track(Geometry.from(consumer.negX, heap));
 				Geometry posZ = tracker.track(Geometry.from(consumer.posZ, heap));
 				Geometry negZ = tracker.track(Geometry.from(consumer.negZ, heap));
-				Geometry all  = tracker.track(Geometry.from(consumer.all,  heap));
+				Geometry all = tracker.track(Geometry.from(consumer.all, heap));
 				tracker.untrackAll();
 				return new Pass(posX, negX, posZ, negZ, all);
 			}
@@ -60,7 +57,7 @@ implements SafeCloseable {
 		SidedVertexConsumer opaque,
 		SidedVertexConsumer translucent
 	)
-	implements SafeCloseable, VersionedVertexConsumerProvider {
+		implements SafeCloseable, VersionedVertexConsumerProvider {
 
 		public Builder(CompactVertexFormat format, int initialVertexCount) {
 			this(
@@ -69,26 +66,14 @@ implements SafeCloseable {
 			);
 		}
 
-		#if MC_VERSION >= MC_1_21_6
-
-			@Override
-			public VertexConsumer getBuffer(net.minecraft.client.render.BlockRenderLayer layer) {
-				return layer.isTranslucent() ? this.translucent : this.opaque;
-			}
-
-		#else
-
-			@Override
-			public VertexConsumer getBuffer(RenderLayer layer) {
-				return RenderVersions.isTranslucent(layer) ? this.translucent : this.opaque;
-			}
-
-		#endif
-
+		@Override
+		public VertexConsumer getBuffer(RenderType layer) {
+			return layer.sortOnUpload() ? this.translucent : this.opaque;
+		}
 
 		public SidedLodPasses build(VertexHeap heap) {
 			try (ResourceTracker tracker = new ResourceTracker()) {
-				Pass opaque      = tracker.track(Pass.from(this.opaque,      heap));
+				Pass opaque = tracker.track(Pass.from(this.opaque, heap));
 				Pass translucent = tracker.track(Pass.from(this.translucent, heap));
 				tracker.untrackAll(); //success.
 				return new SidedLodPasses(opaque, translucent);

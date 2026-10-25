@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.Item;
 import builderb0y.bigglobe.scripting.wrappers.ItemWrapper;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
@@ -29,18 +27,18 @@ public class ItemTag extends TagWrapper<Item, Item> {
 	}
 
 	public static ItemTag of(int flags, String... ids) {
-		return new ItemTag(DelayedEntryList.create(RegistryKeys.ITEM, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new ItemTag(DelayedEntryList.create(Registries.ITEM, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override
-	public Item wrap(RegistryEntry<Item> entry) {
+	public Item wrap(Holder<Item> entry) {
 		return entry.value();
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public RegistryEntry<Item> unwrap(Item item) {
-		return item.getRegistryEntry();
+	public Holder<Item> unwrap(Item item) {
+		return item.builtInRegistryHolder();
 	}
 
 	@Override

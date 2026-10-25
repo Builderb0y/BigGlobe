@@ -14,7 +14,7 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 public abstract class AbstractConstantFactory implements FunctionHandler {
 
 	public static final int
-		CLIENT   = 1 << 0,
+		CLIENT = 1 << 0,
 		NULLABLE = 1 << 1;
 
 	public static int flags(ExpressionParser parser, boolean nullable) {

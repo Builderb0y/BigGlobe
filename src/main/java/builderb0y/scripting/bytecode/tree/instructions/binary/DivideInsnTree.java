@@ -28,7 +28,7 @@ public class DivideInsnTree extends BinaryInsnTree {
 		TypeInfo type = validate(left.getTypeInfo(), right.getTypeInfo());
 		ConstantValue rightConstant = right.getConstantValue();
 		if (rightConstant.isConstant()) {
-			ConstantValue leftConstant  = left.getConstantValue();
+			ConstantValue leftConstant = left.getConstantValue();
 			if (leftConstant.isConstant()) {
 				return switch (type.getSort()) {
 					case INT -> ldc(divideExact(parser, leftConstant.asInt(), rightConstant.asInt()));
@@ -60,11 +60,12 @@ public class DivideInsnTree extends BinaryInsnTree {
 							return new SignedRightShiftInsnTree(left, ldc(shift), LSHR);
 						}
 					}
-					default -> {}
+					default -> {
+					}
 				}
 			}
 		}
-		left  = left .cast(parser, type, CastMode.EXPLICIT_THROW, false);
+		left = left.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		right = right.cast(parser, type, CastMode.EXPLICIT_THROW, false);
 		return new DivideInsnTree(left, right, type.getOpcode(IDIV));
 	}
@@ -92,7 +93,7 @@ public class DivideInsnTree extends BinaryInsnTree {
 			case LDIV -> method.node.visitMethodInsn(INVOKESTATIC, "java/lang/Math", "floorDiv", "(JJ)J", false);
 			case FDIV -> method.node.visitInsn(FDIV);
 			case DDIV -> method.node.visitInsn(DDIV);
-			default   -> throw new AssertionError(this.opcode);
+			default -> throw new AssertionError(this.opcode);
 		}
 	}
 }

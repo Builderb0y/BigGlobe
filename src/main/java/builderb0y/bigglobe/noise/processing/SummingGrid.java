@@ -2,7 +2,9 @@ package builderb0y.bigglobe.noise.processing;
 
 import builderb0y.bigglobe.noise.Grid;
 
-/** a Grid implementation whose values are the sum of values in other Grid's. */
+/**
+a Grid implementation whose values are the sum of values in other Grid's.
+*/
 public abstract class SummingGrid implements LayeredGrid {
 
 	public final transient double minValue, maxValue;

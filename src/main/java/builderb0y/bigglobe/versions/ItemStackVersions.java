@@ -1,129 +1,78 @@
 package builderb0y.bigglobe.versions;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-
-import builderb0y.autocodec.util.AutoCodecUtil;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import builderb0y.autocodec.util.DFUVersions;
-import builderb0y.bigglobe.items.DynamicMaxDamageItem;
-
-#if MC_VERSION >= MC_1_20_5
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.util.Hand;
-
 import builderb0y.bigglobe.BigGlobeMod;
-#endif
 
 public class ItemStackVersions {
 
 	public static int getMaxDamage(ItemStack stack) {
-		#if MC_VERSION >= MC_1_20_5
-			return stack.getOrDefault(DataComponentTypes.MAX_DAMAGE, 0);
-		#else
-			return stack.getMaxDamage();
-		#endif
+
+		return stack.getOrDefault(DataComponents.MAX_DAMAGE, 0);
 	}
 
 	public static int getDamage(ItemStack stack) {
-		#if MC_VERSION >= MC_1_20_5
-			return stack.getOrDefault(DataComponentTypes.DAMAGE, 0);
-		#else
-			NbtCompound nbt = stack.getNbt();
-			return nbt != null ? nbt.getInt(ItemStack.DAMAGE_KEY) : 0;
-		#endif
+
+		return stack.getOrDefault(DataComponents.DAMAGE, 0);
 	}
 
 	public static void setMaxDamage(ItemStack stack, int maxDamage) {
-		#if MC_VERSION >= MC_1_20_5
-			stack.set(DataComponentTypes.MAX_DAMAGE, maxDamage);
-		#else
-			if (stack.getItem() instanceof DynamicMaxDamageItem dynamic) {
-				dynamic.bigglobe_setMaxDamage(stack, maxDamage);
-			}
-		#endif
+
+		stack.set(DataComponents.MAX_DAMAGE, maxDamage);
 	}
 
 	public static void setDamage(ItemStack stack, int damage) {
-		#if MC_VERSION >= MC_1_20_5
-			stack.set(DataComponentTypes.DAMAGE, damage);
-		#else
-			stack.getOrCreateNbt().putInt(ItemStack.DAMAGE_KEY, damage);
-		#endif
+
+		stack.set(DataComponents.DAMAGE, damage);
 	}
 
-	public static Text getCustomName(ItemStack stack) {
-		#if MC_VERSION >= MC_1_20_5
-			return stack.get(DataComponentTypes.CUSTOM_NAME);
-		#else
-			return stack.hasCustomName() ? stack.getName() : null;
-		#endif
+	public static Component getCustomName(ItemStack stack) {
+
+		return stack.get(DataComponents.CUSTOM_NAME);
 	}
 
-	public static void setCustomName(ItemStack stack, Text name) {
-		#if MC_VERSION >= MC_1_20_5
-			stack.set(DataComponentTypes.CUSTOM_NAME, name);
-		#else
-			stack.setCustomName(name);
-		#endif
+	public static void setCustomName(ItemStack stack, Component name) {
+
+		stack.set(DataComponents.CUSTOM_NAME, name);
 	}
 
-	public static void damage(ItemStack stack, PlayerEntity player, Hand hand) {
-		#if MC_VERSION >= MC_1_21_9
-			stack.damage(1, player, hand);
-		#elif MC_VERSION >= MC_1_20_5
-			stack.damage(1, player, LivingEntity.getSlotForHand(hand));
-		#else
-			stack.damage(1, player, p -> p.sendToolBreakStatus(hand));
-		#endif
+	public static void damage(ItemStack stack, Player player, InteractionHand hand) {
+
+		stack.hurtAndBreak(1, player, hand == net.minecraft.world.InteractionHand.MAIN_HAND ? net.minecraft.world.entity.EquipmentSlot.MAINHAND : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
 	}
 
-	public static NbtCompound toNbt(ItemStack stack) {
-		#if MC_VERSION >= MC_1_21_6
-			return (NbtCompound)(ItemStack.CODEC.encodeStart(RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager()), stack).getOrThrow());
-		#elif MC_VERSION >= MC_1_21_2
-			return (NbtCompound)(stack.toNbt(BigGlobeMod.getCurrentServer().getRegistryManager()));
-		#elif MC_VERSION >= MC_1_20_5
-			return (NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager()));
-		#else
-			return stack.writeNbt(new NbtCompound());
-		#endif
+	public static CompoundTag toNbt(ItemStack stack) {
+
+		return (CompoundTag)(ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().registryAccess()), stack).getOrThrow());
 	}
 
-	public static void toNbt(ItemStack stack, NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_21_6
-			nbt.copyFromCodec(ItemStack.MAP_CODEC, RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager()), stack);
-		#elif MC_VERSION >= MC_1_21_2
-			nbt.copyFrom((NbtCompound)(stack.toNbt(BigGlobeMod.getCurrentServer().getRegistryManager())));
-		#elif MC_VERSION >= MC_1_20_5
-			nbt.copyFrom((NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager())));
-		#else
-			stack.writeNbt(nbt);
-		#endif
+	public static void toNbt(ItemStack stack, CompoundTag nbt) {
+
+		Tag tag = ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().registryAccess()), stack).getOrThrow();
+		if (tag instanceof CompoundTag compound) {
+			nbt.merge(compound);
+		}
 	}
 
-	public static ItemStack fromNbt(NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_21_5
-			ItemStack stack = DFUVersions.getResult(
-				ItemStack.CODEC.parse(
-					BigGlobeMod
+	public static ItemStack fromNbt(CompoundTag nbt) {
+
+		ItemStack stack = DFUVersions.getResult(
+			ItemStack.CODEC.parse(
+				BigGlobeMod
 					.getCurrentServer()
-					.getRegistryManager()
-					.getOps(NbtOps.INSTANCE),
-					nbt
-				)
-			);
-			return stack != null ? stack : ItemStack.EMPTY;
-		#elif MC_VERSION >= MC_1_20_5
-			return ItemStack.fromNbtOrEmpty(BigGlobeMod.getCurrentServer().getRegistryManager(), nbt);
-		#else
-			return ItemStack.fromNbt(nbt);
-		#endif
+					.registryAccess()
+					.createSerializationContext(NbtOps.INSTANCE),
+				nbt
+			)
+		);
+		return stack != null ? stack : ItemStack.EMPTY;
 	}
 }

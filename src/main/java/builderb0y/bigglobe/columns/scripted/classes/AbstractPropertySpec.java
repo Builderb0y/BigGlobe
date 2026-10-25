@@ -2,11 +2,8 @@ package builderb0y.bigglobe.columns.scripted.classes;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.autocodec.annotations.DefaultBoolean;
 import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -18,14 +15,14 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class AbstractPropertySpec extends BasePropertySpec {
 
 	public final @IdentifierName String name;
-	public final RegistryEntry<ElementSpec> property_type;
+	public final Holder<ElementSpec> property_type;
 	public final boolean settable;
 	public final @DefaultBoolean(false) boolean is_3d;
-	public final transient Set<RegistryEntry<? extends DependencyView>> dependencies = new HashSet<>();
+	public final transient Set<Holder<? extends DependencyView>> dependencies = new HashSet<>();
 
 	public AbstractPropertySpec(
 		@IdentifierName String name,
-		RegistryEntry<ElementSpec> property_type,
+		Holder<ElementSpec> property_type,
 		boolean settable,
 		boolean is3d
 	) {
@@ -46,7 +43,7 @@ public class AbstractPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public RegistryEntry<ElementSpec> getPropertyType() {
+	public Holder<ElementSpec> getPropertyType() {
 		return this.property_type;
 	}
 
@@ -83,7 +80,7 @@ public class AbstractPropertySpec extends BasePropertySpec {
 	}
 
 	@Override
-	public Set<RegistryEntry<? extends DependencyView>> getDependencies() {
+	public Set<Holder<? extends DependencyView>> getDependencies() {
 		return this.dependencies;
 	}
 }

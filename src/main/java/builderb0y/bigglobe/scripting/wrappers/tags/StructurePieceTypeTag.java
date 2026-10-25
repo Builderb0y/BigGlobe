@@ -2,11 +2,9 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.lang.invoke.MethodHandles;
 import java.util.random.RandomGenerator;
-
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.structure.StructurePieceType;
-
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePieceTypeEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.AbstractConstantFactory;
@@ -29,16 +27,16 @@ public class StructurePieceTypeTag extends TagWrapper<StructurePieceType, Struct
 	}
 
 	public static StructurePieceTypeTag of(int flags, String... ids) {
-		return new StructurePieceTypeTag(DelayedEntryList.create(RegistryKeys.STRUCTURE_PIECE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
+		return new StructurePieceTypeTag(DelayedEntryList.create(Registries.STRUCTURE_PIECE, (flags & AbstractConstantFactory.CLIENT) != 0, ids));
 	}
 
 	@Override
-	public StructurePieceTypeEntry wrap(RegistryEntry<StructurePieceType> entry) {
+	public StructurePieceTypeEntry wrap(Holder<StructurePieceType> entry) {
 		return new StructurePieceTypeEntry(entry);
 	}
 
 	@Override
-	public RegistryEntry<StructurePieceType> unwrap(StructurePieceTypeEntry entry) {
+	public Holder<StructurePieceType> unwrap(StructurePieceTypeEntry entry) {
 		return entry.entry;
 	}
 

@@ -2,11 +2,8 @@ package builderb0y.bigglobe.scripting.wrappers.tags;
 
 import java.util.Iterator;
 import java.util.random.RandomGenerator;
-
+import net.minecraft.core.Holder;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.registry.entry.RegistryEntry;
-
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -17,12 +14,13 @@ public abstract class TagWrapper<T_Raw, T_Entry> implements Iterable<T_Entry> {
 	public static final TypeInfo TYPE = TypeInfo.of(TagWrapper.class);
 
 	public static final Info INFO = new Info();
+
 	public static class Info extends InfoHolder {
 
 		public MethodInfo isEmpty, size, contains;
 		@Disambiguate(name = "random", returnType = Object.class, paramTypes = { RandomGenerator.class })
 		public MethodInfo rngRandom;
-		@Disambiguate(name = "random", returnType = Object.class, paramTypes = { long.class})
+		@Disambiguate(name = "random", returnType = Object.class, paramTypes = { long.class })
 		public MethodInfo seedRandom;
 	}
 
@@ -32,9 +30,9 @@ public abstract class TagWrapper<T_Raw, T_Entry> implements Iterable<T_Entry> {
 		this.list = list;
 	}
 
-	public abstract T_Entry wrap(RegistryEntry<T_Raw> entry);
+	public abstract T_Entry wrap(Holder<T_Raw> entry);
 
-	public abstract RegistryEntry<T_Raw> unwrap(T_Entry entry);
+	public abstract Holder<T_Raw> unwrap(T_Entry entry);
 
 	public boolean isEmpty() {
 		return this.list.isEmpty();

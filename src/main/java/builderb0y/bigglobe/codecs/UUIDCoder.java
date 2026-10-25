@@ -1,13 +1,10 @@
 package builderb0y.bigglobe.codecs;
 
 import java.util.UUID;
-
+import net.minecraft.core.UUIDUtil;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Uuids;
-
 import builderb0y.autocodec.coders.AutoCoder.NamedCoder;
 import builderb0y.autocodec.data.Data;
 import builderb0y.autocodec.data.EmptyData;
@@ -33,7 +30,7 @@ public class UUIDCoder extends NamedCoder<UUID> {
 		try {
 			IntListData intList = context.tryAsIntList();
 			if (intList != null && intList.size() == 4) {
-				return Uuids.toUuid(intList.value.toIntArray());
+				return UUIDUtil.uuidFromIntArray(intList.value.toIntArray());
 			}
 			StringData string = context.tryAsString();
 			if (string != null) {
@@ -51,6 +48,6 @@ public class UUIDCoder extends NamedCoder<UUID> {
 	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, UUID> context) throws EncodeException {
 		UUID uuid = context.object;
 		if (uuid == null) return EmptyData.INSTANCE;
-		return context.isCompressed() ? IntListData.wrap(Uuids.toIntArray(uuid)) : new StringData(uuid.toString());
+		return context.isCompressed() ? IntListData.wrap(UUIDUtil.uuidToIntArray(uuid)) : new StringData(uuid.toString());
 	}
 }

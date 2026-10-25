@@ -7,7 +7,9 @@ import java.util.stream.Stream;
 import builderb0y.autocodec.annotations.MultiLine;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
-import builderb0y.scripting.bytecode.*;
+import builderb0y.scripting.bytecode.LazyVarInfo;
+import builderb0y.scripting.bytecode.MethodCompileContext;
+import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.ScopeContext.LoopName;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -18,7 +20,7 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 
-	public static final GridTypeInfo GRID_1D_TYPE_INFO = new GridTypeInfo(Grid1D.class, Parser.class, 1);
+	public static final GridTypeInfo GRID_1D_TYPE_INFO = new GridTypeInfo(Grid1D.class, builderb0y.bigglobe.noise.ScriptedGrid1D.Parser.class, 1);
 
 	public transient Grid1D delegate;
 
@@ -29,11 +31,11 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 	@Override
 	public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 		LinkedHashMap<String, Input> processedInputs = processInputs(this.inputs, GRID_1D_TYPE_INFO);
-		Parser parser = new Parser(this.script, processedInputs, registry.parserFlags());
+		builderb0y.bigglobe.noise.ScriptedGrid1D.Parser parser = new builderb0y.bigglobe.noise.ScriptedGrid1D.Parser(this.script, processedInputs, registry.parserFlags());
 		parser
-		.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
-		.addEnvironment(MathScriptEnvironment.INSTANCE)
-		.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
+			.addEnvironment(new Environment(processedInputs, GRID_1D_TYPE_INFO))
+			.addEnvironment(MathScriptEnvironment.INSTANCE)
+			.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE);
 		this.delegate = parser.parse();
 	}
 
@@ -102,9 +104,9 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				),
 				return_(noop)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			//fill samples with input.
-				invokeInstance(
+			invokeInstance(
 				getField(
 					load(self),
 					input.fieldInfo(getBulk)
@@ -114,7 +116,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				load(x),
 				load(samples)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			getBulk.node.visitLabel(label());
 			//replace samples with evaluation results.
 			getBulk.scopes.pushScope();
@@ -140,7 +142,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					)
 				)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);
@@ -178,14 +180,14 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 				),
 				return_(noop)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			//allocate scratch arrays.
 			for (Input input : this.gridInputs.values()) {
 				store(
 					scratches[input.index],
 					newNumberArray(load(sampleCount))
 				)
-				.emitBytecode(getBulk);
+					.emitBytecode(getBulk);
 				getBulk.node.visitLabel(label());
 			}
 			//fill scratch arrays.
@@ -197,7 +199,7 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 					load(x),
 					load(scratches[input.index])
 				)
-				.emitBytecode(getBulk);
+					.emitBytecode(getBulk);
 				getBulk.node.visitLabel(label());
 			}
 			//fill samples.
@@ -220,18 +222,18 @@ public class ScriptedGrid1D extends ScriptedGrid<Grid1D> implements Grid1D {
 							types('I', 'D', this.gridInputs.size())
 						),
 						Stream.concat(
-							Stream.of(
-								add(this, load(x), load(index))
-							),
-							this.gridInputs.values().stream().map((Input input) -> (
-								numberArrayLoad(load(scratches[input.index]), load(index))
-							))
-						)
-						.toArray(InsnTree.ARRAY_FACTORY)
+								Stream.of(
+									add(this, load(x), load(index))
+								),
+								this.gridInputs.values().stream().map((Input input) -> (
+									numberArrayLoad(load(scratches[input.index]), load(index))
+								))
+							)
+							.toArray(InsnTree.ARRAY_FACTORY)
 					)
 				)
 			)
-			.emitBytecode(getBulk);
+				.emitBytecode(getBulk);
 			getBulk.scopes.popScope();
 			//return.
 			return_(noop).emitBytecode(getBulk);

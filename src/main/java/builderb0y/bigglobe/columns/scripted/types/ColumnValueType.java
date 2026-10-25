@@ -1,17 +1,13 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Stream;
 
-import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
 import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.data.Data;
-import builderb0y.autocodec.data.ListData;
 import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.data.StringData;
 import builderb0y.autocodec.decoders.DecodeContext;
@@ -21,9 +17,9 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
-import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.columns.scripted.compile.DataCompileContext;
+import builderb0y.bigglobe.columns.scripted.dependencies.DependencyView.MutableDependencyView;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -62,20 +58,20 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		}
 	};
 	public static final Object INITIALIZER = new Object() {{
-		REGISTRY.registerAuto(BigGlobeMod.modID("byte"              ),              ByteColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("short"             ),             ShortColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("int"               ),               IntColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("long"              ),              LongColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("float"             ),             FloatColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("double"            ),            DoubleColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("boolean"           ),           BooleanColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"           ),           VoronoiColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block"             ),             BlockColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"       ),        BlockStateColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("biome"             ),             BiomeColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("byte"), ByteColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("short"), ShortColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("int"), IntColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("long"), LongColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("float"), FloatColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("double"), DoubleColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("boolean"), BooleanColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("voronoi"), VoronoiColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block"), BlockColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("block_state"), BlockStateColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("biome"), BiomeColumnValueType.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("configured_feature"), ConfiguredFeatureColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("wood_palette"      ),       WoodPaletteColumnValueType.class);
-		REGISTRY.registerAuto(BigGlobeMod.modID("class"             ),             ClassColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("wood_palette"), WoodPaletteColumnValueType.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("class"), ClassColumnValueType.class);
 	}};
 
 	public abstract TypeContext createType(ColumnCompileContext context);
@@ -87,14 +83,16 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		TypeContext typeContext,
 		DataCompileContext context,
 		MutableDependencyView dependencies
-	) {}
+	) {
+	}
 
 	public default void setupExternalEnvironment(
 		MutableScriptEnvironment environment,
 		TypeContext typeContext,
 		ColumnCompileContext context,
 		ExternalEnvironmentParams params
-	) {}
+	) {
+	}
 
 	@Override
 	public abstract boolean equals(Object other);
@@ -112,5 +110,7 @@ public interface ColumnValueType extends CoderRegistryTyped<ColumnValueType> {
 		otherwise, this component holds null.
 		*/
 		@Nullable DataCompileContext context
-	) {}
+	) {
+
+	}
 }

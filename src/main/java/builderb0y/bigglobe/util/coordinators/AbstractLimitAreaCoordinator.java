@@ -1,9 +1,8 @@
 package builderb0y.bigglobe.util.coordinators;
 
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 
@@ -46,12 +45,12 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 	public static class LimitArea extends AbstractLimitAreaCoordinator {
 
 		public final CoordinateBooleanSupplier predicate;
-		public final BlockPos.Mutable scratchPos;
+		public final BlockPos.MutableBlockPos scratchPos;
 
 		public LimitArea(Coordinator delegate, CoordinateBooleanSupplier predicate) {
 			super(delegate);
 			this.predicate = predicate;
-			this.scratchPos = new BlockPos.Mutable();
+			this.scratchPos = new BlockPos.MutableBlockPos();
 		}
 
 		@Override
@@ -97,8 +96,8 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 			this.maxZ = maxZ;
 		}
 
-		public InBox(Coordinator delegate, BlockBox box) {
-			this(delegate, box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ());
+		public InBox(Coordinator delegate, BoundingBox box) {
+			this(delegate, box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
 		}
 
 		@Override
@@ -158,9 +157,9 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 
 	public static class LazyInBox extends AbstractLimitAreaCoordinator {
 
-		public final BlockBox box;
+		public final BoundingBox box;
 
-		public LazyInBox(Coordinator delegate, BlockBox box) {
+		public LazyInBox(Coordinator delegate, BoundingBox box) {
 			super(delegate);
 			this.box = box;
 		}
@@ -168,9 +167,9 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 		@Override
 		public boolean test(int x, int y, int z) {
 			return (
-				x >= this.box.getMinX() && x <= this.box.getMaxX() &&
-				z >= this.box.getMinZ() && z <= this.box.getMaxZ() &&
-				y >= this.box.getMinY() && y <= this.box.getMaxY()
+				x >= this.box.minX() && x <= this.box.maxX() &&
+				z >= this.box.minZ() && z <= this.box.maxZ() &&
+				y >= this.box.minY() && y <= this.box.maxY()
 			);
 		}
 
@@ -189,7 +188,7 @@ public abstract class AbstractLimitAreaCoordinator implements Coordinator {
 
 		@Override
 		public String toString() {
-			return this.delegate + " in lazy box currently at (" + this.box.getMinX() + ", " + this.box.getMinY() + ", " + this.box.getMinZ() + ") to (" + this.box.getMaxX() + ", " + this.box.getMaxY() + ", " + this.box.getMaxZ() + ')';
+			return this.delegate + " in lazy box currently at (" + this.box.minX() + ", " + this.box.minY() + ", " + this.box.minZ() + ") to (" + this.box.maxX() + ", " + this.box.maxY() + ", " + this.box.maxZ() + ')';
 		}
 	}
 }

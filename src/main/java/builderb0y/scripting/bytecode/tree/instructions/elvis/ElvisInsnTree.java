@@ -17,9 +17,9 @@ public class ElvisInsnTree implements InsnTree {
 	public TypeInfo type;
 
 	public ElvisInsnTree(InsnTree value, InsnTree alternative, TypeInfo type) {
-		this.value       = value;
+		this.value = value;
 		this.alternative = alternative;
-		this.type        = type;
+		this.type = type;
 	}
 
 	public static InsnTree create(ExpressionParser parser, InsnTree value, InsnTree alternative) {

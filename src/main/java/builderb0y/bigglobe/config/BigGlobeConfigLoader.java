@@ -21,12 +21,10 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.minecraft.nbt.NbtElement;
-
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.coders.AutoCoder;
@@ -47,8 +45,8 @@ public class BigGlobeConfigLoader {
 	};
 	public static final String CONFIG_FILE_NAME = BigGlobeMod.MODNAME + ".json5";
 	public static final Path
-		CONFIG_FOLDER         = FabricLoader.getInstance().getConfigDir().toAbsolutePath().resolve(BigGlobeMod.MODID),
-		CONFIG_FILE           = CONFIG_FOLDER.resolve(CONFIG_FILE_NAME),
+		CONFIG_FOLDER = FabricLoader.getInstance().getConfigDir().toAbsolutePath().resolve(BigGlobeMod.MODID),
+		CONFIG_FILE = CONFIG_FOLDER.resolve(CONFIG_FILE_NAME),
 		TEMPORARY_CONFIG_FILE = CONFIG_FOLDER.resolve(CONFIG_FILE_NAME + ".tmp");
 
 	public static BigGlobeConfig load() throws Exception {
@@ -117,7 +115,7 @@ public class BigGlobeConfigLoader {
 
 	/**
 	{@link AutoCoder}'s are nice and all, but neither {@link JsonElement}
-	nor {@link NbtElement} supports comments. in order to support comments,
+	nor {@link Tag} supports comments. in order to support comments,
 	I would *either* need to implement a 3rd intermediate storage,
 	or just do the serializing manually. I opted for the latter.
 	*/
@@ -174,16 +172,16 @@ public class BigGlobeConfigLoader {
 				case '\t' -> out.append("\\t");
 				case '\f' -> out.append("\\f");
 				case '\b' -> out.append("\\b");
-				case '"'  -> out.append("\\\"");
+				case '"' -> out.append("\\\"");
 				case '\\' -> out.append("\\\\");
 				default -> {
 					if (c < ' ' || c > '~') {
 						out
-						.append("\\u")
-						.append(Character.toUpperCase(Character.forDigit((c >>> 12) & 0xF, 16)))
-						.append(Character.toUpperCase(Character.forDigit((c >>>  8) & 0xF, 16)))
-						.append(Character.toUpperCase(Character.forDigit((c >>>  4) & 0xF, 16)))
-						.append(Character.toUpperCase(Character.forDigit((c       ) & 0xF, 16)));
+							.append("\\u")
+							.append(Character.toUpperCase(Character.forDigit((c >>> 12) & 0xF, 16)))
+							.append(Character.toUpperCase(Character.forDigit((c >>> 8) & 0xF, 16)))
+							.append(Character.toUpperCase(Character.forDigit((c >>> 4) & 0xF, 16)))
+							.append(Character.toUpperCase(Character.forDigit((c) & 0xF, 16)));
 					}
 					else {
 						out.append(c);

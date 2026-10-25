@@ -2,21 +2,18 @@ package builderb0y.bigglobe.features;
 
 import java.util.*;
 import java.util.random.RandomGenerator;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.util.FeatureContext;
-
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
 import builderb0y.bigglobe.blocks.BlockStates;
@@ -24,11 +21,9 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnRandomYToIntScript;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnYToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
-import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
@@ -38,18 +33,21 @@ import builderb0y.bigglobe.scripting.ScriptHolder;
 import builderb0y.bigglobe.scripting.environments.RandomScriptEnvironment;
 import builderb0y.bigglobe.scripting.environments.StatelessRandomScriptEnvironment;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.trees.decoration.BallLeafDecorator;
-import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.trees.branches.BranchesConfig;
 import builderb0y.bigglobe.trees.branches.ScriptedBranchShape;
+import builderb0y.bigglobe.trees.decoration.BallLeafDecorator;
 import builderb0y.bigglobe.trees.decoration.BlockDecorator;
 import builderb0y.bigglobe.trees.decoration.DecoratorConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
+import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
-import builderb0y.scripting.parsing.*;
+import builderb0y.scripting.parsing.Script;
+import builderb0y.scripting.parsing.ScriptClassLoader;
+import builderb0y.scripting.parsing.ScriptParsingException;
+import builderb0y.scripting.parsing.TemplateScriptParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
@@ -66,14 +64,14 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 	}
 
 	@Override
-	public boolean generate(FeatureContext<Config> context) {
-		if (!(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
-		StructureWorldAccess world = context.getWorld();
-		Config config = context.getConfig();
-		IRandomList<RegistryEntry<Block>> saplingBlocks = config.palette.value().saplingBlocks();
-		BlockPos origin = context.getOrigin();
-		if (!saplingBlocks.contains(world.getBlockState(origin).getRegistryEntry())) return false;
-		Permuter permuter = Permuter.from(context.getRandom());
+	public boolean place(FeaturePlaceContext<Config> context) {
+		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
+		WorldGenLevel world = context.level();
+		Config config = context.config();
+		IRandomList<Holder<Block>> saplingBlocks = config.palette.value().saplingBlocks();
+		BlockPos origin = context.origin();
+		if (!saplingBlocks.contains(world.getBlockState(origin).getBlockHolder())) return false;
+		Permuter permuter = Permuter.from(context.random());
 		ScriptedColumn column = generator.newColumn(world, origin.getX(), origin.getZ(), ColumnUsage.GENERIC.normalHints());
 		int maxSaplingCount = config.max_saplings != null ? config.max_saplings.get(column, permuter, origin.getY()) : 64;
 		if (maxSaplingCount <= 0) return false;
@@ -82,13 +80,13 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		blockQueue.queueBlock(origin, BlockStates.AIR);
 		toCheck.add(origin);
 		double centerX = origin.getX();
-		int    centerY = origin.getY();
+		int centerY = origin.getY();
 		double centerZ = origin.getZ();
 		outer:
-		for (BlockPos pos; (pos = toCheck.pollFirst()) != null;) {
+		for (BlockPos pos; (pos = toCheck.pollFirst()) != null; ) {
 			for (Direction direction : Directions.HORIZONTAL) {
-				BlockPos offset = pos.offset(direction);
-				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).getRegistryEntry())) {
+				BlockPos offset = pos.relative(direction);
+				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).getBlockHolder())) {
 					blockQueue.queueBlock(offset, BlockStates.AIR);
 					centerX += offset.getX();
 					centerZ += offset.getZ();
@@ -139,11 +137,11 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			decorationsBuilder.build(),
 			null
 		)
-		.generate();
+				.generate();
 	}
 
 	public static record Config(
-		RegistryEntry<WoodPalette> palette,
+		Holder<WoodPalette> palette,
 		BlockState2ObjectMap<BlockState> ground_replacements,
 		TreeHeightScript.Holder height,
 		TrunkFactory trunk,
@@ -151,14 +149,18 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		@VerifyNullable Decorations decorations,
 		ColumnRandomYToIntScript.@VerifyNullable Holder max_saplings
 	)
-	implements FeatureConfig {}
+		implements FeatureConfiguration {
+
+	}
 
 	public static record Branches(
 		RandomSource start_frac_y,
 		RandomSource count_per_layer,
 		ScriptedBranchShape.Holder length_function,
 		ScriptedBranchShape.Holder height_function
-	) {}
+	) {
+
+	}
 
 	public static record Decorations(
 		BlockDecorator @VerifyNullable [] trunk,
@@ -179,9 +181,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		}
 
 		public void addTo(DecoratorConfig.Builder builder) {
-			builder.trunkBlock  = addAll(this.trunk,    builder. trunkBlock);
+			builder.trunkBlock = addAll(this.trunk, builder.trunkBlock);
 			builder.branchBlock = addAll(this.branches, builder.branchBlock);
-			builder.leafBlock   = addAll(this.leaves,   builder.  leafBlock);
+			builder.leafBlock = addAll(this.leaves, builder.leafBlock);
 			if (this.ball_leaves != null) {
 				BallLeafDecorator decorator = new BallLeafDecorator(this.ball_leaves.inner_state);
 				builder.branch(decorator).trunk(decorator);
@@ -189,7 +191,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		}
 	}
 
-	public static record BallLeaves(BlockState inner_state) {}
+	public static record BallLeaves(BlockState inner_state) {
+
+	}
 
 	public static interface TreeHeightScript extends Script {
 
@@ -206,15 +210,15 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 			public void compile(ColumnEntryRegistry registry) throws ScriptParsingException {
 				this.script = (
 					new TemplateScriptParser<>(TreeHeightScript.class, this.usage, registry.parserFlags())
-					.addEnvironment(MathScriptEnvironment.INSTANCE)
-					.configureEnvironment(RandomScriptEnvironment.create(
-						load("random", type(RandomGenerator.class))
-					))
-					.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
-					.configureEnvironment((MutableScriptEnvironment environment) -> {
-						environment.addVariableLoad("baseRadius", TypeInfos.DOUBLE);
-					})
-					.parse(new ScriptClassLoader())
+						.addEnvironment(MathScriptEnvironment.INSTANCE)
+						.configureEnvironment(RandomScriptEnvironment.create(
+							load("random", type(RandomGenerator.class))
+						))
+						.addEnvironment(StatelessRandomScriptEnvironment.INSTANCE)
+						.configureEnvironment((MutableScriptEnvironment environment) -> {
+							environment.addVariableLoad("baseRadius", TypeInfos.DOUBLE);
+						})
+						.parse(new ScriptClassLoader())
 				);
 			}
 

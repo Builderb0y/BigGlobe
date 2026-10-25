@@ -3,20 +3,17 @@ package builderb0y.bigglobe.rendering.hyperspace;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.rendering.*;
-import builderb0y.bigglobe.rendering.ScratchColorBuffer;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 
 import static org.lwjgl.opengl.GL32C.*;
 
@@ -33,9 +30,9 @@ public class HyperspaceRenderer implements SafeCloseable {
 			BigGlobeMod.LOGGER.error("Hyperspace rendering unavailable:", exception);
 			return;
 		}
-		ClientTickEvents.START_WORLD_TICK.register((ClientWorld world) -> {
+		ClientTickEvents.START_WORLD_TICK.register((ClientLevel world) -> {
 			//instance can be re-nullified if it encounters an error while rendering.
-			if (INSTANCE != null && world.getRegistryKey() == HyperspaceConstants.WORLD_KEY) {
+			if (INSTANCE != null && world.dimension() == HyperspaceConstants.WORLD_KEY) {
 				INSTANCE.noiseShader.tick();
 			}
 		});
@@ -116,11 +113,11 @@ public class HyperspaceRenderer implements SafeCloseable {
 		this.glState.capture();
 
 		//setup
-		Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
-		this.pingPong.ensureSize(framebuffer.textureWidth, framebuffer.textureHeight);
+		RenderTarget framebuffer = Minecraft.getInstance().getMainRenderTarget();
+		this.pingPong.ensureSize(framebuffer.width, framebuffer.height);
 		int framebufferID = RenderVersions.glID(framebuffer);
 		this.glState.setFramebuffer(this.pingPong.fbo);
-		this.glState.setViewport(0, 0, framebuffer.textureWidth, framebuffer.textureHeight);
+		this.glState.setViewport(0, 0, framebuffer.width, framebuffer.height);
 		this.glState.setVao(this.vertices.vao);
 		this.glState.setCullFace(false);
 		this.glState.setDepthRead(false);
@@ -146,7 +143,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 		this.glState.setProgram(this.horizontalBlur.program);
 		this.glState.previousPass.set(this.pingPong.colorTex, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 		glUniform1i(this.horizontalBlur.previousPass, 0);
-		glUniform2i(this.horizontalBlur.resolution, framebuffer.textureWidth, framebuffer.textureHeight);
+		glUniform2i(this.horizontalBlur.resolution, framebuffer.width, framebuffer.height);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//vertical blur pass
@@ -154,7 +151,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 		this.glState.setProgram(this.verticalBlur.program);
 		this.glState.previousPass.set(RenderVersions.colorAttachment(framebuffer), GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 		glUniform1i(this.verticalBlur.previousPass, 0);
-		glUniform2i(this.verticalBlur.resolution, framebuffer.textureWidth, framebuffer.textureHeight);
+		glUniform2i(this.verticalBlur.resolution, framebuffer.width, framebuffer.height);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//fractal and collapse pass
@@ -168,14 +165,14 @@ public class HyperspaceRenderer implements SafeCloseable {
 		glUniform3f(this.effects.cameraPosition, (float)(Matrices.cameraX), (float)(Matrices.cameraY), (float)(Matrices.cameraZ));
 		glUniform1f(this.effects.time, Matrices.dayTimeInSeconds);
 		float progress = 0;
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null) {
 			PlayerWaypointManager manager = PlayerWaypointManager.get(player);
 			if (manager != null) {
 				progress = manager.collapseProgress + (
 					manager.getAllWaypoints().isEmpty()
-					? +Matrices.partialTicks
-					: -Matrices.partialTicks
+						? +Matrices.partialTicks
+						: -Matrices.partialTicks
 				);
 			}
 		}

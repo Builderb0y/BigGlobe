@@ -1,15 +1,13 @@
 package builderb0y.bigglobe.structures;
 
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.structure.StructureContext;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.util.math.BlockBox;
-
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -28,20 +26,20 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 
 	public final @NotNull D data;
 
-	public DataStructurePiece(StructurePieceType type, int length, BlockBox boundingBox, @NotNull D data) {
+	public DataStructurePiece(StructurePieceType type, int length, BoundingBox boundingBox, @NotNull D data) {
 		super(type, length, boundingBox);
 		this.data = data;
 	}
 
-	public DataStructurePiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+	public DataStructurePiece(StructurePieceType type, StructurePieceSerializationContext context, CompoundTag nbt) {
 		super(type, nbt);
 		try {
 			this.data = BigGlobeAutoCodec.AUTO_CODEC.decode(
 				this.dataCoder(),
-				nbt.getCompound("data") #if MC_VERSION >= MC_1_21_5 .orElseThrow() #endif,
-				RegistryOps.of(
+				nbt.getCompound("data"),
+				RegistryOps.create(
 					NbtOps.INSTANCE,
-					context.registryManager()
+					context.registryAccess()
 				)
 			);
 		}
@@ -51,15 +49,15 @@ public abstract class DataStructurePiece<D> extends StructurePiece {
 	}
 
 	@Override
-	public void writeNbt(StructureContext context, NbtCompound nbt) {
+	public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
 		nbt.put(
 			"data",
 			BigGlobeAutoCodec.AUTO_CODEC.encode(
 				this.dataCoder(),
 				this.data,
-				RegistryOps.of(
+				RegistryOps.create(
 					NbtOps.INSTANCE,
-					context.registryManager()
+					context.registryAccess()
 				)
 			)
 		);

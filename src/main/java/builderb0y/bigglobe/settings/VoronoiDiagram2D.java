@@ -1,13 +1,10 @@
 package builderb0y.bigglobe.settings;
 
 import java.util.Comparator;
-
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.crash.CrashReportSection;
-
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.autocodec.annotations.VerifySorted;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -45,7 +42,8 @@ public class VoronoiDiagram2D {
 
 	public final Seed seed;
 	public final @VerifyIntRange(min = 0, minInclusive = false) int distance;
-	public final @VerifyIntRange(min = 0, minInclusive = false) @VerifySorted(lessThanOrEqual = "distance") int variation;
+	public final @VerifyIntRange(min = 0, minInclusive = false)
+	@VerifySorted(lessThanOrEqual = "distance") int variation;
 
 	public final transient Cell[] cellCache = new Cell[CACHE_SIZE];
 
@@ -139,22 +137,22 @@ public class VoronoiDiagram2D {
 		//apparently longs do not have enough scale to
 		//avoid overflows for this math, so... double time!
 		double a11 = center.centerX - test.centerX;
-		double a21 = left  .centerX - test.centerX;
-		double a31 = right .centerX - test.centerX;
+		double a21 = left.centerX - test.centerX;
+		double a31 = right.centerX - test.centerX;
 
 		double a12 = center.centerZ - test.centerZ;
-		double a22 = left  .centerZ - test.centerZ;
-		double a32 = right .centerZ - test.centerZ;
+		double a22 = left.centerZ - test.centerZ;
+		double a32 = right.centerZ - test.centerZ;
 
 		double a13 = BigGlobeMath.squareD(center.centerX - test.centerX, center.centerZ - test.centerZ);
-		double a23 = BigGlobeMath.squareD(left  .centerX - test.centerX, left  .centerZ - test.centerZ);
-		double a33 = BigGlobeMath.squareD(right .centerX - test.centerX, right .centerZ - test.centerZ);
+		double a23 = BigGlobeMath.squareD(left.centerX - test.centerX, left.centerZ - test.centerZ);
+		double a33 = BigGlobeMath.squareD(right.centerX - test.centerX, right.centerZ - test.centerZ);
 
 		return (
-			a13 * (a21 * a32 - a22 * a31) +
+				a13 * (a21 * a32 - a22 * a31) +
 			a23 * (a12 * a31 - a11 * a32) +
 			a33 * (a11 * a22 - a12 * a21)
-		) > 0.0D;
+			) > 0.0D;
 	}
 
 	/**
@@ -169,7 +167,7 @@ public class VoronoiDiagram2D {
 	as such, the act of removing a point from the list
 	will also mean that its neighbors have a new neighbor.
 	so, they are tested again to see if they now need to be removed too.
-
+	<p>
 	example:
 	A -> B -> C -> D -> E
 	after C is removed, the list looks like this:
@@ -179,16 +177,16 @@ public class VoronoiDiagram2D {
 	it is entirely possible for isInsideCircumCircle(A, B, C) to
 	return true while isInsideCircumCircle(A, B, D) returns false.
 	that's why B and D need to be re-tested to see if they still belong in the list.
-
+	<p>
 	after EVERY point passes the isInsideCircumCircle() check with
 	its neighbors, the list is converted to a Cell, and returned.
 	oh, and the list is also cyclic, so the point "before the first point" is
 	the last point, and the point "after the last point" is the first point.
-
+	<p>
 	things I've tried which don't work:
-
+	<p>
 	just add the points that belong, so there's nothing to remove later.
-
+	<p>
 	well, first you'll need to keep the list sorted every time
 	it's modified. that's easy to do with a TreeSet or similar,
 	but then access time becomes O(log(N)) instead of O(1), so it's
@@ -199,10 +197,10 @@ public class VoronoiDiagram2D {
 	return true while isInsideCircumCircle(A, B, C) returns false.
 	in other words, adding C *could* invalidate B and D.
 	so there's ALWAYS something to remove at the end.
-
+	<p>
 	well, maybe keep the removal stage, but now it's faster cause
 	there's less points in the list which need to be tested, right?
-
+	<p>
 	well, maybe, but there are still more edge cases. for example:
 	start with A -> C.
 	try to add B. assume this fails because isInsideCircumCircle(A, B, C) returns false.
@@ -247,7 +245,7 @@ public class VoronoiDiagram2D {
 		//how many remaining points still need to be tested.
 		//when we visit that number, we know it's time to stop testing.
 		int remaining = adjacent.size();
-		for (LinkedArrayList.Node<AdjacentSeedPoint> node = adjacent.getFirstNode(); remaining > 0;) {
+		for (LinkedArrayList.Node<AdjacentSeedPoint> node = adjacent.getFirstNode(); remaining > 0; ) {
 			LinkedArrayList.Node<AdjacentSeedPoint> prev = node.prev, next = node.next;
 			//cyclic list logic.
 			if (prev == null) prev = adjacent.getLastNode();
@@ -326,11 +324,17 @@ public class VoronoiDiagram2D {
 
 	public static class SeedPoint {
 
-		/** the coordinates of the square that this cell seeds from */
+		/**
+		the coordinates of the square that this cell seeds from
+		*/
 		public final int cellX, cellZ;
-		/** the world location of the center of this cell */
+		/**
+		the world location of the center of this cell
+		*/
 		public final int centerX, centerZ;
-		/** the seed of the VoronoiDiagram2D which created this SeedPoint */
+		/**
+		the seed of the VoronoiDiagram2D which created this SeedPoint
+		*/
 		public final long seed;
 
 		public SeedPoint(
@@ -340,14 +344,16 @@ public class VoronoiDiagram2D {
 			int centerZ,
 			long seed
 		) {
-			this.cellX   = cellX;
-			this.cellZ   = cellZ;
+			this.cellX = cellX;
+			this.cellZ = cellZ;
 			this.centerX = centerX;
 			this.centerZ = centerZ;
-			this.seed    = seed;
+			this.seed = seed;
 		}
 
-		/** permutes the seed based on this point's location. */
+		/**
+		permutes the seed based on this point's location.
+		*/
 		public long getSeed(long salt) {
 			return Permuter.permute(this.seed ^ salt, this.cellX, this.cellZ);
 		}
@@ -485,15 +491,15 @@ public class VoronoiDiagram2D {
 			return true;
 		}
 
-		public CrashException handleError(Throwable throwable, int blockX, int blockZ) {
-			CrashReport report = CrashReport.create(throwable, "Getting distance squared to edge of voronoi cell");
-			CrashReportSection category = report.addElement("Voronoi details:");
-			category.add("Requested coordinates", blockX + ", " + blockZ);
-			category.add("Center cell", this.center);
+		public ReportedException handleError(Throwable throwable, int blockX, int blockZ) {
+			CrashReport report = CrashReport.forThrowable(throwable, "Getting distance squared to edge of voronoi cell");
+			CrashReportCategory category = report.addCategory("Voronoi details:");
+			category.setDetail("Requested coordinates", blockX + ", " + blockZ);
+			category.setDetail("Center cell", this.center);
 			for (SeedPoint adjacent : this.adjacent) {
-				category.add("Adjacent cell", adjacent);
+				category.setDetail("Adjacent cell", adjacent);
 			}
-			return new CrashException(report);
+			return new ReportedException(report);
 		}
 
 		public double progressToEdgeSquaredD(int blockX, int blockZ) {
@@ -568,8 +574,8 @@ public class VoronoiDiagram2D {
 		public String toString() {
 			StringBuilder builder = (
 				new StringBuilder((this.adjacent.length + 1) << 6)
-				.append(this.getClass().getName())
-				.append(":\n\tCenter: ").append(this.center)
+					.append(this.getClass().getName())
+					.append(":\n\tCenter: ").append(this.center)
 			);
 			for (SeedPoint adjacent : this.adjacent) {
 				builder.append("\n\tAdjacent: ").append(adjacent);

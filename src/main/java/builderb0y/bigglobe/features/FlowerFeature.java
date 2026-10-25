@@ -29,7 +29,8 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 
 		public final @SeedModes(Seed.NUMBER | Seed.STRING) Seed seed;
 		public final @VerifyIntRange(min = 0, minInclusive = false) int distance;
-		public final @VerifyIntRange(min = 0) @VerifySorted(lessThanOrEqual = "distance") int variation;
+		public final @VerifyIntRange(min = 0)
+		@VerifySorted(lessThanOrEqual = "distance") int variation;
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double spawn_chance;
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
 		public final RandomSource randomize_radius;
@@ -64,7 +65,7 @@ public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 		SingleBlockFeature.Config state,
 		SingleBlockFeature.@VerifyNullable Config under
 	)
-	implements IRestrictedListElement {
+		implements IRestrictedListElement {
 
 		@Override
 		public double getWeight() {

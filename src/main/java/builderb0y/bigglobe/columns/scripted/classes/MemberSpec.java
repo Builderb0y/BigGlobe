@@ -17,13 +17,17 @@ public abstract class MemberSpec extends ElementSpec {
 
 	public abstract void track(OverrideTracker tracker) throws CustomClassFormatException;
 
-	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {}
+	public void verify(ClassHierarchy hierarchy, BaseClassSpec owner) throws CustomClassFormatException {
+	}
 
-	public void create(ClassHierarchy hierarchy, BaseClassSpec owner) {}
+	public void create(ClassHierarchy hierarchy, BaseClassSpec owner) {
+	}
 
-	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {}
+	public void compile(ClassHierarchy hierarchy, BaseClassSpec owner) throws ScriptParsingException {
+	}
 
-	public static final Consumer<MutableScriptEnvironment> NO_EXTRAS = (MutableScriptEnvironment environment) -> {};
+	public static final Consumer<MutableScriptEnvironment> NO_EXTRAS = (MutableScriptEnvironment environment) -> {
+	};
 
 	public static void compile(
 		ClassHierarchy hierarchy,
@@ -34,7 +38,7 @@ public abstract class MemberSpec extends ElementSpec {
 		MutableDependencyView dependencies,
 		Consumer<MutableScriptEnvironment> extra
 	)
-	throws ScriptParsingException {
+		throws ScriptParsingException {
 		hierarchy.registry.setMethodCode(
 			methodContext,
 			code,

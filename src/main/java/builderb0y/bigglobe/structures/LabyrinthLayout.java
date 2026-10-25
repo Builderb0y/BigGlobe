@@ -1,17 +1,14 @@
 package builderb0y.bigglobe.structures;
 
 import java.util.random.RandomGenerator;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
 import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.Directions;
@@ -35,13 +32,13 @@ public abstract class LabyrinthLayout {
 	public final int maxRooms;
 
 	public LabyrinthLayout(RandomGenerator random, int maxRooms) {
-		this.rooms       = new ObjectOpenCustomHashSet<>(maxRooms, RoomPiece.HACKY_OVERLAP_STRATEGY);
+		this.rooms = new ObjectOpenCustomHashSet<>(maxRooms, RoomPiece.HACKY_OVERLAP_STRATEGY);
 		this.activeRooms = new ObjectArrayList<>(maxRooms);
-		this.halls       = new ObjectArrayList<>(maxRooms + (maxRooms >> 1)); //= maxRooms * 1.5
+		this.halls = new ObjectArrayList<>(maxRooms + (maxRooms >> 1)); //= maxRooms * 1.5
 		this.decorations = new ObjectArrayList<>(maxRooms << 1);
 		this.horizontals = Directions.HORIZONTAL.clone();
-		this.random      = random;
-		this.maxRooms    = maxRooms;
+		this.random = random;
+		this.maxRooms = maxRooms;
 	}
 
 	/**
@@ -66,7 +63,9 @@ public abstract class LabyrinthLayout {
 	*/
 	public abstract HallPiece newHall(RoomPiece from, RoomPiece to, Direction direction);
 
-	/** returns the horizontal distance between rooms. */
+	/**
+	returns the horizontal distance between rooms.
+	*/
 	public abstract int distanceBetweenRooms();
 
 	/**
@@ -119,9 +118,9 @@ public abstract class LabyrinthLayout {
 			if (from.getConnectedRoom(direction) != null) continue;
 			int heightOffset = this.random.nextInt(-this.maxHeightDifference(), this.maxHeightDifference() + 1);
 			next.setPos(
-				from.x() + direction.getOffsetX() * this.distanceBetweenRooms(),
+				from.x() + direction.getStepX() * this.distanceBetweenRooms(),
 				from.y() + heightOffset,
-				from.z() + direction.getOffsetZ() * this.distanceBetweenRooms()
+				from.z() + direction.getStepZ() * this.distanceBetweenRooms()
 			);
 			if (this.isValidPosition(next) && this.rooms.add(next)) {
 				this.activeRooms.add(next);
@@ -140,9 +139,9 @@ public abstract class LabyrinthLayout {
 			for (Direction direction : POSITIVE_HORIZONTALS) {
 				if (from.getConnectedRoom(direction) != null) continue;
 				test.setPos(
-					from.x() + direction.getOffsetX() * this.distanceBetweenRooms(),
+					from.x() + direction.getStepX() * this.distanceBetweenRooms(),
 					from.y(),
-					from.z() + direction.getOffsetZ() * this.distanceBetweenRooms()
+					from.z() + direction.getStepZ() * this.distanceBetweenRooms()
 				);
 				RoomPiece intersection = this.rooms.get(test);
 				if (intersection != null && intersection.getConnectedRoom(direction.getOpposite()) == null) {
@@ -184,7 +183,7 @@ public abstract class LabyrinthLayout {
 	public Direction[] horizontals() {
 		RandomGenerator random = this.random;
 		Direction[] horizontals = this.horizontals;
-		for (int index = 4; index != 0;) {
+		for (int index = 4; index != 0; ) {
 			ObjectArrays.swap(horizontals, random.nextInt(index), --index);
 		}
 		return horizontals;
@@ -193,24 +192,25 @@ public abstract class LabyrinthLayout {
 	public boolean isSharingFloor(RoomPiece piece) {
 		class Checker implements RoomPiece {
 
-			public final BlockBox box;
+			public final BoundingBox box;
 
 			public Checker(RoomPiece from) {
 				this.box = from.boundingBox();
 			}
 
 			@Override
-			public BlockBox boundingBox() {
+			public BoundingBox boundingBox() {
 				return this.box;
 			}
 
 			@Override
 			public boolean intersectsY(LabyrinthPiece that) {
-				return that.boundingBox().getMaxY() == this.boundingBox().getMinY();
+				return that.boundingBox().maxY() == this.boundingBox().minY();
 			}
 
 			@Override
-			public void setPos(int x, int y, int z) {}
+			public void setPos(int x, int y, int z) {
+			}
 
 			@Override
 			public @Nullable RoomPiece getConnectedRoom(Direction direction) {
@@ -218,31 +218,34 @@ public abstract class LabyrinthLayout {
 			}
 
 			@Override
-			public void setConnectedRoom(Direction direction, RoomPiece piece) {}
+			public void setConnectedRoom(Direction direction, RoomPiece piece) {
+			}
 		}
 		return this.rooms.contains(new Checker(piece));
 	}
 
 	public static interface LabyrinthPiece {
 
-		public abstract BlockBox boundingBox();
+		public abstract BoundingBox boundingBox();
 
 		public default int x() {
-			return (this.boundingBox().getMinX() + this.boundingBox().getMaxX() + 1) >> 1;
+			return (this.boundingBox().minX() + this.boundingBox().maxX() + 1) >> 1;
 		}
 
 		public default int y() {
-			return this.boundingBox().getMinY();
+			return this.boundingBox().minY();
 		}
 
 		public default int z() {
-			return (this.boundingBox().getMinZ() + this.boundingBox().getMaxZ() + 1) >> 1;
+			return (this.boundingBox().minZ() + this.boundingBox().maxZ() + 1) >> 1;
 		}
 	}
 
 	public static interface RoomPiece extends LabyrinthPiece {
 
-		/** this is hacky because it uses hash collisions to model spacial collisions. */
+		/**
+		this is hacky because it uses hash collisions to model spacial collisions.
+		*/
 		public static final Hash.Strategy<RoomPiece> HACKY_OVERLAP_STRATEGY = HashStrategies.of(
 			piece -> piece.x() * 31 + piece.z(),
 			(piece1, piece2) -> piece1.x() == piece2.x() && piece1.z() == piece2.z() && piece1.intersectsY(piece2)
@@ -259,16 +262,20 @@ public abstract class LabyrinthLayout {
 		public abstract void setConnectedRoom(Direction direction, RoomPiece piece);
 
 		public default boolean intersectsY(LabyrinthPiece that) {
-			return this.boundingBox().getMinY() < that.boundingBox().getMaxY() && this.boundingBox().getMaxY() > that.boundingBox().getMinY();
+			return this.boundingBox().minY() < that.boundingBox().maxY() && this.boundingBox().maxY() > that.boundingBox().minY();
 		}
 
-		public default void addDecorations(LabyrinthLayout layout) {}
+		public default void addDecorations(LabyrinthLayout layout) {
+		}
 	}
 
 	public static interface HallPiece extends LabyrinthPiece {
 
-		public default void addDecorations(LabyrinthLayout layout) {}
+		public default void addDecorations(LabyrinthLayout layout) {
+		}
 	}
 
-	public static interface DecorationPiece extends LabyrinthPiece {}
+	public static interface DecorationPiece extends LabyrinthPiece {
+
+	}
 }

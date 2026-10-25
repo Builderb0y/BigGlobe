@@ -23,9 +23,7 @@ import builderb0y.autocodec.data.EmptyData;
 import builderb0y.autocodec.data.ListData;
 import builderb0y.autocodec.data.MapData;
 import builderb0y.autocodec.decoders.AutoDecoder;
-import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.encoders.AutoEncoder;
 import builderb0y.autocodec.encoders.AutoEncoder.NamedEncoder;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
@@ -41,7 +39,7 @@ this implementation stores the elements and weights separately, in parallel arra
 all add() methods which do NOT specify the weight will throw an UnsupportedOperationException.
 */
 @UseImprinter(name = "new", in = RandomList.RandomListImprinter.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
-@UseEncoder  (name = "new", in = RandomList.RandomListEncoder  .class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
+@UseEncoder(name = "new", in = RandomList.RandomListEncoder.class, usage = MemberUsage.METHOD_IS_FACTORY, strict = false)
 public class RandomList<E> extends AbstractRandomList<E> implements RandomAccessKnownTotalWeightRandomList<E>, Cloneable {
 
 	public Object[] elements;
@@ -51,23 +49,23 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 
 	public RandomList() {
 		this.elements = ObjectArrays.DEFAULT_EMPTY_ARRAY;
-		this.weights  = DoubleArrays.DEFAULT_EMPTY_ARRAY;
+		this.weights = DoubleArrays.DEFAULT_EMPTY_ARRAY;
 	}
 
 	public RandomList(int initialCapacity) {
 		this.elements = initialCapacity == 0 ? ObjectArrays.DEFAULT_EMPTY_ARRAY : new Object[initialCapacity];
-		this.weights  = initialCapacity == 0 ? DoubleArrays.DEFAULT_EMPTY_ARRAY : new double[initialCapacity];
+		this.weights = initialCapacity == 0 ? DoubleArrays.DEFAULT_EMPTY_ARRAY : new double[initialCapacity];
 	}
 
 	public RandomList(IRandomList<? extends E> other) {
 		if (other.isEmpty()) {
 			this.elements = ObjectArrays.DEFAULT_EMPTY_ARRAY;
-			this.weights  = DoubleArrays.DEFAULT_EMPTY_ARRAY;
+			this.weights = DoubleArrays.DEFAULT_EMPTY_ARRAY;
 		}
 		else if (other instanceof RandomList<? extends E> that) {
-			this.elements    = Arrays.copyOf(that.elements, that.size);
-			this.weights     = Arrays.copyOf(that.weights,  that.size);
-			this.size        = that.size;
+			this.elements = Arrays.copyOf(that.elements, that.size);
+			this.weights = Arrays.copyOf(that.weights, that.size);
+			this.size = that.size;
 			this.totalWeight = that.totalWeight;
 		}
 		else {
@@ -83,7 +81,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			}
 			else {
 				int index = 0;
-				for (WeightedIterator<? extends E> iterator = other.iterator(); iterator.hasNext();) {
+				for (WeightedIterator<? extends E> iterator = other.iterator(); iterator.hasNext(); ) {
 					this.elements[index] = iterator.next();
 					totalWeight += (this.weights[index] = iterator.getWeight());
 				}
@@ -96,12 +94,12 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 	public RandomList(RandomList<? extends E> other) {
 		if (other.isEmpty()) {
 			this.elements = ObjectArrays.DEFAULT_EMPTY_ARRAY;
-			this.weights  = DoubleArrays.DEFAULT_EMPTY_ARRAY;
+			this.weights = DoubleArrays.DEFAULT_EMPTY_ARRAY;
 		}
 		else {
-			this.elements    = Arrays.copyOf(other.elements, other.size);
-			this.weights     = Arrays.copyOf(other.weights,  other.size);
-			this.size        = other.size;
+			this.elements = Arrays.copyOf(other.elements, other.size);
+			this.weights = Arrays.copyOf(other.weights, other.size);
+			this.size = other.size;
 			this.totalWeight = other.totalWeight;
 		}
 	}
@@ -126,7 +124,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		throw new IllegalArgumentException("weight must be greater than or equal to 0.0.");
 	}
 
-	//////////////////////////////// get ////////////////////////////////
+	/// ///////////////////////////// get ////////////////////////////////
 
 	@Override
 	public E get(int index) {
@@ -155,7 +153,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return this.totalWeight;
 	}
 
-	//////////////////////////////// set ////////////////////////////////
+	/// ///////////////////////////// set ////////////////////////////////
 
 	@Override
 	public E set(int index, E element) {
@@ -215,7 +213,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 	}
 
-	//////////////////////////////// contains ////////////////////////////////
+	/// ///////////////////////////// contains ////////////////////////////////
 
 	@Override
 	public int indexOf(Object element) {
@@ -237,26 +235,26 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 	public int lastIndexOf(Object element) {
 		E[] elements = this.castRawElements();
 		if (element != null) {
-			for (int i = this.size; i-- != 0;) {
+			for (int i = this.size; i-- != 0; ) {
 				if (element.equals(elements[i])) return i;
 			}
 		}
 		else {
-			for (int i = this.size; i-- != 0;) {
+			for (int i = this.size; i-- != 0; ) {
 				if (elements[i] == null) return i;
 			}
 		}
 		return -1;
 	}
 
-	//////////////////////////////// size/empty ////////////////////////////////
+	/// ///////////////////////////// size/empty ////////////////////////////////
 
 	@Override
 	public int size() {
 		return this.size;
 	}
 
-	//////////////////////////////// add ////////////////////////////////
+	/// ///////////////////////////// add ////////////////////////////////
 
 	@Override
 	@Deprecated
@@ -348,7 +346,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 		else {
 			cTotalWeight = 0.0D;
-			for (WeightedIterator<? extends E> iterator = c.iterator(); iterator.hasNext();) {
+			for (WeightedIterator<? extends E> iterator = c.iterator(); iterator.hasNext(); ) {
 				this.elements[index] = iterator.next();
 				cTotalWeight += (this.weights[index] = iterator.getWeight());
 				index++;
@@ -359,7 +357,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return true;
 	}
 
-	//////////////////////////////// remove ////////////////////////////////
+	/// ///////////////////////////// remove ////////////////////////////////
 
 	@Override
 	public E remove(int index) {
@@ -370,7 +368,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		int moved = this.size - index - 1;
 		if (moved != 0) {
 			System.arraycopy(this.elements, index + 1, this.elements, index, moved);
-			System.arraycopy(this.weights,  index + 1, this.weights,  index, moved);
+			System.arraycopy(this.weights, index + 1, this.weights, index, moved);
 		}
 		this.elements[--this.size] = null; //clear element for GC
 		//don't need to clear weights, because doubles aren't GC'd.
@@ -415,7 +413,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		this.totalWeight = 0.0D;
 	}
 
-	//////////////////////////////// iterators ////////////////////////////////
+	/// ///////////////////////////// iterators ////////////////////////////////
 
 	@Override
 	public Spliterator<E> spliterator() {
@@ -432,7 +430,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		}
 	}
 
-	//////////////////////////////// view ////////////////////////////////
+	/// ///////////////////////////// view ////////////////////////////////
 
 	@Override
 	public Object[] toArray() {
@@ -449,7 +447,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		return a;
 	}
 
-	//////////////////////////////// other ////////////////////////////////
+	/// ///////////////////////////// other ////////////////////////////////
 
 	public void ensureCapacity(int minCapacity) {
 		if (minCapacity <= this.elements.length) return;
@@ -465,11 +463,11 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		if (size < this.elements.length) {
 			if (size == 0) {
 				this.elements = ObjectArrays.EMPTY_ARRAY;
-				this.weights  = DoubleArrays.EMPTY_ARRAY;
+				this.weights = DoubleArrays.EMPTY_ARRAY;
 			}
 			else {
 				this.elements = Arrays.copyOf(this.elements, size);
-				this.weights  = Arrays.copyOf(this.weights,  size);
+				this.weights = Arrays.copyOf(this.weights, size);
 			}
 		}
 	}
@@ -479,7 +477,7 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 		double[] weights = this.weights;
 		return (index1, index2) -> {
 			ObjectArrays.swap(elements, index1, index2);
-			DoubleArrays.swap(weights,  index1, index2);
+			DoubleArrays.swap(weights, index1, index2);
 		};
 	}
 
@@ -493,8 +491,8 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			0,
 			this.size,
 			comparator != null
-			? (index1, index2) -> comparator.compare(elements[index1], elements[index2])
-			: (index1, index2) -> ((Comparable<Object>)(elements[index1])).compareTo(elements[index2]),
+				? (index1, index2) -> comparator.compare(elements[index1], elements[index2])
+				: (index1, index2) -> ((Comparable<Object>)(elements[index1])).compareTo(elements[index2]),
 			this.swapper()
 		);
 	}
@@ -509,8 +507,8 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			0,
 			this.size,
 			largestWeightFirst
-			? (index1, index2) -> Double.compare(weights[index2], weights[index1])
-			: (index1, index2) -> Double.compare(weights[index1], weights[index2]),
+				? (index1, index2) -> Double.compare(weights[index2], weights[index1])
+				: (index1, index2) -> Double.compare(weights[index1], weights[index2]),
 			this.swapper()
 		);
 	}
@@ -523,12 +521,13 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			clone.elements = Arrays.copyOf(clone.elements, clone.size);
 			clone.weights = Arrays.copyOf(clone.weights, clone.size);
 			return clone;
-		} catch (CloneNotSupportedException e) {
+		}
+		catch (CloneNotSupportedException e) {
 			throw new InternalError(e);
 		}
 	}
 
-	//////////////////////////////// coding ////////////////////////////////
+	/// ///////////////////////////// coding ////////////////////////////////
 
 	public static @Nullable String elementName(ReifiedType<?> elementType) {
 		UseName useName = elementType.getAnnotations().getFirst(UseName.class);
@@ -540,7 +539,9 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 	public static class RandomListImprinter<T> extends NamedImprinter<RandomList<T>> {
 
 		public static final AutoDecoder<Double> WEIGHT_DECODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(
-			new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Double.POSITIVE_INFINITY, maxInclusive = false) Double>() {}
+			new ReifiedType<@VerifyFloatRange(min = 0.0D, minInclusive = false, max = Double.POSITIVE_INFINITY, maxInclusive = false) Double>() {
+
+			}
 		);
 
 		public final @NotNull AutoCoder<T> elementCoder;
@@ -554,8 +555,8 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			boolean allowSingleton
 		) {
 			super(type);
-			this.elementCoder   = elementCoder;
-			this.elementName    = elementName;
+			this.elementCoder = elementCoder;
+			this.elementName = elementName;
 			this.allowSingleton = allowSingleton;
 		}
 
@@ -601,8 +602,8 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			boolean singletonArray
 		) {
 			super(type);
-			this.elementCoder   = elementCoder;
-			this.elementName    = elementName;
+			this.elementCoder = elementCoder;
+			this.elementName = elementName;
 			this.singletonArray = singletonArray;
 		}
 
@@ -624,16 +625,16 @@ public class RandomList<E> extends AbstractRandomList<E> implements RandomAccess
 			}
 			return ListData.collect(
 				IntStream
-				.range(0, list.size())
-				.mapToObj((int index) -> {
-					return this.encodeElement(context, list.get(index), list.getWeight(index));
-				})
+					.range(0, list.size())
+					.mapToObj((int index) -> {
+						return this.encodeElement(context, list.get(index), list.getWeight(index));
+					})
 			);
 		}
 
 		public <T_Encoded> @NotNull Data encodeElement(EncodeContext<T_Encoded, RandomList<T>> context, T element, double weight) {
 			Data encodedElement = context.object(element).encodeWith(this.elementCoder);
-			Data encodedWeight  = context.object(weight).encodeWith(PrimitiveCoders.DOUBLE);
+			Data encodedWeight = context.object(weight).encodeWith(PrimitiveCoders.DOUBLE);
 			if (this.elementName != null) {
 				MapData data = new MapData(2);
 				data.put(this.elementName, encodedElement);
