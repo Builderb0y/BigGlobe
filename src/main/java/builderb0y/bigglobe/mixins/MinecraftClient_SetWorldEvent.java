@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 
@@ -19,7 +20,7 @@ public class MinecraftClient_SetWorldEvent {
 	public ClientLevel level;
 
 	@Inject(method = "setLevel", at = @At("HEAD"))
-	private void bigglobe_unloadOnJoinWorld(ClientLevel world, CallbackInfo callback) {
+	private void bigglobe_unloadOnJoinWorld(ClientLevel world, ReceivingLevelScreen.Reason reason, CallbackInfo callback) {
 		ClientWorldEvents.WORLD_CHANGED.invoker().worldChanged(this.level, world);
 	}
 
