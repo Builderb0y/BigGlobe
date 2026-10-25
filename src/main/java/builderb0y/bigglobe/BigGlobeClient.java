@@ -1,8 +1,8 @@
 package builderb0y.bigglobe;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.ClientModInitializer;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
 
 import builderb0y.bigglobe.blocks.BigGlobeBlocks;
 import builderb0y.bigglobe.commands.BigGlobeCommands;

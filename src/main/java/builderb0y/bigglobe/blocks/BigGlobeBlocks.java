@@ -3,16 +3,16 @@ package builderb0y.bigglobe.blocks;
 import java.util.EnumMap;
 import java.util.Optional;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
-import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
-import net.fabricmc.fabric.api.registry.FlattenableBlockRegistry;
-import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
-import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
+import builderb0y.bigglobe.platform.fabric.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.FlattenableBlockRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.LandPathNodeTypesRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.StrippableBlockRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.TillableBlockRegistry;
 
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.RenderType;

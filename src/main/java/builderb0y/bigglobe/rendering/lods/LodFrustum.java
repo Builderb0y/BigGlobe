@@ -1,8 +1,8 @@
 package builderb0y.bigglobe.rendering.lods;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.FrustumIntersection;

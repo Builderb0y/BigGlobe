@@ -2,8 +2,8 @@ package builderb0y.bigglobe.compat;
 
 import java.util.function.BiConsumer;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

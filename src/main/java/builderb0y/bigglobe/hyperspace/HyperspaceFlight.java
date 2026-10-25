@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.hyperspace;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

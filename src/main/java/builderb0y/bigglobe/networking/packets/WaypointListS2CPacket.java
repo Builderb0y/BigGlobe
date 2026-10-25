@@ -6,9 +6,9 @@ import java.util.function.ToIntFunction;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;

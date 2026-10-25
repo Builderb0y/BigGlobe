@@ -3,8 +3,8 @@ package builderb0y.bigglobe.entities;
 import java.util.Arrays;
 import java.util.random.RandomGenerator;
 
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.player.AttackEntityCallback;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;

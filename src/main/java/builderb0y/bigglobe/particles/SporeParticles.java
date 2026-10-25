@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.particles;
 
 import com.mojang.serialization.MapCodec;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

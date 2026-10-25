@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.entities;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;

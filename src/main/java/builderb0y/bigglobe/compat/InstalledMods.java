@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.compat;
 
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 
 public class InstalledMods {
 

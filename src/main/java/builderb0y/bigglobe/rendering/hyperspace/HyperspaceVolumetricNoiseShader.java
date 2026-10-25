@@ -2,8 +2,8 @@ package builderb0y.bigglobe.rendering.hyperspace;
 
 import java.util.random.RandomGenerator;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;

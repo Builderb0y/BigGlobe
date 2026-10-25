@@ -1,8 +1,8 @@
 package builderb0y.bigglobe;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.DedicatedServerModInitializer;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
 
 import builderb0y.bigglobe.scripting.ServerPrintSink;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;

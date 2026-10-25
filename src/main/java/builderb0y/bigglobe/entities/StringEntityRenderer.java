@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.entities;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 

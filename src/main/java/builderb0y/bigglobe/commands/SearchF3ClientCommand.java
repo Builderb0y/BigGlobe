@@ -4,8 +4,8 @@ import java.util.regex.Pattern;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.command.v2.ClientCommandManager;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.mixinInterfaces.SearchableDebugHud;

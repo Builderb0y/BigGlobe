@@ -3,8 +3,8 @@ package builderb0y.bigglobe.items;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;

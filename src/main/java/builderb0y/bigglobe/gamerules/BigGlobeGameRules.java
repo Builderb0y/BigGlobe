@@ -1,7 +1,7 @@
 package builderb0y.bigglobe.gamerules;
 
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.gamerule.v1.GameRuleBuilder;
+import builderb0y.bigglobe.platform.fabric.fabric.api.gamerule.v1.GameRuleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;

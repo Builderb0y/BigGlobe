@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.fluids;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.material.FlowingFluid;

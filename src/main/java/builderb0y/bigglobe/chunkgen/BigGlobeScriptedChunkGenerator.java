@@ -40,7 +40,7 @@ import com.mojang.serialization.MapCodec;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
 import org.jetbrains.annotations.NotNull;
 

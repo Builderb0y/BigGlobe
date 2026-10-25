@@ -10,10 +10,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.function.Predicate;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.Version;
-import net.fabricmc.loader.api.VersionParsingException;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.loader.api.ModContainer;
+import builderb0y.bigglobe.platform.fabric.loader.api.Version;
+import builderb0y.bigglobe.platform.fabric.loader.api.VersionParsingException;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;

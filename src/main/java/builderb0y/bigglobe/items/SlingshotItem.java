@@ -4,9 +4,9 @@ import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
 import java.util.function.Predicate;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.sounds.SoundEvents;

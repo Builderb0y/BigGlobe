@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.commands;
 
-import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.commands.RespawnCommand.RespawnModeArgumentType;

@@ -11,12 +11,12 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.Lifecycle;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.api.ModInitializer;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.registry.FabricRegistryBuilder;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;

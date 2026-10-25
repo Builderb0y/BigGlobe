@@ -24,7 +24,7 @@ import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import builderb0y.autocodec.util.HashStrategies;

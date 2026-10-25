@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.networking.base;
 
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import builderb0y.bigglobe.platform.fabric.fabric.api.networking.v1.PacketSender;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 

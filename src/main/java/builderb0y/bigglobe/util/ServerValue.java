@@ -2,8 +2,8 @@ package builderb0y.bigglobe.util;
 
 import java.util.function.Supplier;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.ServerStopped;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.ServerStopped;
 
 import net.minecraft.server.MinecraftServer;
 

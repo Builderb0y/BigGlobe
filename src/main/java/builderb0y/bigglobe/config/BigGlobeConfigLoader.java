@@ -20,7 +20,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.mojang.serialization.JsonOps;
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

@@ -3,9 +3,9 @@ package builderb0y.bigglobe.rendering.lods;
 import java.util.Collections;
 import java.util.List;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.lwjgl.opengl.*;
 
 import builderb0y.bigglobe.ClientState;

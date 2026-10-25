@@ -2,9 +2,9 @@ package builderb0y.bigglobe.rendering.waypoints;
 
 import java.util.TreeSet;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import builderb0y.autocodec.util.AutoCodecUtil;

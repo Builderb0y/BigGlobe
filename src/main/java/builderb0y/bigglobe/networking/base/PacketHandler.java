@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.networking.base;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import builderb0y.bigglobe.platform.fabric.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.FriendlyByteBuf;
 
 public interface PacketHandler {

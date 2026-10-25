@@ -3,22 +3,22 @@ package builderb0y.bigglobe;
 import java.util.function.Consumer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.networking.v1.ClientPlayNetworking;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.WorldRenderContext;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.rendering.v1.WorldRenderEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.command.v2.CommandRegistrationCallback;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.player.AttackEntityCallback;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.player.UseEntityCallback;
+import builderb0y.bigglobe.platform.fabric.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import builderb0y.bigglobe.platform.fabric.fabric.api.itemgroup.v1.ItemGroupEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.networking.v1.PacketSender;
+import builderb0y.bigglobe.platform.fabric.fabric.api.networking.v1.ServerPlayNetworking;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.FuelRegistry;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -152,7 +152,7 @@ public class BigGlobeNeoForgeEvents {
 
 	@Environment(EnvType.CLIENT)
 	public static void registerParticleProviders(net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) {
-		for (var entry : net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry.Holder.FACTORIES.entrySet()) {
+		for (var entry : builderb0y.bigglobe.platform.fabric.fabric.api.client.particle.v1.ParticleFactoryRegistry.Holder.FACTORIES.entrySet()) {
 			registerParticleProvider(event, entry.getKey(), entry.getValue());
 		}
 	}
@@ -161,9 +161,9 @@ public class BigGlobeNeoForgeEvents {
 	private static <T extends net.minecraft.core.particles.ParticleOptions> void registerParticleProvider(
 		net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event,
 		net.minecraft.core.particles.ParticleType<?> type,
-		net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry.PendingParticleFactory<?> factory
+		builderb0y.bigglobe.platform.fabric.fabric.api.client.particle.v1.ParticleFactoryRegistry.PendingParticleFactory<?> factory
 	) {
-		event.registerSpriteSet((net.minecraft.core.particles.ParticleType<T>) type, ((net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry.PendingParticleFactory<T>) factory)::create);
+		event.registerSpriteSet((net.minecraft.core.particles.ParticleType<T>) type, ((builderb0y.bigglobe.platform.fabric.fabric.api.client.particle.v1.ParticleFactoryRegistry.PendingParticleFactory<T>) factory)::create);
 	}
 
 	public static void registerCommands(RegisterCommandsEvent event) {

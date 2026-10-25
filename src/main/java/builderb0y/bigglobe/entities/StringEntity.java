@@ -3,12 +3,12 @@ package builderb0y.bigglobe.entities;
 import java.util.*;
 
 import com.mojang.serialization.Codec;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.api.EnvType;
+import builderb0y.bigglobe.platform.fabric.api.Environment;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import builderb0y.bigglobe.platform.fabric.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
+import builderb0y.bigglobe.platform.fabric.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

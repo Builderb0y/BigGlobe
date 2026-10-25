@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.fabricmc.loader.api.FabricLoader;
+import builderb0y.bigglobe.platform.fabric.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.jetbrains.annotations.Nullable;
 

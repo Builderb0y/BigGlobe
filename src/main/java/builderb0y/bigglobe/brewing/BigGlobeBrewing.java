@@ -1,6 +1,6 @@
 package builderb0y.bigglobe.brewing;
 
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import builderb0y.bigglobe.platform.fabric.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
