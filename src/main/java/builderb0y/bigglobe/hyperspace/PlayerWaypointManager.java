@@ -55,7 +55,12 @@ public abstract class PlayerWaypointManager extends WaypointManager<PlayerWaypoi
 
 	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static PlayerWaypointManager forPlayerClient(Player player) {
-		return new ClientPlayerWaypointManager((LocalPlayer)(player));
+		if (player instanceof LocalPlayer localPlayer) {
+			return new ClientPlayerWaypointManager(localPlayer);
+		}
+		else {
+			return null;
+		}
 	}
 
 	public Player getPlayer() {
