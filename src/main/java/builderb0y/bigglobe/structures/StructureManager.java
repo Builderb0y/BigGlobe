@@ -110,11 +110,19 @@ public abstract class StructureManager {
 	}
 
 	public static ResourceKey<Structure> structureKey(Structure structure) {
-		return RegistryVersions.getRegistry(BigGlobeMod.getCurrentServer().registryAccess(), Registries.STRUCTURE).getResourceKey(structure).orElseThrow();
+		try {
+			net.minecraft.server.MinecraftServer server = BigGlobeMod.currentServer;
+			if (server != null) {
+				return RegistryVersions.getRegistry(server.registryAccess(), Registries.STRUCTURE).getResourceKey(structure).orElse(null);
+			}
+		}
+		catch (Throwable ignored) {}
+		return null;
 	}
 
 	public static ResourceLocation structureID(Structure structure) {
-		return structureKey(structure).location();
+		ResourceKey<Structure> key = structureKey(structure);
+		return key != null ? key.location() : ResourceLocation.fromNamespaceAndPath("bigglobe", "unknown_structure");
 	}
 
 	public static String structureName(Structure structure) {

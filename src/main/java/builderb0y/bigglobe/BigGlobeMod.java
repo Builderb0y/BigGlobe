@@ -178,7 +178,25 @@ public class BigGlobeMod implements ModInitializer {
 		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
 		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register((MinecraftServer server) -> {
-			currentServer = server;
+			setCurrentServer(server);
+		});
+		ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> {
+			setCurrentServer(null);
+		});
+		if (REGEN_WORLDS) {
+			LOGGER.error("################################################################");
+			LOGGER.error("Warning! -D" + MODID + ".regenWorlds is set to true in your java arguments!");
+			LOGGER.error("THIS WILL DELETE EVERYTHING IN YOUR WORLDS!");
+			LOGGER.error("If you care about your worlds, CLOSE THE GAME NOW AND REMOVE THIS FROM YOUR JAVA ARGUMENTS!");
+			LOGGER.error("################################################################");
+			ServerLifecycleEvents.SERVER_STARTING.register(BigGlobeMod::regenWorlds);
+		}
+		LOGGER.info("Done initializing.");
+	}
+
+	public static void setCurrentServer(MinecraftServer server) {
+		currentServer = server;
+		if (server != null) {
 			currentRegistries = new BetterRegistry.Lookup() {
 
 				@Override
@@ -192,21 +210,11 @@ public class BigGlobeMod implements ModInitializer {
 				}
 			};
 			currentResourceManager = new DelegatingResourceManager(server::getResourceManager);
-		});
-		ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> {
-			currentServer = null;
+		}
+		else {
 			currentRegistries = null;
 			currentResourceManager = null;
-		});
-		if (REGEN_WORLDS) {
-			LOGGER.error("################################################################");
-			LOGGER.error("Warning! -D" + MODID + ".regenWorlds is set to true in your java arguments!");
-			LOGGER.error("THIS WILL DELETE EVERYTHING IN YOUR WORLDS!");
-			LOGGER.error("If you care about your worlds, CLOSE THE GAME NOW AND REMOVE THIS FROM YOUR JAVA ARGUMENTS!");
-			LOGGER.error("################################################################");
-			ServerLifecycleEvents.SERVER_STARTING.register(BigGlobeMod::regenWorlds);
 		}
-		LOGGER.info("Done initializing.");
 	}
 
 	public static MinecraftServer getCurrentServer() {

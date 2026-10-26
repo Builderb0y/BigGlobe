@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(BaseSpawner.class)
 public abstract class MobSpawnerLogic_SpawnLightning {
@@ -33,9 +32,16 @@ public abstract class MobSpawnerLogic_SpawnLightning {
 		tag.putBoolean("bigglobe_SpawnLightning", this.bigglobe_spawnLightning);
 	}
 
-	@Inject(method = "serverTick", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
-	private void bigglobe_spawnLightning(ServerLevel world, BlockPos pos, CallbackInfo callback, boolean spawned) {
-		if (spawned && this.bigglobe_spawnLightning) {
+	@Inject(
+		method = "serverTick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerLevel;levelEvent(ILnet/minecraft/core/BlockPos;I)V"
+		),
+		require = 0
+	)
+	private void bigglobe_spawnLightning(ServerLevel world, BlockPos pos, CallbackInfo callback) {
+		if (this.bigglobe_spawnLightning) {
 			LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, world);
 			lightning.setPos(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
 			lightning.setVisualOnly(true);

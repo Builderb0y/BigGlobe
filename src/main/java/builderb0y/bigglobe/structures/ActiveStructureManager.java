@@ -14,6 +14,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -408,7 +409,7 @@ public class ActiveStructureManager extends StructureManager {
 								.orElse(null);
 		}
 		catch (Exception exception) {
-			ResourceLocation structureID = structureID(structure);
+			ResourceLocation structureID = weightedEntry.structure().unwrapKey().map(ResourceKey::location).orElse(ResourceLocation.fromNamespaceAndPath("bigglobe", "unknown_structure"));
 			BigGlobeMod.LOGGER.error("Caught exception while generating StructurePosition for structure " + structureID + ". Please report this to the developers of mod " + structureID.getNamespace(), exception);
 			return null;
 		}
@@ -425,7 +426,7 @@ public class ActiveStructureManager extends StructureManager {
 			collector = newStartPosition.getPiecesBuilder();
 		}
 		catch (Exception exception) {
-			ResourceLocation structureID = structureID(structure);
+			ResourceLocation structureID = weightedEntry.structure().unwrapKey().map(ResourceKey::location).orElse(ResourceLocation.fromNamespaceAndPath("bigglobe", "unknown_structure"));
 			BigGlobeMod.LOGGER.error("Caught exception while generating StructurePiecesCollector for structure " + structureID + ". Please report this to the developers of mod " + structureID.getNamespace(), exception);
 			return null;
 		}

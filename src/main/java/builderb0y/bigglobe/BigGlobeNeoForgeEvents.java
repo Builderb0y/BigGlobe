@@ -44,7 +44,10 @@ import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -64,7 +67,10 @@ public class BigGlobeNeoForgeEvents {
 
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::registerBrewing);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::registerCommands);
+		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverAboutToStart);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverStarting);
+		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverStarted);
+		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverStopping);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverStopped);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::onFuelBurnTime);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::onEntityInteract);
@@ -168,16 +174,46 @@ public class BigGlobeNeoForgeEvents {
 		CommandRegistrationCallback.EVENT.invoker(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
 	}
 
+	private static boolean startingFired = false;
+
+	public static void serverAboutToStart(ServerAboutToStartEvent event) {
+		BigGlobeMod.setCurrentServer(event.getServer());
+		if (!startingFired) {
+			startingFired = true;
+			for (ServerLifecycleEvents.ServerStarting listener : ServerLifecycleEvents.SERVER_STARTING.getListeners()) {
+				listener.onServerStarting(event.getServer());
+			}
+		}
+	}
+
 	public static void serverStarting(ServerStartingEvent event) {
-		for (ServerLifecycleEvents.ServerStarting listener : ServerLifecycleEvents.SERVER_STARTING.getListeners()) {
-			listener.onServerStarting(event.getServer());
+		BigGlobeMod.setCurrentServer(event.getServer());
+		if (!startingFired) {
+			startingFired = true;
+			for (ServerLifecycleEvents.ServerStarting listener : ServerLifecycleEvents.SERVER_STARTING.getListeners()) {
+				listener.onServerStarting(event.getServer());
+			}
+		}
+	}
+
+	public static void serverStarted(ServerStartedEvent event) {
+		for (ServerLifecycleEvents.ServerStarted listener : ServerLifecycleEvents.SERVER_STARTED.getListeners()) {
+			listener.onServerStarted(event.getServer());
+		}
+	}
+
+	public static void serverStopping(ServerStoppingEvent event) {
+		for (ServerLifecycleEvents.ServerStopping listener : ServerLifecycleEvents.SERVER_STOPPING.getListeners()) {
+			listener.onServerStopping(event.getServer());
 		}
 	}
 
 	public static void serverStopped(ServerStoppedEvent event) {
+		startingFired = false;
 		for (ServerLifecycleEvents.ServerStopped listener : ServerLifecycleEvents.SERVER_STOPPED.getListeners()) {
 			listener.onServerStopped(event.getServer());
 		}
+		BigGlobeMod.setCurrentServer(null);
 	}
 
 	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
