@@ -339,7 +339,7 @@ public class BigGlobeItems {
 		CompostingChanceRegistry.INSTANCE.add(BLUEBONNETS, wildflowerChance);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	@SuppressWarnings("UnstableApiUsage")
 	public static void initClient() {
 

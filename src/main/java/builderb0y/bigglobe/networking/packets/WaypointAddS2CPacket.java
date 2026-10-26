@@ -65,7 +65,7 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public SyncedWaypointData decode(FriendlyByteBuf buffer) {
 		int flags = buffer.readByte();
 		boolean owned = (flags & HAS_OWNER) != 0;
@@ -81,7 +81,7 @@ public class WaypointAddS2CPacket implements S2CPlayPacketHandler<SyncedWaypoint
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void process(SyncedWaypointData waypoint, PacketSender responseSender) {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null) {

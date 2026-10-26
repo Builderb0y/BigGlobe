@@ -100,7 +100,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public List<SyncedWaypointData> decode(FriendlyByteBuf buffer) {
 		boolean isHyperspace = buffer.readBoolean();
 		int worldCount = buffer.readVarInt();
@@ -126,7 +126,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void process(List<SyncedWaypointData> waypoints, PacketSender responseSender) {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null) {

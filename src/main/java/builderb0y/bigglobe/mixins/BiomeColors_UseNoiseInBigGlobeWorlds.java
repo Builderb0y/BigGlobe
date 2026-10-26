@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import builderb0y.bigglobe.ClientState;
 
 @Mixin(BiomeColors.class)
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class BiomeColors_UseNoiseInBigGlobeWorlds {
 
 	@Inject(method = "getAverageColor", at = @At("HEAD"), cancellable = true)

@@ -6,7 +6,7 @@ import builderb0y.bigglobe.platform.fabric.fabric.api.event.Event;
 import builderb0y.bigglobe.platform.fabric.fabric.api.event.EventFactory;
 import net.minecraft.client.multiplayer.ClientLevel;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class ClientWorldEvents {
 
 	public static final Event<WorldChanged> WORLD_CHANGED = EventFactory.createArrayBacked(
@@ -19,7 +19,7 @@ public class ClientWorldEvents {
 		}
 	);
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static interface WorldChanged {
 
 		public abstract void worldChanged(ClientLevel oldWorld, ClientLevel newWorld);

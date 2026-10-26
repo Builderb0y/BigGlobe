@@ -16,13 +16,13 @@ public class DangerousRapidsPacket implements S2CPlayPacketHandler<Boolean> {
 	public static final DangerousRapidsPacket INSTANCE = new DangerousRapidsPacket();
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public Boolean decode(FriendlyByteBuf buffer) {
 		return buffer.readBoolean();
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void process(Boolean data, PacketSender responseSender) {
 		ClientState.forEach((ClientState state) -> state.dangerousRapids = data);
 	}

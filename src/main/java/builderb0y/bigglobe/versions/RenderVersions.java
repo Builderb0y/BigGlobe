@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class RenderVersions {
 
 	public static final ThreadLocal<Matrix4f> minecraftProjectionMatrix = ThreadLocal.withInitial(Matrix4f::new);

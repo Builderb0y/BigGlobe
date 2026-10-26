@@ -5,7 +5,7 @@ import builderb0y.bigglobe.platform.fabric.api.Environment;
 import net.minecraft.util.FastColor;
 import builderb0y.bigglobe.rendering.NativeMemory;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class CompactVertexConsumer extends VersionedVertexConsumer {
 
 	public final NativeMemory memory;

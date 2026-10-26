@@ -5,7 +5,7 @@ import builderb0y.bigglobe.platform.fabric.api.Environment;
 
 import builderb0y.autocodec.util.AutoCodecUtil;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class ScreenTriangleShader extends Shader {
 
 	public ScreenTriangleShader() {

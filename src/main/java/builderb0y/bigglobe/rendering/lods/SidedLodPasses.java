@@ -9,7 +9,7 @@ import builderb0y.bigglobe.rendering.lods.LodPasses.Geometry;
 import builderb0y.bigglobe.util.SafeCloseable;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public record SidedLodPasses(
 	@Nullable Pass opaque,
 	@Nullable Pass translucent
@@ -52,7 +52,7 @@ public record SidedLodPasses(
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static record Builder(
 		SidedVertexConsumer opaque,
 		SidedVertexConsumer translucent

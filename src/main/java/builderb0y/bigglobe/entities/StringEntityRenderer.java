@@ -21,7 +21,7 @@ import builderb0y.bigglobe.versions.EntityVersions;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, StringEntityRenderer.State> {
 
 	public static final ResourceLocation TEXTURE = BigGlobeMod.modID("textures/entity/string.png");

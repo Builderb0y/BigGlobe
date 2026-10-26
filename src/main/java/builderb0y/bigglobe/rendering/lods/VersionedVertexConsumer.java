@@ -5,7 +5,7 @@ import builderb0y.bigglobe.platform.fabric.api.Environment;
 import builderb0y.bigglobe.util.SafeCloseable;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public abstract class VersionedVertexConsumer
 
 	implements VertexConsumer, SafeCloseable {

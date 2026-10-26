@@ -10,7 +10,7 @@ import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL31C.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class TextureBuffer extends GpuMemory {
 
 	public static final long MAX_SIZE = (

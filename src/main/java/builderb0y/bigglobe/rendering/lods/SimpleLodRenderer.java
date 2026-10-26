@@ -11,7 +11,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 
 import static org.lwjgl.opengl.GL32C.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class SimpleLodRenderer extends AbstractLodRenderer {
 
 	public DefaultLodState state = new DefaultLodState();

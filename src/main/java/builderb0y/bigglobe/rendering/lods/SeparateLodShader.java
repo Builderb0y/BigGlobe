@@ -5,7 +5,7 @@ import builderb0y.bigglobe.platform.fabric.api.Environment;
 
 import static org.lwjgl.opengl.GL32C.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class SeparateLodShader extends VanillaLodShader {
 
 	public int modelOffset;

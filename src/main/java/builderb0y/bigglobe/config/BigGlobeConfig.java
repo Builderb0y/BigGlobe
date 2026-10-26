@@ -215,7 +215,7 @@ public class BigGlobeConfig {
 			SIDED_SEPARATE,
 			SIDED_COMBINED;
 
-			@Environment(EnvType.CLIENT)
+			@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 			public LodRenderer createRenderer(LodRendering config) {
 				int quads = config.maxQuads;
 				return switch (this) {
@@ -235,7 +235,7 @@ public class BigGlobeConfig {
 		@Excluded
 		public static transient RendererBackend previousRendererBackend = RendererBackend.AUTO;
 
-		@Environment(EnvType.CLIENT)
+		@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 		public LodRenderer createRendererBackend() {
 			return this.rendererBackend.createRenderer(this);
 		}
@@ -329,7 +329,7 @@ public class BigGlobeConfig {
 			}
 		}
 
-		@Environment(EnvType.CLIENT)
+		@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 		public void maybeReloadLODs() {
 			Minecraft client = Minecraft.getInstance();
 			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.levelRenderer) : null;

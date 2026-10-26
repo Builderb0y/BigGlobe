@@ -58,14 +58,14 @@ public class BigGlobeCommands {
 		BigGlobeMod.LOGGER.debug("Done registering commands to dispatcher.");
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		BigGlobeMod.LOGGER.debug("Registering client command event handler...");
 		ClientCommandRegistrationCallback.EVENT.register(BigGlobeCommands::registerClientCommands);
 		BigGlobeMod.LOGGER.debug("Done registering client command event handler.");
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void registerClientCommands(
 		CommandDispatcher<FabricClientCommandSource> dispatcher,
 		CommandBuildContext registryAccess

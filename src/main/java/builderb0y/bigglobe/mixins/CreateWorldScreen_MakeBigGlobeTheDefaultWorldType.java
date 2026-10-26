@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 @Mixin(CreateWorldScreen.class)
 public class CreateWorldScreen_MakeBigGlobeTheDefaultWorldType {
 

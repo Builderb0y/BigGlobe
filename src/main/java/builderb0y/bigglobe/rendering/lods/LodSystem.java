@@ -33,7 +33,7 @@ import builderb0y.bigglobe.rendering.lods.LodRenderer.MeshUploader;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class LodSystem implements SafeCloseable {
 
 	public static final long CHUNK_REBUILD_DELAY = 2000L;

@@ -8,7 +8,7 @@ import builderb0y.bigglobe.rendering.ScreenTriangleShader;
 
 import static org.lwjgl.opengl.GL20C.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class WaypointWarpShader extends ScreenTriangleShader {
 
 	public int colortex, depthtex, modelViewMatrix, inverseModelViewMatrix, projectionMatrix, inverseProjectionMatrix, time, waypointCount, waypoints;

@@ -9,7 +9,7 @@ import builderb0y.bigglobe.platform.fabric.api.Environment;
 
 import builderb0y.bigglobe.util.SafeCloseable;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class ResourceTracker implements SafeCloseable {
 
 	public final List<SafeCloseable> resources = new ArrayList<>();

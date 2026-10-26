@@ -9,7 +9,7 @@ import builderb0y.bigglobe.util.SafeCloseable;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL20C.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class Shader implements SafeCloseable {
 
 	public int program, fragmentStage, vertexStage;

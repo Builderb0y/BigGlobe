@@ -51,7 +51,7 @@ public abstract class Chunk_NotifyLodSystem {
 	}
 
 	@Unique
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	private static void bigglobe_doNotify(ServerLevel world, ChunkPos chunkPos) {
 		LodSystemHolder holder = ImmersivePortalsCompat.getLodSystem(world.dimension());
 		if (holder != null) {

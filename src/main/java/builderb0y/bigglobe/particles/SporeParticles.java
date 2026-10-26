@@ -27,7 +27,7 @@ public class SporeParticles {
 		Registry.register(BuiltInRegistries.PARTICLE_TYPE, BigGlobeMod.modID("spore"), Type.INSTANCE);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		ParticleFactoryRegistry.getInstance().register(Type.INSTANCE, ClientFactory::new);
 	}
@@ -84,7 +84,7 @@ public class SporeParticles {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static class SporeParticle extends SuspendedParticle {
 		public SporeParticle(ClientLevel level, SpriteSet sprites, double x, double y, double z, double vx, double vy, double vz) {
 			super(level, sprites, x, y, z);
@@ -94,7 +94,7 @@ public class SporeParticles {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static class ClientFactory implements ParticleProvider<Effect> {
 
 		public SpriteSet spriteProvider;

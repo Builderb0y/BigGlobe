@@ -19,7 +19,7 @@ import builderb0y.bigglobe.util.SafeCloseable;
 import static org.lwjgl.opengl.GL32C.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class VertexHeap extends GpuMemory {
 
 	public static final boolean AGGRESSIVE_ASSERTS = false;

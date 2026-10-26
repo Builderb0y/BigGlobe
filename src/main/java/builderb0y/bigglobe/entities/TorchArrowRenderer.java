@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import builderb0y.bigglobe.BigGlobeMod;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class TorchArrowRenderer extends ArrowRenderer<TorchArrowEntity> {
 
 	public static final ResourceLocation TEXTURE = BigGlobeMod.modID("textures/entity/projectiles/torch_arrow.png");

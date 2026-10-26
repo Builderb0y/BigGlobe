@@ -83,7 +83,7 @@ public class StringEntity extends Entity {
 	//the wrong side, and apparently some JVMs preload lambda method parameter types.
 	//so, I have to use an anonymous class instead of a lambda to prevent crashes.
 	@SuppressWarnings("Convert2Lambda")
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		ClientTickEvents.END_CLIENT_TICK.register(new EndTick() {
 

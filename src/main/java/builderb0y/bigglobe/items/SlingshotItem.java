@@ -94,7 +94,7 @@ public class SlingshotItem extends ProjectileWeaponItem {
 	*/
 	public static final Class<?> PLAYER_ENTITY_RENDERER = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ? getPlayerEntityRenderer() : null;
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static Class<?> getPlayerEntityRenderer() {
 		return PlayerRenderer.class;
 	}

@@ -15,7 +15,7 @@ import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RenderVersions;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public interface LodRenderer extends SafeCloseable {
 
 	public static class LodRenderState {

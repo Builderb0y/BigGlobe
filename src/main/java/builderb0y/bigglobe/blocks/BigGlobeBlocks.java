@@ -1152,7 +1152,7 @@ public class BigGlobeBlocks {
 		// ((MutableBlockEntityType)(BlockEntityType.SHELF)).bigglobe_addValidBlock(CHARRED_SHELF);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		BlockRenderLayerMap.INSTANCE.putBlocks(
 			RenderType.cutout(),

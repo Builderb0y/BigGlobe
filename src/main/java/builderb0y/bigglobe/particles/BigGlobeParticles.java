@@ -9,7 +9,7 @@ public class BigGlobeParticles {
 		SporeParticles.init();
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		SporeParticles.initClient();
 	}

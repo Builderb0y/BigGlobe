@@ -8,7 +8,7 @@ import builderb0y.bigglobe.util.SafeCloseable;
 
 import static org.lwjgl.opengl.GL15C.*;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public abstract class GpuMemory implements SafeCloseable {
 
 	public Thread thread;

@@ -19,7 +19,7 @@ public class BigGlobeFluids {
 	public static void init() {
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		FluidRenderHandlerRegistry.INSTANCE.register(
 			SOUL_LAVA,

@@ -7,12 +7,12 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public interface S2CPlayPacketHandler<T> extends PacketHandler {
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public abstract T decode(
 		FriendlyByteBuf buffer
 	);
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public abstract void process(
 		T data,
 		PacketSender responseSender

@@ -22,13 +22,13 @@ public class WaypointRemoveS2CPacket implements S2CPlayPacketHandler<Integer> {
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public Integer decode(FriendlyByteBuf buffer) {
 		return buffer.readVarInt();
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void process(Integer data, PacketSender responseSender) {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null) {

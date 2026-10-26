@@ -30,7 +30,7 @@ public class EntityVersions {
 		return player.serverLevel();
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static ClientLevel getClientWorld(LocalPlayer player) {
 		return player.clientLevel;
 	}

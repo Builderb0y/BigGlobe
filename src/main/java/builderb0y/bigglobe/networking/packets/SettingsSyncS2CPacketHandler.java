@@ -72,7 +72,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public @Nullable Receiving decode(FriendlyByteBuf buffer) {
 		try {
 			GZIPInputStream stream = new GZIPInputStream(new ByteBufInputStream(buffer));
@@ -94,7 +94,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void process(Receiving receiving, PacketSender responseSender) {
 		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null) {

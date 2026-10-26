@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import builderb0y.bigglobe.rendering.SoulLavaFogHandler;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 @Mixin(FogRenderer.class)
 public class BackgroundRenderer_SoulLavaFogColor {
 

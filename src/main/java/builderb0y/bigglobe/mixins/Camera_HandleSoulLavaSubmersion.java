@@ -17,7 +17,7 @@ import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
 import builderb0y.bigglobe.rendering.SoulLavaFogHandler;
 
 @Mixin(Camera.class)
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class Camera_HandleSoulLavaSubmersion {
 
 	@ModifyExpressionValue(

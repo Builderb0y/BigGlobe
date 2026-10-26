@@ -10,7 +10,7 @@ import builderb0y.bigglobe.rendering.lods.VertexHeap.Slice;
 import builderb0y.bigglobe.util.SafeCloseable;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public record LodPasses(
 	@Nullable Geometry opaque,
 	@Nullable Geometry translucent
@@ -26,7 +26,7 @@ public record LodPasses(
 		ResourceTracker.closeAll(this.opaque, this.translucent);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static record Geometry(
 		CompactVertexFormat format,
 		VertexHeap.Slice slice,
@@ -65,7 +65,7 @@ public record LodPasses(
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static record Builder(
 		CompactVertexConsumer opaque,
 		CompactVertexConsumer translucent

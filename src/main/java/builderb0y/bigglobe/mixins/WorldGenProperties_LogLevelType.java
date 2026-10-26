@@ -3,7 +3,7 @@ package builderb0y.bigglobe.mixins;
 import java.util.Map;
 import java.util.stream.Collectors;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldDimensions;
@@ -27,7 +27,7 @@ public class WorldGenProperties_LogLevelType {
 
 	@Inject(method = "create", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Holder;value()Ljava/lang/Object;"))
 	private void bigglobe_logLevelType(
-		Provider registries,
+		RegistryAccess registries,
 		CallbackInfoReturnable<WorldDimensions> callback,
 		@Local(index = 4) Holder<WorldPreset> preset
 	) {

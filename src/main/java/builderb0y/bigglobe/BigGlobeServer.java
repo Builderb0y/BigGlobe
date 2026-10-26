@@ -7,7 +7,7 @@ import builderb0y.bigglobe.platform.fabric.api.Environment;
 import builderb0y.bigglobe.scripting.ServerPrintSink;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
-@Environment(EnvType.SERVER)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.DEDICATED_SERVER)
 public class BigGlobeServer implements DedicatedServerModInitializer {
 
 	@Override

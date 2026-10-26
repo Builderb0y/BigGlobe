@@ -3,7 +3,7 @@ package builderb0y.bigglobe.rendering;
 import builderb0y.bigglobe.platform.fabric.api.EnvType;
 import builderb0y.bigglobe.platform.fabric.api.Environment;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class SoulLavaFogHandler {
 
 	/**

@@ -176,7 +176,7 @@ public class WaypointWarpRenderer implements SafeCloseable {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static record VisibleWaypointData(double x, double y, double z, float age, float health) implements Comparable<VisibleWaypointData> {
 
 		public double squareDistanceToCamera() {

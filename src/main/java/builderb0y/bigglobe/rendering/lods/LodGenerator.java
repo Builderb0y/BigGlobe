@@ -59,7 +59,7 @@ import builderb0y.bigglobe.versions.DirectionVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class LodGenerator implements SafeCloseable {
 
 	public static final int
@@ -850,7 +850,7 @@ public class LodGenerator implements SafeCloseable {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static class ColumnBlockView implements BlockAndTintGetter {
 
 		public final ClientGeneratorParams generator;

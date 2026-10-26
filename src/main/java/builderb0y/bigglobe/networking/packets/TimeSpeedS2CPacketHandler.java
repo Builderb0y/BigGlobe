@@ -16,13 +16,13 @@ public class TimeSpeedS2CPacketHandler implements S2CPlayPacketHandler<Double> {
 	public static final TimeSpeedS2CPacketHandler INSTANCE = new TimeSpeedS2CPacketHandler();
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public Double decode(FriendlyByteBuf buffer) {
 		return buffer.readDouble();
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void process(Double data, PacketSender responseSender) {
 		ClientState.forEach((ClientState state) -> state.timeSpeed = data);
 	}

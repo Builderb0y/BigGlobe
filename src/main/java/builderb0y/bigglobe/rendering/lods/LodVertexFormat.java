@@ -6,7 +6,7 @@ import org.lwjgl.system.*;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class LodVertexFormat {
 
 	public static final CompactVertexFormatElement.Named

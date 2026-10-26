@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class DisplayColumnsClientCommand {
 
 	public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {

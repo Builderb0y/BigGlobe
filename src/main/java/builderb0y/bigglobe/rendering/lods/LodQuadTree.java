@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class LodQuadTree implements SafeCloseable {
 
 	public static final int

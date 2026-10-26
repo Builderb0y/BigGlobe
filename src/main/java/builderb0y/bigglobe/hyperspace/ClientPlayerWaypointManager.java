@@ -19,7 +19,7 @@ when waypoints are added or removed from this view (and syncing is enabled),
 an entity will be summoned or discarded in the client's world.
 entities are also added when a chunk containing a waypoint is loaded on the client.
 */
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 
 	public ClientPlayerWaypointManager(LocalPlayer player) {

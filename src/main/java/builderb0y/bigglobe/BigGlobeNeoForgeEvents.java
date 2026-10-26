@@ -75,14 +75,14 @@ public class BigGlobeNeoForgeEvents {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	private static void registerClientModBus(IEventBus modEventBus) {
 		modEventBus.addListener(BigGlobeNeoForgeEvents::registerBlockColors);
 		modEventBus.addListener(BigGlobeNeoForgeEvents::registerItemColors);
 		modEventBus.addListener(BigGlobeNeoForgeEvents::registerParticleProviders);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	private static void registerClientForgeBus() {
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::onRenderLevelStage);
 	}
@@ -134,21 +134,21 @@ public class BigGlobeNeoForgeEvents {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
 		for (ColorProviderRegistry.BlockImpl.Entry entry : ColorProviderRegistry.BlockImpl.ENTRIES) {
 			event.register(entry.provider, entry.blocks);
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
 		for (ColorProviderRegistry.ItemImpl.Entry entry : ColorProviderRegistry.ItemImpl.ENTRIES) {
 			event.register(entry.provider, entry.items);
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void registerParticleProviders(net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) {
 		for (var entry : builderb0y.bigglobe.platform.fabric.fabric.api.client.particle.v1.ParticleFactoryRegistry.Holder.FACTORIES.entrySet()) {
 			registerParticleProvider(event, entry.getKey(), entry.getValue());
@@ -180,7 +180,7 @@ public class BigGlobeNeoForgeEvents {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
 		if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
 			WorldRenderContext context = new WorldRenderContext() {

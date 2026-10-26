@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import builderb0y.bigglobe.ClientState;
 
 @Mixin(ClientLevel.class)
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public abstract class ClientWorld_CustomTimeSpeed extends Level {
 
 	@Unique

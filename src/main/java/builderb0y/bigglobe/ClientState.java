@@ -118,7 +118,7 @@ public class ClientState {
 		return world != null ? get(((DimensionalBlockView)(world)).bigglobe_getDimension()) : null;
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static @Nullable ClientState get() {
 		return get(Minecraft.getInstance().level);
 	}
@@ -187,7 +187,7 @@ public class ClientState {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		ClientWorldEvents.WORLD_CHANGED.register((ClientLevel oldWorld, ClientLevel newWorld) -> {
 			if (newWorld == null) {

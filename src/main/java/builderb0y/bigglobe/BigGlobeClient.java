@@ -16,7 +16,7 @@ import builderb0y.bigglobe.rendering.lods.LodSystem;
 import builderb0y.bigglobe.scripting.ClientPrintSink;
 import builderb0y.scripting.environments.BuiltinScriptEnvironment;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class BigGlobeClient implements ClientModInitializer {
 
 	@Override

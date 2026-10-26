@@ -238,7 +238,7 @@ public class BigGlobeMod implements ModInitializer {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static <T> BetterRegistry<T> getClientRegistry0(ResourceKey<? extends Registry<? extends T>> key) {
 		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null) {

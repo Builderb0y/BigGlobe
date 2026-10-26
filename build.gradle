@@ -85,12 +85,6 @@ repositories {
 }
 
 dependencies {
-	String AUTO_CODEC_VERSION = '6.0.3'
-	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION") {
-		transitive = false
-	}
-	jarJar("builderb0y:autocodec:$AUTO_CODEC_VERSION")
-
 	implementation 'me.shedaniel.cloth:cloth-config-neoforge:15.0.140'
 	compileOnly 'maven.modrinth:distanthorizonsapi:7.2.0'
 

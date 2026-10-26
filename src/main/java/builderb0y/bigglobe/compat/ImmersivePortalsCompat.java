@@ -21,7 +21,7 @@ public class ImmersivePortalsCompat {
 	public static void init() {
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 	}
 
@@ -29,7 +29,7 @@ public class ImmersivePortalsCompat {
 		action.accept(EntityVersions.getServerWorld(player), player);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static @Nullable LodSystemHolder getLodSystem(ResourceKey<Level> dimensionKey) {
 		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null && world.dimension() == dimensionKey) {

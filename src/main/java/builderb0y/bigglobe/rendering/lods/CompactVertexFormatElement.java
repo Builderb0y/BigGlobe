@@ -3,7 +3,7 @@ package builderb0y.bigglobe.rendering.lods;
 import builderb0y.bigglobe.platform.fabric.api.EnvType;
 import builderb0y.bigglobe.platform.fabric.api.Environment;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public interface CompactVertexFormatElement {
 
 	public default void put1f(long pointer, float v0) {

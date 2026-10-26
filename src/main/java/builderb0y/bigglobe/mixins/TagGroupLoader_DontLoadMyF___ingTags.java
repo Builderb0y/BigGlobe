@@ -38,7 +38,7 @@ public class TagGroupLoader_DontLoadMyF___ingTags {
 	@Unique
 	private static final ThreadLocal<ResourceLocation> CURRENT_TAG_ID = new ThreadLocal<>();
 
-	@WrapMethod(method = {"method_51476", "lambda$build$5"})
+	@WrapMethod(method = {"method_51476", "lambda$build$6"})
 	private void bigglobe_storeCurrentTagId(
 		Lookup valueGetter,
 		Map map,

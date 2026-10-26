@@ -202,7 +202,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static BetterRegistry<Block> findBlockRegistryClient() {
 		ClientLevel world = Minecraft.getInstance().level;
 		return new BetterHardCodedRegistry<>(world != null ? RegistryVersions.getRegistry(world.registryAccess(), Registries.BLOCK) : BuiltInRegistries.BLOCK);
@@ -221,7 +221,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static boolean isEnabledClient(Block block) {
 		ClientLevel world = Minecraft.getInstance().level;
 		return world == null || block.isEnabled(world.enabledFeatures());

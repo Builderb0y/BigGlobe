@@ -74,7 +74,7 @@ public class BigGlobeNetwork implements
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public void receive(BigGlobePayload payload, ClientPlayNetworking.Context context) {
 		byte id = payload.buffer().readByte();
 		if (this.getHandler(id) instanceof S2CPlayPacketHandler<?> packetHandler) {
@@ -96,7 +96,7 @@ public class BigGlobeNetwork implements
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public <T> void doReceive(
 		Minecraft client,
 		FriendlyByteBuf buffer,
@@ -136,7 +136,7 @@ public class BigGlobeNetwork implements
 		LOGGER.debug("Done initializing common network.");
 	}
 
-	@Environment(EnvType.CLIENT)
+	@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 	public static void initClient() {
 		LOGGER.debug("Initializing client network...");
 		ClientPlayNetworking.registerGlobalReceiver(BigGlobePayload.ID, INSTANCE);

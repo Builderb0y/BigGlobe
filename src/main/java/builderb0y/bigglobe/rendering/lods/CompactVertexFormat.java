@@ -4,7 +4,7 @@ import builderb0y.bigglobe.platform.fabric.api.EnvType;
 import builderb0y.bigglobe.platform.fabric.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 public class CompactVertexFormat {
 
 	public static final int

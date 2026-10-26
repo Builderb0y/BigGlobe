@@ -14,7 +14,7 @@ import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.ClientState.ClientGeneratorParams;
 import builderb0y.bigglobe.mixinInterfaces.DimensionalBlockView;
 
-@Environment(EnvType.CLIENT)
+@net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
 @Mixin(ClientLevel.ClientLevelData.class)
 public class ClientWorldProperties_SetHorizonHeightToSeaLevel {
 
