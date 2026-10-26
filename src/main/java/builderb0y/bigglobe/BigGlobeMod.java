@@ -86,7 +86,7 @@ public class BigGlobeMod implements ModInitializer {
 
 	public static final String
 		MODID = "bigglobe",
-		MODNAME = "Big Globe";
+		MODNAME = "BigGlobe NeoForge";
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MODNAME);
 	public static final boolean
