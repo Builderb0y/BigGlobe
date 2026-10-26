@@ -370,7 +370,7 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 		}
 		return switch (mixinClassName) {
 			case "builderb0y.bigglobe.mixins.BigGlobeConfig_ImplementConfigData" -> {
-				yield checkMod(mixinClassName, "cloth-config");
+				yield checkMod(mixinClassName, "cloth-config") || checkMod(mixinClassName, "cloth_config");
 			}
 			case "builderb0y.bigglobe.mixins.ImmersivePortals_NetherPortalMatcher_PlacePortalHigherInBigGlobeWorlds" -> {
 				yield this.isEnabledInConfig(mixinClassName) && checkMod(mixinClassName, "imm_ptl_core");

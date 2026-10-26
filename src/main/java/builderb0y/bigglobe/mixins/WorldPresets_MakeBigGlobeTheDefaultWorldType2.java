@@ -3,7 +3,7 @@ package builderb0y.bigglobe.mixins;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.Holder.Reference;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
@@ -16,12 +16,12 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 @Mixin(WorldPresets.class)
 public class WorldPresets_MakeBigGlobeTheDefaultWorldType2 {
 
-	@WrapOperation(method = "createNormalWorldDimensions", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/HolderLookup$RegistryLookup;getOrThrow(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Holder$Reference;"))
-	private static Reference<WorldPreset> bigglobe_modifyDefaultPreset(HolderLookup.RegistryLookup<WorldPreset> instance, ResourceKey<WorldPreset> key, Operation<Reference<WorldPreset>> original) {
+	@WrapOperation(method = "createNormalWorldDimensions", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getHolderOrThrow(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Holder$Reference;"))
+	private static Reference<WorldPreset> bigglobe_modifyDefaultPreset(Registry<WorldPreset> instance, ResourceKey<WorldPreset> key, Operation<Reference<WorldPreset>> original) {
 		ResourceLocation id = ResourceLocation.tryParse(BigGlobeConfig.INSTANCE.get().defaultWorldType);
 		if (id != null) {
 			ResourceKey<WorldPreset> newKey = ResourceKey.create(Registries.WORLD_PRESET, id);
-			Reference<WorldPreset> result = instance.get(newKey).orElse(null);
+			Reference<WorldPreset> result = instance.getHolder(newKey).orElse(null);
 			if (result != null) {
 				return result;
 			}

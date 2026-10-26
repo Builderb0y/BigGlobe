@@ -5,7 +5,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import builderb0y.bigglobe.platform.fabric.api.EnvType;
 import builderb0y.bigglobe.platform.fabric.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,8 +22,8 @@ public abstract class ClientWorld_CustomTimeSpeed extends Level {
 		super(null, null, null, null, () -> null, false, false, 0L, 0);
 	}
 
-	@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;setDayTime(J)V"))
-	private void bigglobe_tickTime(ClientLevelData instance, long timeOfDay, Operation<Void> original) {
+	@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;setDayTime(J)V"))
+	private void bigglobe_tickTime(ClientLevel instance, long timeOfDay, Operation<Void> original) {
 		ClientState state = ClientState.get(this.dimension());
 		if (state != null) {
 			this.bigglobe_customTime += state.timeSpeed;

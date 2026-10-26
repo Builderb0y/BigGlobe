@@ -10,6 +10,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.LoadingModList;
 
 public class FabricLoader {
 
@@ -37,11 +38,27 @@ public class FabricLoader {
 
 	public boolean isModLoaded(String modId) {
 		try {
-			return ModList.get() != null && ModList.get().isLoaded(modId);
+			LoadingModList loadingList = LoadingModList.get();
+			if (loadingList != null) {
+				if (loadingList.getModFileById(modId) != null) {
+					return true;
+				}
+				String altId = modId.contains("-") ? modId.replace('-', '_') : modId.replace('_', '-');
+				if (loadingList.getModFileById(altId) != null) {
+					return true;
+				}
+			}
 		}
-		catch (Throwable t) {
-			return false;
+		catch (Throwable ignored) {}
+		try {
+			if (ModList.get() != null) {
+				if (ModList.get().isLoaded(modId)) return true;
+				String altId = modId.contains("-") ? modId.replace('-', '_') : modId.replace('_', '-');
+				if (ModList.get().isLoaded(altId)) return true;
+			}
 		}
+		catch (Throwable ignored) {}
+		return false;
 	}
 
 	public Optional<ModContainer> getModContainer(String modId) {
@@ -58,6 +75,10 @@ public class FabricLoader {
 						@Override
 						public Version getVersion() {
 							try {
+								LoadingModList loadingList = LoadingModList.get();
+								if (loadingList != null && loadingList.getModFileById(modId) != null) {
+									return Version.parse(loadingList.getModFileById(modId).versionString());
+								}
 								return Version.parse(ModList.get().getModContainerById(modId).map(c -> c.getModInfo().getVersion().toString()).orElse("1.0.0"));
 							}
 							catch (Exception e) {

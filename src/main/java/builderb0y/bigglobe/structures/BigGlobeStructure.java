@@ -26,11 +26,9 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 public abstract class BigGlobeStructure extends Structure implements SizedStructure {
 
 	public final ColumnToIntScript.@VerifyNullable Holder min_y, surface_y;
-	public final StructureSettings config;
 
 	public BigGlobeStructure(StructureSettings config, ColumnToIntScript.@VerifyNullable Holder minY, ColumnToIntScript.@VerifyNullable Holder surface_y) {
 		super(config);
-		this.config = config;
 		this.surface_y = surface_y;
 		this.min_y = minY;
 	}
@@ -46,7 +44,7 @@ public abstract class BigGlobeStructure extends Structure implements SizedStruct
 	}
 
 	public @EncodeInline StructureSettings getConfig() {
-		return this.config;
+		return this.getModifiedStructureSettings();
 	}
 
 	public static long chunkSeed(GenerationContext context, long salt) {

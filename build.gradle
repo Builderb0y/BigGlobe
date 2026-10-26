@@ -16,16 +16,30 @@ java {
 	}
 }
 
+sourceSets {
+	main {
+		java {
+			if (file('../AutoCodec/src/main/java').exists()) {
+				srcDir '../AutoCodec/src/main/java'
+			}
+		}
+	}
+}
+
 neoForge {
 	version = project.neoforge_version
 
 	runs {
 		client {
 			client()
+			systemProperty 'neoforge.logging.markers', 'REGISTRIES'
+			systemProperty 'neoforge.logging.console.level', 'info'
 		}
 		server {
 			server()
 			programArgument '--nogui'
+			systemProperty 'neoforge.logging.markers', 'REGISTRIES'
+			systemProperty 'neoforge.logging.console.level', 'info'
 		}
 	}
 
@@ -34,6 +48,12 @@ neoForge {
 			sourceSet(sourceSets.main)
 		}
 	}
+}
+
+tasks.register('runMinecraft') {
+	group = 'mod development'
+	description = 'Runs Minecraft client with the Big Globe mod'
+	dependsOn 'runClient'
 }
 
 repositories {

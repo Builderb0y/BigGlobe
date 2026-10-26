@@ -28,7 +28,7 @@ public class Camera_HandleSoulLavaSubmersion {
 			opcode = Opcodes.GETSTATIC
 		)
 	)
-	private FogType bigglobe_handleSoulLavaSubmersion(FogType original, @Local(index = 8) FluidState fluidState) {
+	private FogType bigglobe_handleSoulLavaSubmersion(FogType original, @Local(index = 7) FluidState fluidState) {
 		SoulLavaFogHandler.inSoulLava = fluidState.is(BigGlobeFluidTags.SOUL_LAVA);
 		return original;
 	}

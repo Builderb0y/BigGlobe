@@ -57,12 +57,12 @@ public class BigGlobeNeoForgeEvents {
 	public static void register(IEventBus modEventBus) {
 		modEventBus.addListener(BigGlobeNeoForgeEvents::registerPayloads);
 		modEventBus.addListener(BigGlobeNeoForgeEvents::onBuildCreativeTabs);
-		modEventBus.addListener(BigGlobeNeoForgeEvents::registerBrewing);
 
 		if (FMLEnvironment.dist == Dist.CLIENT) {
 			registerClientModBus(modEventBus);
 		}
 
+		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::registerBrewing);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::registerCommands);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverStarting);
 		NeoForge.EVENT_BUS.addListener(BigGlobeNeoForgeEvents::serverStopped);
@@ -89,31 +89,29 @@ public class BigGlobeNeoForgeEvents {
 
 	public static void registerPayloads(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar(BigGlobeMod.MODID);
-		registrar.playToClient(
+		registrar.playBidirectional(
 			BigGlobePayload.ID,
 			BigGlobePayload.CODEC,
-			(payload, context) -> {
-				ClientPlayNetworking.PlayPayloadHandler<BigGlobePayload> handler = 
-					(ClientPlayNetworking.PlayPayloadHandler<BigGlobePayload>)ClientPlayNetworking.RECEIVERS.get(BigGlobePayload.ID);
-				if (handler != null) {
-					context.enqueueWork(() -> {
-						handler.receive(payload, new ClientPlayNetworking.Context(Minecraft.getInstance(), new PacketSender() {}));
-					});
+			new net.neoforged.neoforge.network.handling.DirectionalPayloadHandler<>(
+				(payload, context) -> {
+					ClientPlayNetworking.PlayPayloadHandler<BigGlobePayload> handler = 
+						(ClientPlayNetworking.PlayPayloadHandler<BigGlobePayload>)ClientPlayNetworking.RECEIVERS.get(BigGlobePayload.ID);
+					if (handler != null) {
+						context.enqueueWork(() -> {
+							handler.receive(payload, new ClientPlayNetworking.Context(Minecraft.getInstance(), new PacketSender() {}));
+						});
+					}
+				},
+				(payload, context) -> {
+					ServerPlayNetworking.PlayPayloadHandler<BigGlobePayload> handler = 
+						(ServerPlayNetworking.PlayPayloadHandler<BigGlobePayload>)ServerPlayNetworking.RECEIVERS.get(BigGlobePayload.ID);
+					if (handler != null) {
+						context.enqueueWork(() -> {
+							handler.receive(payload, new ServerPlayNetworking.Context((ServerPlayer)context.player(), new PacketSender() {}));
+						});
+					}
 				}
-			}
-		);
-		registrar.playToServer(
-			BigGlobePayload.ID,
-			BigGlobePayload.CODEC,
-			(payload, context) -> {
-				ServerPlayNetworking.PlayPayloadHandler<BigGlobePayload> handler = 
-					(ServerPlayNetworking.PlayPayloadHandler<BigGlobePayload>)ServerPlayNetworking.RECEIVERS.get(BigGlobePayload.ID);
-				if (handler != null) {
-					context.enqueueWork(() -> {
-						handler.receive(payload, new ServerPlayNetworking.Context((ServerPlayer)context.player(), new PacketSender() {}));
-					});
-				}
-			}
+			)
 		);
 	}
 

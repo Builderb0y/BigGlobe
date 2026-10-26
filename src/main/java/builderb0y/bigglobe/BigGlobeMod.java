@@ -98,38 +98,80 @@ public class BigGlobeMod implements ModInitializer {
 	public static BetterRegistry.Lookup currentRegistries;
 	public static ResourceManager currentResourceManager;
 
+	public static void unfreezeBuiltInRegistries() {
+		for (Registry<?> reg : net.minecraft.core.registries.BuiltInRegistries.REGISTRY) {
+			if (reg instanceof MappedRegistry<?> mapped) {
+				mapped.unfreeze();
+			}
+		}
+	}
+
+	public static void freezeBuiltInRegistries() {
+		try {
+			java.lang.reflect.Field field = MappedRegistry.class.getDeclaredField("unregisteredIntrusiveHolders");
+			field.setAccessible(true);
+			Map<?, ?> map = (Map<?, ?>)(field.get(net.minecraft.core.registries.BuiltInRegistries.BLOCK));
+			if (map != null && !map.isEmpty()) {
+				for (Object blockObj : new java.util.ArrayList<>(map.keySet())) {
+					if (blockObj instanceof net.minecraft.world.level.block.Block b) {
+						LOGGER.error("UNREGISTERED BLOCK FOUND: " + b.getClass().getName() + " -> " + b);
+						Registry.register(
+							net.minecraft.core.registries.BuiltInRegistries.BLOCK,
+							ResourceLocation.fromNamespaceAndPath(MODID, "auto_" + b.getClass().getSimpleName().toLowerCase(java.util.Locale.ROOT)),
+							b
+						);
+					}
+				}
+			}
+		}
+		catch (Throwable t) {
+			LOGGER.error("Could not inspect intrusive holders", t);
+		}
+		for (Registry<?> reg : net.minecraft.core.registries.BuiltInRegistries.REGISTRY) {
+			if (reg instanceof MappedRegistry<?> mapped) {
+				mapped.freeze();
+			}
+		}
+	}
+
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Initializing...");
 		BigGlobeConfig.init();
 
-		BigGlobeLoot.init();
+		unfreezeBuiltInRegistries();
+		try {
+			BigGlobeLoot.init();
 
-		BigGlobeFluids.init();
-		BigGlobeBlocks.init();
-		BigGlobeItems.init();
-		BigGlobeBlockEntityTypes.init();
-		BigGlobeEntityTypes.init();
-		BigGlobeSoundEvents.init();
+			BigGlobeFluids.init();
+			BigGlobeBlocks.init();
+			BigGlobeItems.init();
+			BigGlobeBlockEntityTypes.init();
+			BigGlobeEntityTypes.init();
+			BigGlobeSoundEvents.init();
 
-		SoulCauldronBlock.init();
-		BigGlobeDispenserBehaviors.init();
-		BigGlobeBrewing.init();
+			SoulCauldronBlock.init();
+			BigGlobeDispenserBehaviors.init();
+			BigGlobeBrewing.init();
 
-		BigGlobeFeatures.init();
-		BigGlobeStructures.init();
-		BigGlobeStructurePlacementTypes.init();
-		BigGlobeScriptedChunkGenerator.init();
-		EmptyChunkGenerator.init();
+			BigGlobeFeatures.init();
+			BigGlobeStructures.init();
+			BigGlobeStructurePlacementTypes.init();
+			BigGlobeScriptedChunkGenerator.init();
+			EmptyChunkGenerator.init();
 
-		BigGlobeArgumentTypes.init();
-		BigGlobeCommands.init();
-		BigGlobeGameRules.init();
-		BigGlobeNetwork.init();
-		BigGlobeRecipeSerializers.init();
-		ExpressionParser.clinit();
-		BigGlobeParticles.init();
-		HyperspaceCollapseTicketType.init();
+			BigGlobeArgumentTypes.init();
+			BigGlobeCommands.init();
+			BigGlobeGameRules.init();
+			BigGlobeNetwork.init();
+			BigGlobeRecipeSerializers.init();
+			ExpressionParser.clinit();
+			BigGlobeParticles.init();
+			HyperspaceCollapseTicketType.init();
+		}
+		finally {
+			freezeBuiltInRegistries();
+		}
 
 		DistantHorizonsCompat.init();
 

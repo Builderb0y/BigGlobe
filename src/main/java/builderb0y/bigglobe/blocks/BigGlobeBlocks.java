@@ -197,6 +197,11 @@ public class BigGlobeBlocks {
 					.sound(SoundType.STONE)
 					.pushReaction(PushReaction.DESTROY)
 			);
+
+		static {
+			Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(BigGlobeMod.MODID, "stick"), STICK);
+			Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(BigGlobeMod.MODID, "flint"), FLINT);
+		}
 	}
 
 	public static final RockBlock ROCK = register(
@@ -1122,9 +1127,6 @@ public class BigGlobeBlocks {
 
 	public static <B extends Block> B register(String name, B block) {
 		ResourceLocation id = BigGlobeMod.modID(name);
-		if (!block.getDescriptionId().equals(Util.makeDescriptionId("block", id))) {
-			throw new IllegalArgumentException("Name mismatch");
-		}
 		return Registry.register(BuiltInRegistries.BLOCK, id, block);
 	}
 
@@ -1133,8 +1135,7 @@ public class BigGlobeBlocks {
 	}
 
 	public static void init() {
-		register("stick", VanillaBlocks.STICK);
-		register("flint", VanillaBlocks.FLINT);
+		// stick & flint registered in VanillaBlocks.<clinit>
 		FlattenableBlockRegistry.register(OVERGROWN_PODZOL, Blocks.DIRT_PATH.defaultBlockState());
 		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::onlyIfAirAbove, Blocks.FARMLAND.defaultBlockState());
 		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);

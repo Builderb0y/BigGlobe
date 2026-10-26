@@ -19,7 +19,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 @Mixin(CreateWorldScreen.class)
 public class CreateWorldScreen_MakeBigGlobeTheDefaultWorldType {
 
-	@ModifyExpressionValue(method = "openFresh(Lnet/minecraft/client/Minecraft;Ljava/lang/Runnable;Lnet/minecraft/client/gui/screens/worldselection/CreateWorldCallback;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/levelgen/presets/WorldPresets;NORMAL:Lnet/minecraft/resources/ResourceKey;"))
+	@ModifyExpressionValue(method = "openFresh", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/levelgen/presets/WorldPresets;NORMAL:Lnet/minecraft/resources/ResourceKey;"))
 	private static ResourceKey<WorldPreset> bigglobe_getDefaultWorldPreset(ResourceKey<WorldPreset> original) {
 		ResourceLocation id = ResourceLocation.tryParse(BigGlobeConfig.INSTANCE.get().defaultWorldType);
 		return id != null ? ResourceKey.create(Registries.WORLD_PRESET, id) : original;
@@ -29,7 +29,7 @@ public class CreateWorldScreen_MakeBigGlobeTheDefaultWorldType {
 	@Mixin(targets = "net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$WorldTab")
 	static class WorldTab_HandleUnknownWorldTypesSanely {
 
-		@WrapOperation(method = "method_48673", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/CycleButton;active:Z"))
+		@WrapOperation(method = "lambda$new$1", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/CycleButton;active:Z"))
 		private void bigglobe_adjustWorldPreset(CycleButton<?> instance, boolean value, Operation<Void> original) {
 			original.call(instance, true);
 		}

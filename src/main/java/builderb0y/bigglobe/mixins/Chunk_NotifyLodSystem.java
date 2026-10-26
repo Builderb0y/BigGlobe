@@ -8,13 +8,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.compat.ImmersivePortalsCompat;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
@@ -29,20 +28,25 @@ public abstract class Chunk_NotifyLodSystem {
 	@Shadow
 	public abstract ChunkPos getPos();
 
-	@Inject(method = "tryMarkSaved", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/chunk/ChunkAccess;unsaved:Z", opcode = Opcodes.PUTFIELD))
-	private void bigglobe_notifyLodSystem(CallbackInfoReturnable<Boolean> callback) {
-		try {
-			if (
-				this.getPersistedStatus() == ChunkStatus.FULL &&
-				((Object)(this)) instanceof LevelChunk worldChunk &&
-				worldChunk.getLevel() instanceof ServerLevel serverWorld &&
-				FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
-			) {
-				bigglobe_doNotify(serverWorld, this.getPos());
+	@Shadow
+	public abstract boolean isUnsaved();
+
+	@Inject(method = "setUnsaved", at = @At("HEAD"))
+	private void bigglobe_notifyLodSystem(boolean unsaved, CallbackInfo callback) {
+		if (!unsaved && this.isUnsaved()) {
+			try {
+				if (
+					this.getPersistedStatus() == ChunkStatus.FULL &&
+					((Object)(this)) instanceof LevelChunk worldChunk &&
+					worldChunk.getLevel() instanceof ServerLevel serverWorld &&
+					FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
+				) {
+					bigglobe_doNotify(serverWorld, this.getPos());
+				}
 			}
-		}
-		catch (Throwable throwable) {
-			BigGlobeMod.LOGGER.error("Exception notifying LOD system of chunk save:", throwable);
+			catch (Throwable throwable) {
+				BigGlobeMod.LOGGER.error("Exception notifying LOD system of chunk save:", throwable);
+			}
 		}
 	}
 
