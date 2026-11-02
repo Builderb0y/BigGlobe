@@ -177,10 +177,10 @@ public class ScriptParser<I> extends ExpressionParser {
 		try {
 			return (
 				this
-					.compile(loader)
-					.asSubclass(this.implementingClass)
-					.getDeclaredConstructor((Class<?>[])(null))
-					.newInstance((Object[])(null))
+				.compile(loader)
+				.asSubclass(this.implementingClass)
+				.getDeclaredConstructor((Class<?>[])(null))
+				.newInstance((Object[])(null))
 			);
 		}
 		catch (Throwable throwable) {
@@ -192,8 +192,8 @@ public class ScriptParser<I> extends ExpressionParser {
 	public StringBuilder fatalError() {
 		return (
 			super.fatalError()
-				.append("Implementation interface: ").append(this.implementingClass.getName()).append('\n')
-				.append("Implementation method: ").append(this.implementingMethod).append('\n')
+			.append("Implementation interface: ").append(this.implementingClass.getName()).append('\n')
+			.append("Implementation method: ").append(this.implementingMethod).append('\n')
 		);
 	}
 }

@@ -64,7 +64,7 @@ high priority:
 V6:
 	not urgent:
 		LOD renderer improvements:
-			make ingesting work in multiplayer.
+			make chunk ingesting work in multiplayer.
 		dynamic block segment types?
 		separate dragon nest for each stronghold?
 			this will probably require some hacks for dragon flight logic.
@@ -109,9 +109,14 @@ V6:
 		remove RegistryOps_MakeAdjustable, functionality exists in vanilla now.
 		change range of temperature.
 			should be -1 = cold, +1 = hot.
+		undo change that prevented water/lava lakes from spawning in deserts:
+			if it does spawn in a desert, don't use mud.
+			make it an oasis, with trees around it.
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
+		make lapis lazuli spawn a bit above sea level, under beaches and stuff.
+		LODs have issues with caves and other underground carvings when the user has carving enabled in the config file.
 
 islands:
 	floating islands:
@@ -141,32 +146,7 @@ intellij plugin:
 	incorrect arguments on custom class static methods are not reported as an error.
 
 changelog:
-	# For normal users
-	* Fully re-implemented the "islands" world preset.
-		* Each island has a different type associated with it.
-		* Each island type can be thought of as like a different biome, with a different set of terrain gen parameters.
-	* Performance improvements.
-	* Sand, gravel, and other falling blocks now work differently in Big Globe worlds.
-		* This is because there's sometimes a lot of it underground in cave ceilings, and having it all fall at once is laggy.
-	* Fixed lava replacing blocks that it shouldn't near lava level in the nether.
-	* Dry lakes now only spawn in deserts.
-		* Likewise, non-dry lakes now only spawn outside of deserts.
-	* Minor visual tweak: aura-infused clouds now have AO, like regular clouds do.
-	* Added UNSUPPORTED mixin `ChunkPyramid_ConfigurableFeatureRadius` to expand the max size of configured features.
-		* This mixin may be unstable, and may break things in subtle and hard-to-debug ways.
-		* This mixin will make worldgen noticeably slower when exploring.
-		* This mixin will never be enabled by default.
-		* Nevertheless, it can be used to make my trees spawn correctly in pre-generated worlds, without needing to get near them first, which may be desirable when combined with LODs.
-		* A value of 4 is required for my largest trees. The max value is 8, and the mixin will be completely disabled when set to a negative value or 0.
-		* If you use this mixin, you are not allowed to report bugs with anything to anyone.
-	# For data pack developers
-	* The concept of column restrictions has been replaced with scripts.
-		* This affects flowers, trees with fungal shelves, and rock layers.
-		* Reason: the existing column restriction system was too limited (it didn't even have a dedicated type for world traits), too verbose, slower than it needed to be, and required a lot of maintenance. Scripts are just better in every possible way.
-	* Removed legacy handling of `minecraft:grass` and `minecraft:chain` blocks.
-		* These were renamed in vanilla a long time ago to `minecraft:short_grass` and `minecraft:iron_chain` respectively.
-		* Big Globe would previously accept the old names too, for scripts that needed to work in multiple MC versions.
-		* However, Big Globe no longer supports MC versions where these legacy names were in-use, so support for the legacy names is now removed.
+	* Fixed caves and other dark areas being pitch black. Their brightness should now match vanilla instead.
 
 alternate world presets:
 	paradise.
@@ -310,29 +290,6 @@ features:
 			and replaces trees with blobs of leaves with a trunk and no branches.
 		make delayed generation features place blocks inside the mutable area immediately for DH chunks.
 	overworld:
-		darkslate:
-			darkslate.
-			infested darkslate.
-			cobbled darkslate.
-				slab.
-				stairs.
-				wall.
-			polished darkslate.
-				slab.
-				stairs.
-				wall.
-			darkslate bricks.
-				cracked.
-				slab.
-				stairs.
-				wall.
-			darkslate tiles.
-				cracked.
-				slab.
-				stairs.
-				wall.
-			chiseled darkslate.
-		ores that mimic the textures of surrounding blocks.
 		make overgrown podzol decay to dirt when there's a block on top of it?
 		big canyons?
 		deep ocean hydrothermal vents?
@@ -349,10 +306,6 @@ features:
 		trees:
 			roots.
 				use for mangrove trees.
-		cave biomes:
-			mushroom:
-				glowing mushrooms?
-					that hang from the ceiling?
 		make geode placement faster by only computing noise in a sphere instead of a cube.
 		more types of geodes/more colors of pretty crystals?
 		dungeons:

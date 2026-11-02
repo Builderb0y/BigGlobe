@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
 
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
+import builderb0y.bigglobe.rendering.lods.LodSystem;
 
 @Mixin(value = FogRenderer.class, priority = 500) //before sodium.
 public abstract class BackgroundRenderer_NoFogWithLods {
@@ -26,11 +27,8 @@ public abstract class BackgroundRenderer_NoFogWithLods {
 		ClientLevel world,
 		CallbackInfoReturnable<FogData> callback
 	) {
-		if (
-			Minecraft.getInstance().levelRenderer instanceof LodSystemHolder holder &&
-			holder.bigglobe_getLodSystem() != null &&
-			holder.bigglobe_getLodSystem().renderingThisFrame
-		) {
+		LodSystem system = LodSystemHolder.of(Minecraft.getInstance().levelRenderer).bigglobe_getLodSystem();
+		if (system != null && system.renderingThisFrame) {
 			FogData fogData = callback.getReturnValue();
 			fogData.renderDistanceStart = fogData.environmentalStart = 30_000_000.0F * 4.0F;
 			fogData.renderDistanceEnd = fogData.environmentalEnd = 30_000_000.0F * 8.0F;
