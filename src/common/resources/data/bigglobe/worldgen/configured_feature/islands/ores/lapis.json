@@ -13,7 +13,7 @@
 				": world_traits.`bigglobe:exact_surface_y`",
 			")",
 			"double ground = world_traits.`bigglobe:exact_surface_y`",
-			"double depth = world_traits.`bigglobe:sea_level` - ground",
+			"double depth = world_traits.`bigglobe:sea_level` + 32 - ground",
 			"double result = depth > 0.0L ? unmixLinear(surface - depth, surface, y) : 0.0L",
 			"return(result)"
 		],

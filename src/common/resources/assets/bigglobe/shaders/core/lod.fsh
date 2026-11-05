@@ -16,6 +16,10 @@ in Vertex vertexData;
 
 out vec4 color;
 
+float funnyCurveThingy(float x) {
+	return x >= 8.0 ? x : log(exp(x) + 1.0);
+}
+
 void main() {
 	color = (
 		texture(blockAtlas, vertexData.texcoord) *
@@ -35,12 +39,7 @@ void main() {
 		float opticalDepth;
 		if (verticalFogMultiplier > 0.0) {
 			vec3 ray = vertexData.pos / dist;
-			if (abs(ray.y) < 0.0001) {
-				opticalDepth = dist * exp(min(altitude * -verticalFogMultiplier, 32.0));
-			}
-			else {
-				opticalDepth = ((exp(min(dist * ray.y * -verticalFogMultiplier, 32.0)) - 1.0) * exp(min(altitude * -verticalFogMultiplier, 32.0))) / (ray.y * -verticalFogMultiplier);
-			}
+			opticalDepth = (dist + (funnyCurveThingy(verticalFogMultiplier * altitude) - funnyCurveThingy(verticalFogMultiplier * (ray.y * dist + altitude))) / (ray.y * verticalFogMultiplier));
 		}
 		else {
 			opticalDepth = dist;

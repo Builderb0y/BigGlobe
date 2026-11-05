@@ -115,8 +115,6 @@ V6:
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
-		make lapis lazuli spawn a bit above sea level, under beaches and stuff.
-		LODs have issues with caves and other underground carvings when the user has carving enabled in the config file.
 
 islands:
 	floating islands:
@@ -147,6 +145,12 @@ intellij plugin:
 
 changelog:
 	* Fixed caves and other dark areas being pitch black. Their brightness should now match vanilla instead.
+	* Copper tools can now be found in surface mineshaft chests.
+	* granite, diorite, andesite, dripstone blocks, tuff, and calcite can now be used in most recipes as a substitute for cobblestone.
+	* Ores will now only mimic stone, without falling back on whatever other blocks are adjacent.
+	* Several issues with underground LODs (when carving is enabled) have now been fixed.
+	* Reduced the amount of dirt in the world.
+	* Expanded the spawn range of lapis ore.
 
 alternate world presets:
 	paradise.

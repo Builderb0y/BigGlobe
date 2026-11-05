@@ -122,8 +122,9 @@ public class ChunkCache implements SafeCloseable {
 			root.get("sections") instanceof ListTag sectionsNbt
 		) {
 			BlockSegmentList[] cullingData = (
-				BigGlobeConfig.INSTANCE.get().lodRendering.caveCullingDepth >= 0
-				&& !this.world.dimensionType().hasCeiling()
+				BigGlobeConfig.INSTANCE.get().lodRendering.caveCullingDepth >= 0 &&
+				!BigGlobeConfig.INSTANCE.get().lodRendering.undergroundMode.shouldCarve() &&
+				!this.world.dimensionType().hasCeiling()
 				? this.generator.generateCaveCullingChunk(chunkPos)
 				: null
 			);

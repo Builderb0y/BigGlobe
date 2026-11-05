@@ -22,7 +22,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.bigglobe.blockdefs.BigGlobeBlockTags;
-import builderb0y.bigglobe.util.BetterScopedValue;
 import builderb0y.bigglobe.util.Directions;
 
 public class OreBlockStateModel implements BlockStateModel {
@@ -77,7 +76,7 @@ public class OreBlockStateModel implements BlockStateModel {
 		outer:
 		for (Direction direction : Directions.ALL) {
 			BlockState adjacentState = world.getBlockState(mutablePos.setWithOffset(pos, direction));
-			if (adjacentState.isSolidRender() && !adjacentState.is(BigGlobeBlockTags.MIMIC_ORES_IGNORE)) {
+			if (adjacentState.isSolidRender() && adjacentState.is(BigGlobeBlockTags.ORE_MIMICABLE)) {
 				BlockStateModel adjacentModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(adjacentState);
 				if (adjacentModel instanceof OreBlockStateModel) {
 					continue outer;
@@ -96,16 +95,6 @@ public class OreBlockStateModel implements BlockStateModel {
 		}
 		int resultIndex = 0;
 		int resultCount = 0;
-		for (int check = 0; check < total; check++) {
-			int count = (counts >> (check << 3)) & 7;
-			if (count > resultCount && states[check].is(BigGlobeBlockTags.MIMIC_ORES_PREFER)) {
-				resultIndex = check;
-				resultCount = count;
-			}
-		}
-		if (resultCount > 0) {
-			return new StateModel(states[resultIndex], models[resultIndex]);
-		}
 		for (int check = 0; check < total; check++) {
 			int count = (counts >> (check << 3)) & 7;
 			if (count > resultCount) {

@@ -6,7 +6,7 @@ import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 
 plugins() {
-	id('net.fabricmc.fabric-loom') version('1.18-SNAPSHOT')
+	id('net.fabricmc.fabric-loom') version('1.19-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -145,7 +145,7 @@ dependencies() {
 	}
 	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
 
-	annotationProcessor('systems.manifold:manifold-preprocessor:2025.1.27')
+	annotationProcessor('systems.manifold:manifold-preprocessor:2026.1.16')
 
 	if (!Boolean.getBoolean('skipJIJExtraction')) {
 		extractDependencies()
@@ -171,8 +171,29 @@ processResources() {
 
 loom() {
 	accessWidenerPath = file("src/${project.minecraft_version}/resources/bigglobe.accesswidener")
+	//first loom broke my existing run configurations by migrating them to gradle incorrectly,
+	//then loom broke logging when not running with gradle.
+	//now it doesn't automatically apply the vm options from intellij's run config window to minecraft.
+	//current workaround is to:
+	//1. use gradle for launching so that logging works.
+	//2. convert my java args to system properties, and use the code below to parse them.
+	//all arguments I want forwarded to minecraft begin with '-Dfwd'.
+	//if an argument is NOT a key-value pair (like -Xmx8g), it is suffixed with '='.
+	//this results in an arg that looks like '-Dfwd-xmx8g='.
+	//these are what I pass into gradle via the run configuration window,
+	//and the code below parses them and forwards them along to minecraft.
+	List<String> newArgs = (
+		System
+		.getProperties()
+		.entrySet()
+		.stream()
+		.filter(entry -> entry.key.startsWith("fwd"))
+		.map(entry -> entry.value.isEmpty() ? entry.key.substring(3) : "${entry.key.substring(3)}=${entry.value}")
+		.toList()
+	)
+	println(newArgs)
 	runs.configureEach() {
-		preferGradleTask = false
+		jvmArguments.addAll(newArgs)
 	}
 }
 

@@ -2,6 +2,12 @@
 	"replace": false,
 	"values": [
 		"bigglobe:rock",
-		"bigglobe:cobbled_darkslate"
+		"bigglobe:cobbled_darkslate",
+		"minecraft:granite",
+		"minecraft:diorite",
+		"minecraft:andesite",
+		"minecraft:dripstone_block",
+		"minecraft:tuff",
+		"minecraft:calcite"
 	]
 }

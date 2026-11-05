@@ -22,8 +22,7 @@ public class BigGlobeBlockTags {
 		MUSHROOMS                           = common("mushrooms"),
 		SULFUR_ORES                         = common("sulfur_ores"),
 		GRAVELS                             = common("gravels"),
-		MIMIC_ORES_PREFER                   = of("mimic_ores_prefer"),
-		MIMIC_ORES_IGNORE                   = of("mimic_ores_ignore"),
+		ORE_MIMICABLE                      = of("ore_mimicable"),
 		//general
 		AMETHYST_BUDS                       = of("amethyst_buds"),
 		AURA_INFUSED_CLOUDS                 = of("aura_infused_clouds"),
