@@ -9,7 +9,10 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.mixinInterfaces.SearchableDebugHud;
-import builderb0y.bigglobe.mixins.InGameHud_DebugHudGetter;
+
+#if MC_VERSION < MC_26_2_0
+	import builderb0y.bigglobe.mixins.InGameHud_DebugHudGetter;
+#endif
 
 public class SearchF3ClientCommand {
 
@@ -18,17 +21,7 @@ public class SearchF3ClientCommand {
 			ClientCommands
 			.literal(BigGlobeMod.MODID + ":searchF3")
 			.executes(context -> {
-				(
-					(SearchableDebugHud)(
-						(
-							(InGameHud_DebugHudGetter)(
-								Minecraft.getInstance().gui
-							)
-						)
-						.bigglobe_getDebugHud()
-					)
-				)
-				.bigglobe_setPattern(null);
+				getF3().bigglobe_setPattern(null);
 				return 1;
 			})
 			.then(
@@ -36,20 +29,27 @@ public class SearchF3ClientCommand {
 				.argument("pattern", StringArgumentType.greedyString())
 				.executes(context -> {
 					Pattern pattern = Pattern.compile(context.getArgument("pattern", String.class));
-					(
-						(SearchableDebugHud)(
-							(
-								(InGameHud_DebugHudGetter)(
-									Minecraft.getInstance().gui
-								)
-							)
-							.bigglobe_getDebugHud()
-						)
-					)
-					.bigglobe_setPattern(pattern);
+					getF3().bigglobe_setPattern(pattern);
 					return 1;
 				})
 			)
 		);
+	}
+
+	public static SearchableDebugHud getF3() {
+		#if MC_VERSION >= MC_26_2_0
+			return (SearchableDebugHud)(
+				Minecraft.getInstance().gui.hud.getDebugOverlay()
+			);
+		#else
+			return (SearchableDebugHud)(
+				(
+					(InGameHud_DebugHudGetter)(
+						Minecraft.getInstance().gui
+					)
+				)
+				.bigglobe_getDebugHud()
+			);
+		#endif
 	}
 }

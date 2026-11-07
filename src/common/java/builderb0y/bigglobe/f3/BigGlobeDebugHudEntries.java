@@ -40,7 +40,7 @@ public class BigGlobeDebugHudEntries {
 	}
 
 	public static LodSystem lodSystem() {
-		return LodSystemHolder.of(Minecraft.getInstance().levelRenderer).bigglobe_getLodSystem();
+		return LodSystemHolder.get().bigglobe_getLodSystem();
 	}
 
 	public static void register(String id, BigGlobeDebugHudEntry entry) {

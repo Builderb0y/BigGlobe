@@ -27,6 +27,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
@@ -54,7 +55,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
-import builderb0y.bigglobe.mixinInterfaces.AdjustableRegistryOps;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -98,8 +98,8 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 		else {
 			DynamicOps<Data> dataOps = context.ops.compressMaps() ? DataOps.COMPRESSED : DataOps.UNCOMPRESSED;
-			if (context.ops instanceof AdjustableRegistryOps registryOps) {
-				dataOps = registryOps.bigglobe_changeType(dataOps);
+			if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
+				dataOps = registryOps.withParent(dataOps);
 			}
 			return context.logger().unwrapLazy(
 				BlockState.CODEC.parse(dataOps, context.data),

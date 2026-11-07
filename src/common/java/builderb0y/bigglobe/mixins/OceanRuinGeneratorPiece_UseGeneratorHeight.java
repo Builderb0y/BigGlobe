@@ -34,9 +34,7 @@ public abstract class OceanRuinGeneratorPiece_UseGeneratorHeight extends Templat
 		super(type, length, structureTemplateManager, id, template, placementData, pos);
 	}
 
-	/**
-	prevents ocean ruins from spawning on top of skylands.
-	*/
+	/** prevents ocean ruins from spawning on top of skylands. */
 	@WrapOperation(method = "postProcess", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/WorldGenLevel;getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I"))
 	private int bigglobe_useGeneratorHeight(WorldGenLevel world, Types type, int x, int z, Operation<Integer> original, @Local(argsOnly = true) ChunkGenerator generator) {
 		if (generator instanceof BigGlobeScriptedChunkGenerator) {

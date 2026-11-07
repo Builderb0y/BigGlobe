@@ -66,7 +66,6 @@ public class BigGlobeMixinConfig {
 		defaults.put(MIXIN_PACKAGE + ".Dev_CreateWorldScreen_DontCrashOnFailure",                                                 Boolean.FALSE);
 		defaults.put(MIXIN_PACKAGE + ".Dev_NbtCompound_SanityCheckValues",                                                        Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",                           Boolean.FALSE);
-		defaults.put(MIXIN_PACKAGE + ".DimensionOptions_CheckHeights",                                                            Boolean.FALSE);
 		defaults.put(MIXIN_PACKAGE + ".EndCityStructure_UnHardcodeMinimumY",                                                      Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                                        Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",                               Boolean.TRUE);
@@ -108,7 +107,6 @@ public class BigGlobeMixinConfig {
 		defaults.put(MIXIN_PACKAGE + ".SpawnHelper_MoreMobsInTallerWorlds",                                                       Boolean.FALSE);
 		defaults.put(MIXIN_PACKAGE + ".StairsBlock_MirrorProperly",                                                               Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".StructureAccessor_UseStructureManagerInBigGlobeWorlds",                                    Boolean.TRUE);
-		defaults.put(MIXIN_PACKAGE + ".SugarCaneBlock_MakePlaceableOnGravel",                                                     Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".TagGroupLoader_DontLoadMyF___ingTags",                                                     Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".WoodlandMansionStructure_DontHardCodeSeaLevel",                                            Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".World_UseCorrectSeaLevel",                                                                 Boolean.TRUE);
@@ -134,11 +132,9 @@ public class BigGlobeMixinConfig {
 		unconfigurable.add(MIXIN_PACKAGE + ".GameRenderer_CaptureRealMatrices");
 		unconfigurable.add(MIXIN_PACKAGE + ".Heightmap_StorageAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".InGameHud_DebugHudGetter");
-		unconfigurable.add(MIXIN_PACKAGE + ".ItemStack_DynamicMaxDamage");
 		unconfigurable.add(MIXIN_PACKAGE + ".MinecraftClient_SetWorldEvent");
 		unconfigurable.add(MIXIN_PACKAGE + ".MinecraftServer_SessionAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".MobSpawnerLogic_GettersAndSettersForEverything");
-		unconfigurable.add(MIXIN_PACKAGE + ".NbtCompound_ImplementExtensions");
 		unconfigurable.add(MIXIN_PACKAGE + ".PalettedContainer_DataAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".PlantBlock_CanPlantOnTopAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".Items_PlaceableFlint");
@@ -147,12 +143,10 @@ public class BigGlobeMixinConfig {
 		unconfigurable.add(MIXIN_PACKAGE + ".RandomSpreadStructurePlacement_MakeSmart");
 		unconfigurable.add(MIXIN_PACKAGE + ".RecipeManager_BackwardsCompatibleRecipes");
 		unconfigurable.add(MIXIN_PACKAGE + ".RegistryLoader_LoadColumnEntryRegistry");
-		unconfigurable.add(MIXIN_PACKAGE + ".RegistryOps_MakeAdjustable");
 		unconfigurable.add(MIXIN_PACKAGE + ".SaveLoading_UnloadColumnEntryRegistry");
 		unconfigurable.add(MIXIN_PACKAGE + ".ServerChunkLoadingManager_InitStructureManager");
 		unconfigurable.add(MIXIN_PACKAGE + ".ServerPlayerEntity_FixNetherRoofGlitch");
 		unconfigurable.add(MIXIN_PACKAGE + ".SingularPalette_EntryAccess");
-		unconfigurable.add(MIXIN_PACKAGE + ".SpawnRestriction_BackingMapAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".Structure_ImplementSizedStructure");
 		unconfigurable.add(MIXIN_PACKAGE + ".StructureAccessor_WorldAccess");
 		unconfigurable.add(MIXIN_PACKAGE + ".StructurePiece_DirectRotationSetter");

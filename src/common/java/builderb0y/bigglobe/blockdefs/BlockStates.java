@@ -27,6 +27,16 @@ public class BlockStates {
 		WATER = Blocks.WATER.defaultBlockState(),
 		LAVA = Blocks.LAVA.defaultBlockState(),
 
+		#if MC_VERSION >= MC_26_2_0
+			BLUE_TERRACOTTA = Blocks.DYED_TERRACOTTA.blue().defaultBlockState(),
+			ORANGE_TERRACOTTA = Blocks.DYED_TERRACOTTA.orange().defaultBlockState(),
+			CYAN_TERRACOTTA = Blocks.DYED_TERRACOTTA.cyan().defaultBlockState(),
+		#else
+			BLUE_TERRACOTTA = Blocks.BLUE_TERRACOTTA.defaultBlockState(),
+			ORANGE_TERRACOTTA = Blocks.ORANGE_TERRACOTTA.defaultBlockState(),
+			CYAN_TERRACOTTA = Blocks.CYAN_TERRACOTTA.defaultBlockState(),
+		#endif
+
 		NETHERRACK = Blocks.NETHERRACK.defaultBlockState(),
 		NETHER_BRICKS = Blocks.NETHER_BRICKS.defaultBlockState(),
 		CRACKED_NETHER_BRICKS = Blocks.CRACKED_NETHER_BRICKS.defaultBlockState(),

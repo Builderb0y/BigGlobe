@@ -153,11 +153,11 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			//base
 			root.setBlockStateCuboid(-21, -16, -21, 21, -1, 21, BlockStates.SANDSTONE);
 			root.setBlockStateCuboid(-20, 0, -20, 20, 0, 20, BlockStates.SANDSTONE);
-			root.setBlockState(0, -1, 0, Blocks.BLUE_TERRACOTTA.defaultBlockState());
-			rot4.flip2X().setBlockStateLine(1, -1, 2, 0, 0, 1, 2, Blocks.ORANGE_TERRACOTTA.defaultBlockState());
-			rot4.flip2X().setBlockStateLine(2, -1, 4, 0, 0, 1, 2, Blocks.ORANGE_TERRACOTTA.defaultBlockState());
-			rot4.setBlockState(0, -1, 5, Blocks.CYAN_TERRACOTTA.defaultBlockState());
-			rot4.setBlockState(4, -1, 4, Blocks.CYAN_TERRACOTTA.defaultBlockState());
+			root.setBlockState(0, -1, 0, BlockStates.BLUE_TERRACOTTA);
+			rot4.flip2X().setBlockStateLine(1, -1, 2, 0, 0, 1, 2, BlockStates.ORANGE_TERRACOTTA);
+			rot4.flip2X().setBlockStateLine(2, -1, 4, 0, 0, 1, 2, BlockStates.ORANGE_TERRACOTTA);
+			rot4.setBlockState(0, -1, 5, BlockStates.CYAN_TERRACOTTA);
+			rot4.setBlockState(4, -1, 4, BlockStates.CYAN_TERRACOTTA);
 			root.setBlockStateCuboid(-10, 0, -10, 10, 0, 10, BlockStates.AIR);
 			root.setBlockStateCuboid(-1, 0, 11, 1, 0, 19, BlockStates.AIR);
 			root.setBlockStateLine(-1, 0, 20, 1, 0, 0, 3, smoothBottomStairs(Direction.SOUTH));
@@ -186,10 +186,10 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			rotatedTower.setBlockStateCuboid(-3, 1, 3, 2, 16, 3, BlockStates.SANDSTONE);
 			rotatedTower.setBlockStateLine(-3, 1, 3, 0, 1, 0, 9, BlockStates.CUT_SANDSTONE);
 			rotatedTower.setBlockStateLine(-3, 15, 3, 0, 1, 0, 2, BlockStates.CUT_SANDSTONE);
-			rotatedTower.setBlockState(0, 12, 3, Blocks.BLUE_TERRACOTTA.defaultBlockState());
-			rotatedTower.flip2X().setBlockStateLine(1, 9, 3, 0, 1, 0, 2, Blocks.ORANGE_TERRACOTTA.defaultBlockState());
-			rotatedTower.flip2X().setBlockStateLine(2, 11, 3, 0, 1, 0, 3, Blocks.ORANGE_TERRACOTTA.defaultBlockState());
-			rotatedTower.flip2X().setBlockStateLine(1, 14, 3, 0, 1, 0, 2, Blocks.ORANGE_TERRACOTTA.defaultBlockState());
+			rotatedTower.setBlockState(0, 12, 3, BlockStates.BLUE_TERRACOTTA);
+			rotatedTower.flip2X().setBlockStateLine(1, 9, 3, 0, 1, 0, 2, BlockStates.ORANGE_TERRACOTTA);
+			rotatedTower.flip2X().setBlockStateLine(2, 11, 3, 0, 1, 0, 3, BlockStates.ORANGE_TERRACOTTA);
+			rotatedTower.flip2X().setBlockStateLine(1, 14, 3, 0, 1, 0, 2, BlockStates.ORANGE_TERRACOTTA);
 			tower.setBlockStateCuboid(-2, 10, -2, 2, 16, 2, BlockStates.SANDSTONE);
 			tower.setBlockStateCuboid(-2, 1, -2, 2, 9, 2, BlockStates.AIR);
 			rotatedTower.setBlockStateLine(-1, 9, -2, 1, 0, 0, 3, plainTopStairs(Direction.NORTH));
@@ -242,7 +242,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 			flipX.setBlockStateLine(2, 1, 19, 0, 1, 0, 4, BlockStates.SANDSTONE);
 			flipX.setBlockStateLine(2, 0, 20, 0, 1, 0, 7, BlockStates.CUT_SANDSTONE);
 			root.stack(0, 2, 0, 2).setBlockStateLine(-1, 5, 20, 1, 0, 0, 3, BlockStates.CUT_SANDSTONE);
-			root.setBlockStateLine(-1, 6, 20, 1, 0, 0, BlockStates.CHISELED_SANDSTONE, Blocks.BLUE_TERRACOTTA.defaultBlockState(), BlockStates.CHISELED_SANDSTONE);
+			root.setBlockStateLine(-1, 6, 20, 1, 0, 0, BlockStates.CHISELED_SANDSTONE, BlockStates.BLUE_TERRACOTTA, BlockStates.CHISELED_SANDSTONE);
 			flipX.stack(0, 0, -5, 2).setBlockState(1, 4, 20, smoothTopStairs(Direction.EAST));
 			flipX.setBlockStateLine(1, 4, 19, 0, 0, -1, 4, plainTopStairs(Direction.EAST));
 			//outside of front walkway

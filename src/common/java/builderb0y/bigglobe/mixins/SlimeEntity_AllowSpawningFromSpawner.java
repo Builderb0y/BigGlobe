@@ -9,8 +9,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.level.LevelAccessor;
+
+#if MC_VERSION >= MC_26_2_0
+	import net.minecraft.world.entity.monster.cubemob.Slime;
+#else
+	import net.minecraft.world.entity.monster.Slime;
+#endif
 
 @Mixin(Slime.class)
 public class SlimeEntity_AllowSpawningFromSpawner {

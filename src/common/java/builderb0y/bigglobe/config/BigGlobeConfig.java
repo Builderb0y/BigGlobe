@@ -54,11 +54,6 @@ public class BigGlobeConfig {
 	public String defaultWorldType = "bigglobe:bigglobe";
 
 	@Tooltip(count = 3)
-	@UseName("Sanity Check World Height")
-	@DefaultIgnore
-	public boolean checkWorldHeight = true;
-
-	@Tooltip(count = 3)
 	@UseName("Big Globe Trees In Big Globe Worlds")
 	@DefaultIgnore
 	public boolean bigGlobeTreesInBigGlobeWorlds = true;
@@ -290,7 +285,7 @@ public class BigGlobeConfig {
 		@Environment(EnvType.CLIENT)
 		public void maybeReloadLODs() {
 			Minecraft client = Minecraft.getInstance();
-			LodSystemHolder holder = client != null ? LodSystemHolder.of(client.levelRenderer) : null;
+			LodSystemHolder holder = client != null ? LodSystemHolder.get() : null;
 			if (
 				this.renderingEnabled() != previousEnabled ||
 				this.undergroundMode != previousUndergroundMode ||

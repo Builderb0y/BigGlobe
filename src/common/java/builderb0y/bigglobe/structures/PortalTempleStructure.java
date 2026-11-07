@@ -9,15 +9,13 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +24,7 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -605,9 +604,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 							bannerNBT.put("patterns", patterns);
 							MainBuildingPiece.this.decorations.add(new PositionState(
 								archPosition.above(2),
-								(invertColors ? Blocks.MAGENTA_WALL_BANNER : Blocks.PURPLE_WALL_BANNER)
-									.defaultBlockState()
-									.setValue(WallBannerBlock.FACING, archPosition.getRandomDirection(random)),
+								#if MC_VERSION >= MC_26_2_0
+									(invertColors ? Blocks.WALL_BANNER.magenta() : Blocks.WALL_BANNER.purple())
+								#else
+									(invertColors ? Blocks.MAGENTA_WALL_BANNER : Blocks.PURPLE_WALL_BANNER)
+								#endif
+								.defaultBlockState()
+								.setValue(WallBannerBlock.FACING, archPosition.getRandomDirection(random)),
 								bannerNBT
 							));
 						}
@@ -802,20 +805,27 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				if (chunkBox.isInside(pos)) {
 					nbt.put("Pos", makeEntityPos(x.doubleValue(), y.doubleValue(), z.doubleValue()));
 
-					EntityType.create(BlockEntityVersions.readView(nbt), world.getLevel(), EntitySpawnReason.STRUCTURE)
+					EntityType.create(
+						BlockEntityVersions.readView(nbt),
+						world.getLevel(),
+						#if MC_VERSION >= MC_26_2_0
+							new EntitySpawnRequest(EntitySpawnReason.STRUCTURE, false)
+						#else
+							EntitySpawnReason.STRUCTURE
+						#endif
+					)
+					.ifPresent((Entity entity) -> {
+						if (entity instanceof Mob mob) {
+							mob.finalizeSpawn(
+								world,
+								world.getCurrentDifficultyAt(pos),
+								EntitySpawnReason.STRUCTURE,
+								null
 
-						.ifPresent((Entity entity) -> {
-							if (entity instanceof Mob mob) {
-								mob.finalizeSpawn(
-									world,
-									world.getCurrentDifficultyAt(pos),
-									EntitySpawnReason.STRUCTURE,
-									null
-
-								);
-							}
-							world.addFreshEntityWithPassengers(entity);
-						});
+							);
+						}
+						world.addFreshEntityWithPassengers(entity);
+					});
 					iterator.remove();
 				}
 			}
@@ -1339,8 +1349,21 @@ public class PortalTempleStructure extends BigGlobeStructure {
 			root.setBlockState(0, -1, 0, BlockStates.NETHER_BRICKS);
 			root.setBlockState(0, 0, 0, Blocks.SPAWNER.defaultBlockState());
 			root.getBlockEntity(
-				0, 0, 0, BlockEntityType.MOB_SPAWNER, (pos, spawner) -> {
-					spawner.setEntityId(EntityType.BLAZE, new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos)));
+				0, 0, 0,
+				#if MC_VERSION >= MC_26_2_0
+					net.minecraft.world.level.block.entity.BlockEntityTypes.MOB_SPAWNER,
+				#else
+					BlockEntityType.MOB_SPAWNER,
+				#endif
+				(MutableBlockPos pos, SpawnerBlockEntity spawner) -> {
+					spawner.setEntityId(
+						#if MC_VERSION >= MC_26_2_0
+							net.minecraft.world.entity.EntityTypes.BLAZE,
+						#else
+							EntityType.BLAZE,
+						#endif
+						new MojangPermuter(Permuter.permute(0x0E1B446AA9FECF5CL, pos))
+					);
 				}
 			);
 		}

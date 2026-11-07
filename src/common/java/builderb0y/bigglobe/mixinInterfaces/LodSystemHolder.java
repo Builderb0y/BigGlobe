@@ -2,7 +2,7 @@ package builderb0y.bigglobe.mixinInterfaces;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.Minecraft;
 
 import builderb0y.bigglobe.rendering.lods.LodSystem;
 
@@ -12,7 +12,11 @@ public interface LodSystemHolder {
 
 	public abstract void bigglobe_setLodSystem(@Nullable LodSystem system);
 
-	public static LodSystemHolder of(LevelRenderer worldRenderer) {
-		return (LodSystemHolder)(worldRenderer);
+	public static LodSystemHolder get() {
+		#if MC_VERSION >= MC_26_2_0
+			return (LodSystemHolder)(Minecraft.getInstance().levelExtractor);
+		#else
+			return (LodSystemHolder)(Minecraft.getInstance().levelRenderer);
+		#endif
 	}
 }

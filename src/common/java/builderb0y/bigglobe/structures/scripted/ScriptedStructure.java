@@ -35,7 +35,6 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.ScriptedColumnLookup;
-import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
@@ -167,7 +166,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		@Override
 		public void addAdditionalSaveData(StructurePieceSerializationContext context, CompoundTag nbt) {
-			for (Map.Entry<String, Tag> entry : ((NbtCompoundExtensions)(Object)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).bigglobe_getEntrySet()) {
+			for (Map.Entry<String, Tag> entry : ((CompoundTag)(BigGlobeAutoCodec.AUTO_CODEC.encode(SerialData.CODER, this.serialize(), NbtOps.INSTANCE))).entrySet()) {
 				nbt.put(entry.getKey(), entry.getValue());
 			}
 		}

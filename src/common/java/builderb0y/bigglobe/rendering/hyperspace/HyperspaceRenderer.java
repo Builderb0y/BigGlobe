@@ -2,9 +2,12 @@ package builderb0y.bigglobe.rendering.hyperspace;
 
 import java.util.OptionalInt;
 
+import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
+import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -19,6 +22,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 import org.lwjgl.system.*;
@@ -43,63 +47,70 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.rendering.CommonState;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
+import builderb0y.bigglobe.versions.RenderVersions;
 
 @Environment(EnvType.CLIENT)
 public class HyperspaceRenderer implements SafeCloseable {
 
+	public static final RenderPipeline.Snippet
+		WITHOUT_PREVIOUS = (
+			RenderPipeline
+			.builder()
+			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
+			.withBindGroupLayout(
+				BindGroupLayout
+				.builder()
+				.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
+				.build()
+			)
+			.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+			.buildSnippet()
+		),
+		WITH_PREVIOUS = (
+			RenderPipeline
+			.builder(WITHOUT_PREVIOUS)
+			.withBindGroupLayout(
+				BindGroupLayout
+				.builder()
+				.withSampler("previousPass")
+				.build()
+			)
+			.buildSnippet()
+		);
 	public static final RenderPipeline
 		VOLUME_PIPELINE = (
 			RenderPipeline
-			.builder()
+			.builder(WITHOUT_PREVIOUS)
 			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_volume"))
 			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_volume"))
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
-			.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
 			.build()
 		),
 		HORIZONTAL_BLUR_PIPELINE = (
 			RenderPipeline
-			.builder()
+			.builder(WITH_PREVIOUS)
 			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_horizontal_blur"))
 			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_horizontal_blur"))
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
-			.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-			.withSampler("previousPass")
-			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
 			.build()
 		),
 		VERTICAL_BLUR_PIPELINE = (
 			RenderPipeline
-			.builder()
+			.builder(WITH_PREVIOUS)
 			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_vertical_blur"))
 			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_vertical_blur"))
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
-			.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-			.withSampler("previousPass")
-			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
 			.build()
 		),
 		FRACTAL_PIPELINE = (
 			RenderPipeline
-			.builder()
+			.builder(WITH_PREVIOUS)
 			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_fractals"))
 			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_fractals"))
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
-			.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-			.withSampler("previousPass")
-			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
 			.build()
 		),
 		COLLAPSE_PIPELINE = (
 			RenderPipeline
-			.builder()
+			.builder(WITH_PREVIOUS)
 			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_collapse"))
 			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_collapse"))
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
-			.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-			.withSampler("previousPass")
-			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
 			.build()
 		);
 	public static final int
@@ -155,7 +166,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 			ClientTickEvents.START_LEVEL_TICK.register((ClientLevel level) -> {
 				if (INSTANCE != null && level.dimension() == HyperspaceConstants.WORLD_KEY) INSTANCE.beam.tick();
 			});
-			LevelRenderEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
+			LevelExtractionEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
 				if (INSTANCE != null) INSTANCE.extract(context);
 			});
 			LevelRenderEvents.START_MAIN.register((LevelTerrainRenderContext context) -> {
@@ -214,6 +225,9 @@ public class HyperspaceRenderer implements SafeCloseable {
 				1,
 				1,
 				false
+				#if MC_VERSION >= MC_26_2_0
+					, GpuFormat.RGBA8_UNORM
+				#endif
 			);
 			this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
 			this.beam = new Beam();
@@ -262,7 +276,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 			RenderSystem.getDevice().precompilePipeline(        FRACTAL_PIPELINE).isValid() &&
 			RenderSystem.getDevice().precompilePipeline(       COLLAPSE_PIPELINE).isValid()
 		) {
-			RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+			RenderTarget mainTarget = RenderVersions.getMainRenderTarget();
 			if (this.swapFramebuffer.width != mainTarget.width || this.swapFramebuffer.height != mainTarget.height) {
 				this.swapFramebuffer.resize(mainTarget.width, mainTarget.height);
 			}
@@ -316,15 +330,14 @@ public class HyperspaceRenderer implements SafeCloseable {
 
 	public void renderVolume(RenderTarget target) {
 		try (
-			RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-				() -> "Big Globe hyperspace volume",
-				target.getColorTextureView(),
-				OptionalInt.empty()
+			RenderPass pass = RenderVersions.createRenderPass(
+				"Big Globe hyperspace volume",
+				target.getColorTextureView()
 			)
 		) {
 			pass.setPipeline(VOLUME_PIPELINE);
 			pass.setUniform("Uniforms", this.volumeUniforms);
-			pass.draw(0, 3);
+			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
 
@@ -342,16 +355,15 @@ public class HyperspaceRenderer implements SafeCloseable {
 
 	public void renderBlur(boolean vertical, RenderTarget source, RenderTarget destination) {
 		try (
-			RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+			RenderPass pass = RenderVersions.createRenderPass(
 				() -> "Big Globe hyperspace " + (vertical ? "vertical" : "horizontal") + " blur",
-				destination.getColorTextureView(),
-				OptionalInt.empty()
+				destination.getColorTextureView()
 			)
 		) {
 			pass.setPipeline(vertical ? VERTICAL_BLUR_PIPELINE : HORIZONTAL_BLUR_PIPELINE);
 			pass.setUniform("Uniforms", this.blurUniforms);
 			pass.bindTexture("previousPass", source.getColorTextureView(), this.sampler);
-			pass.draw(0, 3);
+			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
 
@@ -378,16 +390,15 @@ public class HyperspaceRenderer implements SafeCloseable {
 
 	public void renderFractals(RenderTarget source, RenderTarget destination) {
 		try (
-			RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-				() -> "Big Globe hyperspace fractals",
-				destination.getColorTextureView(),
-				OptionalInt.empty()
+			RenderPass pass = RenderVersions.createRenderPass(
+				"Big Globe hyperspace fractals",
+				destination.getColorTextureView()
 			)
 		) {
 			pass.setPipeline(FRACTAL_PIPELINE);
 			pass.setUniform("Uniforms", this.fractalUniforms);
 			pass.bindTexture("previousPass", source.getColorTextureView(), this.sampler);
-			pass.draw(0, 3);
+			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
 
@@ -407,16 +418,15 @@ public class HyperspaceRenderer implements SafeCloseable {
 
 	public void renderCollapse(RenderTarget source, RenderTarget destination) {
 		try (
-			RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+			RenderPass pass = RenderVersions.createRenderPass(
 				() -> "Big Globe hyperspace collapse",
-				destination.getColorTextureView(),
-				OptionalInt.empty()
+				destination.getColorTextureView()
 			)
 		) {
 			pass.setPipeline(COLLAPSE_PIPELINE);
 			pass.setUniform("Uniforms", this.collapseUniforms);
 			pass.bindTexture("previousPass", source.getColorTextureView(), this.sampler);
-			pass.draw(0, 3);
+			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
 

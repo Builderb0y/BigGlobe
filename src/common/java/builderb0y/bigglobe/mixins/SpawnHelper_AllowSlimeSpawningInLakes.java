@@ -41,7 +41,11 @@ public class SpawnHelper_AllowSlimeSpawningInLakes {
 		CallbackInfoReturnable<Boolean> callback
 	) {
 		if (
-			SpawnEntryVersions.type(spawnEntry) == EntityType.SLIME
+			#if MC_VERSION >= MC_26_2_0
+				SpawnEntryVersions.type(spawnEntry) == net.minecraft.world.entity.EntityTypes.SLIME
+			#else
+				SpawnEntryVersions.type(spawnEntry) == EntityType.SLIME
+			#endif
 			&& world.isEmptyBlock(pos)
 			&& world.getBlockState(pos.below()) == BlockStates.WATER
 			&& (

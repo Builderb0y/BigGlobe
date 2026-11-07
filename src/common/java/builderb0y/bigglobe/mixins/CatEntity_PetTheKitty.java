@@ -17,11 +17,7 @@ import net.minecraft.world.level.Level;
 
 import builderb0y.bigglobe.versions.EntityVersions;
 
-/**
-in vanilla, you can't pet cats. this is obviously a bug, so I'm fixing it.
-if anyone finds this code and wants it in production,
-let me know and I'll make a separate mod for it.
-*/
+/** in vanilla, you can't pet cats. this is obviously a bug, so I'm fixing it. */
 @Mixin(Cat.class)
 public abstract class CatEntity_PetTheKitty extends TamableAnimal {
 

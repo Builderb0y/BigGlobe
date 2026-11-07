@@ -27,7 +27,7 @@ public class ImmersivePortalsCompat {
 	public static @Nullable LodSystemHolder getLodSystem(ResourceKey<Level> dimensionKey) {
 		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null && world.dimension() == dimensionKey) {
-			return LodSystemHolder.of(Minecraft.getInstance().levelRenderer);
+			return LodSystemHolder.get();
 		}
 		return null;
 	}

@@ -63,7 +63,6 @@ import builderb0y.bigglobe.hyperspace.HyperspaceCollapseTicketType;
 import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 import builderb0y.bigglobe.loot.BigGlobeLoot;
 import builderb0y.bigglobe.mixins.MinecraftServer_SessionAccess;
-import builderb0y.bigglobe.mixins.SpawnRestriction_BackingMapAccess;
 import builderb0y.bigglobe.networking.base.BigGlobeNetwork;
 import builderb0y.bigglobe.particles.BigGlobeParticles;
 import builderb0y.bigglobe.recipes.BigGlobeRecipeSerializers;
@@ -129,8 +128,6 @@ public class BigGlobeMod implements ModInitializer {
 
 		DistantHorizonsCompat.init();
 
-		Map<EntityType<?>, Object> restrictions = SpawnRestriction_BackingMapAccess.bigglobe_getRestrictions();
-		restrictions.putIfAbsent(EntityType.ZOGLIN, restrictions.get(EntityType.HOGLIN));
 		ServerLifecycleEvents.SERVER_STARTING.register((MinecraftServer server) -> {
 			currentServer = server;
 			currentRegistries = new BetterRegistry.Lookup() {

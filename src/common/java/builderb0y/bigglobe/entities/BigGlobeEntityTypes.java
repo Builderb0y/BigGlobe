@@ -5,6 +5,9 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -29,7 +32,6 @@ public class BigGlobeEntityTypes {
 		true,
 		false,
 		false,
-		ImmutableSet.of(),
 		EntityDimensions.scalable(0.5F, 0.5F),
 		4,
 		20
@@ -42,7 +44,6 @@ public class BigGlobeEntityTypes {
 		true,
 		false,
 		false,
-		ImmutableSet.of(),
 		EntityDimensions.scalable(0.5F, 0.5F),
 		4,
 		20
@@ -55,7 +56,6 @@ public class BigGlobeEntityTypes {
 		true,
 		false,
 		true,
-		ImmutableSet.of(),
 		EntityDimensions.scalable(0.5F, 0.5F),
 		4,
 		20
@@ -68,7 +68,6 @@ public class BigGlobeEntityTypes {
 		false,
 		true,
 		true,
-		ImmutableSet.of(),
 		EntityDimensions.scalable(2.0F, 2.0F),
 		8,
 		Integer.MAX_VALUE
@@ -86,34 +85,49 @@ public class BigGlobeEntityTypes {
 		boolean summonable,
 		boolean fireImmune,
 		boolean spawnableFarFromPlayer,
-		ImmutableSet<Block> canSpawnInside,
 		EntityDimensions dimensions,
 		int maxTrackDistance,
 		int trackTickInterval
 	) {
 		return register(
 			name,
-			new EntityType<>(
-				factory,
-				spawnGroup,
-				saveable,
-				summonable,
-				fireImmune,
-				spawnableFarFromPlayer,
-				canSpawnInside,
-				dimensions,
-
-				1.0F,
-
-				maxTrackDistance,
-				trackTickInterval,
-
-				Util.makeDescriptionId("entity", BigGlobeMod.modID(name)),
-				Optional.empty(),
-
-				FeatureFlagSet.of()
-				, true
-			)
+			#if MC_VERSION >= MC_26_2_0
+				new EntityType<>(
+					factory,
+					spawnGroup,
+					saveable,
+					summonable,
+					fireImmune,
+					spawnableFarFromPlayer,
+					BlockTags.DEFAULT_IMMUNE_TO,
+					dimensions,
+					1.0F,
+					maxTrackDistance,
+					trackTickInterval,
+					Util.makeDescriptionId("entity", BigGlobeMod.modID(name)),
+					Optional.of(ResourceKey.create(Registries.LOOT_TABLE, BigGlobeMod.modID(name).withPrefix("entities/"))),
+					FeatureFlagSet.of(),
+					true
+				)
+			#else
+				new EntityType<>(
+					factory,
+					spawnGroup,
+					saveable,
+					summonable,
+					fireImmune,
+					spawnableFarFromPlayer,
+					ImmutableSet.of(),
+					dimensions,
+					1.0F,
+					maxTrackDistance,
+					trackTickInterval,
+					Util.makeDescriptionId("entity", BigGlobeMod.modID(name)),
+					Optional.empty(),
+					FeatureFlagSet.of(),
+					true
+				)
+			#endif
 		);
 	}
 

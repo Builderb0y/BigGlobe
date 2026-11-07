@@ -14,7 +14,11 @@ import net.minecraft.client.renderer.LevelRenderer;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.rendering.lods.LodSystem;
 
-@Mixin(LevelRenderer.class)
+#if MC_VERSION >= MC_26_2_0
+	@Mixin(net.minecraft.client.renderer.extract.LevelExtractor.class)
+#else
+	@Mixin(LevelRenderer.class)
+#endif
 public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 
 	@Unique
@@ -34,7 +38,7 @@ public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 	}
 
 	@Inject(method = "allChanged()V", at = @At("HEAD"))
-	private void bigglobe_reloadLods(CallbackInfo ci) {
+	private void bigglobe_reloadLods(CallbackInfo callback) {
 		LodSystem.reload(this, this.level);
 	}
 
@@ -43,7 +47,14 @@ public class WorldRenderer_HoldLodSystem implements LodSystemHolder {
 		this.bigglobe_closeLodSystem(null);
 	}
 
-	@Inject(method = "close", at = @At("HEAD"))
+	@Inject(
+		#if MC_VERSION >= MC_26_2_0
+			method = "onResourceManagerReload",
+		#else
+			method = "close",
+		#endif
+		at = @At("HEAD")
+	)
 	private void bigglobe_closeLodSystem(CallbackInfo callback) {
 		if (this.bigglobe_lodSystem != null) {
 			this.bigglobe_lodSystem.close();

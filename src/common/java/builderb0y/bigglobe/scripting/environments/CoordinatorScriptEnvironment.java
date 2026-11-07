@@ -175,7 +175,10 @@ public class CoordinatorScriptEnvironment {
 			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);
 			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);
 			coordinator.addEntity(
-				BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (BlockPos.MutableBlockPos pos, ServerLevel world) -> {
+				BigGlobeMath.floorI(x),
+				BigGlobeMath.floorI(y),
+				BigGlobeMath.floorI(z),
+				(BlockPos.MutableBlockPos pos, ServerLevel world) -> {
 					double newX = pos.getX() + offsetX;
 					double newY = pos.getY() + offsetY;
 					double newZ = pos.getZ() + offsetZ;
@@ -209,7 +212,14 @@ public class CoordinatorScriptEnvironment {
 					double newY = pos.getY() + offsetY;
 					double newZ = pos.getZ() + offsetZ;
 					return EntityType.loadEntityRecursive(
-						copy, world, EntitySpawnReason.CHUNK_GENERATION, (Entity entity) -> {
+						copy,
+						world,
+						#if MC_VERSION >= MC_26_2_0
+							new net.minecraft.world.entity.EntitySpawnRequest(EntitySpawnReason.CHUNK_GENERATION, false),
+						#else
+							EntitySpawnReason.CHUNK_GENERATION,
+						#endif
+						(Entity entity) -> {
 							entity.snapTo(newX, newY, newZ, entity.getYRot(), entity.getXRot());
 							return entity;
 						}

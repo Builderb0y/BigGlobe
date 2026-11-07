@@ -55,8 +55,6 @@ high priority:
 	document terrainAdaptation.
 	document scripted structures in general.
 	unit tests for assignment-as-an-expression type inference.
-	replace GLException with debug callback?
-		which should also be disabled in production.
 	whitelist which blocks exposed dungeons and spider pits are allowed to spawn on top of.
 	make slingshots able to throw splash/lingering potions.
 	see if I can expose structure information to scripted configured features.
@@ -105,16 +103,20 @@ V6:
 				mushroom shelves.
 		exclude mushrooms from deserts and beaches.
 		snow can spawn in deserts.
-		add RGBA32F enum for waypoint uniforms so that I don't have to do horrible bit-packing.
-		remove RegistryOps_MakeAdjustable, functionality exists in vanilla now.
 		change range of temperature.
 			should be -1 = cold, +1 = hot.
 		undo change that prevented water/lava lakes from spawning in deserts:
 			if it does spawn in a desert, don't use mud.
 			make it an oasis, with trees around it.
+		see if dunes and cracks for deserts look good in the islands world preset or not.
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
+
+26.2:
+	verify that MC 26.1 still works.
+		charred_tree_vanilla might not work. idk.
+		verify that zoglins spawn correctly in MC 26.1 and that I don't need to re-add the SpawnRestrictions accessor.
 
 islands:
 	floating islands:
@@ -144,13 +146,15 @@ intellij plugin:
 	incorrect arguments on custom class static methods are not reported as an error.
 
 changelog:
+	* Ported to MC 26.2.
+	* Fixed surface blocks not spawning in the nether.
+	* Expanded the spawn range of lapis ore.
+	* Reduced the amount of dirt in the world.
 	* Fixed caves and other dark areas being pitch black. Their brightness should now match vanilla instead.
 	* Copper tools can now be found in surface mineshaft chests.
 	* granite, diorite, andesite, dripstone blocks, tuff, and calcite can now be used in most recipes as a substitute for cobblestone.
 	* Ores will now only mimic stone, without falling back on whatever other blocks are adjacent.
 	* Several issues with underground LODs (when carving is enabled) have now been fixed.
-	* Reduced the amount of dirt in the world.
-	* Expanded the spawn range of lapis ore.
 
 alternate world presets:
 	paradise.

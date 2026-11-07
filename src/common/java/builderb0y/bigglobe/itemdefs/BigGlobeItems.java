@@ -460,7 +460,15 @@ public class BigGlobeItems {
 			VOID_CLOUDS.values().stream().map(BlockItem::getDefaultInstance).forEachOrdered(entries::accept);
 		});
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register((FabricCreativeModeTabOutput entries) -> {
-			entries.insertAfter(Items.COPPER_CHAIN.waxedOxidized(), ROPE_ANCHOR, SPELUNKING_ROPE);
+			entries.insertAfter(
+				#if MC_VERSION >= MC_26_2_0
+					Items.COPPER_CHAIN.waxed().oxidized(),
+				#else
+					Items.COPPER_CHAIN.waxedOxidized(),
+				#endif
+				ROPE_ANCHOR,
+				SPELUNKING_ROPE
+			);
 			entries.insertAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.insertAfter(Items.WARPED_HANGING_SIGN, CHARRED_SIGN, CHARRED_HANGING_SIGN);
 			entries.insertAfter(Items.WARPED_SHELF, CHARRED_SHELF);

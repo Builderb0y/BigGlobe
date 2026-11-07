@@ -17,7 +17,7 @@
 				"int y = maxIteration",
 				"while (y >= minIteration:",
 					"int nextY = getBottomOfSegment(y - 1)",
-					"unless (getBlockState(y - 1).?isReplaceable() ?: true:",
+					"unless (getBlockState(y - 1).?isReplaceable() ?: false:",
 						"placeSurface(y, `bigglobe:nether/bubble_type`.surface(column, y))",
 					")",
 					"y = nextY",

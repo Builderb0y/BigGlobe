@@ -29,6 +29,7 @@ import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
+import builderb0y.bigglobe.versions.ChunkVersions;
 
 /**
 in order for {@link ScriptedStructure} to support raw generation,
@@ -294,7 +295,7 @@ public interface WorldOrChunk extends BlockGetter {
 
 		@Override
 		public void updateBlockState(BlockPos pos) {
-			this.chunk.markPosForPostprocessing(pos);
+			ChunkVersions.postProcess(this.chunk, pos);
 		}
 
 		@Override

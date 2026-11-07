@@ -521,7 +521,14 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 		copy.putString("id", entityType);
 		this.world.spawnEntity((ServerLevel serverWorld) -> {
 			return EntityType.loadEntityRecursive(
-				copy, serverWorld, EntitySpawnReason.CHUNK_GENERATION, (Entity entity) -> {
+				copy,
+				serverWorld,
+				#if MC_VERSION >= MC_26_2_0
+					new net.minecraft.world.entity.EntitySpawnRequest(EntitySpawnReason.CHUNK_GENERATION, false),
+				#else
+					EntitySpawnReason.CHUNK_GENERATION,
+				#endif
+				(Entity entity) -> {
 					entity.snapTo(newX, newY, newZ, entity.getYRot(), entity.getXRot());
 					return entity;
 				}

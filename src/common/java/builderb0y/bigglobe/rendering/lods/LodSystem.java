@@ -1,14 +1,17 @@
 package builderb0y.bigglobe.rendering.lods;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 
@@ -28,13 +31,14 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.mixinInterfaces.LodSystemHolder;
 import builderb0y.bigglobe.rendering.lods.flat.FlatLodSystem;
 import builderb0y.bigglobe.util.SafeCloseable;
+import builderb0y.bigglobe.versions.RenderVersions;
 
 @Environment(EnvType.CLIENT)
 public abstract class LodSystem implements SafeCloseable {
 
 	static {
-		LevelRenderEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
-			LodSystemHolder holder = LodSystemHolder.of(context.levelRenderer());
+		LevelExtractionEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
+			LodSystemHolder holder = LodSystemHolder.get();
 			LodSystem system = holder.bigglobe_getLodSystem();
 			if (system != null) {
 				if (system.closed.get()) {
@@ -46,7 +50,7 @@ public abstract class LodSystem implements SafeCloseable {
 			}
 		});
 		LevelRenderEvents.START_MAIN.register((LevelTerrainRenderContext context) -> {
-			LodSystemHolder holder = LodSystemHolder.of(context.levelRenderer());
+			LodSystemHolder holder = LodSystemHolder.get();
 			LodSystem system = holder.bigglobe_getLodSystem();
 			if (system != null) {
 				if (system.closed.get()) {
@@ -182,13 +186,12 @@ public abstract class LodSystem implements SafeCloseable {
 			return;
 		}
 		try {
+			RenderTarget target = RenderVersions.getMainRenderTarget();
 			try (
-				RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-					() -> "Big Globe LODs",
-					Minecraft.getInstance().getMainRenderTarget().getColorTextureView(),
-					OptionalInt.empty(),
-					Minecraft.getInstance().getMainRenderTarget().getDepthTextureView(),
-					OptionalDouble.empty()
+				RenderPass pass = RenderVersions.createRenderPass(
+					"Big Globe LODs",
+					target.getColorTextureView(),
+					target.getDepthTextureView()
 				)
 			) {
 				ProfilerFiller profiler = Profiler.get();
@@ -204,8 +207,8 @@ public abstract class LodSystem implements SafeCloseable {
 				profiler.pop();
 			}
 			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(
-				Minecraft.getInstance().getMainRenderTarget().getDepthTexture(),
-				1.0D
+				target.getDepthTexture(),
+				#if MC_VERSION >= MC_26_2_0 0.0D #else 1.0D #endif
 			);
 		}
 		catch (RuntimeException exception) {

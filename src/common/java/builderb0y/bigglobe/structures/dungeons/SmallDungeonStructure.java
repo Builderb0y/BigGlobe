@@ -47,6 +47,7 @@ import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.ChunkVersions;
 
 public class SmallDungeonStructure extends AbstractDungeonStructure {
 
@@ -186,7 +187,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 					BlockState toPlace = stateSupplier.get(pos);
 					if (wall) toPlace = toPlace.setValue(BlockStateProperties.WATERLOGGED, toReplace.getFluidState().isSourceOfType(Fluids.WATER));
 					world.setBlock(pos, toPlace, Block.UPDATE_ALL);
-					if (wall) world.getChunk(pos).markPosForPostprocessing(pos);
+					if (wall) ChunkVersions.postProcess(world.getChunk(pos), pos);
 				}
 				pos.setY(pos.getY() + 1);
 				world.setBlock(pos, this.palette().mainSupplier().get(pos), Block.UPDATE_ALL);

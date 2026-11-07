@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import net.minecraft.nbt.*;
 
-import builderb0y.bigglobe.mixinInterfaces.NbtCompoundExtensions;
 import builderb0y.bigglobe.versions.NbtVersions;
 import builderb0y.scripting.bytecode.MethodCompileContext;
 import builderb0y.scripting.bytecode.MethodInfo;
@@ -302,7 +301,7 @@ public class NbtScriptEnvironment {
 		Objects.requireNonNull(name, "key is null.");
 		if (element instanceof CompoundTag compound) {
 			if (value != null) return compound.put(name, value);
-			else return ((NbtCompoundExtensions)(Object)(compound)).bigglobe_remove(name);
+			else return compound.remove(name);
 		}
 		else {
 			throw new IllegalArgumentException("Can't set member named " + name + " on " + element + " to " + value);

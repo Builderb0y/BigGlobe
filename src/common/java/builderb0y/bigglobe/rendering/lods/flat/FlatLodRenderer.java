@@ -7,10 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.pipeline.*;
 import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -19,7 +16,6 @@ import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
@@ -32,6 +28,13 @@ import builderb0y.bigglobe.rendering.NativeMemory;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.rendering.lods.*;
 
+#if MC_VERSION >= MC_26_2_0
+	import com.mojang.blaze3d.PrimitiveTopology;
+	import com.mojang.blaze3d.IndexType;
+#else
+	import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
+#endif
+
 @Environment(EnvType.CLIENT)
 public class FlatLodRenderer extends LodRenderer {
 
@@ -43,15 +46,32 @@ public class FlatLodRenderer extends LodRenderer {
 				.builder()
 				.withFragmentShader(BigGlobeMod.modID("core/lod"))
 				.withVertexShader(BigGlobeMod.modID("core/lod"))
-				.withUniform("ModelOffset", UniformType.UNIFORM_BUFFER)
-				.withUniform("Fog", UniformType.UNIFORM_BUFFER)
-				.withUniform("ExtraFog", UniformType.UNIFORM_BUFFER)
-				.withUniform("Matrices", UniformType.UNIFORM_BUFFER)
-				.withSampler("blockAtlas")
-				.withSampler("lightmap")
+				#if MC_VERSION >= MC_26_2_0
+					.withBindGroupLayout(
+						BindGroupLayout
+						.builder()
+						.withSampler("blockAtlas")
+						.withSampler("lightmap")
+						.withUniform("ModelOffset", UniformType.UNIFORM_BUFFER)
+						.withUniform("Fog", UniformType.UNIFORM_BUFFER)
+						.withUniform("ExtraFog", UniformType.UNIFORM_BUFFER)
+						.withUniform("Matrices", UniformType.UNIFORM_BUFFER)
+						.build()
+					)
+					.withVertexBinding(0, LodVertexFormat.FORMAT)
+					.withPrimitiveTopology(PrimitiveTopology.QUADS)
+					.withDepthStencilState(DepthStencilState.DEFAULT)
+				#else
+					.withUniform("ModelOffset", UniformType.UNIFORM_BUFFER)
+					.withUniform("Fog", UniformType.UNIFORM_BUFFER)
+					.withUniform("ExtraFog", UniformType.UNIFORM_BUFFER)
+					.withUniform("Matrices", UniformType.UNIFORM_BUFFER)
+					.withSampler("blockAtlas")
+					.withSampler("lightmap")
+					.withVertexFormat(LodVertexFormat.FORMAT, VertexFormat.Mode.QUADS)
+					.withDepthStencilState(DepthStencilState.DEFAULT)
+				#endif
 				.withShaderDefine("REGION_SIZE", LodNode.SIZE)
-				.withVertexFormat(LodVertexFormat.FORMAT, VertexFormat.Mode.QUADS)
-				.withDepthStencilState(DepthStencilState.DEFAULT)
 				.buildSnippet()
 			);
 			SOLID = RenderPipeline.builder(snippet).withLocation(BigGlobeMod.modID("pipeline/lods/flat/solid")).build();
@@ -129,7 +149,13 @@ public class FlatLodRenderer extends LodRenderer {
 	@Override
 	public void beginRendering(RenderPass pass) {
 		super.beginRendering(pass);
-		AutoStorageIndexBuffer buffers = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+		AutoStorageIndexBuffer buffers = RenderSystem.getSequentialBuffer(
+			#if MC_VERSION >= MC_26_2_0
+				PrimitiveTopology.QUADS
+			#else
+				VertexFormat.Mode.QUADS
+			#endif
+		);
 		pass.setIndexBuffer(buffers.getBuffer(this.maxIndices), buffers.type());
 	}
 
@@ -167,7 +193,13 @@ public class FlatLodRenderer extends LodRenderer {
 				this.drawList.add(new Draw<>(0, mesh.payload, null, null, 0, draw.indexCount(), draw.firstVertex(), uniforms));
 			}
 		}
-		AutoStorageIndexBuffer buffers = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+		AutoStorageIndexBuffer buffers = RenderSystem.getSequentialBuffer(
+			#if MC_VERSION >= MC_26_2_0
+				PrimitiveTopology.QUADS
+			#else
+				VertexFormat.Mode.QUADS
+			#endif
+		);
 		GpuBuffer indexBuffer = buffers.getBuffer(this.maxIndices);
 		IndexType indexType = buffers.type();
 		pass.drawMultipleIndexed(this.drawList, indexBuffer, indexType, requiredUniforms, null);

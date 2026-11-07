@@ -63,7 +63,11 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 	private Vec3 bigglobe_placePlayerAtRequestedPosition(Vec3 original, @Share("bigglobe_platformPosition") LocalRef<BlockPos> platformPosition) {
 		BlockPos pos = platformPosition.get();
 		if (pos != null) {
-			return pos.getBottomCenter();
+			#if MC_VERSION >= MC_26_2_0
+				return Vec3.atBottomCenterOf(pos);
+			#else
+				return pos.getBottomCenter();
+			#endif
 		}
 		else {
 			return original;

@@ -35,7 +35,14 @@ public abstract class MobSpawnerLogic_SpawnLightning {
 	@Inject(method = "serverTick", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
 	private void bigglobe_spawnLightning(ServerLevel world, BlockPos pos, CallbackInfo callback, boolean spawned) {
 		if (spawned && this.bigglobe_spawnLightning) {
-			LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, world);
+			LightningBolt lightning = new LightningBolt(
+				#if MC_VERSION >= MC_26_2_0
+					net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT,
+				#else
+					EntityType.LIGHTNING_BOLT,
+				#endif
+				world
+			);
 			lightning.setPos(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
 			lightning.setVisualOnly(true);
 			world.addFreshEntity(lightning);

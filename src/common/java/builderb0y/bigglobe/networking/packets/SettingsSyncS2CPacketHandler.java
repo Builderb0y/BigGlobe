@@ -119,7 +119,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 					);
 				}
 			}
-			LodSystem.reload(LodSystemHolder.of(Minecraft.getInstance().levelRenderer), world, data);
+			LodSystem.reload(LodSystemHolder.get(), world, data);
 		}
 	}
 

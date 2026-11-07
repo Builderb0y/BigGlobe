@@ -2,36 +2,45 @@
 
 uniform sampler2D colortex;
 uniform sampler2D depthtex;
-uniform isamplerBuffer waypoints;
+#ifdef HAVE_RGBA32F_WAYPOINTS
+	uniform samplerBuffer waypoints;
+#else
+	uniform isamplerBuffer waypoints;
+#endif
 
-//AAAAAAAAAAAAAAAAAAAAAaAAAAA
 vec4 getWaypoint(int index) {
-	return vec4(
-		float(int(
-			((uint(texelFetch(waypoints, index * 16     ).r) & 255u)      ) |
-			((uint(texelFetch(waypoints, index * 16 +  1).r) & 255u) <<  8) |
-			((uint(texelFetch(waypoints, index * 16 +  2).r) & 255u) << 16) |
-			((uint(texelFetch(waypoints, index * 16 +  3).r) & 255u) << 24)
-		)) / 65536.0,
-		float(int(
-			((uint(texelFetch(waypoints, index * 16 +  4).r) & 255u)      ) |
-			((uint(texelFetch(waypoints, index * 16 +  5).r) & 255u) <<  8) |
-			((uint(texelFetch(waypoints, index * 16 +  6).r) & 255u) << 16) |
-			((uint(texelFetch(waypoints, index * 16 +  7).r) & 255u) << 24)
-		)) / 65536.0,
-		float(int(
-			((uint(texelFetch(waypoints, index * 16 +  8).r) & 255u)      ) |
-			((uint(texelFetch(waypoints, index * 16 +  9).r) & 255u) <<  8) |
-			((uint(texelFetch(waypoints, index * 16 + 10).r) & 255u) << 16) |
-			((uint(texelFetch(waypoints, index * 16 + 11).r) & 255u) << 24)
-		)) / 65536.0,
-		float(int(
-			((uint(texelFetch(waypoints, index * 16 + 12).r) & 255u)      ) |
-			((uint(texelFetch(waypoints, index * 16 + 13).r) & 255u) <<  8) |
-			((uint(texelFetch(waypoints, index * 16 + 14).r) & 255u) << 16) |
-			((uint(texelFetch(waypoints, index * 16 + 15).r) & 255u) << 24)
-		)) / 65536.0
-	);
+	#ifdef HAVE_RGBA32F_WAYPOINTS
+		//blaze3D didn't support RGBA32F as an official texture buffer format until MC 26.2.
+		return texelFetch(waypoints, index);
+	#else
+		//in MC 26.1, RGBA8 was the only format available, so I have to do manual bit-packing there.
+		return vec4(
+			float(int(
+				((uint(texelFetch(waypoints, index * 16     ).r) & 255u)      ) |
+				((uint(texelFetch(waypoints, index * 16 +  1).r) & 255u) <<  8) |
+				((uint(texelFetch(waypoints, index * 16 +  2).r) & 255u) << 16) |
+				((uint(texelFetch(waypoints, index * 16 +  3).r) & 255u) << 24)
+			)) / 65536.0,
+			float(int(
+				((uint(texelFetch(waypoints, index * 16 +  4).r) & 255u)      ) |
+				((uint(texelFetch(waypoints, index * 16 +  5).r) & 255u) <<  8) |
+				((uint(texelFetch(waypoints, index * 16 +  6).r) & 255u) << 16) |
+				((uint(texelFetch(waypoints, index * 16 +  7).r) & 255u) << 24)
+			)) / 65536.0,
+			float(int(
+				((uint(texelFetch(waypoints, index * 16 +  8).r) & 255u)      ) |
+				((uint(texelFetch(waypoints, index * 16 +  9).r) & 255u) <<  8) |
+				((uint(texelFetch(waypoints, index * 16 + 10).r) & 255u) << 16) |
+				((uint(texelFetch(waypoints, index * 16 + 11).r) & 255u) << 24)
+			)) / 65536.0,
+			float(int(
+				((uint(texelFetch(waypoints, index * 16 + 12).r) & 255u)      ) |
+				((uint(texelFetch(waypoints, index * 16 + 13).r) & 255u) <<  8) |
+				((uint(texelFetch(waypoints, index * 16 + 14).r) & 255u) << 16) |
+				((uint(texelFetch(waypoints, index * 16 + 15).r) & 255u) << 24)
+			)) / 65536.0
+		);
+	#endif
 }
 
 layout(std140) uniform Uniforms {
@@ -148,8 +157,15 @@ void main() {
 		float distanceFromClosestToWaypoint = distance(closest, waypoint.xyz);
 		if (distanceFromClosestToWaypoint < 1.0) {
 			vec4 screenSpaceWaypoint = projectionMatrix * (modelViewMatrix * vec4(waypoint.xyz, 1.0));
-			screenSpaceWaypoint.xyz = screenSpaceWaypoint.xyz / screenSpaceWaypoint.w * 0.5 + 0.5;
-			if (screenSpaceWaypoint.z < uv.z) {
+			screenSpaceWaypoint.xyz = screenSpaceWaypoint.xyz / screenSpaceWaypoint.w;
+			#ifdef Z_ZERO_TO_ONE
+				screenSpaceWaypoint.xy = screenSpaceWaypoint.xy * 0.5 + 0.5;
+				bool depthCheck = screenSpaceWaypoint.z > uv.z;
+			#else
+				screenSpaceWaypoint.xyz = screenSpaceWaypoint.xyz * 0.5 + 0.5;
+				bool depthCheck = screenSpaceWaypoint.z < uv.z;
+			#endif
+			if (depthCheck) {
 				float intensity = square(1.0 - distanceFromClosestToWaypoint) * 4.0 * waypoint.w;
 				maxIntensity += intensity;
 				uv.xy = mix(uv.xy, screenSpaceWaypoint.xy, intensity);

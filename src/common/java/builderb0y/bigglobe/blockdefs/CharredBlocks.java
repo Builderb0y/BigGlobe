@@ -28,17 +28,28 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.CharredPressurePlateBlock;
 import builderb0y.bigglobe.blocks.CharredSaplingBlock;
 
+#if MC_VERSION >= MC_26_2_0
+	import net.minecraft.world.level.block.entity.BlockEntityTypes;
+#endif
+
 public class CharredBlocks {
 
 	public static void init() {
 		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
 		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
-
-		BlockEntityType.SIGN.addValidBlock(CHARRED_SIGN);
-		BlockEntityType.SIGN.addValidBlock(CHARRED_WALL_SIGN);
-		BlockEntityType.HANGING_SIGN.addValidBlock(CHARRED_HANGING_SIGN);
-		BlockEntityType.HANGING_SIGN.addValidBlock(CHARRED_WALL_HANGING_SIGN);
-		BlockEntityType.SHELF.addValidBlock(CHARRED_SHELF);
+		#if MC_VERSION >= MC_26_2_0
+			BlockEntityTypes.SIGN.addValidBlock(CHARRED_SIGN);
+			BlockEntityTypes.SIGN.addValidBlock(CHARRED_WALL_SIGN);
+			BlockEntityTypes.HANGING_SIGN.addValidBlock(CHARRED_HANGING_SIGN);
+			BlockEntityTypes.HANGING_SIGN.addValidBlock(CHARRED_WALL_HANGING_SIGN);
+			BlockEntityTypes.SHELF.addValidBlock(CHARRED_SHELF);
+		#else
+			BlockEntityType.SIGN.addValidBlock(CHARRED_SIGN);
+			BlockEntityType.SIGN.addValidBlock(CHARRED_WALL_SIGN);
+			BlockEntityType.HANGING_SIGN.addValidBlock(CHARRED_HANGING_SIGN);
+			BlockEntityType.HANGING_SIGN.addValidBlock(CHARRED_WALL_HANGING_SIGN);
+			BlockEntityType.SHELF.addValidBlock(CHARRED_SHELF);
+		#endif
 	}
 
 	public static void initClient() {}
@@ -290,7 +301,7 @@ public class CharredBlocks {
 			.randomTicks()
 			.sound(SoundType.GRASS)
 			.noOcclusion()
-			.isValidSpawn((BlockState state, BlockGetter world, BlockPos pos, EntityType<?> type) -> type == EntityType.OCELOT || type == EntityType.PARROT)
+			.isValidSpawn((BlockState state, BlockGetter world, BlockPos pos, EntityType<?> type) -> false)
 			.isSuffocating((BlockState state, BlockGetter world, BlockPos pos) -> false)
 			.isViewBlocking((BlockState state, BlockGetter world, BlockPos pos) -> false)
 			.pushReaction(PushReaction.DESTROY)
