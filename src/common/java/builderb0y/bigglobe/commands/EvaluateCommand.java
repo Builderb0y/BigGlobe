@@ -1,5 +1,8 @@
 package builderb0y.bigglobe.commands;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -17,6 +20,7 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -26,6 +30,7 @@ import builderb0y.bigglobe.scripting.environments.*;
 import builderb0y.bigglobe.scripting.wrappers.ReadOnlyWorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
+import builderb0y.bigglobe.util.ServerValue;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.CommandVersions;
@@ -42,11 +47,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 
 public class EvaluateCommand {
 
+	public static final ServerValue<Map<String, CommandScript.Catcher>> CACHE = new ServerValue<>(HashMap::new);
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 			Commands
 			.literal(BigGlobeMod.MODID + ":evaluate")
-			.requires(CommandVersions.levelPredicate(4).and((CommandSourceStack source) -> getGenerator(source) != null))
+			.requires((CommandSourceStack source) -> (
+				CommandVersions.checkPermission(
+					source,
+					BigGlobeConfig.INSTANCE.get().evaluateCommandPermissionLevel
+				)
+				&& getGenerator(source) != null
+			))
 			.then(
 				Commands
 				.argument("script", StringArgumentType.greedyString())
@@ -60,8 +73,12 @@ public class EvaluateCommand {
 	}
 
 	public static int eval(CommandContext<CommandSourceStack> context, String source) {
-		CommandScript.Catcher script = new CommandScript.Catcher(source);
-		if (!BigGlobeLocateCommand.compile(script, context.getSource())) return 0;
+		CommandScript.Catcher script = CACHE.get().computeIfAbsent(source, (String source_) -> {
+			CommandScript.Catcher catcher = new CommandScript.Catcher(source_);
+			if (!BigGlobeLocateCommand.compile(catcher, context.getSource())) return null;
+			return catcher;
+		});
+		if (script == null) return 0;
 		BigGlobeScriptedChunkGenerator generator = getGenerator(context.getSource());
 		ServerLevel actualWorld = context.getSource().getLevel();
 		Vec3 position = context.getSource().getPosition();

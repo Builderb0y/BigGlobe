@@ -152,6 +152,7 @@ intellij plugin:
 changelog:
 	* Ported to MC 26.2.
 	* Fixed surface blocks not spawning in the nether.
+	* Some nether ores now spawn more commonly and in more biomes.
 	* Expanded the spawn range of lapis ore.
 	* Reduced the amount of dirt in the world.
 	* Fixed caves and other dark areas being pitch black. Their brightness should now match vanilla instead.
@@ -159,6 +160,7 @@ changelog:
 	* granite, diorite, andesite, dripstone blocks, tuff, and calcite can now be used in most recipes as a substitute for cobblestone.
 	* Ores will now only mimic stone, without falling back on whatever other blocks are adjacent.
 	* Several issues with underground LODs (when carving is enabled) have now been fixed.
+	* Evaluate command is now slightly more useful.
 	# New content exclusive to MC 26.2:
 	* Cinnabar ore: Drops cinnabar items. Spawns in the nether.
 	* Cinnabar item: Craftable into vanilla cinnabar block. Can also be crafted from sulfur items and redstone dust.

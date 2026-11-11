@@ -77,6 +77,11 @@ public class BigGlobeConfig {
 		return Math.max(Math.min(this.threads, Runtime.getRuntime().availableProcessors()), 1);
 	}
 
+	@Tooltip(count = 3)
+	@UseName("Evaluate Command Permission Level")
+	@DefaultIgnore
+	public int evaluateCommandPermissionLevel = 4;
+
 	@Tooltip(count = 2)
 	@UseName("Player Spawning")
 	@CollapsibleObject(startExpanded = true)

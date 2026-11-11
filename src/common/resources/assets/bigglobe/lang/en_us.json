@@ -351,6 +351,11 @@
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[1]": "More threads will result in faster terrain gen, but may reduce performance in other areas of the game.",
 	"text.autoconfig.bigglobe.option.threads.@Tooltip[2]": "Less threads will result in slower terrain gen, but may improve performance in other areas of the game.",
 
+	"text.autoconfig.bigglobe.option.evaluateCommandPermissionLevel": "Evaluate Command Permission Level",
+	"text.autoconfig.bigglobe.option.evaluateCommandPermissionLevel.@Tooltip[0]": "Op level required to use the /bigglobe:evaluate command.",
+	"text.autoconfig.bigglobe.option.evaluateCommandPermissionLevel.@Tooltip[1]": "This command compiles and executes user input, and while I have done what I can to make it safe, I cannot guarantee it isn't abusable on multiplayer servers.",
+	"text.autoconfig.bigglobe.option.evaluateCommandPermissionLevel.@Tooltip[2]": "Only lower this if you need to use the command in a command block (they use level 2).",
+
 	"text.autoconfig.bigglobe.option.playerSpawning": "Player Spawning",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Configures how initial player spawning works in Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "These config options have no effect outside of Big Globe worlds.",
