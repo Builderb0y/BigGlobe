@@ -1,0 +1,33 @@
+{
+	"attributes": {
+		"minecraft:visual/fog_color": "#333303",
+		"minecraft:visual/sky_color": "#333303",
+		"minecraft:visual/water_fog_color": "#050533",
+		"minecraft:audio/background_music": {
+			"default": {
+				"max_delay": 24000,
+				"min_delay": 12000,
+				"sound": "minecraft:music.overworld.sulfur_caves"
+			}
+		}
+	},
+	"carvers": [],
+	"downfall": 0.0,
+	"effects": {
+		"water_color": 4159204
+	},
+	"features": [],
+	"has_precipitation": false,
+	"spawn_costs": {},
+	"spawners": {
+		"ambient": [],
+		"axolotls": [],
+		"creature": [],
+		"misc": [],
+		"monster": [],
+		"underground_water_creature": [],
+		"water_ambient": [],
+		"water_creature": []
+	},
+	"temperature": 2.0
+}

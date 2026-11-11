@@ -8,17 +8,22 @@
 	},
 	"after_children": {
 		"includes": [
-			"bigglobe:world_preset/place_surface"
+			"bigglobe:world_preset/place_surface",
+			"bigglobe:world_preset/place_surface_above"
 		],
 		"source": [
 			"if (`bigglobe:nether/is_center`:",
+				"NetherBubble bubble = `bigglobe:nether/bubble_type`",
 				"int minIteration = `bigglobe:nether/min_y`",
 				"int maxIteration = `bigglobe:nether/max_y`",
-				"int y = maxIteration",
-				"while (y >= minIteration:",
-					"int nextY = getBottomOfSegment(y - 1)",
+				"int y = minIteration",
+				"while (y <= maxIteration:",
+					"int nextY = getTopOfSegment(y)",
 					"unless (getBlockState(y - 1).?isReplaceable() ?: false:",
-						"placeSurface(y, `bigglobe:nether/bubble_type`.surface(column, y))",
+						"int ceilingY = nextY",
+						"nextY = getTopOfSegment(nextY)",
+						"placeSurface(y, bubble.surface(column, y).floor)",
+						"placeSurfaceAbove(ceilingY, bubble.surface(column, ceilingY).ceiling)",
 					")",
 					"y = nextY",
 				")",

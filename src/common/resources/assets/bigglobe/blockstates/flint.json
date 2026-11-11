@@ -1,11 +1,22 @@
 {
 	"variants": {
 		"": [
-			{ "model": "bigglobe:block/flint0" },
-			{ "model": "bigglobe:block/flint1" },
-			{ "model": "bigglobe:block/flint2" },
-			{ "model": "bigglobe:block/flint3" },
-			{ "model": "bigglobe:block/flint4" }
+			{ "model": "bigglobe:block/flint0", "y":   0 },
+			{ "model": "bigglobe:block/flint1", "y":   0 },
+			{ "model": "bigglobe:block/flint2", "y":   0 },
+			{ "model": "bigglobe:block/flint3", "y":   0 },
+			{ "model": "bigglobe:block/flint0", "y":  90 },
+			{ "model": "bigglobe:block/flint1", "y":  90 },
+			{ "model": "bigglobe:block/flint2", "y":  90 },
+			{ "model": "bigglobe:block/flint3", "y":  90 },
+			{ "model": "bigglobe:block/flint0", "y": 180 },
+			{ "model": "bigglobe:block/flint1", "y": 180 },
+			{ "model": "bigglobe:block/flint2", "y": 180 },
+			{ "model": "bigglobe:block/flint3", "y": 180 },
+			{ "model": "bigglobe:block/flint0", "y": 270 },
+			{ "model": "bigglobe:block/flint1", "y": 270 },
+			{ "model": "bigglobe:block/flint2", "y": 270 },
+			{ "model": "bigglobe:block/flint3", "y": 270 }
 		]
 	}
 }

@@ -1,0 +1,13 @@
+{
+	"element_type": "method/static",
+	"owner": "bigglobe:column_pos/class",
+	"name": "at",
+	"return_type": "bigglobe:column_pos/class",
+	"parameters": [
+		{ "name": "x", "type": "int" },
+		{ "name": "z", "type": "int" }
+	],
+	"code": [
+		"ColumnPos.new().$=x(x).$=z(z)"
+	]
+}

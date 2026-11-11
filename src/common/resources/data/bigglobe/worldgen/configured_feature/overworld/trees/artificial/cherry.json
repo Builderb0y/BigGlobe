@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"SplitTreeGenerator",
-			".create(world, random, 'minecraft:cherry')",
+			".create(world, 'minecraft:cherry')",
 			".=$requireValidGround(true)",
 			".placeNatural(originX, originY, originZ)"
 		]

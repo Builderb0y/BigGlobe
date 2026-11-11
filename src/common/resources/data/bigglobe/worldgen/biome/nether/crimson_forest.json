@@ -1,8 +1,8 @@
 {
 	"attributes": {
-		"minecraft:visual/fog_color": 3343107,
-		"minecraft:visual/sky_color": 7254527,
-		"minecraft:visual/water_fog_color": 329011,
+		"minecraft:visual/fog_color": "#330303",
+		"minecraft:visual/sky_color": "#330303",
+		"minecraft:visual/water_fog_color": "#050533",
 		"minecraft:visual/ambient_particles": [
 			{
 				"probability": 0.025,

@@ -81,7 +81,7 @@ public class RootScriptEnvironment extends MultiScriptEnvironment {
 				InsnTree newResult = super.getField(parser, object.object, name, GetFieldMode.NORMAL);
 				if (newResult != null) {
 					if (result == null) { result = newResult; chosen = object; }
-					else throw new ScriptParsingException("Ambiguous variable matches fields on more than one imported object", parser.input);
+					else throw new ScriptParsingException("Ambiguous variable matches fields on more than one imported object: " + chosen + " and " + object, parser.input);
 				}
 			}
 			if (chosen != null && chosen.callback != null) {

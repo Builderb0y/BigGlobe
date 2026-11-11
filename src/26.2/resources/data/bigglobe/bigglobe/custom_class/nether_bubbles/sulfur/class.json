@@ -1,0 +1,5 @@
+{
+	"element_type": "class/enum",
+	"name": "SulfurNetherBubble",
+	"extends": "bigglobe:nether_bubbles/base/class"
+}

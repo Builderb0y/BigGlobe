@@ -41,7 +41,6 @@
 
 		";collapsed rooms.",
 		"else random.if (",
-			"class ColumnPos(int*(x, z))",
 			"class ColumnData(int*(y1, y2), boolean done = false)",
 			"ColumnPos columnPos = new()",
 			"HashMap map = new((maxX - minX - 1) * (maxZ - minZ - 1))",
@@ -50,8 +49,8 @@
 			"while collapseLoop (true:",
 				"int x = minX + bitCount(random.nextInt() & xMask) + 1",
 				"int z = minZ + bitCount(random.nextInt() & zMask) + 1",
-				"ColumnData columnData = map.get(columnPos.$x(x).$z(z))",
-				"if (columnData == null: map.put(columnPos =: new(x, z), columnData := new(minY, data.maxY.asInt() - 1)))",
+				"ColumnData columnData = map.get(columnPos.=$x(x).=$z(z))",
+				"if (columnData == null: map.put(columnPos =: ColumnPos.at(x, z), columnData := new(minY, data.maxY.asInt() - 1)))",
 				"if (++columnData.y2 :++columnData.y1 >= data.maxY.asInt(): break(collapseLoop))",
 				"if (!columnData.done && isPositionValid(x, columnData.y1, z):",
 					"BlockState lower = getBlockState(x, columnData.y1, z)",

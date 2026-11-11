@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.itemdefs;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.*;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,6 +12,9 @@ import net.fabricmc.fabric.api.registry.CompostableRegistry;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.predicates.MinMaxBounds;
+import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -24,17 +24,25 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootContext.EntityTarget;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.TagEntry;
+import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.*;
@@ -103,7 +111,10 @@ public class BigGlobeItems {
 
 		ASHEN_NETHERRACK = registerPlacer(NetherBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE = registerPlacer(NetherBlocks.SULFUR_ORE),
-		SULFUR_BLOCK = registerPlacer(NetherBlocks.SULFUR_BLOCK),
+		#if MC_VERSION >= MC_26_2_0
+			CINNABAR_ORE = registerPlacer(NetherBlocks.CINNABAR_ORE),
+			CINNABAR_SPIKE = registerPlacer(NetherBlocks.CINNABAR_SPIKE),
+		#endif
 		WART_WEED = registerPlacer(NetherBlocks.WART_WEED),
 		CHARRED_GRASS = registerPlacer(NetherBlocks.CHARRED_GRASS),
 		BLAZING_BLOSSOM = registerPlacer(NetherBlocks.BLAZING_BLOSSOM),
@@ -192,19 +203,17 @@ public class BigGlobeItems {
 	);
 	public static final PercussiveHammerItem PERCUSSIVE_HAMMER = register(
 		"percussive_hammer",
-
 		new PercussiveHammerItem(
 			settings("percussive_hammer")
-				.tool(
-					ToolMaterial.IRON,
-					BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
-					2.0F,
-					-2.0F,
-					0.0F
-				)
-				.durability(166) //2/3'rds of the iron pickaxe durability, rounded down.
+			.tool(
+				ToolMaterial.IRON,
+				BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
+				2.0F,
+				-2.0F,
+				0.0F
+			)
+			.durability(166) //2/3'rds of the iron pickaxe durability, rounded down.
 		)
-
 	);
 	public static final SlingshotItem SLINGSHOT = register(
 		"slingshot",
@@ -216,13 +225,16 @@ public class BigGlobeItems {
 	);
 	public static final Item ASH = register("ash", new Item(settings("ash")));
 	public static final Item SULFUR = register("sulfur", new Item(settings("sulfur")));
+	#if MC_VERSION >= MC_26_2_0
+		public static final Item CINNABAR = register("cinnabar", new Item(settings("cinnabar")));
+	#endif
 	public static final BucketItem SOUL_LAVA_BUCKET = register(
 		"soul_lava_bucket",
 		new BucketItem(
 			BigGlobeFluids.SOUL_LAVA,
 			settings("soul_lava_bucket")
-				.craftRemainder(Items.BUCKET)
-				.stacksTo(1)
+			.craftRemainder(Items.BUCKET)
+			.stacksTo(1)
 		)
 	);
 	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings("chorus_spore")));
@@ -331,7 +343,6 @@ public class BigGlobeItems {
 			int baseTime = context.baseSmeltTime();
 			builder.add(SOUL_LAVA_BUCKET, baseTime * 100);
 			builder.add(SULFUR, baseTime * 6);
-			builder.add(SULFUR_BLOCK, baseTime * 60);
 		});
 
 		LootTableEvents.MODIFY.register(
@@ -342,25 +353,47 @@ public class BigGlobeItems {
 				HolderLookup.Provider registries
 			)
 			-> {
-				if (source.isBuiltin() && BuiltInLootTables.END_CITY_TREASURE.equals(id)) {
-					tableBuilder.withPool(
-						LootPool.lootPool().add(
-							TagEntry
-							.expandTag(BigGlobeItemTags.AURA_BOTTLES)
-							.setWeight(100)
-							.setQuality(1)
-						)
-					)
-					.withPool(
-						LootPool.lootPool().add(
-							LootItem
-							.lootTableItem(VOIDMETAL_UPGRADE)
-							.setWeight(100)
-							.when(
-								LootItemRandomChanceCondition.randomChance(0.25F)
+				if (source.isBuiltin()) {
+					if (BuiltInLootTables.END_CITY_TREASURE.equals(id)) {
+						tableBuilder
+						.withPool(
+							LootPool.lootPool().add(
+								TagEntry
+								.expandTag(BigGlobeItemTags.AURA_BOTTLES)
+								.setWeight(100)
+								.setQuality(1)
 							)
 						)
-					);
+						.withPool(
+							LootPool.lootPool().add(
+								LootItem
+								.lootTableItem(VOIDMETAL_UPGRADE)
+								.setWeight(100)
+								.when(LootItemRandomChanceCondition.randomChance(0.25F))
+							)
+						);
+					}
+					#if MC_VERSION >= MC_26_2_0
+					else if (id == net.minecraft.world.entity.EntityTypes.SULFUR_CUBE.getDefaultLootTable().orElse(null)) {
+						tableBuilder.withPool(
+							LootPool.lootPool().add(
+								LootItem
+								.lootTableItem(SULFUR)
+								.setWeight(100)
+								.when(
+									LootItemEntityPropertyCondition.hasProperties(
+										EntityTarget.THIS,
+										new EntityPredicate.Builder().cubeMob(
+											CubeMobPredicate.sized(MinMaxBounds.Ints.atLeast(2))
+										)
+									)
+								)
+								.apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(registries, UniformGenerator.between(0.0F, 1.0F)))
+							)
+						);
+					}
+					#endif
 				}
 			}
 		);
@@ -402,10 +435,6 @@ public class BigGlobeItems {
 				SLATED_PRISMARINE_STAIRS,
 				SLATED_PRISMARINE_SLAB
 			);
-			entries.insertBefore(
-				Items.COAL_BLOCK,
-				SULFUR_BLOCK
-			);
 			entries.insertAfter(
 				Items.NETHERITE_BLOCK,
 				VOIDMETAL_BLOCK
@@ -439,7 +468,10 @@ public class BigGlobeItems {
 			entries.insertBefore(Items.MAGMA_BLOCK, MOLTEN_ROCKS);
 			entries.insertAfter(Items.MAGMA_BLOCK, SOUL_MAGMA);
 			entries.insertAfter(Items.WARPED_NYLIUM, ASHEN_NETHERRACK, PALE_NETHERRACK);
-			entries.insertAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE);
+			entries.insertAfter(Items.NETHER_QUARTZ_ORE, SULFUR_ORE #if MC_VERSION >= MC_26_2_0 , CINNABAR_ORE #endif);
+			#if MC_VERSION >= MC_26_2_0
+			entries.insertAfter(Items.SULFUR_SPIKE, CINNABAR_SPIKE);
+			#endif
 			entries.insertAfter(Items.AMETHYST_CLUSTER, ROUGH_QUARTZ, BUDDING_QUARTZ, SMALL_QUARTZ_BUD, MEDIUM_QUARTZ_BUD, LARGE_QUARTZ_BUD, QUARTZ_CLUSTER);
 			entries.insertAfter(Items.WARPED_STEM, CHARRED_LOG);
 			entries.insertAfter(Items.FLOWERING_AZALEA_LEAVES, CHARRED_LEAVES);
@@ -491,7 +523,7 @@ public class BigGlobeItems {
 			entries.insertAfter(Items.CROSSBOW, SLINGSHOT);
 		});
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register((FabricCreativeModeTabOutput entries) -> {
-			entries.insertAfter(Items.CHARCOAL, SULFUR);
+			entries.insertAfter(Items.CHARCOAL, SULFUR #if MC_VERSION >= MC_26_2_0 , CINNABAR #endif);
 			entries.insertAfter(Items.GUNPOWDER, ASH);
 			entries.insertAfter(Items.FLINT, ROCK);
 			entries.insertAfter(Items.NETHER_WART, CHORUS_SPORE);

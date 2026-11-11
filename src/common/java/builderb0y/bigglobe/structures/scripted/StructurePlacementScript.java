@@ -69,6 +69,7 @@ public interface StructurePlacementScript extends Script {
 					.addVariableLoad("chunkMaxZ", TypeInfos.INT)
 					.addVariableLoad("piece", type(ScriptedStructure.Piece.class))
 					.addVariableGetField(load("piece", type(ScriptedStructure.Piece.class)), ScriptedStructure.Piece.class, "data")
+					.addFieldGet(ReadOnlyWorldWrapper.INFO.random)
 					;
 					registry.setupEnvironment(
 						parser,

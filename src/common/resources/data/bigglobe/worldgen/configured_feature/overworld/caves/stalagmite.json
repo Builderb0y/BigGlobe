@@ -2,19 +2,19 @@
 	"type": "bigglobe:script",
 	"config": {
 		"script": [
-			"unless (getBlockState(originX, originY - 1, originZ) ==. 'minecraft:dripstone_block': return(false))",
+			"unless (getBlockState(0, 0, 0).isReplaceable() && getBlockState(0, -1, 0) ==. 'minecraft:dripstone_block': return(false))",
 			"int height = 0",
 			"float chance = world_traits.`bigglobe:cave_surface_depth` * 0.125I",
-			"do while (random.nextBoolean(chance) && getBlockState(originX, originY + height, originZ).isReplaceable():",
+			"do while (random.nextBoolean(chance) && getBlockState(0, height, 0).isReplaceable():",
 				"++height",
 			")",
-			"boolean connect = getBlockState(originX, originY + height, originZ).getBlock() ==. 'minecraft:pointed_dripstone'",
+			"boolean connect = getBlockState(0, height, 0).getBlock() ==. 'minecraft:pointed_dripstone'",
 			"for (int offsetY in range[0, height):",
-				"setBlockState(originX, originY + offsetY, originZ,",
+				"setBlockState(0, offsetY, 0,",
 					"BlockState(",
 						"'minecraft:pointed_dripstone',",
 						"vertical_direction: 'up',",
-						"waterlogged: getBlockState(originX, originY + offsetY, originZ).hasWater(),",
+						"waterlogged: getBlockState(0, offsetY, 0).hasWater(),",
 						"thickness: (",
 							"if (offsetY == height - 1:",
 								"connect ? 'tip_merge' : 'tip'",
@@ -27,7 +27,7 @@
 				")",
 			")",
 			"if (connect:",
-				"setBlockState(originX, originY + height, originZ, BlockState('minecraft:pointed_dripstone', vertical_direction: 'down', thickness: 'tip_merge', waterlogged: getBlockState(originX, originY + height, originZ).hasWater()))",
+				"setBlockState(0, height, 0, BlockState('minecraft:pointed_dripstone', vertical_direction: 'down', thickness: 'tip_merge', waterlogged: getBlockState(0, height, 0).hasWater()))",
 			")",
 			"return(true)"
 		]

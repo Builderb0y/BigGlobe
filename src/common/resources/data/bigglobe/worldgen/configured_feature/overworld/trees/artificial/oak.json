@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"SplitTreeGenerator",
-			".create(world, random, 'minecraft:oak')",
+			".create(world, 'minecraft:oak')",
 			".placeNatural(originX, originY, originZ)"
 		]
 	}

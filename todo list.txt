@@ -109,9 +109,13 @@ V6:
 			if it does spawn in a desert, don't use mud.
 			make it an oasis, with trees around it.
 		see if dunes and cracks for deserts look good in the islands world preset or not.
+		re-write evaluate command so that it can
+			* be used in command blocks.
+			* re-use existing compiled scripts instead of re-compiling every time the command is run.
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
+		config option for permission level of /bigglobe:evaluate
 
 26.2:
 	verify that MC 26.1 still works.
@@ -155,6 +159,11 @@ changelog:
 	* granite, diorite, andesite, dripstone blocks, tuff, and calcite can now be used in most recipes as a substitute for cobblestone.
 	* Ores will now only mimic stone, without falling back on whatever other blocks are adjacent.
 	* Several issues with underground LODs (when carving is enabled) have now been fixed.
+	# New content exclusive to MC 26.2:
+	* Cinnabar ore: Drops cinnabar items. Spawns in the nether.
+	* Cinnabar item: Craftable into vanilla cinnabar block. Can also be crafted from sulfur items and redstone dust.
+	* Cinnabar spike: Just like the vanilla sulfur spike.
+	* Sulfur biome: A new biome for the nether. Covered in vanilla sulfur/cinnabar blocks, and decorated with sulfur/cinnabar spikes.
 
 alternate world presets:
 	paradise.

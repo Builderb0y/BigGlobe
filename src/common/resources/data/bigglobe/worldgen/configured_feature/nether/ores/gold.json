@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "gold",
+		"blocks": {
+			"minecraft:netherrack": "minecraft:nether_gold_ore"
+		},
+		"chance": "`bigglobe:nether/bubble_type`.getGoldOreChance(column, y)",
+		"radius": { "type": "bigglobe:average", "min": 2.0, "max": 4.0, "average": 3.0 }
+	}
+}

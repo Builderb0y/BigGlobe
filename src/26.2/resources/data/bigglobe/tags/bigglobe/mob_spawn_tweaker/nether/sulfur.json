@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether/sulfur_cube",
+		"bigglobe:nether/magma_cube",
+		"bigglobe:nether/piglin",
+		"bigglobe:nether/strider"
+	]
+}

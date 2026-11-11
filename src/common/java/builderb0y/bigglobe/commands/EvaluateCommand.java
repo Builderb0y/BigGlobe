@@ -33,6 +33,7 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.environments.MathScriptEnvironment;
+import builderb0y.scripting.environments.MutableScriptEnvironment;
 import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.SourceScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
@@ -85,15 +86,20 @@ public class EvaluateCommand {
 		Object result = script.evaluate(world);
 		if (result instanceof Throwable) {
 			context.getSource().sendFailure(Component.literal(" = " + result + "; check your logs for more info."));
+			return 0;
 		}
 		else {
 			context.getSource().sendSuccess(() -> Component.literal(" = " + result), false);
+			return switch (result) {
+				case Number number -> number.intValue();
+				case Boolean bool -> bool.booleanValue() ? 1 : 0;
+				default -> 1;
+			};
 		}
-		return result instanceof Number number ? number.intValue() : 1;
 	}
 
 	public static @Nullable BigGlobeScriptedChunkGenerator getGenerator(CommandSourceStack source) {
-		return source.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
+		return source.getLevel() != null && source.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator ? generator : null;
 	}
 
 	public static interface CommandScript extends Script {
@@ -136,6 +142,9 @@ public class EvaluateCommand {
 							.withY(ldc(0))
 							.offsetY(WORLD.originY)
 						);
+					})
+					.configureEnvironment((MutableScriptEnvironment env) -> {
+						env.addFieldGet(ReadOnlyWorldWrapper.INFO.random);
 					})
 					.addEnvironment(ColorScriptEnvironment.ENVIRONMENT)
 					.addImportedValue("random", ReadOnlyWorldWrapper.INFO.random(WORLD.loadSelf))

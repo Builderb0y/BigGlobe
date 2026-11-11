@@ -1,0 +1,8 @@
+{
+	"replace": false,
+	"values": [
+		"bigglobe:nether/ores/gold",
+		"bigglobe:nether/ores/quartz",
+		"bigglobe:nether/ores/sulfur"
+	]
+}

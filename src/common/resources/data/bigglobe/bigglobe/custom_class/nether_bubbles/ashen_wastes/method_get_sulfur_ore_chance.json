@@ -1,0 +1,8 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:nether_bubbles/ashen_wastes/class",
+	"override": "bigglobe:nether_bubbles/base/method_get_sulfur_ore_chance",
+	"code": [
+		"return(0.25L)"
+	]
+}

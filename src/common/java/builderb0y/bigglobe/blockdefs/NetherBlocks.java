@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockBehaviour.OffsetType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -57,17 +58,40 @@ public class NetherBlocks {
 			.sound(SoundType.NETHER_ORE)
 		)
 	);
-	public static final Block SULFUR_BLOCK = BigGlobeBlocks.register(
-		new Block(
-			BlockBehaviour
-			.Properties
-			.of()
-			.setId(BigGlobeBlocks.key("sulfur_block"))
-			.mapColor(MapColor.COLOR_YELLOW)
-			.strength(5.0F, 6.0F)
-			.requiresCorrectToolForDrops()
-		)
-	);
+	#if MC_VERSION >= MC_26_2_0
+		public static final Block CINNABAR_ORE = BigGlobeBlocks.register(
+			new DropExperienceBlock(
+				UniformInt.of(0, 2),
+				BlockBehaviour
+				.Properties
+				.of()
+				.setId(BigGlobeBlocks.key("cinnabar_ore"))
+				.mapColor(MapColor.NETHER)
+				.strength(3.0F)
+				.requiresCorrectToolForDrops()
+				.sound(SoundType.NETHER_ORE)
+			)
+		);
+		public static final SulfurSpikeBlock CINNABAR_SPIKE = BigGlobeBlocks.register(
+			new SulfurSpikeBlock(
+				Blocks.CINNABAR.defaultBlockState(),
+				BlockBehaviour.Properties.of()
+				.setId(BigGlobeBlocks.key("cinnabar_spike"))
+				.mapColor(MapColor.COLOR_RED)
+				.forceSolidOn()
+				.instrument(NoteBlockInstrument.BASEDRUM)
+				.noOcclusion()
+				.sound(SoundType.SULFUR_SPIKE)
+				.randomTicks()
+				.strength(1.5F, 3.0F)
+				.dynamicShape()
+				.offsetType(BlockBehaviour.OffsetType.XZ)
+				.pushReaction(PushReaction.DESTROY)
+				.isRedstoneConductor(Blocks::never)
+				.noOcclusion()
+			)
+		);
+	#endif
 	public static final NetherGrassBlock WART_WEED = BigGlobeBlocks.register(
 		new NetherGrassBlock(
 			BlockBehaviour

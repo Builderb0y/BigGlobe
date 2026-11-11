@@ -2,9 +2,9 @@
 	"element_type": "method/abstract",
 	"owner": "bigglobe:nether_bubbles/base/class",
 	"name": "surface",
-	"return_type": "bigglobe:surface/multi/class",
+	"return_type": "bigglobe:surface/cave/class",
 	"parameters": [
-		{ "name": "column", "type": "column_storage" },
-		{ "name": "y",      "type": "int"            }
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y",      "type": "int" }
 	]
 }

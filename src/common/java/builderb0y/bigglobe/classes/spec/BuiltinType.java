@@ -1286,6 +1286,7 @@ public abstract class BuiltinType implements Named {
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "summon").onUsed(callback).addReceiverArgument(this.type).addArguments("DDD", String.class).buildMethod())
 				.addMethod(Handlers.methodBuilder(WorldWrapper.class, "summon").onUsed(callback).addReceiverArgument(this.type).addArguments("DDD", String.class, CompoundTag.class).buildMethod())
 				;
+				addFields(environment, callback, WorldWrapper.class, "random");
 				addMethods(environment, callback, WorldWrapper.class, "setBlockState", "setBlockStateReplaceable", "setBlockStateNonReplaceable", "updateBlockState", "placeBlockState", "fillBlockState", "fillBlockStateReplaceable", "fillBlockStateNonReplaceable", "updateBlockStates", "placeFeature", "isPositionValid", "getBlockData", "setBlockData", "mergeBlockData");
 			}
 		});

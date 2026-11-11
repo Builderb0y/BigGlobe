@@ -3,8 +3,11 @@
 	"owner": "bigglobe:nether_bubbles/pale_garden/class",
 	"override": "bigglobe:nether_bubbles/base/method_surface",
 	"code": [
-		"defaultHasSurface(column, y)",
-		"? SurfaceStates.new().$add('bigglobe:pale_netherrack', 1)",
-		": SurfaceStates.new()"
+		"CaveSurfaceStates.create(",
+			"defaultHasSurface(column, y)",
+			"? SurfaceStates.new().$add('bigglobe:pale_netherrack', 1)",
+			": SurfaceStates.new(),",
+			"SurfaceStates.new()",
+		")"
 	]
 }

@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"SplitTreeGenerator",
-			".create(world, random, 'minecraft:flowering_azalea')",
+			".create(world, 'minecraft:flowering_azalea')",
 			".placeNatural(originX, originY, originZ)"
 		]
 	}

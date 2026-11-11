@@ -1,0 +1,7 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:small_pool/class",
+	"name": "surroundingColumns",
+	"field_type": "list",
+	"default": "ArrayList.new()"
+}

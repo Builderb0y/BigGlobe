@@ -1,0 +1,13 @@
+{
+	"element_type": "method/normal",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"name": "getQuartzOreChance",
+	"return_type": "double",
+	"parameters": [
+		{ "name": "column", "type": "column_storage", "import": true },
+		{ "name": "y", "type": "int" }
+	],
+	"code": [
+		"return(0.0L)"
+	]
+}

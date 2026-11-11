@@ -255,6 +255,9 @@ public interface SoundModifierController extends Script {
 						.trackDependencies(this)
 					);
 				})
+				.configureEnvironment((MutableScriptEnvironment env) -> {
+					env.addFieldGet(ReadOnlyWorldWrapper.INFO.random);
+				})
 				.addImportedValue("random", ReadOnlyWorldWrapper.INFO.random(loadWorld))
 				.parse(new ScriptClassLoader(registry.loader))
 			);

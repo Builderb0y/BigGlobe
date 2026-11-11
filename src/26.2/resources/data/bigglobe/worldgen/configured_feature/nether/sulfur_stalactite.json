@@ -1,0 +1,34 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"unless (getBlockState(0, 0, 0).isAir() && getBlockState(0, 1, 0) ==. 'minecraft:sulfur': return(false))",
+			"int height = 0",
+			"do while (random.nextBoolean() && getBlockState(0, -height, 0).isReplaceable():",
+				"++height",
+			")",
+			"boolean connect = getBlockState(0, -height, 0).getBlock() ==. 'minecraft:sulfur_spike'",
+			"for (int offsetY in range[0, height):",
+				"setBlockState(0, -offsetY, 0,",
+					"BlockState(",
+						"'minecraft:sulfur_spike',",
+						"vertical_direction: 'down',",
+						"waterlogged: false,",
+						"thickness: (",
+							"if (offsetY == height - 1:",
+								"connect ? 'tip_merge' : 'tip'",
+							")",
+							"else if (offsetY == height - 2: 'frustum')",
+							"else if (offsetY == 0: 'base')",
+							"else ('middle')",
+						")",
+					")",
+				")",
+			")",
+			"if (connect:",
+				"setBlockState(0, -height, 0, BlockState('minecraft:sulfur_spike', vertical_direction: 'up', thickness: 'tip_merge', waterlogged: false))",
+			")",
+			"return(true)"
+		]
+	}
+}

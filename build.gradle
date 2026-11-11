@@ -187,7 +187,7 @@ loom() {
 		.getProperties()
 		.entrySet()
 		.stream()
-		.filter(entry -> entry.key.startsWith("fwd"))
+		.filter(entry -> entry.key.startsWith('fwd'))
 		.map(entry -> entry.value.isEmpty() ? entry.key.substring(3) : "${entry.key.substring(3)}=${entry.value}")
 		.toList()
 	)

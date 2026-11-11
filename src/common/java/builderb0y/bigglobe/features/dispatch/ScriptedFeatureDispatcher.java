@@ -84,6 +84,7 @@ public class ScriptedFeatureDispatcher implements FeatureDispatcher {
 					}) {
 						environment.addVariable(Handlers.methodBuilder(FeatureDispatcher.class, name).addImplicitArgument(WORLD.loadSelf).buildVariable());
 					}
+					environment.addFieldGet(ReadOnlyWorldWrapper.INFO.random);
 					registry.setupEnvironment(
 						parser,
 						new ExternalEnvironmentParams()

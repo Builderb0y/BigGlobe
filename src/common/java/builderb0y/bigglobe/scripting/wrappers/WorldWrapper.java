@@ -181,6 +181,10 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 		);
 	}
 
+	public RandomGenerator random() {
+		return this.random;
+	}
+
 	public int originX() {
 		return this.coordination.transformation.offsetX();
 	}

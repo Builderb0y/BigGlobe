@@ -1,0 +1,6 @@
+{
+	"element_type": "field/normal",
+	"owner": "bigglobe:small_pool/class",
+	"name": "groundReplaceable",
+	"field_type": "block_tag"
+}

@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"ConeTreeGenerator",
-			".create(world, random, 'minecraft:spruce')",
+			".create(world, 'minecraft:spruce')",
 			".placeNatural(originX, originY, originZ)"
 		]
 	}

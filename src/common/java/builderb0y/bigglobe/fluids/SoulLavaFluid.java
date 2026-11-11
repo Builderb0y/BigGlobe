@@ -41,11 +41,7 @@ public abstract class SoulLavaFluid extends FlowingFluid {
 	}
 
 	@Override
-	public boolean canConvertToSource(
-
-		ServerLevel world
-
-	) {
+	public boolean canConvertToSource(ServerLevel world) {
 		return GameruleVersions.soulLavaSourceConversion(world);
 	}
 
@@ -56,12 +52,12 @@ public abstract class SoulLavaFluid extends FlowingFluid {
 
 	@Override
 	public int getSlopeFindDistance(LevelReader world) {
-		return this.isNether(world) ? 4 : 2;
+		return this.flowsFast(world) ? 4 : 2;
 	}
 
 	@Override
 	public int getDropOff(LevelReader world) {
-		return this.isNether(world) ? 1 : 2;
+		return this.flowsFast(world) ? 1 : 2;
 	}
 
 	@Override
@@ -83,11 +79,10 @@ public abstract class SoulLavaFluid extends FlowingFluid {
 
 	@Override
 	public int getTickDelay(LevelReader world) {
-		return this.isNether(world) ? 10 : 30;
+		return this.flowsFast(world) ? 10 : 30;
 	}
 
-	public boolean isNether(LevelReader world) {
-
+	public boolean flowsFast(LevelReader world) {
 		return world.environmentAttributes().getDimensionValue(EnvironmentAttributes.FAST_LAVA);
 	}
 

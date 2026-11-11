@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"OakTreeGenerator",
-			".create(world, random, 'minecraft:oak')",
+			".create(world, 'minecraft:oak')",
 			".=$requireValidGround(true)",
 			".placeNatural(originX, originY, originZ)"
 		],

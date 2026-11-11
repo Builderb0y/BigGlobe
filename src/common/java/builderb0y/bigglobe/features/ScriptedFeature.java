@@ -234,6 +234,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 						.addVariable("placementX", WORLD.originX)
 						.addVariable("placementY", WORLD.originY)
 						.addVariable("placementZ", WORLD.originZ)
+						.addFieldGet(ReadOnlyWorldWrapper.INFO.random)
 						.addFunctionNoArgs("finish", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "FINISH"))))
 						.addFunctionNoArgs("abort", throw_(getStatic(FieldInfo.getField(EarlyFeatureExitException.class, "ABORT"))))
 						;

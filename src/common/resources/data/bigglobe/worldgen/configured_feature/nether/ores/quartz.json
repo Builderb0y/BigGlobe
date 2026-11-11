@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "quartz",
+		"blocks": {
+			"minecraft:netherrack": "minecraft:nether_quartz_ore"
+		},
+		"chance": "`bigglobe:nether/bubble_type`.getQuartzOreChance(column, y)",
+		"radius": { "type": "bigglobe:average", "min": 2.5, "max": 6.0, "average": 3.5 }
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "sulfur",
+		"blocks": {
+			"minecraft:netherrack": "bigglobe:sulfur_ore"
+		},
+		"chance": "`bigglobe:nether/bubble_type`.getSulfurOreChance(column, y)",
+		"radius": { "type": "bigglobe:average", "min": 3.0, "max": 8.0, "average": 4.0 }
+	}
+}
