@@ -4,13 +4,9 @@ import builderb0y.autocodec.util.ObjectArrayFactory;
 
 import static org.objectweb.asm.Opcodes.*;
 
-//todo: convert to record.
-public class LazyVarInfo implements Typeable {
+public record LazyVarInfo(String name, TypeInfo type) implements Typeable {
 
 	public static final ObjectArrayFactory<LazyVarInfo> ARRAY_FACTORY = new ObjectArrayFactory<>(LazyVarInfo.class);
-
-	public final String name;
-	public final TypeInfo type;
 
 	public LazyVarInfo(String name, TypeInfo type) {
 		this.name = name;
@@ -18,14 +14,6 @@ public class LazyVarInfo implements Typeable {
 		if (type.isVoid()) {
 			throw new IllegalArgumentException("Void-typed variable: " + this);
 		}
-	}
-
-	public String name() {
-		return this.name;
-	}
-
-	public TypeInfo type() {
-		return this.type;
 	}
 
 	@Override
@@ -46,19 +34,5 @@ public class LazyVarInfo implements Typeable {
 	@Override
 	public String toString() {
 		return this.name + " : " + this.type;
-	}
-
-	@Override
-	public int hashCode() {
-		return this.name.hashCode() * 31 + this.type.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object object) {
-		return this == object || (
-			object instanceof LazyVarInfo that &&
-			this.name.equals(that.name) &&
-			this.type.equals(that.type)
-		);
 	}
 }

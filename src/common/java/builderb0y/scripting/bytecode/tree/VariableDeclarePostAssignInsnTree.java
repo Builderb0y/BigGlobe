@@ -17,7 +17,7 @@ public class VariableDeclarePostAssignInsnTree extends VariableDeclarationInsnTr
 	public void emitBytecode(MethodCompileContext method) {
 		super.emitBytecode(method);
 		this.initializer.emitBytecode(method);
-		method.node.visitInsn(this.variable.type.isDoubleWidth() ? DUP2 : DUP);
+		method.node.visitInsn(this.variable.type().isDoubleWidth() ? DUP2 : DUP);
 		this.variable.emitStore(method);
 	}
 

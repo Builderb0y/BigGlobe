@@ -123,7 +123,7 @@ public class ClassSpec extends BaseClassSpec {
 			ifThen(NullCompareConditionTree.isNull(loadObj), return_(ldc(false))).emitBytecode(equals);
 			ifThen(new IdentityEqualityConditionTree(invokeInstance(loadThis, getClass), invokeInstance(loadObj, getClass), IF_ACMPNE), return_(ldc(false))).emitBytecode(equals);
 			LazyVarInfo that = equals.scopes.addVariable("that", this.classCompileContext.info);
-			store(that, new DirectCastInsnTree(loadObj, that.type, false)).emitBytecode(equals);
+			store(that, new DirectCastInsnTree(loadObj, that.type(), false)).emitBytecode(equals);
 			this
 			.fieldsForEquals(hierarchy)
 			.map(Holder<ElementSpec>::value)

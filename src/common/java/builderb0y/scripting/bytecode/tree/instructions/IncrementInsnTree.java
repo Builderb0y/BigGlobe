@@ -18,7 +18,7 @@ public class IncrementInsnTree implements InsnTree {
 	}
 
 	public static IncrementInsnTree create(LazyVarInfo variable, int amount) {
-		if (variable.type.getSort() != Sort.INT) {
+		if (variable.type().getSort() != Sort.INT) {
 			throw new IllegalArgumentException("Can only increment ints");
 		}
 		return new IncrementInsnTree(variable, amount);

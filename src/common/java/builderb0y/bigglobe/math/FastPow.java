@@ -305,7 +305,7 @@ public class FastPow {
 			clazz,
 			(MethodCompileContext intMethod, LazyVarInfo operand) -> {
 				emitNormalInstructions(intMethod, operand, power, Integer.MAX_VALUE);
-				intMethod.node.visitInsn(operand.type.getOpcode(IRETURN));
+				intMethod.node.visitInsn(operand.type().getOpcode(IRETURN));
 			},
 			(MethodCompileContext floatMethod, LazyVarInfo operand) -> {
 				AbstractInsnNode first = floatMethod.node.instructions.getFirst();
@@ -315,7 +315,7 @@ public class FastPow {
 					}
 					fallback(operand, power).emitBytecode(floatMethod);
 				}
-				floatMethod.node.visitInsn(operand.type.getOpcode(IRETURN));
+				floatMethod.node.visitInsn(operand.type().getOpcode(IRETURN));
 			}
 		);
 	}
@@ -329,16 +329,16 @@ public class FastPow {
 					INVOKESTATIC,
 					Type.getInternalName(FastPow.class),
 					(power & 1) != 0 ? "negativeOdd" : "negativeEven",
-					operand.type.isDoubleWidth() ? "(J)J" : "(I)I",
+					operand.type().isDoubleWidth() ? "(J)J" : "(I)I",
 					false
 				);
-				intMethod.node.visitInsn(operand.type.getOpcode(IRETURN));
+				intMethod.node.visitInsn(operand.type().getOpcode(IRETURN));
 			},
 			(MethodCompileContext floatMethod, LazyVarInfo operand) -> {
 				AbstractInsnNode first = floatMethod.node.instructions.getFirst();
 				if (emitNormalInstructions(floatMethod, operand, power, 8)) {
-					floatMethod.node.instructions.insert(first, new InsnNode(operand.type.isDoubleWidth() ? DCONST_1 : FCONST_1));
-					floatMethod.node.instructions.add(new InsnNode(operand.type.getOpcode(IDIV)));
+					floatMethod.node.instructions.insert(first, new InsnNode(operand.type().isDoubleWidth() ? DCONST_1 : FCONST_1));
+					floatMethod.node.instructions.add(new InsnNode(operand.type().getOpcode(IDIV)));
 				}
 				else {
 					for (AbstractInsnNode remove; (remove = first.getNext()) != null;) {
@@ -346,7 +346,7 @@ public class FastPow {
 					}
 					fallback(operand, power).emitBytecode(floatMethod);
 				}
-				floatMethod.node.visitInsn(operand.type.getOpcode(IRETURN));
+				floatMethod.node.visitInsn(operand.type().getOpcode(IRETURN));
 			}
 		);
 	}
@@ -354,24 +354,24 @@ public class FastPow {
 	public static void emitZero(ClassCompileContext clazz) {
 		emitMethods(
 			clazz, (MethodCompileContext method, LazyVarInfo operand) -> {
-				return_(ldc(1, operand.type)).emitBytecode(method);
+				return_(ldc(1, operand.type())).emitBytecode(method);
 			}
 		);
 	}
 
 	public static boolean emitNormalInstructions(MethodCompileContext method, LazyVarInfo operand, int power, int limit) {
-		method.node.visitVarInsn(operand.type.getOpcode(ILOAD), method.scopes.getVariableIndex(operand));
+		method.node.visitVarInsn(operand.type().getOpcode(ILOAD), method.scopes.getVariableIndex(operand));
 		int bit = Integer.highestOneBit(power);
 		//read bits from most significant to least significant.
 		//bit will eventually underflow to 0.
 		while ((bit >>>= 1) != 0) {
 			if (--limit < 0) return false;
-			method.node.visitInsn(operand.type.isDoubleWidth() ? DUP2 : DUP);
-			method.node.visitInsn(operand.type.getOpcode(IMUL));
+			method.node.visitInsn(operand.type().isDoubleWidth() ? DUP2 : DUP);
+			method.node.visitInsn(operand.type().getOpcode(IMUL));
 			if ((power & bit) != 0) {
 				if (--limit < 0) return false;
-				method.node.visitVarInsn(operand.type.getOpcode(ILOAD), method.scopes.getVariableIndex(operand));
-				method.node.visitInsn(operand.type.getOpcode(IMUL));
+				method.node.visitVarInsn(operand.type().getOpcode(ILOAD), method.scopes.getVariableIndex(operand));
+				method.node.visitInsn(operand.type().getOpcode(IMUL));
 			}
 		}
 		return true;
@@ -390,7 +390,7 @@ public class FastPow {
 				),
 				ldc(power, TypeInfos.DOUBLE)
 			),
-			operand.type
+			operand.type()
 		);
 	}
 

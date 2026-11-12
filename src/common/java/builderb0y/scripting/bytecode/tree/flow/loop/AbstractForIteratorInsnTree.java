@@ -38,9 +38,9 @@ public abstract class AbstractForIteratorInsnTree implements InsnTree {
 	assumes the value to be stored is already on the stack, and is of type Object.
 	*/
 	public static void castAndStore(VariableDeclarationInsnTree variable, MethodCompileContext method) {
-		if (!variable.variable.type.equals(TypeInfos.OBJECT)) {
-			method.node.visitTypeInsn(CHECKCAST, variable.variable.type.box().getInternalName());
-			switch (variable.variable.type.getSort()) {
+		if (!variable.variable.type().equals(TypeInfos.OBJECT)) {
+			method.node.visitTypeInsn(CHECKCAST, variable.variable.type().box().getInternalName());
+			switch (variable.variable.type().getSort()) {
 				case BYTE -> BYTE_VALUE.emitBytecode(method);
 				case SHORT -> SHORT_VALUE.emitBytecode(method);
 				case INT -> INT_VALUE.emitBytecode(method);

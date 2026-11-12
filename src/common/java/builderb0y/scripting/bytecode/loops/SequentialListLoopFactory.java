@@ -40,7 +40,7 @@ public class SequentialListLoopFactory implements LoopFactory {
 				body
 			);
 			case 2 -> {
-				if (!variables.get(0).variable.type.equals(TypeInfos.INT)) {
+				if (!variables.get(0).variable.type().equals(TypeInfos.INT)) {
 					throw new ScriptParsingException("index-value iteration over List requires first variable to be of type int.", parser.input);
 				}
 				yield new ForIndexedSequentialListInsnTree(

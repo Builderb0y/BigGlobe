@@ -172,7 +172,7 @@ public interface ColumnScript extends Script {
 							to = parameters.actualParams[index];
 						InsnTree loader = load(from);
 						if (!from.equals(to)) {
-							loader = new DirectCastInsnTree(loader, to.type, false);
+							loader = new DirectCastInsnTree(loader, to.type(), false);
 						}
 						return loader;
 					})

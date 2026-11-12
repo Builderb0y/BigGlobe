@@ -296,7 +296,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	}
 
 	public MutableScriptEnvironment addVariableLoad(LazyVarInfo variable) {
-		return this.addVariable(variable.name, load(variable));
+		return this.addVariable(variable.name(), load(variable));
 	}
 
 	public MutableScriptEnvironment addVariableLoad(String name, TypeInfo type) {

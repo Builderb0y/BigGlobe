@@ -240,7 +240,7 @@ public abstract class UserMethodDefiner extends VariableCapturer {
 			InsnTree normalInvoker, adjacentInvoker;
 			InsnTree[] normalArgs = this.newMethod.streamCapturedArgs().map(InsnTrees::load).toArray(InsnTree.ARRAY_FACTORY);
 			InsnTree[] adjacentArgs = this.newMethod.streamCapturedArgs().map((LazyVarInfo variable) -> {
-					return switch (variable.name) {
+					return switch (variable.name()) {
 						case "mainColumn" -> z ? adjacentColumnZ : adjacentColumnX;
 						case "adjacentColumnX" -> z ? adjacentColumnXZ : mainColumn;
 						case "adjacentColumnZ" -> z ? mainColumn : adjacentColumnXZ;

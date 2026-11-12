@@ -97,7 +97,7 @@ public class Handlers {
 	}
 
 	public static Builder variableBuilder(LoadInsnTree result) {
-		return new VariableBasedBuilder(result.variable.name, result);
+		return new VariableBasedBuilder(result.variable.name(), result);
 	}
 
 	public static UsageCallback warnDeprecated(String type) {

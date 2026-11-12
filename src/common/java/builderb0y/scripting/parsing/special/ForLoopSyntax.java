@@ -98,7 +98,7 @@ public class ForLoopSyntax {
 						throw new ScriptParsingException("in clause must be of type Iterable, Iterator, Map, or range", parser.input);
 					}
 				}
-				List<VariableDeclarationInsnTree> declarations = variables.stream().peek((LazyVarInfo variable) -> parser.environment.user().assignVariable(variable.name)).map(VariableDeclarationInsnTree::new).toList();
+				List<VariableDeclarationInsnTree> declarations = variables.stream().peek((LazyVarInfo variable) -> parser.environment.user().assignVariable(variable.name())).map(VariableDeclarationInsnTree::new).toList();
 				return switch (parser.input.readOperatorAfterWhitespace()) {
 					case ":" -> loopFactory.createLoop(parser, loopName, declarations, parser.nextScript().asStatement(false));
 					case "," -> {

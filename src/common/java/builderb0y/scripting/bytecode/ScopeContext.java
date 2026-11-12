@@ -30,14 +30,14 @@ public class ScopeContext {
 		}
 		Scope scope = this.peekScope();
 		this.method.node.visitLocalVariable(
-			variable.name,
+			variable.name(),
 			variable.type().getDescriptor(),
 			null,
 			scope.start.getLabel(),
 			scope.end.getLabel(),
 			this.currentLocalVariableIndex
 		);
-		this.currentLocalVariableIndex += variable.type.getSize();
+		this.currentLocalVariableIndex += variable.type().getSize();
 	}
 
 	public LazyVarInfo addVariable(String name, TypeInfo type) {

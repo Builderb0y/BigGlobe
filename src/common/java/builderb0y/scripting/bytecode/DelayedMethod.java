@@ -39,7 +39,7 @@ public class DelayedMethod {
 	public void configureEnvironment(ExpressionParser parser) {
 		parser.environment.user().delayedMethods.add(this);
 		for (LazyVarInfo variable : this.userParameters) {
-			parser.environment.user().reserveAndAssignVariable(variable.name, variable.type);
+			parser.environment.user().reserveAndAssignVariable(variable.name(), variable.type());
 		}
 	}
 
