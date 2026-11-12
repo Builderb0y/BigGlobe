@@ -160,6 +160,7 @@ changelog:
 	* granite, diorite, andesite, dripstone blocks, tuff, and calcite can now be used in most recipes as a substitute for cobblestone.
 	* Ores will now only mimic stone, without falling back on whatever other blocks are adjacent.
 	* Several issues with underground LODs (when carving is enabled) have now been fixed.
+	* Worldgen performance has been improved in the nether (only improves normal terrain, not LOD terrain).
 	* Evaluate command is now slightly more useful.
 	# New content exclusive to MC 26.2:
 	* Cinnabar ore: Drops cinnabar items. Spawns in the nether.

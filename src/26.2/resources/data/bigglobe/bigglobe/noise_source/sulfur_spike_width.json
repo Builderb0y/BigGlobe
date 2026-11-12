@@ -1,0 +1,10 @@
+{
+	"dimensions": 1,
+	"type": "sum",
+	"layers": [
+		{ "type": "smooth", "scale": 4.0, "amplitude": 1.0 },
+		{ "type": "linear", "scale": 2.0, "amplitude": 0.5 },
+		{ "type": "white_noise", "amplitude": 0.25 },
+		{ "type": "constant", "value": 3.0 }
+	]
+}

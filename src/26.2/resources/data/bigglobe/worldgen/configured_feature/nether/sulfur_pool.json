@@ -3,14 +3,14 @@
 	"config": {
 		"script": [
 			"SmallPoolGenerator pool = new().=$groundReplaceable('minecraft:sulfur')",
-			"pool.spread(world, 0, 0, 0).if (",
+			"pool.spread(world, 0, -1, 0).if (",
 				"for (ColumnPos pos in pool.surroundingColumns:",
 					"if (random.nextInt(4) == 0:",
-						"placeFeature(pos.x, 1, pos.z, 'bigglobe:nether/sulfur_stalagmite')",
+						"placeFeature(pos.x, 0, pos.z, 'bigglobe:nether/sulfur_stalagmite')",
 					")",
 				")",
 				"for (ColumnPos pos in pool.fluidColumns:",
-					"setBlockState(pos.x, 0, pos.z, 'minecraft:lava[level=0]')",
+					"setBlockState(pos.x, -1, pos.z, 'minecraft:lava[level=0]')",
 				")",
 			")"
 		]

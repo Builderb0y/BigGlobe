@@ -1,7 +1,7 @@
 {
 	"type": "simple_3d",
 	"state": "'minecraft:air'",
-	"condition": "`bigglobe:nether/noise` < 0.5I",
+	"condition": "world_traits.`bigglobe:nether_bubble_noise` < 0.5I",
 	"valid": {
 		"min_y": "`bigglobe:nether/min_y` + 16",
 		"max_y": "`bigglobe:nether/max_y` - 16"

@@ -1,0 +1,23 @@
+{
+	"type": "noise",
+	"params": {
+		"type": "float",
+		"is_3d": true
+	},
+	"grid": {
+		"type": "sum",
+		"layers": [
+			{ "type": "smooth", "scaleX": 256.0, "scaleY": 64.0, "scaleZ": 256.0, "amplitude": 0.25 },
+			{ "type": "smooth", "scaleX": 128.0, "scaleY": 32.0, "scaleZ": 128.0, "amplitude": 0.125 },
+			{ "type": "smooth", "scaleX":  64.0, "scaleY": 16.0, "scaleZ":  64.0, "amplitude": 0.0625 },
+			{ "type": "smooth", "scaleX":  32.0, "scaleY":  8.0, "scaleZ":  32.0, "amplitude": 0.03125 },
+			{ "type": "smooth", "scaleX":  16.0, "scaleY":  4.0, "scaleZ":  16.0, "amplitude": 0.015625 },
+			{ "type": "constant", "value": 0.5 }
+		]
+	},
+	"valid": {
+		"min_y": "`bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`",
+		"max_y": "`bigglobe:nether/max_y` - 16",
+		"fallback": 0.5
+	}
+}

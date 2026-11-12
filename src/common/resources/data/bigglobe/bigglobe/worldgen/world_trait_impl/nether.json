@@ -4,5 +4,10 @@
 	"bigglobe:max_y":              "1024I",
 	"bigglobe:min_y":              "0I",
 	"bigglobe:y_level_in_surface": "1023I",
-	"bigglobe:y_level_on_surface": "1024I"
+	"bigglobe:y_level_on_surface": "1024I",
+	"bigglobe:nether_bubble_noise":  {
+		"get": "`bigglobe:nether/noise`",
+		"set": "`bigglobe:nether/noise` = value",
+		"pre_compute": "float ignored = `bigglobe:nether/noise`(768)"
+	}
 }

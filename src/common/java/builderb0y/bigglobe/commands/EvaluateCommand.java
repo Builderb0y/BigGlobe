@@ -110,6 +110,7 @@ public class EvaluateCommand {
 			return switch (result) {
 				case Number number -> number.intValue();
 				case Boolean bool -> bool.booleanValue() ? 1 : 0;
+				case null -> 0;
 				default -> 1;
 			};
 		}
