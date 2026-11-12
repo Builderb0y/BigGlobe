@@ -1,6 +1,7 @@
 package builderb0y.scripting.optimization;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -15,9 +16,9 @@ POP
 in one of my scripts while testing something unrelated.
 so now it exists. in case you were wondering,
 the script which contains this was: {@code
-class C(int x)
-C c = null
-c.?x ?: 0
+	class C(int x)
+	C c = null
+	c.?x ?: 0
 },
 and the section that generated DUP POP was in checking if c.?x was null or not.
 it was first duped for the null check, and then popped
@@ -28,7 +29,7 @@ public class PopOptimizer implements MethodOptimizer {
 	public static final PopOptimizer INSTANCE = new PopOptimizer();
 
 	@Override
-	public boolean optimize(MethodNode method) {
+	public boolean optimize(ClassNode clazz, MethodNode method) {
 		boolean changed = false;
 		for (AbstractInsnNode node = method.instructions.getFirst(); node != null; ) {
 			AbstractInsnNode next = node.getNext();
@@ -36,12 +37,24 @@ public class PopOptimizer implements MethodOptimizer {
 				AbstractInsnNode previous = node.getPrevious();
 				if (previous != null) {
 					switch (previous.getOpcode()) {
-						case ACONST_NULL,
-						ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5,
-						FCONST_0, FCONST_1, FCONST_2,
-						BIPUSH, SIPUSH,
-						ILOAD, FLOAD,
-						DUP -> {
+						case
+							ACONST_NULL,
+							ICONST_M1,
+							ICONST_0,
+							ICONST_1,
+							ICONST_2,
+							ICONST_3,
+							ICONST_4,
+							ICONST_5,
+							FCONST_0,
+							FCONST_1,
+							FCONST_2,
+							BIPUSH,
+							SIPUSH,
+							ILOAD,
+							FLOAD,
+							DUP
+						-> {
 							method.instructions.remove(previous);
 							method.instructions.remove(node);
 							changed = true;
@@ -62,10 +75,15 @@ public class PopOptimizer implements MethodOptimizer {
 				AbstractInsnNode previous = node.getPrevious();
 				if (previous != null) {
 					switch (previous.getOpcode()) {
-						case LCONST_0, LCONST_1,
-						DCONST_0, DCONST_1,
-						LLOAD, DLOAD,
-						DUP2 -> {
+						case
+							LCONST_0,
+							LCONST_1,
+							DCONST_0,
+							DCONST_1,
+							LLOAD,
+							DLOAD,
+							DUP2
+						-> {
 							method.instructions.remove(previous);
 							method.instructions.remove(node);
 							changed = true;

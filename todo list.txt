@@ -146,6 +146,8 @@ intellij plugin:
 
 changelog:
 	* Ported to MC 26.2.
+	* Removed sulfur block (the one that used to be crafted with 9x sulfur items (the items that drop from nether sulfur ore)).
+		* Convert all your sulfur blocks back into sulfur items before updating!
 	* Fixed surface blocks not spawning in the nether.
 	* Dunes and desert cracks from V4 have made a return in the islands world preset.
 	* Some nether ores now spawn more commonly and in more biomes.
@@ -218,34 +220,15 @@ scripting:
 			could help with more advanced constant jumps?
 		more sophisticated back-tracking algorithm for pop removal?
 		remove unnecessary parameters for user-defined functions.
-		auto-const variables:
-			if a local variable has a constant value stored in it,
-			then the variable is loaded again, replace that load with the constant.
-			if all instances of loading this variable are replaced with LDC,
-			then the variable can be removed.
 		duplicate variable elimination:
 			if local variable B has local variable A stored in it,
 			and local variable B is loaded before/without an additional store in A,
 			then LOAD B can be replaced with LOAD A.
 			if all instances of LOAD B can be safely replaced with LOAD A,
 			then B can be removed entirely.
-	more invoke syntaxes:
-		non-null invoke?
-			foo.!bar() requires that bar() return a non-null value.
-		nullable non-null invoke?
-			foo.?!bar() makes a choice:
-				if foo is null, then the result is null and bar() is not invoked.
-				if foo is non-null, then bar() is invoked and is required to return a non-null value.
 	lambdas?
 		Stream API?
 			ability to iterate over a Stream in a for loop (whenever Stream support is added).
-	add copy constructor and clone() for user-defined classes.
-		clone() is deep copy, constructor is shallow copy?
-			this is the more intuitive option, but it is more difficult to implement.
-			due to the fact that you can't assign to final fields inside clone().
-			not that I have final fields yet, but still.
-	smarter detection of which variables are captured by methods.
-		don't capture variables which aren't used.
 	inline getters and setters for user-defined classes.
 	scriptable loot tables.
 	scriptable advancements?
@@ -258,7 +241,6 @@ scripting:
 			Empty empty = new()
 			value .= empty.increment
 	make fields on InsnTree's final.
-	make it so that constant template inputs remain constants without being turned into variables.
 	random.repeat (float/double times: body)
 		also seed.repeat(...)
 	enhanced type system?

@@ -136,6 +136,12 @@ public class ClassOptimizerTest extends TestCommon {
 		dumpBytecode("int*(x = 1, y = 2, z = 3) int a(: y) a()");
 	}
 
+	@Test
+	@Disabled
+	public void testConstantInlining() throws ScriptParsingException {
+		dumpBytecode("int*(a = 42, b = a, c = b, d := c)");
+	}
+
 	public static void dumpBytecode(String script) throws ScriptParsingException {
 		ScriptParser<ObjectSupplier> parser = new ScriptParser<>(ObjectSupplier.class, script);
 		parser.toBytecode();

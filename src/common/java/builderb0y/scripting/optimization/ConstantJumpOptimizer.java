@@ -13,12 +13,20 @@ import builderb0y.scripting.util.TypeInfos;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
+/**
+optimizes conditional jumps which depend on a constant condition.
+for example, and ICONST_0 instruction followed by an IFEQ instruction.
+I've forgotten what conditions would compile into this,
+since this documentation was written long after the class itself.
+I'm pretty sure "if (true: ...)" will compile to GOTO.
+maybe other optimizers are capable of producing such bytecode as a side effect.
+*/
 public class ConstantJumpOptimizer implements MethodOptimizer {
 
 	public static final ConstantJumpOptimizer INSTANCE = new ConstantJumpOptimizer();
 
 	@Override
-	public boolean optimize(MethodNode method) {
+	public boolean optimize(ClassNode clazz, MethodNode method) {
 		boolean changed = false;
 		for (AbstractInsnNode maybeLoadConstant = method.instructions.getFirst(); maybeLoadConstant != null; ) {
 			AbstractInsnNode next = maybeLoadConstant.getNext();

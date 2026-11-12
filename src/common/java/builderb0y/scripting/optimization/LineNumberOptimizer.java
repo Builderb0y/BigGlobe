@@ -1,9 +1,6 @@
 package builderb0y.scripting.optimization;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 
 import builderb0y.scripting.optimization.ClassOptimizer.MethodOptimizer;
 
@@ -17,7 +14,7 @@ public class LineNumberOptimizer implements MethodOptimizer {
 	public static final LineNumberOptimizer INSTANCE = new LineNumberOptimizer();
 
 	@Override
-	public boolean optimize(MethodNode method) {
+	public boolean optimize(ClassNode clazz, MethodNode method) {
 		boolean changedAny = false;
 		LineNumberNode previous = null;
 		for (AbstractInsnNode node = method.instructions.getFirst(); node != null; node = node.getNext()) {

@@ -14,10 +14,10 @@ import static org.objectweb.asm.Opcodes.*;
 removes instructions which are unreachable, and can never be executed.
 
 example code to generate unreachable code: {@code
-block (
-return(1)
-)
-return(2)
+	block (
+		return(1)
+	)
+	return(2)
 }
 */
 public class UnreachableCodeOptimizer implements MethodOptimizer {
@@ -25,7 +25,7 @@ public class UnreachableCodeOptimizer implements MethodOptimizer {
 	public static final UnreachableCodeOptimizer INSTANCE = new UnreachableCodeOptimizer();
 
 	@Override
-	public boolean optimize(MethodNode method) {
+	public boolean optimize(ClassNode clazz, MethodNode method) {
 		if (method.instructions.size() == 0) return false;
 		Set<AbstractInsnNode> visited = Collections.newSetFromMap(new IdentityHashMap<>(method.instructions.size()));
 		collectAt(method.instructions.getFirst(), visited);

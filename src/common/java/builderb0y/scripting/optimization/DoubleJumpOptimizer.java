@@ -15,12 +15,12 @@ one or more other labels which themselves are followed by a {@link Opcodes#GOTO}
 in this case, the first jump's target label can be replaced with the GOTO's target label.
 
 example code which generates such a case: {@code
-block (
-block (
-break()
-)
-break()
-)
+	block (
+		block (
+			break()
+		)
+		break()
+	)
 }
 */
 public class DoubleJumpOptimizer implements MethodOptimizer {
@@ -28,7 +28,7 @@ public class DoubleJumpOptimizer implements MethodOptimizer {
 	public static final DoubleJumpOptimizer INSTANCE = new DoubleJumpOptimizer();
 
 	@Override
-	public boolean optimize(MethodNode method) {
+	public boolean optimize(ClassNode clazz, MethodNode method) {
 		boolean changed = false;
 		for (AbstractInsnNode instruction = method.instructions.getFirst(); instruction != null; instruction = instruction.getNext()) {
 			if (instruction instanceof JumpInsnNode jump) {
