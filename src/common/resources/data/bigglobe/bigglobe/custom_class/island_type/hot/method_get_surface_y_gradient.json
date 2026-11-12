@@ -4,12 +4,24 @@
 	"override": "bigglobe:island_type/base/method_get_surface_y_gradient",
 	"code": [
 		"double strength = `bigglobe:islands/type_storage/step_strength`",
-		"IslandType.applySteps(",
+		"Derivative2D result = IslandType.applySteps(",
 			"column,",
 			"`bigglobe:islands/type_storage/eroded_shape`,",
 			"320.0L,",
 			"strength * 7.0L + 1.0L,",
 			"strength * 3.0L + 1.0L",
-		")"
+		")",
+		"double magic = this.getMagicalness(column) * unmixSmooth(",
+			"world_traits.`bigglobe:sea_level` +  8.0L,",
+			"world_traits.`bigglobe:sea_level` + 24.0L,",
+			"result.value",
+		")",
+		"if (magic > 0.0:",
+			"result.value += `bigglobe:islands/type_storage/dune` * magic",
+		")",
+		"else if (`bigglobe:islands/type_storage/desert_cracks`.softDistance > 1.0L + magic * 0.25L:",
+			"result.value -= hints.distanceBetweenColumns",
+		")",
+		"return(result)"
 	]
 }

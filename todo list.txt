@@ -108,14 +108,9 @@ V6:
 		undo change that prevented water/lava lakes from spawning in deserts:
 			if it does spawn in a desert, don't use mud.
 			make it an oasis, with trees around it.
-		see if dunes and cracks for deserts look good in the islands world preset or not.
-		re-write evaluate command so that it can
-			* be used in command blocks.
-			* re-use existing compiled scripts instead of re-compiling every time the command is run.
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
-		config option for permission level of /bigglobe:evaluate
 
 26.2:
 	verify that MC 26.1 still works.
@@ -152,6 +147,7 @@ intellij plugin:
 changelog:
 	* Ported to MC 26.2.
 	* Fixed surface blocks not spawning in the nether.
+	* Dunes and desert cracks from V4 have made a return in the islands world preset.
 	* Some nether ores now spawn more commonly and in more biomes.
 	* Expanded the spawn range of lapis ore.
 	* Reduced the amount of dirt in the world.
