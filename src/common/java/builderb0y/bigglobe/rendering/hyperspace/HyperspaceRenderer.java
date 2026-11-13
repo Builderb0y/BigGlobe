@@ -2,12 +2,9 @@ package builderb0y.bigglobe.rendering.hyperspace;
 
 import java.util.OptionalInt;
 
-import com.mojang.blaze3d.GpuFormat;
-import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
-import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -22,7 +19,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 import org.lwjgl.system.*;
@@ -49,6 +45,12 @@ import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
+#if MC_VERSION >= MC_26_2_0
+	import com.mojang.blaze3d.GpuFormat;
+	import com.mojang.blaze3d.PrimitiveTopology;
+	import com.mojang.blaze3d.pipeline.BindGroupLayout;
+#endif
+
 @Environment(EnvType.CLIENT)
 public class HyperspaceRenderer implements SafeCloseable {
 
@@ -57,24 +59,33 @@ public class HyperspaceRenderer implements SafeCloseable {
 			RenderPipeline
 			.builder()
 			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
-			.withBindGroupLayout(
-				BindGroupLayout
-				.builder()
+			#if MC_VERSION >= MC_26_2_0
+				.withBindGroupLayout(
+					BindGroupLayout
+					.builder()
+					.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
+					.build()
+				)
+				.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+			#else
 				.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-				.build()
-			)
-			.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+				.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
+			#endif
 			.buildSnippet()
 		),
 		WITH_PREVIOUS = (
 			RenderPipeline
 			.builder(WITHOUT_PREVIOUS)
-			.withBindGroupLayout(
-				BindGroupLayout
-				.builder()
+			#if MC_VERSION >= MC_26_2_0
+				.withBindGroupLayout(
+					BindGroupLayout
+					.builder()
+					.withSampler("previousPass")
+					.build()
+				)
+			#else
 				.withSampler("previousPass")
-				.build()
-			)
+			#endif
 			.buildSnippet()
 		);
 	public static final RenderPipeline
@@ -166,7 +177,12 @@ public class HyperspaceRenderer implements SafeCloseable {
 			ClientTickEvents.START_LEVEL_TICK.register((ClientLevel level) -> {
 				if (INSTANCE != null && level.dimension() == HyperspaceConstants.WORLD_KEY) INSTANCE.beam.tick();
 			});
-			LevelExtractionEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
+			#if MC_VERSION >= MC_26_2_0
+				net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
+			#else
+				LevelRenderEvents
+			#endif
+			.END_EXTRACTION.register((LevelExtractionContext context) -> {
 				if (INSTANCE != null) INSTANCE.extract(context);
 			});
 			LevelRenderEvents.START_MAIN.register((LevelTerrainRenderContext context) -> {

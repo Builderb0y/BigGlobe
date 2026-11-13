@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
@@ -40,6 +39,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 
 #if MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.GpuFormat;
+	import com.mojang.blaze3d.PrimitiveTopology;
 	import com.mojang.blaze3d.pipeline.BindGroupLayout;
 #else
 	import com.mojang.blaze3d.textures.TextureFormat;
@@ -81,7 +81,7 @@ public class WaypointRenderer implements SafeCloseable {
 			.withSampler("depthtex")
 			.withUniform("waypoints", UniformType.TEXEL_BUFFER, TextureFormat.RED8I)
 			.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
-			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
+			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES);
 		#endif
 		PIPELINE = builder.build();
 	}
@@ -107,7 +107,12 @@ public class WaypointRenderer implements SafeCloseable {
 				BigGlobeMod.LOGGER.warn("Fancy waypoints unavailable:", exception);
 				break nope;
 			}
-			LevelExtractionEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
+			#if MC_VERSION >= MC_26_2_0
+				net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
+			#else
+				LevelRenderEvents
+			#endif
+			.END_EXTRACTION.register((LevelExtractionContext context) -> {
 				if (INSTANCE != null) INSTANCE.state.waypoints = context.levelState().entityRenderStates.stream().filter(WaypointEntityRenderer.State.class::isInstance).map(WaypointEntityRenderer.State.class::cast).toList();
 			});
 			LevelRenderEvents.END_MAIN.register((LevelRenderContext context) -> {

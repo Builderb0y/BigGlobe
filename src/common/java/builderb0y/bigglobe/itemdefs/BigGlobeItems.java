@@ -12,9 +12,6 @@ import net.fabricmc.fabric.api.registry.CompostableRegistry;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.predicates.MinMaxBounds;
-import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
-import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -25,7 +22,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -50,6 +46,13 @@ import builderb0y.bigglobe.blocks.CloudColor;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.*;
 import builderb0y.bigglobe.versions.ItemStackVersions;
+
+#if MC_VERSION >= MC_26_2_0
+	import net.minecraft.advancements.predicates.MinMaxBounds;
+	import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
+	import net.minecraft.advancements.predicates.entity.EntityPredicate;
+	import net.minecraft.world.entity.EntityTypes;
+#endif
 
 public class BigGlobeItems {
 

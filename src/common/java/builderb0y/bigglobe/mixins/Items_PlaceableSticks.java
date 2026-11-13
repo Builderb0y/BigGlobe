@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Slice;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.references.BlockIds;
-import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -22,6 +21,10 @@ import net.minecraft.world.level.block.Block;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.VanillaBlocks;
 import builderb0y.bigglobe.versions.IdentifierVersions;
+
+#if MC_VERSION >= MC_26_2_0
+	import net.minecraft.references.BlockItemId;
+#endif
 
 @Mixin(Items.class)
 public class Items_PlaceableSticks {

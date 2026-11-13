@@ -2,6 +2,7 @@ package builderb0y.bigglobe.versions;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;

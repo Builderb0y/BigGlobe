@@ -61,7 +61,11 @@ public class LodFrustum {
 			context.levelState().cameraRenderState.depthFar,
 			this.nearClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.minViewDistance,
 			this.farClippingPlane = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.maxViewDistance,
-			RenderSystem.getDevice().getDeviceInfo().isZZeroToOne()
+			#if MC_VERSION >= MC_26_2_0
+				RenderSystem.getDevice().getDeviceInfo().isZZeroToOne()
+			#else
+				false
+			#endif
 		);
 		this.generationBuffer = vanillaViewDistance * BigGlobeConfig.INSTANCE.get().lodRendering.generationBufferDistance;
 		this.projectionMatrix.mul(this.modelViewMatrix, this.modelViewProjectionMatrix);

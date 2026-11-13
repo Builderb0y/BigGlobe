@@ -11,7 +11,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
 
@@ -37,7 +36,12 @@ import builderb0y.bigglobe.versions.RenderVersions;
 public abstract class LodSystem implements SafeCloseable {
 
 	static {
-		LevelExtractionEvents.END_EXTRACTION.register((LevelExtractionContext context) -> {
+		#if MC_VERSION >= MC_26_2_0
+			net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
+		#else
+			LevelRenderEvents
+		#endif
+		.END_EXTRACTION.register((LevelExtractionContext context) -> {
 			LodSystemHolder holder = LodSystemHolder.get();
 			LodSystem system = holder.bigglobe_getLodSystem();
 			if (system != null) {

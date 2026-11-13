@@ -112,11 +112,6 @@ V6:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
 
-26.2:
-	verify that MC 26.1 still works.
-		charred_tree_vanilla might not work. idk.
-		verify that zoglins spawn correctly in MC 26.1 and that I don't need to re-add the SpawnRestrictions accessor.
-
 islands:
 	floating islands:
 		more rock filler types?
