@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		"bigglobe:sulfur",
+		"#c:dusts/redstone"
+	],
+	"result": {
+		"id": "bigglobe:cinnabar",
+		"count": 2
+	}
+}

@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.WallSide;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -49,6 +49,10 @@ import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.ChunkVersions;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 public class SmallDungeonStructure extends AbstractDungeonStructure {
 
 	public static final MapCodec<SmallDungeonStructure> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SmallDungeonStructure.class);
@@ -57,7 +61,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Catcher min_y,
 		ColumnToIntScript.@VerifyNullable Catcher surface_y,
-		DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
+		DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> room_decorators,
 		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
@@ -80,7 +84,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			ScriptedColumn column,
 			int y,
 			RandomGenerator random,
-			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
+			@Nullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> roomDecorators,
 			IRandomList<Holder<EntityType<?>>> spawnerEntries,
 			Holder<Structure> owningStructure
 		) {
@@ -126,7 +130,7 @@ public class SmallDungeonStructure extends AbstractDungeonStructure {
 			Holder<Structure> owningStructure,
 			int paletteIndex,
 			RandomGenerator random,
-			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
+			@Nullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> decorators
 		) {
 			super(type, 0, null, owningStructure, paletteIndex, decorators);
 			this.setPit((random.nextInt() & 15) == 0);

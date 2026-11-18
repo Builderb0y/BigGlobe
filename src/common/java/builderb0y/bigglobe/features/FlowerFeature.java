@@ -19,13 +19,19 @@ import builderb0y.bigglobe.settings.VariationsList;
 
 public class FlowerFeature extends DummyFeature<FlowerFeature.Config> {
 
-	public FlowerFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public FlowerFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public FlowerFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public FlowerFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	public static class Config extends DummyConfig {
 

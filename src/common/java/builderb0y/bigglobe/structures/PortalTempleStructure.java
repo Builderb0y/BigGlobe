@@ -333,7 +333,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		public final CompoundTag blockEntityData;
 
 		public PositionState(Vec3i vector, BlockState state, CompoundTag blockEntityData) {
-			super(vector);
+			super(vector.getX(), vector.getY(), vector.getZ());
 			this.state = state;
 			this.blockEntityData = blockEntityData;
 		}

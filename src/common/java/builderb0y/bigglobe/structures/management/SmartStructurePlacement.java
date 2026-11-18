@@ -72,6 +72,9 @@ public interface SmartStructurePlacement {
 				this.dynamicRegistries(),
 				this.chunkGenerator(),
 				this.chunkGenerator().biome_source(),
+				#if MC_VERSION >= MC_26_3_0
+					this.locatorContext.climateSampler(),
+				#endif
 				this.randomState(),
 				this.structureTemplateManager(),
 				this.hashedWorldSeed(),
@@ -278,11 +281,14 @@ public interface SmartStructurePlacement {
 					.locatorContext
 					.chunkGenerator()
 					.biome_source()
+					#if MC_VERSION >= MC_26_3_0
+						.createUncachedResolver(this.randomState())
+					#endif
 					.getNoiseBiome(
 						pos.getX() >> 2,
 						pos.getY() >> 2,
-						pos.getZ() >> 2,
-						this.randomState().sampler()
+						pos.getZ() >> 2
+						#if MC_VERSION < MC_26_3_0 , this.randomState().sampler() #endif
 					)
 				);
 				if (!validBiomes.test(biome)) {

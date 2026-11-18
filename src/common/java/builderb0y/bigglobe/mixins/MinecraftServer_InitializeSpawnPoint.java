@@ -8,11 +8,15 @@ import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.LevelLoadListener;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.storage.ServerLevelData;
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.WorldPropertiesVersions;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServer_InitializeSpawnPoint {
@@ -28,7 +32,9 @@ public class MinecraftServer_InitializeSpawnPoint {
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {
 			if (bonusChest) {
-				ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.registryAccess(), MiscOverworldFeatures.BONUS_CHEST);
+				#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif feature = (
+					RegistryVersions.getObject(world.registryAccess(), MiscOverworldFeatures.BONUS_CHEST)
+				);
 				if (feature != null) feature.place(
 					world,
 					world.getChunkSource().getGenerator(),

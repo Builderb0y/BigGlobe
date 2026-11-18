@@ -31,23 +31,13 @@ public class DataHelper<T_Owner> {
 		return this.new EntryBuilder<>(name);
 	}
 
-	public void read(
-		T_Owner owner,
-
-		ValueInput data
-
-	) {
+	public void read(T_Owner owner, ValueInput data) {
 		for (Entry<?> entry : this.entries) {
 			entry.read(owner, data);
 		}
 	}
 
-	public void write(
-		T_Owner owner,
-
-		ValueOutput data
-
-	) {
+	public void write(T_Owner owner, ValueOutput data) {
 		for (Entry<?> entry : this.entries) {
 			entry.write(owner, data);
 		}

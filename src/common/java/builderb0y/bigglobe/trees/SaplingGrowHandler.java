@@ -10,7 +10,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.config.BigGlobeConfig;
@@ -20,14 +21,18 @@ import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.util.ServerValue;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 public class SaplingGrowHandler {
 
-	public static final ServerValue<Map<Block, List<Holder<ConfiguredFeature<?, ?>>>>>
+	public static final ServerValue<Map<Block, List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>>>>
 		SAPLING_FEATURES = new ServerValue<>(SaplingGrowHandler::computeSaplingFeatures);
 
 	public static boolean replaceSaplingGrowth(ServerLevel world, BlockPos origin, BlockState saplingState, RandomSource random) {
 		if (BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds && world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			List<Holder<ConfiguredFeature<?, ?>>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
+			List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
 			if (list != null && !list.isEmpty()) {
 				list
 					.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
@@ -39,8 +44,8 @@ public class SaplingGrowHandler {
 		return false;
 	}
 
-	public static Map<Block, List<Holder<ConfiguredFeature<?, ?>>>> computeSaplingFeatures() {
-		Map<Block, List<Holder<ConfiguredFeature<?, ?>>>> map = new HashMap<>();
+	public static Map<Block, List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>>> computeSaplingFeatures() {
+		Map<Block, List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>>> map = new HashMap<>();
 		for (
 			WoodPalette palette
 			:
@@ -48,7 +53,7 @@ public class SaplingGrowHandler {
 				.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
 				.values()
 		) {
-			Holder<ConfiguredFeature<?, ?>> saplingGrowFeature = palette.getSaplingGrowFeature();
+			Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> saplingGrowFeature = palette.getSaplingGrowFeature();
 			if (saplingGrowFeature != null) {
 				IRandomList<Holder<Block>> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
 				if (blocks != null) {

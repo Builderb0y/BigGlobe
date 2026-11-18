@@ -42,13 +42,17 @@ public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 		Shapes.create(0.25D, 0.375D, 0.25D, 0.75D, 0.5D, 0.75D)
 	);
 
-	public static final MapCodec<RopeAnchorBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RopeAnchorBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<RopeAnchorBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RopeAnchorBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public RopeAnchorBlock(Properties settings) {
 		super(settings);
@@ -57,7 +61,6 @@ public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void affectNeighborsAfterRemoval(
 		BlockState state,
 		ServerLevel world,
@@ -81,7 +84,6 @@ public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 	}
 
 	@Override
-
 	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 
 		if (stack.isEmpty() && player.isShiftKeyDown()) {
@@ -185,9 +187,7 @@ public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public BlockState updateShape(
-
 		BlockState state,
 		LevelReader world,
 		ScheduledTickAccess tickView,
@@ -196,19 +196,17 @@ public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 		BlockPos neighborPos,
 		BlockState neighborState,
 		RandomSource random
-
 	) {
 		return (
-			direction == Direction.DOWN
-			&& !this.canPlaceOn(world, neighborPos, neighborState)
-				? Blocks.AIR.defaultBlockState()
-				: state
+			direction == Direction.DOWN &&
+			!this.canPlaceOn(world, neighborPos, neighborState)
+			? Blocks.AIR.defaultBlockState()
+			: state
 		);
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
 		BlockPos downPos = pos.below();
 		return this.canPlaceOn(world, downPos, world.getBlockState(downPos));
@@ -226,7 +224,6 @@ public class RopeAnchorBlock extends HorizontalDirectionalBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return EMPTY_SHAPE;
 	}

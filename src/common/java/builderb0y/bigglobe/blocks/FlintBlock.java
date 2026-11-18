@@ -13,14 +13,18 @@ public class FlintBlock extends SurfaceMaterialDecorationBlock {
 
 	public static final VoxelShape SHAPE = Shapes.create(0.125D, 0.0D, 0.125D, 0.875D, 0.0625D, 0.875D);
 
-	//don't load BigGlobeAutoCodec too early.
-	public static final MapCodec<FlintBlock> CODEC = BlockBehaviour.simpleCodec(FlintBlock::new);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		//don't classload BigGlobeAutoCodec too early.
+		public static final MapCodec<FlintBlock> CODEC = BlockBehaviour.simpleCodec(FlintBlock::new);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public FlintBlock(Properties settings) {
 		super(settings);
@@ -28,7 +32,6 @@ public class FlintBlock extends SurfaceMaterialDecorationBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}

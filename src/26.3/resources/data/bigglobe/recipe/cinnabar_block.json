@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"xx",
+		"xx"
+	],
+	"key": {
+		"x": "bigglobe:cinnabar"
+	},
+	"result": {
+		"id": "minecraft:cinnabar"
+	}
+}

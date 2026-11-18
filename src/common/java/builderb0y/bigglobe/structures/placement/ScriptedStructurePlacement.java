@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 
 import builderb0y.autocodec.annotations.Wrapper;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.ScriptedColumnLookup;
@@ -23,6 +25,7 @@ import builderb0y.bigglobe.scripting.environments.StructureScriptEnvironment;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
 import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
+import builderb0y.bigglobe.structures.scripted.StructurePlacementScript;
 import builderb0y.bigglobe.util.CheckedList;
 import builderb0y.bigglobe.util.CheckedList.NullPolicy;
 import builderb0y.scripting.bytecode.InsnTrees;
@@ -34,14 +37,48 @@ import builderb0y.scripting.parsing.*;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
+#endif
+
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ScriptedStructurePlacement extends StructurePlacement implements SmartStructurePlacement {
+#if MC_VERSION >= MC_26_3_0
+	public class ScriptedStructurePlacement implements StructurePlacement, SmartStructurePlacement
+#else
+	public class ScriptedStructurePlacement extends StructurePlacement implements SmartStructurePlacement
+#endif
+{
+
+	#if MC_VERSION >= MC_26_3_0
+
+		public static final MapCodec<ScriptedStructurePlacement> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ScriptedStructurePlacement.class);
+
+		@Override
+		public MapCodec<? extends StructurePlacement> codec() {
+			return CODEC;
+		}
+
+	#else
+
+		@Override
+		public StructurePlacementType<?> type() {
+			return BigGlobeStructurePlacementTypes.SCRIPT;
+		}
+
+		@Override
+		public boolean isPlacementChunk(ChunkGeneratorStructureState calculator, int chunkX, int chunkZ) {
+			return false;
+		}
+
+	#endif
 
 	public final StructurePlacementScript.Catcher script;
 
 	public ScriptedStructurePlacement(StructurePlacementScript.Catcher script) {
-		super(Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1.0F, 0, Optional.empty());
+		#if MC_VERSION < MC_26_3_0
+			super(Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1.0F, 0, Optional.empty());
+		#endif
 		this.script = script;
 	}
 
@@ -66,16 +103,6 @@ public class ScriptedStructurePlacement extends StructurePlacement implements Sm
 	@Override
 	public boolean isStructureChunk(ChunkGeneratorStructureState calculator, int chunkX, int chunkZ) {
 		return false;
-	}
-
-	@Override
-	public boolean isPlacementChunk(ChunkGeneratorStructureState calculator, int chunkX, int chunkZ) {
-		return false;
-	}
-
-	@Override
-	public StructurePlacementType<?> type() {
-		return BigGlobeStructurePlacementTypes.SCRIPT;
 	}
 
 	public static StructureStartWrapper createNear(Context context, int x, int y, int z, StructureEntry structure) {

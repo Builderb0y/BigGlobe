@@ -7,6 +7,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -15,13 +16,17 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class OvergrownEndStoneBlock extends Block implements BonemealableBlock {
 
-	public static final MapCodec<OvergrownEndStoneBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(OvergrownEndStoneBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<OvergrownEndStoneBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(OvergrownEndStoneBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public OvergrownEndStoneBlock(Properties settings) {
 		super(settings);
@@ -32,18 +37,30 @@ public class OvergrownEndStoneBlock extends Block implements BonemealableBlock {
 		LevelReader world,
 		BlockPos pos,
 		BlockState state
-
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
 	) {
 		return true;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(
+		Level world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
+	) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(
+		ServerLevel world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
+	) {
 		world.setBlockAndUpdate(pos, EndBlocks.CHORUS_NYLIUM.defaultBlockState());
 	}
 }

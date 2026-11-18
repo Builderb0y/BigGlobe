@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:brewing",
+	"input": {
+		"item": "minecraft:potion",
+		"potion_contents": {
+			"potions": "minecraft:water"
+		}
+	},
+	"output": {
+		"id": "minecraft:potion",
+		"components": {
+			"minecraft:potion_contents": {
+				"potion": "minecraft:awkward"
+			}
+		}
+	},
+	"reagent": {
+		"item": "bigglobe:chorus_spore"
+	}
+}

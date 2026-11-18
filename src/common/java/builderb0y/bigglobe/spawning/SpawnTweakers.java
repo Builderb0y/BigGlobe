@@ -4,10 +4,8 @@ import java.util.*;
 import java.util.random.RandomGenerator;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 
 import builderb0y.autocodec.annotations.Wrapper;
@@ -16,7 +14,6 @@ import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
@@ -69,28 +66,24 @@ public class SpawnTweakers implements DelayedCompileable {
 		BigGlobeScriptedChunkGenerator generator,
 		BlockPos pos,
 		MobCategory category,
-		Holder<Biome> biome,
 		RandomGenerator random
 	) {
-		return this.getRawSpawnEntries(generator, pos, category, biome, random).build(random);
+		return this.getRawSpawnEntries(generator, pos, category, random).build(random);
 	}
 
 	public SpawnMap getRawSpawnEntries(
 		BigGlobeScriptedChunkGenerator generator,
 		BlockPos pos,
 		MobCategory category,
-		Holder<Biome> biome,
 		RandomGenerator random
 	) {
 		SpawnMap map = new SpawnMap(category);
-		BiomeEntry biomeEntry = new BiomeEntry(biome);
 		ScriptedColumn column = generator.newColumn(pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints());
 		for (SpawnTweaker tweaker : this.getTweakers(category)) {
 			tweaker.script().tweak(
 				category,
 				column,
 				pos.getY(),
-				biomeEntry,
 				random,
 				map,
 				tweaker.primary_entity() != null ? map._get(tweaker.primary_entity().value()) : null

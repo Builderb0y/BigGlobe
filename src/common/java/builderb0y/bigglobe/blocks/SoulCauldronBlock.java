@@ -34,13 +34,17 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 			return CauldronInteractions.fillBucket(state, world, pos, player, hand, stack, new ItemStack(BigGlobeItems.SOUL_LAVA_BUCKET), Predicates.alwaysTrue(), SoundEvents.BUCKET_FILL_LAVA);
 		};
 
-	public static final MapCodec<SoulCauldronBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulCauldronBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<SoulCauldronBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulCauldronBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public SoulCauldronBlock(Properties settings) {
 		super(settings, BEHAVIOR_MAP);
@@ -62,7 +66,6 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void entityInside(
 		BlockState state,
 		Level world,
@@ -83,7 +86,6 @@ public class SoulCauldronBlock extends AbstractCauldronBlock {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
 		return 3;
 	}

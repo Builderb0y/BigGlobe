@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import net.minecraft.util.random.Weighted;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
@@ -76,8 +77,12 @@ public class SpawnMap {
 			.map((Map.Entry<EntityType<?>, SpawnParams> entry) -> new Weighted<>(
 				new SpawnerData(
 					entry.getKey(),
-					entry.getValue().count,
-					entry.getValue().count
+					#if MC_VERSION >= MC_26_3_0
+						new ConstantInt(entry.getValue().count)
+					#else
+						entry.getValue().count,
+						entry.getValue().count
+					#endif
 				),
 				Permuter.roundRandomlyI(random, entry.getValue().weight * 256.0D)
 			))

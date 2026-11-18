@@ -4,17 +4,18 @@ import java.util.Optional;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.grower.TreeGrower;
+import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -28,15 +29,24 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.CharredPressurePlateBlock;
 import builderb0y.bigglobe.blocks.CharredSaplingBlock;
 
-#if MC_VERSION >= MC_26_2_0
+#if MC_VERSION >= MC_26_3_0
 	import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.phys.AABB;
+#elif MC_VERSION >= MC_26_2_0
+	import net.minecraft.world.level.block.entity.BlockEntityTypes;
+	import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
+#else
+	import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 #endif
 
 public class CharredBlocks {
 
 	public static void init() {
-		StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
-		StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
+		#if MC_VERSION < MC_26_3_0
+			StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
+			StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
+		#endif
+
 		#if MC_VERSION >= MC_26_2_0
 			BlockEntityTypes.SIGN.addValidBlock(CHARRED_SIGN);
 			BlockEntityTypes.SIGN.addValidBlock(CHARRED_WALL_SIGN);
@@ -80,7 +90,7 @@ public class CharredBlocks {
 			.noCollision()
 			.strength(0.5F)
 			.sound(SoundType.WOOD)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final TrapDoorBlock CHARRED_TRAPDOOR = BigGlobeBlocks.register(
@@ -107,7 +117,7 @@ public class CharredBlocks {
 			.noOcclusion()
 			.strength(0.5F)
 			.sound(SoundType.WOOD)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final CeilingHangingSignBlock CHARRED_HANGING_SIGN = BigGlobeBlocks.register(
@@ -219,14 +229,26 @@ public class CharredBlocks {
 		new CharredSaplingBlock(
 			new TreeGrower(
 				"bigglobe:charred",
-				Optional.empty(),
-				Optional.of(
-					ResourceKey.create(
-						Registries.CONFIGURED_FEATURE,
-						BigGlobeMod.modID("charred_tree_vanilla")
-					)
-				),
-				Optional.empty()
+				#if MC_VERSION >= MC_26_3_0
+					WeightedList.of(
+						ResourceKey.create(
+							Registries.FEATURE,
+							BigGlobeMod.modID("charred_tree_vanilla")
+						)
+					),
+					WeightedList.of(),
+					WeightedList.of(),
+					null
+				#else
+					Optional.empty(),
+					Optional.of(
+						ResourceKey.create(
+							Registries.CONFIGURED_FEATURE,
+							BigGlobeMod.modID("charred_tree_vanilla")
+						)
+					),
+					Optional.empty()
+				#endif
 			),
 			BlockBehaviour
 			.Properties
@@ -238,7 +260,7 @@ public class CharredBlocks {
 			.randomTicks()
 			.instabreak()
 			.sound(SoundType.GRASS)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final FlowerPotBlock POTTED_CHARRED_SAPLING = BigGlobeBlocks.register(
@@ -292,6 +314,9 @@ public class CharredBlocks {
 		new UntintedParticleLeavesBlock(
 			0.02F,
 			ParticleTypes.ASH,
+			#if MC_VERSION >= MC_26_3_0
+				AmbientLeavesBlockSoundPlayer.noAmbientSound(),
+			#endif
 			BlockBehaviour
 			.Properties
 			.of()
@@ -303,8 +328,8 @@ public class CharredBlocks {
 			.noOcclusion()
 			.isValidSpawn((BlockState state, BlockGetter world, BlockPos pos, EntityType<?> type) -> false)
 			.isSuffocating((BlockState state, BlockGetter world, BlockPos pos) -> false)
-			.isViewBlocking((BlockState state, BlockGetter world, BlockPos pos) -> false)
-			.pushReaction(PushReaction.DESTROY)
+			.isViewBlocking((BlockState state, BlockGetter world, BlockPos pos #if MC_VERSION >= MC_26_3_0 , AABB _ #endif) -> false)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final ShelfBlock CHARRED_SHELF = BigGlobeBlocks.register(

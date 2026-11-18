@@ -24,13 +24,17 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 @AddPseudoField("fluid")
 public class SoulLavaBlock extends LiquidBlock {
 
-	public static final MapCodec<SoulLavaBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulLavaBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<SoulLavaBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SoulLavaBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public SoulLavaBlock(Holder<Fluid> fluid, Properties settings) {
 		super((FlowingFluid)(fluid.value()), settings);

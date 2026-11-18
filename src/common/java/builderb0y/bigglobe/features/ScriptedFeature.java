@@ -3,22 +3,16 @@ package builderb0y.bigglobe.features;
 import java.util.Locale;
 import java.util.random.RandomGenerator;
 
-import com.mojang.serialization.Codec;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.autocodec.annotations.*;
@@ -27,7 +21,6 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.blockEntities.DelayedGenerationBlockEntity;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
@@ -47,7 +40,6 @@ import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.MathScriptEnvironment;
 import builderb0y.scripting.parsing.*;
@@ -55,14 +47,30 @@ import builderb0y.scripting.parsing.input.ScriptUsage;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
 
-public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements RawFeature<ScriptedFeature.Config> {
+public class ScriptedFeature extends FeatureAdapter<ScriptedFeature.Config> implements RawFeature<ScriptedFeature.Config>, SizedDelayedFeature<ScriptedFeature.Config> {
 
-	public ScriptedFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public ScriptedFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		public ScriptedFeature(Config config) {
+			super(config);
+		}
+
+		@Override
+		public Config getSizedDelayedConfig() {
+			return this.config;
+		}
+
+	#else
+
+		public ScriptedFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
+
+	@Override
+	public int getMaxRadiusInBlocks(Config config) {
+		return config.max_radius_in_blocks;
 	}
 
 	public Symmetry getSymmetry(Config config, RandomGenerator random) {
@@ -85,7 +93,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			WorldGenLevel originalWorld = context.level();
 			if (
@@ -153,28 +161,23 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 		}
 	}
 
-	public static boolean delay(FeaturePlaceContext<? extends SizedDelayedFeatureConfig> context) {
+	public static boolean delay(Context<?> context) {
 		WorldGenLevel originalWorld = context.level();
 		BlockPos origin = context.origin();
-		ConfiguredFeature<?, ?> feature = context.topFeature().orElse(null);
-		if (feature != null) {
-			Identifier id = RegistryVersions.getRegistry(originalWorld.registryAccess(), Registries.CONFIGURED_FEATURE).getKey(feature);
-			if (id != null) {
-				BlockState oldState = originalWorld.getBlockState(origin);
-				BlockEntity oldBlockEntity = originalWorld.getBlockEntity(origin);
-				CompoundTag oldBlockData = oldBlockEntity == null ? null : BlockEntityVersions.writeToNbt(oldBlockEntity);
-				WorldUtil.setBlockState(originalWorld, origin, BlockStates.DELAYED_GENERATION, Block.UPDATE_CLIENTS);
-				DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(originalWorld, origin, DelayedGenerationBlockEntity.class);
-				if (blockEntity != null) {
-					blockEntity.feature = id;
-					blockEntity.oldState = oldState;
-					blockEntity.oldBlockData = oldBlockData;
-				}
-				return true;
+		ResourceKey<?> key = context.topFeature();
+		if (key != null) {
+			Identifier id = key.identifier();
+			BlockState oldState = originalWorld.getBlockState(origin);
+			BlockEntity oldBlockEntity = originalWorld.getBlockEntity(origin);
+			CompoundTag oldBlockData = oldBlockEntity == null ? null : BlockEntityVersions.writeToNbt(oldBlockEntity);
+			WorldUtil.setBlockState(originalWorld, origin, BlockStates.DELAYED_GENERATION, Block.UPDATE_CLIENTS);
+			DelayedGenerationBlockEntity blockEntity = WorldUtil.getBlockEntity(originalWorld, origin, DelayedGenerationBlockEntity.class);
+			if (blockEntity != null) {
+				blockEntity.feature = id;
+				blockEntity.oldState = oldState;
+				blockEntity.oldBlockData = oldBlockData;
 			}
-			else if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace("Attempt to place unregistered ScriptedFeature");
-			}
+			return true;
 		}
 		else if (Tripwire.isEnabled()) {
 			Tripwire.logWithStackTrace("Attempt to place ScriptedFeature from a FeaturePlaceContext which lacks a ConfiguredFeature.");
@@ -276,7 +279,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 	}
 
 	@UseVerifier(name = "verify", in = Config.class, usage = MemberUsage.METHOD_IS_HANDLER)
-	public static class Config implements FeatureConfiguration, SizedDelayedFeatureConfig {
+	public static class Config implements FeatureAdapter.Config {
 
 		public final ScriptedFeatureImplementation.Catcher script;
 		public final @DefaultBoolean(value = false, alwaysEncode = true) boolean rotate_randomly;
@@ -307,11 +310,6 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 			if (config.delay == DelayPolicy.NEVER && config.max_radius_in_blocks > 16) {
 				throw new VerifyException(() -> "'delay' must be set to 'always' or 'if_too_big' when max_radius_in_blocks is greater than 16.");
 			}
-		}
-
-		@Override
-		public int getMaxRadiusInBlocks() {
-			return this.max_radius_in_blocks;
 		}
 	}
 

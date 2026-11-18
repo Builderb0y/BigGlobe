@@ -1,0 +1,6 @@
+{
+	"primary_entity": "minecraft:sulfur_cube",
+	"script": [
+		"spawnParams.=$weight(1.0L).=$count(random.nextBetween[1, 4])"
+	]
+}

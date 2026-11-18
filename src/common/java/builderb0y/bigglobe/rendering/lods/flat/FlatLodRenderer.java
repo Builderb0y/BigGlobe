@@ -6,16 +6,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.pipeline.*;
-import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
-import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.systems.RenderPass;
-import com.mojang.blaze3d.systems.RenderPass.Draw;
-import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
@@ -27,12 +19,38 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.rendering.NativeMemory;
 import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.rendering.lods.*;
+import builderb0y.bigglobe.versions.RenderVersions;
 
-#if MC_VERSION >= MC_26_2_0
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.buffers.GpuBuffer;
+	import com.mojang.renderpearl.api.commands.RenderPass;
+	import com.mojang.renderpearl.api.commands.RenderPass.Draw;
+	import com.mojang.renderpearl.api.commands.RenderPass.UniformUploader;
+	import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
+	import com.mojang.renderpearl.api.pipeline.*;
+#elif MC_VERSION >= MC_26_2_0
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+	import com.mojang.blaze3d.pipeline.*;
+	import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
+	import com.mojang.blaze3d.shaders.UniformType;
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.systems.RenderPass.Draw;
+	import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
+	import com.mojang.blaze3d.vertex.VertexFormat;
 	import com.mojang.blaze3d.PrimitiveTopology;
 	import com.mojang.blaze3d.IndexType;
 #else
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+	import com.mojang.blaze3d.pipeline.*;
+	import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
+	import com.mojang.blaze3d.shaders.UniformType;
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.systems.RenderPass.Draw;
+	import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
+	import com.mojang.blaze3d.vertex.VertexFormat;
 	import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
+	import com.mojang.blaze3d.PrimitiveTopology;
+	import com.mojang.blaze3d.IndexType;
 #endif
 
 @Environment(EnvType.CLIENT)
@@ -50,8 +68,13 @@ public class FlatLodRenderer extends LodRenderer {
 					.withBindGroupLayout(
 						BindGroupLayout
 						.builder()
-						.withSampler("blockAtlas")
-						.withSampler("lightmap")
+						#if MC_VERSION >= MC_26_3_0
+							.withUniform("blockAtlas", UniformType.COMBINED_IMAGE_SAMPLER)
+							.withUniform("lightmap", UniformType.COMBINED_IMAGE_SAMPLER)
+						#else
+							.withSampler("blockAtlas")
+							.withSampler("lightmap")
+						#endif
 						.withUniform("ModelOffset", UniformType.UNIFORM_BUFFER)
 						.withUniform("Fog", UniformType.UNIFORM_BUFFER)
 						.withUniform("ExtraFog", UniformType.UNIFORM_BUFFER)
@@ -96,11 +119,11 @@ public class FlatLodRenderer extends LodRenderer {
 	}
 
 	public FlatLodRenderer(FlatLodSystem system) {
-		if (
-			!RenderSystem.getDevice().precompilePipeline(SOLID).isValid() ||
-			!RenderSystem.getDevice().precompilePipeline(CUTOUT).isValid() ||
-			!RenderSystem.getDevice().precompilePipeline(TRANSLUCENT).isValid()
-		) {
+		if (!(
+			RenderVersions.isRenderPipelineValid(SOLID) &&
+			RenderVersions.isRenderPipelineValid(CUTOUT) &&
+			RenderVersions.isRenderPipelineValid(TRANSLUCENT)
+		)) {
 			throw new UnsupportedOperationException("FlatLodRenderer.PIPELINE is not valid.");
 		}
 		super(system);
@@ -161,7 +184,7 @@ public class FlatLodRenderer extends LodRenderer {
 
 	@Override
 	public void render(RenderPass pass, ChunkSectionLayer layer) {
-		pass.setPipeline(switch (layer) {
+		RenderVersions.setPipeline(pass, switch (layer) {
 			case SOLID -> SOLID;
 			case CUTOUT -> CUTOUT;
 			case TRANSLUCENT -> TRANSLUCENT;
@@ -170,7 +193,11 @@ public class FlatLodRenderer extends LodRenderer {
 		for (LodQuadNode node : this.sortedNodesToRender) {
 			FlatMesh mesh = (FlatMesh)(node.mesh);
 			BiConsumer<Void, UniformUploader> uniforms = (Void _, UniformUploader uploader) -> {
-				uploader.upload("ModelOffset", mesh.modelOffset.slice());
+				#if MC_VERSION >= MC_26_3_0
+					uploader.setUniform("ModelOffset", mesh.modelOffset.slice());
+				#else
+					uploader.upload("ModelOffset", mesh.modelOffset.slice());
+				#endif
 			};
 			DrawRange draw = mesh.getNone(layer);
 			if (draw.canDraw()) {

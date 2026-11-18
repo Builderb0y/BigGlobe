@@ -41,10 +41,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.EndSpikeFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -107,6 +106,10 @@ import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 public class BigGlobeAutoCodec {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(BigGlobeMod.MODNAME + "/Codecs");
@@ -153,8 +156,11 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<MobEffect>                             STATUS_EFFECT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (MobEffect               .class),                Registries.MOB_EFFECT                         );
 	public static final RegistryCoders<ParticleType<?>>                       PARTICLE_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ParticleType            .class),                Registries.PARTICLE_TYPE                      );
 	public static final RegistryCoders<DimensionType>                        DIMENSION_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (DimensionType           .class),                Registries.DIMENSION_TYPE                     );
-	public static final RegistryCoders<ConfiguredWorldCarver<?>>          CONFIGURED_CARVER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredWorldCarver   .class),                Registries.CONFIGURED_CARVER                  );
+	#if MC_VERSION >= MC_26_3_0
+	public static final RegistryCoders<Feature>                          CONFIGURED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (Feature                 .class),                Registries.FEATURE                            );
+	#else
 	public static final RegistryCoders<ConfiguredFeature<?, ?>>          CONFIGURED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredFeature       .class),                Registries.CONFIGURED_FEATURE                 );
+	#endif
 	public static final RegistryCoders<PlacedFeature>                        PLACED_FEATURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (PlacedFeature           .class),                Registries.PLACED_FEATURE                     );
 	public static final RegistryCoders<Structure>                                 STRUCTURE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (Structure               .class),                Registries.STRUCTURE                          );
 	public static final RegistryCoders<StructureType<?>>                     STRUCTURE_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(StructureType           .class),                Registries.STRUCTURE_TYPE                     );
@@ -162,7 +168,6 @@ public class BigGlobeAutoCodec {
 	public static final RegistryCoders<StructureProcessorList>     STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (StructureProcessorList  .class),                Registries.PROCESSOR_LIST                     );
 	public static final RegistryCoders<StructureTemplatePool>                STRUCTURE_POOL_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (StructureTemplatePool   .class),                Registries.TEMPLATE_POOL                      );
 	public static final RegistryCoders<Biome>                                         BIOME_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (Biome                   .class),                Registries.BIOME                              );
-	public static final RegistryCoders<DensityFunction>                    DENSITY_FUNCTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (DensityFunction         .class),                Registries.DENSITY_FUNCTION                   );
 	public static final RegistryCoders<NoiseGeneratorSettings>     CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (NoiseGeneratorSettings  .class),                Registries.NOISE_SETTINGS                     );
 	public static final RegistryCoders<WorldPreset>                            WORLD_PRESET_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (WorldPreset             .class),                Registries.WORLD_PRESET                       );
 	public static final RegistryCoders<WoodPalette>                            WOOD_PALETTE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from                     (WoodPalette             .class), BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY          );
@@ -188,7 +193,6 @@ public class BigGlobeAutoCodec {
 		STATUS_EFFECT_REGISTRY_CODERS,
 		PARTICLE_TYPE_REGISTRY_CODERS,
 		DIMENSION_TYPE_REGISTRY_CODERS,
-		CONFIGURED_CARVER_REGISTRY_CODERS,
 		CONFIGURED_FEATURE_REGISTRY_CODERS,
 		PLACED_FEATURE_REGISTRY_CODERS,
 		STRUCTURE_REGISTRY_CODERS,
@@ -197,7 +201,6 @@ public class BigGlobeAutoCodec {
 		STRUCTURE_PROCESSOR_LIST_REGISTRY_CODERS,
 		STRUCTURE_POOL_REGISTRY_CODERS,
 		BIOME_REGISTRY_CODERS,
-		DENSITY_FUNCTION_REGISTRY_CODERS,
 		CHUNK_GENERATOR_SETTINGS_REGISTRY_CODERS,
 		WORLD_PRESET_REGISTRY_CODERS,
 		WOOD_PALETTE_REGISTRY_CODERS,
@@ -301,10 +304,18 @@ public class BigGlobeAutoCodec {
 							this.addRaw(Structure.StructureSettings.class, autoCodec.wrapDFUCodec(Structure.StructureSettings.CODEC.codec()));
 
 							this.addRaw(LootPoolEntryContainer.class, autoCodec.wrapDFUCodec(LootPoolEntries.CODEC));
-							this.addRaw(LootItemFunction.class, autoCodec.wrapDFUCodec(LootItemFunctions.ROOT_CODEC));
+							this.addRaw(LootItemFunction.class, autoCodec.wrapDFUCodec(LootItemFunctions.#if MC_VERSION >= MC_26_3_0 DIRECT_CODEC #else ROOT_CODEC #endif));
 							this.addRaw(LootItemCondition.class, autoCodec.wrapDFUCodec(LootItemCondition.DIRECT_CODEC));
 
-							this.addRaw(BlockBehaviour.Properties.class, autoCodec.wrapDFUCodec(BlockBehaviour.Properties.CODEC));
+							#if MC_VERSION >= MC_26_3_0
+								this.addGeneric(ReifiedType.parameterize(Holder.class, ReifiedType.from(LootItemCondition.class)), autoCodec.wrapDFUCodec(LootItemCondition.CODEC));
+								this.addGeneric(ReifiedType.parameterize(Holder.class, ReifiedType.from(LootItemFunction.class)), autoCodec.wrapDFUCodec(LootItemFunctions.CODEC));
+								this.addRaw(EndSpikeFeature.class, autoCodec.wrapDFUCodec(EndSpikeFeature.CODEC.codec()));
+							#endif
+
+							#if MC_VERSION < MC_26_3_0
+								this.addRaw(BlockBehaviour.Properties.class, autoCodec.wrapDFUCodec(BlockBehaviour.Properties.CODEC));
+							#endif
 							this.addRaw(TreeGrower.class, autoCodec.wrapDFUCodec(TreeGrower.CODEC));
 							this.addRaw(BlockSetType.class, autoCodec.wrapDFUCodec(BlockSetType.CODEC));
 							this.addRaw(WoodType.class, autoCodec.wrapDFUCodec(WoodType.CODEC));
@@ -345,36 +356,40 @@ public class BigGlobeAutoCodec {
 		public @NotNull ReflectionManager createReflectionManager() {
 			return new ReflectionManager() {
 
-				public static final Method BLOCK_SETTINGS_GETTER;
+				#if MC_VERSION < MC_26_3_0
 
-				static {
-					try {
-						BLOCK_SETTINGS_GETTER = BlockBehaviour.class.getDeclaredMethod("properties");
-					}
-					catch (NoSuchMethodException exception) {
-						throw AutoCodecUtil.rethrow(exception);
-					}
-				}
+					public static final Method BLOCK_SETTINGS_GETTER;
 
-				@Override
-				public @NotNull <T_Owner> ClassCache<T_Owner> createClassCache(@NotNull Class<T_Owner> owner) {
-					ClassCache<T_Owner> cache = super.createClassCache(owner);
-					if (owner == BLOCK_SETTINGS_GETTER.getDeclaringClass()) {
-						cache.methods = new Method[] { BLOCK_SETTINGS_GETTER };
+					static {
+						try {
+							BLOCK_SETTINGS_GETTER = BlockBehaviour.class.getDeclaredMethod("properties");
+						}
+						catch (NoSuchMethodException exception) {
+							throw AutoCodecUtil.rethrow(exception);
+						}
 					}
-					return cache;
-				}
 
-				@Override
-				public @NotNull <T_Owner> TypeCache<T_Owner> createTypeCache(@NotNull ReifiedType<T_Owner> owner) {
-					TypeCache<T_Owner> cache = super.createTypeCache(owner);
-					if (owner.getRawClass() == BLOCK_SETTINGS_GETTER.getDeclaringClass()) {
-						cache.fields = new FieldLikeMemberView[] {
-							new PseudoFieldView<>(owner, new PseudoField(owner.getRawClass(), "settings", BLOCK_SETTINGS_GETTER, null))
-						};
+					@Override
+					public @NotNull <T_Owner> ClassCache<T_Owner> createClassCache(@NotNull Class<T_Owner> owner) {
+						ClassCache<T_Owner> cache = super.createClassCache(owner);
+						if (owner == BLOCK_SETTINGS_GETTER.getDeclaringClass()) {
+							cache.methods = new Method[] { BLOCK_SETTINGS_GETTER };
+						}
+						return cache;
 					}
-					return cache;
-				}
+
+					@Override
+					public @NotNull <T_Owner> TypeCache<T_Owner> createTypeCache(@NotNull ReifiedType<T_Owner> owner) {
+						TypeCache<T_Owner> cache = super.createTypeCache(owner);
+						if (owner.getRawClass() == BLOCK_SETTINGS_GETTER.getDeclaringClass()) {
+							cache.fields = new FieldLikeMemberView[] {
+								new PseudoFieldView<>(owner, new PseudoField(owner.getRawClass(), "settings", BLOCK_SETTINGS_GETTER, null))
+							};
+						}
+						return cache;
+					}
+
+				#endif
 
 				@Override
 				public boolean canView(@NotNull Class<?> clazz) {

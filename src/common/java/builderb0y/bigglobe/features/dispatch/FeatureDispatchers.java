@@ -2,13 +2,14 @@ package builderb0y.bigglobe.features.dispatch;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
@@ -22,14 +23,18 @@ import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 public class FeatureDispatchers implements DelayedCompileable {
 
-	public final DelayedEntryList<ConfiguredFeature<?, ?>>[] rock_replacers;
+	public final DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>[] rock_replacers;
 	public transient ConfiguredRockReplacerFeature<?> @Nullable [] flattenedRockReplacers;
 	public final Holder<FeatureDispatcher> raw, normal;
 
 	public FeatureDispatchers(
-		DelayedEntryList<ConfiguredFeature<?, ?>>[] rock_replacers,
+		DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>[] rock_replacers,
 		Holder<FeatureDispatcher> raw,
 		Holder<FeatureDispatcher> normal
 	) {
@@ -87,23 +92,20 @@ public class FeatureDispatchers implements DelayedCompileable {
 		if (this.flattenedRockReplacers == null) {
 			this.flattenedRockReplacers = (
 				Arrays
-					.stream(this.rock_replacers)
-					.flatMap(DelayedEntryList::entryStream)
-					.filter((Holder<ConfiguredFeature<?, ?>> entry) -> {
-						//entry.value().feature().is(RockReplacerFeature).unless(
-						//	log warning
-						//)
-						if (entry.value().feature() instanceof RockReplacerFeature<?>) {
-							return true;
-						}
-						else {
-							BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
-							return false;
-						}
-					})
-					.map(Holder::value)
-					.map(ConfiguredRockReplacerFeature::new)
-					.toArray(ConfiguredRockReplacerFeature[]::new)
+				.stream(this.rock_replacers)
+				.flatMap(DelayedEntryList::entryStream)
+				.map((Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) -> {
+					if (entry.value() #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof RockReplacerFeature<?> rockReplacer) {
+						return rockReplacer;
+					}
+					else {
+						BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
+						return null;
+					}
+				})
+				.filter(Objects::nonNull)
+				.map(ConfiguredRockReplacerFeature::new)
+				.toArray(ConfiguredRockReplacerFeature[]::new)
 			);
 		}
 		return this.flattenedRockReplacers;

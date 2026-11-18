@@ -1,10 +1,7 @@
 package builderb0y.bigglobe.structures.management;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -14,6 +11,7 @@ import java.util.stream.Stream;
 import com.google.common.base.Predicates;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -23,8 +21,7 @@ import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.biome.Climate.Sampler;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
@@ -546,37 +543,89 @@ public class FlatStructureLocator extends StructureLocator {
 					minY = (context.chunkGenerator().height.min_y()    ) >> 2,
 					maxY = (context.chunkGenerator().height.max_y() - 1) >> 2;
 				BiomeSource biomeSource = context.chunkGenerator().biome_source();
-				if (biomeSource instanceof ScriptedColumnBiomeSource scripted) {
-					return (
+				return switch (biomeSource) {
+					case ScriptedColumnBiomeSource scripted -> {
+						//expected most common case.
+						ConcurrentLinkedQueue<Set<Holder<Biome>>> queue = new ConcurrentLinkedQueue<>();
 						IntStream.rangeClosed(minZ, maxZ).parallel().mapToObj((int biomeZ) -> {
 							return IntStream.rangeClosed(minX, maxX).parallel().mapToObj((int biomeX) -> {
 								ScriptedColumn column = scripted.columnThreadLocal.get();
 								column.setParamsUnchecked(column.params.at(biomeX << 2, biomeZ << 2));
-								return IntStream.rangeClosed(minY, maxY).sequential().mapToObj((int biomeY) -> {
-									return scripted.script.get(column, biomeY << 2).entry;
-								});
+								Set<Holder<Biome>> columnBiomes = new ObjectOpenHashSet<>();
+								Holder<Biome> previous = null;
+								for (int biomeY = minY; biomeY <= maxY; biomeY++) {
+									Holder<Biome> current = scripted.script.get(column, biomeY << 2).entry;
+									if (current != previous) {
+										columnBiomes.add(previous = current);
+									}
+								}
+								return columnBiomes;
 							});
 						})
 						.flatMap(Function.identity())
-						.flatMap(Function.identity())
-						.collect(Collectors.toSet())
-					);
-				}
-				else {
-					Sampler sampler = context.structureState().randomState().sampler();
-					return (
-						IntStream.rangeClosed(minZ, maxZ).parallel().mapToObj((int biomeZ) -> {
-							return IntStream.rangeClosed(minX, maxX).parallel().mapToObj((int biomeX) -> {
-								return IntStream.rangeClosed(minY, maxY).mapToObj((int biomeY) -> {
-									return biomeSource.getNoiseBiome(biomeX, biomeY, biomeZ, sampler);
+						.forEach(queue::add);
+						Set<Holder<Biome>> regionBiomes = new ObjectOpenHashSet<>();
+						for (Set<Holder<Biome>> set; (set = queue.poll()) != null; regionBiomes.addAll(set));
+						yield regionBiomes;
+					}
+					case FixedBiomeSource fixed -> {
+						//I sometimes use fixed sources for testing.
+						yield fixed.possibleBiomes();
+					}
+					case CheckerboardColumnBiomeSource checkerboard -> {
+						//never used checkerboards before, but handling them is easy, so whatever.
+						yield checkerboard.possibleBiomes();
+					}
+					default -> {
+						//this just leaves MultiNoiseBiomeSource, TheEndBiomeSource, and modded sources.
+						//I don't know why you'd use these in a big globe world,
+						//but I still want to handle them sanely.
+						#if MC_VERSION >= MC_26_3_0
+							BiomeResolver resolver = biomeSource.createResolverForChunk(
+								context.climateSampler(),
+								minX,
+								minY,
+								minZ,
+								maxX - minX + 1,
+								maxY - minY + 1,
+								maxZ - minZ + 1
+							);
+							ConcurrentLinkedQueue<Set<Holder<Biome>>> queue = new ConcurrentLinkedQueue<>();
+							IntStream.rangeClosed(minZ, maxZ).parallel().mapToObj((int biomeZ) -> {
+								return IntStream.rangeClosed(minX, maxX).parallel().mapToObj((int biomeX) -> {
+									Set<Holder<Biome>> columnBiomes = new ObjectOpenHashSet<>();
+									Holder<Biome> previous = null;
+									for (int biomeY = minY; biomeY <= maxY; biomeY++) {
+										Holder<Biome> current = resolver.getNoiseBiome(biomeX, biomeY, biomeZ);
+										if (previous != current) {
+											columnBiomes.add(previous = current);
+										}
+									}
+									return columnBiomes;
 								});
-							});
-						})
-						.flatMap(Function.identity())
-						.flatMap(Function.identity())
-						.collect(Collectors.toSet())
-					);
-				}
+							})
+							.flatMap(Function.identity())
+							.forEach(queue::add);
+							Set<Holder<Biome>> regionBiomes = new ObjectOpenHashSet<>();
+							for (Set<Holder<Biome>> set; (set = queue.poll()) != null; regionBiomes.addAll(set));
+							yield regionBiomes;
+						#else
+							Sampler sampler = context.structureState().randomState().sampler();
+							return (
+								IntStream.rangeClosed(minZ, maxZ).parallel().mapToObj((int biomeZ) -> {
+									return IntStream.rangeClosed(minX, maxX).parallel().mapToObj((int biomeX) -> {
+										return IntStream.rangeClosed(minY, maxY).mapToObj((int biomeY) -> {
+											return biomeSource.getNoiseBiome(biomeX, biomeY, biomeZ, sampler);
+										});
+									});
+								})
+								.flatMap(Function.identity())
+								.flatMap(Function.identity())
+								.collect(Collectors.toSet())
+							);
+						#endif
+					}
+				};
 			});
 		}
 

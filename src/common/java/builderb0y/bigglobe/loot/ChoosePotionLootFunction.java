@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.loot;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 
@@ -30,14 +31,31 @@ public class ChoosePotionLootFunction extends LootItemConditionalFunction {
 
 	public final IRandomList<@UseName("potion") Holder<Potion>> potions;
 
-	public ChoosePotionLootFunction(List<LootItemCondition> conditions, IRandomList<Holder<Potion>> potions) {
+	public ChoosePotionLootFunction(
+		#if MC_VERSION >= MC_26_3_0
+			Optional<Holder<LootItemCondition>> conditions,
+		#else
+			List<LootItemCondition> conditions,
+		#endif
+		IRandomList<Holder<Potion>> potions
+	) {
 		super(conditions);
 		this.potions = potions;
 	}
 
-	public @DefaultEmpty List<LootItemCondition> conditions() {
-		return this.predicates;
-	}
+	#if MC_VERSION >= MC_26_3_0
+
+		public Optional<Holder<LootItemCondition>> conditions() {
+			return this.condition;
+		}
+
+	#else
+
+		public @DefaultEmpty List<LootItemCondition> conditions() {
+			return this.predicates;
+		}
+
+	#endif
 
 	@Override
 	public ItemStack run(ItemStack stack, LootContext context) {

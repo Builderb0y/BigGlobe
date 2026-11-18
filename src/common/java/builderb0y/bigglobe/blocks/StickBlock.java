@@ -11,14 +11,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class StickBlock extends SurfaceMaterialDecorationBlock {
 
-	//don't load BigGlobeAutoCodec too early.
-	public static final MapCodec<StickBlock> CODEC = BlockBehaviour.simpleCodec(StickBlock::new);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		//don't classload BigGlobeAutoCodec too early.
+		public static final MapCodec<StickBlock> CODEC = BlockBehaviour.simpleCodec(StickBlock::new);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public static final VoxelShape SHAPE = Shapes.create(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
 
@@ -28,7 +32,6 @@ public class StickBlock extends SurfaceMaterialDecorationBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}

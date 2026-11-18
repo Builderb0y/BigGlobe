@@ -39,13 +39,17 @@ import builderb0y.bigglobe.versions.GameruleVersions;
 @AddPseudoField("fluid")
 public class RiverWaterBlock extends LiquidBlock {
 
-	public static final MapCodec<RiverWaterBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RiverWaterBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<RiverWaterBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RiverWaterBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public RiverWaterBlock(Holder<Fluid> fluid, Properties settings) {
 		super((FlowingFluid)(fluid.value()), settings);
@@ -68,22 +72,21 @@ public class RiverWaterBlock extends LiquidBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void entityInside(
 		BlockState state,
 		Level world,
 		BlockPos pos,
-		Entity entity
-		, InsideBlockEffectApplier handler
-		, boolean movingFastOrBlockPosIsInsideDestinationBox
+		Entity entity,
+		InsideBlockEffectApplier handler,
+		boolean movingFastOrBlockPosIsInsideDestinationBox
 	) {
 		super.entityInside(
 			state,
 			world,
 			pos,
-			entity
-			, handler
-			, movingFastOrBlockPosIsInsideDestinationBox
+			entity,
+			handler,
+			movingFastOrBlockPosIsInsideDestinationBox
 		);
 		if (
 			movingFastOrBlockPosIsInsideDestinationBox &&

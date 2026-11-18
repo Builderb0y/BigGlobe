@@ -13,9 +13,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.annotations.Wrapper;
@@ -46,18 +43,24 @@ import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.TypeInfos;
 
-public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config> {
+public class ArtificialTreeFeature extends FeatureAdapter<ArtificialTreeFeature.Config> {
 
-	public ArtificialTreeFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public ArtificialTreeFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public ArtificialTreeFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public ArtificialTreeFeature() {
+			this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		WorldGenLevel world = context.level();
 		Config config = context.config();
@@ -143,7 +146,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		@VerifyNullable Decorations decorations,
 		ColumnRandomYToIntScript.@VerifyNullable Catcher max_saplings
 	)
-		implements FeatureConfiguration {}
+	implements FeatureAdapter.Config {}
 
 	public static record Branches(
 		RandomSource start_frac_y,

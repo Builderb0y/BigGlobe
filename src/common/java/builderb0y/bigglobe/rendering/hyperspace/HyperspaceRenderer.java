@@ -2,19 +2,12 @@ package builderb0y.bigglobe.rendering.hyperspace;
 
 import java.util.OptionalInt;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -45,10 +38,29 @@ import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
-#if MC_VERSION >= MC_26_2_0
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.GpuFormat;
+	import com.mojang.renderpearl.api.buffers.GpuBuffer;
+	import com.mojang.renderpearl.api.commands.RenderPass;
+	import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
+	import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+	import com.mojang.renderpearl.api.pipeline.UniformType;
+	import com.mojang.renderpearl.api.textures.FilterMode;
+	import com.mojang.renderpearl.api.textures.GpuSampler;
+#elif MC_VERSION >= MC_26_2_0
+	import com.mojang.blaze3d.buffers.GpuBuffer;
 	import com.mojang.blaze3d.GpuFormat;
-	import com.mojang.blaze3d.PrimitiveTopology;
 	import com.mojang.blaze3d.pipeline.BindGroupLayout;
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.PrimitiveTopology;
+	import com.mojang.blaze3d.shaders.UniformType;
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.textures.FilterMode;
+	import com.mojang.blaze3d.textures.GpuSampler;
+	import com.mojang.blaze3d.vertex.VertexFormat;
+#else
+
 #endif
 
 @Environment(EnvType.CLIENT)
@@ -80,7 +92,11 @@ public class HyperspaceRenderer implements SafeCloseable {
 				.withBindGroupLayout(
 					BindGroupLayout
 					.builder()
-					.withSampler("previousPass")
+					#if MC_VERSION >= MC_26_3_0
+						.withUniform("previousPass", UniformType.COMBINED_IMAGE_SAMPLER)
+					#else
+						.withSampler("previousPass")
+					#endif
 					.build()
 				)
 			#else
@@ -240,9 +256,14 @@ public class HyperspaceRenderer implements SafeCloseable {
 				"Big Globe hyperspace swap framebuffer",
 				1,
 				1,
-				false
-				#if MC_VERSION >= MC_26_2_0
-					, GpuFormat.RGBA8_UNORM
+				#if MC_VERSION >= MC_26_3_0
+					GpuFormat.RGBA8_SNORM,
+					null
+				#elif MC_VERSION >= MC_26_2_0
+					false,
+					 GpuFormat.RGBA8_UNORM
+				#else
+					false
 				#endif
 			);
 			this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
@@ -286,11 +307,11 @@ public class HyperspaceRenderer implements SafeCloseable {
 
 	public void doRender(LevelTerrainRenderContext context) {
 		if (
-			RenderSystem.getDevice().precompilePipeline(         VOLUME_PIPELINE).isValid() &&
-			RenderSystem.getDevice().precompilePipeline(HORIZONTAL_BLUR_PIPELINE).isValid() &&
-			RenderSystem.getDevice().precompilePipeline(  VERTICAL_BLUR_PIPELINE).isValid() &&
-			RenderSystem.getDevice().precompilePipeline(        FRACTAL_PIPELINE).isValid() &&
-			RenderSystem.getDevice().precompilePipeline(       COLLAPSE_PIPELINE).isValid()
+			RenderVersions.isRenderPipelineValid(         VOLUME_PIPELINE) &&
+			RenderVersions.isRenderPipelineValid(HORIZONTAL_BLUR_PIPELINE) &&
+			RenderVersions.isRenderPipelineValid(  VERTICAL_BLUR_PIPELINE) &&
+			RenderVersions.isRenderPipelineValid(        FRACTAL_PIPELINE) &&
+			RenderVersions.isRenderPipelineValid(       COLLAPSE_PIPELINE)
 		) {
 			RenderTarget mainTarget = RenderVersions.getMainRenderTarget();
 			if (this.swapFramebuffer.width != mainTarget.width || this.swapFramebuffer.height != mainTarget.height) {
@@ -351,7 +372,7 @@ public class HyperspaceRenderer implements SafeCloseable {
 				target.getColorTextureView()
 			)
 		) {
-			pass.setPipeline(VOLUME_PIPELINE);
+			RenderVersions.setPipeline(pass, VOLUME_PIPELINE);
 			pass.setUniform("Uniforms", this.volumeUniforms);
 			RenderVersions.drawScreenTriangle(pass);
 		}
@@ -376,9 +397,9 @@ public class HyperspaceRenderer implements SafeCloseable {
 				destination.getColorTextureView()
 			)
 		) {
-			pass.setPipeline(vertical ? VERTICAL_BLUR_PIPELINE : HORIZONTAL_BLUR_PIPELINE);
+			RenderVersions.setPipeline(pass, vertical ? VERTICAL_BLUR_PIPELINE : HORIZONTAL_BLUR_PIPELINE);
 			pass.setUniform("Uniforms", this.blurUniforms);
-			pass.bindTexture("previousPass", source.getColorTextureView(), this.sampler);
+			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.sampler);
 			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
@@ -411,9 +432,9 @@ public class HyperspaceRenderer implements SafeCloseable {
 				destination.getColorTextureView()
 			)
 		) {
-			pass.setPipeline(FRACTAL_PIPELINE);
+			RenderVersions.setPipeline(pass, FRACTAL_PIPELINE);
 			pass.setUniform("Uniforms", this.fractalUniforms);
-			pass.bindTexture("previousPass", source.getColorTextureView(), this.sampler);
+			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.sampler);
 			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
@@ -439,9 +460,9 @@ public class HyperspaceRenderer implements SafeCloseable {
 				destination.getColorTextureView()
 			)
 		) {
-			pass.setPipeline(COLLAPSE_PIPELINE);
+			RenderVersions.setPipeline(pass, COLLAPSE_PIPELINE);
 			pass.setUniform("Uniforms", this.collapseUniforms);
-			pass.bindTexture("previousPass", source.getColorTextureView(), this.sampler);
+			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.sampler);
 			RenderVersions.drawScreenTriangle(pass);
 		}
 	}

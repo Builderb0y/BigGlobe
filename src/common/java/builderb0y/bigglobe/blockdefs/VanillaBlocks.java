@@ -44,7 +44,7 @@ public class VanillaBlocks {
 			.noCollision()
 			.offsetType(OffsetType.XZ)
 			.sound(SoundType.WOOD)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		),
 		FLINT = new FlintBlock(
 			BlockBehaviour
@@ -56,6 +56,6 @@ public class VanillaBlocks {
 			.noCollision()
 			.offsetType(OffsetType.XZ)
 			.sound(SoundType.STONE)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		);
 }

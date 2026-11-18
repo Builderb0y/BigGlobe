@@ -10,6 +10,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,9 +21,13 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public abstract class ChorusSporeBlock extends VegetationBlock implements BonemealableBlock {
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public abstract MapCodec codec();
+	#if MC_VERSION < MC_26_3_0
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public abstract MapCodec codec();
+
+	#endif
 
 	public final Holder<Block> grow_into;
 
@@ -33,7 +38,6 @@ public abstract class ChorusSporeBlock extends VegetationBlock implements Boneme
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public abstract VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context);
 
 	@Override
@@ -46,18 +50,30 @@ public abstract class ChorusSporeBlock extends VegetationBlock implements Boneme
 		LevelReader world,
 		BlockPos pos,
 		BlockState state
-
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
 	) {
 		return true;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(
+		Level world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
+	) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(
+		ServerLevel world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
+	) {
 		SingleBlockFeature.place(world, pos, this.grow_into.value().defaultBlockState(), SingleBlockFeature.IS_REPLACEABLE);
 	}
 }

@@ -16,13 +16,19 @@ import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class OreFeature extends AbstractOreFeature<OreFeature.Config> {
 
-	public OreFeature(Codec<OreFeature.Config> codec) {
-		super(codec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public OreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OreFeature.Config.class));
-	}
+		public OreFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public OreFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(OreFeature.Config.class));
+		}
+
+	#endif
 
 	@Override
 	public OreBlockReplacer getReplacer(SectionGenerationContext context, OreFeature.Config config) {

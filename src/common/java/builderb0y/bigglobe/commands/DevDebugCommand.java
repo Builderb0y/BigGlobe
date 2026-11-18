@@ -27,7 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.phys.Vec3;
@@ -54,6 +54,10 @@ import builderb0y.bigglobe.util.Streamable;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
 
 public class DevDebugCommand {
 
@@ -153,7 +157,7 @@ public class DevDebugCommand {
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			if (generator.game_mechanics.mob_spawn_tweakers() != null) {
 				BlockPos pos = BlockPos.containing(context.getSource().getPosition());
-				SpawnMap map = generator.game_mechanics.mob_spawn_tweakers().getRawSpawnEntries(generator, pos, context.getArgument("category", MobCategory.class), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
+				SpawnMap map = generator.game_mechanics.mob_spawn_tweakers().getRawSpawnEntries(generator, pos, context.getArgument("category", MobCategory.class), new Permuter(world.getRandom().nextLong()));
 				for (Map.Entry<EntityType<?>, SpawnParams> entry : map.backingMap.entrySet()) {
 					BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(entry.getKey().builtInRegistryHolder()) + ": " + entry.getValue());
 				}
@@ -171,8 +175,8 @@ public class DevDebugCommand {
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			if (generator.game_mechanics.mob_spawn_tweakers() != null) {
 				BlockPos pos = BlockPos.containing(context.getSource().getPosition());
-				EntityType<?> type = ResourceArgument.getEntityType(context, "entityType").value();
-				SpawnMap map = generator.game_mechanics.mob_spawn_tweakers().getRawSpawnEntries(generator, pos, type.getCategory(), world.getBiome(pos), new Permuter(world.getRandom().nextLong()));
+				EntityType<?> type = ResourceArgument.getResource(context, "entityType", Registries.ENTITY_TYPE).value();
+				SpawnMap map = generator.game_mechanics.mob_spawn_tweakers().getRawSpawnEntries(generator, pos, type.getCategory(), new Permuter(world.getRandom().nextLong()));
 				BigGlobeMod.LOGGER.info(UnregisteredObjectException.getID(type.builtInRegistryHolder()) + ": " + map.backingMap.get(type));
 				return 1;
 			}
@@ -281,17 +285,22 @@ public class DevDebugCommand {
 
 	public static int displaySingleOreChance(CommandContext<CommandSourceStack> context) {
 		if (context.getSource().getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
-			ConfiguredFeature<?, ?> ore = (
+			#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif ore = (
 				RegistryVersions.getRegistry(
 					context
 					.getSource()
 					.getServer()
 					.registryAccess(),
-					Registries.CONFIGURED_FEATURE
+					Registries.#if MC_VERSION >= MC_26_3_0 FEATURE #else CONFIGURED_FEATURE #endif
 				)
 				.getValue(context.getArgument("ore", Identifier.class))
 			);
+			#if MC_VERSION >= MC_26_3_0
+			if (ore instanceof OreFeature feature) {
+				OreFeature.Config config = feature.config;
+			#else
 			if (ore != null && ore.config() instanceof OreFeature.Config config) {
+			#endif
 				Vec3 pos = context.getSource().getPosition();
 				ScriptedColumn column = generator.newColumn(
 					context.getSource().getLevel(),
@@ -349,25 +358,31 @@ public class DevDebugCommand {
 				ColumnUsage.GENERIC.normalHints()
 			);
 			Arrays
-				.stream(generator.feature_dispatcher.rock_replacers)
-				.flatMap(DelayedEntryList::entryStream)
-				.filter((Holder<ConfiguredFeature<?, ?>> entry) -> (
+			.stream(generator.feature_dispatcher.rock_replacers)
+			.flatMap(DelayedEntryList::entryStream)
+			.filter((Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) -> (
+				#if MC_VERSION >= MC_26_3_0
+					entry.value() instanceof OreFeature
+				#else
 					entry.value().config() instanceof OreFeature.Config
-				))
-				.sorted(Comparator.comparing(UnregisteredObjectException::getID))
-				.forEachOrdered((Holder<ConfiguredFeature<?, ?>> entry) -> {
-					context.getSource().sendSuccess(
-						() -> Component.literal(
-							UnregisteredObjectException.getID(entry) + ": " + (
-								((OreFeature.Config)(entry.value().config())).chance.get(
-									column,
-									BigGlobeMath.floorI(pos.y)
-								)
-							)
-						),
-						false
-					);
-				});
+				#endif
+			))
+			.sorted(Comparator.comparing(UnregisteredObjectException::getID))
+			.forEachOrdered((Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) -> {
+				context.getSource().sendSuccess(
+					() -> Component.literal(
+						UnregisteredObjectException.getID(entry) + ": " + (
+							#if MC_VERSION >= MC_26_3_0
+								((OreFeature)(entry.value())).config
+							#else
+								((OreFeature.Config)(entry.value().config()))
+							#endif
+							.chance.get(column, BigGlobeMath.floorI(pos.y))
+						)
+					),
+					false
+				);
+			});
 			return 1;
 		}
 		else {

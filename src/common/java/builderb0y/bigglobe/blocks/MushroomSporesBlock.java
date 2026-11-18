@@ -15,13 +15,17 @@ public class MushroomSporesBlock extends VegetationBlock {
 
 	public static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
 
-	public static final MapCodec<MushroomSporesBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MushroomSporesBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<MushroomSporesBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MushroomSporesBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public MushroomSporesBlock(Properties settings) {
 		super(settings);
@@ -34,7 +38,6 @@ public class MushroomSporesBlock extends VegetationBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}

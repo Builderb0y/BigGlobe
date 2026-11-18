@@ -22,13 +22,19 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Config> implements RockReplacerFeature<ChunkSprinkleFeature.Config> {
 
-	public ChunkSprinkleFeature(Codec<Config> codec) {
-		super(codec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public ChunkSprinkleFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public ChunkSprinkleFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public ChunkSprinkleFeature() {
+			this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
 	public void replaceRocks(

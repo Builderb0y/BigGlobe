@@ -55,16 +55,14 @@ implements Comparable<SpawnTweaker> {
 		MobCategory category,
 		ScriptedColumn column,
 		int y,
-		BiomeEntry biome,
 		RandomGenerator random,
 		SpawnMap spawnMap,
-		SpawnParams spawnParams,
 		SpawnTweakerTag tag
 	) {
 		for (SpawnTweaker tweaker : tag.list.objectList()) {
 			MobCategory category2 = tweaker.getCategory();
 			if (category2 == null || category2 == category) {
-				tweaker.script.tweak(category, column, y, biome, random, spawnMap, tweaker.primary_entity() != null ? spawnMap._get(tweaker.primary_entity().value()) : null);
+				tweaker.script.tweak(category, column, y, random, spawnMap, tweaker.primary_entity() != null ? spawnMap._get(tweaker.primary_entity().value()) : null);
 			}
 		}
 	}
@@ -75,7 +73,6 @@ implements Comparable<SpawnTweaker> {
 			MobCategory category,
 			ScriptedColumn column,
 			int y,
-			BiomeEntry biome,
 			RandomGenerator random,
 			SpawnMap spawnMap,
 			SpawnParams spawnParams
@@ -125,10 +122,8 @@ implements Comparable<SpawnTweaker> {
 					.addImplicitArgument(load("category", type(MobCategory.class)))
 					.addImplicitArgumentOfType(load(parameters.actualColumn), ScriptedColumn.class)
 					.addImplicitArgument(load("y", type(int.class)))
-					.addImplicitArgument(load("biome", type(BiomeEntry.class)))
 					.addImplicitArgument(load("random", type(RandomGenerator.class)))
 					.addImplicitArgument(load("spawnMap", type(SpawnMap.class)))
-					.addImplicitArgument(load("spawnParams", type(SpawnParams.class)))
 					.addRequiredArgument(SpawnTweakerTag.class)
 					.buildFunction()
 				)
@@ -145,7 +140,6 @@ implements Comparable<SpawnTweaker> {
 				MobCategory category,
 				ScriptedColumn column,
 				int y,
-				BiomeEntry biome,
 				RandomGenerator random,
 				SpawnMap spawnMap,
 				SpawnParams spawnParams
@@ -153,7 +147,7 @@ implements Comparable<SpawnTweaker> {
 				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
 				int used = manager.used;
 				try {
-					this.script.tweak(category, column, y, biome, random, spawnMap, spawnParams);
+					this.script.tweak(category, column, y, random, spawnMap, spawnParams);
 				}
 				catch (Throwable throwable) {
 					this.onError(throwable);

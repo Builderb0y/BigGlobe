@@ -4,20 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import builderb0y.autocodec.annotations.*;
@@ -25,7 +19,6 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnScript.ColumnRandomYToDoubleScript;
 import builderb0y.bigglobe.columns.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;
@@ -46,20 +39,35 @@ import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.trees.trunks.TrunkFactory;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
-public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
+public class NaturalTreeFeature extends FeatureAdapter<NaturalTreeFeature.Config> implements SizedDelayedFeature<NaturalTreeFeature.Config> {
 
-	public NaturalTreeFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public NaturalTreeFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		public NaturalTreeFeature(Config config) {
+			super(config);
+		}
+
+		@Override
+		public Config getSizedDelayedConfig() {
+			return this.config;
+		}
+
+	#else
+
+		public NaturalTreeFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
+
+	@Override
+	public int getMaxRadiusInBlocks(Config config) {
+		return config.max_radius_in_blocks;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		Config config = context.config();
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
@@ -145,14 +153,8 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 					else if (!this.warned) {
 						this.warned = true;
 						String name;
-						ConfiguredFeature<?, ?> feature = context.topFeature().orElse(null);
-						if (feature != null) {
-							Identifier identifier = RegistryVersions.getRegistry(context.level().registryAccess(), Registries.CONFIGURED_FEATURE).getKey(feature);
-							name = identifier != null ? identifier.toString() : "<unknown>";
-						}
-						else {
-							name = "<unknown>";
-						}
+						ResourceKey<?> key = context.topFeature();
+						name = key != null ? key.identifier().toString() : "<unknown>";
 						BigGlobeMod.LOGGER.warn("Natural tree feature " + name + " is too large! Consider increasing max_radius_in_blocks.");
 					}
 				}
@@ -183,7 +185,7 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		@VerifyNullable Decorations decorations,
 		@VerifyNullable Stump stump
 	)
-	implements FeatureConfiguration, SizedDelayedFeatureConfig {
+	implements FeatureAdapter.Config {
 
 		public static <T_Encoded> void verify(VerifyContext<T_Encoded, Config> context) throws VerifyException {
 			Config config = context.object;
@@ -191,11 +193,6 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 			if (config.delay == DelayPolicy.NEVER && config.max_radius_in_blocks > 16) {
 				throw new VerifyException(() -> "'delay' must be set to 'always' or 'if_too_big' when max_radius_in_blocks is greater than 16.");
 			}
-		}
-
-		@Override
-		public int getMaxRadiusInBlocks() {
-			return this.max_radius_in_blocks;
 		}
 	}
 

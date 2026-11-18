@@ -6,7 +6,6 @@ import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -192,7 +191,7 @@ public abstract class LodSystem implements SafeCloseable {
 		try {
 			RenderTarget target = RenderVersions.getMainRenderTarget();
 			try (
-				RenderPass pass = RenderVersions.createRenderPass(
+				var pass = RenderVersions.createRenderPass(
 					"Big Globe LODs",
 					target.getColorTextureView(),
 					target.getDepthTextureView()

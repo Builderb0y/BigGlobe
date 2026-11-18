@@ -80,7 +80,7 @@ public class StructureTemplateScriptEnvironment {
 		else {
 			Identifier identifier = IdentifierVersions.create(id);
 			if (BigGlobeMod.currentServer != null) {
-				StructureTemplate template = BigGlobeMod.currentServer.getStructureManager().get(identifier).orElse(null);
+				StructureTemplate template = BigGlobeMod.currentServer.#if MC_VERSION >= MC_26_3_0 getStructureTemplateManager #else getStructureManager #endif ().get(identifier).orElse(null);
 				if (template != null) return template;
 				else throw new IllegalArgumentException("Template not found: " + identifier);
 			}

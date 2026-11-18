@@ -17,13 +17,17 @@ import builderb0y.bigglobe.util.Directions;
 
 public class BuddingQuartzBlock extends BuddingAmethystBlock {
 
-	public static final MapCodec<BuddingQuartzBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BuddingQuartzBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<BuddingQuartzBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BuddingQuartzBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public BuddingQuartzBlock(Properties settings) {
 		super(settings);

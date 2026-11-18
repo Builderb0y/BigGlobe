@@ -1,0 +1,18 @@
+{
+	"element_type": "method/override",
+	"owner": "bigglobe:nether_bubbles/sulfur/class",
+	"override": "bigglobe:nether_bubbles/base/method_surface",
+	"code": [
+		"SurfaceStates states = (",
+			"defaultHasSurface(column, y) && `bigglobe:nether/bubble/has_sulfur_or_cinnabar_noise` > 0.0I",
+			"? SurfaceStates.new().$add(",
+				"`bigglobe:nether/bubble/sulfur_or_cinnabar_noise` > 0.0",
+				"? 'minecraft:cinnabar'",
+				": 'minecraft:sulfur',",
+				"column.columnSeed(16x4570FCA6025EA9B5UL).nextInt(2, 7)",
+			")",
+			": SurfaceStates.new()",
+		")",
+		"CaveSurfaceStates.create(states, states)"
+	]
+}

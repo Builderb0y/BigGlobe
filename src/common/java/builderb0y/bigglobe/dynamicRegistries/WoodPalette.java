@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
@@ -17,23 +14,27 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 
 import builderb0y.autocodec.annotations.*;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.randomLists.IRandomList;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 @SuppressWarnings("unused")
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class WoodPalette {
 
 	public final EnumMap<WoodPaletteType, @SingletonArray IRandomList<@UseName("block") Holder<Block>>> blocks;
-	public final @DefaultEmpty Map<@Intern String, Holder<ConfiguredFeature<?, ?>>> features;
+	public final @DefaultEmpty Map<@Intern String, Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>> features;
 
 	public WoodPalette(
 		EnumMap<WoodPaletteType, IRandomList<Holder<Block>>> blocks,
-		Map<String, Holder<ConfiguredFeature<?, ?>>> features
+		Map<String, Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>> features
 	) {
 		this.blocks = blocks;
 		this.features = features;
@@ -45,19 +46,18 @@ public class WoodPalette {
 		if (palette != null && palette.blocks.size() != WoodPaletteType.VALUES.length) {
 			//slow print.
 			context.logger().logErrorLazy(() -> {
-				StringBuilder builder = new StringBuilder("WoodPalette is missing blocks: ");
+				StringJoiner joiner = new StringJoiner(", ", "WoodPalette is missing blocks: ", "");
 				for (WoodPaletteType type : WoodPaletteType.VALUES) {
 					if (!palette.blocks.containsKey(type)) {
-						builder.append(type.lowerCaseName).append(", ");
+						joiner.add(type.lowerCaseName);
 					}
 				}
-				builder.setLength(builder.length() - 2);
-				return builder.toString();
+				return joiner.toString();
 			});
 		}
 	}
 
-	public Holder<ConfiguredFeature<?, ?>> getSaplingGrowFeature() {
+	public Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> getSaplingGrowFeature() {
 		return this.features.get("sapling_grow");
 	}
 

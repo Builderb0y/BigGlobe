@@ -1,9 +1,11 @@
 package builderb0y.bigglobe.loot;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -24,7 +26,13 @@ public class RandomizeDyeColorLootFunction extends LootItemConditionalFunction {
 		return CODEC;
 	}
 
-	public RandomizeDyeColorLootFunction(List<LootItemCondition> conditions) {
+	public RandomizeDyeColorLootFunction(
+		#if MC_VERSION >= MC_26_3_0
+			Optional<Holder<LootItemCondition>> conditions
+		#else
+			List<LootItemCondition> conditions
+		#endif
+	) {
 		super(conditions);
 	}
 
@@ -34,7 +42,17 @@ public class RandomizeDyeColorLootFunction extends LootItemConditionalFunction {
 		return stack;
 	}
 
-	public @DefaultEmpty List<LootItemCondition> conditions() {
-		return this.predicates;
-	}
+	#if MC_VERSION >= MC_26_3_0
+
+		public Optional<Holder<LootItemCondition>> conditions() {
+			return this.condition;
+		}
+
+	#else
+
+		public @DefaultEmpty List<LootItemCondition> conditions() {
+			return this.predicates;
+		}
+
+	#endif
 }

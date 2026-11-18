@@ -27,7 +27,15 @@ public class NetherrackBlock_GrowProperly {
 	@reason vanilla logic is hard-coded for vanilla blocks.
 	*/
 	@Overwrite
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(
+		ServerLevel world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0
+			, net.minecraft.world.level.block.BonemealSource source
+		#endif
+	) {
 		BlockState replacement = null;
 		int chance = 0;
 		BlockPos.MutableBlockPos adjacentPos = new BlockPos.MutableBlockPos();

@@ -1,0 +1,12 @@
+{
+	"element_type": "field/enum",
+	"owner": "bigglobe:nether_bubbles/base/class",
+	"impl_type": "bigglobe:nether_bubbles/sulfur/class",
+	"name": "SULFUR",
+	"field_values": {
+		"weight": 0.75,
+		"biome": "bigglobe:nether/sulfur",
+		"mobSpawnTweakers": "#bigglobe:nether/sulfur",
+		"decorator": "bigglobe:nether/decorators/sulfur"
+	}
+}

@@ -8,10 +8,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.VegetationBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -21,13 +18,17 @@ public class ShortGrassBlock extends VegetationBlock implements BonemealableBloc
 
 	public static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 6.0D, 14.0D);
 
-	public static final MapCodec<ShortGrassBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ShortGrassBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<ShortGrassBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ShortGrassBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public ShortGrassBlock(Properties settings) {
 		super(settings);
@@ -35,7 +36,6 @@ public class ShortGrassBlock extends VegetationBlock implements BonemealableBloc
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}
@@ -45,18 +45,30 @@ public class ShortGrassBlock extends VegetationBlock implements BonemealableBloc
 		LevelReader world,
 		BlockPos pos,
 		BlockState state
-
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
 	) {
 		return true;
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(
+		Level world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
+	) {
 		return true;
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(
+		ServerLevel world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state
+		#if MC_VERSION >= MC_26_3_0 , BonemealSource source #endif
+	) {
 		BlockState replacement = Blocks.SHORT_GRASS.defaultBlockState();
 		if (replacement.canSurvive(world, pos)) {
 			world.setBlock(pos, replacement, Block.UPDATE_ALL);

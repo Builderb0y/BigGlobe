@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate.Sampler;
@@ -75,7 +76,16 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 		return this.all_possible_biomes.entryStream();
 	}
 
-	@Override
+	#if MC_VERSION >= MC_26_3_0
+
+		@Override
+		public BiomeResolver createResolver(Sampler sampler) {
+			return (int x, int y, int z) -> this.getNoiseBiome(x, y, z, sampler);
+		}
+
+	#endif
+
+	//@Override
 	public Holder<Biome> getNoiseBiome(int x, int y, int z, Sampler noise) {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {

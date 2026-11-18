@@ -16,11 +16,22 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate.Sampler;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.levelgen.RandomState;
 
 @Mixin(ChunkGeneratorStructureState.class)
 public class ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed {
 
-	@WrapOperation(method = "lambda$generateRingPositions$0", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/biome/BiomeSource;findBiomeHorizontal(IIIILjava/util/function/Predicate;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/biome/Climate$Sampler;)Lcom/mojang/datafixers/util/Pair;"))
+	@WrapOperation(
+		method = "lambda$generateRingPositions$0",
+		at = @At(
+			value = "INVOKE",
+			#if MC_VERSION >= MC_26_3_0
+				target = "Lnet/minecraft/world/level/biome/BiomeSource;findBiomeHorizontal(IIIILjava/util/function/Predicate;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/RandomState;)Lcom/mojang/datafixers/util/Pair;"
+			#else
+				target = "Lnet/minecraft/world/level/biome/BiomeSource;findBiomeHorizontal(IIIILjava/util/function/Predicate;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/biome/Climate$Sampler;)Lcom/mojang/datafixers/util/Pair;"
+			#endif
+		)
+	)
 	private @Nullable Pair<BlockPos, Holder<Biome>> bigglobe_skipSearchWhenFailureIsGuaranteed(
 		BiomeSource instance,
 		int x,
@@ -29,12 +40,16 @@ public class ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed {
 		int searchRadius,
 		Predicate<Holder<Biome>> allowed,
 		RandomSource random,
-		Sampler sampler,
+		#if MC_VERSION >= MC_26_3_0
+			RandomState stateOrSampler,
+		#else
+			Sampler samplerOrSampler,
+		#endif
 		Operation<Pair<BlockPos, Holder<Biome>>> original
 	) {
 		for (Holder<Biome> biome : instance.possibleBiomes()) {
 			if (allowed.test(biome)) {
-				return original.call(instance, x, y, z, searchRadius, allowed, random, sampler);
+				return original.call(instance, x, y, z, searchRadius, allowed, random, stateOrSampler);
 			}
 		}
 		return null;

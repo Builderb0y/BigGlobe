@@ -403,7 +403,7 @@ public class WorldWrapper extends ReadOnlyWorldWrapper {
 			BlockPos pos = this.mutablePos(x, y, z);
 			if (pos != null) {
 				Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ this.featureSalt, feature.identifier().hashCode(), pos.getX(), pos.getY(), pos.getZ()));
-				return this.world.placeFeature(pos, feature.object(), permuter.mojang());
+				return this.world.placeFeature(pos, feature, permuter.mojang());
 			}
 		}
 		return false;

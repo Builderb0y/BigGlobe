@@ -17,7 +17,16 @@ import builderb0y.bigglobe.trees.SaplingGrowHandler;
 public class AzaleaBlock_GrowIntoBigGlobeTree {
 
 	@Inject(method = "performBonemeal", at = @At("HEAD"), cancellable = true)
-	private void bigglobe_growIntoBigGlobeTree(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, CallbackInfo callback) {
+	private void bigglobe_growIntoBigGlobeTree(
+		ServerLevel world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state,
+		#if MC_VERSION >= MC_26_3_0
+			net.minecraft.world.level.block.BonemealSource source,
+		#endif
+		CallbackInfo callback
+	) {
 		if (SaplingGrowHandler.replaceSaplingGrowth(world, pos, state, random)) {
 			callback.cancel();
 		}

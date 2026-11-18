@@ -1,0 +1,11 @@
+{
+	"type": "bigglobe:ore",
+	"config": {
+		"seed": "cinnabar",
+		"blocks": {
+			"minecraft:netherrack": "bigglobe:cinnabar_ore"
+		},
+		"chance": "`bigglobe:nether/bubble_type`.getCinnabarOreChance(column, y)",
+		"radius": { "type": "bigglobe:average", "min": 3.0, "max": 8.0, "average": 4.0 }
+	}
+}

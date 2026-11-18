@@ -2,7 +2,6 @@ package builderb0y.bigglobe.rendering.lods.flat;
 
 import java.util.function.Supplier;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,6 +15,12 @@ import builderb0y.bigglobe.rendering.lods.QuadSorter.FlatNormalQuadSorter;
 import builderb0y.bigglobe.rendering.lods.QuadSorter.LayerQuadSorter;
 import builderb0y.bigglobe.rendering.lods.QuadSorter.UnsortedQuadSorter;
 import builderb0y.bigglobe.util.SafeCloseable;
+
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.buffers.GpuBuffer;
+#else
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+#endif
 
 @Environment(EnvType.CLIENT)
 public class FlatMesh implements SafeCloseable {

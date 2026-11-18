@@ -78,7 +78,7 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, Holder<T>> {
 			ReifiedType<?> objectType = context.type.resolveParameter(Holder.class);
 			if (objectType != null) {
 				ResourceKey<? extends Registry<?>> key = this.keys.get(objectType);
-				if (key == null) throw new FactoryException("Missing registry key for type RegistryEntry<" + objectType + '>');
+				if (key == null) throw new FactoryException("Missing registry key for type Holder<" + objectType + '>');
 				AutoCoder<?> inlineCoder = null;
 				if (context.type.getAnnotations().has(Inlinable.class)) {
 					inlineCoder = context.type(objectType).forceCreateCoder();

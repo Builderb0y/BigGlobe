@@ -10,11 +10,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.HangingSignBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.bigglobe.util.WorldUtil;
 
-public class ColoredHangingSignItem extends HangingSignItem {
+public class ColoredHangingSignItem extends HangingSignItem implements SignColorizer {
 
 	public final DyeColor color;
 
@@ -23,14 +25,28 @@ public class ColoredHangingSignItem extends HangingSignItem {
 		this.color = color;
 	}
 
-	@Override
-	protected boolean updateCustomBlockEntityTag(BlockPos pos, Level world, @Nullable Player player, ItemStack stack, BlockState state) {
-		HangingSignBlockEntity sign = WorldUtil.getBlockEntity(world, pos, HangingSignBlockEntity.class);
-		if (sign != null) {
-			//set before reading from stack NBT.
+	#if MC_VERSION >= MC_26_3_0
+
+		@Override
+		public void setColors(SignBlockEntity sign) {
+			sign.setText(sign.getText(SignTextSlot.FRONT).withColor(this.color), SignTextSlot.FRONT);
+			sign.setText(sign.getText(SignTextSlot.BACK).withColor(this.color), SignTextSlot.BACK);
+		}
+
+	#else
+
+		@Override
+		public void setColors(SignBlockEntity sign) {
 			sign.setText(sign.getFrontText().setColor(this.color), true);
 			sign.setText(sign.getBackText().setColor(this.color), false);
 		}
-		return super.updateCustomBlockEntityTag(pos, world, player, stack, state);
-	}
+
+		@Override
+		public boolean updateCustomBlockEntityTag(BlockPos pos, Level world, @Nullable Player player, ItemStack stack, BlockState state) {
+			SignBlockEntity sign = WorldUtil.getBlockEntity(world, pos, SignBlockEntity.class);
+			if (sign != null) this.setColors(sign);
+			return super.updateCustomBlockEntityTag(pos, world, player, stack, state);
+		}
+
+	#endif
 }

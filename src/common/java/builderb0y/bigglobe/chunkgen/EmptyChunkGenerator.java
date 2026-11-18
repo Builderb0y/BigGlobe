@@ -2,6 +2,7 @@ package builderb0y.bigglobe.chunkgen;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import com.mojang.datafixers.util.Pair;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -65,19 +67,64 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 		return CODEC;
 	}
 
-	@Override
-	public void applyCarvers(
-		WorldGenRegion chunkRegion,
-		long seed,
-		RandomState noiseConfig,
-		BiomeManager biomeAccess,
-		StructureManager structureAccessor,
-		ChunkAccess chunk
+	#if MC_VERSION >= MC_26_3_0
 
-	) {}
+		@Override
+		public WeightedList<SpawnerData> getMobsAt(Level level, StructureManager structureManager, MobCategory mobCategory, BlockPos pos) {
+			return WeightedList.of();
+		}
 
-	@Override
-	public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {}
+		@Override
+		public CompletableFuture<ChunkAccess> buildTerrain(
+			ChunkAccess chunk,
+			Blender blender,
+			RandomState randomState,
+			StructureManager structureManager,
+			BiomeManager biomeManager,
+			@Nullable WorldGenRegion carverBiomeRegion,
+			Set<Holder<Biome>> possibleBiomes
+		) {
+			return CompletableFuture.completedFuture(chunk);
+		}
+
+		@Override
+		public void addDebugScreenInfo(List<String> result, RandomState randomState, BlockPos feetPos, SamplerContext samplerContext) {}
+
+	#else
+
+		@Override
+		public void applyCarvers(
+			WorldGenRegion chunkRegion,
+			long seed,
+			RandomState noiseConfig,
+			BiomeManager biomeAccess,
+			StructureManager structureAccessor,
+			ChunkAccess chunk
+
+		) {}
+
+		@Override
+		public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {}
+
+		@Override
+		public CompletableFuture<ChunkAccess> fillFromNoise(
+			Blender blender,
+			RandomState noiseConfig,
+			StructureManager structureAccessor,
+			ChunkAccess chunk
+		) {
+			return CompletableFuture.completedFuture(chunk);
+		}
+
+		@Override
+		public void	addDebugScreenInfo(List<String> text, RandomState noiseConfig, BlockPos pos) {}
+
+		@Override
+		public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager accessor, MobCategory group, BlockPos pos) {
+			return WeightedList.of();
+		}
+
+	#endif
 
 	@Override
 	public void spawnOriginalMobs(WorldGenRegion region) {}
@@ -85,17 +132,6 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	@Override
 	public int getGenDepth() {
 		return this.height.max_y - this.height.min_y;
-	}
-
-	@Override
-	public CompletableFuture<ChunkAccess> fillFromNoise(
-
-		Blender blender,
-		RandomState noiseConfig,
-		StructureManager structureAccessor,
-		ChunkAccess chunk
-	) {
-		return CompletableFuture.completedFuture(chunk);
 	}
 
 	@Override
@@ -120,13 +156,6 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 		return new NoiseColumn(this.height.min_y, states);
 	}
 
-	@Override
-	public void
-
-	addDebugScreenInfo
-
-		(List<String> text, RandomState noiseConfig, BlockPos pos) {}
-
 	@Nullable
 	@Override
 	public Pair<BlockPos, Holder<Structure>> findNearestMapStructure(ServerLevel world, HolderSet<Structure> structures, BlockPos center, int radius, boolean skipReferencedStructures) {
@@ -135,11 +164,6 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {}
-
-	@Override
-	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager accessor, MobCategory group, BlockPos pos) {
-		return WeightedList.of();
-	}
 
 	@Override
 	public void createStructures(

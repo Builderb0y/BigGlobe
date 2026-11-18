@@ -17,7 +17,14 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
 
 @Mixin(RandomSpreadStructurePlacement.class)
-public abstract class RandomSpreadStructurePlacement_MakeSmart extends StructurePlacement implements SmartStructurePlacement {
+public abstract class RandomSpreadStructurePlacement_MakeSmart
+#if MC_VERSION >= MC_26_3_0
+	extends net.minecraft.world.level.levelgen.structure.placement.AbstractSpreadingStructurePlacement
+#else
+	extends StructurePlacement
+#endif
+implements SmartStructurePlacement
+{
 
 	@Shadow
 	@Final

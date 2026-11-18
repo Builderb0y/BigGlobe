@@ -18,13 +18,19 @@ import builderb0y.scripting.util.TypeInfos;
 
 public class ScriptedOreFeature extends AbstractOreFeature<ScriptedOreFeature.Config> {
 
-	public ScriptedOreFeature(Codec<Config> codec) {
-		super(codec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public ScriptedOreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public ScriptedOreFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public ScriptedOreFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
 	public OreBlockReplacer getReplacer(SectionGenerationContext context, Config config) {

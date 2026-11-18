@@ -10,10 +10,18 @@ public class SpawnEntryVersions {
 	}
 
 	public static int minCount(SpawnerData entry) {
-		return entry.minCount();
+		#if MC_VERSION >= MC_26_3_0
+			return entry.count().minInclusive();
+		#else
+			return entry.minCount();
+		#endif
 	}
 
 	public static int maxCount(SpawnerData entry) {
-		return entry.maxCount();
+		#if MC_VERSION >= MC_26_3_0
+			return entry.count().maxInclusive();
+		#else
+			return entry.maxCount();
+		#endif
 	}
 }

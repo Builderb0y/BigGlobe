@@ -1,15 +1,22 @@
 package builderb0y.bigglobe.rendering.lods;
 
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.mojang.renderpearl.api.GpuFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.bigglobe.BigGlobeMod;
 
-#if MC_VERSION >= MC_26_2_0
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.vertex.VertexFormat;
+	import com.mojang.renderpearl.api.vertex.VertexFormatElement;
+#elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.GpuFormat;
+	import com.mojang.blaze3d.vertex.VertexFormat;
+	import com.mojang.blaze3d.vertex.VertexFormatElement;
+#else
+	import com.mojang.blaze3d.vertex.VertexFormat;
+	import com.mojang.blaze3d.vertex.VertexFormatElement;
 #endif
 
 @Environment(EnvType.CLIENT)

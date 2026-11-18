@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.ValueInput;
@@ -75,7 +76,7 @@ public class WaypointEntity extends Entity {
 			) {
 				if (!player.isSpectator()) {
 					WaypointRenameC2SPacket.INSTANCE.send(waypoint.data.id(), hand);
-					player.swing(hand, false);
+					player.swing(hand, #if MC_VERSION >= MC_26_3_0 SwingAnimation.DEFAULT, #endif false);
 				}
 				return InteractionResult.FAIL;
 			}
@@ -233,7 +234,11 @@ public class WaypointEntity extends Entity {
 
 	@Override
 	public PushReaction getPistonPushReaction() {
-		return PushReaction.IGNORE;
+		#if MC_VERSION >= MC_26_3_0
+			return PushReaction.IGNORE_ENTITY;
+		#else
+			return PushReaction.IGNORE;
+		#endif
 	}
 
 	@Override

@@ -54,6 +54,7 @@ public class BigGlobeMixinConfig {
 		defaults.put(MIXIN_PACKAGE + ".Biome_DontFreezeRiverWater",                                                               Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".Biome_MakeTemperature2D",                                                                  Boolean.FALSE);
 		defaults.put(MIXIN_PACKAGE + ".BiomeColors_UseNoiseInBigGlobeWorlds",                                                     Boolean.TRUE);
+		defaults.put(MIXIN_PACKAGE + ".BlockItem_CharredSignColorHook",                                                           Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".BoneMealItem_SpreadChorusNylium",                                                          Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".Camera_HandleSoulLavaSubmersion",                                                          Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".CatEntity_PetTheKitty",                                                                    Boolean.FALSE);

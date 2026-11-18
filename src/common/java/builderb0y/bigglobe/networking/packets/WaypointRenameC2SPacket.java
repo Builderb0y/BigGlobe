@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.SwingAnimation;
+
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.*;
 import builderb0y.bigglobe.items.AuraBottleItem;
@@ -65,7 +67,13 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 									if (!player.isCreative()) {
 										heldItem.shrink(1);
 									}
-									player.swing(data.hand);
+									player.swing(
+										data.hand
+										#if MC_VERSION >= MC_26_3_0
+											, SwingAnimation.DEFAULT
+											, false
+										#endif
+									);
 									manager.removeWaypoint(data.id, true);
 									manager.addWaypoint(waypoint.withName(name), true);
 								}
@@ -75,7 +83,13 @@ public class WaypointRenameC2SPacket implements C2SPlayPacketHandler<WaypointRen
 									if (!player.isCreative()) {
 										heldItem.shrink(1);
 									}
-									player.swing(data.hand);
+									player.swing(
+										data.hand
+										#if MC_VERSION >= MC_26_3_0
+											, SwingAnimation.DEFAULT
+											, false
+										#endif
+									);
 									manager.removeWaypoint(data.id, true);
 									manager.addWaypoint(waypoint.withColor(bottle.color), true);
 								}

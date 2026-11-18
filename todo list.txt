@@ -83,6 +83,7 @@ V6:
 			make structure overriders have a filter too, like column value overriders.
 			transition structure max size from chunks to blocks.
 		rename my RandomSource class to RandomSupplier, so as not to conflict with minecraft's RandomSource class.
+		rename BetterRegistry to RegistryAdapter.
 		remove deprecated methods from MutableScriptEnvironment.
 		rename JavaUtilScriptEnvironment to JavaUtilExtensions.
 	less urgent:
@@ -108,9 +109,27 @@ V6:
 		undo change that prevented water/lava lakes from spawning in deserts:
 			if it does spawn in a desert, don't use mud.
 			make it an oasis, with trees around it.
+		hyperspace upgrade (again):
+			weather patterns:
+				cloudy (proof of concept code already written in 1.21.11 prism instance).
+					distant thunder sound effects.
+					tweak color of flash to be more yellow.
+				particle-y? code not written yet.
+					how to indicate location to player?
+				mirror dimension (code from 1.16.5).
+					have one mirror surface (whichever is closest to the sound source) occasionally blink.
+				something involving circles? (like how my desktop background looks).
+					occasional yellow circle amid the sea of blue-ish ones.
+				something involving spirals?
+				something light in color instead of dark?
+				something aurora-y?
+					maybe TF auroras from QOL can make a return.
+			fractal shapes:
+				octabrot (proof of concept code already written in 1.21.11 prism instance).
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
+		verify that coral still spawns (someone reported that it doesn't).
 
 islands:
 	floating islands:
@@ -139,27 +158,21 @@ intellij plugin:
 	similarly, `BlockState state = condition ? 'stone' : null` is inferred to type Object.
 	incorrect arguments on custom class static methods are not reported as an error.
 
+26.3:
+	verify that charred sign item still produces light-colored text when placed.
+	need to add block_transformer json files for:
+		converting overgrown podzol to grass path with a shovel.
+		converting overgrown podzol to farmland with a hoe.
+		converting charred logs to stripped charred logs with an axe.
+		converting charred wood to stripped charred wood with an axe.
+	handle composter interactions. apparently this is a "context int provider".
+		need to ensure my short grass is half as compostable as vanilla's.
+		need to ensure my wildflowers are just as compostable as vanilla's.
+	DH API broke again.
+
 changelog:
-	* Ported to MC 26.2.
-	* Removed sulfur block (the one that used to be crafted with 9x sulfur items (the items that drop from nether sulfur ore)).
-		* Convert all your sulfur blocks back into sulfur items before updating!
-	* Fixed surface blocks not spawning in the nether.
-	* Dunes and desert cracks from V4 have made a return in the islands world preset.
-	* Some nether ores now spawn more commonly and in more biomes.
-	* Expanded the spawn range of lapis ore.
-	* Reduced the amount of dirt in the world.
-	* Fixed caves and other dark areas being pitch black. Their brightness should now match vanilla instead.
-	* Copper tools can now be found in surface mineshaft chests.
-	* granite, diorite, andesite, dripstone blocks, tuff, and calcite can now be used in most recipes as a substitute for cobblestone.
-	* Ores will now only mimic stone, without falling back on whatever other blocks are adjacent.
-	* Several issues with underground LODs (when carving is enabled) have now been fixed.
-	* Worldgen performance has been improved in the nether (only improves normal terrain, not LOD terrain).
-	* Evaluate command is now slightly more useful.
-	# New content exclusive to MC 26.2:
-	* Cinnabar ore: Drops cinnabar items. Spawns in the nether.
-	* Cinnabar item: Craftable into vanilla cinnabar block. Can also be crafted from sulfur items and redstone dust.
-	* Cinnabar spike: Just like the vanilla sulfur spike.
-	* Sulfur biome: A new biome for the nether. Covered in vanilla sulfur/cinnabar blocks, and decorated with sulfur/cinnabar spikes.
+	* Ported to MC 26.3.
+	* Removed `bigglobe:random` feature type.
 
 alternate world presets:
 	paradise.

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -35,7 +34,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
@@ -51,9 +49,9 @@ import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
+import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.mechanics.BigGlobeDispenserBehaviors;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
@@ -134,12 +132,7 @@ public class BigGlobeMod implements ModInitializer {
 
 				@Override
 				public <T> BetterRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
-					return new BetterHardCodedRegistry<>(
-						RegistryVersions.getRegistry(
-							server.registryAccess(),
-							key
-						)
-					);
+					return new BetterHardCodedRegistry<>(RegistryVersions.getRegistry(server.registryAccess(), key));
 				}
 			};
 			currentResourceManager = new DelegatingResourceManager(server::getResourceManager);
@@ -287,13 +280,13 @@ public class BigGlobeMod implements ModInitializer {
 		}
 
 		@Override
-		public Map<Identifier, Resource> listResources(String startingPath, Predicate<Identifier> allowedPathPredicate) {
-			return this.delegate.get().listResources(startingPath, allowedPathPredicate);
+		public Map<Identifier, Resource> listResources(String startingPath, #if MC_VERSION >= MC_26_3_0 Selector #else Predicate<Identifier> #endif filter) {
+			return this.delegate.get().listResources(startingPath, filter);
 		}
 
 		@Override
-		public Map<Identifier, List<Resource>> listResourceStacks(String startingPath, Predicate<Identifier> allowedPathPredicate) {
-			return this.delegate.get().listResourceStacks(startingPath, allowedPathPredicate);
+		public Map<Identifier, List<Resource>> listResourceStacks(String startingPath, #if MC_VERSION >= MC_26_3_0 Selector #else Predicate<Identifier> #endif filter) {
+			return this.delegate.get().listResourceStacks(startingPath, filter);
 		}
 
 		@Override

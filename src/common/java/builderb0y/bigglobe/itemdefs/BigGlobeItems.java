@@ -8,10 +8,12 @@ import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableSource;
-import net.fabricmc.fabric.api.registry.CompostableRegistry;
-import net.fabricmc.fabric.api.registry.FuelValueEvents;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.predicates.MinMaxBounds;
+import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -26,7 +28,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootContext.EntityTarget;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -35,10 +36,11 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.TagEntry;
 import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+import net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.*;
@@ -47,11 +49,24 @@ import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.items.*;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
-#if MC_VERSION >= MC_26_2_0
+#if MC_VERSION >= MC_26_3_0
+
+#elif MC_VERSION >= MC_26_2_0
+	import net.fabricmc.fabric.api.registry.CompostableRegistry;
+	import net.fabricmc.fabric.api.registry.FuelValueEvents;
+	import net.minecraft.world.level.block.entity.FuelValues;
+	import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
+	import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 	import net.minecraft.advancements.predicates.MinMaxBounds;
 	import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
 	import net.minecraft.advancements.predicates.entity.EntityPredicate;
 	import net.minecraft.world.entity.EntityTypes;
+#else
+	import net.fabricmc.fabric.api.registry.CompostableRegistry;
+	import net.fabricmc.fabric.api.registry.FuelValueEvents;
+	import net.minecraft.world.level.block.entity.FuelValues;
+	import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
+	import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 #endif
 
 public class BigGlobeItems {
@@ -227,7 +242,15 @@ public class BigGlobeItems {
 		new BallOfStringItem(settings("ball_of_string").stacksTo(1))
 	);
 	public static final Item ASH = register("ash", new Item(settings("ash")));
-	public static final Item SULFUR = register("sulfur", new Item(settings("sulfur")));
+	public static final Item SULFUR = register(
+		"sulfur",
+		new Item(
+			settings("sulfur")
+			#if MC_VERSION >= MC_26_3_0
+				.cookingFuel(ContextIntProviders.COOKING_TIME_COAL)
+			#endif
+		)
+	);
 	#if MC_VERSION >= MC_26_2_0
 		public static final Item CINNABAR = register("cinnabar", new Item(settings("cinnabar")));
 	#endif
@@ -237,6 +260,9 @@ public class BigGlobeItems {
 			BigGlobeFluids.SOUL_LAVA,
 			settings("soul_lava_bucket")
 			.craftRemainder(Items.BUCKET)
+			#if MC_VERSION >= MC_26_3_0
+				.cookingFuel(ContextIntProviders.COOKING_TIME_LAVA_BUCKET)
+			#endif
 			.stacksTo(1)
 		)
 	);
@@ -333,20 +359,20 @@ public class BigGlobeItems {
 
 	public static <I extends Item> I register(String name, I item) {
 		Identifier id = BigGlobeMod.modID(name);
-
 		if (!item.getDescriptionId().equals(Util.makeDescriptionId(item instanceof BlockItem ? "block" : "item", id))) {
 			throw new IllegalArgumentException("Name mismatch");
 		}
-
 		return Registry.register(BuiltInRegistries.ITEM, id, item);
 	}
 
 	public static void init() {
-		FuelValueEvents.BUILD.register((FuelValues.Builder builder, FuelValueEvents.Context context) -> {
-			int baseTime = context.baseSmeltTime();
-			builder.add(SOUL_LAVA_BUCKET, baseTime * 100);
-			builder.add(SULFUR, baseTime * 6);
-		});
+		#if MC_VERSION < MC_26_3_0
+			FuelValueEvents.BUILD.register((FuelValues.Builder builder, FuelValueEvents.Context context) -> {
+				int baseTime = context.baseSmeltTime();
+				builder.add(SOUL_LAVA_BUCKET, baseTime * 100);
+				builder.add(SULFUR, baseTime * 6);
+			});
+		#endif
 
 		LootTableEvents.MODIFY.register(
 			(
@@ -362,7 +388,15 @@ public class BigGlobeItems {
 						.withPool(
 							LootPool.lootPool().add(
 								TagEntry
-								.expandTag(BigGlobeItemTags.AURA_BOTTLES)
+								.expandTag(
+									#if MC_VERSION >= MC_26_3_0
+										registries
+										.lookupOrThrow(Registries.ITEM)
+										.getOrThrow(BigGlobeItemTags.AURA_BOTTLES)
+									#else
+										BigGlobeItemTags.AURA_BOTTLES
+									#endif
+								)
 								.setWeight(100)
 								.setQuality(1)
 							)
@@ -389,10 +423,32 @@ public class BigGlobeItems {
 										new EntityPredicate.Builder().cubeMob(
 											CubeMobPredicate.sized(MinMaxBounds.Ints.atLeast(2))
 										)
+										.build()
 									)
 								)
-								.apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
-								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(registries, UniformGenerator.between(0.0F, 1.0F)))
+								//why the actual FUCK did mojang create 2 classes with identical names that are both used in similar places?
+								.apply(SetItemCountFunction.setCount(
+									#if MC_VERSION >= MC_26_3_0
+										Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator(
+											Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue(0)),
+											Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue(1))
+										))
+									#else
+										Ints.UniformGenerator.between(0.0F, 1.0F)
+									#endif
+								))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(
+									#if MC_VERSION >= MC_26_3_0
+										registries.lookupOrThrow(Registries.ENCHANTMENT),
+										Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.floats.UniformGenerator(
+											Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.floats.ConstantValue(0)),
+											Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.floats.ConstantValue(1))
+										))
+									#else
+										registries,
+										Ints.UniformGenerator.between(0.0F, 1.0F)
+									#endif
+								))
 							)
 						);
 					}
@@ -400,17 +456,20 @@ public class BigGlobeItems {
 				}
 			}
 		);
-		CompostableRegistry.INSTANCE.add(
-			SHORT_GRASS,
-			CompostableRegistry.INSTANCE.get(
-				Items.SHORT_GRASS
-			)
-			* 0.5F
-		);
-		Float wildflowerChance = CompostableRegistry.INSTANCE.get(Items.PINK_PETALS);
-		CompostableRegistry.INSTANCE.add(RED_WILDFLOWERS, wildflowerChance);
-		CompostableRegistry.INSTANCE.add(VIOLETS, wildflowerChance);
-		CompostableRegistry.INSTANCE.add(BLUEBONNETS, wildflowerChance);
+
+		#if MC_VERSION < MC_26_3_0
+			CompostableRegistry.INSTANCE.add(
+				SHORT_GRASS,
+				CompostableRegistry.INSTANCE.get(
+					Items.SHORT_GRASS
+				)
+				* 0.5F
+			);
+			Float wildflowerChance = CompostableRegistry.INSTANCE.get(Items.PINK_PETALS);
+			CompostableRegistry.INSTANCE.add(RED_WILDFLOWERS, wildflowerChance);
+			CompostableRegistry.INSTANCE.add(VIOLETS, wildflowerChance);
+			CompostableRegistry.INSTANCE.add(BLUEBONNETS, wildflowerChance);
+		#endif
 	}
 
 	@Environment(EnvType.CLIENT)

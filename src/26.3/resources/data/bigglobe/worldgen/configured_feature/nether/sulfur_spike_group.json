@@ -1,0 +1,31 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"repeat (256:",
+				"int x = random.nextBetween[-8, 8]",
+				"int y = random.nextBetween[-4, 4]",
+				"int z = random.nextBetween[-8, 8]",
+				"if (getBlockState(x, y, z).isAir():",
+					"if (getBlockState(x, y - 1, z) ==. 'minecraft:sulfur':",
+						"if (getBlockState(x, y + 1, z) ==. 'minecraft:sulfur':",
+							"placeFeature(x, y, z, random.nextBoolean() ? 'bigglobe:nether/sulfur_stalagmite' : 'bigglobe:nether/sulfur_stalactite')",
+						")",
+						"else (",
+							"placeFeature(x, y, z, 'bigglobe:nether/sulfur_stalagmite')",
+						")",
+					")",
+					"else (",
+						"if (getBlockState(x, y + 1, z) ==. 'minecraft:sulfur':",
+							"placeFeature(x, y, z, 'bigglobe:nether/sulfur_stalactite')",
+						")",
+						"else (",
+							"noop",
+						")",
+					")",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

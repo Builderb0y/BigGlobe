@@ -209,7 +209,7 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 	}
 
 	@Override
-	public boolean shouldRender(StringEntity entity, Frustum frustum, double x, double y, double z) {
+	public boolean shouldRender(StringEntity entity, Frustum frustum, double x, double y, double z #if MC_VERSION >= MC_26_3_0 , float partialTicks #endif) {
 		return entity.shouldRender(x, y, z) && frustum.isVisible(entity.getVisibilityBoundingBox());
 	}
 

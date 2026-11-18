@@ -6,22 +6,35 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.NoOpFeature;
 
 import builderb0y.bigglobe.classes.spec.BuiltinType;
 import builderb0y.bigglobe.scripting.wrappers.tags.ConfiguredFeatureTag;
+import builderb0y.bigglobe.scripting.wrappers.tags.TagWrapper;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
-public class ConfiguredFeatureEntry extends EntryWrapper<ConfiguredFeature<?, ?>, ConfiguredFeatureTag> {
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+	import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+#endif
+
+public class ConfiguredFeatureEntry extends EntryWrapper<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif, ConfiguredFeatureTag> {
 
 	public static final TypeInfo TYPE = TypeInfo.of(ConfiguredFeatureEntry.class);
-	public static final @UnknownNullability ConfiguredFeature<?, ?> EMPTY = BuiltinType.CODER != null ? new ConfiguredFeature<>(Feature.NO_OP, NoneFeatureConfiguration.INSTANCE) : null;
+	public static final @UnknownNullability #if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif EMPTY = (
+		BuiltinType.CODER != null ?
+		#if MC_VERSION >= MC_26_3_0
+			new NoOpFeature()
+		#else
+			new ConfiguredFeature<>(Feature.NO_OP, NoneFeatureConfiguration.INSTANCE)
+		#endif
+		: null
+	);
 	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
 
-	public ConfiguredFeatureEntry(Holder<ConfiguredFeature<?, ?>> entry) {
+	public ConfiguredFeatureEntry(Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) {
 		super(entry);
 	}
 
@@ -30,7 +43,7 @@ public class ConfiguredFeatureEntry extends EntryWrapper<ConfiguredFeature<?, ?>
 	}
 
 	public static ConfiguredFeatureEntry of(String id, int flags) {
-		Holder<ConfiguredFeature<?, ?>> entry = ConstantFactory.getEntryServerOnly(Registries.CONFIGURED_FEATURE, id, flags, EMPTY);
+		Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry = ConstantFactory.getEntryServerOnly(Registries.#if MC_VERSION >= MC_26_3_0 FEATURE #else CONFIGURED_FEATURE #endif, id, flags, EMPTY);
 		return entry != null ? new ConfiguredFeatureEntry(entry) : null;
 	}
 

@@ -13,7 +13,18 @@ import builderb0y.bigglobe.blockdefs.VanillaBlocks;
 @Mixin(Blocks.class)
 public class Blocks_RegisterVanillaBlocksEarly {
 
-	@Inject(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/minecraft/core/registries/BuiltInRegistries;BLOCK:Lnet/minecraft/core/DefaultedRegistry;", opcode = Opcodes.GETSTATIC))
+	@Inject(
+		method = "<clinit>",
+		at = @At(
+			#if MC_VERSION >= MC_26_3_0
+				value = "INVOKE",
+				target = "Lnet/minecraft/world/level/block/state/SolidDebugger;runAndDump(Ljava/lang/Runnable;)V"
+			#else
+				value = "FIELD",
+				target = "Lnet/minecraft/core/registries/BuiltInRegistries;BLOCK:Lnet/minecraft/core/DefaultedRegistry;", opcode = Opcodes.GETSTATIC
+			#endif
+		)
+	)
 	private static void bigglobe_registerVanillaBlocksEarly(CallbackInfo callback) {
 		VanillaBlocks.init();
 	}

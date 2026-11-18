@@ -10,13 +10,17 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class TallChorusSporeBlock extends DoublePlantBlock {
 
-	public static final MapCodec<TallChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(TallChorusSporeBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<TallChorusSporeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(TallChorusSporeBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public TallChorusSporeBlock(Properties settings) {
 		super(settings);

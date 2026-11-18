@@ -22,13 +22,17 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlazingBlossomBlock extends NetherFlowerBlock {
 
-	public static final MapCodec<BlazingBlossomBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BlazingBlossomBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<BlazingBlossomBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(BlazingBlossomBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public final Holder<ParticleType<?>> particle;
 
@@ -43,7 +47,6 @@ public class BlazingBlossomBlock extends NetherFlowerBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void entityInside(
 		BlockState state,
 		Level world,

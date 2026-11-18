@@ -14,20 +14,24 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
-import builderb0y.bigglobe.features.SizedDelayedFeatureConfig;
+import builderb0y.bigglobe.features.SizedDelayedFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.DataHelper;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+	import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+#endif
 
 public class DelayedGenerationBlockEntity extends BlockEntity {
 
@@ -67,15 +71,23 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 			this.revert(world);
 			return;
 		}
-		ConfiguredFeature<?, ?> feature = RegistryVersions.getRegistry(world.registryAccess(), Registries.CONFIGURED_FEATURE).getOptional(this.feature).orElse(null);
+		#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif feature = (
+			RegistryVersions
+			.getRegistry(
+				world.registryAccess(),
+				Registries.#if MC_VERSION >= MC_26_3_0 FEATURE #else CONFIGURED_FEATURE #endif
+			)
+			.getOptional(this.feature)
+			.orElse(null)
+		);
 		if (feature == null) {
 			BigGlobeMod.LOGGER.warn("Unknown feature " + this.feature + " at " + this.worldPosition);
 			this.revert(world);
 			return;
 		}
 		int range;
-		if (feature.config() instanceof SizedDelayedFeatureConfig sizedConfig) {
-			range = sizedConfig.getMaxRadiusInBlocks();
+		if (feature #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof SizedDelayedFeature sizedConfig) {
+			range = sizedConfig.getMaxRadiusInBlocks(#if MC_VERSION >= MC_26_3_0 sizedConfig.getSizedDelayedConfig() #endif);
 		}
 		else {
 			range = 16;
@@ -94,7 +106,11 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 			)
 		)) {
 			this.revert(world);
-			feature.feature().place(new FeaturePlaceContext(Optional.of(feature), world, world.getChunkSource().getGenerator(), RandomSource.create(Permuter.permute(world.getSeed() ^ 0xc99e62371fba6cecL, pos)), pos, feature.config()));
+			#if MC_VERSION >= MC_26_3_0
+				feature.place(world, world.getChunkSource().getGenerator(), RandomSource.create(Permuter.permute(world.getSeed() ^ 0xc99e62371fba6cecL, pos)), pos);
+			#else
+				feature.feature().place(new FeaturePlaceContext(Optional.of(feature), world, world.getChunkSource().getGenerator(), RandomSource.create(Permuter.permute(world.getSeed() ^ 0xc99e62371fba6cecL, pos)), pos, feature.config()));
+			#endif
 		}
 	}
 

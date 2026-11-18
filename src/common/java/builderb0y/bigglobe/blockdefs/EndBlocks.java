@@ -58,7 +58,7 @@ public class EndBlocks {
 			.noCollision()
 			.noOcclusion()
 			.instabreak()
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 
@@ -75,7 +75,7 @@ public class EndBlocks {
 			.noCollision()
 			.noOcclusion()
 			.instabreak()
-			.pushReaction(PushReaction.DESTROY),
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif),
 			TALL_CHORUS_SPORES.builtInRegistryHolder()
 		)
 	);
@@ -93,7 +93,7 @@ public class EndBlocks {
 			.noCollision()
 			.noOcclusion()
 			.instabreak()
-			.pushReaction(PushReaction.DESTROY),
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif),
 			MEDIUM_CHORUS_SPORES.builtInRegistryHolder()
 		)
 	);

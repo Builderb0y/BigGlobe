@@ -22,8 +22,10 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -177,6 +179,7 @@ public abstract class StructureLocator {
 		ChunkGeneratorStructureState structureState,
 		RegistryAccess dynamicRegistries,
 		StructureTemplateManager structureTemplateManager,
+		Climate.Sampler climateSampler,
 		LevelHeightAccessor height
 	) {
 
@@ -190,7 +193,13 @@ public abstract class StructureLocator {
 				columnSource,
 				world.getChunkSource().getGeneratorState(),
 				world.registryAccess(),
-				world.getStructureManager(),
+				#if MC_VERSION >= MC_26_3_0
+					world.getServer().getStructureTemplateManager(),
+					world.getChunkSource().randomState().createClimateSampler(SamplerContext.builder().enableCaches().build()),
+				#else
+					world.getStructureManager(),
+					//todo: figure out where old MC versions stored the climate sampler.
+				#endif
 				world
 			);
 		}

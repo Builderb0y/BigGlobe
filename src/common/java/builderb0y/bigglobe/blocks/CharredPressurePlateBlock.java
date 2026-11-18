@@ -7,16 +7,19 @@ import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 @AddPseudoField("type")
-
 public class CharredPressurePlateBlock extends PressurePlateBlock {
 
-	public static final MapCodec<CharredPressurePlateBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CharredPressurePlateBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<CharredPressurePlateBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CharredPressurePlateBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public CharredPressurePlateBlock(BlockSetType type, Properties settings) {
 		super(type, settings);

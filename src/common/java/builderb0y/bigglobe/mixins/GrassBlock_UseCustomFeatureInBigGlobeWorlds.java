@@ -17,7 +17,16 @@ import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 public class GrassBlock_UseCustomFeatureInBigGlobeWorlds {
 
 	@Inject(method = "performBonemeal", at = @At("HEAD"), cancellable = true)
-	private void bigglobe_useCustomFeatureInBigGlobeWorlds(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, CallbackInfo callback) {
+	private void bigglobe_useCustomFeatureInBigGlobeWorlds(
+		ServerLevel world,
+		RandomSource random,
+		BlockPos pos,
+		BlockState state,
+		#if MC_VERSION >= MC_26_3_0
+			net.minecraft.world.level.block.BonemealSource source,
+		#endif
+		CallbackInfo callback
+	) {
 		if (world.getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.game_mechanics.grass_bonemeal_feature() != null) {
 			generator.game_mechanics.grass_bonemeal_feature().value().place(world, generator, world.getRandom(), pos);
 			callback.cancel();

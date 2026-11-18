@@ -50,13 +50,17 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		SOUTH_EXTRUSION = Shapes.create(0.375D, 0.0D, 0.75D, 0.625D, 0.25D, 1.0D),
 		WEST_EXTRUSION = Shapes.create(0.0D, 0.0D, 0.375D, 0.25D, 0.25D, 0.625D);
 
-	public static final MapCodec<SpelunkingRopeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SpelunkingRopeBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<SpelunkingRopeBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(SpelunkingRopeBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public SpelunkingRopeBlock(Properties settings) {
 		super(settings);
@@ -114,7 +118,6 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		if (context instanceof EntityCollisionContext entityContext && entityContext.getEntity() instanceof FallingBlockEntity) {
 			return Shapes.empty();
@@ -150,7 +153,6 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
 			case NORTH -> NORTH_SHAPE;
@@ -285,14 +287,12 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, Rotation rotation) {
 		return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotation.rotate(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public BlockState mirror(BlockState state, Mirror mirror) {
 		return state.setValue(BlockStateProperties.HORIZONTAL_FACING, mirror.mirror(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
 	}

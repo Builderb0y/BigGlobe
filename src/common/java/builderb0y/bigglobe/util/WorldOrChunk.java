@@ -18,8 +18,6 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.material.FluidState;
@@ -27,9 +25,15 @@ import builderb0y.bigglobe.features.RawFeature;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
+import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.ChunkVersions;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+	import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+#endif
 
 /**
 in order for {@link ScriptedStructure} to support raw generation,
@@ -51,7 +55,7 @@ public interface WorldOrChunk extends BlockGetter {
 
 	public abstract long getSeed();
 
-	public abstract boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random);
+	public abstract boolean placeFeature(BlockPos pos, ConfiguredFeatureEntry feature, RandomSource random);
 
 	public abstract void spawnEntity(Function<ServerLevel, Entity> entitySupplier);
 
@@ -100,7 +104,7 @@ public interface WorldOrChunk extends BlockGetter {
 		}
 
 		@Override
-		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random) {
+		public boolean placeFeature(BlockPos pos, ConfiguredFeatureEntry feature, RandomSource random) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -209,17 +213,26 @@ public interface WorldOrChunk extends BlockGetter {
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> feature, RandomSource random) {
-			return feature.feature().place(
-				new FeaturePlaceContext(
-					Optional.of(feature),
+		public boolean placeFeature(BlockPos pos, ConfiguredFeatureEntry feature, RandomSource random) {
+			#if MC_VERSION >= MC_26_3_0
+				return feature.object().place(
 					this.world,
 					((ServerChunkCache)(this.world.getChunkSource())).getGenerator(),
 					random,
-					pos,
-					feature.config()
-				)
-			);
+					pos
+				);
+			#else
+				return feature.object().feature().place(
+					new FeaturePlaceContext(
+						Optional.of(feature),
+						this.world,
+						((ServerChunkCache)(this.world.getChunkSource())).getGenerator(),
+						random,
+						pos,
+						feature.config()
+					)
+				);
+			#endif
 		}
 
 		@Override
@@ -320,9 +333,9 @@ public interface WorldOrChunk extends BlockGetter {
 
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean placeFeature(BlockPos pos, ConfiguredFeature<?, ?> configuredFeature, RandomSource random) {
-			if (configuredFeature.feature() instanceof RawFeature rawFeature) {
-				return rawFeature.generate(this.worldWrapper, configuredFeature.config(), pos);
+		public boolean placeFeature(BlockPos pos, ConfiguredFeatureEntry configuredFeature, RandomSource random) {
+			if (configuredFeature.object() #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof RawFeature rawFeature) {
+				return rawFeature.generate(this.worldWrapper, #if MC_VERSION >= MC_26_3_0 rawFeature #else configuredFeature.object() #endif .config(), pos);
 			}
 			else {
 				throw new UnsupportedOperationException("The provided feature cannot generate during raw generation.");

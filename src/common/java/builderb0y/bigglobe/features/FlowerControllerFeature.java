@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.features;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
@@ -11,10 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -32,15 +30,25 @@ import builderb0y.bigglobe.randomLists.ScriptWeightedRandomList;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.*;
 
-public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Config> {
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
 
-	public FlowerControllerFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+public class FlowerControllerFeature extends FeatureAdapter<FlowerControllerFeature.Config> {
 
-	public FlowerControllerFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+	#if MC_VERSION >= MC_26_3_0
+
+		public FlowerControllerFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public FlowerControllerFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	public static class QueuedPlacement extends BlockPos.MutableBlockPos {
 
@@ -53,7 +61,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		ScriptedColumnLookup columns = ScriptedColumnLookup.GLOBAL.currentValue();
 		if (columns == null) {
 			if (context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
@@ -91,7 +99,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		return true;
 	}
 
-	public QueuedPlacement getQueuedPlacement(FeaturePlaceContext<Config> context, ScriptedColumn column) {
+	public QueuedPlacement getQueuedPlacement(Context<Config> context, ScriptedColumn column) {
 		if (context.config().where != null && !context.config().where.get(column)) return null;
 		int y = context.config().y_level.get(column);
 		if (context.level().isOutsideBuildHeight(y)) return null;
@@ -146,7 +154,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		return chosen != null ? new QueuedPlacement(column.x(), y, column.z(), chosen) : null;
 	}
 
-	public void placeQueued(FeaturePlaceContext<Config> context, QueuedPlacement placement) {
+	public void placeQueued(Context<Config> context, QueuedPlacement placement) {
 		WorldGenLevel world = context.level();
 		BlockPos.MutableBlockPos pos = WorldUtil.findNonReplaceableGroundMutable(world, placement);
 		if (pos == null) return;
@@ -167,17 +175,17 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 		}
 	}
 
-	public static class Config implements FeatureConfiguration {
+	public static class Config implements FeatureAdapter.Config {
 
 		public final ColumnToBooleanScript.@VerifyNullable Catcher where;
 		public final ColumnToIntScript.Catcher y_level;
-		public final DelayedEntryList<ConfiguredFeature<?, ?>> flowers;
+		public final DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> flowers;
 		public transient FlowerFeature.Config @Nullable [] flattenedFlowers;
 
 		public Config(
 			ColumnToBooleanScript.@VerifyNullable Catcher where,
 			ColumnToIntScript.Catcher y_level,
-			DelayedEntryList<ConfiguredFeature<?, ?>> flowers
+			DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> flowers
 		) {
 			this.where = where;
 			this.y_level = y_level;
@@ -190,17 +198,17 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 					this
 					.flowers
 					.entryStream()
-					.filter((Holder<ConfiguredFeature<?, ?>> entry) -> {
-						if (entry.value().feature() == BigGlobeFeatures.FLOWER) {
-							return true;
-						}
-						else {
-							BigGlobeMod.LOGGER.warn("A flower controller references " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
-							return false;
-						}
-					})
 					.sorted(Comparator.comparing(UnregisteredObjectException::getID))
-					.<FeatureConfiguration>map((Holder<ConfiguredFeature<?, ?>> entry) -> entry.value().config())
+					.map((Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) -> {
+						#if MC_VERSION >= MC_26_3_0
+							if (entry.value() instanceof FlowerFeature data) return data.config;
+						#else
+							if (entry.value().config() instanceof FlowerFeature.Config data) return data;
+						#endif
+						BigGlobeMod.LOGGER.warn("A flower controller references " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
+						return null;
+					})
+					.filter(Objects::nonNull)
 					.toArray(FlowerFeature.Config[]::new)
 				);
 			}

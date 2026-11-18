@@ -32,7 +32,15 @@ public class DebugHud_MakeSearchable implements SearchableDebugHud {
 	}
 
 	@Inject(method = "extractLines", at = @At("HEAD"))
-	private void bigglobe_searchText(GuiGraphicsExtractor context, List<String> lines, boolean left, CallbackInfo callback) {
+	private void bigglobe_searchText(
+		GuiGraphicsExtractor context,
+		List<String> lines,
+		boolean left,
+		#if MC_VERSION >= MC_26_3_0
+			int scaledScreenWidth,
+		#endif
+		CallbackInfo callback
+	) {
 		Pattern pattern = this.bigglobe_pattern;
 		if (pattern != null) {
 			lines.replaceAll((String text) -> pattern.matcher(text).find() ? ChatFormatting.GREEN + text : text);

@@ -7,15 +7,12 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
-import net.fabricmc.fabric.api.registry.FlattenableBlockRegistry;
 import net.fabricmc.fabric.api.registry.LandPathTypeRegistry;
-import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
 
 import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -28,12 +25,20 @@ import net.minecraft.world.level.pathfinder.PathType;
 
 import builderb0y.bigglobe.blocks.*;
 
+#if MC_VERSION < MC_26_3_0
+	import net.fabricmc.fabric.api.registry.FlattenableBlockRegistry;
+	import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
+	import net.minecraft.world.item.HoeItem;
+#endif
+
 public class OverworldBlocks {
 
 	public static void init() {
 		DarkslateBlocks.init();
-		FlattenableBlockRegistry.register(OVERGROWN_PODZOL, Blocks.DIRT_PATH.defaultBlockState());
-		TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::onlyIfAirAbove, Blocks.FARMLAND.defaultBlockState());
+		#if MC_VERSION < MC_26_3_0
+			FlattenableBlockRegistry.register(OVERGROWN_PODZOL, Blocks.DIRT_PATH.defaultBlockState());
+			TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::onlyIfAirAbove, Blocks.FARMLAND.defaultBlockState());
+		#endif
 		for (MoltenRockBlock block : MOLTEN_ROCKS) {
 			LandPathTypeRegistry.register(block, PathType.FIRE, PathType.FIRE_IN_NEIGHBOR);
 		}
@@ -94,7 +99,7 @@ public class OverworldBlocks {
 			.instabreak()
 			.sound(SoundType.GRASS)
 			.offsetType(OffsetType.XZ)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final FlowerPotBlock POTTED_ROSE = BigGlobeBlocks.register(
@@ -107,7 +112,7 @@ public class OverworldBlocks {
 			.ofFullCopy(Blocks.SHORT_GRASS)
 			.setId(BigGlobeBlocks.key("short_grass"))
 			.offsetType(OffsetType.XZ)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 			.replaceable()
 		)
 	);
@@ -122,7 +127,7 @@ public class OverworldBlocks {
 			.instabreak()
 			.sound(SoundType.GRASS)
 			.offsetType(OffsetType.XZ)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 			.replaceable()
 		)
 	);
@@ -137,7 +142,7 @@ public class OverworldBlocks {
 			.noCollision()
 			.offsetType(OffsetType.XZ)
 			.sound(SoundType.STONE)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final Block CRYSTALLINE_PRISMARINE = BigGlobeBlocks.register(
@@ -266,7 +271,8 @@ public class OverworldBlocks {
 			.mapColor(MapColor.PLANT)
 			.noCollision()
 			.sound(SoundType.PINK_PETALS)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
+			#if MC_VERSION >= MC_26_3_0 , 3 #endif
 		)
 	);
 	public static final FlowerBedBlock BLUEBONNETS = BigGlobeBlocks.register(
@@ -278,7 +284,8 @@ public class OverworldBlocks {
 			.mapColor(MapColor.PLANT)
 			.noCollision()
 			.sound(SoundType.PINK_PETALS)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
+			#if MC_VERSION >= MC_26_3_0 , 3 #endif
 		)
 	);
 	public static final FlowerBedBlock VIOLETS = BigGlobeBlocks.register(
@@ -290,7 +297,8 @@ public class OverworldBlocks {
 			.mapColor(MapColor.PLANT)
 			.noCollision()
 			.sound(SoundType.PINK_PETALS)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
+			#if MC_VERSION >= MC_26_3_0 , 3 #endif
 		)
 	);
 }

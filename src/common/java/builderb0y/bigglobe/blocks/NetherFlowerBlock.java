@@ -15,13 +15,17 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 @AddPseudoField("suspicious_stew_effect")
 public class NetherFlowerBlock extends FlowerBlock {
 
-	public static final MapCodec<NetherFlowerBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(NetherFlowerBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<NetherFlowerBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(NetherFlowerBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public NetherFlowerBlock(Holder<MobEffect> suspicious_stew_effect, float effect_duration, Properties settings) {
 		super(suspicious_stew_effect, effect_duration, settings);

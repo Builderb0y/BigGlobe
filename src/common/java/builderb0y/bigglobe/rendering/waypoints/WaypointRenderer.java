@@ -6,19 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
-import com.mojang.blaze3d.opengl.Uniform;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.*;
@@ -37,12 +30,36 @@ import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.util.SafeCloseable;
 import builderb0y.bigglobe.versions.RenderVersions;
 
-#if MC_VERSION >= MC_26_2_0
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.GpuFormat;
+	import com.mojang.renderpearl.api.buffers.GpuBuffer;
+	import com.mojang.renderpearl.api.commands.RenderPass;
+	import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
+	import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+	import com.mojang.renderpearl.api.pipeline.UniformType;
+	import com.mojang.renderpearl.api.textures.FilterMode;
+#elif MC_VERSION >= MC_26_2_0
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.shaders.UniformType;
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.textures.FilterMode;
+	import com.mojang.blaze3d.vertex.VertexFormat;
 	import com.mojang.blaze3d.GpuFormat;
 	import com.mojang.blaze3d.PrimitiveTopology;
 	import com.mojang.blaze3d.pipeline.BindGroupLayout;
 #else
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.shaders.UniformType;
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.textures.FilterMode;
 	import com.mojang.blaze3d.textures.TextureFormat;
+	import com.mojang.blaze3d.vertex.VertexFormat;
+	import com.mojang.blaze3d.GpuFormat;
+	import com.mojang.blaze3d.PrimitiveTopology;
+	import com.mojang.blaze3d.pipeline.BindGroupLayout;
 #endif
 
 @Environment(EnvType.CLIENT)
@@ -62,8 +79,13 @@ public class WaypointRenderer implements SafeCloseable {
 			.withBindGroupLayout(
 				BindGroupLayout
 				.builder()
-				.withSampler("colortex")
-				.withSampler("depthtex")
+				#if MC_VERSION >= MC_26_3_0
+					.withUniform("colortex", UniformType.COMBINED_IMAGE_SAMPLER)
+					.withUniform("depthtex", UniformType.COMBINED_IMAGE_SAMPLER)
+				#else
+					.withSampler("colortex")
+					.withSampler("depthtex")
+				#endif
 				.withUniform("waypoints", UniformType.TEXEL_BUFFER, GpuFormat.RGBA32_FLOAT)
 				.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
 				.build()
@@ -144,9 +166,14 @@ public class WaypointRenderer implements SafeCloseable {
 				"Big Globe waypoint swap framebuffer",
 				1,
 				1,
-				false
-				#if MC_VERSION >= MC_26_2_0
-				, GpuFormat.RGBA8_UNORM
+				#if MC_VERSION >= MC_26_3_0
+					GpuFormat.RGBA8_SNORM,
+					null
+				#elif MC_VERSION >= MC_26_2_0
+					false,
+					 GpuFormat.RGBA8_UNORM
+				#else
+					false
 				#endif
 			);
 			this.state = new State();
@@ -177,7 +204,7 @@ public class WaypointRenderer implements SafeCloseable {
 	}
 
 	public void doRender(LevelRenderContext context) {
-		if (RenderSystem.getDevice().precompilePipeline(PIPELINE).isValid()) {
+		if (RenderVersions.isRenderPipelineValid(PIPELINE)) {
 			RenderTarget mainTarget = RenderVersions.getMainRenderTarget();
 			if (this.swapFramebuffer.width != mainTarget.width || this.swapFramebuffer.height != mainTarget.height) {
 				this.swapFramebuffer.resize(mainTarget.width, mainTarget.height);
@@ -190,9 +217,9 @@ public class WaypointRenderer implements SafeCloseable {
 					this.swapFramebuffer.getColorTextureView()
 				)
 			) {
-				pass.setPipeline(PIPELINE);
-				pass.bindTexture("colortex", mainTarget.getColorTextureView(), RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR));
-				pass.bindTexture("depthtex", mainTarget.getDepthTextureView(), RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR));
+				RenderVersions.setPipeline(pass, PIPELINE);
+				RenderVersions.bindSampler(pass, "colortex", mainTarget.getColorTextureView(), RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR));
+				RenderVersions.bindSampler(pass, "depthtex", mainTarget.getDepthTextureView(), RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR));
 				pass.setUniform("Uniforms", this.uniformData);
 				pass.setUniform("waypoints", this.waypointBuffer);
 				RenderVersions.drawScreenTriangle(pass);

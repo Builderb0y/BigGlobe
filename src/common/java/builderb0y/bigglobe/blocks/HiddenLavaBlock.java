@@ -20,13 +20,17 @@ which results in a lot of unnecessary geometry being rendered.
 */
 public class HiddenLavaBlock extends Block {
 
-	public static final MapCodec<HiddenLavaBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(HiddenLavaBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<HiddenLavaBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(HiddenLavaBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public HiddenLavaBlock(Properties settings) {
 		super(settings);
@@ -34,9 +38,7 @@ public class HiddenLavaBlock extends Block {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public BlockState updateShape(
-
 		BlockState state,
 		LevelReader world,
 		ScheduledTickAccess tickView,
@@ -45,7 +47,6 @@ public class HiddenLavaBlock extends Block {
 		BlockPos neighborPos,
 		BlockState neighborState,
 		RandomSource random
-
 	) {
 		return Block.isShapeFullBlock(neighborState.getOcclusionShape()) ? state : BlockStates.LAVA;
 	}

@@ -24,13 +24,17 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class NaturalAutomataBlock extends AutomataBlock {
 
-	public static final MapCodec<NaturalAutomataBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(NaturalAutomataBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<NaturalAutomataBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(NaturalAutomataBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public NaturalAutomataBlock(Properties settings) {
 		super(settings);

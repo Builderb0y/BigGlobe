@@ -19,8 +19,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
@@ -47,7 +45,7 @@ import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.ChunkVersions;
 
-public class SingleBlockFeature extends Feature<Config> implements RawFeature<Config> {
+public class SingleBlockFeature extends FeatureAdapter<Config> implements RawFeature<Config> {
 
 	public static final Predicate<BlockState>
 		IS_REPLACEABLE = BlockStateVersions::isReplaceable,
@@ -56,13 +54,19 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		IS_SOURCE_WATER = state -> state == BlockStates.WATER,
 		HAS_WATER = state -> state.getFluidState().getType() == Fluids.WATER;
 
-	public SingleBlockFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public SingleBlockFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public SingleBlockFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public SingleBlockFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	public static Predicate<BlockState> matchWaterlogged(BlockState state) {
 		return state.getFluidState().getType() == Fluids.WATER ? IS_SOURCE_WATER : IS_AIR;
@@ -199,7 +203,7 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		Config config = context.config();
 		return place(
 			context.level(),
@@ -219,7 +223,7 @@ public class SingleBlockFeature extends Feature<Config> implements RawFeature<Co
 		@VerifyNotEmpty @SingletonArray List<BlockState> place,
 		@VerifyNotEmpty @SingletonArray @VerifyNullable Set<BlockState> replace
 	)
-		implements FeatureConfiguration, Predicate<BlockState> {
+	implements FeatureAdapter.Config, Predicate<BlockState> {
 
 		public BlockState getState(RandomGenerator random) {
 			return Permuter.choose(random, this.place);

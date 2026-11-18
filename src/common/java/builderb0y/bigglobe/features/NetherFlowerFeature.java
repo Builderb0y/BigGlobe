@@ -6,8 +6,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -24,18 +22,24 @@ import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.settings.VariationsList;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
-public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
+public class NetherFlowerFeature extends FeatureAdapter<NetherFlowerFeature.Config> {
 
-	public NetherFlowerFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public NetherFlowerFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public NetherFlowerFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public NetherFlowerFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		if (context.config().requiresColumn && !(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator)) return false;
 		ScriptedColumn column = (
 			context.config().requiresColumn
@@ -69,7 +73,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		return true;
 	}
 
-	public void generate(FeaturePlaceContext<Config> context, Permuter permuter, Entry entry, double radius, BlockPos.MutableBlockPos mutablePos) {
+	public void generate(Context<Config> context, Permuter permuter, Entry entry, double radius, BlockPos.MutableBlockPos mutablePos) {
 		double r = permuter.nextDouble(radius);
 		double theta = permuter.nextDouble(BigGlobeMath.TAU);
 		double x = Math.cos(theta) * r + context.origin().getX() + 0.5D;
@@ -101,7 +105,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		}
 	}
 
-	public static class Config implements FeatureConfiguration {
+	public static class Config implements FeatureAdapter.Config {
 
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource randomize_radius;

@@ -6,7 +6,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.structures.dungeons.AbstractDungeonStructure;
 import builderb0y.bigglobe.structures.dungeons.LargeDungeonStructure;
@@ -133,10 +132,6 @@ public class BigGlobeStructures {
 
 	public static <T_Structure extends Structure> StructureType<T_Structure> registerType(String name, MapCodec<T_Structure> codec) {
 		return Registry.register(BuiltInRegistries.STRUCTURE_TYPE, BigGlobeMod.modID(name), () -> codec);
-	}
-
-	public static <T_Placement extends StructurePlacement> StructurePlacementType<T_Placement> registerPlacement(String name, MapCodec<T_Placement> codec) {
-		return Registry.register(BuiltInRegistries.STRUCTURE_PLACEMENT, BigGlobeMod.modID(name), () -> codec);
 	}
 
 	public static void init() {}

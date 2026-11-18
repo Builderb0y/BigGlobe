@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.*;
+import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -15,22 +16,19 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-/**
-in 1.19.2, all of this functionality was implemented by {@link Registry}.
-but in 1.19.4 and later, this functionality is split between {@link HolderGetter}
-and {@link HolderLookup.RegistryLookup}. and worse yet, this is only the case for dynamic registries.
-hard-coded registries still work with just {@link Registry}.
-so, I have this interface to act as a compatibility layer, allowing me to tweak it
-in different versions as-needed without changing how it's presented to other classes.
-*/
+/** version-independent abstraction of the functionality I actually need from registries. */
 public interface BetterRegistry<T> {
 
 	public abstract ResourceKey<Registry<T>> getKey();
 
-	public abstract @Nullable Holder<T> getEntry(ResourceKey<T> key);
+	public abstract @Nullable Holder<T> getEntry(ResourceKey<T> key, boolean create);
+
+	public default @Nullable Holder<T> getEntry(ResourceKey<T> key) {
+		return this.getEntry(key, false);
+	}
 
 	public default @NotNull Holder<T> requireEntry(ResourceKey<T> key) {
-		Holder<T> entry = this.getEntry(key);
+		Holder<T> entry = this.getEntry(key, true);
 		if (entry != null) return entry;
 		StringBuilder message = new StringBuilder(128).append("Key ").append(key.identifier()).append(" not present in registry ").append(this.getKey().identifier()).append('.');
 		if (this.getTag(TagKey.create(RegistryVersions.getRegistryKey(key), key.identifier()), false) != null) {
@@ -45,7 +43,7 @@ public interface BetterRegistry<T> {
 		HolderSet<T> tag = this.getTag(key, true);
 		if (tag != null) return tag;
 		StringBuilder message = new StringBuilder().append("Tag ").append(key.location()).append(" not present in registry ").append(this.getKey().identifier()).append('.');
-		if (this.getEntry(ResourceKey.create(RegistryVersions.getRegistryKey(key), key.location())) != null) {
+		if (this.getEntry(ResourceKey.create(RegistryVersions.getRegistryKey(key), key.location()), false) != null) {
 			message.append(" Note: an entry with this name exists. Did you prefix the name with '#' by mistake?");
 		}
 		throw new NullPointerException(message.toString());
@@ -64,7 +62,7 @@ public interface BetterRegistry<T> {
 	}
 
 	public default Holder<T> getById(Identifier id) {
-		return this.getEntry(ResourceKey.create(this.getKey(), id));
+		return this.getEntry(ResourceKey.create(this.getKey(), id), false);
 	}
 
 	public default Holder<T> getByName(String name) {
@@ -83,78 +81,117 @@ public interface BetterRegistry<T> {
 		return this.streamEntries().map(Holder::value)::iterator;
 	}
 
-	public static class BetterHardCodedRegistry<T> implements BetterRegistry<T> {
+	#if MC_VERSION >= MC_26_3_0
 
-		public final Registry<T> registry;
+		public static class BetterHardCodedRegistry<T> implements BetterRegistry<T> {
 
-		public BetterHardCodedRegistry(Registry<T> registry) {
-			this.registry = registry;
+			public final RegistryLookup<T> registry;
+
+			public BetterHardCodedRegistry(RegistryLookup<T> registry) {
+				this.registry = registry;
+			}
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public ResourceKey<Registry<T>> getKey() {
+				return (ResourceKey<Registry<T>>)(this.registry.key());
+			}
+
+			@Override
+			public @Nullable Holder<T> getEntry(ResourceKey<T> key, boolean create) {
+				return create ? this.registry.getOrThrow(key) : this.registry.get(key).orElse(null);
+			}
+
+			@Override
+			public @Nullable HolderSet<T> getTag(TagKey<T> key, boolean create) {
+				return create ? this.registry.getOrThrow(key) : this.registry.get(key).orElse(null);
+			}
+
+			@Override
+			public Stream<Holder<T>> streamEntries() {
+				return Grouper.castStream(this.registry.listElements());
+			}
+
+			@Override
+			public Stream<HolderSet<T>> streamTags() {
+				return Grouper.castStream(this.registry.listTags());
+			}
 		}
 
-		@Override
-		public ResourceKey<Registry<T>> getKey() {
-			return RegistryVersions.getRegistryKey(this.registry);
+	#else
+
+		public static class BetterHardCodedRegistry<T> implements BetterRegistry<T> {
+
+			public final Registry<T> registry;
+
+			public BetterHardCodedRegistry(Registry<T> registry) {
+				this.registry = registry;
+			}
+
+			@Override
+			public ResourceKey<Registry<T>> getKey() {
+				return RegistryVersions.getRegistryKey(this.registry);
+			}
+
+			@Override
+			public Holder<T> getEntry(ResourceKey<T> key, boolean create) {
+				return this.registry.get(key).orElse(null);
+			}
+
+			@Override
+			public HolderSet<T> getTag(TagKey<T> key, boolean create) {
+				return this.registry.get(key).orElse(null);
+			}
+
+			@Override
+			public Stream<Holder<T>> streamEntries() {
+				return Grouper.castStream(this.registry.listElements());
+			}
+
+			@Override
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			public Stream<HolderSet<T>> streamTags() {
+				return Grouper.castStream(this.registry.getTags());
+			}
 		}
 
-		@Override
-		public Holder<T> getEntry(ResourceKey<T> key) {
+		public static class BetterDynamicRegistry<T> implements BetterRegistry<T> {
 
-			return this.registry.get(key).orElse(null);
+			public final HolderLookup.RegistryLookup<T> wrapperImpl;
+			public final HolderGetter<T> lookup;
+
+			public BetterDynamicRegistry(HolderLookup.RegistryLookup<T> wrapperImpl, HolderGetter<T> lookup) {
+				this.wrapperImpl = wrapperImpl;
+				this.lookup = lookup;
+			}
+
+			@Override
+			public ResourceKey<Registry<T>> getKey() {
+				return RegistryVersions.getRegistryKey(this.wrapperImpl);
+			}
+
+			@Override
+			public @Nullable Holder<T> getEntry(ResourceKey<T> key, boolean create) {
+				return (create ? this.lookup : this.wrapperImpl).get(key).orElse(null);
+			}
+
+			@Override
+			public HolderSet<T> getTag(TagKey<T> key, boolean create) {
+				return (create ? this.lookup : this.wrapperImpl).get(key).orElse(null);
+			}
+
+			@Override
+			public Stream<Holder<T>> streamEntries() {
+				return Grouper.castStream(this.wrapperImpl.listElements());
+			}
+
+			@Override
+			public Stream<HolderSet<T>> streamTags() {
+				return Grouper.castStream(this.wrapperImpl.listTags());
+			}
 		}
 
-		@Override
-		public HolderSet<T> getTag(TagKey<T> key, boolean create) {
-
-			return this.registry.get(key).orElse(null);
-		}
-
-		@Override
-		public Stream<Holder<T>> streamEntries() {
-			return Grouper.castStream(this.registry.listElements());
-		}
-
-		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public Stream<HolderSet<T>> streamTags() {
-			return Grouper.castStream(this.registry.getTags());
-		}
-	}
-
-	public static class BetterDynamicRegistry<T> implements BetterRegistry<T> {
-
-		public final HolderLookup.RegistryLookup<T> wrapperImpl;
-		public final HolderGetter<T> lookup;
-
-		public BetterDynamicRegistry(HolderLookup.RegistryLookup<T> wrapperImpl, HolderGetter<T> lookup) {
-			this.wrapperImpl = wrapperImpl;
-			this.lookup = lookup;
-		}
-
-		@Override
-		public ResourceKey<Registry<T>> getKey() {
-			return RegistryVersions.getRegistryKey(this.wrapperImpl);
-		}
-
-		@Override
-		public Holder<T> getEntry(ResourceKey<T> key) {
-			return this.lookup.get(key).orElse(null);
-		}
-
-		@Override
-		public HolderSet<T> getTag(TagKey<T> key, boolean create) {
-			return (create ? this.lookup : this.wrapperImpl).get(key).orElse(null);
-		}
-
-		@Override
-		public Stream<Holder<T>> streamEntries() {
-			return Grouper.castStream(this.wrapperImpl.listElements());
-		}
-
-		@Override
-		public Stream<HolderSet<T>> streamTags() {
-			return Grouper.castStream(this.wrapperImpl.listTags());
-		}
-	}
+	#endif
 
 	public static interface Lookup {
 

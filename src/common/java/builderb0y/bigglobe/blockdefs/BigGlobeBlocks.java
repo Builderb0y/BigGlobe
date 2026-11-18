@@ -35,7 +35,7 @@ public class BigGlobeBlocks {
 			.mapColor(MapColor.WOOD)
 			.strength(0.8f)
 			.sound(SoundType.WOOL)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final RopeAnchorBlock ROPE_ANCHOR = register(
@@ -48,7 +48,7 @@ public class BigGlobeBlocks {
 			.requiresCorrectToolForDrops()
 			.strength(5.0F)
 			.sound(SoundType.DEEPSLATE_BRICKS)
-			.pushReaction(PushReaction.BLOCK)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 IMMOVEABLE #else BLOCK #endif)
 		)
 	);
 
@@ -63,7 +63,7 @@ public class BigGlobeBlocks {
 			.noCollision()
 			.noOcclusion()
 			.noLootTable()
-			.pushReaction(PushReaction.BLOCK)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 IMMOVEABLE #else BLOCK #endif)
 		)
 	);
 
@@ -83,7 +83,7 @@ public class BigGlobeBlocks {
 			.instabreak()
 			.noOcclusion()
 			.lightLevel((BlockState state) -> lightLevel)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		);
 	}
 

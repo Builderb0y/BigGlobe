@@ -38,6 +38,7 @@ import net.minecraft.util.BitStorage;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
@@ -47,10 +48,12 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.*;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -134,6 +137,10 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.bigglobe.versions.SpawnEntryVersions.*;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 @AddPseudoField("biome_source")
 @AddPseudoField("decodeContext")
 @UseCoder(name = "createCoder", usage = MemberUsage.METHOD_IS_FACTORY)
@@ -180,7 +187,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		ColumnRandomToBooleanScript.@VerifyNullable Catcher spawn_point,
 		@VerifyNullable SpawnTweakers mob_spawn_tweakers,
 		@VerifyNullable ColorOverrides colors,
-		@VerifyNullable Holder<ConfiguredFeature<?, ?>> grass_bonemeal_feature,
+		@VerifyNullable Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> grass_bonemeal_feature,
 		@DefaultBoolean(false) boolean alt_block_falling_logic,
 		@VerifyNullable NetherOverrides nether,
 		@VerifyNullable ResourceKey<Level> creaking_time_reference,
@@ -570,27 +577,36 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		return this.actualOverriders;
 	}
 
-	@Override
-	public void applyCarvers(
-		WorldGenRegion chunkRegion,
-		long seed,
-		RandomState noiseConfig,
-		BiomeManager biomeAccess,
-		StructureManager structureAccessor,
-		ChunkAccess chunk
+	#if MC_VERSION < MC_26_3_0
 
+		@Override
+		public void applyCarvers(
+			WorldGenRegion chunkRegion,
+			long seed,
+			RandomState noiseConfig,
+			BiomeManager biomeAccess,
+			StructureManager structureAccessor,
+			ChunkAccess chunk
+
+		) {
+			//no-op.
+		}
+
+		@Override
+		public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
+			//no-op.
+		}
+
+	#endif
+
+	@Override
+	public WeightedList<SpawnerData> getMobsAt(
+		#if MC_VERSION >= MC_26_3_0 Level #else Holder<Biome> #endif firstParam,
+		StructureManager accessor,
+		MobCategory group,
+		BlockPos pos
 	) {
-		//no-op.
-	}
-
-	@Override
-	public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
-		//no-op.
-	}
-
-	@Override
-	public WeightedList<SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager accessor, MobCategory group, BlockPos pos) {
-		if (((StructureAccessor_WorldAccess)(accessor)).bigglobe_getWorld() instanceof ServerLevel serverLevel) {
+		if (#if MC_VERSION >= MC_26_3_0 firstParam #else ((StructureAccessor_WorldAccess)(accessor)).bigglobe_getWorld() #endif instanceof ServerLevel serverLevel) {
 			WeightedList<SpawnerData> spawns = this.structureLocator().getMobSpawns(
 				new StructureLocator.Context(
 					this,
@@ -604,15 +620,21 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 				return spawns;
 			}
 			if (this.game_mechanics.mob_spawn_tweakers != null) {
-				return this.game_mechanics.mob_spawn_tweakers.getSpawnEntries(this, pos, group, biome, Permuter.from(serverLevel.getRandom()));
+				return this.game_mechanics.mob_spawn_tweakers.getSpawnEntries(this, pos, group, Permuter.from(serverLevel.getRandom()));
 			}
 			return WeightedList.of();
 		}
 		else {
 			if (Tripwire.isEnabled()) {
-				Tripwire.logWithStackTrace("getMobsAt() called with a StructureManager whose world is not a ServerLevel.");
+				Tripwire.logWithStackTrace(
+					#if MC_VERSION >= MC_26_3_0
+						"getMobsAt() called with a Level which is not a ServerLevel."
+					#else
+						"getMobsAt() called with a StructureManager whose world is not a ServerLevel."
+					#endif
+				);
 			}
-			return super.getMobsAt(biome, accessor, group, pos);
+			return super.getMobsAt(firstParam, accessor, group, pos);
 		}
 	}
 
@@ -620,87 +642,95 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@SuppressWarnings("RedundantCast")
 	public void spawnOriginalMobs(WorldGenRegion region) {
 		if (this.game_mechanics.mob_spawn_tweakers == null) return;
-		//copy-pasted from NoiseChunkGenerator.
-		ChunkPos chunkPos = region.getCenter();
-		BlockPos chunkCenter = new BlockPos(
-			chunkPos.getMinBlockX(),
-			this.getHeight(
-				this.newColumn(region, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), ColumnUsage.HEIGHTMAP.maybeDhHints()),
-				Types.OCEAN_FLOOR_WG,
-				region
-			),
-			chunkPos.getMinBlockZ()
-		);
-		Holder<Biome> registryEntry = region.getBiome(chunkCenter);
-		WorldgenRandom chunkRandom = new WorldgenRandom(new LegacyRandomSource(RandomSupport.generateUniqueSeed()));
-		chunkRandom.setDecorationSeed(region.getSeed(), chunkPos.getMinBlockX(), chunkPos.getMinBlockZ());
+		if (region.getLevel().getGameRules().get(GameRules.SPAWN_MOBS)) {
+			//copy-pasted from NoiseChunkGenerator.
+			ChunkPos chunkPos = region.getCenter();
+			BlockPos chunkCenter = new BlockPos(
+				chunkPos.getMinBlockX(),
+				this.getHeight(
+					this.newColumn(region, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), ColumnUsage.HEIGHTMAP.maybeDhHints()),
+					Types.OCEAN_FLOOR_WG,
+					region
+				),
+				chunkPos.getMinBlockZ()
+			);
+			Holder<Biome> registryEntry = region.getBiome(chunkCenter);
+			WorldgenRandom chunkRandom = new WorldgenRandom(new LegacyRandomSource(RandomSupport.generateUniqueSeed()));
+			chunkRandom.setDecorationSeed(region.getSeed(), chunkPos.getMinBlockX(), chunkPos.getMinBlockZ());
 
-		//inlined from SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
-		//reason: default method only considers biome and does not query chunk generator for mob list.
-		MobSpawnSettings spawnSettings = registryEntry.value().getMobSettings();
-		WeightedList<SpawnerData> pool = this.game_mechanics.mob_spawn_tweakers.getSpawnEntries(this, chunkCenter, MobCategory.CREATURE, registryEntry, Permuter.from(chunkRandom));
-		if (!pool.isEmpty()) {
-			int i = chunkPos.getMinBlockX();
-			int j = chunkPos.getMinBlockZ();
+			//inlined from SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
+			//reason: default method only considers biome and does not query chunk generator for mob list.
+			#if MC_VERSION >= MC_26_3_0
+				MobSpawnSettings mobSettings = region.environmentAttributes().getValue(EnvironmentAttributes.NATURAL_MOB_SPAWNS, chunkCenter);
+				float probability = region.environmentAttributes().getValue(EnvironmentAttributes.CREATURE_WORLD_GEN_SPAWN_PROBABILITY, chunkCenter);
+			#else
+				MobSpawnSettings spawnSettings = registryEntry.value().getMobSettings();
+				float probability = spawnSettings.getCreatureProbability();
+			#endif
+			WeightedList<SpawnerData> pool = this.game_mechanics.mob_spawn_tweakers.getSpawnEntries(this, chunkCenter, MobCategory.CREATURE, Permuter.from(chunkRandom));
+			if (!pool.isEmpty()) {
+				int i = chunkPos.getMinBlockX();
+				int j = chunkPos.getMinBlockZ();
 
-			while (chunkRandom.nextFloat() < spawnSettings.getCreatureProbability()) {
-				Optional<SpawnerData> optional = pool.getRandom(chunkRandom);
-				if (!optional.isEmpty()) {
-					SpawnerData spawnEntry = (SpawnerData)optional.get();
-					int k = minCount(spawnEntry) + chunkRandom.nextInt(1 + maxCount(spawnEntry) - minCount(spawnEntry));
-					SpawnGroupData entityData = null;
-					int l = i + chunkRandom.nextInt(16);
-					int m = j + chunkRandom.nextInt(16);
-					int n = l;
-					int o = m;
+				while (chunkRandom.nextFloat() < probability) {
+					Optional<SpawnerData> optional = pool.getRandom(chunkRandom);
+					if (!optional.isEmpty()) {
+						SpawnerData spawnEntry = (SpawnerData)optional.get();
+						int k = minCount(spawnEntry) + chunkRandom.nextInt(1 + maxCount(spawnEntry) - minCount(spawnEntry));
+						SpawnGroupData entityData = null;
+						int l = i + chunkRandom.nextInt(16);
+						int m = j + chunkRandom.nextInt(16);
+						int n = l;
+						int o = m;
 
-					for (int p = 0; p < k; p++) {
-						boolean bl = false;
+						for (int p = 0; p < k; p++) {
+							boolean bl = false;
 
-						for (int q = 0; !bl && q < 4; q++) {
-							BlockPos blockPos = NaturalSpawner.getTopNonCollidingPos((ServerLevelAccessor)region, type(spawnEntry), l, m);
-							if (type(spawnEntry).canSummon() && SpawnPlacements.isSpawnPositionOk(type(spawnEntry), region, blockPos)) {
-								float f = type(spawnEntry).getWidth();
-								double d = Mth.clamp((double)l, (double)i + (double)f, (double)i + 16.0 - (double)f);
-								double e = Mth.clamp((double)m, (double)j + (double)f, (double)j + 16.0 - (double)f);
-								if (
-									!region.noCollision(type(spawnEntry).getSpawnAABB(d, (double)blockPos.getY(), e))
-									|| !SpawnPlacements.checkSpawnRules(
-										type(spawnEntry),
-										region,
-										EntitySpawnReason.CHUNK_GENERATION,
-										BlockPos.containing(d, (double)blockPos.getY(), e),
-										region.getRandom()
-									)
-								) {
-									continue;
+							for (int q = 0; !bl && q < 4; q++) {
+								BlockPos blockPos = NaturalSpawner.getTopNonCollidingPos((ServerLevelAccessor)region, type(spawnEntry), l, m);
+								if (type(spawnEntry).canSummon() && SpawnPlacements.isSpawnPositionOk(type(spawnEntry), region, blockPos)) {
+									float f = type(spawnEntry).getWidth();
+									double d = Mth.clamp((double)l, (double)i + (double)f, (double)i + 16.0 - (double)f);
+									double e = Mth.clamp((double)m, (double)j + (double)f, (double)j + 16.0 - (double)f);
+									if (
+										!region.noCollision(type(spawnEntry).getSpawnAABB(d, (double)blockPos.getY(), e))
+										|| !SpawnPlacements.checkSpawnRules(
+											type(spawnEntry),
+											region,
+											EntitySpawnReason.CHUNK_GENERATION,
+											BlockPos.containing(d, (double)blockPos.getY(), e),
+											region.getRandom()
+										)
+									) {
+										continue;
+									}
+
+									Entity entity;
+									try {
+										entity = type(spawnEntry).create(((ServerLevelAccessor)region).getLevel(), EntitySpawnReason.NATURAL);
+									}
+									catch (Exception var27) {
+										BigGlobeMod.LOGGER.warn("Failed to create mob", (Throwable)var27);
+										continue;
+									}
+
+									if (entity == null) {
+										continue;
+									}
+
+									entity.snapTo(d, (double)blockPos.getY(), e, chunkRandom.nextFloat() * 360.0F, 0.0F);
+									if (entity instanceof Mob mobEntity && mobEntity.checkSpawnRules(region, EntitySpawnReason.CHUNK_GENERATION) && mobEntity.checkSpawnObstruction(region)) {
+										entityData = mobEntity.finalizeSpawn(region, region.getCurrentDifficultyAt(mobEntity.blockPosition()), EntitySpawnReason.CHUNK_GENERATION, entityData);
+										region.addFreshEntityWithPassengers(mobEntity);
+										bl = true;
+									}
 								}
 
-								Entity entity;
-								try {
-									entity = type(spawnEntry).create(((ServerLevelAccessor)region).getLevel(), EntitySpawnReason.NATURAL);
-								}
-								catch (Exception var27) {
-									BigGlobeMod.LOGGER.warn("Failed to create mob", (Throwable)var27);
-									continue;
-								}
+								l += chunkRandom.nextInt(5) - chunkRandom.nextInt(5);
 
-								if (entity == null) {
-									continue;
+								for (m += chunkRandom.nextInt(5) - chunkRandom.nextInt(5); l < i || l >= i + 16 || m < j || m >= j + 16; m = o + chunkRandom.nextInt(5) - chunkRandom.nextInt(5)) {
+									l = n + chunkRandom.nextInt(5) - chunkRandom.nextInt(5);
 								}
-
-								entity.snapTo(d, (double)blockPos.getY(), e, chunkRandom.nextFloat() * 360.0F, 0.0F);
-								if (entity instanceof Mob mobEntity && mobEntity.checkSpawnRules(region, EntitySpawnReason.CHUNK_GENERATION) && mobEntity.checkSpawnObstruction(region)) {
-									entityData = mobEntity.finalizeSpawn(region, region.getCurrentDifficultyAt(mobEntity.blockPosition()), EntitySpawnReason.CHUNK_GENERATION, entityData);
-									region.addFreshEntityWithPassengers(mobEntity);
-									bl = true;
-								}
-							}
-
-							l += chunkRandom.nextInt(5) - chunkRandom.nextInt(5);
-
-							for (m += chunkRandom.nextInt(5) - chunkRandom.nextInt(5); l < i || l >= i + 16 || m < j || m >= j + 16; m = o + chunkRandom.nextInt(5) - chunkRandom.nextInt(5)) {
-								l = n + chunkRandom.nextInt(5) - chunkRandom.nextInt(5);
 							}
 						}
 					}
@@ -714,13 +744,36 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		return this.height.max_y - this.height.min_y;
 	}
 
-	@Override
-	public CompletableFuture<ChunkAccess> fillFromNoise(
-		Blender blender,
-		RandomState noiseConfig,
-		StructureManager structureAccessor,
-		ChunkAccess chunk
-	) {
+	#if MC_VERSION >= MC_26_3_0
+
+		@Override
+		public CompletableFuture<ChunkAccess> buildTerrain(
+			ChunkAccess chunk,
+			Blender blender,
+			RandomState randomState,
+			StructureManager structureAccessor,
+			BiomeManager biomeManager,
+			WorldGenRegion carverBiomeRegion,
+			Set<Holder<Biome>> possibleBiomes
+		) {
+			return this.generateRawTerrain(chunk, structureAccessor);
+		}
+
+	#else
+
+		@Override
+		public CompletableFuture<ChunkAccess> fillFromNoise(
+			Blender blender,
+			RandomState noiseConfig,
+			StructureManager structureAccessor,
+			ChunkAccess chunk
+		) {
+			return this.generateRawTerrain(chunk, structureAccessor);
+		}
+
+	#endif
+
+	public CompletableFuture<ChunkAccess> generateRawTerrain(ChunkAccess chunk, StructureManager structureAccessor) {
 		if (ValkyrienSkiesCompat.isInShipyard(chunk.getPos())) {
 			return CompletableFuture.completedFuture(chunk);
 		}
@@ -1121,6 +1174,9 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						placementCalculator,
 						registryManager,
 						structureTemplateManager,
+						#if MC_VERSION >= MC_26_3_0
+							placementCalculator.randomState().createClimateSampler(SamplerContext.builder().enableCaches().build()),
+						#endif
 						chunk
 					),
 					new ManyStructuresOneBox(
@@ -1329,8 +1385,32 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		return new NoiseColumn(HeightLimitViewVersions.getMinY(world), states);
 	}
 
-	@Override
-	public void	addDebugScreenInfo(List<String> text, RandomState noiseConfig, BlockPos pos) {
+	#if MC_VERSION >= MC_26_3_0
+
+		@Override
+		public void addDebugScreenInfo(
+			List<String> result,
+			RandomState randomState,
+			BlockPos feetPos,
+			SamplerContext samplerContext
+		) {
+			this.addF3Data(result, feetPos);
+		}
+
+	#else
+
+		@Override
+		public void	addDebugScreenInfo(
+			List<String> text,
+			RandomState noiseConfig,
+			BlockPos pos
+		) {
+			this.addF3Data(text, pos);
+		}
+
+	#endif
+
+	public void addF3Data(List<String> text, BlockPos pos) {
 		if (!this.rootDebugDisplay.isEmpty()) {
 			ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints()));
 			for (Iterator<ColumnValueInfo> iterator = this.rootDebugDisplay.iterator(); iterator.hasNext();) {

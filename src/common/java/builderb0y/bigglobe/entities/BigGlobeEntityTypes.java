@@ -91,7 +91,26 @@ public class BigGlobeEntityTypes {
 	) {
 		return register(
 			name,
-			#if MC_VERSION >= MC_26_2_0
+			#if MC_VERSION >= MC_26_3_0
+				new EntityType<>(
+					factory,
+					spawnGroup,
+					saveable,
+					summonable,
+					fireImmune,
+					spawnableFarFromPlayer,
+					BlockTags.DEFAULT_IMMUNE_TO,
+					dimensions,
+					1.0F,
+					maxTrackDistance,
+					trackTickInterval,
+					Util.makeDescriptionId("entity", BigGlobeMod.modID(name)),
+					Optional.of(ResourceKey.create(Registries.LOOT_TABLE, BigGlobeMod.modID(name).withPrefix("entities/"))),
+					FeatureFlagSet.of(),
+					true,
+					trackTickInterval != Integer.MAX_VALUE
+				)
+			#elif MC_VERSION >= MC_26_2_0
 				new EntityType<>(
 					factory,
 					spawnGroup,

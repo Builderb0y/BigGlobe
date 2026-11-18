@@ -39,8 +39,25 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 	@Final
 	private LevelAccessor level;
 
-	@Inject(method = "startsForStructure(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/Predicate;)Ljava/util/List;", at = @At("HEAD"), cancellable = true)
-	private void bigglobe_getIntersectingStarts(ChunkPos pos, Predicate<Structure> predicate, CallbackInfoReturnable<List<StructureStart>> callback) {
+	@Inject(
+		#if MC_VERSION >= MC_26_3_0
+			method = "startsForStructure(IILjava/util/function/Predicate;)Ljava/util/List;",
+		#else
+			method = "startsForStructure(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/Predicate;)Ljava/util/List;",
+		#endif
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void bigglobe_getIntersectingStarts(
+		#if MC_VERSION >= MC_26_3_0
+			int chunkX,
+			int chunkZ,
+		#else
+			ChunkPos pos,
+		#endif
+		Predicate<Structure> predicate,
+		CallbackInfoReturnable<List<StructureStart>> callback
+	) {
 		if (this.level instanceof ServerLevelAccessor serverWorldAccess && serverWorldAccess.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			Streamable<Holder<Structure>> structures = generator.structureLocator().allStructures();
 			callback.setReturnValue(
@@ -48,7 +65,14 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 					this.bigglobe_makeParams(
 						serverWorldAccess.getLevel(),
 						generator,
-						WorldUtil.chunkBox(pos, serverWorldAccess),
+						WorldUtil.chunkBox(
+							#if MC_VERSION >= MC_26_3_0
+								new ChunkPos(chunkX, chunkZ),
+							#else
+								pos,
+							#endif
+							serverWorldAccess
+						),
 						() -> structures.stream().filter((Holder<Structure> structure) -> predicate.test(structure.value()))
 					)
 				)
@@ -58,8 +82,25 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 		}
 	}
 
-	@Inject(method = "startsForStructure(Lnet/minecraft/core/SectionPos;Lnet/minecraft/world/level/levelgen/structure/Structure;)Ljava/util/List;", at = @At("HEAD"), cancellable = true)
-	private void bigglobe_getIntersectingStarts(SectionPos sectionPos, Structure structure, CallbackInfoReturnable<List<StructureStart>> callback) {
+	@Inject(
+		#if MC_VERSION >= MC_26_3_0
+			method = "startsForStructure(IILnet/minecraft/world/level/levelgen/structure/Structure;)Ljava/util/List;",
+		#else
+			method = "startsForStructure(Lnet/minecraft/core/SectionPos;Lnet/minecraft/world/level/levelgen/structure/Structure;)Ljava/util/List;",
+		#endif
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void bigglobe_getIntersectingStarts(
+		#if MC_VERSION >= MC_26_3_0
+			int chunkX,
+			int chunkZ,
+		#else
+			SectionPos pos,
+		#endif
+		Structure structure,
+		CallbackInfoReturnable<List<StructureStart>> callback
+	) {
 		if (this.level instanceof ServerLevelAccessor serverWorldAccess && serverWorldAccess.getLevel().getChunkSource().getGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 			Holder<Structure> entry = StructureLocator.toHolder(serverWorldAccess, structure);
 			callback.setReturnValue(
@@ -67,7 +108,14 @@ public abstract class StructureAccessor_UseStructureManagerInBigGlobeWorlds {
 					this.bigglobe_makeParams(
 						serverWorldAccess.getLevel(),
 						generator,
-						WorldUtil.chunkBox(sectionPos.chunk(), serverWorldAccess),
+						WorldUtil.chunkBox(
+							#if MC_VERSION >= MC_26_3_0
+								new ChunkPos(chunkX, chunkZ),
+							#else
+								pos.chunk(),
+							#endif
+							serverWorldAccess
+						),
 						Streamable.singleton(entry)
 					)
 				)

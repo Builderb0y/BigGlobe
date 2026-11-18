@@ -31,13 +31,19 @@ import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
 public class RockLayerFeature extends DummyFeature<RockLayerFeature.Config> implements RockReplacerFeature<RockLayerFeature.Config> {
 
-	public RockLayerFeature(Codec<Config> codec) {
-		super(codec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public RockLayerFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public RockLayerFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public RockLayerFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
 	public void replaceRocks(BigGlobeScriptedChunkGenerator generator, WorldWrapper worldWrapper, ChunkAccess chunk, int minSection, int maxSection, Config config) {

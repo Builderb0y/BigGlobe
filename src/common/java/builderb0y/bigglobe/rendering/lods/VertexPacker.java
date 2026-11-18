@@ -168,6 +168,15 @@ public class VertexPacker implements VertexConsumer {
 		return this.updateState(FLAG_LIGHT);
 	}
 
+	#if MC_VERSION >= MC_26_3_0
+
+		@Override
+		public VertexConsumer setUv3(float u, float v) {
+			return this;
+		}
+
+	#endif
+
 	@Override
 	public VertexConsumer setNormal(float x, float y, float z) {
 		return this;

@@ -23,13 +23,17 @@ import builderb0y.bigglobe.versions.ActionResultVersions;
 
 public class CloudBlock extends Block {
 
-	public static final MapCodec<CloudBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CloudBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<CloudBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(CloudBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public final CloudColor color;
 	public final boolean isVoid;

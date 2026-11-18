@@ -31,13 +31,17 @@ import builderb0y.bigglobe.util.RandomSelector;
 
 public class MoltenRockBlock extends Block {
 
-	public static final MapCodec<MoltenRockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MoltenRockBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<MoltenRockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(MoltenRockBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public final @VerifyIntRange(min = 1, max = 8) int heat;
 
@@ -48,9 +52,7 @@ public class MoltenRockBlock extends Block {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public BlockState updateShape(
-
 		BlockState state,
 		LevelReader world,
 		ScheduledTickAccess tickView,
@@ -59,7 +61,6 @@ public class MoltenRockBlock extends Block {
 		BlockPos neighborPos,
 		BlockState neighborState,
 		RandomSource random
-
 	) {
 		if (
 			world instanceof ServerLevel serverWorld &&

@@ -19,9 +19,19 @@ import builderb0y.bigglobe.util.BigGlobeThreadPool;
 
 public abstract class AbstractOreFeature<T_Config extends AbstractOreFeature.Config> extends DummyFeature<T_Config> implements RockReplacerFeature<T_Config> {
 
-	public AbstractOreFeature(Codec<T_Config> codec) {
-		super(codec);
-	}
+	#if MC_VERSION >= MC_26_3_0
+
+		public AbstractOreFeature(T_Config config) {
+			super(config);
+		}
+
+	#else
+
+		public AbstractOreFeature(Codec<T_Config> configCodec) {
+			super(configCodec);
+		}
+
+	#endif
 
 	@Override
 	public void replaceRocks(

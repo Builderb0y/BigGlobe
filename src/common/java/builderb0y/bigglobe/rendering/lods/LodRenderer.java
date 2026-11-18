@@ -3,11 +3,8 @@ package builderb0y.bigglobe.rendering.lods;
 import java.nio.ByteOrder;
 import java.util.Set;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
@@ -23,6 +20,19 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.rendering.NativeMemory;
 import builderb0y.bigglobe.util.SafeCloseable;
+import builderb0y.bigglobe.versions.RenderVersions;
+
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.commands.RenderPass;
+	import com.mojang.renderpearl.api.textures.GpuTextureView;
+	import com.mojang.renderpearl.api.textures.FilterMode;
+	import com.mojang.renderpearl.api.buffers.GpuBuffer;
+#else
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.textures.GpuTextureView;
+	import com.mojang.blaze3d.textures.FilterMode;
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+#endif
 
 @Environment(EnvType.CLIENT)
 public abstract class LodRenderer implements SafeCloseable {
@@ -116,8 +126,8 @@ public abstract class LodRenderer implements SafeCloseable {
 		pass.setUniform("Fog", RenderSystem.getShaderFog());
 		pass.setUniform("ExtraFog", this.fogGpuBuffer);
 		pass.setUniform("Matrices", this.matricesGpuBuffer);
-		pass.bindTexture("blockAtlas", Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).getTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST, true));
-		pass.bindTexture("lightmap", Minecraft.getInstance().gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
+		RenderVersions.bindSampler(pass, "blockAtlas", Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).getTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST, true));
+		RenderVersions.bindSampler(pass, "lightmap", Minecraft.getInstance().gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
 	}
 
 	public abstract void render(RenderPass pass, ChunkSectionLayer layer);

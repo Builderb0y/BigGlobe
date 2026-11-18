@@ -1,9 +1,9 @@
 package builderb0y.bigglobe.brewing;
 
-import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.BrewingRecipeBuilder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -12,10 +12,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.itemdefs.BigGlobeItems;
+
+#if MC_VERSION < MC_26_3_0
+	import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
+	import net.minecraft.world.item.alchemy.PotionBrewing;
+#endif
 
 public class BigGlobeBrewing {
 
@@ -45,14 +49,16 @@ public class BigGlobeBrewing {
 	}
 
 	public static void init() {
-		FabricPotionBrewingBuilder.BUILD.register((PotionBrewing.Builder builder) -> {
-			BigGlobeMod.LOGGER.debug("Registering potion recipes...");
-			builder.addMix(Potions.AWKWARD, BigGlobeItems.ASH, WITHER);
-			builder.addMix(WITHER, Items.REDSTONE, LONG_WITHER);
-			builder.addMix(WITHER, Items.GLOWSTONE_DUST, STRONG_WITHER);
-			builder.addMix(Potions.WATER, BigGlobeItems.CHORUS_SPORE, Potions.AWKWARD);
-			BigGlobeMod.LOGGER.debug("Done registering potion recipes.");
-		});
+		#if MC_VERSION < MC_26_3_0
+			FabricPotionBrewingBuilder.BUILD.register((PotionBrewing.Builder builder) -> {
+				BigGlobeMod.LOGGER.debug("Registering potion recipes...");
+				builder.addMix(Potions.AWKWARD, BigGlobeItems.ASH, WITHER);
+				builder.addMix(WITHER, Items.REDSTONE, LONG_WITHER);
+				builder.addMix(WITHER, Items.GLOWSTONE_DUST, STRONG_WITHER);
+				builder.addMix(Potions.WATER, BigGlobeItems.CHORUS_SPORE, Potions.AWKWARD);
+				BigGlobeMod.LOGGER.debug("Done registering potion recipes.");
+			});
+		#endif
 	}
 
 	public static Holder<MobEffect> registerEffect(String name, MobEffect effect) {

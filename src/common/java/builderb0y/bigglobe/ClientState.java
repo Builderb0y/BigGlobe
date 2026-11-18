@@ -19,13 +19,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.RegistryOps.RegistryInfo;
 import net.minecraft.resources.RegistryOps.RegistryInfoLookup;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -86,6 +86,10 @@ import builderb0y.scripting.parsing.input.ScriptUsage;
 import builderb0y.scripting.util.InfoHolder;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.resources.RegistryOps.RegistryInfo;
+#endif
 
 public class ClientState {
 
@@ -357,29 +361,49 @@ public class ClientState {
 				delegate,
 				new RegistryInfoLookup() {
 
-					@Override
-					public <T_Registry> Optional<RegistryInfo<T_Registry>> lookup(ResourceKey<? extends Registry<? extends T_Registry>> key) {
-						MappedRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
-						if (registry == null) {
-							if (BigGlobeMod.getClientRegistry(key) instanceof BetterHardCodedRegistry<T_Registry> better && better.registry instanceof MappedRegistry<T_Registry> simple) {
-								registry = simple;
+					#if MC_VERSION >= MC_26_3_0
+
+						@Override
+						public <T_Registry> Optional<HolderGetter<T_Registry>> lookup(ResourceKey<? extends Registry<? extends T_Registry>> key) {
+							MappedRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
+							if (registry != null) {
+								return Optional.of(registry);
+							}
+							else if (BigGlobeMod.getClientRegistry(key) instanceof BetterHardCodedRegistry<T_Registry> better) {
+								return Optional.of(better.registry);
 							}
 							else {
 								return Optional.empty();
 							}
 						}
-						return Optional.of(
-							new RegistryInfo<>(
 
-								registry,
-								mutable
-									? registry.createRegistrationLookup()
-									: registry,
+					#else
 
-								Lifecycle.experimental()
-							)
-						);
-					}
+						@Override
+						public <T_Registry> Optional<RegistryInfo<T_Registry>> lookup(ResourceKey<? extends Registry<? extends T_Registry>> key) {
+							MappedRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
+							if (registry == null) {
+								if (BigGlobeMod.getClientRegistry(key) instanceof BetterHardCodedRegistry<T_Registry> better && better.registry instanceof MappedRegistry<T_Registry> simple) {
+									registry = simple;
+								}
+								else {
+									return Optional.empty();
+								}
+							}
+							return Optional.of(
+								new RegistryInfo<>(
+
+									registry,
+									mutable
+										? registry.createRegistrationLookup()
+										: registry,
+
+									Lifecycle.experimental()
+								)
+							);
+						}
+
+					#endif
 				}
 			);
 		}

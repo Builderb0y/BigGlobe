@@ -20,13 +20,17 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class ArtificialAutomataBlock extends AutomataBlock {
 
-	public static final MapCodec<ArtificialAutomataBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ArtificialAutomataBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<ArtificialAutomataBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ArtificialAutomataBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public ArtificialAutomataBlock(Properties settings) {
 		super(settings);

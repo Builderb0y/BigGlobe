@@ -30,7 +30,8 @@ public abstract class Items_PlaceableFlint {
 
 	#if MC_VERSION >= MC_26_2_0
 
-		@Shadow private static Item registerBlock(BlockItemId id, Block block) {
+		@Shadow
+		private static Item registerBlock(BlockItemId id, Block block) {
 			throw new UnsupportedOperationException("Implemented via mixin");
 		}
 

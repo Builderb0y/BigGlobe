@@ -18,13 +18,17 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class DelayedGenerationBlock extends Block implements EntityBlock {
 
-	public static final MapCodec<DelayedGenerationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelayedGenerationBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<DelayedGenerationBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(DelayedGenerationBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public DelayedGenerationBlock(Properties settings) {
 		super(settings);

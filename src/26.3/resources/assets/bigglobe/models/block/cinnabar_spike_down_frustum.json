@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/pointed_dripstone",
+	"textures": {
+		"cross": "bigglobe:block/cinnabar_spike_down_frustum"
+	}
+}

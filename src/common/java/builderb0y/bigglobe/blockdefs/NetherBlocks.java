@@ -86,7 +86,7 @@ public class NetherBlocks {
 				.strength(1.5F, 3.0F)
 				.dynamicShape()
 				.offsetType(BlockBehaviour.OffsetType.XZ)
-				.pushReaction(PushReaction.DESTROY)
+				.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 				.isRedstoneConductor(Blocks::never)
 				.noOcclusion()
 			)
@@ -104,7 +104,7 @@ public class NetherBlocks {
 			.instabreak()
 			.sound(SoundType.GRASS)
 			.offsetType(OffsetType.XZ)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 			.replaceable()
 		)
 	);
@@ -120,7 +120,7 @@ public class NetherBlocks {
 			.instabreak()
 			.sound(SoundType.GRASS)
 			.offsetType(OffsetType.XZ)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 			.replaceable()
 		)
 	);
@@ -139,7 +139,7 @@ public class NetherBlocks {
 			.noCollision()
 			.sound(SoundType.GRASS)
 			.lightLevel((BlockState state) -> 7)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final FlowerPotBlock POTTED_BLAZING_BLOSSOM = BigGlobeBlocks.register(
@@ -160,7 +160,7 @@ public class NetherBlocks {
 			.noCollision()
 			.sound(SoundType.GRASS)
 			.lightLevel((BlockState state) -> 5)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final NetherFlowerBlock GLOWING_GOLDENROD = BigGlobeBlocks.register(
@@ -177,7 +177,7 @@ public class NetherBlocks {
 			.noCollision()
 			.sound(SoundType.GRASS)
 			.lightLevel((BlockState state) -> 11)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final FlowerPotBlock POTTED_GLOWING_GOLDENROD = BigGlobeBlocks.register(
@@ -196,7 +196,7 @@ public class NetherBlocks {
 			.strength(100.0F)
 			.lightLevel((BlockState state) -> 15)
 			.noLootTable()
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 			.replaceable()
 		)
 	);
@@ -226,7 +226,7 @@ public class NetherBlocks {
 			.setId(BigGlobeBlocks.key("hidden_lava"))
 			.mapColor(MapColor.FIRE)
 			.noLootTable()
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 			.replaceable()
 		)
 	);
@@ -268,7 +268,7 @@ public class NetherBlocks {
 			.randomTicks()
 			.sound(SoundType.AMETHYST_CLUSTER)
 			.strength(1.5F)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final Block SMALL_QUARTZ_BUD = BigGlobeBlocks.register(
@@ -280,7 +280,7 @@ public class NetherBlocks {
 			.ofFullCopy(QUARTZ_CLUSTER)
 			.setId(BigGlobeBlocks.key("small_quartz_bud"))
 			.sound(SoundType.SMALL_AMETHYST_BUD)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final Block MEDIUM_QUARTZ_BUD = BigGlobeBlocks.register(
@@ -292,7 +292,7 @@ public class NetherBlocks {
 			.ofFullCopy(QUARTZ_CLUSTER)
 			.setId(BigGlobeBlocks.key("medium_quartz_bud"))
 			.sound(SoundType.LARGE_AMETHYST_BUD)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final Block LARGE_QUARTZ_BUD = BigGlobeBlocks.register(
@@ -304,7 +304,7 @@ public class NetherBlocks {
 			.ofFullCopy(QUARTZ_CLUSTER)
 			.setId(BigGlobeBlocks.key("large_quartz_bud"))
 			.sound(SoundType.MEDIUM_AMETHYST_BUD)
-			.pushReaction(PushReaction.DESTROY)
+			.pushReaction(PushReaction.#if MC_VERSION >= MC_26_3_0 POPPED #else DESTROY #endif)
 		)
 	);
 	public static final Block PALE_NETHERRACK = BigGlobeBlocks.register(

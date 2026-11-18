@@ -1,10 +1,13 @@
 package builderb0y.bigglobe.features;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
 public class BigGlobeFeatures {
 
@@ -12,32 +15,49 @@ public class BigGlobeFeatures {
 		BigGlobeMod.LOGGER.debug("Registering features...");
 	}
 
-	public static final BigGlobeRandomFeature RANDOM = register("random", new BigGlobeRandomFeature());
-	public static final SingleBlockFeature SINGLE_BLOCK = register("single_block", new SingleBlockFeature());
-	public static final NaturalTreeFeature NATURAL_TREE = register("natural_tree", new NaturalTreeFeature());
-	public static final ArtificialTreeFeature ARTIFICIAL_TREE = register("artificial_tree", new ArtificialTreeFeature());
-	public static final EndSpikeRespawnFeature END_SPIKE_RESPAWN = register("end_spike_respawn", new EndSpikeRespawnFeature());
-	public static final EndSpikeWorldgenFeature END_SPIKE_WORLDGEN = register("end_spike_worldgen", new EndSpikeWorldgenFeature());
-	public static final GenericOreFeature GENERIC_ORE = register("generic_ore", new GenericOreFeature());
-	public static final FlowerFeature FLOWER = register("flower", new FlowerFeature());
-	public static final FlowerControllerFeature FLOWER_CONTROLLER = register("flower_controller", new FlowerControllerFeature());
-	public static final NetherFlowerFeature NETHER_FLOWER = register("nether_flower", new NetherFlowerFeature());
+	public static final #if MC_VERSION >= MC_26_3_0 MapCodec<? extends FeatureAdapter<?>> #else FeatureAdapter<?> #endif
+		SINGLE_BLOCK       = register("single_block",       SingleBlockFeature.class),
+		NATURAL_TREE       = register("natural_tree",       NaturalTreeFeature.class),
+		ARTIFICIAL_TREE    = register("artificial_tree",    ArtificialTreeFeature.class),
+		END_SPIKE_RESPAWN  = register("end_spike_respawn",  EndSpikeRespawnFeature.class),
+		END_SPIKE_WORLDGEN = register("end_spike_worldgen", EndSpikeWorldgenFeature.class),
+		GENERIC_ORE        = register("generic_ore",        GenericOreFeature.class),
+		FLOWER             = register("flower",             FlowerFeature.class),
+		FLOWER_CONTROLLER  = register("flower_controller",  FlowerControllerFeature.class),
+		NETHER_FLOWER      = register("nether_flower",      NetherFlowerFeature.class),
 
-	public static final ChunkSprinkleFeature CHUNK_SPRINKLE = register("chunk_sprinkle", new ChunkSprinkleFeature());
-	public static final BedrockFeature BEDROCK = register("bedrock", new BedrockFeature());
-	public static final RockLayerFeature ROCK_LAYER = register("rock_layer", new RockLayerFeature());
-	public static final OreFeature ORE = register("ore", new OreFeature());
-	public static final ScriptedOreFeature SCRIPTED_ORE = register("scripted_ore", new ScriptedOreFeature());
+		CHUNK_SPRINKLE     = register("chunk_sprinkle",     ChunkSprinkleFeature.class),
+		BEDROCK            = register("bedrock",            BedrockFeature.class),
+		ROCK_LAYER         = register("rock_layer",         RockLayerFeature.class),
+		ORE                = register("ore",                OreFeature.class),
+		SCRIPTED_ORE       = register("scripted_ore",       ScriptedOreFeature.class),
 
-	public static final ScriptedFeature SCRIPT = register("script", new ScriptedFeature());
+		SCRIPT             = register("script",             ScriptedFeature.class);
 
 	static {
 		BigGlobeMod.LOGGER.debug("Done registering features.");
 	}
 
-	public static <F extends Feature<?>> F register(String name, F feature) {
-		return Registry.register(BuiltInRegistries.FEATURE, BigGlobeMod.modID(name), feature);
-	}
+	#if MC_VERSION >= MC_26_3_0
+
+		public static <F extends Feature> MapCodec<F> register(String name, Class<F> clazz) {
+			return Registry.register(BuiltInRegistries.FEATURE_TYPE, BigGlobeMod.modID(name), BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(clazz));
+		}
+
+	#else
+
+		public static <F extends Feature<?>> F register(String name, Class<F> clazz) {
+			F feature;
+			try {
+				feature = clazz.getDeclaredConstructor((Class[])(null)).newInstance((Object[])(null));
+			}
+			catch (Exception exception) {
+				throw new InstantiationError(exception);
+			}
+			return Registry.register(BuiltInRegistries.FEATURE, BigGlobeMod.modID(name), feature);
+		}
+
+	#endif
 
 	public static void init() {}
 }

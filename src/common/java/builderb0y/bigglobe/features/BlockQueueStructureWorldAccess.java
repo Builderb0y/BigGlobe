@@ -73,7 +73,7 @@ public class BlockQueueStructureWorldAccess implements WorldGenLevel {
 	}
 
 	public BlockState getWorldState(BlockPos pos) {
-		ChunkAccess chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.NOISE, false);
+		ChunkAccess chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.#if MC_VERSION >= MC_26_3_0 TERRAIN #else NOISE #endif, false);
 		return chunk != null ? chunk.getBlockState(pos) : BlockStates.AIR;
 	}
 

@@ -1,0 +1,30 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"boolean canReplace(int*(x, y, z):",
+				"BlockState state = getBlockState(x, y, z)",
+				"return(state.isReplaceable() || state.isIn('#minecraft:speleothems'))",
+			")",
+			"",
+			"int height = floorInt(fastExp2(random.nextBetween[2.0, 7.0]))",
+			"for (int y in range[0, height):",
+				"unless (canReplace(0, -y, 0): return(false))",
+			")",
+			"NumberArray array = newFloatArray(height)",
+			"Grid1D('bigglobe:sulfur_spike_width').getValuesX(random.nextLong(), 0, array)",
+			"double centerX = random.nextDouble() - 0.5L",
+			"double centerZ = random.nextDouble() - 0.5L",
+			"for (int y in range[0, height):",
+				"double fraction = (height - y) / 4.0I",
+				"double radius = array.(y) * (1.0L - fastExp2(-fraction))",
+				"for (int*(x, z) in range[-4, 4]:",
+					"if ((x - centerX) ^ 2 + (z - centerZ) ^ 2 < radius ^ 2 && canReplace(x, -y, z):",
+						"setBlockState(x, -y, z, 'minecraft:sulfur')",
+					")",
+				")",
+			")",
+			"return(true)"
+		]
+	}
+}

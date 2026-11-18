@@ -24,13 +24,17 @@ public class RockBlock extends SurfaceMaterialDecorationBlock {
 	public static final VoxelShape SHAPE = Shapes.create(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
 	public static final IntegerProperty ROCKS = IntegerProperty.create("rocks", 1, 6);
 
-	public static final MapCodec<RockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RockBlock.class);
+	#if MC_VERSION < MC_26_3_0
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapCodec codec() {
-		return CODEC;
-	}
+		public static final MapCodec<RockBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(RockBlock.class);
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public MapCodec codec() {
+			return CODEC;
+		}
+
+	#endif
 
 	public RockBlock(Properties settings) {
 		super(settings);
@@ -39,14 +43,12 @@ public class RockBlock extends SurfaceMaterialDecorationBlock {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return SHAPE;
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
 		return context.getItemInHand().is(BigGlobeItems.ROCK) && state.getValue(ROCKS) < 6;
 	}

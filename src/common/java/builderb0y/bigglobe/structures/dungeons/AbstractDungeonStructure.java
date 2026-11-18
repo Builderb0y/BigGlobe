@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -72,9 +72,13 @@ import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSuppl
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.*;
 
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
+
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	public final @VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators;
+	public final @VerifyNullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> room_decorators;
 	public final @VerifyNotEmpty IRandomList<@UseName("entity") Holder<EntityType<?>>> spawner_entries;
 	public final @VerifyNotEmpty List<Palette> palettes;
 
@@ -82,7 +86,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		StructureSettings config,
 		ColumnToIntScript.@VerifyNullable Catcher min_y,
 		ColumnToIntScript.@VerifyNullable Catcher surface_y,
-		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
+		@VerifyNullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> room_decorators,
 		IRandomList<Holder<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
@@ -130,7 +134,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public int centerX, centerZ;
 		public Holder<Structure> owningStructure;
 		public int paletteIndex;
-		public @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators;
+		public @Nullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> roomDecorators;
 		public IRandomList<Holder<EntityType<?>>> spawnerEntries;
 
 		public DungeonLayout(
@@ -138,7 +142,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int y,
 			RandomGenerator random,
 			int maxRooms,
-			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
+			@Nullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> roomDecorators,
 			IRandomList<Holder<EntityType<?>>> spawnerEntries,
 			Holder<Structure> owningStructure
 		) {
@@ -268,11 +272,11 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class RoomDungeonPiece extends DungeonPiece implements RoomPiece, RawGenerationStructurePiece {
 
-		public static final AutoCoder<DelayedEntryList<ConfiguredFeature<?, ?>>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
+		public static final AutoCoder<DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
 		public static final int PIT_BIT = 1 << 1;
 
 		public final RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
-		public @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators;
+		public @Nullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> decorators;
 		public boolean support;
 
 		public RoomDungeonPiece(
@@ -281,7 +285,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			BoundingBox boundingBox,
 			Holder<Structure> owningStructure,
 			int paletteIndex,
-			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
+			@Nullable DelayedEntryList<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> decorators
 		) {
 			super(type, chainLength, boundingBox, owningStructure, paletteIndex);
 			this.decorators = decorators;
@@ -363,8 +367,8 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 							pos.getY() == this.boundingBox.maxY() ||
 							pos.getZ() == this.boundingBox.minZ() ||
 							pos.getZ() == this.boundingBox.maxZ()
-								? mainBlock.get(pos)
-								: BlockStates.AIR,
+							? mainBlock.get(pos)
+							: BlockStates.AIR,
 							Block.UPDATE_CLIENTS
 						);
 					}
@@ -386,7 +390,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int y = this.y();
 			int z = this.z();
 			if (this.decorators != null && contains(chunkBox, x, y, z)) {
-				ConfiguredFeature<?, ?> feature = this.decorators.randomObject(random.nextLong());
+				#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif feature = this.decorators.randomObject(random.nextLong());
 				if (feature != null) {
 					feature.place(world, chunkGenerator, new MojangPermuter(Permuter.permute(world.getSeed() ^ 0x265B4B7BF1BC7786L, x, y, z)), new BlockPos(x, y, z));
 				}

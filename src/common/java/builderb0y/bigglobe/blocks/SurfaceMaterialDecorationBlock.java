@@ -25,9 +25,13 @@ import builderb0y.bigglobe.blockdefs.BlockStates;
 
 public abstract class SurfaceMaterialDecorationBlock extends Block implements SimpleWaterloggedBlock {
 
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public abstract MapCodec codec();
+	#if MC_VERSION < MC_26_3_0
+
+		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public abstract MapCodec codec();
+
+	#endif
 
 	public SurfaceMaterialDecorationBlock(BlockBehaviour.Properties settings) {
 		super(settings);
@@ -36,12 +40,10 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Si
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public abstract VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context);
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
 		BlockPos downPos = pos.below();
 		return world.getBlockState(downPos).isFaceSturdy(world, downPos, Direction.UP);
@@ -55,9 +57,7 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Si
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public BlockState updateShape(
-
 		BlockState state,
 		LevelReader world,
 		ScheduledTickAccess tickView,
@@ -66,7 +66,6 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Si
 		BlockPos neighborPos,
 		BlockState neighborState,
 		RandomSource random
-
 	) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
 			tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
@@ -79,12 +78,11 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Si
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public FluidState getFluidState(BlockState state) {
 		return (
 			state.getValue(BlockStateProperties.WATERLOGGED)
-				? Fluids.WATER.getSource(false)
-				: Fluids.EMPTY.defaultFluidState()
+			? Fluids.WATER.getSource(false)
+			: Fluids.EMPTY.defaultFluidState()
 		);
 	}
 

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"xxx",
+		"xxx",
+		"xxx"
+	],
+	"key": {
+		"x": "bigglobe:sulfur"
+	},
+	"result": {
+		"id": "minecraft:potent_sulfur"
+	}
+}

@@ -16,13 +16,18 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
 
 @Mixin(StructurePlacement.class)
-public abstract class StructurePlacement_MakeSmart implements SmartStructurePlacement {
+#if MC_VERSION >= MC_26_3_0
+public interface StructurePlacement_MakeSmart extends SmartStructurePlacement
+#else
+public abstract class StructurePlacement_MakeSmart implements SmartStructurePlacement
+#endif
+{
 
 	@Shadow
 	public abstract boolean isStructureChunk(ChunkGeneratorStructureState calculator, int chunkX, int chunkZ);
 
 	@Override
-	public Stream<StructureStartWrapper> bigglobe_generateStructuresInArea(Context context) {
+	public #if MC_VERSION >= MC_26_3_0 default #endif Stream<StructureStartWrapper> bigglobe_generateStructuresInArea(Context context) {
 		int
 			minChunkX = context.area().minX() >> 4,
 			minChunkZ = context.area().minZ() >> 4,

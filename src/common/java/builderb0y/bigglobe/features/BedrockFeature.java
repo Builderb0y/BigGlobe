@@ -19,13 +19,19 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implements RockReplacerFeature<BedrockFeature.Config> {
 
-	public BedrockFeature(Codec<Config> codec) {
-		super(codec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public BedrockFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public BedrockFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public BedrockFeature() {
+			this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
 	public void replaceRocks(

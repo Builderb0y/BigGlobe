@@ -6,8 +6,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
@@ -17,18 +15,24 @@ import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
 
-public class GenericOreFeature extends Feature<GenericOreFeature.Config> {
+public class GenericOreFeature extends FeatureAdapter<GenericOreFeature.Config> {
 
-	public GenericOreFeature(Codec<Config> configCodec) {
-		super(configCodec);
-	}
+	#if MC_VERSION >= MC_26_3_0
 
-	public GenericOreFeature() {
-		this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
-	}
+		public GenericOreFeature(Config config) {
+			super(config);
+		}
+
+	#else
+
+		public GenericOreFeature() {
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+		}
+
+	#endif
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> context) {
+	public boolean place(Context<Config> context) {
 		if (context.config().radius.requiresColumn() && !(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator)) return false;
 		Permuter permuter = Permuter.from(context.random());
 
@@ -84,5 +88,5 @@ public class GenericOreFeature extends Feature<GenericOreFeature.Config> {
 		BlockState2ObjectMap<BlockState> states,
 		@VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource radius
 	)
-		implements FeatureConfiguration {}
+	implements FeatureAdapter.Config {}
 }

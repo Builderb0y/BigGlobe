@@ -14,7 +14,14 @@ import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.management.SmartStructurePlacement;
 
 @Mixin(ConcentricRingsStructurePlacement.class)
-public abstract class ConcentricRingsStructurePlacement_MakeSmart extends StructurePlacement implements SmartStructurePlacement {
+public abstract class ConcentricRingsStructurePlacement_MakeSmart
+#if MC_VERSION >= MC_26_3_0
+	extends net.minecraft.world.level.levelgen.structure.placement.AbstractSpreadingStructurePlacement
+#else
+	extends StructurePlacement
+#endif
+implements SmartStructurePlacement
+{
 
 	public ConcentricRingsStructurePlacement_MakeSmart() {
 		super(null, null, 0.0F, 0, null);
