@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 plugins() {
 	id('net.fabricmc.fabric-loom') version('1.19-SNAPSHOT')
@@ -139,11 +141,11 @@ dependencies() {
 	testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
 	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 
-	String AUTO_CODEC_VERSION = '6.0.3'
-	implementation("builderb0y:autocodec:$AUTO_CODEC_VERSION") {
+	String autoCodecVersion = '6.0.4'
+	implementation("builderb0y:autocodec:$autoCodecVersion") {
 		transitive = false //don't include different version of DFU than what minecraft uses.
 	}
-	include("builderb0y:autocodec:$AUTO_CODEC_VERSION")
+	include("builderb0y:autocodec:$autoCodecVersion")
 
 	annotationProcessor('systems.manifold:manifold-preprocessor:2026.1.16')
 
@@ -166,6 +168,15 @@ processResources() {
 
 	filesMatching('fabric.mod.json') {
 		expand('version': project.version, 'mc_version': project.minecraft_version)
+	}
+	if (Version.parse(project.minecraft_version) >= new Version(26, 3, 0)) {
+		Pattern feature = Pattern.compile('data/([a-z0-9_]+)/(tags/)?worldgen/configured_feature/(.+)$')
+		eachFile() {
+			Matcher matcher = feature.matcher(it.path)
+			if (matcher.matches()) {
+				it.path = "data/${matcher.group(1)}/${matcher.group(2) ?: ''}worldgen/feature/${matcher.group(3)}"
+			}
+		}
 	}
 }
 
@@ -321,7 +332,7 @@ tasks.register('checkIfMyCodeCompiles') {
 	dependsOn('assemble', 'validateAccessWidener')
 }
 
-class Version {
+class Version implements Comparable<Version> {
 
 	int year, drop, fix
 
@@ -329,6 +340,13 @@ class Version {
 		this.year = year
 		this.drop = drop
 		this.fix = fix
+	}
+
+	static Version parse(String string) {
+		int[] parts = string.split('\\.').stream().mapToInt(Integer::parseInt).toArray()
+		if (parts.length == 2) return new Version(parts[0], parts[1], 0)
+		else if (parts.length == 3) return new Version(parts[0], parts[1], parts[2])
+		else throw new IllegalArgumentException(string)
 	}
 
 	static String pad(int number) {
@@ -341,6 +359,15 @@ class Version {
 
 	String longhand() {
 		return this.fix == 0 ? "${year}.${drop}" : "${year}.${drop}.${fix}"
+	}
+
+	@Override
+	int compareTo(Version that) {
+		int compare = Integer.compare(this.year, that.year)
+		if (compare != 0) return compare
+		compare = Integer.compare(this.drop, that.drop)
+		if (compare != 0) return compare
+		return Integer.compare(this.fix, that.fix)
 	}
 }
 

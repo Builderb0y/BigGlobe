@@ -21,14 +21,14 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry.SimpleDelayedCompileable;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 import builderb0y.bigglobe.noise.Permuter;
 
 public class DelayedEntryList<T> implements SimpleDelayedCompileable {
 
 	public static final Comparator<Holder<?>> COMPARATOR = Comparator.comparing(UnregisteredObjectException::getID);
 
-	public final @Nullable BetterRegistry<T> resolver;
+	public final @Nullable RegistryAdapter<T> resolver;
 	public final @NotNull ResourceKey<Registry<T>> registryKey;
 	public final @NotNull
 	@SingletonArray List<DelayedEntry> delayedEntries;
@@ -55,7 +55,7 @@ public class DelayedEntryList<T> implements SimpleDelayedCompileable {
 	}
 
 	public DelayedEntryList(
-		@NotNull BetterRegistry<T> resolver,
+		@NotNull RegistryAdapter<T> resolver,
 		@NotNull @SingletonArray List<DelayedEntry> delayedEntries
 	) {
 		this.resolver = resolver;
@@ -63,7 +63,7 @@ public class DelayedEntryList<T> implements SimpleDelayedCompileable {
 		this.delayedEntries = delayedEntries;
 	}
 
-	public DelayedEntryList(@NotNull BetterRegistry<T> resolver, @NotNull HolderSet<T> list) {
+	public DelayedEntryList(@NotNull RegistryAdapter<T> resolver, @NotNull HolderSet<T> list) {
 		this.resolver = resolver;
 		this.registryKey = resolver.getKey();
 		Optional<TagKey<T>> key = list.unwrapKey();
@@ -96,7 +96,7 @@ public class DelayedEntryList<T> implements SimpleDelayedCompileable {
 		return new DelayedEntryList<>(BigGlobeMod.getSidedRegistry(registryKey, client), Collections.singletonList(new DelayedEntry(input)));
 	}
 
-	public static <T> DelayedEntryList<T> create(BetterRegistry<T> registry, String input) {
+	public static <T> DelayedEntryList<T> create(RegistryAdapter<T> registry, String input) {
 		if (input == null) return empty(registry.getKey());
 		return new DelayedEntryList<>(registry, Collections.singletonList(new DelayedEntry(input)));
 	}
@@ -249,7 +249,7 @@ public class DelayedEntryList<T> implements SimpleDelayedCompileable {
 	/**
 	equality semantics:
 	two DelayedEntryList's are considered equal if they have the
-	same {@link #resolver}'s {@link BetterRegistry#getKey()}
+	same {@link #resolver}'s {@link RegistryAdapter#getKey()}
 	and the same {@link #delayedEntries}.
 	however, the order of entries is irrelevant, since
 	all orders will produce the same {@link #entryList}.

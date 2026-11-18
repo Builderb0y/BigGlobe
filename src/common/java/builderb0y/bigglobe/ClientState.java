@@ -58,9 +58,10 @@ import builderb0y.bigglobe.columns.traits.WorldTrait;
 import builderb0y.bigglobe.columns.traits.WorldTraitProvider;
 import builderb0y.bigglobe.columns.traits.WorldTraits;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.StreamableImpl;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.StreamableRegistryAdapter;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
 import builderb0y.bigglobe.hyperspace.ServerPlayerWaypointManager;
 import builderb0y.bigglobe.math.Interpolator;
@@ -286,7 +287,7 @@ public class ClientState {
 						case ColumnEntry      columnEntry  -> Registry.register(this.columnEntryRegistry, UnregisteredObjectException.getID(entry), columnEntry);
 						case DecisionTreeSpec decisionTree -> Registry.register(this.decisionTreeRegistry, UnregisteredObjectException.getID(entry), decisionTree);
 						case WorldTrait       trait        -> Registry.register(this.worldTraitRegistry, UnregisteredObjectException.getID(entry), trait);
-						case TerrainLayer layer        -> Registry.register(this.layerRegistry, UnregisteredObjectException.getID(entry), layer);
+						case TerrainLayer     layer        -> Registry.register(this.layerRegistry, UnregisteredObjectException.getID(entry), layer);
 						default -> throw new IllegalStateException("Unhandled dependency view type: " + entry.value());
 					}
 				}
@@ -367,13 +368,17 @@ public class ClientState {
 						public <T_Registry> Optional<HolderGetter<T_Registry>> lookup(ResourceKey<? extends Registry<? extends T_Registry>> key) {
 							MappedRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
 							if (registry != null) {
-								return Optional.of(registry);
-							}
-							else if (BigGlobeMod.getClientRegistry(key) instanceof BetterHardCodedRegistry<T_Registry> better) {
-								return Optional.of(better.registry);
+								return Optional.of(mutable ? registry.createRegistrationLookup() : registry);
 							}
 							else {
-								return Optional.empty();
+								@SuppressWarnings("unchecked")
+								RegistryAdapter<T_Registry> adapter = BigGlobeMod.getClientRegistryNullable((ResourceKey<Registry<T_Registry>>)(key));
+								if (adapter != null) {
+									return Optional.of(adapter.toVanilla());
+								}
+								else {
+									return Optional.empty();
+								}
 							}
 						}
 
@@ -392,12 +397,10 @@ public class ClientState {
 							}
 							return Optional.of(
 								new RegistryInfo<>(
-
 									registry,
 									mutable
-										? registry.createRegistrationLookup()
-										: registry,
-
+									? registry.createRegistrationLookup()
+									: registry,
 									Lifecycle.experimental()
 								)
 							);
@@ -408,13 +411,13 @@ public class ClientState {
 			);
 		}
 
-		public BetterRegistry.Lookup lookup() {
-			return new BetterRegistry.Lookup() {
+		public RegistryAdapter.StreamableLookup lookup() {
+			return new RegistryAdapter.StreamableLookup() {
 
 				@Override
-				public <T> BetterRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
-					Registry<T> registry = Syncing.this.getRegistry(key);
-					if (registry != null) return new BetterHardCodedRegistry<>(registry);
+				public <T> StreamableRegistryAdapter<T> getRegistry(ResourceKey<Registry<T>> key) {
+					MappedRegistry<T> registry = Syncing.this.getRegistry(key);
+					if (registry != null) return new StreamableImpl<>(registry);
 					else return BigGlobeMod.getClientRegistry(key);
 				}
 			};
@@ -485,7 +488,7 @@ public class ClientState {
 			this.column = null;
 		}
 
-		public void compile(Loading loading) throws Exception {
+		public void compile(Loading loading, RegistryAdapter.StreamableLookup lookup) throws Exception {
 			if (
 				(
 					this.colors == null || (
@@ -499,7 +502,7 @@ public class ClientState {
 			) {
 				return;
 			}
-			loading.compile();
+			loading.compile(lookup);
 			this.columnEntryRegistry = loading.getRegistry();
 			this.compiledWorldTraits = this.columnEntryRegistry.traitManager.createTraits("client", this.worldTraits);
 		}

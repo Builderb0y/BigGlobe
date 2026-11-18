@@ -1,4 +1,5 @@
-#version 150
+#version 330
+#extension GL_ARB_separate_shader_objects : require
 
 uniform sampler2D previousPass;
 
@@ -10,9 +11,9 @@ layout(std140) uniform Uniforms {
 	float collapse;
 };
 
-in vec2 texCoord;
+layout(location = 0) in vec2 texCoord;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 const float PI = 3.14159265359;
 const float TAU = PI * 2.0;

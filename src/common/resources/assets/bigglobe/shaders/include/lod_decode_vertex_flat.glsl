@@ -2,7 +2,7 @@ layout(std140) uniform ModelOffset {
 	vec4 modelOffset;
 };
 
-in uvec3 bigglobe_rawLodData;
+layout(location = 0) in uvec3 bigglobe_rawLodData;
 
 Vertex decodeVertex() {
 	Vertex vertex;

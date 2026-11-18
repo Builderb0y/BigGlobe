@@ -13,7 +13,7 @@ import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockOrTagProperties;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry.DelayedCompileable;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 
 @Wrapper
 public class BlockState2ObjectMap<V> implements DelayedCompileable {
@@ -33,7 +33,7 @@ public class BlockState2ObjectMap<V> implements DelayedCompileable {
 
 	@Override
 	public void compile(ColumnEntryRegistry registry) {
-		BetterRegistry<Block> blockRegistry = registry.registries.getRegistry(Registries.BLOCK);
+		RegistryAdapter<Block> blockRegistry = registry.registries.getRegistry(Registries.BLOCK);
 		for (Map.Entry<String, V> serializedEntry : this.serializedStates.entrySet()) {
 			BlockOrTagProperties properties = (
 				BlockStateCoder

@@ -12,8 +12,8 @@ import builderb0y.autocodec.common.DynamicOpsContext;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.BasicImpl;
 
 public abstract class AbstractRegistryCoder<T_Object, T_Result> extends NamedCoder<T_Result> {
 
@@ -24,38 +24,23 @@ public abstract class AbstractRegistryCoder<T_Object, T_Result> extends NamedCod
 		this.key = key;
 	}
 
-	public <T_Encoded> BetterRegistry<T_Object> registry(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+	public <T_Encoded> RegistryAdapter<T_Object> registry(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		return registry(this.key, context);
 	}
 
-	public static <T_Encoded, T_Object> BetterRegistry<T_Object> registry(@NotNull ResourceKey<Registry<T_Object>> key, @NotNull DynamicOpsContext<T_Encoded> context) throws DecodeException {
+	public static <T_Encoded, T_Object> RegistryAdapter<T_Object> registry(@NotNull ResourceKey<Registry<T_Object>> key, @NotNull DynamicOpsContext<T_Encoded> context) throws DecodeException {
 		if (context.ops instanceof RegistryOps<T_Encoded> registryOps) {
 			HolderGetter<T_Object> getter = registryOps.getter(key).orElse(null);
 			if (getter == null) {
 				throw new DecodeException(() -> "Registry " + key.identifier() + " not present in RegistryOps");
 			}
-			#if MC_VERSION >= MC_26_3_0
-				if (!(getter instanceof HolderLookup.RegistryLookup<T_Object> impl)) {
-					throw new IllegalStateException("Getter is not a RegistryLookup: " + getter + " in registry " + key.identifier());
-				}
-				return new BetterHardCodedRegistry<>(impl);
-			#else
-				HolderGetter<T> lookup = info.getter();
-				if (!(info.owner() instanceof HolderLookup.RegistryLookup<T_Object> impl)) {
-					throw new IllegalStateException("Owner is not a RegistryWrapper.Impl: " + info.owner() + " in registry " + key.identifier());
-				}
-				return new BetterRegistry.BetterDynamicRegistry<>(impl, getter);
-			#endif
+			return new BasicImpl<>(key, getter);
 		}
 		else {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			Registry<T_Object> registry = (Registry<T_Object>)(BuiltInRegistries.REGISTRY.getValue((ResourceKey)(key)));
 			if (registry != null) {
-				#if MC_VERSION >= MC_26_3_0
-					return new BetterHardCodedRegistry<>(registry);
-				#else
-					return new BetterRegistry.BetterHardCodedRegistry<>(registry);
-				#endif
+				return new BasicImpl<>(key, registry);
 			}
 			else {
 				throw new DecodeException(() -> "Not a RegistryOps: " + context.ops);

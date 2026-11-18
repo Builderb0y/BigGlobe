@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
@@ -81,6 +82,10 @@ public class FlatLodRenderer extends LodRenderer {
 						.withUniform("Matrices", UniformType.UNIFORM_BUFFER)
 						.build()
 					)
+					#if MC_VERSION >= MC_26_3_0
+						.withShaderDefine("USE_INCLUDE_DIRECTIVE")
+						.withColorTargetState(ColorTargetState.DEFAULT)
+					#endif
 					.withVertexBinding(0, LodVertexFormat.FORMAT)
 					.withPrimitiveTopology(PrimitiveTopology.QUADS)
 					.withDepthStencilState(DepthStencilState.DEFAULT)

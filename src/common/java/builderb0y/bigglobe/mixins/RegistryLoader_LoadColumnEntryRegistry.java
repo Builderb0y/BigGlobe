@@ -11,8 +11,7 @@ import net.minecraft.resources.RegistryOps.RegistryInfoLookup;
 import net.minecraft.resources.ResourceKey;
 
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 
 #if MC_VERSION < MC_26_3_0
 	import net.minecraft.resources.RegistryOps.RegistryInfo;
@@ -23,30 +22,15 @@ public class RegistryLoader_LoadColumnEntryRegistry {
 
 	@ModifyReturnValue(method = "createContext", at = @At("RETURN"))
 	private static RegistryInfoLookup bigglobe_beginLoading(RegistryInfoLookup lookup) {
-		ColumnEntryRegistry.Loading.beginLoad(new BetterRegistry.Lookup() {
+		ColumnEntryRegistry.Loading.beginLoad(new RegistryAdapter.Lookup() {
 
 			@Override
-			public <T> BetterRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
-				#if MC_VERSION >= MC_26_3_0
-					HolderGetter<T> getter = lookup.lookup(key).orElse(null);
-					if (getter == null) {
-						throw new IllegalStateException("Missing registry: " + key.identifier());
-					}
-					if (!(getter instanceof HolderLookup.RegistryLookup<T> impl)) {
-						throw new IllegalStateException("Getter is not a RegistryLookup: " + getter + " in registry " + key.identifier());
-					}
-					return new BetterHardCodedRegistry<>(impl);
-				#else
-					RegistryInfo<T> getter = lookup.lookup(key).orElse(null);
-					if (getter == null) {
-						throw new IllegalStateException("Missing registry: " + key.identifier());
-					}
-					HolderGetter<T> lookup = info.getter();
-					if (!(info.owner() instanceof HolderLookup.RegistryLookup<T> impl)) {
-						throw new IllegalStateException("Owner is not a RegistryWrapper.Impl: " + info.owner() + " in registry " + key.identifier());
-					}
-					return new BetterDynamicRegistry<>(impl, getter);
-				#endif
+			public <T> RegistryAdapter<T> getRegistry(ResourceKey<Registry<T>> key) {
+				HolderGetter<T> getter = lookup.lookup(key).orElse(null);
+				if (getter == null) {
+					throw new IllegalStateException("Missing registry: " + key.identifier());
+				}
+				return new RegistryAdapter.BasicImpl<>(key, getter);
 			}
 		});
 		return lookup;

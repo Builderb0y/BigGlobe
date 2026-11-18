@@ -35,7 +35,7 @@ import builderb0y.bigglobe.columns.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.traits.TraitManager;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.config.BigGlobeConfig.InvalidTagHandling;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.scripting.environments.ColorScriptEnvironment;
@@ -58,7 +58,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 
 	public final boolean client;
 	public final boolean alwaysGenerateTheSameWorld;
-	public final BetterRegistry.Lookup registries;
+	public final RegistryAdapter.StreamableLookup registries;
 	public transient ClassHierarchy classHierarchy;
 	public transient TraitManager traitManager;
 	public transient ColumnCompileContext columnCompileContext;
@@ -69,7 +69,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 	public transient ScriptedColumn.Factory columnFactory;
 	public transient LinkedBlockingQueue<ScriptedColumn[]> chunkGeneratorColumns;
 
-	public ColumnEntryRegistry(BetterRegistry.Lookup registries, boolean client, boolean alwaysGenerateTheSameWorld) throws DetailedException {
+	public ColumnEntryRegistry(RegistryAdapter.StreamableLookup registries, boolean client, boolean alwaysGenerateTheSameWorld) throws DetailedException {
 		this.client = client;
 		this.registries = registries;
 		this.alwaysGenerateTheSameWorld = alwaysGenerateTheSameWorld;
@@ -247,7 +247,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 
 		public boolean client;
 		public boolean alwaysGenerateTheSameWorld;
-		public BetterRegistry.Lookup betterRegistryLookup;
+		public RegistryAdapter.Lookup betterRegistryLookup;
 		public ColumnEntryRegistry columnEntryRegistry;
 		public List<DelayedCompileable> compileables;
 		public List<DelayedEntryList<?>> tags;
@@ -256,7 +256,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 		public static InvalidTagHandling invalidTagHandling;
 		public static Map<Identifier, List<EntryWithSource>> invalidTags;
 
-		public Loading(BetterRegistry.Lookup betterRegistryLookup, boolean client, boolean alwaysGenerateTheSameWorld) {
+		public Loading(RegistryAdapter.Lookup betterRegistryLookup, boolean client, boolean alwaysGenerateTheSameWorld) {
 			this.client = client;
 			this.betterRegistryLookup = betterRegistryLookup;
 			this.alwaysGenerateTheSameWorld = alwaysGenerateTheSameWorld;
@@ -269,7 +269,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 			LOADING = null;
 		}
 
-		public static void beginLoad(BetterRegistry.Lookup betterRegistryLookup) {
+		public static void beginLoad(RegistryAdapter.Lookup betterRegistryLookup) {
 			if (LOGGING) BigGlobeMod.LOGGER.info("ColumnEntryRegistry begin load: " + LOADING + "; override: " + OVERRIDE.currentValue(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
 			if (BigGlobeMod.currentRegistries == null || BigGlobeMod.currentRegistries.getClass() == betterRegistryLookup.getClass()) {
 				BigGlobeMod.currentRegistries = betterRegistryLookup;
@@ -286,9 +286,9 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 			else throw new IllegalStateException("No loading context available.");
 		}
 
-		public static void endLoad(boolean successful) {
+		public static void endLoad(RegistryAdapter.@Nullable StreamableLookup lookup) {
 			if (LOGGING) BigGlobeMod.LOGGER.info("ColumnEntryRegistry end load: " + LOADING + "; override: " + OVERRIDE.currentValue(), new Throwable("The following stack trace is NOT an error. It is debug information that is useful if you get data pack validation issues and none of your worlds load correctly."));
-			if (successful && LOADING != null) LOADING.compile();
+			if (lookup != null && LOADING != null) LOADING.compile(lookup);
 		}
 
 		public void delay(DelayedCompileable compileable) {
@@ -342,7 +342,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 			};
 		}
 
-		public void compile() {
+		public void compile(RegistryAdapter.StreamableLookup lookup) {
 			if (!this.tags.isEmpty()) {
 				for (DelayedEntryList<?> tag : this.tags) {
 					tag.compile();
@@ -350,7 +350,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 				this.tags.clear();
 			}
 			if (this.columnEntryRegistry == null) try {
-				this.columnEntryRegistry = new ColumnEntryRegistry(this.betterRegistryLookup, this.client, this.alwaysGenerateTheSameWorld);
+				this.columnEntryRegistry = new ColumnEntryRegistry(lookup, this.client, this.alwaysGenerateTheSameWorld);
 			}
 			catch (Exception exception) {
 				LOADING = null;
@@ -382,9 +382,7 @@ public class ColumnEntryRegistry extends BulkStagedCompiler<ColumnEntryRegistry,
 							? (Holder<Overrider> entry) -> async.submit(() -> new RuntimeException(_unusedMessage(entry)))
 							: (Holder<Overrider> entry) -> BigGlobeMod.LOGGER.warn(_unusedMessage(entry))
 						);
-						this
-						.columnEntryRegistry
-						.registries
+						lookup
 						.getRegistry(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
 						.streamEntries()
 						.filter((Holder<Overrider> entry) -> entry.tags().findAny().isEmpty())

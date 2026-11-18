@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
@@ -42,10 +43,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.GpuFormat;
 	import com.mojang.renderpearl.api.buffers.GpuBuffer;
 	import com.mojang.renderpearl.api.commands.RenderPass;
-	import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
-	import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-	import com.mojang.renderpearl.api.pipeline.UniformType;
+	import com.mojang.renderpearl.api.pipeline.*;
 	import com.mojang.renderpearl.api.textures.FilterMode;
 	import com.mojang.renderpearl.api.textures.GpuSampler;
 #elif MC_VERSION >= MC_26_2_0
@@ -79,6 +77,9 @@ public class HyperspaceRenderer implements SafeCloseable {
 					.build()
 				)
 				.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+				#if MC_VERSION >= MC_26_3_0
+					.withColorTargetState(ColorTargetState.DEFAULT)
+				#endif
 			#else
 				.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
 				.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
@@ -180,34 +181,34 @@ public class HyperspaceRenderer implements SafeCloseable {
 
 	public static HyperspaceRenderer INSTANCE;
 	static {
-		nope: {
-			try {
-				INSTANCE = new HyperspaceRenderer();
-			}
-			catch (RuntimeException exception) {
-				BigGlobeMod.LOGGER.warn("Fancy hyperspace background unavailable:", exception);
-				break nope;
-			}
-			//the instance can become null again if it encounters an exception while rendering.
-			//and since you can't un-register an event handler, it needs to check for null instead.
-			ClientTickEvents.START_LEVEL_TICK.register((ClientLevel level) -> {
-				if (INSTANCE != null && level.dimension() == HyperspaceConstants.WORLD_KEY) INSTANCE.beam.tick();
-			});
-			#if MC_VERSION >= MC_26_2_0
-				net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
-			#else
-				LevelRenderEvents
-			#endif
-			.END_EXTRACTION.register((LevelExtractionContext context) -> {
-				if (INSTANCE != null) INSTANCE.extract(context);
-			});
-			LevelRenderEvents.START_MAIN.register((LevelTerrainRenderContext context) -> {
-				if (INSTANCE != null) INSTANCE.render(context);
-			});
-		}
+		//the instance can become null again if it encounters an exception while rendering.
+		//and since you can't un-register an event handler, it needs to check for null instead.
+		ClientTickEvents.START_LEVEL_TICK.register((ClientLevel level) -> {
+			if (INSTANCE != null && level.dimension() == HyperspaceConstants.WORLD_KEY) INSTANCE.beam.tick();
+		});
+		#if MC_VERSION >= MC_26_2_0
+			net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
+		#else
+			LevelRenderEvents
+		#endif
+		.END_EXTRACTION.register((LevelExtractionContext context) -> {
+			if (INSTANCE != null) INSTANCE.extract(context);
+		});
+		LevelRenderEvents.#if MC_VERSION >= MC_26_3_0 BEFORE_RENDER_PASS #else START_MAIN #endif.register((LevelTerrainRenderContext context) -> {
+			if (INSTANCE != null) INSTANCE.render(context);
+		});
+		init();
+		InvalidateRenderStateCallback.EVENT.register(HyperspaceRenderer::init);
 	}
 
-	public static void init() {}
+	public static void init() {
+		try {
+			INSTANCE = new HyperspaceRenderer();
+		}
+		catch (RuntimeException exception) {
+			BigGlobeMod.LOGGER.warn("Fancy hyperspace background unavailable:", exception);
+		}
+	}
 
 	public GpuBuffer
 		volumeUniforms,
@@ -257,11 +258,11 @@ public class HyperspaceRenderer implements SafeCloseable {
 				1,
 				1,
 				#if MC_VERSION >= MC_26_3_0
-					GpuFormat.RGBA8_SNORM,
+					GpuFormat.RGBA8_UNORM,
 					null
 				#elif MC_VERSION >= MC_26_2_0
 					false,
-					 GpuFormat.RGBA8_UNORM
+					GpuFormat.RGBA8_UNORM
 				#else
 					false
 				#endif

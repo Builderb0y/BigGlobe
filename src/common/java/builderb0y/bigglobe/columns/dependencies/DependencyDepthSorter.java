@@ -31,7 +31,8 @@ import builderb0y.autocodec.util.HashStrategies;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.columns.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.traits.WorldTraits;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.StreamableRegistryAdapter;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -52,7 +53,7 @@ public class DependencyDepthSorter {
 		this.cache.defaultReturnValue(-1);
 	}
 
-	public static void start(WorldTraits traits, BetterRegistry<ColumnEntry> columns, String name) {
+	public static void start(WorldTraits traits, StreamableRegistryAdapter<ColumnEntry> columns, String name) {
 		synchronized (saveTasks) {
 			CompletableFuture<Void> future = saveTasks.get(name);
 			if (future != null) future.join();

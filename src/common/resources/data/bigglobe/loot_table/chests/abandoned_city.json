@@ -17,6 +17,7 @@
 					"name": "minecraft:string",
 					"weight": 100,
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
 						"count": {
 							"type": "minecraft:uniform",
@@ -30,6 +31,7 @@
 					"name": "minecraft:paper",
 					"weight": 75,
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
 						"count": {
 							"type": "minecraft:uniform",
@@ -56,6 +58,7 @@
 					"type": "minecraft:item",
 					"name": "minecraft:potion",
 					"functions": [{
+						"type": "minecraft:set_potion",
 						"function": "minecraft:set_potion",
 						"id": "minecraft:water"
 					}]
@@ -75,9 +78,11 @@
 					],
 					"functions": [
 						{
+							"type": "bigglobe:randomize_dye_color",
 							"function": "bigglobe:randomize_dye_color"
 						},
 						{
+							"type": "minecraft:set_damage",
 							"function": "minecraft:set_damage",
 							"damage": {
 								"type": "minecraft:uniform",
@@ -102,6 +107,7 @@
 					"name": "minecraft:rabbit_hide",
 					"weight": 100,
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
 						"count": {
 							"type": "minecraft:uniform",

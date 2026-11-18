@@ -65,7 +65,7 @@ public class SettingsSyncS2CPacketHandler implements S2CPlayPacketHandler<Settin
 				loading,
 				() -> {
 					ClientGeneratorParams params = this.clientState.parse(this);
-					if (params != null) params.compile(loading);
+					if (params != null) params.compile(loading, this.clientState.lookup());
 					return params;
 				}
 			);

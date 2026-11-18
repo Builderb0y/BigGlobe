@@ -1,4 +1,5 @@
-#version 150
+#version 330
+#extension GL_ARB_separate_shader_objects : require
 
 uniform sampler2D previousPass;
 
@@ -6,7 +7,7 @@ layout(std140) uniform Uniforms {
 	ivec2 resolution;
 };
 
-out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 vec4 square(vec4 color) {
 	return color * color;

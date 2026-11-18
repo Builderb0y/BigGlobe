@@ -14,23 +14,23 @@ import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 
-public class BetterRegistryCoder<T> extends AbstractRegistryCoder<T, BetterRegistry<T>> {
+public class BetterRegistryCoder<T> extends AbstractRegistryCoder<T, RegistryAdapter<T>> {
 
-	public BetterRegistryCoder(@NotNull ReifiedType<BetterRegistry<T>> handledType, ResourceKey<Registry<T>> key) {
+	public BetterRegistryCoder(@NotNull ReifiedType<RegistryAdapter<T>> handledType, ResourceKey<Registry<T>> key) {
 		super(handledType, key);
 	}
 
 	@Override
 	@OverrideOnly
-	public <T_Encoded> @Nullable BetterRegistry<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
+	public <T_Encoded> @Nullable RegistryAdapter<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		return this.registry(context);
 	}
 
 	@Override
 	@OverrideOnly
-	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, BetterRegistry<T>> context) throws EncodeException {
+	public <T_Encoded> @NotNull Data encode(@NotNull EncodeContext<T_Encoded, RegistryAdapter<T>> context) throws EncodeException {
 		return EmptyData.INSTANCE;
 	}
 }

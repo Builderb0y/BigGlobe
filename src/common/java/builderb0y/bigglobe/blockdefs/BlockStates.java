@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.blockdefs;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import builderb0y.bigglobe.codecs.BlockStateCoder;
 import builderb0y.bigglobe.codecs.BlockStateCoder.BlockProperties;
 import builderb0y.bigglobe.codecs.BlockStateCoder.Result;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 
 /**
 frequently used BlockState's.
@@ -59,7 +60,7 @@ public class BlockStates {
 	other methods besides static class initializers.
 	*/
 	public static BlockState of(String name) {
-		Result<BlockProperties> result = BlockStateCoder.decodeStateWithMissingErrors(new BetterHardCodedRegistry<>(BuiltInRegistries.BLOCK), name);
+		Result<BlockProperties> result = BlockStateCoder.decodeStateWithMissingErrors(new RegistryAdapter.BasicImpl<>(Registries.BLOCK, BuiltInRegistries.BLOCK), name);
 		if (result.errors() != null) throw new IllegalArgumentException(result.collectErrorsEager());
 		return result.value().state();
 	}

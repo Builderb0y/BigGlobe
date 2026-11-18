@@ -19,6 +19,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,10 @@ import builderb0y.bigglobe.commands.BigGlobeArgumentTypes;
 import builderb0y.bigglobe.commands.BigGlobeCommands;
 import builderb0y.bigglobe.compat.distanthorizons.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.BasicImpl;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.StreamableRegistryAdapter;
 import builderb0y.bigglobe.mechanics.BigGlobeDispenserBehaviors;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.features.BigGlobeFeatures;
@@ -87,7 +89,7 @@ public class BigGlobeMod implements ModInitializer {
 		BIG_GLOBE_WORLD_PRESET_KEY = ResourceKey.create(Registries.WORLD_PRESET, modID("bigglobe"));
 
 	public static MinecraftServer currentServer;
-	public static BetterRegistry.Lookup currentRegistries;
+	public static RegistryAdapter.Lookup currentRegistries;
 	public static ResourceManager currentResourceManager;
 
 	@Override
@@ -128,13 +130,7 @@ public class BigGlobeMod implements ModInitializer {
 
 		ServerLifecycleEvents.SERVER_STARTING.register((MinecraftServer server) -> {
 			currentServer = server;
-			currentRegistries = new BetterRegistry.Lookup() {
-
-				@Override
-				public <T> BetterRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
-					return new BetterHardCodedRegistry<>(RegistryVersions.getRegistry(server.registryAccess(), key));
-				}
-			};
+			currentRegistries = RegistryAdapter.StreamableLookup.from(server.registryAccess());
 			currentResourceManager = new DelegatingResourceManager(server::getResourceManager);
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register((MinecraftServer server) -> {
@@ -158,22 +154,21 @@ public class BigGlobeMod implements ModInitializer {
 		else throw new IllegalStateException("No server is running.");
 	}
 
-	public static BetterRegistry.Lookup getCurrentRegistries() {
-		BetterRegistry.Lookup registries = currentRegistries;
+	public static RegistryAdapter.Lookup getCurrentRegistries() {
+		RegistryAdapter.Lookup registries = currentRegistries;
 		if (registries != null) return registries;
 		else throw new IllegalStateException("Registries not available at this time.");
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> BetterRegistry<T> getRegistry(ResourceKey<? extends Registry<? extends T>> key) {
-		return getCurrentRegistries().getRegistry((ResourceKey<Registry<T>>)(key));
+	public static <T> RegistryAdapter<T> getRegistry(ResourceKey<Registry<T>> key) {
+		return getCurrentRegistries().getRegistry(key);
 	}
 
-	public static <T> BetterRegistry<T> getSidedRegistry(ResourceKey<? extends Registry<? extends T>> key, boolean client) {
+	public static <T> RegistryAdapter<T> getSidedRegistry(ResourceKey<Registry<T>> key, boolean client) {
 		return client ? getClientRegistry(key) : getRegistry(key);
 	}
 
-	public static <T> BetterRegistry<T> getClientRegistry(ResourceKey<? extends Registry<? extends T>> key) {
+	public static <T> StreamableRegistryAdapter<T> getClientRegistry(ResourceKey<Registry<T>> key) {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			return getClientRegistry0(key);
 		}
@@ -183,12 +178,12 @@ public class BigGlobeMod implements ModInitializer {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static <T> BetterRegistry<T> getClientRegistry0(ResourceKey<? extends Registry<? extends T>> key) {
+	public static <T> StreamableRegistryAdapter<T> getClientRegistry0(ResourceKey<Registry<T>> key) {
 		ClientLevel world = Minecraft.getInstance().level;
 		if (world != null) {
 			Registry<T> registry = world.registryAccess().lookup(key).orElse(null);
 			if (registry != null) {
-				return new BetterHardCodedRegistry<>(registry);
+				return new RegistryAdapter.StreamableImpl<>(registry);
 			}
 			else {
 				throw new IllegalStateException("Client registry " + key.identifier() + " not available");
@@ -197,6 +192,27 @@ public class BigGlobeMod implements ModInitializer {
 		else {
 			throw new IllegalStateException("Client registries not available");
 		}
+	}
+
+	public static <T> @Nullable StreamableRegistryAdapter<T> getClientRegistryNullable(ResourceKey<Registry<T>> key) {
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			return getClientRegistryNullable0(key);
+		}
+		else {
+			throw new IllegalStateException("Calling getClientRegistry() on dedicated server!");
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static <T> StreamableRegistryAdapter<T> getClientRegistryNullable0(ResourceKey<Registry<T>> key) {
+		ClientLevel world = Minecraft.getInstance().level;
+		if (world != null) {
+			Registry<T> registry = world.registryAccess().lookup(key).orElse(null);
+			if (registry != null) {
+				return new RegistryAdapter.StreamableImpl<>(registry);
+			}
+		}
+		return null;
 	}
 
 	public static ResourceManager getResourceManager() {

@@ -2,7 +2,6 @@ package builderb0y.bigglobe.codecs;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
@@ -36,7 +35,6 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.grower.TreeGrower;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -72,12 +70,8 @@ import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
 import builderb0y.autocodec.logging.*;
-import builderb0y.autocodec.reflection.PseudoField;
 import builderb0y.autocodec.reflection.ReflectionManager;
-import builderb0y.autocodec.reflection.memberViews.FieldLikeMemberView;
-import builderb0y.autocodec.reflection.memberViews.PseudoFieldView;
 import builderb0y.autocodec.reflection.reification.ReifiedType;
-import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.autocodec.verifiers.FloatRangeVerifier;
 import builderb0y.autocodec.verifiers.VerifierFactoryList;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -90,7 +84,7 @@ import builderb0y.bigglobe.codecs.registries.RegistryEntryCoder;
 import builderb0y.bigglobe.columns.decisionTrees.DecisionTreeSpec;
 import builderb0y.bigglobe.columns.entries.ColumnEntry;
 import builderb0y.bigglobe.columns.traits.WorldTrait;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.features.dispatch.FeatureDispatcher;
@@ -299,7 +293,7 @@ public class BigGlobeAutoCodec {
 							this.addRaw(DecodeContext.class, DecoderContextCoder.INSTANCE);
 							this.addRaw(Identifier.class, IDENTIFIER_CODER);
 							this.addRaw(BlockState.class, BlockStateCoder.INSTANCE);
-							this.addRaw(BetterRegistry.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
+							this.addRaw(RegistryAdapter.Lookup.class, BetterRegistryLookupCoder.INSTANCE);
 							this.addRaw(BiomeSource.class, autoCodec.wrapDFUCodec(BiomeSource.CODEC));
 							this.addRaw(Structure.StructureSettings.class, autoCodec.wrapDFUCodec(Structure.StructureSettings.CODEC.codec()));
 
@@ -436,7 +430,7 @@ public class BigGlobeAutoCodec {
 
 		public final @NotNull ReifiedType<T> objectType;
 		public final @NotNull ReifiedType<Registry<T>> registryType;
-		public final @NotNull ReifiedType<BetterRegistry<T>> betterRegistryType;
+		public final @NotNull ReifiedType<RegistryAdapter<T>> betterRegistryType;
 		public final @NotNull ReifiedType<Holder<T>> registryEntryType;
 		public final @NotNull ReifiedType<DelayedEntryList<T>> delayedTagType;
 
@@ -450,7 +444,7 @@ public class BigGlobeAutoCodec {
 			this.registryType = ReifiedType.parameterize(Registry.class, objectType);
 			this.registryEntryType = ReifiedType.parameterize(Holder.class, objectType);
 			this.delayedTagType = ReifiedType.parameterize(DelayedEntryList.class, objectType);
-			this.betterRegistryType = ReifiedType.parameterize(BetterRegistry.class, objectType);
+			this.betterRegistryType = ReifiedType.parameterize(RegistryAdapter.class, objectType);
 
 			this.betterRegistryCoder = new BetterRegistryCoder<>(this.betterRegistryType, registryKey);
 			this.delayedEntryListCoder = new DelayedEntryListCoder<>(this.delayedTagType, registryKey);

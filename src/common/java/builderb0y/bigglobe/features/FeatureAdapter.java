@@ -55,8 +55,8 @@ public abstract class FeatureAdapter<C>
 		return this.place(new Context<>(
 			world
 			.registryAccess()
-			.lookupOrThrow(Registries.FEATURE_TYPE)
-			.getResourceKey(this.codec())
+			.lookupOrThrow(Registries.FEATURE)
+			.getResourceKey(this)
 			.orElse(null),
 			world,
 			chunkGenerator,

@@ -33,7 +33,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -53,8 +52,8 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry.BetterHardCodedRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.StreamableRegistryAdapter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -89,7 +88,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		if (context.isEmpty()) return null;
 		StringData string = context.tryAsString();
 		if (string != null) {
-			BetterRegistry<Block> blockRegistry = AbstractRegistryCoder.registry(Registries.BLOCK, context);
+			RegistryAdapter<Block> blockRegistry = AbstractRegistryCoder.registry(Registries.BLOCK, context);
 			return (
 				withMissingErrors(decodeState(blockRegistry, string.value))
 					.unwrapLazy(context.logger()::logErrorLazy, DecodeException::new)
@@ -109,15 +108,15 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	public static Block blockOnly(BetterRegistry<Block> blockRegistry, String input) {
+	public static Block blockOnly(RegistryAdapter<Block> blockRegistry, String input) {
 		return blockRegistry.requireByName(input).value();
 	}
 
-	public static Result<BlockProperties> decodeStateWithMissingErrors(BetterRegistry<Block> blockRegistry, String input) {
+	public static Result<BlockProperties> decodeStateWithMissingErrors(RegistryAdapter<Block> blockRegistry, String input) {
 		return withMissingErrors(decodeState(blockRegistry, input));
 	}
 
-	public static Result<BlockProperties> decodeState(BetterRegistry<Block> blockRegistry, String input) {
+	public static Result<BlockProperties> decodeState(RegistryAdapter<Block> blockRegistry, String input) {
 		return switch (input) {
 			default -> {
 				if (input.charAt(0) == '#') yield new Result<>((StringBuilder builder) -> builder.append("Tags not allowed here"));
@@ -176,23 +175,23 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		};
 	}
 
-	public static BetterRegistry<Block> findBlockRegistry() {
+	public static RegistryAdapter<Block> findBlockRegistry() {
 		MinecraftServer server = BigGlobeMod.currentServer;
 		if (server != null) {
-			return new BetterHardCodedRegistry<>(RegistryVersions.getRegistry(server.registryAccess(), Registries.BLOCK));
+			return new RegistryAdapter.StreamableImpl<>(RegistryVersions.getRegistry(server.registryAccess(), Registries.BLOCK));
 		}
 		else if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			return findBlockRegistryClient();
 		}
 		else {
-			return new BetterHardCodedRegistry<>(BuiltInRegistries.BLOCK);
+			return new RegistryAdapter.StreamableImpl<>(BuiltInRegistries.BLOCK);
 		}
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static BetterRegistry<Block> findBlockRegistryClient() {
+	public static StreamableRegistryAdapter<Block> findBlockRegistryClient() {
 		ClientLevel world = Minecraft.getInstance().level;
-		return new BetterHardCodedRegistry<>(world != null ? RegistryVersions.getRegistry(world.registryAccess(), Registries.BLOCK) : BuiltInRegistries.BLOCK);
+		return new RegistryAdapter.StreamableImpl<>(world != null ? RegistryVersions.getRegistry(world.registryAccess(), Registries.BLOCK) : BuiltInRegistries.BLOCK);
 	}
 
 	public static boolean isEnabled(Block block) {
@@ -299,7 +298,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	public static Result<TagProperties> decodeTag(BetterRegistry<Block> blockRegistry, String input) {
+	public static Result<TagProperties> decodeTag(RegistryAdapter<Block> blockRegistry, String input) {
 		if (input.charAt(0) != '#') return new Result<>((StringBuilder builder) -> builder.append("Not a tag: ").append(input));
 		int openBracket = input.indexOf('[');
 		Identifier tagID = IdentifierVersions.create(openBracket >= 0 ? input.substring(1, openBracket) : input.substring(1));
@@ -412,7 +411,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		}
 	}
 
-	public static Result<BlockOrTagProperties> decodeBlockOrTag(BetterRegistry<Block> blockRegistry, String input) {
+	public static Result<BlockOrTagProperties> decodeBlockOrTag(RegistryAdapter<Block> blockRegistry, String input) {
 		return (
 			input.charAt(0) == '#'
 				? decodeTag(blockRegistry, input).map(BlockOrTagProperties::tag)

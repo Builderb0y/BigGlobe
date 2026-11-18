@@ -20,8 +20,9 @@ import builderb0y.bigglobe.classes.spec.ElementSpec;
 import builderb0y.bigglobe.classes.spec.TypeSpec;
 import builderb0y.bigglobe.columns.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.ExternalEnvironmentParams;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter.StreamableRegistryAdapter;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.parsing.ExpressionParser;
 import builderb0y.scripting.parsing.ScriptClassLoader;
@@ -35,7 +36,7 @@ public class ClassHierarchy extends BulkStagedCompiler<ClassHierarchy, ElementSp
 		);
 
 	public final ColumnEntryRegistry registry;
-	public final BetterRegistry<ElementSpec> elementRegistry;
+	public final StreamableRegistryAdapter<ElementSpec> elementRegistry;
 	public final Map<ElementSpec, Holder<ElementSpec>> elements;
 	public final List<Holder<ElementSpec>> rootTypes;
 	public final ObjectOpenCustomHashSet<TypeSpec> names;

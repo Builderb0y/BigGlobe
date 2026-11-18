@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:end_gateway",
+	"config": {
+		"exact": true,
+		"exit": [ 96, 67, 0 ]
+	}
+}

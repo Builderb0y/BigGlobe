@@ -12,8 +12,9 @@
 					{ "type": "minecraft:item", "weight": 4, "name": "minecraft:iron_ore" }
 				],
 				"functions": [{
+					"type": "minecraft:set_count",
 					"function": "minecraft:set_count",
-					"count": { "min": 1, "max": 4 }
+					"count": { "type": "minecraft:uniform", "min": 1, "max": 4 }
 				}]
 			}]
 		},
@@ -28,8 +29,9 @@
 					{ "type": "minecraft:item", "weight": 4, "name": "minecraft:raw_iron" }
 				],
 				"functions": [{
+					"type": "minecraft:set_count",
 					"function": "minecraft:set_count",
-					"count": { "min": 1, "max": 4 }
+					"count": { "type": "minecraft:uniform", "min": 1, "max": 4 }
 				}]
 			}]
 		},
@@ -44,8 +46,9 @@
 					{ "type": "minecraft:item", "weight": 4, "name": "minecraft:iron_ingot" }
 				],
 				"functions": [{
+					"type": "minecraft:set_count",
 					"function": "minecraft:set_count",
-					"count": { "min": 1, "max": 4 }
+					"count": { "type": "minecraft:uniform", "min": 1, "max": 4 }
 				}]
 			}]
 		},
@@ -65,8 +68,9 @@
 					{ "type": "minecraft:item", "weight": 1, "name": "minecraft:copper_shovel" }
 				],
 				"functions": [{
+					"type": "minecraft:set_damage",
 					"function": "minecraft:set_damage",
-					"damage": { "min": 0.0, "max": 1.0 }
+					"damage": { "type": "minecraft:uniform", "min": 0.0, "max": 1.0 }
 				}]
 			}]
 		},
@@ -81,8 +85,9 @@
 						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:cobblestone" }
 					],
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 12 }
+						"count": { "type": "minecraft:uniform", "min": 1, "max": 12 }
 					}]
 				},
 				{
@@ -98,8 +103,9 @@
 						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:gravel" }
 					],
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 6 }
+						"count": { "type": "minecraft:uniform", "min": 1, "max": 6 }
 					}]
 				}
 			]
@@ -117,8 +123,9 @@
 						{ "type": "minecraft:item", "weight": 1, "name": "minecraft:activator_rail" }
 					],
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "min": 1, "max": 4 }
+						"count": { "type": "minecraft:uniform", "min": 1, "max": 4 }
 					}]
 				},
 				{
@@ -126,8 +133,9 @@
 					"weight": 4,
 					"name": "minecraft:torch",
 					"functions": [{
+						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "min": 2, "max": 8 }
+						"count": { "type": "minecraft:uniform", "min": 2, "max": 8 }
 					}]
 				}
 			]

@@ -169,10 +169,11 @@ intellij plugin:
 		need to ensure my short grass is half as compostable as vanilla's.
 		need to ensure my wildflowers are just as compostable as vanilla's.
 	DH API broke again.
+	check charred trees in vanilla worlds.
 
 changelog:
 	* Ported to MC 26.3.
-	* Removed `bigglobe:random` feature type.
+	* Removed unused `bigglobe:random` feature type.
 
 alternate world presets:
 	paradise.

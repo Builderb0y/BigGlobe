@@ -20,7 +20,7 @@ import builderb0y.bigglobe.columns.ColumnScript.ColumnYToBiomeScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.ScriptedColumn.Params;
-import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.dynamicRegistries.RegistryAdapter;
 import builderb0y.bigglobe.util.DelayedEntryList;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
@@ -31,12 +31,12 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	public final DelayedEntryList<Biome> all_possible_biomes;
 	public transient BigGlobeScriptedChunkGenerator generator;
 	public transient ThreadLocal<@Nullable ScriptedColumn> columnThreadLocal;
-	public final BetterRegistry<Biome> biomeRegistry;
+	public final RegistryAdapter<Biome> biomeRegistry;
 
 	public ScriptedColumnBiomeSource(
 		ColumnYToBiomeScript.Catcher script,
 		DelayedEntryList<Biome> all_possible_biomes,
-		BetterRegistry<Biome> biomeRegistry
+		RegistryAdapter<Biome> biomeRegistry
 	) {
 		this.script = script;
 		this.all_possible_biomes = all_possible_biomes;

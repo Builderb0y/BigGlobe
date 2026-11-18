@@ -12,8 +12,10 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.renderpearl.api.pipeline.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.level.*;
 import org.lwjgl.system.*;
 
@@ -34,11 +36,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.GpuFormat;
 	import com.mojang.renderpearl.api.buffers.GpuBuffer;
 	import com.mojang.renderpearl.api.commands.RenderPass;
-	import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
-	import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-	import com.mojang.renderpearl.api.pipeline.UniformType;
-	import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.FilterMode;
 #elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.buffers.GpuBuffer;
 	import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -90,6 +88,9 @@ public class WaypointRenderer implements SafeCloseable {
 				.withUniform("Uniforms", UniformType.UNIFORM_BUFFER)
 				.build()
 			)
+			#if MC_VERSION >= MC_26_3_0
+				.withColorTargetState(ColorTargetState.DEFAULT)
+			#endif
 			.withShaderDefine("HAVE_RGBA32F_WAYPOINTS")
 			.withVertexBinding(0, DefaultVertexFormat.POSITION)
 			.withPrimitiveTopology(PrimitiveTopology.TRIANGLES);
@@ -121,29 +122,34 @@ public class WaypointRenderer implements SafeCloseable {
 
 	public static WaypointRenderer INSTANCE;
 	static {
-		nope: {
-			try {
-				INSTANCE = new WaypointRenderer();
-			}
-			catch (RuntimeException exception) {
-				BigGlobeMod.LOGGER.warn("Fancy waypoints unavailable:", exception);
-				break nope;
-			}
-			#if MC_VERSION >= MC_26_2_0
-				net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
-			#else
-				LevelRenderEvents
-			#endif
-			.END_EXTRACTION.register((LevelExtractionContext context) -> {
-				if (INSTANCE != null) INSTANCE.state.waypoints = context.levelState().entityRenderStates.stream().filter(WaypointEntityRenderer.State.class::isInstance).map(WaypointEntityRenderer.State.class::cast).toList();
-			});
-			LevelRenderEvents.END_MAIN.register((LevelRenderContext context) -> {
-				if (INSTANCE != null) INSTANCE.render(context);
-			});
-		}
+		#if MC_VERSION >= MC_26_2_0
+			net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
+		#else
+			LevelRenderEvents
+		#endif
+		.END_EXTRACTION.register((LevelExtractionContext context) -> {
+			if (INSTANCE != null) INSTANCE.state.waypoints = context.levelState().entityRenderStates.stream().filter(WaypointEntityRenderer.State.class::isInstance).map(WaypointEntityRenderer.State.class::cast).toList();
+		});
+		LevelRenderEvents.END_MAIN.register((LevelRenderContext context) -> {
+			if (INSTANCE != null) INSTANCE.render(context);
+		});
+		init();
+		InvalidateRenderStateCallback.EVENT.register(WaypointRenderer::init);
 	}
 
-	public static void init() {}
+	public static void init() {
+		WaypointRenderer renderer = INSTANCE;
+		if (renderer != null) {
+			INSTANCE = null;
+			renderer.close();
+		}
+		try {
+			INSTANCE = new WaypointRenderer();
+		}
+		catch (RuntimeException exception) {
+			BigGlobeMod.LOGGER.warn("Fancy waypoints unavailable:", exception);
+		}
+	}
 
 	public GpuBuffer uniformData, waypointBuffer;
 	public RenderTarget swapFramebuffer;
@@ -167,7 +173,7 @@ public class WaypointRenderer implements SafeCloseable {
 				1,
 				1,
 				#if MC_VERSION >= MC_26_3_0
-					GpuFormat.RGBA8_SNORM,
+					GpuFormat.RGBA8_UNORM,
 					null
 				#elif MC_VERSION >= MC_26_2_0
 					false,
@@ -225,6 +231,10 @@ public class WaypointRenderer implements SafeCloseable {
 				RenderVersions.drawScreenTriangle(pass);
 			}
 			RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(this.swapFramebuffer.getColorTexture(), mainTarget.getColorTexture(), 0, 0, 0, 0, 0, mainTarget.width, mainTarget.height);
+		}
+		else {
+			INSTANCE = null;
+			this.close();
 		}
 	}
 

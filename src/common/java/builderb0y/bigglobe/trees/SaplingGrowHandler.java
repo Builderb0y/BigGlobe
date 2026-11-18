@@ -35,9 +35,9 @@ public class SaplingGrowHandler {
 			List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
 			if (list != null && !list.isEmpty()) {
 				list
-					.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
-					.value()
-					.place(world, generator, random, origin);
+				.get(list.size() == 1 ? 0 : world.getRandom().nextInt(list.size()))
+				.value()
+				.place(world, generator, random, origin);
 				return true;
 			}
 		}
@@ -46,13 +46,13 @@ public class SaplingGrowHandler {
 
 	public static Map<Block, List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>>> computeSaplingFeatures() {
 		Map<Block, List<Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif>>> map = new HashMap<>();
-		for (
-			WoodPalette palette
-			:
-			BigGlobeMod
-				.getRegistry(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
-				.values()
-		) {
+		BigGlobeMod
+		.getCurrentServer()
+		.registryAccess()
+		.lookupOrThrow(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY)
+		.listElements()
+		.map(Holder<WoodPalette>::value)
+		.forEach((WoodPalette palette) -> {
 			Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> saplingGrowFeature = palette.getSaplingGrowFeature();
 			if (saplingGrowFeature != null) {
 				IRandomList<Holder<Block>> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
@@ -62,7 +62,7 @@ public class SaplingGrowHandler {
 					}
 				}
 			}
-		}
+		});
 		return map;
 	}
 }
