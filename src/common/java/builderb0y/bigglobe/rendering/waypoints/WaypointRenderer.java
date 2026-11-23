@@ -36,7 +36,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.GpuFormat;
 	import com.mojang.renderpearl.api.buffers.GpuBuffer;
 	import com.mojang.renderpearl.api.commands.RenderPass;
-import com.mojang.renderpearl.api.textures.FilterMode;
+	import com.mojang.renderpearl.api.textures.FilterMode;
 #elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.buffers.GpuBuffer;
 	import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -92,7 +92,6 @@ public class WaypointRenderer implements SafeCloseable {
 				.withColorTargetState(ColorTargetState.DEFAULT)
 			#endif
 			.withShaderDefine("HAVE_RGBA32F_WAYPOINTS")
-			.withVertexBinding(0, DefaultVertexFormat.POSITION)
 			.withPrimitiveTopology(PrimitiveTopology.TRIANGLES);
 
 			if (RenderSystem.getDevice().getDeviceInfo().isZZeroToOne()) {

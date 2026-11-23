@@ -1,6 +1,6 @@
 reminders for myself:
 	renderdoc:
-		LD_PRELOAD=/home/builderb0y/renderdoc_1.38/lib/librenderdoc.so
+		LD_PRELOAD=/home/builderb0y/renderdoc_1.44/lib/librenderdoc.so
 	SoftReference delays:
 		-XX:SoftRefLRUPolicyMSPerMB=10
 
@@ -115,7 +115,7 @@ V6:
 					distant thunder sound effects.
 					tweak color of flash to be more yellow.
 				particle-y? code not written yet.
-					how to indicate location to player?
+					particles move towards the origin on average?
 				mirror dimension (code from 1.16.5).
 					have one mirror surface (whichever is closest to the sound source) occasionally blink.
 				something involving circles? (like how my desktop background looks).
@@ -170,6 +170,9 @@ intellij plugin:
 		need to ensure my wildflowers are just as compostable as vanilla's.
 	DH API broke again.
 	check charred trees in vanilla worlds.
+	figure out loot table validation errors.
+	add dappled forest.
+	save structures to disk, since re-generating them is expensive.
 
 changelog:
 	* Ported to MC 26.3.

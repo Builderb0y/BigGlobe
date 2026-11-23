@@ -1,13 +1,8 @@
 package builderb0y.bigglobe.rendering.hyperspace;
 
-import java.util.OptionalInt;
+import java.util.Random;
 
-import com.mojang.blaze3d.buffers.Std140Builder;
-import com.mojang.blaze3d.buffers.Std140SizeCalculator;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.renderpearl.api.pipeline.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -15,54 +10,20 @@ import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
-import org.lwjgl.system.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
 
-import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.hyperspace.HyperspaceConstants;
 import builderb0y.bigglobe.hyperspace.PlayerWaypointManager;
-import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.math.FastMath;
-import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.rendering.CommonState;
-import builderb0y.bigglobe.rendering.ResourceTracker;
+import builderb0y.bigglobe.randomLists.RandomList;
+import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.SafeCloseable;
-import builderb0y.bigglobe.versions.RenderVersions;
-
-#if MC_VERSION >= MC_26_3_0
-	import com.mojang.renderpearl.api.GpuFormat;
-	import com.mojang.renderpearl.api.buffers.GpuBuffer;
-	import com.mojang.renderpearl.api.commands.RenderPass;
-	import com.mojang.renderpearl.api.pipeline.*;
-	import com.mojang.renderpearl.api.textures.FilterMode;
-	import com.mojang.renderpearl.api.textures.GpuSampler;
-#elif MC_VERSION >= MC_26_2_0
-	import com.mojang.blaze3d.buffers.GpuBuffer;
-	import com.mojang.blaze3d.GpuFormat;
-	import com.mojang.blaze3d.pipeline.BindGroupLayout;
-	import com.mojang.blaze3d.pipeline.RenderPipeline;
-	import com.mojang.blaze3d.PrimitiveTopology;
-	import com.mojang.blaze3d.shaders.UniformType;
-	import com.mojang.blaze3d.systems.RenderPass;
-	import com.mojang.blaze3d.textures.FilterMode;
-	import com.mojang.blaze3d.textures.GpuSampler;
-	import com.mojang.blaze3d.vertex.VertexFormat;
-#else
-
-#endif
 
 @Environment(EnvType.CLIENT)
-public class HyperspaceRenderer implements SafeCloseable {
+public abstract class HyperspaceRenderer implements SafeCloseable {
 
 	public static final RenderPipeline.Snippet
 		WITHOUT_PREVIOUS = (
@@ -105,86 +66,13 @@ public class HyperspaceRenderer implements SafeCloseable {
 			#endif
 			.buildSnippet()
 		);
-	public static final RenderPipeline
-		VOLUME_PIPELINE = (
-			RenderPipeline
-			.builder(WITHOUT_PREVIOUS)
-			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_volume"))
-			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_volume"))
-			.build()
-		),
-		HORIZONTAL_BLUR_PIPELINE = (
-			RenderPipeline
-			.builder(WITH_PREVIOUS)
-			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_horizontal_blur"))
-			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_horizontal_blur"))
-			.build()
-		),
-		VERTICAL_BLUR_PIPELINE = (
-			RenderPipeline
-			.builder(WITH_PREVIOUS)
-			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_vertical_blur"))
-			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_vertical_blur"))
-			.build()
-		),
-		FRACTAL_PIPELINE = (
-			RenderPipeline
-			.builder(WITH_PREVIOUS)
-			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_fractals"))
-			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_fractals"))
-			.build()
-		),
-		COLLAPSE_PIPELINE = (
-			RenderPipeline
-			.builder(WITH_PREVIOUS)
-			.withLocation(BigGlobeMod.modID("pipeline/hyperspace_collapse"))
-			.withFragmentShader(BigGlobeMod.modID("post/hyperspace_collapse"))
-			.build()
-		);
-	public static final int
-		VOLUME_UNIFORM_SIZE = (
-			new Std140SizeCalculator()
-			.putMat4f()
-			.putMat4f()
-			.putVec4()
-			.putVec4()
-			.putFloat()
-			.putFloat()
-			.putFloat()
-			.align(16)
-			.get()
-		),
-		BLUR_UNIFORM_SIZE = (
-			new Std140SizeCalculator()
-			.putIVec2()
-			.align(16)
-			.get()
-		),
-		FRACTALS_UNIFORM_SIZE = (
-			new Std140SizeCalculator()
-			.putMat4f()
-			.putMat4f()
-			.putVec4()
-			.putFloat()
-			.putFloat()
-			.align(16)
-			.get()
-		),
-		COLLAPSE_UNIFORM_SIZE = (
-			new Std140SizeCalculator()
-			.putMat4f()
-			.putMat4f()
-			.putFloat()
-			.align(16)
-			.get()
-		);
 
 	public static HyperspaceRenderer INSTANCE;
 	static {
 		//the instance can become null again if it encounters an exception while rendering.
 		//and since you can't un-register an event handler, it needs to check for null instead.
 		ClientTickEvents.START_LEVEL_TICK.register((ClientLevel level) -> {
-			if (INSTANCE != null && level.dimension() == HyperspaceConstants.WORLD_KEY) INSTANCE.beam.tick();
+			if (INSTANCE != null && level.dimension() == HyperspaceConstants.WORLD_KEY) INSTANCE.tick();
 		});
 		#if MC_VERSION >= MC_26_2_0
 			net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents
@@ -197,106 +85,65 @@ public class HyperspaceRenderer implements SafeCloseable {
 		LevelRenderEvents.#if MC_VERSION >= MC_26_3_0 BEFORE_RENDER_PASS #else START_MAIN #endif.register((LevelTerrainRenderContext context) -> {
 			if (INSTANCE != null) INSTANCE.render(context);
 		});
-		init();
 		InvalidateRenderStateCallback.EVENT.register(HyperspaceRenderer::init);
+		ClientWorldEvents.WORLD_CHANGED.register((ClientLevel oldWorld, ClientLevel newWorld) -> {
+			init(newWorld);
+		});
 	}
 
 	public static void init() {
+		init(Minecraft.getInstance().level);
+	}
+
+	public static void init(ClientLevel world) {
 		try {
-			INSTANCE = new HyperspaceRenderer();
+			HyperspaceRenderer old = INSTANCE;
+			if (old != null) {
+				INSTANCE = null;
+				old.close();
+			}
+			if (world != null && world.dimension() == HyperspaceConstants.WORLD_KEY) {
+				INSTANCE = HyperspaceRenderers.getRandom();
+			}
 		}
 		catch (RuntimeException exception) {
 			BigGlobeMod.LOGGER.warn("Fancy hyperspace background unavailable:", exception);
 		}
 	}
 
-	public GpuBuffer
-		volumeUniforms,
-		blurUniforms,
-		fractalUniforms,
-		collapseUniforms;
-	public RenderTarget
-		swapFramebuffer;
-	public GpuSampler
-		sampler;
-	public Beam
-		beam;
-	public float
-		collapse;
-	public boolean
-		playerIsInHyperspace;
+	public float collapse;
+	public boolean closed;
 
 	@Override
 	public void close() {
-		ResourceTracker.closeAll(this.volumeUniforms, this.blurUniforms, this.fractalUniforms, this.collapseUniforms, SafeCloseable.of(this.swapFramebuffer));
+		this.closed = true;
 	}
 
-	public HyperspaceRenderer() {
-		try {
-			this.volumeUniforms = RenderSystem.getDevice().createBuffer(
-				() -> "Big Globe hyperspace volume uniforms",
-				GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
-				VOLUME_UNIFORM_SIZE
-			);
-			this.blurUniforms = RenderSystem.getDevice().createBuffer(
-				() -> "Big Globe hyperspace blur uniforms",
-				GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
-				BLUR_UNIFORM_SIZE
-			);
-			this.fractalUniforms = RenderSystem.getDevice().createBuffer(
-				() -> "Big Globe hyperspace fractal uniforms",
-				GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
-				FRACTALS_UNIFORM_SIZE
-			);
-			this.collapseUniforms = RenderSystem.getDevice().createBuffer(
-				() -> "Big Globe hyperspace collapse uniforms",
-				GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
-				COLLAPSE_UNIFORM_SIZE
-			);
-			this.swapFramebuffer = new TextureTarget(
-				"Big Globe hyperspace swap framebuffer",
-				1,
-				1,
-				#if MC_VERSION >= MC_26_3_0
-					GpuFormat.RGBA8_UNORM,
-					null
-				#elif MC_VERSION >= MC_26_2_0
-					false,
-					GpuFormat.RGBA8_UNORM
-				#else
-					false
-				#endif
-			);
-			this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
-			this.beam = new Beam();
-		}
-		catch (Throwable throwable) {
-			this.close();
-			throw AutoCodecUtil.rethrow(throwable);
-		}
-	}
+	public abstract void tick();
 
 	public void extract(LevelExtractionContext context) {
-		this.playerIsInHyperspace = context.level().dimension() == HyperspaceConstants.WORLD_KEY;
-		if (this.playerIsInHyperspace) {
-			float collapse = 0.0F;
-			LocalPlayer player = Minecraft.getInstance().player;
-			if (player != null) {
-				PlayerWaypointManager manager = PlayerWaypointManager.get(player);
-				if (manager != null) {
-					collapse = manager.collapseProgress + (
-						manager.getAllWaypoints().isEmpty()
-						? +context.deltaTracker().getGameTimeDeltaPartialTick(false)
-						: -context.deltaTracker().getGameTimeDeltaPartialTick(false)
-					);
-				}
+		float collapse = 0.0F;
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player != null) {
+			PlayerWaypointManager manager = PlayerWaypointManager.get(player);
+			if (manager != null) {
+				collapse = manager.collapseProgress + (
+					manager.getAllWaypoints().isEmpty()
+					? +context.deltaTracker().getGameTimeDeltaPartialTick(false)
+					: -context.deltaTracker().getGameTimeDeltaPartialTick(false)
+				);
 			}
-			this.collapse = collapse / PlayerWaypointManager.COLLAPSE_DURATION_TICKS;
 		}
+		this.collapse = collapse / PlayerWaypointManager.COLLAPSE_DURATION_TICKS;
 	}
 
 	public void render(LevelTerrainRenderContext context) {
-		if (this.playerIsInHyperspace) try {
+		if (this.closed) {
+			BigGlobeMod.LOGGER.error("Attempt to render closed hyperspace renderer");
+			INSTANCE = null;
+			return;
+		}
+		try {
 			this.doRender(context);
 		}
 		catch (RuntimeException exception) {
@@ -306,237 +153,10 @@ public class HyperspaceRenderer implements SafeCloseable {
 		}
 	}
 
-	public void doRender(LevelTerrainRenderContext context) {
-		if (
-			RenderVersions.isRenderPipelineValid(         VOLUME_PIPELINE) &&
-			RenderVersions.isRenderPipelineValid(HORIZONTAL_BLUR_PIPELINE) &&
-			RenderVersions.isRenderPipelineValid(  VERTICAL_BLUR_PIPELINE) &&
-			RenderVersions.isRenderPipelineValid(        FRACTAL_PIPELINE) &&
-			RenderVersions.isRenderPipelineValid(       COLLAPSE_PIPELINE)
-		) {
-			RenderTarget mainTarget = RenderVersions.getMainRenderTarget();
-			if (this.swapFramebuffer.width != mainTarget.width || this.swapFramebuffer.height != mainTarget.height) {
-				this.swapFramebuffer.resize(mainTarget.width, mainTarget.height);
-			}
-			this.uploadVolumeUniforms(context);
-			this.uploadBlurUniforms(mainTarget.width, mainTarget.height);
-			this.uploadFractalUniforms(context);
-			if (this.collapse > 0.0F) {
-				this.uploadCollapseUniforms(context);
-				this.renderVolume(mainTarget);
-				this.renderBlur(false, mainTarget, this.swapFramebuffer);
-				this.renderBlur(true, this.swapFramebuffer, mainTarget);
-				this.renderFractals(mainTarget, this.swapFramebuffer);
-				this.renderCollapse(this.swapFramebuffer, mainTarget);
-			}
-			else {
-				this.renderVolume(this.swapFramebuffer);
-				this.renderBlur(false, this.swapFramebuffer, mainTarget);
-				this.renderBlur(true, mainTarget, this.swapFramebuffer);
-				this.renderFractals(this.swapFramebuffer, mainTarget);
-			}
-		}
-	}
+	public abstract void doRender(LevelTerrainRenderContext context);
 
-	public void uploadVolumeUniforms(LevelTerrainRenderContext context) {
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			RenderSystem.getDevice().createCommandEncoder().writeToBuffer(
-				this.volumeUniforms.slice(),
-				Std140Builder
-				.onStack(stack, VOLUME_UNIFORM_SIZE)
-				.putMat4f(CommonState.inverseModelViewMatrix)
-				.putMat4f(CommonState.inverseProjectionMatrix)
-				.putVec4(
-					(float)(context.levelState().cameraRenderState.pos.x),
-					(float)(context.levelState().cameraRenderState.pos.y),
-					(float)(context.levelState().cameraRenderState.pos.z),
-					0.0F
-				)
-				.putVec4(
-					this.beam.originX,
-					this.beam.originY,
-					this.beam.originZ,
-					0.0F
-				)
-				.putFloat(this.beam.directionSeed)
-				.putFloat(this.beam.getBeamTime())
-				.putFloat(CommonState.dayTimeInSeconds)
-				.get()
-			);
-		}
-	}
+	public static interface Factory {
 
-	public void renderVolume(RenderTarget target) {
-		try (
-			RenderPass pass = RenderVersions.createRenderPass(
-				"Big Globe hyperspace volume",
-				target.getColorTextureView()
-			)
-		) {
-			RenderVersions.setPipeline(pass, VOLUME_PIPELINE);
-			pass.setUniform("Uniforms", this.volumeUniforms);
-			RenderVersions.drawScreenTriangle(pass);
-		}
-	}
-
-	public void uploadBlurUniforms(int width, int height) {
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			RenderSystem.getDevice().createCommandEncoder().writeToBuffer(
-				this.blurUniforms.slice(),
-				Std140Builder
-				.onStack(stack, BLUR_UNIFORM_SIZE)
-				.putIVec2(width, height)
-				.get()
-			);
-		}
-	}
-
-	public void renderBlur(boolean vertical, RenderTarget source, RenderTarget destination) {
-		try (
-			RenderPass pass = RenderVersions.createRenderPass(
-				() -> "Big Globe hyperspace " + (vertical ? "vertical" : "horizontal") + " blur",
-				destination.getColorTextureView()
-			)
-		) {
-			RenderVersions.setPipeline(pass, vertical ? VERTICAL_BLUR_PIPELINE : HORIZONTAL_BLUR_PIPELINE);
-			pass.setUniform("Uniforms", this.blurUniforms);
-			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.sampler);
-			RenderVersions.drawScreenTriangle(pass);
-		}
-	}
-
-	public void uploadFractalUniforms(LevelTerrainRenderContext context) {
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			RenderSystem.getDevice().createCommandEncoder().writeToBuffer(
-				this.fractalUniforms.slice(),
-				Std140Builder
-				.onStack(stack, FRACTALS_UNIFORM_SIZE)
-				.putMat4f(CommonState.inverseModelViewMatrix)
-				.putMat4f(CommonState.inverseProjectionMatrix)
-				.putVec4(
-					(float)(context.levelState().cameraRenderState.pos.x),
-					(float)(context.levelState().cameraRenderState.pos.y),
-					(float)(context.levelState().cameraRenderState.pos.z),
-					0.0F
-				)
-				.putFloat(CommonState.dayTimeInSeconds)
-				.putFloat(this.collapse)
-				.get()
-			);
-		}
-	}
-
-	public void renderFractals(RenderTarget source, RenderTarget destination) {
-		try (
-			RenderPass pass = RenderVersions.createRenderPass(
-				"Big Globe hyperspace fractals",
-				destination.getColorTextureView()
-			)
-		) {
-			RenderVersions.setPipeline(pass, FRACTAL_PIPELINE);
-			pass.setUniform("Uniforms", this.fractalUniforms);
-			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.sampler);
-			RenderVersions.drawScreenTriangle(pass);
-		}
-	}
-
-	public void uploadCollapseUniforms(LevelTerrainRenderContext context) {
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			RenderSystem.getDevice().createCommandEncoder().writeToBuffer(
-				this.collapseUniforms.slice(),
-				Std140Builder
-				.onStack(stack, COLLAPSE_UNIFORM_SIZE)
-				.putMat4f(CommonState.inverseModelViewMatrix)
-				.putMat4f(CommonState.inverseProjectionMatrix)
-				.putFloat(this.collapse)
-				.get()
-			);
-		}
-	}
-
-	public void renderCollapse(RenderTarget source, RenderTarget destination) {
-		try (
-			RenderPass pass = RenderVersions.createRenderPass(
-				() -> "Big Globe hyperspace collapse",
-				destination.getColorTextureView()
-			)
-		) {
-			RenderVersions.setPipeline(pass, COLLAPSE_PIPELINE);
-			pass.setUniform("Uniforms", this.collapseUniforms);
-			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.sampler);
-			RenderVersions.drawScreenTriangle(pass);
-		}
-	}
-
-	@Environment(EnvType.CLIENT)
-	public static class Beam {
-
-		public static final int maxBeamTicks = 10 * 20;
-
-		public float
-			originX,
-			originY,
-			originZ,
-			directionSeed;
-		public int
-			beamTicks = -1;
-		public Permuter
-			random = new Permuter(Permuter.stafford(System.currentTimeMillis() ^ System.nanoTime()));
-
-		public float getBeamTime() {
-			return (this.beamTicks + CommonState.partialTicks) / maxBeamTicks * 2.0F - 1.0F;
-		}
-
-		public void tick() {
-			if (this.beamTicks >= 0) {
-				this.beamTicks++;
-				if (this.beamTicks >= maxBeamTicks) {
-					this.beamTicks = -1;
-					this.directionSeed = -1.0F;
-					this.originX = 0.0F;
-					this.originY = 0.0F;
-					this.originZ = 0.0F;
-				}
-				else if (this.beamTicks == maxBeamTicks >> 1) {
-					Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
-					if (cameraEntity != null) {
-						double distanceSquared = BigGlobeMath.squareD(
-							cameraEntity.getX() - this.originX,
-							cameraEntity.getY() - this.originY,
-							cameraEntity.getZ() - this.originZ
-						);
-						Minecraft.getInstance().getSoundManager().play(
-							new SimpleSoundInstance(
-								SoundEvents.BREEZE_IDLE_GROUND.location(),
-								SoundSource.AMBIENT,
-								1.0F,
-								(float)(FastMath.Exp.fastExp2(2.0D / (distanceSquared * (1.0D / 65536.0D) + 1.0D) - 1.0D)),
-								RandomSource.create(),
-								false,
-								0,
-								SoundInstance.Attenuation.NONE,
-								this.originX,
-								this.originY,
-								this.originZ,
-								false
-							)
-						);
-					}
-				}
-			}
-			else if (this.random.nextInt(100) == 0) {
-				LocalPlayer player = Minecraft.getInstance().player;
-				if (player != null) {
-					PlayerWaypointManager manager = PlayerWaypointManager.get(player);
-					if (manager != null && manager.collapseProgress < 0) {
-						this.beamTicks = 0;
-						this.directionSeed = this.random.nextFloat();
-						this.originX = (float)(this.random.nextGaussian() * 16.0D);
-						this.originY = (float)(this.random.nextGaussian() * 16.0D);
-						this.originZ = (float)(this.random.nextGaussian() * 16.0D);
-					}
-				}
-			}
-		}
+		public abstract HyperspaceRenderer create();
 	}
 }

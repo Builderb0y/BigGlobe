@@ -10,7 +10,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 public class ClientWorldEvents {
 
 	public static final Event<WorldChanged> WORLD_CHANGED = EventFactory.createArrayBacked(
-		WorldChanged.class, (WorldChanged[] events) -> {
+		WorldChanged.class,
+		(WorldChanged[] events) -> {
 			return (ClientLevel woldWorld, ClientLevel newWorld) -> {
 				for (WorldChanged event : events) {
 					event.worldChanged(woldWorld, newWorld);
