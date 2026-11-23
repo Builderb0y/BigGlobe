@@ -1,0 +1,14 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"SplitTreeGenerator",
+			".create(world, random.switch (",
+				"'minecraft:poplar_red',",
+				"'minecraft:poplar_orange',",
+				"'minecraft:poplar_yellow'",
+			"))",
+			".placeArtificial(originX, originY, originZ)"
+		]
+	}
+}

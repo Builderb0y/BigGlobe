@@ -1,0 +1,8 @@
+{
+	"condition": {
+		"type": "script",
+		"script": "world_traits.`bigglobe:magicalness` < -0.25I"
+	},
+	"if_true": "bigglobe:overworld/wood_palette/mangrove",
+	"if_false": "bigglobe:overworld/wood_palette/warm_test_humid"
+}

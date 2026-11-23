@@ -1,0 +1,13 @@
+{
+	"type": "bigglobe:script",
+	"config": {
+		"script": [
+			"SplitTreeGenerator",
+			".create(world, 'minecraft:poplar_yellow')",
+			".=$requireValidGround(true)",
+			".placeNatural(originX, originY, originZ)"
+		],
+		"delay": "if_too_big",
+		"max_radius_in_blocks": 64
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"result": {
+		"type": "script",
+		"script": [
+			"columnSeed(16x4296495AF1246F02UL).switch (",
+				"'minecraft:poplar_red',",
+				"'minecraft:poplar_orange',",
+				"'minecraft:poplar_yellow'",
+			")"
+		]
+	}
+}

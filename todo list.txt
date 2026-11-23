@@ -171,11 +171,11 @@ intellij plugin:
 	DH API broke again.
 	check charred trees in vanilla worlds.
 	figure out loot table validation errors.
-	add dappled forest.
 	save structures to disk, since re-generating them is expensive.
 
 changelog:
 	* Ported to MC 26.3.
+	* Added dappled forest to overworld.
 	* Removed unused `bigglobe:random` feature type.
 
 alternate world presets:

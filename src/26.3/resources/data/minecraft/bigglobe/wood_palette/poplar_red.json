@@ -1,0 +1,28 @@
+{
+	"blocks": {
+		"log": "minecraft:poplar_log",
+		"wood": "minecraft:poplar_wood",
+		"stripped_log": "minecraft:stripped_poplar_log",
+		"stripped_wood": "minecraft:stripped_poplar_wood",
+		"planks": "minecraft:poplar_planks",
+		"stairs": "minecraft:poplar_stairs",
+		"slab": "minecraft:poplar_slab",
+		"fence": "minecraft:poplar_fence",
+		"fence_gate": "minecraft:poplar_fence_gate",
+		"door": "minecraft:poplar_door",
+		"trapdoor": "minecraft:poplar_trapdoor",
+		"pressure_plate": "minecraft:poplar_pressure_plate",
+		"button": "minecraft:poplar_button",
+		"leaves": "minecraft:red_poplar_leaves",
+		"sapling": "minecraft:poplar_sapling",
+		"potted_sapling": "minecraft:potted_poplar_sapling",
+		"standing_sign": "minecraft:poplar_sign",
+		"wall_sign": "minecraft:poplar_wall_sign",
+		"hanging_sign": "minecraft:poplar_hanging_sign",
+		"wall_hanging_sign": "minecraft:poplar_wall_hanging_sign"
+	},
+	"features": {
+		"sapling_grow": "bigglobe:overworld/trees/artificial/poplar",
+		"natural_surface": "bigglobe:overworld/trees/natural/poplar_red"
+	}
+}

@@ -107,7 +107,7 @@ public class ScriptedFeature extends FeatureAdapter<ScriptedFeature.Config> impl
 				BlockPos origin = context.origin();
 				Permuter permuter = Permuter.from(context.random());
 				Symmetry symmetry = this.getSymmetry(context.config(), permuter);
-				int radius = context.config().max_radius_in_blocks;
+				int radius = originalWorld instanceof ServerLevel ? 127 : context.config().max_radius_in_blocks;
 				BoundingBox mutableArea = new BoundingBox(
 					origin.getX() - radius,
 					HeightLimitViewVersions.getMinY(originalWorld),

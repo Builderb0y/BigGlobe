@@ -4,7 +4,7 @@
 		"script": [
 			"ConeTreeGenerator",
 			".create(world, 'minecraft:spruce')",
-			".placeNatural(originX, originY, originZ)"
+			".placeArtificial(originX, originY, originZ)"
 		]
 	}
 }
