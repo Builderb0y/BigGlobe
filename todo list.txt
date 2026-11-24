@@ -170,7 +170,6 @@ intellij plugin:
 		need to ensure my wildflowers are just as compostable as vanilla's.
 	DH API broke again.
 	check charred trees in vanilla worlds.
-	figure out loot table validation errors.
 	save structures to disk, since re-generating them is expensive.
 
 changelog:

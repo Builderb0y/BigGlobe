@@ -51,6 +51,7 @@
 		"OceanMonumentStructure_MovePiecesOnReCreate",
 		"OceanRuinGeneratorPiece_UseGeneratorHeight",
 		"PalettedContainer_DataAccess",
+		"PendingRegistration_ForwardCompatibleLootTables",
 		"PlantBlock_CanPlantOnTopAccess",
 		"PlayerEntity_FlyInHyperspace",
 		"PlayerEntity_TickHyperspaceCollapse",

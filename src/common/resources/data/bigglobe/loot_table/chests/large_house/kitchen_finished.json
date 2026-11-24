@@ -13,9 +13,8 @@
 				"weight": 4,
 				"name": "minecraft:cookie",
 				"functions": [{
-					"type": "minecraft:set_count",
 					"function": "minecraft:set_count",
-					"count": { "type": "minecraft:uniform", "min": 2, "max": 4 }
+					"count": { "min": 2, "max": 4 }
 				}]
 			}
 		]

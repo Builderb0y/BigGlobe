@@ -29,8 +29,8 @@ but this seems to've been fixed in MC 26.3. as such,
 this class is now just an alias for the vanilla one.
 */
 @AddPseudoField("children")
-@AddPseudoField("conditions")
-@AddPseudoField("functions")
+@AddPseudoField("condition")
+@AddPseudoField("modifier")
 public class FunctionalGroupEntry extends EntryGroup {
 
 	public static final MapCodec<FunctionalGroupEntry> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(FunctionalGroupEntry.class);
@@ -43,21 +43,21 @@ public class FunctionalGroupEntry extends EntryGroup {
 
 	public FunctionalGroupEntry(
 		List<LootPoolEntryContainer> children,
-		Optional<Holder<LootItemCondition>> conditions,
-		Optional<Holder<LootItemFunction>> functions
+		Optional<Holder<LootItemCondition>> condition,
+		Optional<Holder<LootItemFunction>> modifier
 	) {
-		super(children, conditions, functions);
+		super(children, condition, modifier);
 	}
 
 	public List<LootPoolEntryContainer> children() {
 		return this.children;
 	}
 
-	public Optional<Holder<LootItemCondition>> conditions() {
+	public Optional<Holder<LootItemCondition>> condition() {
 		return this.condition;
 	}
 
-	public Optional<Holder<LootItemFunction>> functions() {
+	public Optional<Holder<LootItemFunction>> modifier() {
 		return this.modifier;
 	}
 }

@@ -90,6 +90,7 @@ public class BigGlobeMixinConfig {
 		defaults.put(MIXIN_PACKAGE + ".OceanMonumentGeneratorBase_VanillaBugFixes",                                               Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".OceanMonumentStructure_MovePiecesOnReCreate",                                              Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".OceanRuinGeneratorPiece_UseGeneratorHeight",                                               Boolean.TRUE);
+		defaults.put(MIXIN_PACKAGE + ".PendingRegistration_ForwardCompatibleLootTables",                                          Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".PlaceableFlintAndSticks",                                                                  Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".PlayerEntity_FlyInHyperspace",                                                             Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".PlayerEntity_TickHyperspaceCollapse",                                                      Boolean.TRUE);

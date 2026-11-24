@@ -10,9 +10,8 @@
 					"weight": 4,
 					"name": "minecraft:coal",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 3, "max": 6 }
+						"count": { "min": 3, "max": 6 }
 					}]
 				},
 				{
@@ -20,9 +19,8 @@
 					"weight": 4,
 					"name": "minecraft:redstone",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 3, "max": 6 }
+						"count": { "min": 3, "max": 6 }
 					}]
 				},
 				{
@@ -30,9 +28,8 @@
 					"weight": 4,
 					"name": "minecraft:lapis_lazuli",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 3, "max": 6 }
+						"count": { "min": 3, "max": 6 }
 					}]
 				},
 				{
@@ -40,9 +37,8 @@
 					"weight": 5,
 					"name": "minecraft:iron_ingot",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 2, "max": 4 }
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{
@@ -51,9 +47,8 @@
 					"quality": 1,
 					"name": "minecraft:gold_ingot",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 2, "max": 4 }
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{
@@ -62,9 +57,8 @@
 					"quality": 2,
 					"name": "minecraft:diamond",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 2, "max": 4 }
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{
@@ -73,9 +67,8 @@
 					"quality": 2,
 					"name": "minecraft:emerald",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 2, "max": 4 }
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{
@@ -84,9 +77,8 @@
 					"quality": 1,
 					"name": "minecraft:experience_bottle",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 1, "max": 3 }
+						"count": { "min": 1, "max": 3 }
 					}]
 				}
 			]
@@ -108,9 +100,8 @@
 						{ "type": "minecraft:item", "weight": 10, "name": "minecraft:cooked_beef" }
 					],
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 2, "max": 4 }
+						"count": { "min": 2, "max": 4 }
 					}]
 				},
 				{ "type": "minecraft:item", "weight": 5, "quality": 1, "name": "minecraft:golden_apple" },
@@ -125,9 +116,8 @@
 					"weight": 20,
 					"name": "minecraft:rotten_flesh",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 1, "max": 2 }
+						"count": { "min": 1, "max": 2 }
 					}]
 				},
 				{
@@ -135,9 +125,8 @@
 					"weight": 15,
 					"name": "minecraft:bone",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 1, "max": 2 }
+						"count": { "min": 1, "max": 2 }
 					}]
 				},
 				{
@@ -145,9 +134,8 @@
 					"weight": 10,
 					"name": "minecraft:string",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 1, "max": 2 }
+						"count": { "min": 1, "max": 2 }
 					}]
 				},
 				{
@@ -161,9 +149,8 @@
 					"quality": 2,
 					"name": "minecraft:slime_ball",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 1, "max": 2 }
+						"count": { "min": 1, "max": 2 }
 					}]
 				},
 				{
@@ -190,7 +177,6 @@
 					"weight": 10,
 					"name": "minecraft:book",
 					"functions": [{
-						"type": "minecraft:enchant_randomly",
 						"function": "minecraft:enchant_randomly"
 					}]
 				}
@@ -214,7 +200,6 @@
 								{ "type": "minecraft:item", "weight": 100, "name": "minecraft:shield" }
 							],
 							"functions": [{
-								"type": "minecraft:enchant_with_levels",
 								"function": "minecraft:enchant_with_levels",
 								"levels": 1,
 								"conditions": [{
@@ -233,7 +218,6 @@
 								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:stone_sword" }
 							],
 							"functions": [{
-								"type": "minecraft:enchant_with_levels",
 								"function": "minecraft:enchant_with_levels",
 								"levels": 5,
 								"conditions": [{
@@ -252,7 +236,6 @@
 								{ "type": "minecraft:item", "weight": 10, "name": "minecraft:iron_sword" }
 							],
 							"functions": [{
-								"type": "minecraft:enchant_with_levels",
 								"function": "minecraft:enchant_with_levels",
 								"levels": 5,
 								"conditions": [{
@@ -271,7 +254,6 @@
 								{ "type": "minecraft:item", "weight": 30, "quality": 1, "name": "minecraft:golden_sword" }
 							],
 							"functions": [{
-								"type": "minecraft:enchant_with_levels",
 								"function": "minecraft:enchant_with_levels",
 								"levels": 10,
 								"conditions": [{
@@ -290,7 +272,6 @@
 								{ "type": "minecraft:item", "weight": 50, "quality": 1, "name": "minecraft:diamond_sword" }
 							],
 							"functions": [{
-								"type": "minecraft:enchant_with_levels",
 								"function": "minecraft:enchant_with_levels",
 								"levels": 10,
 								"conditions": [{
@@ -301,9 +282,8 @@
 						}
 					],
 					"functions": [{
-						"type": "minecraft:set_damage",
 						"function": "minecraft:set_damage",
-						"damage": { "type": "minecraft:uniform", "min": 0.0, "max": 1.0 }
+						"damage": { "min": 0.0, "max": 1.0 }
 					}]
 				},
 				{
@@ -311,9 +291,8 @@
 					"weight": 500,
 					"name": "minecraft:arrow",
 					"functions": [{
-						"type": "minecraft:set_count",
 						"function": "minecraft:set_count",
-						"count": { "type": "minecraft:uniform", "min": 4, "max": 8 }
+						"count": { "min": 4, "max": 8 }
 					}]
 				}
 			]
@@ -330,7 +309,6 @@
 						{ "type": "minecraft:item", "name": "minecraft:lingering_potion" }
 					],
 					"functions": [{
-						"type": "bigglobe:choose_potion",
 						"function": "bigglobe:choose_potion",
 						"potions": [
 							{ "weight": 1, "potion": "night_vision"    },
