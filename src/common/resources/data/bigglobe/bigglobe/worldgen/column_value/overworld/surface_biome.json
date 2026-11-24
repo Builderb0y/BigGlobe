@@ -1,0 +1,8 @@
+{
+	"type": "decision_tree",
+	"params": {
+		"type": "biome",
+		"is_3d": false
+	},
+	"root": "bigglobe:overworld/biome/not_deep_dark_test_river"
+}

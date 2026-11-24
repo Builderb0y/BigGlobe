@@ -41,7 +41,7 @@ public class TagParser {
 
 	public void configure(MutableScriptEnvironment environment, UsageCallback callback) {
 		environment
-		.addCast(type(String.class), this.tagType, true, this.makeCaster())
+		.addCast(type(String.class), this.tagType, true, callback, this.makeCaster())
 		.addKeyword(this.makeKeyword(callback))
 		.addMethod(this.makeIsIn(callback));
 	}

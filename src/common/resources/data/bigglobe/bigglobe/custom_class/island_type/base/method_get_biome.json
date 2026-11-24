@@ -4,7 +4,6 @@
 	"name": "getBiome",
 	"return_type": "biome",
 	"parameters": [
-		{ "name": "column", "type": "column_storage", "import": true },
-		{ "name": "y", "type": "int" }
+		{ "name": "column", "type": "column_storage", "import": true }
 	]
 }

@@ -8,5 +8,6 @@
 	"valid": {
 		"min_y": "world_traits.`bigglobe:min_y`",
 		"max_y": "world_traits.`bigglobe:max_y`"
-	}
+	},
+	"cache": false
 }

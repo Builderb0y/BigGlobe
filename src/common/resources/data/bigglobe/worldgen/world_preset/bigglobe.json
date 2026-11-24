@@ -24,6 +24,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:overworld/biome`",
+					"column_biomes": [
+						"biomes.$addAll('#bigglobe:underground').$add(`bigglobe:overworld/surface_biome`)"
+					],
 					"all_possible_biomes": "#bigglobe:all_overworld"
 				},
 				"overriders": "#bigglobe:overworld",
@@ -82,6 +85,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:nether/bubble_type`.biome",
+					"column_biomes": [
+						"biomes.add(`bigglobe:nether/bubble_type`.biome)"
+					],
 					"all_possible_biomes": "#bigglobe:nether"
 				},
 				"overriders": "#bigglobe:nether",
@@ -127,6 +133,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:end/surface`.biome",
+					"column_biomes": [
+						"biomes.$add(`bigglobe:end/surface`.biome)"
+					],
 					"all_possible_biomes": "#bigglobe:end"
 				},
 				"overriders": "#bigglobe:end",

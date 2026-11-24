@@ -5,6 +5,9 @@
 		"#c:stones",
 		"minecraft:dripstone_block",
 		"minecraft:calcite",
-		"minecraft:tuff"
+		"minecraft:tuff",
+		"minecraft:sandstone",
+		"minecraft:red_sandstone",
+		"#minecraft:terracotta"
 	]
 }

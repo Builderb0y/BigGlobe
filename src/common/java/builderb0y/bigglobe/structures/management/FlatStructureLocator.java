@@ -22,7 +22,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.*;
-import net.minecraft.world.level.biome.Climate.Sampler;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.*;
@@ -31,20 +30,19 @@ import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride.Bound
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
+import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource.BiomeSet;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
+import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.structures.SizedStructure;
 import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresManyBoxes;
 import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
-import builderb0y.bigglobe.util.BudgetStableValue;
-import builderb0y.bigglobe.util.Grouper;
-import builderb0y.bigglobe.util.Streamable;
+import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.Streamable.StreamableArrayList;
-import builderb0y.bigglobe.util.TimestampedComputingCache;
 import builderb0y.bigglobe.util.TimestampedComputingCache.Units;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
@@ -418,8 +416,8 @@ public class FlatStructureLocator extends StructureLocator {
 	public static record StructurePos(int x, int z) {
 
 		public static final int
-			BLOCK_SHIFT = 6,
-			CHUNK_SHIFT = 2;
+			BLOCK_SHIFT = 7,
+			CHUNK_SHIFT = 3;
 
 		public static StructurePos fromBlock(int x, int z) {
 			return new StructurePos(x >> BLOCK_SHIFT, z >> BLOCK_SHIFT);
@@ -551,12 +549,20 @@ public class FlatStructureLocator extends StructureLocator {
 							return IntStream.rangeClosed(minX, maxX).parallel().mapToObj((int biomeX) -> {
 								ScriptedColumn column = scripted.columnThreadLocal.get();
 								column.setParamsUnchecked(column.params.at(biomeX << 2, biomeZ << 2));
-								Set<Holder<Biome>> columnBiomes = new ObjectOpenHashSet<>();
-								Holder<Biome> previous = null;
-								for (int biomeY = minY; biomeY <= maxY; biomeY++) {
-									Holder<Biome> current = scripted.script.get(column, biomeY << 2).entry;
-									if (current != previous) {
-										columnBiomes.add(previous = current);
+								Set<Holder<Biome>> columnBiomes;
+								if (scripted.column_biomes != null) {
+									BiomeSet set = new BiomeSet();
+									scripted.column_biomes.addBiomesTo(column, set);
+									columnBiomes = new MappedSet<>(set, BiomeEntry::entry, BiomeEntry::new);
+								}
+								else {
+									columnBiomes = new ObjectOpenHashSet<>();
+									Holder<Biome> previous = null;
+									for (int biomeY = minY; biomeY <= maxY; biomeY++) {
+										Holder<Biome> current = scripted.script.get(column, biomeY << 2).entry;
+										if (current != previous) {
+											columnBiomes.add(previous = current);
+										}
 									}
 								}
 								return columnBiomes;

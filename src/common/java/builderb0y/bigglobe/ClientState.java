@@ -226,7 +226,7 @@ public class ClientState {
 		public transient MappedRegistry<ColumnEntry>       columnEntryRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.    COLUMN_VALUE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient MappedRegistry<DecisionTreeSpec> decisionTreeRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   DECISION_TREE_REGISTRY_KEY, Lifecycle.experimental());
 		public transient MappedRegistry<WorldTrait>         worldTraitRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.     WORLD_TRAIT_REGISTRY_KEY, Lifecycle.experimental());
-		public transient MappedRegistry<TerrainLayer>                   layerRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   TERRAIN_LAYER_REGISTRY_KEY, Lifecycle.experimental());
+		public transient MappedRegistry<TerrainLayer>            layerRegistry = new MappedRegistry<>(BigGlobeDynamicRegistries.   TERRAIN_LAYER_REGISTRY_KEY, Lifecycle.experimental());
 
 		public Syncing(
 			boolean containsLayers,
@@ -277,6 +277,9 @@ public class ClientState {
 				}
 				if (generator.biome_source() instanceof ScriptedColumnBiomeSource biomeSource) {
 					biomeSource.script.streamDirectDependencies().forEach(collector);
+					if (biomeSource.column_biomes != null) {
+						biomeSource.column_biomes.streamDirectDependencies().forEach(collector);
+					}
 				}
 				for (Holder<? extends DependencyView> entry : collector) {
 					switch (entry.value()) {

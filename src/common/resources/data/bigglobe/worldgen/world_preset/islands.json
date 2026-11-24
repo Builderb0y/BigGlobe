@@ -9,6 +9,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "world_traits.`bigglobe:biome`",
+					"column_biomes": [
+						"biomes.$addAll('#bigglobe:underground').$add(`bigglobe:islands/type`.getBiome(column))"
+					],
 					"all_possible_biomes": "#bigglobe:all_islands"
 				},
 				"height": {

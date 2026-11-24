@@ -6,5 +6,5 @@
 		]
 	},
 	"if_true": "bigglobe:overworld/biome/underground_test_deep_dark",
-	"if_false": "bigglobe:overworld/biome/not_deep_dark_test_river"
+	"if_false": "bigglobe:overworld/biome/above_ground"
 }

@@ -354,7 +354,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	public static BiomeSource copyBiomeSource(BiomeSource source) {
-		return source instanceof ScriptedColumnBiomeSource scripted ? new ScriptedColumnBiomeSource(scripted.script, scripted.all_possible_biomes, scripted.biomeRegistry) : source;
+		return source instanceof ScriptedColumnBiomeSource scripted ? new ScriptedColumnBiomeSource(scripted.script, scripted.column_biomes, scripted.all_possible_biomes, scripted.biomeRegistry) : source;
 	}
 
 	public void setCompiledWorldTraits(WorldTraits traits) {

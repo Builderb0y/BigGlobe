@@ -170,11 +170,14 @@ intellij plugin:
 		need to ensure my wildflowers are just as compostable as vanilla's.
 	DH API broke again.
 	check charred trees in vanilla worlds.
+	make new vanilla campsite thingy spawn in big globe worlds if practical.
 	save structures to disk, since re-generating them is expensive.
 
 changelog:
 	* Ported to MC 26.3.
 	* Added dappled forest to overworld.
+	* Jungle temples are now more rare.
+	* Added sandstone, red sandstone, and terracotta to the tag of blocks that mimic ores can mimic.
 	* Removed unused `bigglobe:random` feature type.
 
 alternate world presets:

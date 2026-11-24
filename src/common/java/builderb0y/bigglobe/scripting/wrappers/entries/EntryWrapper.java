@@ -18,6 +18,10 @@ public class EntryWrapper<T_Raw, T_Tag extends TagWrapper<T_Raw, ?>> {
 		this.entry = entry;
 	}
 
+	public Holder<T_Raw> entry() {
+		return this.entry;
+	}
+
 	public T_Raw object() {
 		return this.entry.value();
 	}
