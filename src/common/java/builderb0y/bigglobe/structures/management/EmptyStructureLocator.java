@@ -47,4 +47,7 @@ public class EmptyStructureLocator extends StructureLocator {
 	public boolean maybeHasBiomes(BiomeParams params) {
 		return false;
 	}
+
+	@Override
+	public void close() {}
 }

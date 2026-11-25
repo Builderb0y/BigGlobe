@@ -70,6 +70,14 @@ public class BudgetStableValue<T> {
 		return value;
 	}
 
+	public T getNonBlockingOrNull() {
+		T value = this.value;
+		if (value == null) {
+			value = (T)(VALUE.getVolatile(this));
+		}
+		return value;
+	}
+
 	public void setBlocking(T contents) {
 		Objects.requireNonNull(contents, "contents");
 		if (this.value == null) {
@@ -117,6 +125,31 @@ public class BudgetStableValue<T> {
 		if (this.value == null && this.lock.tryLock()) try {
 			if (VALUE.getVolatile(this) == null) {
 				this._set(Objects.requireNonNull(supplier.get(), "supplier.get() returned null."));
+			}
+		}
+		finally {
+			this.lock.unlock();
+		}
+	}
+
+	public void setInitial(T contents) {
+		Objects.requireNonNull(contents, "contents");
+		if (this.value == null && this.lock.tryLock()) try {
+			if (VALUE.getVolatile(this) == null) {
+				VALUE.set(this, contents);
+			}
+		}
+		finally {
+			this.lock.unlock();
+		}
+	}
+
+	public void setInitial(Supplier<? extends T> supplier) {
+		Objects.requireNonNull(supplier, "supplier");
+		if (this.value == null && this.lock.tryLock()) try {
+			if (VALUE.getVolatile(this) == null) {
+				//don't call _set() here.
+				VALUE.setVolatile(this, Objects.requireNonNull(supplier.get(), "supplier.get() returned null."));
 			}
 		}
 		finally {

@@ -82,6 +82,11 @@ public class BigGlobeConfig {
 	@DefaultIgnore
 	public int evaluateCommandPermissionLevel = 4;
 
+	@Tooltip(count = 3)
+	@UseName("Persistent Structures")
+	@DefaultIgnore
+	public boolean persistentStructures = true;
+
 	@Tooltip(count = 2)
 	@UseName("Player Spawning")
 	@CollapsibleObject(startExpanded = true)

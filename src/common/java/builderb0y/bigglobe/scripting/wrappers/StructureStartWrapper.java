@@ -6,13 +6,17 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
+
 import builderb0y.autocodec.util.ObjectArrayFactory;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.math.BigGlobeMath;
@@ -24,7 +28,9 @@ import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 public record StructureStartWrapper(
+	/** may be delegating. */
 	Holder<Structure> originalStructure,
+	/** will not be delegating. */
 	StructureEntry structure,
 	StructureStart start,
 	MutableBlockPos pos,
@@ -33,6 +39,33 @@ public record StructureStartWrapper(
 
 	public static final ObjectArrayFactory<StructureStartWrapper> ARRAY_FACTORY = new ObjectArrayFactory<>(StructureStartWrapper.class);
 	public static final TypeInfo TYPE = TypeInfo.of(StructureStartWrapper.class);
+
+	public CompoundTag toNbt(StructurePieceSerializationContext context) {
+		CompoundTag nbt = new CompoundTag();
+		nbt.putString("original", UnregisteredObjectException.getID(this.originalStructure).toString());
+		nbt.putIntArray("pos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ() });
+		nbt.put("start", this.start.createTag(context, this.start.getChunkPos()));
+		return nbt;
+	}
+
+	public static StructureStartWrapper fromNbt(StructurePieceSerializationContext context, CompoundTag nbt, long seed) {
+		Reference<Structure> original = (
+			context
+			.registryAccess()
+			.lookupOrThrow(Registries.STRUCTURE)
+			.get(
+				Identifier.parse(
+					nbt
+					.getString("original")
+					.orElseThrow()
+				)
+			)
+			.orElseThrow()
+		);
+		StructureStart start = StructureStart.loadStaticStart(context, nbt.getCompound("start").orElseThrow(), seed);
+		int[] pos = nbt.getIntArray("pos").orElseThrow();
+		return of(original, start, new BlockPos(pos[0], pos[1], pos[2]));
+	}
 
 	public static StructureStartWrapper of(Holder<Structure> original, StructureStart start, BlockPos pos) {
 		if (!start.isValid()) throw new IllegalArgumentException("Attempt to wrap invalid structure start");

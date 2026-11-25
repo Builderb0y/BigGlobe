@@ -171,7 +171,6 @@ intellij plugin:
 	DH API broke again.
 	check charred trees in vanilla worlds.
 	make new vanilla campsite thingy spawn in big globe worlds if practical.
-	save structures to disk, since re-generating them is expensive.
 
 changelog:
 	* Ported to MC 26.3.

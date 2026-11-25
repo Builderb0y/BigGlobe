@@ -1,6 +1,9 @@
 package builderb0y.bigglobe.structures.management;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.BaseStream;
@@ -35,15 +38,29 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.columns.ScriptedColumn.ConfiguredColumnFactory;
+import builderb0y.bigglobe.compat.InstalledMods;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.config.BigGlobeConfig.DataPackDebugging;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
 import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
+import builderb0y.bigglobe.structures.management.StructureSaver.StructureStartWrapperWrapper;
 import builderb0y.bigglobe.util.Streamable;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public abstract class StructureLocator {
+
+	public static final Executor STRUCTURE_EXECUTOR = (
+		InstalledMods.C2ME
+		? ForkJoinPool.commonPool()
+		: Executors.newSingleThreadExecutor(
+			Thread
+			.ofPlatform()
+			.name("Big globe Structure Thread")
+			.daemon()
+			.factory()
+		)
+	);
 
 	public abstract Stream<StructureStartWrapper> getStructuresIntersecting(Params params);
 
@@ -56,6 +73,8 @@ public abstract class StructureLocator {
 	public abstract boolean maybeHasBiomes(BiomeParams params);
 
 	public abstract Streamable<Holder<Structure>> allStructures();
+
+	public abstract void close();
 
 	public static <T extends BaseStream<?, T>> T maybeParallel(T stream) {
 		return BigGlobeConfig.INSTANCE.get().c2meIntegration.multiThreadedStructures() ? stream.parallel() : stream.sequential();
@@ -256,7 +275,7 @@ public abstract class StructureLocator {
 		public LevelHeightAccessor            height                  () { return this.context.height                  ; }
 	}
 
-	public static abstract class SortedStructurePieces {
+	public static abstract class SortedStructurePieces implements StructureStartWrapperWrapper {
 
 		public final StructureStartWrapper startWrapper;
 		public final Long2ObjectMap<List<StructurePiece>> buckets;
@@ -272,6 +291,11 @@ public abstract class StructureLocator {
 			this.buckets = buckets;
 			this.volume = volume;
 			this.scale = scale;
+		}
+
+		@Override
+		public StructureStartWrapper getWrappedStructureStartWrapper() {
+			return this.startWrapper;
 		}
 
 		public static boolean intersects(SortedStructurePieces pieces1, SortedStructurePieces pieces2) {

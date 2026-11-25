@@ -356,6 +356,11 @@
 	"text.autoconfig.bigglobe.option.evaluateCommandPermissionLevel.@Tooltip[1]": "This command compiles and executes user input, and while I have done what I can to make it safe, I cannot guarantee it isn't abusable on multiplayer servers.",
 	"text.autoconfig.bigglobe.option.evaluateCommandPermissionLevel.@Tooltip[2]": "Only lower this if you need to use the command in a command block (they use level 2).",
 
+	"text.autoconfig.bigglobe.option.persistentStructures": "Persistent Structures",
+	"text.autoconfig.bigglobe.option.persistentStructures.@Tooltip[0]": "If true, Big Globe's custom structure management system will save structure data to disk separately from chunks, and load it from disk when possible.",
+	"text.autoconfig.bigglobe.option.persistentStructures.@Tooltip[1]": "If false, structures will ONLY be saved as part of chunks (like in vanilla). Big Globe's custom structure management system will ignore this data and re-create structures on-demand.",
+	"text.autoconfig.bigglobe.option.persistentStructures.@Tooltip[2]": "Disabling this option will reduce disk space usage, at the cost of increasing tickrate lag, particularly on large servers.",
+
 	"text.autoconfig.bigglobe.option.playerSpawning": "Player Spawning",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[0]": "Configures how initial player spawning works in Big Globe worlds.",
 	"text.autoconfig.bigglobe.option.playerSpawning.@Tooltip[1]": "These config options have no effect outside of Big Globe worlds.",

@@ -286,6 +286,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	public transient ChunkGeneratorStructureState structureState;
 	public transient boolean structuresEnabled;
+	public transient ServerLevel world;
 	@Deprecated //don't reference directly. use getter instead.
 	public transient StructureLocator structureLocator;
 
@@ -412,6 +413,11 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		this.structureLocator = null;
 	}
 
+	public void injectWorldInfo(ServerLevel world) {
+		this.world = world;
+		this.setStructuresEnabled(world.getServer().getWorldGenSettings().options().generateStructures());
+	}
+
 	@Override
 	public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structureSetRegistry, RandomState noiseConfig, long seed) {
 		if (!this.seedSet) {
@@ -430,11 +436,16 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			//slow path: need to ensure that we never have more than one locator,
 			//and that any call to this method, no matter which thread,
 			//always sees the same locator.
-			StructureLocator newLocator = this.structuresEnabled ? new FlatStructureLocator(this.structureState) : EmptyStructureLocator.INSTANCE;
+			StructureLocator newLocator = this.structuresEnabled ? new FlatStructureLocator(this.world, this.structureState) : EmptyStructureLocator.INSTANCE;
 			StructureLocator existing = (StructureLocator)(STRUCTURE_LOCATOR.compareAndExchange(this, (StructureLocator)(null), newLocator));
 			locator = existing == null ? newLocator : existing;
 		}
 		return locator;
+	}
+
+	public void close() {
+		StructureLocator locator = this.structureLocator;
+		if (locator != null) locator.close();
 	}
 
 	/**

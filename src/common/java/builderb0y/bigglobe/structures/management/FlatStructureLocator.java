@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.structures.management;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -16,6 +17,14 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.MobCategory;
@@ -33,7 +42,7 @@ import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource;
 import builderb0y.bigglobe.chunkgen.ScriptedColumnBiomeSource.BiomeSet;
 import builderb0y.bigglobe.columns.ScriptedColumn;
 import builderb0y.bigglobe.columns.ScriptedColumnLookup;
-import builderb0y.bigglobe.compat.InstalledMods;
+import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.overriders.Overrider.SortedOverriders;
 import builderb0y.bigglobe.scripting.wrappers.StructureStartWrapper;
@@ -41,6 +50,8 @@ import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.structures.SizedStructure;
 import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresManyBoxes;
 import builderb0y.bigglobe.structures.management.StructureLocator.WhatToSearchFor.ManyStructuresOneBox;
+import builderb0y.bigglobe.structures.management.StructureSaver.RegionKey;
+import builderb0y.bigglobe.structures.management.StructureSaver.StructureRegion;
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.Streamable.StreamableArrayList;
 import builderb0y.bigglobe.util.TimestampedComputingCache.Units;
@@ -48,12 +59,8 @@ import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class FlatStructureLocator extends StructureLocator {
 
-	public static final Executor STRUCTURE_EXECUTOR = InstalledMods.C2ME ? ForkJoinPool.commonPool() : Executors.newSingleThreadExecutor((Runnable task) -> {
-		Thread thread = new Thread(task, "Big Globe Structure Thread");
-		thread.setDaemon(true);
-		return thread;
-	});
-
+	public final StructureSaver<StructurePos, ChunkSortedStructurePieces, StructureCaches>
+		saver;
 	public final TimestampedComputingCache<StructurePos, StructureCaches>
 		caches = new TimestampedComputingCache<>(Units.minutes(5.0D), Units.gigabytes(1.0D));
 	public final Map<Holder<Structure>, List<Holder<StructureSet>>>
@@ -61,7 +68,7 @@ public class FlatStructureLocator extends StructureLocator {
 	public StructureCaches
 		mostRecentCache;
 
-	public FlatStructureLocator(ChunkGeneratorStructureState structureState) {
+	public FlatStructureLocator(ServerLevel world, ChunkGeneratorStructureState structureState) {
 		this.structureToSets = (
 			structureState
 			.possibleStructureSets()
@@ -81,6 +88,31 @@ public class FlatStructureLocator extends StructureLocator {
 				)
 			)
 		);
+		StructureSaver<StructurePos, ChunkSortedStructurePieces, StructureCaches> saver = null;
+		if (BigGlobeConfig.INSTANCE.get().persistentStructures) try {
+			saver = new StructureSaver<>(world) {
+
+				@Override
+				public StructureCaches newRegion(StructurePos key) {
+					return new StructureCaches(key);
+				}
+
+				@Override
+				public ChunkSortedStructurePieces wrapStructure(StructureStartWrapper start) {
+					return new ChunkSortedStructurePieces(start);
+				}
+			};
+		}
+		catch (IOException exception) {
+			BigGlobeMod.LOGGER.error("Persistent structures unavailable:", exception);
+		}
+		this.saver = saver;
+		if (saver != null) saver.start();
+	}
+
+	@Override
+	public void close() {
+		if (this.saver != null) this.saver.close();
 	}
 
 	public StructureCaches getCaches(StructurePos pos) {
@@ -89,12 +121,12 @@ public class FlatStructureLocator extends StructureLocator {
 			return cache;
 		}
 		else {
-			return this.mostRecentCache = this.caches.computeIfUnknown(pos, StructureCaches::new);
+			return this.mostRecentCache = this.caches.computeIfUnknown(pos, (StructurePos pos_) -> StructureCaches.tryLoad(this, pos_));
 		}
 	}
 
 	public StructureCaches getCachesBulk(StructurePos pos) {
-		return this.caches.computeIfUnknown(pos, StructureCaches::new);
+		return this.caches.computeIfUnknown(pos, (StructurePos pos_) -> StructureCaches.tryLoad(this, pos_));
 	}
 
 	@Override
@@ -413,7 +445,7 @@ public class FlatStructureLocator extends StructureLocator {
 		return future;
 	}
 
-	public static record StructurePos(int x, int z) {
+	public static record StructurePos(int x, int z) implements RegionKey {
 
 		public static final int
 			BLOCK_SHIFT = 7,
@@ -468,6 +500,11 @@ public class FlatStructureLocator extends StructureLocator {
 			}
 		}
 
+		@Override
+		public String getSaveFileName() {
+			return "s." + this.x + "." + this.z;
+		}
+
 		public BoundingBox toAreaFromExclusiveY(int minY, int maxYExclusive) {
 			return this.toAreaFromInclusiveY(minY, maxYExclusive - 1);
 		}
@@ -512,19 +549,126 @@ public class FlatStructureLocator extends StructureLocator {
 		public int maxChunkZExclusive() { return (this.z + 1) << CHUNK_SHIFT; }
 	}
 
-	public class StructureCaches {
+	public class StructureCaches implements StructureRegion<StructurePos> {
+
+		public class NotifyingStableValue<T> extends BudgetStableValue<T> {
+
+			@Override
+			public void _set(T value) {
+				super._set(value);
+				StructureSaver<StructurePos, ChunkSortedStructurePieces, StructureCaches> saver = FlatStructureLocator.this.saver;
+				if (saver != null) saver.markDirty(StructureCaches.this);
+			}
+		}
 
 		public final StructurePos
 			pos;
 		public final BudgetStableValue<Set<Holder<Biome>>>
-			biomes       = new BudgetStableValue<>();
+			biomes       = new NotifyingStableValue<>();
 		public final BudgetStableValue<CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>>
-			unfiltered   = new BudgetStableValue<>(),
-			filtered     = new BudgetStableValue<>(),
-			intersecting = new BudgetStableValue<>();
+			unfiltered   = new NotifyingStableValue<>(),
+			filtered     = new NotifyingStableValue<>(),
+			intersecting = new NotifyingStableValue<>();
+		public volatile long
+			saveTimestamp = NOT_SCHEDULED;
 
 		public StructureCaches(StructurePos pos) {
 			this.pos = pos;
+		}
+
+		public static StructureCaches tryLoad(FlatStructureLocator locator, StructurePos pos) {
+			if (locator.saver != null) {
+				StructureCaches caches = locator.saver.get(pos);
+				if (caches != null) return caches;
+			}
+			return locator.new StructureCaches(pos);
+		}
+
+		@Override
+		public void load(CompoundTag nbt) {
+			if (nbt.get("biomes") instanceof ListTag biomes) {
+				Registry<Biome> biomeRegistry = FlatStructureLocator.this.saver.world.registryAccess().lookupOrThrow(Registries.BIOME);
+				this.biomes.setInitial(() -> (
+					biomes
+					.stream()
+					.map((Tag tag) -> biomeRegistry.get(
+						Identifier.parse(
+							((StringTag)(tag)).value()
+						)
+					))
+					.map(Optional::orElseThrow)
+					.collect(Collectors.toSet())
+				));
+				if (nbt.get("unfiltered") instanceof ListTag unfiltered) {
+					this.unfiltered.setInitial(
+						CompletableFuture.supplyAsync(
+							() -> FlatStructureLocator.this.saver.loadStructures(unfiltered),
+							STRUCTURE_EXECUTOR
+						)
+					);
+					if (nbt.get("filtered") instanceof ListTag filtered) {
+						this.filtered.setInitial(
+							CompletableFuture.supplyAsync(
+								() -> FlatStructureLocator.this.saver.loadStructures(filtered),
+								STRUCTURE_EXECUTOR
+							)
+						);
+						if (nbt.get("intersecting") instanceof ListTag intersecting) {
+							this.intersecting.setInitial(
+								CompletableFuture.supplyAsync(
+									() -> FlatStructureLocator.this.saver.loadStructures(intersecting),
+									STRUCTURE_EXECUTOR
+								)
+							);
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public CompoundTag save() {
+			CompoundTag nbt = new CompoundTag();
+			nbt.putIntArray("pos", new int[] { this.pos.x, this.pos.z });
+			Set<Holder<Biome>> biomes = this.biomes.getNonBlockingOrNull();
+			if (biomes != null) nbt.put(
+				"biomes",
+				biomes
+				.stream()
+				.map(UnregisteredObjectException::getID)
+				.map(Identifier::toString)
+				.map(StringTag::valueOf)
+				.collect(Collectors.toCollection(ListTag::new))
+			);
+			this.writeTo(nbt, "unfiltered", this.unfiltered);
+			this.writeTo(nbt, "filtered", this.filtered);
+			this.writeTo(nbt, "intersecting", this.intersecting);
+			return nbt;
+		}
+
+		public void writeTo(CompoundTag nbt, String name, BudgetStableValue<CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>>> value) {
+			CompletableFuture<Map<Holder<Structure>, List<ChunkSortedStructurePieces>>> realValue = value.getNonBlockingOrNull();
+			if (realValue != null) {
+				Map<Holder<Structure>, List<ChunkSortedStructurePieces>> realRealValue = realValue.getNow(null);
+				if (realRealValue != null) {
+					nbt.put(name, FlatStructureLocator.this.saver.saveStructures(realRealValue));
+				}
+			}
+		}
+
+		@Override
+		public StructurePos getRegionKey() {
+			return this.pos;
+		}
+
+		@Override
+		public long getSaveTimestamp() {
+			return this.saveTimestamp;
+		}
+
+		@Override
+		public void setSaveTimestamp(long timestamp) {
+			this.saveTimestamp = timestamp;
 		}
 
 		public FlatStructureLocator locator() {
