@@ -176,6 +176,7 @@ changelog:
 	* Ported to MC 26.3.
 	* Added dappled forest to overworld.
 	* Jungle temples are now more rare.
+	* Fixed Distant Horizons hyperspeed generation.
 	* Added sandstone, red sandstone, and terracotta to the tag of blocks that mimic ores can mimic.
 	* Removed unused `bigglobe:random` feature type.
 

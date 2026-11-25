@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.spawning;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.random.RandomGenerator;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -74,18 +75,23 @@ public class SpawnMap {
 				entry.getValue().weight > 0.0D &&
 				entry.getValue().count > 0
 			))
-			.map((Map.Entry<EntityType<?>, SpawnParams> entry) -> new Weighted<>(
-				new SpawnerData(
-					entry.getKey(),
-					#if MC_VERSION >= MC_26_3_0
-						new ConstantInt(entry.getValue().count)
-					#else
-						entry.getValue().count,
-						entry.getValue().count
-					#endif
-				),
-				Permuter.roundRandomlyI(random, entry.getValue().weight * 256.0D)
-			))
+			.map((Map.Entry<EntityType<?>, SpawnParams> entry) -> {
+				int weight = Permuter.roundRandomlyI(random, entry.getValue().weight * 256.0D);
+				if (weight <= 0) return null;
+				return new Weighted<>(
+					new SpawnerData(
+						entry.getKey(),
+						#if MC_VERSION >= MC_26_3_0
+							new ConstantInt(entry.getValue().count)
+						#else
+							entry.getValue().count,
+							entry.getValue().count
+						#endif
+					),
+					weight
+				);
+			})
+			.filter(Objects::nonNull)
 			.toList()
 		);
 	}

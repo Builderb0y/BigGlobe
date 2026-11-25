@@ -144,8 +144,8 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockStateProvid
 			super(minY, maxY);
 		}
 
-		public void forEach(ScriptedColumn column, SegmentConsumer action) {
-			this.value.forEach(column, this.minY, this.maxY, action);
+		public void forEachTopToBottom(ScriptedColumn column, SegmentConsumer action) {
+			this.value.forEachTopToBottom(column, this.minY, this.maxY, action);
 		}
 
 		public int getSkyLight(ScriptedColumn column, int y, int lod) {
@@ -194,7 +194,7 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockStateProvid
 
 		public abstract int query(StandardBlockStatePredicate predicate);
 
-		public abstract void forEach(ScriptedColumn column, int minY, int maxY, SegmentConsumer action);
+		public abstract void forEachTopToBottom(ScriptedColumn column, int minY, int maxY, SegmentConsumer action);
 	}
 
 	public static record FixedBlockStateProvider(BlockState state) implements BlockStateProvider {
@@ -214,7 +214,7 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockStateProvid
 		}
 
 		@Override
-		public void forEach(ScriptedColumn column, int minY, int maxY, SegmentConsumer action) {
+		public void forEachTopToBottom(ScriptedColumn column, int minY, int maxY, SegmentConsumer action) {
 			action.accept(minY, maxY, this.state);
 		}
 	}
@@ -238,18 +238,18 @@ public class BlockSegmentList extends AbstractObjectSegmentList<BlockStateProvid
 		}
 
 		@Override
-		public void forEach(ScriptedColumn column, int minY, int maxY, SegmentConsumer action) {
-			int previousY = minY;
+		public void forEachTopToBottom(ScriptedColumn column, int minY, int maxY, SegmentConsumer action) {
+			int previousY = maxY;
 			BlockState previous = this.getBlockState(column, previousY);
-			for (int y = minY; ++y <= maxY;) {
+			for (int y = maxY; --y >= minY;) {
 				BlockState next = this.getBlockState(column, y);
 				if (next != previous) {
-					action.accept(previousY, y - 1, previous);
+					action.accept(y + 1, previousY, previous);
 					previous = next;
 					previousY = y;
 				}
 			}
-			action.accept(previousY, maxY, previous);
+			action.accept(minY, previousY, previous);
 		}
 	}
 

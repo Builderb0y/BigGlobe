@@ -214,8 +214,8 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 			new Object[] {
 				RegistryVersions.getEntry(
 					this
-						.serverWorld
-						.registryAccess(),
+					.serverWorld
+					.registryAccess(),
 					Biomes.PLAINS
 				)
 			},
@@ -285,7 +285,7 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 			//some versions of DH break if I don't provide air...
 			//if (segment.value.isAir()) continue;
 			builder.skyLightLevel = segment.skylightLevel;
-			segment.forEach(column, (int minY, int maxY, BlockState state) -> {
+			segment.forEachTopToBottom(column, (int minY, int maxY, BlockState state) -> {
 				builder.add(state, minY, maxY + 1);
 			});
 		}
