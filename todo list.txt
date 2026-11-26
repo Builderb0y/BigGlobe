@@ -159,17 +159,6 @@ intellij plugin:
 	incorrect arguments on custom class static methods are not reported as an error.
 
 26.3:
-	verify that charred sign item still produces light-colored text when placed.
-	need to add block_transformer json files for:
-		converting overgrown podzol to grass path with a shovel.
-		converting overgrown podzol to farmland with a hoe.
-		converting charred logs to stripped charred logs with an axe.
-		converting charred wood to stripped charred wood with an axe.
-	handle composter interactions. apparently this is a "context int provider".
-		need to ensure my short grass is half as compostable as vanilla's.
-		need to ensure my wildflowers are just as compostable as vanilla's.
-	DH API broke again.
-	check charred trees in vanilla worlds.
 	make new vanilla campsite thingy spawn in big globe worlds if practical.
 
 changelog:

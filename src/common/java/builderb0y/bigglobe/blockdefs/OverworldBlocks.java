@@ -25,7 +25,9 @@ import net.minecraft.world.level.pathfinder.PathType;
 
 import builderb0y.bigglobe.blocks.*;
 
-#if MC_VERSION < MC_26_3_0
+#if MC_VERSION >= MC_26_3_0
+	import net.fabricmc.fabric.api.item.v1.BlockTransformerHelper;
+#else
 	import net.fabricmc.fabric.api.registry.FlattenableBlockRegistry;
 	import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
 	import net.minecraft.world.item.HoeItem;
@@ -35,7 +37,10 @@ public class OverworldBlocks {
 
 	public static void init() {
 		DarkslateBlocks.init();
-		#if MC_VERSION < MC_26_3_0
+		#if MC_VERSION >= MC_26_3_0
+			BlockTransformerHelper.registerFlattening(OVERGROWN_PODZOL, Blocks.DIRT_PATH.defaultBlockState());
+			BlockTransformerHelper.registerTilling(OVERGROWN_PODZOL, Blocks.FARMLAND.defaultBlockState());
+		#else
 			FlattenableBlockRegistry.register(OVERGROWN_PODZOL, Blocks.DIRT_PATH.defaultBlockState());
 			TillableBlockRegistry.register(OVERGROWN_PODZOL, HoeItem::onlyIfAirAbove, Blocks.FARMLAND.defaultBlockState());
 		#endif

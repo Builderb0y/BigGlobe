@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/template_wall_hanging_sign",
+	"textures": {
+		"all": "bigglobe:block/charred_hanging_sign",
+		"particle": "bigglobe:block/stripped_charred_log"
+	}
+}

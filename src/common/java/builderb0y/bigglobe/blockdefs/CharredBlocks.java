@@ -24,14 +24,15 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.AABB;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.CharredPressurePlateBlock;
 import builderb0y.bigglobe.blocks.CharredSaplingBlock;
 
 #if MC_VERSION >= MC_26_3_0
+	import net.fabricmc.fabric.api.item.v1.BlockTransformerHelper;
 	import net.minecraft.world.level.block.entity.BlockEntityTypes;
-import net.minecraft.world.phys.AABB;
 #elif MC_VERSION >= MC_26_2_0
 	import net.minecraft.world.level.block.entity.BlockEntityTypes;
 	import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
@@ -42,13 +43,16 @@ import net.minecraft.world.phys.AABB;
 public class CharredBlocks {
 
 	public static void init() {
-		#if MC_VERSION < MC_26_3_0
+		#if MC_VERSION >= MC_26_3_0
+			BlockTransformerHelper.registerStripping(CHARRED_LOG, STRIPPED_CHARRED_LOG);
+			BlockTransformerHelper.registerStripping(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
+		#else
 			StrippableBlockRegistry.register(CHARRED_LOG, STRIPPED_CHARRED_LOG);
 			StrippableBlockRegistry.register(CHARRED_WOOD, STRIPPED_CHARRED_WOOD);
 		#endif
 
 		#if MC_VERSION >= MC_26_2_0
-			BlockEntityTypes.SIGN.addValidBlock(CHARRED_SIGN);
+		BlockEntityTypes.SIGN.addValidBlock(CHARRED_SIGN);
 			BlockEntityTypes.SIGN.addValidBlock(CHARRED_WALL_SIGN);
 			BlockEntityTypes.HANGING_SIGN.addValidBlock(CHARRED_HANGING_SIGN);
 			BlockEntityTypes.HANGING_SIGN.addValidBlock(CHARRED_WALL_HANGING_SIGN);

@@ -2,6 +2,7 @@ package builderb0y.bigglobe.itemdefs;
 
 import java.util.*;
 
+import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -26,8 +27,10 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootContext.EntityTarget;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -39,6 +42,7 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator;
 
@@ -80,7 +84,7 @@ public class BigGlobeItems {
 		OVERGROWN_SAND = registerPlacer(OverworldBlocks.OVERGROWN_SAND),
 		OVERGROWN_PODZOL = registerPlacer(OverworldBlocks.OVERGROWN_PODZOL),
 		ROSE = registerPlacer(OverworldBlocks.ROSE),
-		SHORT_GRASS = registerPlacer(OverworldBlocks.SHORT_GRASS),
+		SHORT_GRASS = registerCompostablePlacer(OverworldBlocks.SHORT_GRASS, BigGlobeMod.modID("compostable/lower")),
 		MUSHROOM_SPORES = registerPlacer(OverworldBlocks.MUSHROOM_SPORES),
 		ROPE_ANCHOR = registerPlacer(BigGlobeBlocks.ROPE_ANCHOR),
 		SPELUNKING_ROPE = register(
@@ -88,12 +92,10 @@ public class BigGlobeItems {
 			new BlockItem(
 				BigGlobeBlocks.SPELUNKING_ROPE,
 				settings(BigGlobeBlocks.SPELUNKING_ROPE)
-
-					.component(
-						DataComponents.LORE,
-						lore("item.bigglobe.spelunking_rope.tooltip")
-					)
-
+				.component(
+					DataComponents.LORE,
+					lore("item.bigglobe.spelunking_rope.tooltip")
+				)
 			)
 		),
 		CRYSTALLINE_PRISMARINE = registerPlacer(OverworldBlocks.CRYSTALLINE_PRISMARINE),
@@ -103,9 +105,9 @@ public class BigGlobeItems {
 		ROCK = register("rock", new RockItem(OverworldBlocks.ROCK, settings(OverworldBlocks.ROCK))),
 		ANCIENT_AUTOMATA = registerPlacer(OverworldBlocks.ANCIENT_AUTOMATA),
 		AUTOMATA = registerPlacer(OverworldBlocks.AUTOMATA),
-		RED_WILDFLOWERS = registerPlacer(OverworldBlocks.RED_WILDFLOWERS),
-		BLUEBONNETS = registerPlacer(OverworldBlocks.BLUEBONNETS),
-		VIOLETS = registerPlacer(OverworldBlocks.VIOLETS),
+		RED_WILDFLOWERS = registerCompostablePlacer(OverworldBlocks.RED_WILDFLOWERS, BigGlobeMod.mcID("compostable/low")),
+		BLUEBONNETS = registerCompostablePlacer(OverworldBlocks.BLUEBONNETS, BigGlobeMod.mcID("compostable/low")),
+		VIOLETS = registerCompostablePlacer(OverworldBlocks.VIOLETS, BigGlobeMod.mcID("compostable/low")),
 
 		DARKSLATE = registerPlacer(DarkslateBlocks.DARKSLATE),
 		INFESTED_DARKSLATE = registerPlacer(DarkslateBlocks.INFESTED_DARKSLATE),
@@ -148,19 +150,25 @@ public class BigGlobeItems {
 		CHARRED_SIGN = register(
 			"charred_sign",
 			new ColoredSignItem(
-				settings(CharredBlocks.CHARRED_SIGN).stacksTo(16),
+				settings(CharredBlocks.CHARRED_SIGN)
+				.stacksTo(16)
+				.component(DataComponents.SIGN_TEXT_FRONT, SignText.EMPTY.withColor(DyeColor.WHITE))
+				.component(DataComponents.SIGN_TEXT_BACK, SignText.EMPTY.withColor(DyeColor.WHITE))
+				.component(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, new LinkedHashSet<>(List.of(DataComponents.SIGN_TEXT_FRONT, DataComponents.SIGN_TEXT_BACK)))),
 				CharredBlocks.CHARRED_SIGN,
-				CharredBlocks.CHARRED_WALL_SIGN,
-				DyeColor.LIGHT_GRAY
+				CharredBlocks.CHARRED_WALL_SIGN
 			)
 		),
 		CHARRED_HANGING_SIGN = register(
 			"charred_hanging_sign",
 			new ColoredHangingSignItem(
-				settings(CharredBlocks.CHARRED_HANGING_SIGN).stacksTo(16),
+				settings(CharredBlocks.CHARRED_HANGING_SIGN)
+				.stacksTo(16)
+				.component(DataComponents.SIGN_TEXT_FRONT, SignText.EMPTY.withColor(DyeColor.WHITE))
+				.component(DataComponents.SIGN_TEXT_BACK, SignText.EMPTY.withColor(DyeColor.WHITE))
+				.component(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, new LinkedHashSet<>(List.of(DataComponents.SIGN_TEXT_FRONT, DataComponents.SIGN_TEXT_BACK)))),
 				CharredBlocks.CHARRED_HANGING_SIGN,
-				CharredBlocks.CHARRED_WALL_HANGING_SIGN,
-				DyeColor.LIGHT_GRAY
+				CharredBlocks.CHARRED_WALL_HANGING_SIGN
 			)
 		),
 		CHARRED_PRESSURE_PLATE = registerPlacer(CharredBlocks.CHARRED_PRESSURE_PLATE),
@@ -329,23 +337,35 @@ public class BigGlobeItems {
 
 	public static Item.Properties settings(Block block) {
 		Identifier id = BuiltInRegistries.BLOCK.getKey(block);
-		Item.Properties settings = new Item.Properties();
-
-		settings = (
-			settings
+		return (
+			new Item.Properties()
 			.setId(ResourceKey.create(Registries.ITEM, id))
 			.useBlockDescriptionPrefix()
 		);
+	}
 
-		return settings;
+	public static BlockItem registerCompostablePlacer(Block block, Identifier amount) {
+		Identifier id = BuiltInRegistries.BLOCK.getKey(block);
+		Item.Properties settings = (
+			new Item.Properties()
+			.setId(ResourceKey.create(Registries.ITEM, id))
+			.useBlockDescriptionPrefix()
+			#if MC_VERSION >= MC_26_3_0
+				.compostable(ResourceKey.create(Registries.CONTEXT_INT_PROVIDER, amount))
+			#endif
+		);
+
+		return Registry.register(
+			BuiltInRegistries.ITEM,
+			id,
+			new BlockItem(block, settings)
+		);
 	}
 
 	public static BlockItem registerPlacer(Block block) {
 		Identifier id = BuiltInRegistries.BLOCK.getKey(block);
-		Item.Properties settings = new Item.Properties();
-
-		settings = (
-			settings
+		Item.Properties settings = (
+			new Item.Properties()
 			.setId(ResourceKey.create(Registries.ITEM, id))
 			.useBlockDescriptionPrefix()
 		);

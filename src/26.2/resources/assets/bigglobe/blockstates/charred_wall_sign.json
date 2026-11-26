@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"facing=south": { "model": "bigglobe:block/charred_wall_sign", "y":   0 },
+		"facing=west":  { "model": "bigglobe:block/charred_wall_sign", "y":  90 },
+		"facing=north": { "model": "bigglobe:block/charred_wall_sign", "y": 180 },
+		"facing=east":  { "model": "bigglobe:block/charred_wall_sign", "y": 270 }
+	}
+}
