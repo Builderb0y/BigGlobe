@@ -72,11 +72,9 @@ public abstract class BlurryHyperspaceRenderer extends HyperspaceRenderer {
 
 	public GpuBuffer blurUniforms;
 	public RenderTarget swapFramebuffer;
-	public GpuSampler previousPass;
 
 	@Override
 	public void close() {
-		//note: don't close previousPass because it's a globally cached sampler.
 		ResourceTracker.closeAll(super::close, this.blurUniforms, SafeCloseable.of(this.swapFramebuffer));
 	}
 
@@ -101,7 +99,6 @@ public abstract class BlurryHyperspaceRenderer extends HyperspaceRenderer {
 					false
 				#endif
 			);
-			this.previousPass = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
 		}
 		catch (Throwable throwable) {
 			this.close();
@@ -130,7 +127,7 @@ public abstract class BlurryHyperspaceRenderer extends HyperspaceRenderer {
 		) {
 			RenderVersions.setPipeline(pass, vertical ? VERTICAL_BLUR_PIPELINE : HORIZONTAL_BLUR_PIPELINE);
 			pass.setUniform("Uniforms", this.blurUniforms);
-			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.previousPass);
+			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			RenderVersions.drawScreenTriangle(pass);
 		}
 	}

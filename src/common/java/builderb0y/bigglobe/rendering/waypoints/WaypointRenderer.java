@@ -255,7 +255,7 @@ public class WaypointRenderer implements SafeCloseable {
 		try (NativeMemory memory = new NativeMemory(this.state.waypoints.size() * (Float.BYTES * 4))) {
 			for (WaypointEntityRenderer.State waypoint : this.state.waypoints) {
 				double x = waypoint.x - context.levelState().cameraRenderState.pos.x;
-				double y = waypoint.y + 1.0D - context.levelState().cameraRenderState.pos.y;
+				double y = waypoint.y - context.levelState().cameraRenderState.pos.y + 1.0D;
 				double z = waypoint.z - context.levelState().cameraRenderState.pos.z;
 				double w = (
 					(waypoint.health / WaypointEntity.MAX_HEALTH)

@@ -148,7 +148,12 @@ vec3 smoothHue(float h) {
 
 void main() {
 	vec3 uv = vec3(texcoord, texture(depthtex, texcoord).r);
-	vec4 tmp = inverseModelViewMatrix * (inverseProjectionMatrix * vec4(uv.xy * 2.0 - 1.0, 0.5, 1.0));
+	#ifdef Z_ZERO_TO_ONE
+		vec4 tmp = vec4(uv.xy * 2.0 - 1.0, 0.0, 1.0);
+	#else
+		vec4 tmp = vec4(uv.xy * 2.0 - 1.0, 1.0, 1.0);
+	#endif
+	tmp = inverseModelViewMatrix * (inverseProjectionMatrix * tmp);
 	vec3 playerDir = normalize(tmp.xyz);
 	float maxIntensity = 0.0;
 	for (int index = 0; index < waypointCount; index++) {

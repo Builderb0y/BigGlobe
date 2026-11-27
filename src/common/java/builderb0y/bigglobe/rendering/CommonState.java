@@ -26,8 +26,8 @@ public class CommonState {
 		});
 	}
 
-	public static void setMatrices(Matrix4fc modelViewMatrix, Matrix4fc projectionMatrix) {
-		CommonState.modelViewMatrix.set(modelViewMatrix).invert(inverseModelViewMatrix);
-		CommonState.projectionMatrix.set(projectionMatrix).invert(inverseProjectionMatrix);
+	public static void setMatrices(Matrix4fc modelView, Matrix4fc projection) {
+		modelViewMatrix.set(modelView).invert(inverseModelViewMatrix);
+		projectionMatrix.set(projection).invert(inverseProjectionMatrix);
 	}
 }

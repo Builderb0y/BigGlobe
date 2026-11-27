@@ -27,6 +27,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.buffers.GpuBuffer;
 	import com.mojang.renderpearl.api.commands.RenderPass;
 	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+	import com.mojang.renderpearl.api.textures.FilterMode;
 #else
 	import com.mojang.blaze3d.buffers.GpuBuffer;
 	import com.mojang.blaze3d.buffers.Std140Builder;
@@ -35,6 +36,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.blaze3d.pipeline.RenderTarget;
 	import com.mojang.blaze3d.systems.RenderPass;
 	import com.mojang.blaze3d.systems.RenderSystem;
+	import com.mojang.blaze3d.textures.FilterMode;
 #endif
 
 public class JuliaVolumeHyperspaceRenderer extends BlurryHyperspaceRenderer {
@@ -283,7 +285,7 @@ public class JuliaVolumeHyperspaceRenderer extends BlurryHyperspaceRenderer {
 		) {
 			RenderVersions.setPipeline(pass, FRACTAL_PIPELINE);
 			pass.setUniform("Uniforms", this.fractalUniforms);
-			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.previousPass);
+			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
@@ -311,7 +313,7 @@ public class JuliaVolumeHyperspaceRenderer extends BlurryHyperspaceRenderer {
 		) {
 			RenderVersions.setPipeline(pass, COLLAPSE_PIPELINE);
 			pass.setUniform("Uniforms", this.collapseUniforms);
-			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), this.previousPass);
+			RenderVersions.bindSampler(pass, "previousPass", source.getColorTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			RenderVersions.drawScreenTriangle(pass);
 		}
 	}
