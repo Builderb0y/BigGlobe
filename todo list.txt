@@ -129,7 +129,6 @@ V6:
 	urgent:
 		surface Y level overriders do not make caves spawn higher if they raise the surface.
 		"frozen" state for objects returned by column values.
-		verify that coral still spawns (someone reported that it doesn't).
 
 islands:
 	floating islands:
@@ -163,23 +162,10 @@ intellij plugin:
 
 changelog:
 	# For normal users:
-	* Ported to MC 26.3.
-	* Added dappled forest to overworld.
-	* Added 2 new backgrounds to hyperspace dimension.
-		* One is chosen randomly each time you enter hyperspace.
-	* Jungle temples are now more rare.
-	* Fixed Distant Horizons hyperspeed generation.
-	* Added sandstone, red sandstone, and terracotta to the tag of blocks that mimic ores can mimic.
-	* Custom structure management system now saves structures to disk.
-		* Previously, structures were only kept in memory, were discarded after not being used in a while, and were re-generated on the next request.
-		* Saving structures to disk allows them to be loaded much faster in areas that have been explored, particularly in large worlds with many players.
-		* Now, structures are saved to `.minecraft/saves/(save name)/dimensions/(dimension namespace)/(dimension name)/bigglobe/structures/`.
-		* Vanilla *also* saves structures in the region files, so there is some duplicate data.
-		* There is a config option to revert to the previous behavior, for people trying to minimize disk usage.
+	* Fixed coral not spawning anywhere.
 	# For data pack developers:
-	* Removed unused `bigglobe:random` feature type.
-	* Removed `bigglobe:end_spike_respawn` and `bigglobe:end_spike_worldgen` feature types.
-		* The vanilla `minecraft:end_spike` feature type will now delegate to `bigglobe:end/nest_spike` in big globe worlds.
+	* Removed "foliage_feature" decision tree.
+		* It only returned like 3 possible values anyway and one of them was null.
 
 alternate world presets:
 	paradise.

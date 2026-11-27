@@ -1,8 +1,0 @@
-{
-	"condition": {
-		"type": "world_trait",
-		"world_trait": "bigglobe:in_river"
-	},
-	"if_true": "bigglobe:overworld/foliage_feature/no_feature",
-	"if_false": "bigglobe:overworld/foliage_feature/test_beach"
-}

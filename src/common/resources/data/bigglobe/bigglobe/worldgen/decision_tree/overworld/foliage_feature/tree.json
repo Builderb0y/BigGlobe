@@ -1,8 +1,0 @@
-{
-	"result": {
-		"type": "script",
-		"script": [
-			"world_traits.`bigglobe:wood_palette`.?features.?('natural_surface')"
-		]
-	}
-}

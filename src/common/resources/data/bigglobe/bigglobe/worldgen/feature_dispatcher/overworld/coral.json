@@ -1,0 +1,20 @@
+{
+	"type": "script",
+	"dispatcher": [
+		"repeat (16:",
+			"int*(",
+				"x = random.nextBetween[minModifiableX, maxModifiableX]",
+				"z = random.nextBetween[minModifiableZ, maxModifiableZ]",
+			")",
+			"float foliage = world_traits.`bigglobe:foliage_at_surface`(x, z)",
+			"if (",
+				"foliage > 0.0I &&",
+				"random.nextBoolean(foliage ^ 2) &&",
+				"`bigglobe:overworld/surface_states_override`(x, z) == null &&",
+				"int*(y := world_traits.`bigglobe:y_level_on_surface`(x, z)) < world_traits.`bigglobe:sea_level`(x, z)",
+			":",
+				"placeFeature(x, y, z, 'minecraft:warm_ocean_vegetation')",
+			")",
+		")"
+	]
+}
