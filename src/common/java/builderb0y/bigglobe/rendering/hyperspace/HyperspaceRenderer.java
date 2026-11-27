@@ -23,11 +23,16 @@ import builderb0y.bigglobe.util.SafeCloseable;
 
 #if MC_VERSION >= MC_26_3_0
 	import com.mojang.renderpearl.api.pipeline.*;
-#else
+#elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.PrimitiveTopology;
 	import com.mojang.blaze3d.pipeline.BindGroupLayout;
 	import com.mojang.blaze3d.pipeline.RenderPipeline;
 	import com.mojang.blaze3d.shaders.UniformType;
+#else
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.shaders.UniformType;
+	import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+	import com.mojang.blaze3d.vertex.VertexFormat;
 #endif
 
 @Environment(EnvType.CLIENT)

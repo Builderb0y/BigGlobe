@@ -55,9 +55,6 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.blaze3d.textures.FilterMode;
 	import com.mojang.blaze3d.textures.TextureFormat;
 	import com.mojang.blaze3d.vertex.VertexFormat;
-	import com.mojang.blaze3d.GpuFormat;
-	import com.mojang.blaze3d.PrimitiveTopology;
-	import com.mojang.blaze3d.pipeline.BindGroupLayout;
 #endif
 
 @Environment(EnvType.CLIENT)

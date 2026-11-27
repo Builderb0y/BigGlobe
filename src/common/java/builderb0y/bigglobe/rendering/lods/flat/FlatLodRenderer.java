@@ -49,8 +49,6 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
 	import com.mojang.blaze3d.vertex.VertexFormat;
 	import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
-	import com.mojang.blaze3d.PrimitiveTopology;
-	import com.mojang.blaze3d.IndexType;
 #endif
 
 @Environment(EnvType.CLIENT)

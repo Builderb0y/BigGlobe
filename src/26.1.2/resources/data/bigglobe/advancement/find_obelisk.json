@@ -4,15 +4,15 @@
 		"find_obelisk": {
 			"trigger": "minecraft:location",
 			"conditions": {
-				"player": {
-					"type": "minecraft:entity_properties",
+				"player": [{
+					"condition": "minecraft:entity_properties",
 					"entity": "this",
 					"predicate": {
-						"minecraft:location": {
+						"location": {
 							"structures": "bigglobe:obelisk"
 						}
 					}
-				}
+				}]
 			}
 		}
 	},

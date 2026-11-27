@@ -25,9 +25,13 @@ import builderb0y.bigglobe.features.EndSpikeFeatureReplacement;
 @Mixin(EndSpikeFeature.class)
 public abstract class EndSpikeFeature_UseCustomFeatureInBigGlobeWorlds {
 
-	@Shadow public abstract Optional<BlockPos> crystalBeamTarget();
+	#if MC_VERSION >= MC_26_3_0
 
-	@Shadow public abstract boolean crystalInvulnerable();
+		@Shadow public abstract Optional<BlockPos> crystalBeamTarget();
+
+		@Shadow public abstract boolean crystalInvulnerable();
+
+	#endif
 
 	@Inject(method = "placeSpike", at = @At("HEAD"), cancellable = true)
 	private void bigglobe_placeSpike(

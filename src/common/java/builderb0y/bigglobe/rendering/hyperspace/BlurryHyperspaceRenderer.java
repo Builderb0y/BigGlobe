@@ -20,8 +20,19 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 	import com.mojang.renderpearl.api.textures.FilterMode;
 	import com.mojang.renderpearl.api.textures.GpuSampler;
-#else
+#elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.GpuFormat;
+	import com.mojang.blaze3d.buffers.GpuBuffer;
+	import com.mojang.blaze3d.buffers.Std140Builder;
+	import com.mojang.blaze3d.buffers.Std140SizeCalculator;
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.pipeline.RenderTarget;
+	import com.mojang.blaze3d.pipeline.TextureTarget;
+	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.systems.RenderSystem;
+	import com.mojang.blaze3d.textures.FilterMode;
+	import com.mojang.blaze3d.textures.GpuSampler;
+#else
 	import com.mojang.blaze3d.buffers.GpuBuffer;
 	import com.mojang.blaze3d.buffers.Std140Builder;
 	import com.mojang.blaze3d.buffers.Std140SizeCalculator;
