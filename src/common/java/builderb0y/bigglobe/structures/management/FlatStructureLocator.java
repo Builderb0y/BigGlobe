@@ -107,7 +107,11 @@ public class FlatStructureLocator extends StructureLocator {
 			BigGlobeMod.LOGGER.error("Persistent structures unavailable:", exception);
 		}
 		this.saver = saver;
-		if (saver != null) saver.start();
+	}
+
+	@Override
+	public void start() {
+		if (this.saver != null) this.saver.start();
 	}
 
 	@Override

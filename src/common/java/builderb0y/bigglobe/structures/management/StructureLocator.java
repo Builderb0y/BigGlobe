@@ -77,6 +77,8 @@ public abstract class StructureLocator {
 
 	public abstract Streamable<Holder<Structure>> allStructures();
 
+	public abstract void start();
+
 	public abstract void close();
 
 	public static <T extends BaseStream<?, T>> T maybeParallel(T stream) {

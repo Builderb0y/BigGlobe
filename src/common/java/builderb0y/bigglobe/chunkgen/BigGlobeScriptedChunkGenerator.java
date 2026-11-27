@@ -439,7 +439,12 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			//always sees the same locator.
 			StructureLocator newLocator = this.structuresEnabled ? new FlatStructureLocator(this.world, this.structureState) : EmptyStructureLocator.INSTANCE;
 			StructureLocator existing = (StructureLocator)(STRUCTURE_LOCATOR.compareAndExchange(this, (StructureLocator)(null), newLocator));
-			locator = existing == null ? newLocator : existing;
+			if (existing != null) {
+				locator = existing;
+			}
+			else {
+				(locator = newLocator).start();
+			}
 		}
 		return locator;
 	}

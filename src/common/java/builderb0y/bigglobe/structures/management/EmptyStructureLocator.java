@@ -49,5 +49,8 @@ public class EmptyStructureLocator extends StructureLocator {
 	}
 
 	@Override
+	public void start() {}
+
+	@Override
 	public void close() {}
 }

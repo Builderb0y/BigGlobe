@@ -161,11 +161,6 @@ intellij plugin:
 	make new vanilla campsite thingy spawn in big globe worlds if practical.
 
 changelog:
-	# For normal users:
-	* Fixed coral not spawning anywhere.
-	# For data pack developers:
-	* Removed "foliage_feature" decision tree.
-		* It only returned like 3 possible values anyway and one of them was null.
 
 alternate world presets:
 	paradise.
