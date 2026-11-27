@@ -9,16 +9,17 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
-#if MC_VERSION < MC_26_3_0
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.world.level.block.BonemealSource;
+#else
 	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 #endif
 

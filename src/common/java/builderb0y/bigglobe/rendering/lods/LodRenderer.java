@@ -120,7 +120,7 @@ public abstract class LodRenderer implements SafeCloseable {
 		}
 	}
 
-	public static final Set<String> requiredUniforms = Set.of("Fog", "ExtraFog", "Matrices", "blockAtlas", "lightmap");
+	public static final Set<String> requiredUniforms = Set.of("ModelOffset");
 
 	public void beginRendering(RenderPass pass) {
 		pass.setUniform("Fog", RenderSystem.getShaderFog());

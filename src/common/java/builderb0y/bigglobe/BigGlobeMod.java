@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
@@ -84,7 +86,8 @@ public class BigGlobeMod implements ModInitializer {
 		LOGGER = LoggerFactory.getLogger(MODNAME);
 	public static final boolean
 		REGEN_WORLDS = Boolean.getBoolean(MODID + ".regenWorlds"),
-		MIXIN_AUDIT = Boolean.getBoolean(MODID + ".mixinAudit");
+		MIXIN_AUDIT = Boolean.getBoolean(MODID + ".mixinAudit"),
+		DEBUG = FabricLoader.getInstance().isDevelopmentEnvironment() && Boolean.getBoolean(MODID + ".debugIDE");
 	public static final ResourceKey<WorldPreset>
 		BIG_GLOBE_WORLD_PRESET_KEY = ResourceKey.create(Registries.WORLD_PRESET, modID("bigglobe"));
 
@@ -94,6 +97,7 @@ public class BigGlobeMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		if (DEBUG) SharedConstants.IS_RUNNING_IN_IDE = true;
 		LOGGER.info("Initializing...");
 		BigGlobeConfig.init();
 		BigGlobeDynamicRegistries.init();

@@ -21,6 +21,8 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.material.FluidState;
+
+import builderb0y.bigglobe.features.FeatureAdapter;
 import builderb0y.bigglobe.features.RawFeature;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.MojangPermuter;
@@ -224,12 +226,12 @@ public interface WorldOrChunk extends BlockGetter {
 			#else
 				return feature.object().feature().place(
 					new FeaturePlaceContext(
-						Optional.of(feature),
+						Optional.of(feature.object()),
 						this.world,
 						((ServerChunkCache)(this.world.getChunkSource())).getGenerator(),
 						random,
 						pos,
-						feature.config()
+						feature.object().config()
 					)
 				);
 			#endif
@@ -335,7 +337,11 @@ public interface WorldOrChunk extends BlockGetter {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean placeFeature(BlockPos pos, ConfiguredFeatureEntry configuredFeature, RandomSource random) {
 			if (configuredFeature.object() #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof RawFeature rawFeature) {
-				return rawFeature.generate(this.worldWrapper, #if MC_VERSION >= MC_26_3_0 rawFeature #else configuredFeature.object() #endif .config(), pos);
+				#if MC_VERSION >= MC_26_3_0
+					return rawFeature.generate(this.worldWrapper, rawFeature.config(), pos);
+				#else
+					return rawFeature.generate(this.worldWrapper, (FeatureAdapter.Config)(configuredFeature.object().config()), pos);
+				#endif
 			}
 			else {
 				throw new UnsupportedOperationException("The provided feature cannot generate during raw generation.");

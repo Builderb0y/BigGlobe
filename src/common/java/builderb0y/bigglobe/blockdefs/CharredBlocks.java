@@ -15,7 +15,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.grower.TreeGrower;
-import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -33,6 +32,7 @@ import builderb0y.bigglobe.blocks.CharredSaplingBlock;
 #if MC_VERSION >= MC_26_3_0
 	import net.fabricmc.fabric.api.item.v1.BlockTransformerHelper;
 	import net.minecraft.world.level.block.entity.BlockEntityTypes;
+	import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 #elif MC_VERSION >= MC_26_2_0
 	import net.minecraft.world.level.block.entity.BlockEntityTypes;
 	import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;

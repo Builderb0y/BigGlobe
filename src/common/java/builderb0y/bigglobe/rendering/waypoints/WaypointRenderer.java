@@ -12,7 +12,6 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.renderpearl.api.pipeline.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
@@ -36,6 +35,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.GpuFormat;
 	import com.mojang.renderpearl.api.buffers.GpuBuffer;
 	import com.mojang.renderpearl.api.commands.RenderPass;
+	import com.mojang.renderpearl.api.pipeline.*;
 	import com.mojang.renderpearl.api.textures.FilterMode;
 #elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -70,7 +70,7 @@ public class WaypointRenderer implements SafeCloseable {
 			.builder()
 			.withLocation(BigGlobeMod.modID("pipeline/waypoints"))
 			.withFragmentShader(BigGlobeMod.modID("post/waypoints"))
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
+			.withVertexShader(BigGlobeMod.modID("core/fullscreen"))
 		);
 		#if MC_VERSION >= MC_26_2_0
 			builder
@@ -176,7 +176,7 @@ public class WaypointRenderer implements SafeCloseable {
 					null
 				#elif MC_VERSION >= MC_26_2_0
 					false,
-					 GpuFormat.RGBA8_UNORM
+					GpuFormat.RGBA8_UNORM
 				#else
 					false
 				#endif

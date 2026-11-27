@@ -21,6 +21,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
+import builderb0y.bigglobe.features.FeatureAdapter;
 import builderb0y.bigglobe.features.SizedDelayedFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.util.WorldUtil;
@@ -87,7 +88,13 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		}
 		int range;
 		if (feature #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof SizedDelayedFeature sizedConfig) {
-			range = sizedConfig.getMaxRadiusInBlocks(#if MC_VERSION >= MC_26_3_0 sizedConfig.getSizedDelayedConfig() #endif);
+			range = sizedConfig.getMaxRadiusInBlocks(
+				#if MC_VERSION >= MC_26_3_0
+					sizedConfig.getSizedDelayedConfig()
+				#else
+					(FeatureAdapter.Config)(feature.config())
+				#endif
+			);
 		}
 		else {
 			range = 16;

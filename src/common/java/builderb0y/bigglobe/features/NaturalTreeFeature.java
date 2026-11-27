@@ -19,6 +19,7 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.ColumnScript.ColumnRandomYToDoubleScript;
 import builderb0y.bigglobe.columns.ColumnScript.ColumnYToDoubleScript;
 import builderb0y.bigglobe.columns.ScriptedColumn;

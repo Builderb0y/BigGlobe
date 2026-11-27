@@ -53,7 +53,7 @@ layout(std140) uniform Uniforms {
 	int waypointCount;
 };
 
-layout(location = 0) in vec2 texCoord;
+layout(location = 0) in vec2 texcoord;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -147,8 +147,8 @@ vec3 smoothHue(float h) {
 }
 
 void main() {
-	vec3 uv = vec3(texCoord, texture(depthtex, texCoord).r);
-	vec4 tmp = inverseModelViewMatrix * (inverseProjectionMatrix * vec4(uv * 2.0 - 1.0, 1.0));
+	vec3 uv = vec3(texcoord, texture(depthtex, texcoord).r);
+	vec4 tmp = inverseModelViewMatrix * (inverseProjectionMatrix * vec4(uv.xy * 2.0 - 1.0, 0.5, 1.0));
 	vec3 playerDir = normalize(tmp.xyz);
 	float maxIntensity = 0.0;
 	for (int index = 0; index < waypointCount; index++) {

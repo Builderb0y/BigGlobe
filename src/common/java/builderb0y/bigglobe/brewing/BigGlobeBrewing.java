@@ -1,9 +1,10 @@
 package builderb0y.bigglobe.brewing;
 
+import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.BrewingRecipeBuilder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -12,11 +13,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.itemdefs.BigGlobeItems;
 
-#if MC_VERSION < MC_26_3_0
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.data.recipes.BrewingRecipeBuilder;
+#else
 	import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
 	import net.minecraft.world.item.alchemy.PotionBrewing;
 #endif

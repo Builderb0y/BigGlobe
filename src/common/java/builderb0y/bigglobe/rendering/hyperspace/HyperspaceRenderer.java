@@ -2,7 +2,6 @@ package builderb0y.bigglobe.rendering.hyperspace;
 
 import java.util.Random;
 
-import com.mojang.renderpearl.api.pipeline.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -22,6 +21,15 @@ import builderb0y.bigglobe.randomLists.RandomList;
 import builderb0y.bigglobe.util.ClientWorldEvents;
 import builderb0y.bigglobe.util.SafeCloseable;
 
+#if MC_VERSION >= MC_26_3_0
+	import com.mojang.renderpearl.api.pipeline.*;
+#else
+	import com.mojang.blaze3d.PrimitiveTopology;
+	import com.mojang.blaze3d.pipeline.BindGroupLayout;
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.shaders.UniformType;
+#endif
+
 @Environment(EnvType.CLIENT)
 public abstract class HyperspaceRenderer implements SafeCloseable {
 
@@ -29,7 +37,7 @@ public abstract class HyperspaceRenderer implements SafeCloseable {
 		WITHOUT_PREVIOUS = (
 			RenderPipeline
 			.builder()
-			.withVertexShader(BigGlobeMod.mcID("core/screenquad"))
+			.withVertexShader(BigGlobeMod.modID("core/fullscreen"))
 			#if MC_VERSION >= MC_26_2_0
 				.withBindGroupLayout(
 					BindGroupLayout

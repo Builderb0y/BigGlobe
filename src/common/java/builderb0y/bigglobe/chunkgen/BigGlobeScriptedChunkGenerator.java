@@ -52,7 +52,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
@@ -137,7 +137,9 @@ import builderb0y.scripting.parsing.ScriptParsingException;
 
 import static builderb0y.bigglobe.versions.SpawnEntryVersions.*;
 
-#if MC_VERSION < MC_26_3_0
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+#else
 	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 #endif
 
@@ -1187,6 +1189,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						structureTemplateManager,
 						#if MC_VERSION >= MC_26_3_0
 							placementCalculator.randomState().createClimateSampler(SamplerContext.builder().enableCaches().build()),
+						#else
+							placementCalculator.randomState().sampler(),
 						#endif
 						chunk
 					),

@@ -31,7 +31,7 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 	#else
 
 		public ChunkSprinkleFeature() {
-			this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 		}
 
 	#endif

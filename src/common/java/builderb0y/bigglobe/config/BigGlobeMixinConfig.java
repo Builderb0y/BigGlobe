@@ -69,10 +69,10 @@ public class BigGlobeMixinConfig {
 		defaults.put(MIXIN_PACKAGE + ".Dev_ServerPlayNetworkHandler_StopGeneratingChunksForSpectators",                           Boolean.FALSE);
 		defaults.put(MIXIN_PACKAGE + ".EndCityStructure_UnHardcodeMinimumY",                                                      Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EnderDragonFight_SpawnGatewaysAtPreferredLocation",                                        Boolean.TRUE);
-		defaults.put(MIXIN_PACKAGE + ".EnderDragonSpawnState_UseBigGlobeEndSpikesInBigGlobeWorlds",                               Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EnderPearlEntity_ReduceFallDamageWithVoidmetalArmor",                                      Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds",                                  Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EndPortalBlock_SpawnAtPreferredLocationInTheEnd",                                          Boolean.TRUE);
+		defaults.put(MIXIN_PACKAGE + ".EndSpikeFeature_UseCustomFeatureInBigGlobeWorlds",                                         Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".Entity_SpawnAtPreferredLocationInTheEnd",                                                  Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".EyeblossomBlock_MakeWorkInTheNether",                                                      Boolean.TRUE);
 		defaults.put(MIXIN_PACKAGE + ".FallingBlock_TweakLogic",                                                                  Boolean.TRUE);

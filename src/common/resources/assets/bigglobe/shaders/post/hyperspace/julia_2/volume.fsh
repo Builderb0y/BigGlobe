@@ -11,7 +11,7 @@ layout(std140) uniform Uniforms {
 	float time;
 };
 
-layout(location = 0) in vec2 texCoord;
+layout(location = 0) in vec2 texcoord;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -137,7 +137,7 @@ const vec3[] beamDirections = vec3[](
 );
 
 void main() {
-	vec4 tmp = inverseProjection * vec4(texCoord * 2.0 - 1.0, 1.0, 1.0);
+	vec4 tmp = inverseProjection * vec4(texcoord * 2.0 - 1.0, 1.0, 1.0);
 	vec3 norm = normalize(mat3(inverseModelView) * tmp.xyz);
 	vec3 offsetNorm = norm * (square(ign(floor(gl_FragCoord.xy))) * 32.0) + cameraPosition.xyz;
 

@@ -11,7 +11,7 @@ layout(std140) uniform Uniforms {
 	float collapse;
 };
 
-layout(location = 0) in vec2 texCoord;
+layout(location = 0) in vec2 texcoord;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -87,10 +87,10 @@ float julia(vec2 z, vec2 c) {
 }
 
 void main() {
-	vec4 tmp = inverseProjection * vec4(texCoord * 2.0 - 1.0, 1.0, 1.0);
+	vec4 tmp = inverseProjection * vec4(texcoord * 2.0 - 1.0, 1.0, 1.0);
 	vec3 norm = normalize(mat3(inverseModelView) * tmp.xyz);
 
-	vec3 color = texture(previousPass, texCoord).rgb;
+	vec3 color = texture(previousPass, texcoord).rgb;
 
 	int starIndex = getStarPlaneIndex(norm);
 	vec3 axis  = starPlanes[starIndex];

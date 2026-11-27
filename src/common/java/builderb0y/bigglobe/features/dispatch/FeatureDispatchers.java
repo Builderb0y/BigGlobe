@@ -96,7 +96,7 @@ public class FeatureDispatchers implements DelayedCompileable {
 				.flatMap(DelayedEntryList::entryStream)
 				.map((Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) -> {
 					if (entry.value() #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof RockReplacerFeature<?> rockReplacer) {
-						return rockReplacer;
+						return entry.value();
 					}
 					else {
 						BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");

@@ -160,14 +160,19 @@ intellij plugin:
 
 26.3:
 	make new vanilla campsite thingy spawn in big globe worlds if practical.
+	ensure end spike respawn feature works correctly.
 
 changelog:
+	# For normal users:
 	* Ported to MC 26.3.
 	* Added dappled forest to overworld.
 	* Jungle temples are now more rare.
 	* Fixed Distant Horizons hyperspeed generation.
 	* Added sandstone, red sandstone, and terracotta to the tag of blocks that mimic ores can mimic.
+	# For data pack developers:
 	* Removed unused `bigglobe:random` feature type.
+	* Removed `bigglobe:end_spike_respawn` and `bigglobe:end_spike_worldgen` feature types.
+		* The vanilla `minecraft:end_spike` feature type will now delegate to `bigglobe:end/nest_spike` in big globe worlds.
 
 alternate world presets:
 	paradise.

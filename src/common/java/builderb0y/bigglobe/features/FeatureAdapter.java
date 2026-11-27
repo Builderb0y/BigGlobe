@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.features;
 
+import java.util.Optional;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.impl.biome.modification.BuiltInResourceKeys;
@@ -13,15 +15,18 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
-public abstract class FeatureAdapter<C>
+public abstract class FeatureAdapter<C extends FeatureAdapter.Config>
 #if MC_VERSION >= MC_26_3_0
 	implements Feature
 #else
-	extends Feature
+	extends Feature<C>
 #endif
 {
 
@@ -37,34 +42,63 @@ public abstract class FeatureAdapter<C>
 			return this.config;
 		}
 
+		@Override
+		public MapCodec<? extends Feature> codec() {
+			return BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(this.getClass());
+		}
+
+		@Override
+		public boolean place(
+			WorldGenLevel world,
+			ChunkGenerator chunkGenerator,
+			RandomSource random,
+			BlockPos origin
+		) {
+			return this.place(new Context<>(
+				world
+				.registryAccess()
+				.lookupOrThrow(Registries.FEATURE)
+				.getResourceKey(this)
+				.orElse(null),
+				world,
+				chunkGenerator,
+				random,
+				origin,
+				this.config
+			));
+		}
+
 	#else
 
 		public FeatureAdapter(Codec<C> codec) {
 			super(codec);
 		}
 
+		@Override
+		public boolean place(FeaturePlaceContext<C> context) {
+			ConfiguredFeature<?, ?> feature = context.topFeature().orElse(null);
+			ResourceKey<?> key = null;
+			if (feature != null) {
+				key = (
+					context
+					.level()
+					.registryAccess()
+					.lookupOrThrow(Registries.CONFIGURED_FEATURE)
+					.getResourceKey(feature)
+					.orElse(null)
+				);
+			}
+			return this.place(new Context<>(
+				key,
+				context.level(),
+				context.chunkGenerator(),
+				context.random(),
+				context.origin(),
+				context.config()
+			));
+		}
+
 	#endif
-
-	@Override
-	public MapCodec<? extends Feature> codec() {
-		return BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(this.getClass());
-	}
-
-	@Override
-	public boolean place(WorldGenLevel world, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
-		return this.place(new Context<>(
-			world
-			.registryAccess()
-			.lookupOrThrow(Registries.FEATURE)
-			.getResourceKey(this)
-			.orElse(null),
-			world,
-			chunkGenerator,
-			random,
-			origin,
-			this.config
-		));
-	}
 
 	public abstract boolean place(Context<C> context);
 

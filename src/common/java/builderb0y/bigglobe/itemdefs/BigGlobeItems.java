@@ -41,10 +41,6 @@ import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFu
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
-import net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.*;
@@ -54,7 +50,10 @@ import builderb0y.bigglobe.items.*;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 #if MC_VERSION >= MC_26_3_0
-
+	import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+	import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
+	import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+	import net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator;
 #elif MC_VERSION >= MC_26_2_0
 	import net.fabricmc.fabric.api.registry.CompostableRegistry;
 	import net.fabricmc.fabric.api.registry.FuelValueEvents;
@@ -152,9 +151,12 @@ public class BigGlobeItems {
 			new ColoredSignItem(
 				settings(CharredBlocks.CHARRED_SIGN)
 				.stacksTo(16)
-				.component(DataComponents.SIGN_TEXT_FRONT, SignText.EMPTY.withColor(DyeColor.WHITE))
-				.component(DataComponents.SIGN_TEXT_BACK, SignText.EMPTY.withColor(DyeColor.WHITE))
-				.component(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, new LinkedHashSet<>(List.of(DataComponents.SIGN_TEXT_FRONT, DataComponents.SIGN_TEXT_BACK)))),
+				#if MC_VERSION >= MC_26_3_0
+					.component(DataComponents.SIGN_TEXT_FRONT, SignText.EMPTY.withColor(DyeColor.WHITE))
+					.component(DataComponents.SIGN_TEXT_BACK, SignText.EMPTY.withColor(DyeColor.WHITE))
+					.component(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, new LinkedHashSet<>(List.of(DataComponents.SIGN_TEXT_FRONT, DataComponents.SIGN_TEXT_BACK))))
+				#endif
+				,
 				CharredBlocks.CHARRED_SIGN,
 				CharredBlocks.CHARRED_WALL_SIGN
 			)
@@ -164,9 +166,12 @@ public class BigGlobeItems {
 			new ColoredHangingSignItem(
 				settings(CharredBlocks.CHARRED_HANGING_SIGN)
 				.stacksTo(16)
-				.component(DataComponents.SIGN_TEXT_FRONT, SignText.EMPTY.withColor(DyeColor.WHITE))
-				.component(DataComponents.SIGN_TEXT_BACK, SignText.EMPTY.withColor(DyeColor.WHITE))
-				.component(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, new LinkedHashSet<>(List.of(DataComponents.SIGN_TEXT_FRONT, DataComponents.SIGN_TEXT_BACK)))),
+				#if MC_VERSION >= MC_26_3_0
+					.component(DataComponents.SIGN_TEXT_FRONT, SignText.EMPTY.withColor(DyeColor.WHITE))
+					.component(DataComponents.SIGN_TEXT_BACK, SignText.EMPTY.withColor(DyeColor.WHITE))
+					.component(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, new LinkedHashSet<>(List.of(DataComponents.SIGN_TEXT_FRONT, DataComponents.SIGN_TEXT_BACK))))
+				#endif
+				,
 				CharredBlocks.CHARRED_HANGING_SIGN,
 				CharredBlocks.CHARRED_WALL_HANGING_SIGN
 			)
@@ -454,7 +459,7 @@ public class BigGlobeItems {
 											Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue(1))
 										))
 									#else
-										Ints.UniformGenerator.between(0.0F, 1.0F)
+										UniformGenerator.between(0.0F, 1.0F)
 									#endif
 								))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(
@@ -466,7 +471,7 @@ public class BigGlobeItems {
 										))
 									#else
 										registries,
-										Ints.UniformGenerator.between(0.0F, 1.0F)
+										UniformGenerator.between(0.0F, 1.0F)
 									#endif
 								))
 							)

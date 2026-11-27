@@ -9,7 +9,7 @@ layout(std140) uniform Uniforms {
 	float collapse;
 };
 
-layout(location = 0) in vec2 texCoord;
+layout(location = 0) in vec2 texcoord;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -83,7 +83,7 @@ Voronoise voronoise(vec3 coord) {
 }
 
 void main() {
-	vec4 tmp = inverseProjection * vec4(texCoord * 2.0 - 1.0, 1.0, 1.0);
+	vec4 tmp = inverseProjection * vec4(texcoord * 2.0 - 1.0, 1.0, 1.0);
 	vec3 norm = normalize(mat3(inverseModelView) * tmp.xyz);
 	Voronoise voronoi = voronoise(norm);
 	float flashOffset = (hash11(float(voronoi.discriminator)) * 0.75 + 0.25) - collapse * collapse;
@@ -95,7 +95,7 @@ void main() {
 		fragColor.rgb += flash * exp2(voronoi.ringDist * 64.0);
 	}
 	else {
-		vec3 color = texture(previousPass, texCoord).rgb + vec3(flash);
+		vec3 color = texture(previousPass, texcoord).rgb + vec3(flash);
 		fragColor = vec4(color, 1.0);
 	}
 }

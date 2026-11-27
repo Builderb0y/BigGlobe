@@ -6,6 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 
+import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 
@@ -19,8 +20,6 @@ public class BigGlobeFeatures {
 		SINGLE_BLOCK       = register("single_block",       SingleBlockFeature.class),
 		NATURAL_TREE       = register("natural_tree",       NaturalTreeFeature.class),
 		ARTIFICIAL_TREE    = register("artificial_tree",    ArtificialTreeFeature.class),
-		END_SPIKE_RESPAWN  = register("end_spike_respawn",  EndSpikeRespawnFeature.class),
-		END_SPIKE_WORLDGEN = register("end_spike_worldgen", EndSpikeWorldgenFeature.class),
 		GENERIC_ORE        = register("generic_ore",        GenericOreFeature.class),
 		FLOWER             = register("flower",             FlowerFeature.class),
 		FLOWER_CONTROLLER  = register("flower_controller",  FlowerControllerFeature.class),
@@ -49,10 +48,10 @@ public class BigGlobeFeatures {
 		public static <F extends Feature<?>> F register(String name, Class<F> clazz) {
 			F feature;
 			try {
-				feature = clazz.getDeclaredConstructor((Class[])(null)).newInstance((Object[])(null));
+				feature = clazz.getDeclaredConstructor((Class<?>[])(null)).newInstance((Object[])(null));
 			}
 			catch (Exception exception) {
-				throw new InstantiationError(exception);
+				throw AutoCodecUtil.rethrow(new InstantiationError().initCause(exception));
 			}
 			return Registry.register(BuiltInRegistries.FEATURE, BigGlobeMod.modID(name), feature);
 		}

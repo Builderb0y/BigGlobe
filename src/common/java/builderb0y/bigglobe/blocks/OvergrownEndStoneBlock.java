@@ -7,12 +7,15 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import builderb0y.bigglobe.blockdefs.EndBlocks;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.world.level.block.BonemealSource;
+#endif
 
 public class OvergrownEndStoneBlock extends Block implements BonemealableBlock {
 

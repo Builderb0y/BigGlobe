@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext;
@@ -28,6 +27,7 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.renderpearl.api.commands.RenderPass.Draw;
 	import com.mojang.renderpearl.api.commands.RenderPass.UniformUploader;
 	import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
+	import com.mojang.renderpearl.api.vertex.VertexFormat;
 	import com.mojang.renderpearl.api.pipeline.*;
 #elif MC_VERSION >= MC_26_2_0
 	import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -37,7 +37,6 @@ import builderb0y.bigglobe.versions.RenderVersions;
 	import com.mojang.blaze3d.systems.RenderPass;
 	import com.mojang.blaze3d.systems.RenderPass.Draw;
 	import com.mojang.blaze3d.systems.RenderPass.UniformUploader;
-	import com.mojang.blaze3d.vertex.VertexFormat;
 	import com.mojang.blaze3d.PrimitiveTopology;
 	import com.mojang.blaze3d.IndexType;
 #else

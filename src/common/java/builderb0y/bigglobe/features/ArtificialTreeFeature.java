@@ -54,7 +54,7 @@ public class ArtificialTreeFeature extends FeatureAdapter<ArtificialTreeFeature.
 	#else
 
 		public ArtificialTreeFeature() {
-			this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 		}
 
 	#endif

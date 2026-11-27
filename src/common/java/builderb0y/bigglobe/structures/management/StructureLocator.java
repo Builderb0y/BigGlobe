@@ -28,7 +28,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
-import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -47,6 +46,10 @@ import builderb0y.bigglobe.structures.management.StructureSaver.StructureStartWr
 import builderb0y.bigglobe.util.Streamable;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
+
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+#endif
 
 public abstract class StructureLocator {
 
@@ -217,7 +220,7 @@ public abstract class StructureLocator {
 					world.getChunkSource().randomState().createClimateSampler(SamplerContext.builder().enableCaches().build()),
 				#else
 					world.getStructureManager(),
-					//todo: figure out where old MC versions stored the climate sampler.
+					world.getChunkSource().randomState().sampler(),
 				#endif
 				world
 			);

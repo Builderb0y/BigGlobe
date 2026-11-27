@@ -760,8 +760,8 @@ public class FlatStructureLocator extends StructureLocator {
 							for (Set<Holder<Biome>> set; (set = queue.poll()) != null; regionBiomes.addAll(set));
 							yield regionBiomes;
 						#else
-							Sampler sampler = context.structureState().randomState().sampler();
-							return (
+							Climate.Sampler sampler = context.structureState().randomState().sampler();
+							yield (
 								IntStream.rangeClosed(minZ, maxZ).parallel().mapToObj((int biomeZ) -> {
 									return IntStream.rangeClosed(minX, maxX).parallel().mapToObj((int biomeX) -> {
 										return IntStream.rangeClosed(minY, maxY).mapToObj((int biomeY) -> {

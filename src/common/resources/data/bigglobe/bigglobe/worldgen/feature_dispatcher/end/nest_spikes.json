@@ -1,6 +1,6 @@
 {
 	"type": "script",
 	"dispatcher": [
-		"placeFeature(minModifiableX, 0, minModifiableZ, 'bigglobe:end/nest_spike_worldgen')"
+		"placeFeature(minModifiableX, 0, minModifiableZ, 'minecraft:end_spike')"
 	]
 }

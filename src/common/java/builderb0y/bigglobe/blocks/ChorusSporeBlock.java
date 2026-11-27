@@ -10,7 +10,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,6 +17,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.world.level.block.BonemealSource;
+#endif
 
 public abstract class ChorusSporeBlock extends VegetationBlock implements BonemealableBlock {
 

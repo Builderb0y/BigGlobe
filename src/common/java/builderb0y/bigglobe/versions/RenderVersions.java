@@ -5,10 +5,6 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.renderpearl.api.textures.GpuSampler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext;
@@ -22,9 +18,15 @@ import net.minecraft.world.phys.Vec3;
 
 #if MC_VERSION >= MC_26_3_0
 	import com.mojang.renderpearl.api.commands.RenderPass;
+	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+	import com.mojang.renderpearl.api.textures.GpuSampler;
 	import com.mojang.renderpearl.api.textures.GpuTextureView;
 #else
+	import com.mojang.blaze3d.pipeline.RenderPipeline;
+	import com.mojang.blaze3d.pipeline.RenderTarget;
 	import com.mojang.blaze3d.systems.RenderPass;
+	import com.mojang.blaze3d.systems.RenderSystem;
+	import com.mojang.blaze3d.textures.GpuSampler;
 	import com.mojang.blaze3d.textures.GpuTextureView;
 #endif
 

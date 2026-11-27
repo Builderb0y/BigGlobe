@@ -14,7 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.Climate.Sampler;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.RandomState;
 
@@ -43,7 +43,7 @@ public class ChunkGeneratorStructureState_SkipSearchWhenFailureIsGuaranteed {
 		#if MC_VERSION >= MC_26_3_0
 			RandomState stateOrSampler,
 		#else
-			Sampler samplerOrSampler,
+			Climate.Sampler stateOrSampler,
 		#endif
 		Operation<Pair<BlockPos, Holder<Biome>>> original
 	) {

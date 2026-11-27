@@ -28,7 +28,6 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -36,6 +35,10 @@ import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blockdefs.BlockStates;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+
+#if MC_VERSION >= MC_26_3_0
+	import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+#endif
 
 @AddPseudoField("biome_source")
 public class EmptyChunkGenerator extends ChunkGenerator {
@@ -171,8 +174,8 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 		ChunkGeneratorStructureState placementCalculator,
 		StructureManager structureAccessor,
 		ChunkAccess chunk,
-		StructureTemplateManager structureTemplateManager
-		, ResourceKey<Level> dimension
+		StructureTemplateManager structureTemplateManager,
+		ResourceKey<Level> dimension
 	) {}
 
 	@Override

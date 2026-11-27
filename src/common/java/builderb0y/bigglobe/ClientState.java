@@ -388,11 +388,12 @@ public class ClientState {
 					#else
 
 						@Override
+						@SuppressWarnings("unchecked")
 						public <T_Registry> Optional<RegistryInfo<T_Registry>> lookup(ResourceKey<? extends Registry<? extends T_Registry>> key) {
 							MappedRegistry<T_Registry> registry = Syncing.this.getRegistry(key);
 							if (registry == null) {
-								if (BigGlobeMod.getClientRegistry(key) instanceof BetterHardCodedRegistry<T_Registry> better && better.registry instanceof MappedRegistry<T_Registry> simple) {
-									registry = simple;
+								if (BigGlobeMod.getClientRegistry((ResourceKey<Registry<T_Registry>>)(key)).toVanilla() instanceof MappedRegistry<T_Registry> vanilla) {
+									registry = vanilla;
 								}
 								else {
 									return Optional.empty();

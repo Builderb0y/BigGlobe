@@ -28,7 +28,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 	#else
 
 		public BedrockFeature() {
-			this(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
+			super(BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Config.class));
 		}
 
 	#endif

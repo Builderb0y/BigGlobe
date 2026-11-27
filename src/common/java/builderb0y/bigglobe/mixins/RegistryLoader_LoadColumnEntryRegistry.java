@@ -26,7 +26,14 @@ public class RegistryLoader_LoadColumnEntryRegistry {
 
 			@Override
 			public <T> RegistryAdapter<T> getRegistry(ResourceKey<Registry<T>> key) {
-				HolderGetter<T> getter = lookup.lookup(key).orElse(null);
+				HolderGetter<T> getter = (
+					lookup
+					.lookup(key)
+					#if MC_VERSION < MC_26_3_0
+						.map(RegistryInfo::getter)
+					#endif
+					.orElse(null)
+				);
 				if (getter == null) {
 					throw new IllegalStateException("Missing registry: " + key.identifier());
 				}
