@@ -47,6 +47,9 @@ import builderb0y.bigglobe.items.*;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 #if MC_VERSION >= MC_26_3_0
+	import net.minecraft.advancements.predicates.MinMaxBounds;
+	import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
+	import net.minecraft.advancements.predicates.entity.EntityPredicate;
 	import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
 	import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
 	import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
