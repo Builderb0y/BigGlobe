@@ -10,6 +10,10 @@ import builderb0y.bigglobe.rendering.ResourceTracker;
 import builderb0y.bigglobe.versions.RenderVersions;
 
 #if MC_VERSION >= MC_26_3_0
+	import com.mojang.blaze3d.buffers.Std140Builder;
+	import com.mojang.blaze3d.buffers.Std140SizeCalculator;
+	import com.mojang.blaze3d.pipeline.RenderTarget;
+	import com.mojang.blaze3d.systems.RenderSystem;
 	import com.mojang.renderpearl.api.buffers.GpuBuffer;
 	import com.mojang.renderpearl.api.commands.RenderPass;
 	import com.mojang.renderpearl.api.pipeline.RenderPipeline;

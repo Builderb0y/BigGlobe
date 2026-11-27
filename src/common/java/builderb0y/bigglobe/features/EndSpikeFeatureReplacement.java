@@ -11,12 +11,16 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.EndSpikeFeature.EndSpike;
+import net.minecraft.world.level.levelgen.feature.Feature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+#endif
 
 public class EndSpikeFeatureReplacement {
 

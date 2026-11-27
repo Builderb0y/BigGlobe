@@ -95,13 +95,13 @@ public class FeatureDispatchers implements DelayedCompileable {
 				.stream(this.rock_replacers)
 				.flatMap(DelayedEntryList::entryStream)
 				.map((Holder<#if MC_VERSION >= MC_26_3_0 Feature #else ConfiguredFeature<?, ?> #endif> entry) -> {
-					if (entry.value() #if MC_VERSION < MC_26_3_0 .feature() #endif instanceof RockReplacerFeature<?> rockReplacer) {
-						return entry.value();
-					}
-					else {
-						BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
-						return null;
-					}
+					#if MC_VERSION >= MC_26_3_0
+						if (entry.value() instanceof RockReplacerFeature<?> replacer) return replacer;
+					#else
+						if (entry.value().feature() instanceof RockReplacerFeature<?> replacer) return entry.value();
+					#endif
+					BigGlobeMod.LOGGER.warn("Feature dispatcher specified " + UnregisteredObjectException.getID(entry) + " as a rock replacer, but that configured feature is not a rock replacer. It will be ignored.");
+					return null;
 				})
 				.filter(Objects::nonNull)
 				.map(ConfiguredRockReplacerFeature::new)

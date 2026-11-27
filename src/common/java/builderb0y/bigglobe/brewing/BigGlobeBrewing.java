@@ -1,7 +1,5 @@
 package builderb0y.bigglobe.brewing;
 
-import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
-
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,7 +11,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.itemdefs.BigGlobeItems;

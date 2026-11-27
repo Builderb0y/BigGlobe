@@ -15,12 +15,15 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+
+#if MC_VERSION < MC_26_3_0
+	import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+	import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+	import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+#endif
 
 public abstract class FeatureAdapter<C extends FeatureAdapter.Config>
 #if MC_VERSION >= MC_26_3_0

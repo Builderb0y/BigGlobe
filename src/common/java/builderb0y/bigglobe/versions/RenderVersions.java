@@ -17,6 +17,8 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.phys.Vec3;
 
 #if MC_VERSION >= MC_26_3_0
+	import com.mojang.blaze3d.pipeline.RenderTarget;
+	import com.mojang.blaze3d.systems.RenderSystem;
 	import com.mojang.renderpearl.api.commands.RenderPass;
 	import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 	import com.mojang.renderpearl.api.textures.GpuSampler;
